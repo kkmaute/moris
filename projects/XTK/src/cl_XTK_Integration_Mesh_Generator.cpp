@@ -493,6 +493,9 @@ namespace moris::xtk
 
                     // add background cell to the list of intersected cells
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
+
+                    // add background cell to the list for node hierarchy decomposition
+                    aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
                 }
                 else if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
                 {
@@ -3296,9 +3299,6 @@ namespace moris::xtk
 
             // number of nodes per edge
             const uint tNumNodesPerEdge = 2;
-
-            MORIS_ERROR( tNumNodesPerEdge == 2,
-                    "Only works on two node edges at the moment" );
 
             MORIS_ERROR( tNumNodesPerEdge == tElementEdgeToNodeMap.n_cols(),
                     "Mismatch in number of nodes per edge (only operating on two node edges)" );

@@ -252,21 +252,14 @@ namespace moris::gen
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode )
     {
-
-        // -------------------------------------------------------------------------------------
-        // STEP 1: Get the direction to cast the ray in
-        // -------------------------------------------------------------------------------------
-
-        // Get the parent node global coordinates
+        // Get the parent node global coordinates. The origin of the ray will be the first parent node
         Matrix< DDRMat > tFirstParentNodeCoordinates  = aFirstParentNode.get_global_coordinates();
         Matrix< DDRMat > tSecondParentNodeCoordinates = aSecondParentNode.get_global_coordinates();
 
-        // Get the vector that points from the first parent node to the second parent node
+        // Need to cast along the edge to determine where the edge is intersected
         Matrix< DDRMat > tRayDirection = tSecondParentNodeCoordinates - tFirstParentNodeCoordinates;
 
-        // -------------------------------------------------------------------------------------
-        // STEP 2: Compute the distance from the first parent to all the facets
-        // -------------------------------------------------------------------------------------
+        // Do a raycast to get the locations of the ray/facet intersections
         bool                     tWarning;
         mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
@@ -275,10 +268,6 @@ namespace moris::gen
         {
             tLocalCoordinate( iIntersection ).second = 2.0 * tLocalCoordinate( iIntersection ).second - 1.0;
         }
-
-        // -------------------------------------------------------------------------------------
-        // STEP 3: Process the intersection information and determine if the surface mesh intersects the parent edge
-        // -------------------------------------------------------------------------------------
 
         // no intersections detected or multiple along parent edge
         if ( tLocalCoordinate.size() == 0 )

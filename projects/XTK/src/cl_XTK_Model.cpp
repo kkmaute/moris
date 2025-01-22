@@ -654,7 +654,7 @@ namespace moris::xtk
         {
             if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
             {
-                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4/*, Subdivision_Method::C_TRI3*/ }; // brendan add node hierarchy back in
+                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )

@@ -185,8 +185,13 @@ namespace moris::xtk
         mGenerator          = aMeshGenerator;
 
         // Get the total number of cell in the background mesh as well as the number of delaunay cells
-        uint tNumBackgroundCells = aBackgroundMesh->get_num_elems();
+        uint tNumBackgroundCells = mCutIntegrationMesh->get_num_ig_cell_groups();
         uint tNumDelaunayCells   = aMeshGenerationData->mDeluanayBgCellInds.size();
+
+        // Setup decomposition data for this algorithm
+        mDecompositionData->mHasSecondaryIdentifier = true;
+        mDecompositionData->tCMNewNodeLoc           = Vector< Vector< moris_index > >( tNumBackgroundCells );
+        mDecompositionData->tCMNewNodeParamCoord    = Vector< Vector< Matrix< DDRMat > > >( tNumBackgroundCells );
 
         // Stores the surface points for each child mesh as a flattened matrix
         mAllSurfacePoints.resize( tNumBackgroundCells );
@@ -214,8 +219,6 @@ namespace moris::xtk
 
             // Get the surface points for this cell
             Matrix< DDRMat > tSurfacePoints = aMeshGenerationData->mDelaunayPoints( iCell );
-
-            PRINT( tSurfacePoints );    // brendan delete
 
             // Make requests for these vertices
             for ( uint iPoint = 0; iPoint < tSurfacePoints.n_cols(); iPoint++ )
@@ -247,19 +250,19 @@ namespace moris::xtk
                             tSecondaryID,
                             tOwningProc,
                             (mtk::EntityRank)tParentRank,
-                            tSurfacePoints.get_column( iPoint ) );
+                            trans( tSurfacePoints.get_column( iPoint ) ) );    // FIXME: trans() is annoying, coords should be column vectors
 
                     // Compute the parametric coordinates of the surface point
-                    Matrix< DDRMat >                    tNewNodeXi    = tSurfacePoints - tBackgroundCellCoords.get_column( 0 );
-                    std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
+                    Matrix< DDRMat > tNewNodeXi = tSurfacePoints.get_column( iPoint ) - tBackgroundCellCoords.get_column( 0 );
                     for ( uint iDim = 0; iDim < tDim; iDim++ )
                     {
-                        tNewNodeXi.set_row( iDim, 2.0 / tElementLengths( iDim ) * tSurfacePoints.get_row( iDim ) );
+                        tNewNodeXi( iDim ) = 2.0 / tElementLengths( iDim ) * tNewNodeXi( iDim ) - 1.0;
                     }
+                    std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
 
                     // Associate this node with the child mesh
                     mDecompositionData->tCMNewNodeLoc( tBgCellIndex ).push_back( tNewNodeIndexInSubdivision );
-                    mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( tNewNodeXi );
+                    mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( trans( tNewNodeXi ) );    // FIXME: annoying transpose
 
                     // BRENDAN TODO: add new node in GEN
                     mDecompositionData->mNewNodeParentCells( tBgCellIndex )               = &mBackgroundMesh->get_mtk_cell( iCell );    // brendan temporary i think
@@ -288,14 +291,6 @@ namespace moris::xtk
                     tSurfacePointsVector( iDim + ( iPoint + tBackgroundCellCoords.n_cols() ) * tDim ) = tSurfacePoints( iDim, iPoint );
                 }
             }
-
-            // brendan delete
-            std::cout << "Surface Points for cell " << iCell << ": ";
-            for ( uint i = 0; i < tSurfacePointsVector.size(); i++ )
-            {
-                std::cout << tSurfacePointsVector( i ) << " ";
-            }
-            std::cout << std::endl;
 
             // Store the surface points for this child mesh so we can access it to make ig cells later
             mAllSurfacePoints( iCell ) = tSurfacePointsVector;
@@ -344,14 +339,6 @@ namespace moris::xtk
 
             // Get the child mesh for this background cell
             std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );
-
-            // brendan delete
-            std::cout << "Child Mesh " << iCM << " has " << tChildMesh->mIgVerts->size() << " vertices." << std::endl;
-            for ( uint i = 0; i < tChildMesh->mIgVerts->size(); i++ )
-            {
-                std::cout << tChildMesh->mIgVerts->get_vertex( i )->get_index() << " ";
-            }
-            std::cout << std::endl;
 
             // Get the number of new cells to be created for this child mesh
             uint tNumNewCells = tCellToVertexConnectivity( iCell ).size() / 3;

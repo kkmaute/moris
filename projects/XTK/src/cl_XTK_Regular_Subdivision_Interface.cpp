@@ -58,7 +58,7 @@ namespace moris::xtk
     Vector< moris_index >
     Regular_Subdivision_Interface::get_decomposed_cell_indices()
     {
-        return mMeshGenerationData->mAllIntersectedBgCellInds;
+        return mMeshGenerationData->mRegularSubdivisionBgCellInds;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ namespace moris::xtk
         tRegSubInterfaceData.mNewNodeXi = this->get_new_vertex_parametric_coordinates_wrt_parent();
 
         // iterate through all intersected background cells and make vertex requests
-        for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
+        for ( auto& iCell : aMeshGenerationData->mRegularSubdivisionBgCellInds )
         {
             std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCell );
 

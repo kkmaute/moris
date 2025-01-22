@@ -65,7 +65,7 @@ namespace moris::xtk
     {
         return mMeshGenerationData->mAllIntersectedBgCellInds;
     }
-    
+
     // ----------------------------------------------------------------------------------
 
     void
@@ -240,6 +240,10 @@ namespace moris::xtk
             // for intersected edges, invoke intersection procedure
             if ( tIsIntersected )
             {
+                if ( iEdge == 9 )
+                {
+                    std::cout << "edge of interest" << std::endl;
+                }
                 // Queue intersection node
                 mGeometryEngine->queue_intersection(
                         tEdgeToVertex( 0 ),
