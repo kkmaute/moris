@@ -26,11 +26,13 @@ namespace moris::gen
 
     using Perturbation_Function = Vector< real > ( * )(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&   aParameters );
+            const Vector< real >&   aParameters,
+            uint                    aVertexIndex );
 
     using Sensitivity_Function = void ( * )(
             const Matrix< DDRMat >& aCoordinates,
             const Vector< real >&   aParameters,
+            uint                    aVertexIndex,
             Matrix< DDRMat >&       aSensitivities );
 
     /**
@@ -135,7 +137,7 @@ namespace moris::gen
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
-        
+
       public:
         /**
          * Constructor taking in a field pointer and a set of parameters.

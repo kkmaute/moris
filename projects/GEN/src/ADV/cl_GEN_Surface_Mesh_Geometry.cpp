@@ -488,7 +488,7 @@ namespace moris::gen
             {
                 // TODO: Implement parallel updating of vertex coordinates
                 // Compute the perturbation to this vertex from the user defined function
-                Vector< real > tInterpolatedPerturbation = get_vertex_adv_dependency_user_defined( Surface_Mesh::get_original_vertex_coordinates( iVertexIndex ), mADVHandler.get_values() );
+                Vector< real > tInterpolatedPerturbation = get_vertex_adv_dependency_user_defined( Surface_Mesh::get_all_vertex_coordinates(), mADVHandler.get_values(), iVertexIndex );
 
                 // build the matrix for new coordinates
                 for ( uint iFieldIndex = 0; iFieldIndex < tDims; iFieldIndex++ )
@@ -791,7 +791,7 @@ namespace moris::gen
         }
         else if ( get_vertex_adv_dependency_user_defined != nullptr )
         {
-            get_dvertex_dadv_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ), mADVHandler.get_values(), tVertexSensitivity );
+            get_dvertex_dadv_user_defined( Surface_Mesh::get_all_vertex_coordinates(), mADVHandler.get_values(), aFacetVertexIndex, tVertexSensitivity );
 
             // Check that the user gave the correct size matrix
             MORIS_ASSERT( tVertexSensitivity.n_cols() == mADVHandler.get_determining_adv_ids().size(), "User defined function for vertex sensitivity needs to have as many columns as ADVs" );
