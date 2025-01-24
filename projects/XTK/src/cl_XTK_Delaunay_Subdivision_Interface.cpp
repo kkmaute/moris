@@ -194,16 +194,16 @@ namespace moris::xtk
         mDecompositionData->tCMNewNodeParamCoord    = Vector< Vector< Matrix< DDRMat > > >( tNumBackgroundCells );
 
         // Stores the surface points for each child mesh as a flattened matrix
-        mAllSurfacePoints.resize( tNumBackgroundCells );
+        mAllSurfacePoints.resize( tNumDelaunayCells );
 
-        // Loop through all cells in the background mesh
+        // Loop through the list of cells with surface points
         for ( uint iCell = 0; iCell < tNumDelaunayCells; iCell++ )
         {
             // Get the index of the cell
             uint tBgCellIndex = aMeshGenerationData->mDeluanayBgCellInds( iCell );
 
-            // Get the cell from the background mesh
-            mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( iCell );
+            // Get the intersected cell from the background mesh
+            mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( tBgCellIndex );
 
             // Get the global coordinates of all the nodes of aCell
             Matrix< DDRMat > tBackgroundCellCoords = trans( tCell.get_vertex_coords() );
@@ -218,7 +218,7 @@ namespace moris::xtk
             }
 
             // Get the surface points for this cell
-            Matrix< DDRMat > tSurfacePoints = aMeshGenerationData->mDelaunayPoints( iCell );
+            Matrix< DDRMat > tSurfacePoints = aMeshGenerationData->mDelaunayPoints( tBgCellIndex );
 
             // Make requests for these vertices
             for ( uint iPoint = 0; iPoint < tSurfacePoints.n_cols(); iPoint++ )
@@ -233,7 +233,7 @@ namespace moris::xtk
 
                 // check if new node for current edge has already been requested ...
                 bool tRequestExist = mDecompositionData->request_exists(
-                        iCell,
+                        tBgCellIndex,
                         tSecondaryID,
                         tParentRank,
                         tNewNodeIndexInSubdivision );
@@ -265,8 +265,8 @@ namespace moris::xtk
                     mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( trans( tNewNodeXi ) );    // FIXME: annoying transpose
 
                     // BRENDAN TODO: add new node in GEN
-                    mDecompositionData->mNewNodeParentCells( tBgCellIndex )               = &mBackgroundMesh->get_mtk_cell( iCell );    // brendan temporary i think
-                    mDecompositionData->mNewVertexLocalCoordWRTParentCell( tBgCellIndex ) = tNewNodeXiPtr;                              // brendan temporary i think
+                    mDecompositionData->mNewNodeParentCells( iCell )               = &tCell;           // brendan temporary i think
+                    mDecompositionData->mNewVertexLocalCoordWRTParentCell( iCell ) = tNewNodeXiPtr;    // brendan temporary i think
                 }
             }    // end for: iterate through surface points
 
@@ -334,6 +334,9 @@ namespace moris::xtk
         // Loop through the child meshes
         for ( uint iCell = 0; iCell < tNumDelaunayCells; iCell++ )
         {
+            // brendan delete
+            PRINT( mAllSurfacePoints( iCell ) );
+
             // Get the child mesh index
             uint iCM = aMeshGenerationData->mDeluanayBgCellInds( iCell );
 
@@ -349,7 +352,7 @@ namespace moris::xtk
                 mNewCellChildMeshIndex( tNewCellIndex ) = iCM;
 
                 // Add the global indices of the vertices to the new cell connectivity
-                for ( uint iV = 0; iV < 3; iV++ )
+                for ( uint iV = 0; iV < 3; iV++ )    // brendan hard coded
                 {
                     // Get the local index of the vertex to be added to the cell from the local connectivity
                     moris_index tNewVertexCMOrdinal = tCellToVertexConnectivity( iCell )( iNewCell * 3 + iV ) - 1;

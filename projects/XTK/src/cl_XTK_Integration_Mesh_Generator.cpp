@@ -499,6 +499,9 @@ namespace moris::xtk
                 }
                 else if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
                 {
+                    // add background cell to the list of cells for regular subdivision
+                    aMeshGenerationData.mRegularSubdivisionBgCellInds.push_back( iCell );
+                    
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
 
@@ -1444,7 +1447,7 @@ namespace moris::xtk
                                     "Integration_Mesh_Generator::construct_subphase_neighborhood() - "
                                     "Adjacent IG Cell not found." );
 
-                            //// MORIS_ASSERT( aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex ) == aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex ), "Subphase bulk phase mismatch" );
+                            // MORIS_ASSERT( aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex ) == aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex ), "Subphase bulk phase mismatch" );
 
                             // get the neighboring subphases' bulk-phase
                             moris_index tNeighborBulkPhaseIndex = aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex );
@@ -3661,6 +3664,16 @@ namespace moris::xtk
             // vertices of the edge
             Vector< mtk::Vertex* > const & tEdgeVertices = aIgCellGroupEdgeConnectivity->mEdgeVertices( iEdge );
 
+            if ( iEdge == 10 )
+            {
+                std::cout << "";
+
+                std::cout << "Edge vertex " << tEdgeVertices( 0 )->get_index() << "\n";
+                PRINT( tEdgeVertices( 0 )->get_coords() );
+                std::cout << "Edge vertex " << tEdgeVertices( 1 )->get_index() << "\n";
+                PRINT( tEdgeVertices( 1 )->get_coords() );
+            }
+
             // get the parent of these vertices from the mesh
             Vector< moris::moris_index > tEdgeVertexParentInds( tEdgeVertices.size() );
             Vector< moris::moris_index > tEdgeVertexParentRanks( tEdgeVertices.size() );
@@ -3820,10 +3833,17 @@ namespace moris::xtk
                     }
                 }
 
+                // brendan delete
+                if ( tVertexOrdinal == 3 and iEdge == 10 )
+                {
+                    std::cout << "here" << '\n';
+                }
+
                 Vector< moris::moris_index > tParentOrdinalAndRank =
                         aParentCellForDeduction( iEdge )->get_cell_info()->get_vertex_path_to_entity_rank_and_ordinal( tVertexOrdinal, tSecondEntityOrdinal, *tMaxIter );
 
                 // need connectivity wrt the minimum path rank
+                std::cout << "ENTITY RANK: " << (uint)mtk::get_entity_rank_from_index( tParentOrdinalAndRank( 1 ) ) << '\n';
                 tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
                         mtk::EntityRank::ELEMENT,

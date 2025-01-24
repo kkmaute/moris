@@ -46,6 +46,11 @@ namespace moris
             tTotalSize = tTotalSize + aMat( i ).numel();
         }
 
+        if ( tTotalSize == 0 )
+        {
+            return Matrix< MatrixType >();
+        }
+
         // size the concatenated matrix
         Matrix< MatrixType > tConcatenatedMat;
 

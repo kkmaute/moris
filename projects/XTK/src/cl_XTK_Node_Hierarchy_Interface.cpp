@@ -258,7 +258,7 @@ namespace moris::xtk
                         !mGeometryEngine->queued_intersection_first_parent_on_interface()
                         && !mGeometryEngine->queued_intersection_second_parent_on_interface();
 
-                // if one of the end vertices is on the interface, skip this general intersection procedure and use specific one instead
+                // if one of the end vertices is on the interface, skip this general intersection procedure
                 if ( tBothVerticesNotOnInterface )
                 {
                     // add index and intersection position to list of intersected edges
