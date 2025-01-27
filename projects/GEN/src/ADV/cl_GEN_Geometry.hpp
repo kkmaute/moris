@@ -16,8 +16,6 @@
 #include "cl_GEN_Design.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 
-#include "cl_Vector.hpp"    // TODO remove
-
 // Forward declarations
 namespace moris
 {
@@ -34,6 +32,7 @@ namespace moris::gen
 {
     // Forward declare intersection node classes
     class Intersection_Node;
+    class Floating_Node;
     class Parent_Node;
 
     // Geometric location, for determining where a node is relative to a specific geometry
@@ -109,6 +108,23 @@ namespace moris::gen
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) = 0;
+
+        /**
+         * Creates a floating node based on the given information.
+         *
+         * @param aNodeIndex Node index to be assigned to the new floating node
+         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aParametricCoordinates Parametric coordinates inside the background element
+         * @param aBackgroundGeometryType Geometry type of the background element
+         * @param aBackgroundInterpolationOrder Interpolation order of the background element
+         * @return New floating node
+         */
+        virtual Floating_Node* create_floating_node(
+                uint                              aNodeIndex,
+                const Vector< Background_Node* >& aBackgroundNodes,
+                const Matrix< DDRMat >&           aParametricCoordinates,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder ) = 0;
 

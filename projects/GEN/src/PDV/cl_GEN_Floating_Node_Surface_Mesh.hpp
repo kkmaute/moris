@@ -4,13 +4,13 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Intersection_Node_Surface_Mesh.hpp
+ * cl_GEN_Floating_Node_Surface_Mesh.hpp
  *
  */
 
 #pragma once
 
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Floating_Node.hpp"
 
 // Forward declare SDF Facet
 namespace moris::sdf
@@ -22,10 +22,10 @@ namespace moris::gen
 {
     class Surface_Mesh_Geometry;
 
-    class Intersection_Node_Surface_Mesh : public Intersection_Node
+    class Floating_Node_Surface_Mesh : public Floating_Node
     {
       private:
-        uint mParentFacet;    // Index of the facet that intersected the edge to create this intersection node
+        uint mParentVertex;    // Index of the vertex that lies in the background cell to create this floating node
 
       protected:
         Surface_Mesh_Geometry& mInterfaceGeometry;
@@ -36,52 +36,34 @@ namespace moris::gen
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
          * @param aBackgroundNodes Background nodes of the element where this node resides
-         * @param aFirstParentNode First parent node information
-         * @param aSecondParentNode Second parent node information
+         * @param aParametricCoordinates Parametric coordinates inside the background element
          * @param aBackgroundGeometryType Background element geometry type
          * @param aBackgroundInterpolationOrder Background element interpolation order
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
-        Intersection_Node_Surface_Mesh(
+        Floating_Node_Surface_Mesh(
                 uint                              aNodeIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                std::pair< uint, real >           aLocalCoordinate,
+                const Matrix< DDRMat >&           aParametricCoordinates,
+                uint                              aParentVertex,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder,
                 Surface_Mesh_Geometry&            aInterfaceGeometry );
 
       protected:
         /**
-         * Gets the geometry that this intersection node was created on its interface.
+         * Gets the geometry that this floating node was created on its interface.
          *
          * @return Geometry shared pointer
          */
         Geometry& get_interface_geometry() override;
 
         /**
-         * Gets the geometry that this intersection node was created on its interface (const version)
+         * Gets the geometry that this floating node was created on its interface (const version)
          *
          * @return Const geometry reference
          */
         const Geometry& get_interface_geometry() const override;
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its first parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        Matrix< DDRMat > get_dxi_dcoordinate_first_parent() const override;
-
-        /**
-         * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
-         * coordinate values of its second parent.
-         *
-         * @return Local coordinate sensitivity
-         */
-        Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
 
         /**
          * Gets if this node's position depends on ADVs. This means either the facet vertices or the parent nodes depend on advs
@@ -92,33 +74,19 @@ namespace moris::gen
 
       private:
         /**
-         * Recomputes the rotation matrix for this intersection node and returns it
-         *
-         */
-        Matrix< DDRMat > get_rotation_matrix() const;
-
-        /**
-         * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
-         *
-         * @return Matrix< DDRMat > Sensitivities of the local coordinate with respect to the facet vertices. Size <Object dimension x number of vertices>
-         */
-        Matrix< DDRMat >
-        compute_dxi_dfacet() const;
-
-        /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
          * ancestor nodes.
          *
          * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to
          * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
-         * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
+         * This should be set to identity matrix of number of dimensions for any calls to this function outside of another floating node.
          */
         void append_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) const override;
 
         //--------------------------------------------------------------------------------------------------------------
 
         /**
-         * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
+         * Gets the IDs of ADVs which one of the ancestors of this floating node depends on.
          *
          * @return ADV IDs
          */

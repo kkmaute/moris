@@ -137,6 +137,19 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Floating_Node* Voxel_Geometry::create_floating_node(
+            uint                              aNodeIndex,
+            const Vector< Background_Node* >& aBackgroundNodes,
+            const Matrix< DDRMat >&           aParametricCoordinates,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+    {
+        MORIS_ERROR( false, "Voxel_Geometry::create_floating_node - Floating nodes not yet implemented for voxel geometry." );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Voxel_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,

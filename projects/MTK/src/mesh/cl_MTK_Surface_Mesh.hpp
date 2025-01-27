@@ -192,18 +192,6 @@ namespace moris::mtk
                 bool&                   aWarning,
                 bool                    aIgnoreWarnings = true ) const;
 
-        // /**
-        //  * @brief Determines if a point is inside or outside the surface mesh via raycasting
-        //  * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
-        //  * The method will only cast a single ray. Note that if a pathological casee is detected, the method will cast a new ray in a random direction.
-        //  * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
-        //  *
-        //  * @param aPoint Ray origin point. Passed by value as it may be altered
-        //  * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
-        //  */
-        // Vector< real >
-        // cast_single_ray_for_region( const Matrix< DDRMat >& aPoint ) const;
-
 
         /**
          * Casts many rays and returns all of the associated intersection pairs. Uses the same directions for every origin.

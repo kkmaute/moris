@@ -71,6 +71,23 @@ namespace moris::gen
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 
         /**
+         * Creates a floating node based on the given information.
+         *
+         * @param aNodeIndex Node index to be assigned to the new floating node
+         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aParametricCoordinates Parametric coordinates inside the background element
+         * @param aBackgroundGeometryType Geometry type of the background element
+         * @param aBackgroundInterpolationOrder Interpolation order of the background element
+         * @return New floating node
+         */
+        Floating_Node* create_floating_node(
+                uint                              aNodeIndex,
+                const Vector< Background_Node* >& aBackgroundNodes,
+                const Matrix< DDRMat >&           aParametricCoordinates,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+
+        /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
          *
          * @param aBackgroundNodes Background nodes of the element where the intersection lies

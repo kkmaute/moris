@@ -13,6 +13,7 @@
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Interpolation_PDV_Host.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Floating_Node.hpp"
 #include "cl_GEN_Node_Manager.hpp"
 #include "GEN_Data_Types.hpp"
 

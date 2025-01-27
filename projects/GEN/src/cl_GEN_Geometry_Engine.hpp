@@ -261,6 +261,18 @@ namespace moris::gen
         void admit_queued_intersection();
 
         /**
+         * Update the queued intersection node with its node ID and node owner.
+         *
+         * @param aNodeIndex Node Index
+         * @param aNodeId Node ID
+         * @param aNodeOwner Node owner
+         */
+        void update_intersection_node(
+                uint        aNodeIndex,
+                moris_id    aNodeId,
+                moris_index aNodeOwner );
+
+        /**
          * Checks if the given geometry has surface points inside the given element.
          *
          * @param aGeometryIndex Geometry index
@@ -291,16 +303,22 @@ namespace moris::gen
                 mtk::Cell* aCell );
 
         /**
-         * Update the queued intersection node with its node ID and node owner.
+         * Creates a new floating node based on the given information.
          *
-         * @param aNodeIndex Node Index
-         * @param aNodeId Node ID
-         * @param aNodeOwner Node owner
+         * @param aGeometryIndex Geometry with the surface point
+         * @param aNodeIndex Node index assigned to the new floating node
+         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aParametricCoordinates Parametric coordinates of the floating node inside its background element
+         * @param aBackgroundGeometryType Geometry type of the background element
+         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          */
-        void update_intersection_node(
-                uint        aNodeIndex,
-                moris_id    aNodeId,
-                moris_index aNodeOwner );
+        void
+        create_floating_node(
+                moris_index              aGeometryIndex,
+                const mtk::Cell&         aParentCell,
+                const Matrix< DDRMat >&  aParametricCoordinates,
+                mtk::Geometry_Type       aBackgroundGeometryType,
+                mtk::Interpolation_Order aBackgroundInterpolationOrder );
 
         /**
          * Creates and registers new derived nodes based on the given information.

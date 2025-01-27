@@ -99,7 +99,7 @@ namespace moris::xtk
         IJK_Mesh()
                 : mNumVertX( 0 )
                 , mNumVertY( 0 )
-                , mNumVertZ( 0 ){};
+                , mNumVertZ( 0 ) {};
         IJK_Mesh(
                 const moris::uint aNumX,
                 const moris::uint aNumY,
@@ -402,7 +402,7 @@ namespace moris::xtk
         const Vector< moris_index > mVertexHash;
 
       public:
-        Octree_Template(){};
+        Octree_Template() {};
         Octree_Template( const moris_index aTemplateLevel )
                 : mLevel( aTemplateLevel )
                 , mOctreeMeshGrid( this->create_mesh_grid( aTemplateLevel ) )
@@ -689,11 +689,11 @@ namespace moris::xtk
         get_signature() const override;
 
         bool
-        has_geometric_independent_vertices() const override;
+        has_geometric_dependent_vertices() const override;
 
-        bool is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-                Cut_Integration_Mesh*                                           aCutIntegrationMesh,
-                Integration_Mesh_Generator*                                     aMeshGenerator ) const override;
+        bool is_eligible( std::pair< mtk::Cell *, Vector< Decomposition_Algorithm_Type > > &aElementContext,
+                Cut_Integration_Mesh                                                       *aCutIntegrationMesh,
+                Integration_Mesh_Generator                                                 *aMeshGenerator ) const override;
 
         Vector< moris_index > get_decomposed_cell_indices() override;
 

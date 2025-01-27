@@ -334,9 +334,9 @@ namespace moris::xtk
     }
     // ----------------------------------------------------------------------------------
     bool
-    Octree_Interface::has_geometric_independent_vertices() const
+    Octree_Interface::has_geometric_dependent_vertices() const
     {
-        return true;
+        return false;
     }
     // ----------------------------------------------------------------------------------
 

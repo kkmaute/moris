@@ -452,7 +452,7 @@ namespace moris::xtk
 
         Vector< moris_index > get_decomposed_cell_indices() override;
 
-        bool has_geometric_independent_vertices() const override;
+        bool has_geometric_dependent_vertices() const override;
 
         void
         perform_impl_vertex_requests(

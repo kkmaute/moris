@@ -441,15 +441,16 @@ namespace moris::xtk
             mtk::Mesh*                        aBackgroundMesh )
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells", mXTKModel->mVerboseLevel, 1 );
-        uint   tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
 
-        uint tNumCells = aBackgroundMesh->get_num_elems();
+        // Store information to avoid having to call these functions multiple times
+        uint tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
+        uint tNumCells      = aBackgroundMesh->get_num_elems();
 
+        // Allocate memory for all of the information used in the decomposition algorithms
         aMeshGenerationData.mIntersectedBackgroundCellIndex.resize( tNumGeometries );
-
         aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
-
         aMeshGenerationData.mDelaunayPoints.reserve( tNumCells );
+        aMeshGenerationData.mDelaunayGeometryIndices.resize( tNumCells );
 
         // Initialize geometric query
         Geometric_Query tGeometricQuery;
@@ -466,12 +467,14 @@ namespace moris::xtk
             aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).reserve( tNumCells / tNumGeometries );
         }
 
-
         // iterate through all cells
         for ( uint iCell = 0; iCell < tNumCells; iCell++ )
         {
             // Initialize a list of all the surface points for every geometry for this cell
             Vector< Matrix< DDRMat > > tSurfacePoints( tNumGeometries );
+
+            // Initialize list of geometry indices for all surface points
+            Vector< moris_index > tGeomIndices;
 
             // setup geometric query with this current cell information
             tGeometricQuery.set_parent_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
@@ -485,10 +488,13 @@ namespace moris::xtk
                     // Get the surface points for this cell for this geometry and store
                     tSurfacePoints( iGeom ) = mXTKModel->get_geom_engine()->get_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) );
 
-                    // add background cell to the list for delaunay triangulation
-                    aMeshGenerationData.mDeluanayBgCellInds.push_back( iCell );
+                    // Store the geometry index for all of these surface points
+                    tGeomIndices.append( Vector< moris_index >( tSurfacePoints( iGeom ).n_cols(), iGeom ) );
 
-                    // add to the number of child meshes for the octree decomposition to use (?)
+                    // add background cell to the list for delaunay triangulation
+                    aMeshGenerationData.mDelaunayBgCellInds.push_back( iCell );
+
+                    // add to the number of child meshes for the octree decomposition to use (brendan?)
                     aMeshGenerationData.mNumChildMeshes++;
 
                     // add background cell to the list of intersected cells
@@ -501,7 +507,7 @@ namespace moris::xtk
                 {
                     // add background cell to the list of cells for regular subdivision
                     aMeshGenerationData.mRegularSubdivisionBgCellInds.push_back( iCell );
-                    
+
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
 
@@ -517,15 +523,16 @@ namespace moris::xtk
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
                 }
             }
-            // add surface points to the list of all surface points
+            // add surface points to the list of all surface points brendan this is a little ugly
             aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 0 ) );
+            aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
         }
 
         // remove the excess space
         shrink_to_fit_all( aMeshGenerationData.mIntersectedBackgroundCellIndex );
 
         unique( aMeshGenerationData.mAllIntersectedBgCellInds );
-        unique( aMeshGenerationData.mDeluanayBgCellInds );
+        unique( aMeshGenerationData.mDelaunayBgCellInds );
         unique( aMeshGenerationData.mRegularSubdivisionBgCellInds );
 
         return true;
@@ -3973,7 +3980,7 @@ namespace moris::xtk
             Decomposition_Algorithm* aDecompAlg )
 
     {
-        if ( aDecompAlg->has_geometric_independent_vertices() )
+        if ( not aDecompAlg->has_geometric_dependent_vertices() )
         {
             // pass the data in decomposition data to the geometry engine so it can keep track of these newly constructed vertices
             mGeometryEngine->create_new_derived_nodes(

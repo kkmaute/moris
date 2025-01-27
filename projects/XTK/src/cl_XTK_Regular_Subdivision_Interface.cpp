@@ -64,9 +64,9 @@ namespace moris::xtk
     //--------------------------------------------------------------------------------------------------
 
     bool
-    Regular_Subdivision_Interface::has_geometric_independent_vertices() const
+    Regular_Subdivision_Interface::has_geometric_dependent_vertices() const
     {
-        return true;
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------

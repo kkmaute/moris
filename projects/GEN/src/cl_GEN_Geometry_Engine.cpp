@@ -381,6 +381,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void
+    Geometry_Engine::update_intersection_node(
+            uint        aNodeIndex,
+            moris_id    aNodeId,
+            moris_index aNodeOwner )
+    {
+        mNodeManager.update_derived_node( aNodeIndex, aNodeId, aNodeOwner );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool
     Geometry_Engine::has_surface_points(
             uint       aGeometryIndex,
@@ -410,12 +421,31 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Geometry_Engine::update_intersection_node(
-            uint        aNodeIndex,
-            moris_id    aNodeId,
-            moris_index aNodeOwner )
+    Geometry_Engine::create_floating_node(
+            moris_index              aGeometryIndex,
+            const mtk::Cell&         aParentCell,
+            const Matrix< DDRMat >&  aParametricCoordinates,
+            mtk::Geometry_Type       aBackgroundGeometryType,
+            mtk::Interpolation_Order aBackgroundInterpolationOrder )
     {
-        mNodeManager.update_derived_node( aNodeIndex, aNodeId, aNodeOwner );
+        // Get vertex indices from parent cell
+        Matrix< IdMat >            tVertexIndices = aParentCell.get_vertex_inds();
+        Vector< Background_Node* > tBackgroundNodes( tVertexIndices.length() );
+        for ( uint iNode = 0; iNode < tVertexIndices.numel(); iNode++ )
+        {
+            // Get the associated GEN background nodes from the node manager
+            tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode ) ) );
+        }
+
+        Floating_Node* tNewNode = mGeometries( aGeometryIndex )->create_floating_node(    //
+                mNodeManager.get_total_number_of_nodes(),
+                tBackgroundNodes,
+                aParametricCoordinates,
+                aParentCell.get_geometry_type(),
+                aParentCell.get_interpolation_order() );
+
+        // Add new derived node to the node manager
+        mNodeManager.add_derived_node( tNewNode );
     }
 
     //--------------------------------------------------------------------------------------------------------------

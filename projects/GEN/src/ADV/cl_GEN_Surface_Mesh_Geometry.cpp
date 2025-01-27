@@ -14,6 +14,7 @@
 
 #include "cl_GEN_Surface_Mesh_Geometry.hpp"
 #include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
+#include "cl_GEN_Floating_Node_Surface_Mesh.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
 #include "cl_GEN_BSpline_Field.hpp"
@@ -202,6 +203,74 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Floating_Node* Surface_Mesh_Geometry::create_floating_node(
+            uint                              aNodeIndex,
+            const Vector< Background_Node* >& aBackgroundNodes,
+            const Matrix< DDRMat >&           aParametricCoordinates,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+    {
+        uint tNumVertices = this->get_number_of_vertices();
+        uint tDims        = this->get_spatial_dimension();
+
+        // initialize global coordinates
+        Matrix< DDRMat > tGlobalCoordinates( 1, tDims );
+
+        // Convert the parametric coordinates back to global coordinates
+        // Create interpolator
+        mtk::Interpolation_Function_Factory tInterpolationFactory;
+        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
+                aBackgroundGeometryType,
+                mtk::Interpolation_Type::LAGRANGE,
+                aBackgroundInterpolationOrder );
+
+        // Perform interpolation using parametric coordinates
+        Matrix< DDRMat > tBasis;
+        tInterpolation->eval_N( aParametricCoordinates, tBasis );
+
+        // Get number of bases
+        uint tNumberOfBases = tInterpolation->get_number_of_bases();
+
+        // Add contributions from all locators
+        for ( uint iBasis = 0; iBasis < tNumberOfBases; iBasis++ )
+        {
+            tGlobalCoordinates += aBackgroundNodes( iBasis )->get_global_coordinates() * tBasis( iBasis );
+        }
+
+        // Determine the parent vertex that lies in the background cell
+        uint tParentVertex;
+        for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
+        {
+            bool tVertexFound = true;
+            for ( uint iDim = 0; iDim < tDims; iDim++ )
+            {
+                if ( std::abs( tGlobalCoordinates( iDim, 0 ) - this->get_vertex_coordinates( iVertex )( iDim ) ) > MORIS_REAL_EPS )
+                {
+                    tParentVertex = false;
+                    break;
+                }
+            }
+
+            if ( tVertexFound )
+            {
+                tParentVertex = iVertex;
+                break;
+            }
+        }
+
+        // Create surface mesh floating node
+        return new Floating_Node_Surface_Mesh(
+                aNodeIndex,
+                aBackgroundNodes,
+                aParametricCoordinates,
+                tParentVertex,
+                aBackgroundGeometryType,
+                aBackgroundInterpolationOrder,
+                *this );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
             uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
@@ -243,7 +312,6 @@ namespace moris::gen
                 aBackgroundInterpolationOrder,
                 *this );
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 

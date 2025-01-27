@@ -58,7 +58,7 @@ namespace moris::xtk
 
     Vector< moris_index > Delaunay_Subdivision_Interface::get_decomposed_cell_indices()
     {
-        return mMeshGenerationData->mDeluanayBgCellInds;
+        return mMeshGenerationData->mDelaunayBgCellInds;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ namespace moris::xtk
         mNumTotalCells = 0;
 
         // Get the number of child mesh points - these are all the child meshes, not just the ones with surface points
-        uint tNumCMPoints = mMeshGenerationData->mDeluanayBgCellInds.size();
+        uint tNumCMPoints = mMeshGenerationData->mDelaunayBgCellInds.size();
 
         // Initialize return vector for connectivities
         Vector< Vector< moris_index > > tConnectivities( tNumCMPoints );
@@ -137,7 +137,7 @@ namespace moris::xtk
                         tStack,
                         tError );
 
-                MORIS_ERROR( not tError, "geompack3d reported an error during delaunay triangulation for child mesh %d.", mMeshGenerationData->mDeluanayBgCellInds( iCM ) );
+                MORIS_ERROR( not tError, "geompack3d reported an error during delaunay triangulation for child mesh %d.", mMeshGenerationData->mDelaunayBgCellInds( iCM ) );
 
                 // Add to the number of new cells created by this algorithm
                 mNumTotalCells += tNumTriangles;
@@ -162,9 +162,9 @@ namespace moris::xtk
 
     //--------------------------------------------------------------------------------------------------
 
-    bool Delaunay_Subdivision_Interface::has_geometric_independent_vertices() const
+    bool Delaunay_Subdivision_Interface::has_geometric_dependent_vertices() const
     {
-        return true;    // brendan change once GEN side is adjusted
+        return true;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ namespace moris::xtk
 
         // Get the total number of cell in the background mesh as well as the number of delaunay cells
         uint tNumBackgroundCells = mCutIntegrationMesh->get_num_ig_cell_groups();
-        uint tNumDelaunayCells   = aMeshGenerationData->mDeluanayBgCellInds.size();
+        uint tNumDelaunayCells   = aMeshGenerationData->mDelaunayBgCellInds.size();
 
         // Setup decomposition data for this algorithm
         mDecompositionData->mHasSecondaryIdentifier = true;
@@ -200,7 +200,7 @@ namespace moris::xtk
         for ( uint iCell = 0; iCell < tNumDelaunayCells; iCell++ )
         {
             // Get the index of the cell
-            uint tBgCellIndex = aMeshGenerationData->mDeluanayBgCellInds( iCell );
+            uint tBgCellIndex = aMeshGenerationData->mDelaunayBgCellInds( iCell );
 
             // Get the intersected cell from the background mesh
             mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( tBgCellIndex );
@@ -264,9 +264,13 @@ namespace moris::xtk
                     mDecompositionData->tCMNewNodeLoc( tBgCellIndex ).push_back( tNewNodeIndexInSubdivision );
                     mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( trans( tNewNodeXi ) );    // FIXME: annoying transpose
 
-                    // BRENDAN TODO: add new node in GEN
-                    mDecompositionData->mNewNodeParentCells( iCell )               = &tCell;           // brendan temporary i think
-                    mDecompositionData->mNewVertexLocalCoordWRTParentCell( iCell ) = tNewNodeXiPtr;    // brendan temporary i think
+                    // Register new floating node in GEN
+                    mGeometryEngine->create_floating_node(
+                            mMeshGenerationData->mDelaunayGeometryIndices( tBgCellIndex )( iPoint ),
+                            tCell,
+                            tNewNodeXi,
+                            tCell.get_geometry_type(),
+                            tCell.get_interpolation_order() );
                 }
             }    // end for: iterate through surface points
 
@@ -308,7 +312,7 @@ namespace moris::xtk
             Integration_Mesh_Generator*       aMeshGenerator )
     {
         // Number of background cells
-        uint tNumDelaunayCells = aMeshGenerationData->mDeluanayBgCellInds.size();
+        uint tNumDelaunayCells = aMeshGenerationData->mDelaunayBgCellInds.size();
 
         // new cell info
         moris::mtk::Cell_Info_Factory            tFactory;
@@ -338,7 +342,7 @@ namespace moris::xtk
             PRINT( mAllSurfacePoints( iCell ) );
 
             // Get the child mesh index
-            uint iCM = aMeshGenerationData->mDeluanayBgCellInds( iCell );
+            uint iCM = aMeshGenerationData->mDelaunayBgCellInds( iCell );
 
             // Get the child mesh for this background cell
             std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );

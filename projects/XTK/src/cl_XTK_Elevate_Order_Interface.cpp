@@ -65,17 +65,17 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Elevate_Order_Interface::has_geometric_independent_vertices() const
+    Elevate_Order_Interface::has_geometric_dependent_vertices() const
     {
-        return false;
+        return true;
     }
 
     // ----------------------------------------------------------------------------------
 
-    bool 
+    bool
     Elevate_Order_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-                Cut_Integration_Mesh*                                           aCutIntegrationMesh,
-                Integration_Mesh_Generator*                                     aMeshGenerator ) const
+            Cut_Integration_Mesh*                                                                          aCutIntegrationMesh,
+            Integration_Mesh_Generator*                                                                    aMeshGenerator ) const
     {
         return true;
     }
@@ -268,8 +268,8 @@ namespace moris::xtk
                         // tNewNodeIndex++;
                     }
                 }    // end: loop over new vertices inside each cell
-            }        // end: new vertices inside element
-        }            // end: loop inside element
+            }    // end: new vertices inside element
+        }    // end: loop inside element
 
         // --------------------------------
 
@@ -369,8 +369,8 @@ namespace moris::xtk
                         }
                     }
                 }    // end: check for new request
-            }        // end: loop over all edges
-        }            // end: new vertices on edges
+            }    // end: loop over all edges
+        }    // end: new vertices on edges
 
         // --------------------------------
 
@@ -429,7 +429,7 @@ namespace moris::xtk
                     // tNewNodeIndex++;
                 }
             }    // end: loop over faces
-        }        // end: new vertices on faces
+        }    // end: new vertices on faces
 
         // --------------------------------
 

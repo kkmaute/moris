@@ -161,6 +161,19 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Floating_Node* Level_Set_Geometry::create_floating_node(
+            uint                              aNodeIndex,
+            const Vector< Background_Node* >& aBackgroundNodes,
+            const Matrix< DDRMat >&           aParametricCoordinates,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+    {
+        MORIS_ERROR( false, "Level_Set_Geometry::create_floating_node - Floating nodes not yet implemented for level set geometry." );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Level_Set_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,

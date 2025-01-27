@@ -742,18 +742,18 @@ namespace moris::mtk
         real tInverseDeterminant = 1.0 / tDet;
 
         // Compute the vector from the origin to the first vertex
-        Matrix< DDRMat > tT;
+        Matrix< DDRMat > tRayToVertex;
         if ( aPoint.n_cols() == 1 )
         {
-            tT = aPoint - tVertexCoordinates.get_column( 0 );
+            tRayToVertex = aPoint - tVertexCoordinates.get_column( 0 );
         }
         else
         {
-            tT = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
+            tRayToVertex = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
         }
 
         // Compute the u parameter
-        real tU = dot( tT, tP ) * tInverseDeterminant;
+        real tU = dot( tRayToVertex, tP ) * tInverseDeterminant;
 
         // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
         if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance )
@@ -762,7 +762,7 @@ namespace moris::mtk
         }
 
         // Compute the vector from the origin to the second vertex
-        Matrix< DDRMat > tQ = cross( tT, tEdge1 );
+        Matrix< DDRMat > tQ = cross( tRayToVertex, tEdge1 );
 
         // Compute the v parameter
         real tV = dot( aDirection, tQ ) * tInverseDeterminant;

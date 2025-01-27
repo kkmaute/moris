@@ -43,9 +43,9 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Node_Hierarchy_Interface::has_geometric_independent_vertices() const
+    Node_Hierarchy_Interface::has_geometric_dependent_vertices() const
     {
-        return false;
+        return true;
     }
 
     // ----------------------------------------------------------------------------------
@@ -240,6 +240,7 @@ namespace moris::xtk
             // for intersected edges, invoke intersection procedure
             if ( tIsIntersected )
             {
+                // brendan delete
                 if ( iEdge == 9 )
                 {
                     std::cout << "edge of interest" << std::endl;

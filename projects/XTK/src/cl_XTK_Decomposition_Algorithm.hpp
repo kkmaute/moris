@@ -73,7 +73,7 @@ namespace moris::xtk
 
         virtual moris_index get_signature() const = 0;
 
-        virtual bool has_geometric_independent_vertices() const = 0;
+        virtual bool has_geometric_dependent_vertices() const = 0;
 
         virtual void
         perform_impl_vertex_requests(
