@@ -446,11 +446,21 @@ namespace moris::xtk
         uint tNumGeometries = this->get_geom_engine()->get_number_of_geometries();
         uint tNumCells      = aBackgroundMesh->get_num_elems();
 
-        // Allocate memory for all of the information used in the decomposition algorithms
         aMeshGenerationData.mIntersectedBackgroundCellIndex.resize( tNumGeometries );
         aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
-        aMeshGenerationData.mDelaunayPoints.reserve( tNumCells );
-        aMeshGenerationData.mDelaunayGeometryIndices.resize( tNumCells );
+
+        // Check if we need to do delaunay
+        bool tDelaunay = std::any_of(
+                mSubdivisionMethods.cbegin(),
+                mSubdivisionMethods.cend(),
+                []( const enum Subdivision_Method& aMethod ) { return aMethod == Subdivision_Method::C_DELAUNAY; } );
+
+        if ( tDelaunay )
+        {
+            // Allocate memory for all of the information used in the decomposition algorithms
+            aMeshGenerationData.mDelaunayPoints.reserve( tNumCells );
+            aMeshGenerationData.mDelaunayGeometryIndices.resize( tNumCells );
+        }
 
         // Initialize geometric query
         Geometric_Query tGeometricQuery;
@@ -483,7 +493,7 @@ namespace moris::xtk
             // iterate through all geometries for current cell
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                if ( mXTKModel->get_geom_engine()->has_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) ) )
+                if ( tDelaunay and mXTKModel->get_geom_engine()->has_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) ) )
                 {
                     // Get the surface points for this cell for this geometry and store
                     tSurfacePoints( iGeom ) = mXTKModel->get_geom_engine()->get_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) );
@@ -523,9 +533,12 @@ namespace moris::xtk
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
                 }
             }
-            // add surface points to the list of all surface points
-            aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 0 ) );
-            aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
+            if ( tDelaunay )
+            {
+                // add surface points to the list of all surface points
+                aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 0 ) );
+                aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
+            }
         }
 
         // remove the excess space
@@ -3671,7 +3684,7 @@ namespace moris::xtk
             // vertices of the edge
             Vector< mtk::Vertex* > const & tEdgeVertices = aIgCellGroupEdgeConnectivity->mEdgeVertices( iEdge );
 
-            if ( iEdge == 9 )
+            if ( iEdge == 9 )    // brendan delete
             {
                 std::cout << "";
 

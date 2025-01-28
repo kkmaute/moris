@@ -196,6 +196,10 @@ namespace moris
         aParameterLists.set( "print_enriched_ig_mesh", false );
         aParameterLists.set( "exodus_output_XTK_ig_mesh", true );
         aParameterLists.set( "high_to_low_dbl_side_sets", true );
+        if ( tGeoModel == 2 )
+        {
+            aParameterLists.set( "delaunay", true );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -214,6 +218,10 @@ namespace moris
                 aParameterLists.set( "discretization_mesh_index", 0 );
                 break;
             case 1:
+                aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                aParameterLists.set( "discretization_mesh_index", 0 );
+                break;
+            case 2:
                 aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 aParameterLists.set( "discretization_mesh_index", 0 );
                 break;

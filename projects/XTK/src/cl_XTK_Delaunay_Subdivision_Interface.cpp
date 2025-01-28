@@ -275,6 +275,16 @@ namespace moris::xtk
             moris::mtk::Mesh*                 aBackgroundMesh,
             Integration_Mesh_Generator*       aMeshGenerator )
     {
+        // First, update the newly created nodes in the geometry engine
+        for ( uint iNodeRequest = 0; iNodeRequest < aDecompositionData->tNewNodeIndex.size(); iNodeRequest++ )
+        {
+            moris_index tNodeIndex = aDecompositionData->tNewNodeIndex( iNodeRequest );
+            moris_id    tNodeId    = aDecompositionData->tNewNodeId( iNodeRequest );
+            moris_index tNodeOwner = aDecompositionData->tNewNodeOwner( iNodeRequest );
+
+            mGeometryEngine->update_intersection_node( tNodeIndex, tNodeId, tNodeOwner );
+        }
+
         // Number of background cells
         uint tNumDelaunayCells = aMeshGenerationData->mDelaunayBgCellInds.size();
 
@@ -348,8 +358,7 @@ namespace moris::xtk
     moris_index
     Delaunay_Subdivision_Interface::get_signature() const
     {
-        // BRENDAN: does it matter what I choose for this?
-        return 3;
+        return 333;
     }
 
     //--------------------------------------------------------------------------------------------------

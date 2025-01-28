@@ -127,10 +127,12 @@ namespace moris::gen
         Discretization_Factor_Function     get_discretization_scaling_user_defined = nullptr;
         Perturbation_Function              get_vertex_adv_dependency_user_defined  = nullptr;
         Sensitivity_Function               get_dvertex_dadv_user_defined           = nullptr;
-        Vector< uint >                     mFixedVertexIndices;          // Indices of surface mesh vertices that are unaffected by ADVs
-        Vector< std::shared_ptr< Field > > mPerturbationFields;          // Vector of perturbation fields
-        Matrix< DDRMat >                   mVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< const mtk::Cell* >         mVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
+        Vector< uint >                     mFixedVertexIndices;                  // Indices of surface mesh vertices that are unaffected by ADVs
+        Vector< std::shared_ptr< Field > > mPerturbationFields;                  // Vector of perturbation fields
+        Matrix< DDRMat >                   mOriginalVertexBases;                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
+        Matrix< DDRMat >                   mCurrentVertexBases;                  // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< const mtk::Cell* >         mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
+        Vector< const mtk::Cell* >         mCurrentVertexBackgroundElements;     // Index of the background element the facet vertex is in currently
 
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
@@ -321,17 +323,6 @@ namespace moris::gen
          * @return Matrix< DDRMat > center of the facet
          */
         [[nodiscard]] Matrix< DDRMat > get_facet_center( uint aFacetIndex );
-
-        /**
-         * Gets the basis functions for the specified vertex
-         *
-         * @param aVertexIndex Index of the vertex
-         * @return Matrix< DDRMat > Basis functions for the vertex
-         */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_bases( const uint aVertexIndex )
-        {
-            return mVertexBases.get_column( aVertexIndex );
-        }
 
         /**
          * Computes and returns the sensitivity of a facet vertex with respect to the ADVs

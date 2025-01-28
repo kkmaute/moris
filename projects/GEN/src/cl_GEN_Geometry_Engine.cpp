@@ -437,6 +437,9 @@ namespace moris::gen
             tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode ) ) );
         }
 
+        // brendan delete
+        std::cout << "ADDING NEW FLOATING NODE " << mNodeManager.get_total_number_of_nodes() << std::endl;
+
         Floating_Node* tNewNode = mGeometries( aGeometryIndex )->create_floating_node(    //
                 mNodeManager.get_total_number_of_nodes(),
                 tBackgroundNodes,
