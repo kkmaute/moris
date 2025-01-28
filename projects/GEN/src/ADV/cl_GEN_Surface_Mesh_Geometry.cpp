@@ -164,8 +164,29 @@ namespace moris::gen
         // Try and see if the pointer is in the stored list
         auto tIt = std::find( mVertexBackgroundElements.begin(), mVertexBackgroundElements.end(), aCell );
 
-        // Return if it was found
-        return tIt != mVertexBackgroundElements.end();
+        while ( tIt != mVertexBackgroundElements.end() )
+        {
+            // Get the index of the vertex in this cell
+            uint tVertexIndex = std::distance( mVertexBackgroundElements.begin(), tIt );
+
+            // Get the basis of this vertex
+            Matrix< DDRMat > tBasis = mVertexBases.get_column( tVertexIndex );
+
+            // check if any of the bases for the vertex are zero. If so, the point is on the edge of the cell and we should skip it
+            if ( std::any_of( tBasis.cbegin(), tBasis.cend(), [ this ]( real aValue ) { return std::abs( aValue ) < Surface_Mesh::mIntersectionTolerance; } ) )
+            {
+                // Check for another vertex in this element
+                tIt = std::find( std::next( tIt ), mVertexBackgroundElements.end(), aCell );
+            }
+            else
+            {
+                // The surface point is valid
+                return true;
+            }
+        }
+
+        // No points inside the cell that are not on the cell edge
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -190,7 +211,16 @@ namespace moris::gen
         {
             if ( mVertexBackgroundElements( iSurfaceMeshVertex ) == aCell )
             {
-                // Add the vertex to the matrix
+                // Get the basis for this vertex
+                Matrix< DDRMat > tBasis = mVertexBases.get_column( iSurfaceMeshVertex );
+
+                // If the vertex is on the edge of the background element, skip it as this will cause hanging nodes
+                if ( std::any_of( tBasis.begin(), tBasis.end(), [ this ]( real aVal ) { return std::abs( aVal ) < Surface_Mesh::mIntersectionTolerance; } ) )
+                {
+                    continue;
+                }
+
+                // Add the vertex to the matrix if lies in the cell and isnt on the edge
                 tSurfacePoints.set_column( iDelaunayPointIndex++, this->get_vertex_coordinates( iSurfaceMeshVertex ) );
             }
         }
@@ -236,6 +266,7 @@ namespace moris::gen
         {
             tGlobalCoordinates += aBackgroundNodes( iBasis )->get_global_coordinates() * tBasis( iBasis );
         }
+        tGlobalCoordinates = trans( tGlobalCoordinates );    // FIXME: annoying transpose
 
         // Determine the parent vertex that lies in the background cell
         uint tParentVertex;
@@ -244,7 +275,7 @@ namespace moris::gen
             bool tVertexFound = true;
             for ( uint iDim = 0; iDim < tDims; iDim++ )
             {
-                if ( std::abs( tGlobalCoordinates( iDim, 0 ) - this->get_vertex_coordinates( iVertex )( iDim ) ) > MORIS_REAL_EPS )
+                if ( std::abs( tGlobalCoordinates( iDim ) - this->get_vertex_coordinates( iVertex )( iDim ) ) > MORIS_REAL_EPS )
                 {
                     tParentVertex = false;
                     break;
@@ -526,7 +557,7 @@ namespace moris::gen
             mPerturbationFields( iFieldIndex )->reset_nodal_data( aInterpolationMesh );
         }
 
-        if ( !mBasesComputed and this->depends_on_advs() )
+        if ( !mBasesComputed )
         {
             this->update_vertex_basis_data();
             mBasesComputed = true;

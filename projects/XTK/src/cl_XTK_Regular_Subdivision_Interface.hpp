@@ -446,10 +446,6 @@ namespace moris::xtk
 
         ~Regular_Subdivision_Interface() override {}
 
-        bool is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-                Cut_Integration_Mesh*                                                      aCutIntegrationMesh,
-                Integration_Mesh_Generator*                                                aMeshGenerator ) const override;
-
         Vector< moris_index > get_decomposed_cell_indices() override;
 
         bool has_geometric_dependent_vertices() const override;

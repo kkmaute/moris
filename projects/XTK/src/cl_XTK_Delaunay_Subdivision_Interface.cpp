@@ -46,46 +46,10 @@ namespace moris::xtk
 
     //--------------------------------------------------------------------------------------------------
 
-    bool
-    Delaunay_Subdivision_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-            Cut_Integration_Mesh*                                                                                 aCutIntegrationMesh,
-            Integration_Mesh_Generator*                                                                           aMeshGenerator ) const
-    {
-        return true;
-    }
-
-    //--------------------------------------------------------------------------------------------------
-
     Vector< moris_index > Delaunay_Subdivision_Interface::get_decomposed_cell_indices()
     {
         return mMeshGenerationData->mDelaunayBgCellInds;
     }
-
-    //--------------------------------------------------------------------------------------------------
-
-    // void
-    // Delaunay_Subdivision_Interface::perform(
-    //         Integration_Mesh_Generation_Data* aMeshGenerationData,
-    //         Decomposition_Data*               aDecompositionData,
-    //         Cut_Integration_Mesh*             aCutIntegrationMesh,
-    //         mtk::Mesh*                        aBackgroundMesh,
-    //         Integration_Mesh_Generator*       aMeshGenerator )
-    // {
-
-
-    //     // give all these nodes IDs
-    //     aMeshGenerator->assign_node_requests_identifiers( *aDecompositionData, aCutIntegrationMesh, aBackgroundMesh );
-
-    //     // commit vertices to the mesh
-    //     aMeshGenerator->commit_new_ig_vertices_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
-
-    //     this->perform_impl_generate_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, aMeshGenerator );
-
-    //     // brendan this is gross
-    //     mNumTotalCells = mNumNewCells;
-
-    //     aMeshGenerator->commit_new_ig_cells_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
-    // }
 
     //--------------------------------------------------------------------------------------------------
 
@@ -103,7 +67,7 @@ namespace moris::xtk
         Vector< Vector< moris_index > > tConnectivities( tNumCMPoints );
 
         // Allocate variables used for geompack3d call
-        uint  tMaxNumTriangles = 24;                                                    // BRENDAN: maybe this should be a parameter
+        uint  tMaxNumTriangles = 24;                                                    // Unused but required by the function
         uint* tStack           = (uint*)alloca( sizeof( uint ) * tMaxNumTriangles );    // Unused but required by the function
         uint  tNumTriangles    = 0;                                                     // Total number of cells after triangulation
         uint  tError           = 0;                                                     // Error flag
@@ -118,7 +82,7 @@ namespace moris::xtk
             if ( tNumAllSurfacePoints > 0 )
             {
                 // Allocate outputs for delaunay triangulation
-                Vector< uint > tDelaunayTriangulation( tNumAllSurfacePoints * tMaxNumTriangles );       // Vector containing the triangulation BRENDAN ???
+                Vector< uint > tDelaunayTriangulation( tNumAllSurfacePoints * tMaxNumTriangles );       // Vector containing the connectivity of the triangles
                 Vector< uint > tDelaunayTriangulationNBR( tNumAllSurfacePoints * tMaxNumTriangles );    // I don't know what this is for and I don't use it but the function requires it
                 Vector< uint > tLocalIndices( tNumAllSurfacePoints );                                   // Indices of the points in the triangulation
                 std::iota( tLocalIndices.begin(), tLocalIndices.end(), 1 );
@@ -223,8 +187,8 @@ namespace moris::xtk
             // Make requests for these vertices
             for ( uint iPoint = 0; iPoint < tSurfacePoints.n_cols(); iPoint++ )
             {
-                // get the parent rank of the new node BRENDAN: is this right?
-                mtk::EntityRank tParentRank = mtk::EntityRank::ELEMENT;    // brendan may need to be FACE
+                // get the parent rank of the new node
+                mtk::EntityRank tParentRank = mtk::EntityRank::ELEMENT;
 
                 // get a unique ID for this vertex? BRENDAN: need to figure out how to do this
                 moris_index tSecondaryID = std::stoul( std::to_string( tBgCellIndex ) + std::to_string( iPoint ) );
@@ -321,6 +285,7 @@ namespace moris::xtk
         // Perform a delaunay triangulation on the surface points to get new cell connectivity in the cells local indexing
         Vector< Vector< moris_index > > tCellToVertexConnectivity = this->triangulation();
 
+        // This is the global node indices and is used in the integration mesh generator, so we must set it here
         mNewCellToVertexConnectivity = Vector< Vector< moris::moris_index > >( mNumTotalCells, Vector< moris::moris_index >( 3 ) );
 
         // Since each child mesh should just be a background cell, there are no cell indices we need to replace
@@ -338,9 +303,6 @@ namespace moris::xtk
         // Loop through the child meshes
         for ( uint iCell = 0; iCell < tNumDelaunayCells; iCell++ )
         {
-            // brendan delete
-            PRINT( mAllSurfacePoints( iCell ) );
-
             // Get the child mesh index
             uint iCM = aMeshGenerationData->mDelaunayBgCellInds( iCell );
 

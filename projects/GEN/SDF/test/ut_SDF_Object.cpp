@@ -40,14 +40,6 @@ namespace moris::sdf
         Matrix< DDRMat > tShiftCoordsExpected = { { -0.25, -0.5 }, { 0.75, 0.0 } };
         // Matrix< DDRMat > tScaleCoordsExpected    = { { -1.0, 0.0 }, { 0.0, -0.25 } };
 
-        // rotate the object by 45 degrees and get the first facet
-        // Matrix< DDRMat > tRotationMatrix = { { 0.7071067812, -0.7071067812 }, { 0.7071067812, 0.7071067812 } }; brendan delete
-        // tObject.set_rotation( tRotationMatrix );
-        // Matrix< DDRMat > tFacetCoords = tObject.get_all_vertex_coordinates_of_facet( 0 );
-
-        // check rotation
-        // CHECK( all_true( abs( tFacetCoords - tRotationCoordsExpected ) < tEpsilon ) );
-
         // reset and get first facet coordinates
         tObject.reset_coordinates();
         Matrix< DDRMat > tFacetCoords = tObject.get_all_vertex_coordinates_of_facet( 0 );

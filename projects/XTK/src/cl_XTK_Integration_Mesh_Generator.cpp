@@ -494,7 +494,7 @@ namespace moris::xtk
                     // add background cell to the list for delaunay triangulation
                     aMeshGenerationData.mDelaunayBgCellInds.push_back( iCell );
 
-                    // add to the number of child meshes for the octree decomposition to use (brendan?)
+                    // add to the number of child meshes for the octree decomposition to use
                     aMeshGenerationData.mNumChildMeshes++;
 
                     // add background cell to the list of intersected cells
@@ -523,7 +523,7 @@ namespace moris::xtk
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
                 }
             }
-            // add surface points to the list of all surface points brendan this is a little ugly
+            // add surface points to the list of all surface points
             aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 0 ) );
             aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
         }
@@ -3671,7 +3671,7 @@ namespace moris::xtk
             // vertices of the edge
             Vector< mtk::Vertex* > const & tEdgeVertices = aIgCellGroupEdgeConnectivity->mEdgeVertices( iEdge );
 
-            if ( iEdge == 10 )
+            if ( iEdge == 9 )
             {
                 std::cout << "";
 
@@ -3840,17 +3840,10 @@ namespace moris::xtk
                     }
                 }
 
-                // brendan delete
-                if ( tVertexOrdinal == 3 and iEdge == 10 )
-                {
-                    std::cout << "here" << '\n';
-                }
-
                 Vector< moris::moris_index > tParentOrdinalAndRank =
                         aParentCellForDeduction( iEdge )->get_cell_info()->get_vertex_path_to_entity_rank_and_ordinal( tVertexOrdinal, tSecondEntityOrdinal, *tMaxIter );
 
                 // need connectivity wrt the minimum path rank
-                std::cout << "ENTITY RANK: " << (uint)mtk::get_entity_rank_from_index( tParentOrdinalAndRank( 1 ) ) << '\n';
                 tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
                         mtk::EntityRank::ELEMENT,

@@ -338,15 +338,6 @@ namespace moris::xtk
     {
         return false;
     }
-    // ----------------------------------------------------------------------------------
-
-    bool
-    Octree_Interface::is_eligible( std::pair< mtk::Cell *, Vector< Decomposition_Algorithm_Type > > &aElementContext,
-            Cut_Integration_Mesh                                                                    *aCutIntegrationMesh,
-            Integration_Mesh_Generator                                                              *aMeshGenerator ) const
-    {
-        return true;
-    }
 
     // ----------------------------------------------------------------------------------
 

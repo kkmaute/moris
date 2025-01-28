@@ -72,16 +72,6 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-    bool
-    Elevate_Order_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-            Cut_Integration_Mesh*                                                                          aCutIntegrationMesh,
-            Integration_Mesh_Generator*                                                                    aMeshGenerator ) const
-    {
-        return true;
-    }
-
-    // ----------------------------------------------------------------------------------
-
     Vector< moris_index >
     Elevate_Order_Interface::get_decomposed_cell_indices()
     {

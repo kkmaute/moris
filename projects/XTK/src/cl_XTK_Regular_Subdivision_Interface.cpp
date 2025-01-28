@@ -37,24 +37,6 @@ namespace moris::xtk
 
     //--------------------------------------------------------------------------------------------------
 
-    bool
-    Regular_Subdivision_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-            Cut_Integration_Mesh*                                                                                aCutIntegrationMesh,
-            Integration_Mesh_Generator*                                                                          aMeshGenerator ) const
-    {
-        // Get the existing decomposition types
-        Vector< Decomposition_Algorithm_Type > tDecompTypes = aElementContext.second;
-
-        // Check if this element is doing Delaunay
-        bool tIsDelaunay = std::find( tDecompTypes.begin(), tDecompTypes.end(), Decomposition_Algorithm_Type::DELAUNAY ) != tDecompTypes.end();
-
-        // Decompose if it the element has not been Delaunay triangulated and is intersected
-        // return not tIsDelaunay and aMeshGenerator->is_intersected( aElementContext.first );
-        return not tIsDelaunay;
-    }
-
-    //--------------------------------------------------------------------------------------------------
-
     Vector< moris_index >
     Regular_Subdivision_Interface::get_decomposed_cell_indices()
     {

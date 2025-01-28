@@ -50,16 +50,6 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-    bool
-    Node_Hierarchy_Interface::is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-            Cut_Integration_Mesh*                                                                           aCutIntegrationMesh,
-            Integration_Mesh_Generator*                                                                     aMeshGenerator ) const
-    {
-        return true;
-    }
-
-    // ----------------------------------------------------------------------------------
-
     Vector< moris_index >
     Node_Hierarchy_Interface::get_decomposed_cell_indices()
     {
@@ -240,11 +230,6 @@ namespace moris::xtk
             // for intersected edges, invoke intersection procedure
             if ( tIsIntersected )
             {
-                // brendan delete
-                if ( iEdge == 9 )
-                {
-                    std::cout << "edge of interest" << std::endl;
-                }
                 // Queue intersection node
                 mGeometryEngine->queue_intersection(
                         tEdgeToVertex( 0 ),

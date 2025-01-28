@@ -41,10 +41,6 @@ namespace moris::xtk
 
         ~Delaunay_Subdivision_Interface() override {}
 
-        bool is_eligible( std::pair< mtk::Cell*, Vector< Decomposition_Algorithm_Type > >& aElementContext,
-                Cut_Integration_Mesh*                                                      aCutIntegrationMesh,
-                Integration_Mesh_Generator*                                                aMeshGenerator ) const override;
-
         Vector< moris_index > get_decomposed_cell_indices() override;
 
         bool has_geometric_dependent_vertices() const override;
@@ -73,7 +69,13 @@ namespace moris::xtk
         // template functions
 
       private:
-        // BRENDAN write documentation
+        /**
+         * Performs a constrained Delaunay triangulation using geompack3d for all child meshes with surface points. 
+         * Uses mAllSurfacePoints to get the points for triangulation, which must be computed first.
+         * 
+         * @return Vector< Vector< moris_index > > - the connectivity of the new cells. Outer index is the child mesh,
+         * inner index is the local triangulation indices, starting from 1.
+         */
         Vector< Vector< moris_index > > triangulation();
 
         mtk::CellTopology get_ig_cell_topology() const;
