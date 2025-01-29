@@ -2992,7 +2992,7 @@ namespace moris::xtk
                     // Compute quadrature weights via moment fitting
                     mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( mOrder, mDim );
 
-                    fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
+                    //fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
 
                     // get the subphases in the void region
                     for ( uint iVoid = 0; iVoid < tNumSPsOnCell; iVoid++ )

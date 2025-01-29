@@ -468,7 +468,7 @@ namespace moris::xtk
                 // Get cell
                 mtk::Cell* tSubphaseCellToCheck = tSubphaseIgCellsPtr( iSubphaseCellIndex );
 
-                fprintf( stdout , "Subphase cell index %d\n", tSubphaseCellToCheck->get_index() );
+                //fprintf( stdout , "Subphase cell index %d\n", tSubphaseCellToCheck->get_index() );
 
                 // Get local cell index
                 //moris_index tSubphaseCellIndexLocal = aFacetConnectivity->get_cell_ordinal( tSubphaseCellToCheck->get_index() );
@@ -782,14 +782,155 @@ namespace moris::xtk
             // Get facet normal
             Matrix< DDRMat > tFacetNormal = mFacetNormals( iFacetIndex );
 
-            real tx0  = tFacetCoords( 0 , 0 );
-            real ty0  = tFacetCoords( 0 , 1 );
+            real tu1  = tFacetCoords( 0 , 0 );
+            real tv1  = tFacetCoords( 0 , 1 );
 
-            real tx1  = tFacetCoords( 1 , 0 );
-            real ty1  = tFacetCoords( 1 , 1 );
+            real tu2  = tFacetCoords( 1 , 0 );
+            real tv2  = tFacetCoords( 1 , 1 );
 
             real tNx  = tFacetNormal( 0 , 0 );
             real tNy  = tFacetNormal( 1 , 0 );
+
+            real tD   = std::sqrt(std::pow( tu2-tu1 , 2) + std::pow( tv2-tv1 , 2 )); 
+
+            real t21 = tu1*tu1;
+            real t31 = -tu2;
+            real t41 = -tv2;
+            real t51 = tv1-1.0;
+            real t61 = tu1/4.0;
+            real t71 = tu2/4.0;
+            real t81 = t31+tu1;
+            real t91 = t41+tv1;
+            real t101 = -t61;
+            real t121 = t21/8.0;
+            real t111 = t81*t81;
+            //real t131 = -t121;
+            real t141 = t61*t81;
+            //real t151 = t61+t131;
+            real t161 = t71+t101+t141;
+
+            tMomentFittingRHS( 0 , 0 ) += tD*0.5*tNx*( t51*(t101+t121) - (t91*(t101+t121))/2.0 + (t51*t111)/2.4e+1 - (t91*t111)/3.2e+1 - (t51*t161)/2.0 + (t91*t161)/3.0);
+
+            real t22 = tv1*tv1;
+            real t32 = -tv1;
+            real t42 = -tv2;
+            real t52 = tu1/4.0;
+            real t62 = tu2/4.0;
+            real t72 = t42+tv1;
+            real t82 = -t62;
+            real t92 = t22/2.0;
+            real t142 = t52-(1.0/4.0);
+            real t102 = t72*t72;
+            //real t112 = -t92;
+            real t122 = t72*tv1;
+            real t152 = t52+t82;
+            //real t132 = t112+tv1;
+            real t162 = t32+t122+tv2;
+
+            tMomentFittingRHS( 0 , 0 ) += tD*0.5*tNy*(t142*(t32+t92) - (t152*(t32+t92))/2.0 + (t102*t142)/6.0 - (t102*t152)/8.0 - (t142*t162)/2.0 + (t152*t162)/3.0);
+
+            real t23 = tu1*tu1;
+            real t33 = -tu2;
+            real t43 = -tv2;
+            real t53 = tv1-1.0;
+            real t63 = tu1/4.0;
+            real t73 = tu2/4.0;
+            real t83 = t33+tu1;
+            real t93 = t43+tv1;
+            real t103 = -t73;
+            real t123 = t23/8.0;
+            real t113 = t83*t83;
+            real t133 = t63*t83;
+            real t143 = t63+t123;
+            real t153 = t63+t103+t133;
+
+            tMomentFittingRHS( 1 , 0 ) += tD*0.5*tNx*(t53*t113*(-1.0/2.4e+1) - t53*t143 + (t53*t153)/2.0 + (t93*t113)/(3.2e+1) + (t93*t143)/2.0 - (t93*t153)/3.0);
+
+            real t24 = tv1*tv1;
+            real t34 = -tv1;
+            real t44 = -tv2;
+            real t54 = tu1/4.0;
+            real t64 = tu2/4.0;
+            real t74 = t44+tv1;
+            real t84 = -t64;
+            real t94 = t24/2.0;
+            real t134 = t54+1.0/4.0;
+            real t104 = t74*t74;
+            //real t114 = -t94;
+            real t124 = t74*tv1;
+            real t154 = t54+t84;
+            //real t144 = t114+tv1;
+            real t164 = t34+t124+tv2;
+
+            tMomentFittingRHS( 1 , 0 ) += tD*0.5*tNy*((-t134)*(t34+t94) + (t154*(t34+t94))/2.0 -(t104*t134)/6.0 + (t104*t154)/8.0 + (t134*t164)/2.0 - (t154*t164)/3.0);
+
+            real t25 = tu1*tu1;
+            real t35 = tv1+1.0;
+            real t45 = -tu2;
+            real t55 = -tv2;
+            real t65 = tu1/4.0;
+            real t75 = tu2/4.0;
+            real t85 = t45+tu1;
+            real t95 = t55+tv1;
+            real t105 = -t75;
+            real t125 = t25/8.0;
+            real t115 = t85*t85;
+            real t135 = t65*t85;
+            real t145 = t65+t125;
+            real t155 = t65+t105+t135;
+
+            tMomentFittingRHS( 2 , 0 ) += tD*0.5*tNx*( (t35*t115)/2.4e+1 + t35*t145 - (t35*t155)/2.0 - (t95*t115)/3.2e+1 - (t95*t145)/2.0 + (t95*t155)/3.0);
+
+            real t26 = tv1*tv1;
+            real t36 = -tv2;
+            real t46 = tu1/4.0;
+            real t56 = tu2/4.0;
+            real t66 = t36+tv1;
+            real t76 = -t56;
+            real t86 = t26/2.0;
+            real t126 = t46+1.0/4.0;
+            real t96 = t66*t66;
+            real t106 = t66*tv1;
+            real t116 = t86+tv1;
+            real t136 = t46+t76;
+            real t146 = t66+t106;
+
+            tMomentFittingRHS( 2 , 0 ) += tD*0.5*tNy*((t96*t126)/6.0 - (t96*t136)/8.0 + t116*t126 - (t116*t136)/2.0 - (t126*t146)/2.0 + (t136*t146)/3.0);
+
+            real t27 = tu1*tu1;
+            real t37 = tv1+1.0;
+            real t47 = -tu2;
+            real t57 = -tv2;
+            real t67 = tu1/4.0;
+            real t77 = tu2/4.0;
+            real t87 = t47+tu1;
+            real t97 = t57+tv1;
+            real t107 = -t67;
+            real t127 = t27/8.0;
+            real t117 = t87*t87;
+            //real t137 = -t127;
+            real t147 = t67*t87;
+            //real t157 = t67+t137;
+            real t167 = t77+t107+t147;
+
+            tMomentFittingRHS( 3 , 0 ) += tD*0.5*tNx*( -t37*(t107+t127) + (t97*(t107+t127))/2.0 - (t37*t117)/(2.4e+1) + (t37*t167)/2.0 + (t97*t117)/(3.2e+1) - (t97*t167)/3.0);
+
+            real t28 = tv1*tv1;
+            real t38 = -tv2;
+            real t48 = tu1/4.0;
+            real t58 = tu2/4.0;
+            real t68 = t38+tv1;
+            real t78 = -t58;
+            real t88 = t28/2.0;
+            real t128 = t48-(1.0/4.0);
+            real t98 = t68*t68;
+            real t108 = t68*tv1;
+            real t118 = t88+tv1;
+            real t138 = t48+t78;
+            real t148 = t68+t108;
+
+            tMomentFittingRHS( 3 , 0 ) += tD*0.5*tNy*(t98*t128*(-1.0/6.0) + (t98*t138)/8.0 - t118*t128 + (t118*t138)/2.0 + (t128*t148)/2.0- (t138*t148)/3.0);
+
 
             /*real ta11 = tx0 - tx1;
             real ta12 = ty0 - ty1;
@@ -835,30 +976,30 @@ namespace moris::xtk
 
             //tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5 * ( (std::pow( (tx0 - tx1) , 2)*( ty0 - 1.0 ))/24.0 - (std::pow( (tx0 - tx1) , 2)*( ty0 - ty1 ))/32.0 + ((( 1 / 8.0 ) * std::pow( tx0 , 2 ) -  tx0 / 4.0 )*( ty0 - ty1 ))/2.0 )*/
             
-            tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5*tNx*(( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + 0.5 * (( 1.0 / 8.0 )* (- std::pow( tx0 , 2 )) + ( 1.0 / 4.0 )*( tx0 ) )*( ty0 - ty1 ) + (1.0 / 3.0)*( ty0 - ty1 )*( tx1/4.0 - tx0/4.0 + (tx0/4.0) * (tx0 - tx1) ) - ( -std::pow( tx0 , 2 )/8.0 + tx0/4.0 )*(ty0 - 1) - 0.5*(ty0 - 1.0)*(tx1/4.0 - tx0/4.0 + (tx0/4.0)*(tx0 - tx1) ));  
+            //tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5*tNx*(( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + 0.5 * (( 1.0 / 8.0 )* (- std::pow( tx0 , 2 )) + ( 1.0 / 4.0 )*( tx0 ) )*( ty0 - ty1 ) + (1.0 / 3.0)*( ty0 - ty1 )*( tx1/4.0 - tx0/4.0 + (tx0/4.0) * (tx0 - tx1) ) - ( -std::pow( tx0 , 2 )/8.0 + tx0/4.0 )*(ty0 - 1) - 0.5*(ty0 - 1.0)*(tx1/4.0 - tx0/4.0 + (tx0/4.0)*(tx0 - tx1) ));  
 
-            tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5*tNy*( 0.25*0.5*(tx0 - tx1)*(0.5 * std::pow( ty0 , 2 ) + ty0) - (1.0/32.0)*(tx0-tx1)*(std::pow( (ty0-ty1), 2)) + (1.0/12.0)*(tx0 - tx1)*(ty1 - ty0 + ty0*(ty0 - ty1)) + (1.0/24.0)*(ty0 - 1.0)*(std::pow( (ty0-ty1), 2)) - ( -0.5*std::pow( ty0, 2 ) + ty0 )*0.25*( tx0 - 1.0 ) - 0.5*0.25*( tx0 - 1 )*( ty1- ty0 + ty0*(ty0 - ty1) ) );   
+            //tMomentFittingRHS( 0 , 0 ) = tMomentFittingRHS( 0 , 0 ) + 0.5*tNy*( 0.25*0.5*(tx0 - tx1)*(0.5 * std::pow( ty0 , 2 ) + ty0) - (1.0/32.0)*(tx0-tx1)*(std::pow( (ty0-ty1), 2)) + (1.0/12.0)*(tx0 - tx1)*(ty1 - ty0 + ty0*(ty0 - ty1)) + (1.0/24.0)*(tx0 - 1.0)*(std::pow( (ty0-ty1), 2)) - ( -0.5*std::pow( ty0, 2 ) + ty0 )*0.25*( tx0 - 1.0 ) - 0.5*0.25*( tx0 - 1 )*( ty1- ty0 + ty0*(ty0 - ty1) ) );   
 
-            tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + 0.5*tNx*( ( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + (( 1.0/8.0 )*std::pow( tx0 , 2) - tx0/4.0 )*0.5*( ty0 -ty1 ) - (1.0/3.0)*(ty0 - ty1)*( tx0/4.0 - tx1/4.0 + (tx0/4.0)*( tx0 - tx1 )) - (std::pow(tx0,2)/8.0 + tx0/4.0)*(ty0 - 1.0) + 0.5*(ty0 - 1.0)*(tx0/4.0 - tx1/4.0 + (tx0/4.0)*(tx0 - tx1) ) );
+            //tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + 0.5*tNx*( ( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + (( 1.0/8.0 )*std::pow( tx0 , 2) - tx0/4.0 )*0.5*( ty0 -ty1 ) - (1.0/3.0)*(ty0 - ty1)*( tx0/4.0 - tx1/4.0 + (tx0/4.0)*( tx0 - tx1 )) - (std::pow(tx0,2)/8.0 + tx0/4.0)*(ty0 - 1.0) + 0.5*(ty0 - 1.0)*(tx0/4.0 - tx1/4.0 + (tx0/4.0)*(tx0 - tx1) ) );
 
-            tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + 0.5*tNy*((1.0/32.0)*(tx0 - tx1)*(std::pow( (ty0 - ty1), 2)) - (1.0/8.0)*(tx0 - tx1)*( 0.5*std::pow( ty0 , 2 ) + ty0 ) - (1.0/12.0)*(tx0 - tx1)*(ty1 - ty0 + ty0*(ty0 - ty1)) -  (1.0/24.0)*(std::pow(ty0 - ty1, 2))*( tx0 + 1.0) + 0.25*(-std::pow(ty0,2) + ty0 ) + 0.25*0.5*(tx0 + 1)*(ty1 - ty0 + ty0*(ty0 - ty1)));
+            //tMomentFittingRHS( 1 , 0 ) = tMomentFittingRHS( 1 , 0 ) + 0.5*tNy*((1.0/32.0)*(tx0 - tx1)*(std::pow( (ty0 - ty1), 2)) - (1.0/8.0)*(tx0 - tx1)*( 0.5*std::pow( ty0 , 2 ) + ty0 ) - (1.0/12.0)*(tx0 - tx1)*(ty1 - ty0 + ty0*(ty0 - ty1)) -  (1.0/24.0)*(std::pow(ty0 - ty1, 2))*( tx0 + 1.0) + 0.25*(-std::pow(ty0,2) + ty0 ) + 0.25*0.5*(tx0 + 1)*(ty1 - ty0 + ty0*(ty0 - ty1)));
 
-            tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + 0.5*tNx*( ( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 + 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + 0.5*((1.0/8.0)*std::pow(tx0,2)+ tx0/4.0 )*(ty0 - ty1) + (1.0/3.0)*(ty0 -ty1)*0.25*(tx0 - tx1 + tx0*(tx0 - tx1)) + 0.25*(0.5*std::pow(tx0,2) + tx0)*(ty0 + 1.0) - 0.5*0.25*(ty0 + 1.0)*(tx0 - tx1 + tx0*(tx0 - tx1)));
+            //tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + 0.5*tNx*( ( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 + 1.0 ) - ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) + 0.5*((1.0/8.0)*std::pow(tx0,2)+ tx0/4.0 )*(ty0 - ty1) + (1.0/3.0)*(ty0 -ty1)*0.25*(tx0 - tx1 + tx0*(tx0 - tx1)) + 0.25*(0.5*std::pow(tx0,2) + tx0)*(ty0 + 1.0) - 0.5*0.25*(ty0 + 1.0)*(tx0 - tx1 + tx0*(tx0 - tx1)));
 
-            tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + 0.5*tNy*( (1.0/12.0)*(tx0 - tx1)*(ty0 - ty1 + ty0*(ty0 - ty1)) - 0.5*0.25*(tx0 - tx1)*(0.5*std::pow(ty0,2)+ty0) - (1.0/32.0)*(tx0 - tx1)*(std::pow(ty0 - ty1,2)) + (1.0/24.0)*(tx0 + 1.0)*(std::pow(ty0 - ty1, 2)) + 0.25*(0.5*std::pow(ty0,2) + ty0)*(tx0 + 1.0) - 0.5*0.25*(tx0 + 1.0)*(ty0 - ty1 +ty0*(ty0 - ty1)));
+            //tMomentFittingRHS( 2 , 0 ) = tMomentFittingRHS( 2 , 0 ) + 0.5*tNy*( (1.0/12.0)*(tx0 - tx1)*(ty0 - ty1 + ty0*(ty0 - ty1)) - 0.5*0.25*(tx0 - tx1)*(0.5*std::pow(ty0,2)+ty0) - (1.0/32.0)*(tx0 - tx1)*(std::pow(ty0 - ty1,2)) + (1.0/24.0)*(tx0 + 1.0)*(std::pow(ty0 - ty1, 2)) + 0.25*(0.5*std::pow(ty0,2) + ty0)*(tx0 + 1.0) - 0.5*0.25*(tx0 + 1.0)*(ty0 - ty1 +ty0*(ty0 - ty1)));
 
-            tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + 0.5*tNx*( -( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 + 1.0 ) + ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) - 0.25*(-0.5*std::pow(tx0 , 2) + tx0 )*( ty0 - ty1 ) - (1.0/12.0)*(ty0 - 1)*( tx1 - tx0 + tx0*(tx0 - tx1)) + 0.25*(ty0 + 1.0)*( -0.5*std::pow(tx0 , 2) + tx0 ) + (1.0/8.0)*(ty0 + 1)*( tx1 - tx0 + tx0*(tx0 - tx1)) );
+            //tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + 0.5*tNx*( -( 1.0 / 24.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 + 1.0 ) + ( 1.0 / 32.0 ) * std::pow(( tx0 - tx1 ), 2 )* ( ty0 - ty1 ) - 0.25*(-0.5*std::pow(tx0 , 2) + tx0 )*( ty0 - ty1 ) - (1.0/12.0)*(ty0 - 1)*( tx1 - tx0 + tx0*(tx0 - tx1)) + 0.25*(ty0 + 1.0)*( -0.5*std::pow(tx0 , 2) + tx0 ) + (1.0/8.0)*(ty0 + 1)*( tx1 - tx0 + tx0*(tx0 - tx1)) );
 
-            tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + 0.5*tNy*( (1.0/32.0)*(tx0 -tx1)*(std::pow(ty0 - ty1, 2)) + 0.25*0.5*(tx0 - tx1)*( 0.5*std::pow(ty0, 2) + ty0 ) - (1.0/12.0)*(tx0 - tx1)*(ty0 - ty1 + ty0*(ty0 - ty1)) - (1.0/24.0)*(tx0 - 1.0)*(std::pow(ty0 - ty1, 2)) + 0.25*(tx0 - 1)*(0.25*std::pow(ty0,2)) + 0.5*0.25*(tx0 - 1)*( ty0 - ty1 + ty0*(ty0 - ty1)));
+            //tMomentFittingRHS( 3 , 0 ) = tMomentFittingRHS( 3 , 0 ) + 0.5*tNy*( (1.0/32.0)*(tx0 -tx1)*(std::pow(ty0 - ty1, 2)) + 0.25*0.5*(tx0 - tx1)*( 0.5*std::pow(ty0, 2) + ty0 ) - (1.0/12.0)*(tx0 - tx1)*(ty0 - ty1 + ty0*(ty0 - ty1)) - (1.0/24.0)*(tx0 - 1.0)*(std::pow(ty0 - ty1, 2)) + 0.25*(tx0 - 1)*(0.25*std::pow(ty0,2)) + 0.5*0.25*(tx0 - 1)*( ty0 - ty1 + ty0*(ty0 - ty1)));
 
-
+            fprintf(stdout, "Facet Index %d \n", iFacetIndex );
 
         }
 
         // Solve the system
-        mQuadratureWeights = {{0.0}, {0.0}, {0.0}, {0.0}};
+        //mQuadratureWeights = {{0.0}, {0.0}, {0.0}, {0.0}};
         
-        mQuadratureWeights = ( inv( tMomentFittingLHS ) * tMomentFittingRHS);
+        mQuadratureWeights = 2.0*( inv( tMomentFittingLHS ) * tMomentFittingRHS);
 
         
 
