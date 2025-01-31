@@ -1176,8 +1176,8 @@ namespace moris::hmr
 
             tParameters.set_initial_refinement( { 0 } );
 
-            tParameters.set_background_mesh_file_name( "backgroundmesh.vtk" );
-            tParameters.set_lagrange_mesh_file_name( "lagrangemesh.vtk" );
+            tParameters.set_background_mesh_output_file_name( "backgroundmesh.vtk" );
+            tParameters.set_lagrange_mesh_output_file_name( "lagrangemesh.vtk" );
 
             tParameters.set_number_aura( true );
 
@@ -1269,8 +1269,8 @@ namespace moris::hmr
 
             tParameters.set_initial_refinement( { 0 } );
 
-            tParameters.set_background_mesh_file_name( "backgroundmesh.vtk" );
-            tParameters.set_lagrange_mesh_file_name( "lagrangemesh.vtk" );
+            tParameters.set_background_mesh_output_file_name( "backgroundmesh.vtk" );
+            tParameters.set_lagrange_mesh_output_file_name( "lagrangemesh.vtk" );
 
             tParameters.set_number_aura( true );
 
@@ -1380,7 +1380,7 @@ namespace moris::hmr
             tParameterlist_test.set( "use_multigrid", 0 );
             //tParameterlist_test.set( "severity_level", 0 );
 
-            tParameterlist_test.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+            tParameterlist_test.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh.vtk" );
 
             // create the HMR object by passing the settings to the constructor
             HMR tHMR( tParameterlist_test );
@@ -1469,7 +1469,7 @@ namespace moris::hmr
             tParameterlist_test.set( "use_multigrid", 0 );
             //tParameterlist_test.set( "severity_level", 0 );
 
-            tParameterlist_test.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+            tParameterlist_test.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh.vtk" );
 
             // create the HMR object by passing the settings to the constructor
             HMR tHMR( tParameterlist_test );

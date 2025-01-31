@@ -930,7 +930,7 @@ namespace moris::hmr
          * @param aWriteBackgroundMesh Background mesh file name
          */
         void
-        set_background_mesh_file_name( const std::string& aWriteBackgroundMesh )
+        set_background_mesh_output_file_name( const std::string& aWriteBackgroundMesh )
         {
             mBackgroundMeshFileName = aWriteBackgroundMesh;
         }
@@ -941,7 +941,7 @@ namespace moris::hmr
          * @param aWriteOutputLagrangeMesh Lagrange mesh file name
          */
         void
-        set_lagrange_mesh_file_name( const std::string& aWriteOutputLagrangeMesh )
+        set_lagrange_mesh_output_file_name( const std::string& aWriteOutputLagrangeMesh )
         {
             mLagrangeMeshFileName = aWriteOutputLagrangeMesh;
         }
@@ -974,7 +974,7 @@ namespace moris::hmr
          * @return Background mesh file name
          */
         const std::string&
-        get_background_mesh_file_name()
+        get_background_mesh_output_file_name()
         {
             return mBackgroundMeshFileName;
         }
@@ -985,7 +985,7 @@ namespace moris::hmr
          * @return Output Lagrange mesh file name
          */
         const std::string&
-        get_lagrange_mesh_file_name()
+        get_lagrange_mesh_output_file_name()
         {
             return mLagrangeMeshFileName;
         }

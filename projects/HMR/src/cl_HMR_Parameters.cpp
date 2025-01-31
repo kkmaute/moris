@@ -163,9 +163,9 @@ namespace moris::hmr
 
         this->set_refinement_for_low_level_elements( aParameterList.get< bool >( "use_refine_low_level_elements" ) );
 
-        this->set_background_mesh_file_name( aParameterList.get< std::string >( "write_background_mesh" ) );
+        this->set_background_mesh_output_file_name( aParameterList.get< std::string >( "write_background_mesh" ) );
 
-        this->set_lagrange_mesh_file_name( aParameterList.get< std::string >( "write_lagrange_output_mesh" ) );
+        this->set_lagrange_mesh_output_file_name( aParameterList.get< std::string >( "lagrange_mesh_output_file_name" ) );
 
         this->set_write_refinement_pattern_file_flag( aParameterList.get< bool >( "write_refinement_pattern_file" ) );
 
@@ -661,7 +661,7 @@ namespace moris::hmr
     //--------------------------------------------------------------------------------
 
     bool
-    Parameters::is_output_mesh( const uint aMeshIndex ) const
+    Parameters::is_output_mesh( uint aMeshIndex ) const
     {
         const Vector< Vector< uint > >& tOutputMeshes = this->get_output_mesh();
         bool tIsOutputMesh = false;

@@ -45,7 +45,6 @@
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Field.hpp"             //HMR/src
 #include "cl_MTK_Field_Discrete.hpp"    //HMR/src
-#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "HDF5_Tools.hpp"
 
@@ -199,49 +198,7 @@ namespace moris::hmr
         mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
 
         // save first mesh
-        std::string tFileName = mParameters->get_lagrange_mesh_file_name();
-        if ( tFileName.size() > 4 and tFileName.substr( tFileName.size() - 4 ) == ".exo" )
-        {
-            // report on this operation
-            MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
-
-            mtk::Writer_Exodus writer( tInterpolationMesh );
-            writer.write_mesh( "", tFileName, "", "hmr_temp.exo" );
-            writer.close_file();
-        }
-
-        if ( OutputMeshIndex.size() == 2 )
-        {
-            for ( uint iOutputMesh = 0; iOutputMesh < OutputMeshIndex( 1 ).size(); iOutputMesh++ )
-            {
-                uint tLagrangeMeshIndexSecondary = OutputMeshIndex( 1 )( iOutputMesh );
-
-                MORIS_ERROR( tLagrangeMeshIndex != tLagrangeMeshIndexSecondary,
-                        "it is not recommended to base a secondary output mesh on the same mesh index than the main output mesh. This might cause weird behaviors in parallel because of a numbered aura" );
-
-                moris::hmr::Interpolation_Mesh_HMR* tInterpolationMeshSecondary =
-                        this->create_interpolation_mesh( tLagrangeMeshIndex );
-
-                moris::hmr::Integration_Mesh_HMR* tIntegrationMeshSecondary =
-                        this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
-
-                // register HMR interpolation and integration meshes
-                mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( iOutputMesh + 1 ) );
-
-                // save additional meshes
-                if ( tFileName.size() > 4 and tFileName.substr( tFileName.size() - 4 ) == ".exo" )
-                {
-                    std::string tAddFileName = tFileName + "_Mesh_" + std::to_string( iOutputMesh );
-
-                    // report on this operation
-                    MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tAddFileName.c_str() );
-
-                    moris::mtk::Writer_Exodus writer( tInterpolationMeshSecondary );
-                    writer.write_mesh( "", tAddFileName, "", "hmr_temp.exo" );
-                    writer.close_file();
-                }
-            }
-        }
+        tInterpolationMesh->save_to_file();
     }
 
     // -----------------------------------------------------------------------------

@@ -622,7 +622,11 @@ namespace moris::hmr
 
         mtk::CellShape get_IP_blockset_shape( const std::string& aSetName ) override;
 
-        //-------------------------------------------------------------------------------
+        /**
+         * Outputs this mesh to an Exodus or VTK file, based on the file extension provided as a parameter to HMR for an output mesh.
+         * If no name is given, no file will be output.
+         */
+        void save_to_file();
 
       private:
         //-------------------------------------------------------------------------------
@@ -780,8 +784,6 @@ namespace moris::hmr
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_children_weights_for_parent( aBasisIndex );
         }
-
-        //-------------------------------------------------------------------------------
 
 #ifdef MORIS_HAVE_DEBUG
         Matrix< DDRMat >

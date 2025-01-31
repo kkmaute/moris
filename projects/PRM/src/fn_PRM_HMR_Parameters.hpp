@@ -87,7 +87,7 @@ namespace moris::prm
         tParameterList.insert( "write_background_mesh", "" );
 
         // label of lagrange mesh output file (VTK/Exodus)
-        tParameterList.insert( "write_lagrange_output_mesh", "" );
+        tParameterList.insert( "lagrange_mesh_output_file_name", "" );
 
         // name of restart file - write
         tParameterList.insert( "write_refinement_pattern_file", false );

@@ -475,7 +475,7 @@ namespace moris
         aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
 
-        aParameterLists.set( "write_lagrange_output_mesh_to_exodus", "HeatConduction_HMR.exo" );
+        aParameterLists.set( "lagrange_mesh_output_file_name", "HeatConduction_HMR.exo" );
     }
 
     /* ------------------------------------------------------------------------ */

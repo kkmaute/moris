@@ -21,6 +21,7 @@
 #include "cl_HMR_Element.hpp"
 #include "fn_HMR_refinement_transition_locations.hpp"
 #include "MTK_Tools.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_sort.hpp"
 #include "fn_unique.hpp"
 
@@ -2371,6 +2372,35 @@ namespace moris::hmr
     Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
         return mtk::CellShape::RECTANGULAR;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    void Mesh::save_to_file()
+    {
+        // Get file name
+        std::string tFileName = mDatabase->get_parameters()->get_lagrange_mesh_output_file_name();
+
+        // Output to exodus or vtk as long as there is a valid file extension
+        if ( tFileName.size() > 4 )
+        {
+            // report on this operation
+            MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
+
+            // Exodus
+            if ( tFileName.substr( tFileName.size() - 4 ) == ".exo" )
+            {
+                mtk::Writer_Exodus tWriter( this );
+                tWriter.write_mesh( "", tFileName, "", "hmr_temp.exo" );
+                tWriter.close_file();
+            }
+
+            // VTK
+            else if ( tFileName.substr( tFileName.size() - 4 ) == ".vtk" )
+            {
+                mMesh->save_to_vtk( tFileName );
+            }
+        }
     }
 
     //-------------------------------------------------------------------------------

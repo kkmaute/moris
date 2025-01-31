@@ -526,9 +526,9 @@ namespace moris::hmr
                     mBackgroundMesh->create_facets();
                 }
 
-                if ( not mParameters->get_background_mesh_file_name().empty() )
+                if ( not mParameters->get_background_mesh_output_file_name().empty() )
                 {
-                    mBackgroundMesh->save_to_vtk( mParameters->get_background_mesh_file_name() );
+                    mBackgroundMesh->save_to_vtk( mParameters->get_background_mesh_output_file_name() );
                 }
             }
         }
@@ -557,11 +557,6 @@ namespace moris::hmr
                 if ( mParameters->get_number_of_dimensions() == 3 )
                 {
                     tMesh->create_edges();
-                }
-
-                if ( not mParameters->get_lagrange_mesh_file_name().empty() )
-                {
-                    tMesh->save_to_vtk( mParameters->get_lagrange_mesh_file_name() );
                 }
             }
         }

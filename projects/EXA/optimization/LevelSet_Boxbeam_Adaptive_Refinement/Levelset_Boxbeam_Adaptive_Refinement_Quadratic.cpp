@@ -412,7 +412,7 @@ namespace moris
         aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
 
-        aParameterLists.set( "write_lagrange_output_mesh_to_exodus", "HMRLagrangeMesh_Quadratic.exo" );
+        aParameterLists.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh_Quadratic.exo" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
