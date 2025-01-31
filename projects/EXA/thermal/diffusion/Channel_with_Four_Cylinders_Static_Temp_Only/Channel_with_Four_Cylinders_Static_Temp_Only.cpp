@@ -165,7 +165,6 @@ namespace moris
         aParameterLists.set( "processor_dimensions", "2,1" );
         aParameterLists.set( "domain_dimensions", "4,2" );
         aParameterLists.set( "domain_offset", "-1.24,-0.86" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", std::to_string( gInterpolationOrder ) );

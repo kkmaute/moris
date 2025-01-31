@@ -228,7 +228,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", "4,4" );
         aParameterLists.set( "domain_dimensions", "4.0,4.0" );
         aParameterLists.set( "domain_offset", "-2.0,-2.0" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tInterpolationOrder );

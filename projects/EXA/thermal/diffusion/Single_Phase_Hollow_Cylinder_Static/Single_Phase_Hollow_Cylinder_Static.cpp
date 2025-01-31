@@ -125,7 +125,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", "21,21" );
         aParameterLists.set( "domain_dimensions", "5,5" );
         aParameterLists.set( "domain_offset", "-2.5+0.13,-2.5+0.18" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", std::to_string( gInterpolationOrder ) );

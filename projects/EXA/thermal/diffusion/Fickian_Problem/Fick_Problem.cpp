@@ -100,7 +100,6 @@ namespace moris
         aParameterLists.set( "processor_decomposition_method", 1 );
         aParameterLists.set( "domain_dimensions", "0.168,0.0005" );
         aParameterLists.set( "domain_offset", "0.0,0.0" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         if ( gPrintReferenceValues == true )

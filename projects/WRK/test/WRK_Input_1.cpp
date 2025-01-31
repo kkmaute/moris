@@ -289,25 +289,24 @@ namespace moris
         MORIS_ERROR( tMorisOutput.size() > 0,
                 "Environment variable MORISOUTPUT not set." );
         aParameterList( 0 ).set( "File_Name", std::pair< std::string, std::string >( tMorisOutput, "MDL_input_test.exo" ) );
-        aParameterList( 0 ).set( "Set_Names", std::string( "HMR_dummy_n_p1" ) );
-        aParameterList( 0 ).set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
-        aParameterList( 0 ).set( "Field_Type", std::string( "ELEMENTAL_AVG,GLOBAL,NODAL" ) );
-        aParameterList( 0 ).set( "IQI_Names", std::string( "IQIBulkU_1,IQIBulkU_1,IQIBulkU_1" ) );
+        aParameterList( 0 ).set( "Set_Names", "HMR_dummy_n_p1" );
+        aParameterList( 0 ).set( "Field_Names", "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" );
+        aParameterList( 0 ).set( "Field_Type", "ELEMENTAL_AVG,GLOBAL,NODAL" );
+        aParameterList( 0 ).set( "IQI_Names", "IQIBulkU_1,IQIBulkU_1,IQIBulkU_1" );
     }
 
     void
     HMRParameterList( Module_Parameter_Lists& aParameterList )
     {
-        aParameterList( 0 ).set( "number_of_elements_per_dimension", std::string( "2, 1" ) );
+        aParameterList( 0 ).set( "number_of_elements_per_dimension", "2, 1" );
         aParameterList( 0 ).set( "domain_dimensions", "2, 2" );
         aParameterList( 0 ).set( "domain_offset", "-1.0, -1.0" );
-        aParameterList( 0 ).set( "domain_sidesets", "1,2,3,4" );
-        aParameterList( 0 ).set( "lagrange_output_meshes", std::string( "0" ) );
+        aParameterList( 0 ).set( "lagrange_output_meshes", "0" );
 
-        aParameterList( 0 ).set( "lagrange_orders", std::string( "1" ) );
-        aParameterList( 0 ).set( "lagrange_pattern", std::string( "0" ) );
-        aParameterList( 0 ).set( "bspline_orders", std::string( "1" ) );
-        aParameterList( 0 ).set( "bspline_pattern", std::string( "0" ) );
+        aParameterList( 0 ).set( "lagrange_orders", "1" );
+        aParameterList( 0 ).set( "lagrange_pattern", "0" );
+        aParameterList( 0 ).set( "bspline_orders", "1" );
+        aParameterList( 0 ).set( "bspline_pattern", "0" );
 
         aParameterList( 0 ).set( "lagrange_to_bspline", "0" );
 

@@ -74,7 +74,6 @@ namespace moris
     std::string tNumElementsPerDir = tIs3D ? "4,4,4" : "4,4";
     std::string tDimensions        = tIs3D ? "1,1,1" : "1,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
-    std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
 
     int tRefineBuffer = 0;
 
@@ -256,7 +255,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDimensions );
         aParameterLists.set( "domain_offset", tOffSet );
-        aParameterLists.set( "domain_sidesets", tSideSets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tLagrangeOrder );

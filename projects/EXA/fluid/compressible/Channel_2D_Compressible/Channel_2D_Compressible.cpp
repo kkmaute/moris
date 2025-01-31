@@ -221,7 +221,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", ios::stringify( tNumXElems ) + "," + ios::stringify( tNumYElems ) );
         aParameterLists.set( "domain_dimensions",                ios::stringify( tChannelLength ) + "," + ios::stringify( tChannelHeight ) );
         aParameterLists.set( "domain_offset",                    "0.0," + ios::stringify( tChannelHeight / -2.0 ) );
-        aParameterLists.set( "domain_sidesets",                  "1,2,3,4");
         aParameterLists.set( "lagrange_output_meshes",           "0");
 
         aParameterLists.set( "lagrange_orders",  ios::stringify( tIpOrder ) );

@@ -129,7 +129,6 @@ namespace moris
     std::string tNumElemsPerDim = tNumElemX + "," + tNumElemY;
     std::string tDomainDims     = tDomainDimX + "," + tDomainDimY;
     std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY;
-    std::string tDomainSidesets = "1,2,3,4";
 
     int tLevelsetOrder = gInterpolationOrder;
     int tDispOrder     = gInterpolationOrder;
@@ -467,7 +466,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
 
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
