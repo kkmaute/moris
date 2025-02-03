@@ -185,6 +185,16 @@ namespace moris::xtk
                 Vector< std::shared_ptr< Vector< moris::mtk::Vertex * > > > *aNodesForTemplates,
                 Vector< std::shared_ptr< Node_Hierarchy_Template > >        *aNHTemplate );
 
+        /**
+         * Sorts nodes based on how the IG cell is intersected. 
+         * 
+         * @param aIgCell IG cell to sort nodes for. New IG cells are not yet formed in this cell
+         * @param aEdgeToVertexOrdinalMap FIXME Documentation
+         * @param aCellIndexIntersectedEdgeOrdinals FIXME Documentation
+         * @param aCellIndexIntersectedEdgeVertex FIXME Documentation
+         * @param[out] aPermutation Template ID to create new IG cells
+         * @param[out] aSortedNodeInds
+         */
         void
         sort_nodes_2d(
                 moris::mtk::Cell const                                  *aIgCell,

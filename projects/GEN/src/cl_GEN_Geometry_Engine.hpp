@@ -364,7 +364,7 @@ namespace moris::gen
          * Gets the geometric region of a node with respect to a given geometry.
          *
          * @param aGeometryIndex Geometry index
-         * @param aNodeIndex Node index
+         * @param aNodeIndex Node index NOTE: If you call
          * @param aCoordinates Node coordinates
          * @return Geometric region
          */
@@ -373,6 +373,7 @@ namespace moris::gen
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aNodeCoordinates );
 
+
         /**
          * Determines the phase of an element based on the geometric regions at each vertex.
          *
@@ -380,6 +381,20 @@ namespace moris::gen
          * @return element phase index
          */
         moris_index get_element_phase_index( const mtk::Cell& aCell );
+
+        /**
+         * Determines the geometric region at an arbitrary point in space.
+         * NOTE: Only to be used when the element phase index cannot be determined by the region of the vertices alone
+         *       (ie. all vertices are on the interface).
+         * WARNING: In some cases (discretized level set fields), the region may still not be resolved.
+         *
+         * @param aGeometryIndex Index of the geometry to query
+         * @param aNodeCoordinates global coordinates to get the region of
+         * @return Whether the point is inside/outside/interface of the queried geometry
+         */
+        Geometric_Region disambiguate_element_phase(
+                uint                    aGeometryIndex,
+                const Matrix< DDRMat >& aNodeCoordinates );
 
         /**
          * @brief Returns the number of geometries

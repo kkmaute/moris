@@ -99,9 +99,7 @@ namespace moris::xtk
 
             default:
             {
-                std::cout << "Node_Hierarchy_Template_Library::load_2d_template(): \n";
-                std::cout << "WARNING UNDEFINED TEMPLATE ID: " << aTemplateId << '\n'
-                          << std::flush;
+                MORIS_ERROR( false, "Node_Hierarchy_Template_Library::load_2d_template() - Undefined template ID (%d).", aTemplateId );
                 break;
             }
         }

@@ -437,9 +437,6 @@ namespace moris::gen
             tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode ) ) );
         }
 
-        // brendan delete
-        std::cout << "ADDING NEW FLOATING NODE " << mNodeManager.get_total_number_of_nodes() << std::endl;
-
         Floating_Node* tNewNode = mGeometries( aGeometryIndex )->create_floating_node(    //
                 mNodeManager.get_total_number_of_nodes(),
                 tBackgroundNodes,
@@ -564,32 +561,58 @@ namespace moris::gen
         // Loop over all geometries
         for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
         {
+            Geometric_Region tRegion;
             // Loop over vertices on the cell
             for ( auto iVertex : tVertices )
             {
                 // Get geometric region
-                Geometric_Region tGeometricRegion = mGeometries( iGeometryIndex )->get_geometric_region( iVertex->get_index(), iVertex->get_coords() );
+                tRegion = mGeometries( iGeometryIndex )->get_geometric_region( iVertex->get_index(), iVertex->get_coords() );
 
                 // If we can determine the region already, do so
-                if ( tGeometricRegion == Geometric_Region::NEGATIVE )
+                if ( tRegion == Geometric_Region::NEGATIVE )
                 {
                     tGeometrySigns.set( iGeometryIndex, false );
                     goto region_determined;
                 }
-                else if ( tGeometricRegion == Geometric_Region::POSITIVE )
+                else if ( tRegion == Geometric_Region::POSITIVE )
                 {
                     tGeometrySigns.set( iGeometryIndex, true );
                     goto region_determined;
                 }
             }
 
-            // All vertices are (somehow) on the interface; return that this is a problem
-            return MORIS_INDEX_MAX;
+            // All vertices are on the interface; see if the geometry can disambiguate by getting the region inside the cell
+            tRegion = mGeometries( iGeometryIndex )->disambiguate_geometric_region( aCell.compute_cell_centroid() );
+            if ( tRegion == Geometric_Region::NEGATIVE )
+            {
+                tGeometrySigns.set( iGeometryIndex, false );
+                goto region_determined;
+            }
+            else if ( tRegion == Geometric_Region::POSITIVE )
+            {
+                tGeometrySigns.set( iGeometryIndex, true );
+                goto region_determined;
+            }
+            else if ( tRegion == Geometric_Region::UNDEFINED )
+            {
+                // All vertices are on the interface, and the geometry can't figure out the region inside the cell. Return this is a problem
+                return MORIS_INDEX_MAX;
+            }
 
         region_determined:;
         }
 
         return mPhaseTable.get_phase_index( tGeometrySigns );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Geometric_Region
+    Geometry_Engine::disambiguate_element_phase(
+            uint                    aGeometryIndex,
+            const Matrix< DDRMat >& aNodeCoordinates )
+    {
+        return mGeometries( aGeometryIndex )->disambiguate_geometric_region( aNodeCoordinates );
     }
 
     //--------------------------------------------------------------------------------------------------------------

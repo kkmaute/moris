@@ -161,10 +161,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-            const moris_index                        &aMeshPairIndex,
-            const Module_Parameter_Lists &aParameterList,
-            const std::shared_ptr< Library_IO >      &aLibrary )
+            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+            const moris_index                   &aMeshPairIndex,
+            const Module_Parameter_Lists        &aParameterList,
+            const std::shared_ptr< Library_IO > &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -199,10 +199,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-            const moris_index                        &aMeshPairIndex,
-            const Module_Parameter_Lists &aParameterList,
-            MSI::Design_Variable_Interface           *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+            const moris_index                   &aMeshPairIndex,
+            const Module_Parameter_Lists        &aParameterList,
+            MSI::Design_Variable_Interface      *aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -319,7 +319,9 @@ namespace moris::fem
                                              tVertexCoordsFromGen( iSpaceDim )( 0 ),
                                              tVertexCoordsFromMesh( iSpaceDim ),
                                              1.0 ),
-                                "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ\n" );
+                                "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ (%f vs. %f)\n",
+                                tVertexCoordsFromGen( iSpaceDim )( 0 ),
+                                tVertexCoordsFromMesh( iSpaceDim ) );
                     }
                 }
 
@@ -488,7 +490,7 @@ namespace moris::fem
         // loop over each fem set and check if it needs to be updated (i.e. only nonconformal sets!)
         for ( size_t iFemSet = 0; iFemSet < mFemSets.size(); ++iFemSet )
         {
-            auto *const tFemSet      = dynamic_cast< fem::Set      *>( mFemSets( iFemSet ) );
+            auto *const tFemSet      = dynamic_cast< fem::Set * >( mFemSets( iFemSet ) );
             auto const &tMeshSetName = tMeshSetNames( iFemSet );
             if ( tFemSet->get_is_update_required() )
             {

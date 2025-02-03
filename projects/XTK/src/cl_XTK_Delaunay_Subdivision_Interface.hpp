@@ -70,15 +70,24 @@ namespace moris::xtk
 
       private:
         /**
-         * Performs a constrained Delaunay triangulation using geompack3d for all child meshes with surface points. 
+         * Performs a constrained Delaunay triangulation using geompack3d for all child meshes with surface points.
          * Uses mAllSurfacePoints to get the points for triangulation, which must be computed first.
-         * 
+         *
          * @return Vector< Vector< moris_index > > - the connectivity of the new cells. Outer index is the child mesh,
          * inner index is the local triangulation indices, starting from 1.
          */
         Vector< Vector< moris_index > > triangulation();
 
         mtk::CellTopology get_ig_cell_topology() const;
+
+        /**
+         * Computes the global coordinate matrix from the parametric coordinates
+         * 
+         * @param aParametricCoordinates Parametric coordinates of all the surface points within the cell. <nPoints, nDim>
+         * @param aCell The background cell that the surface points lie in
+         * @return Matrix< DDRMat > Global coordinates of the surface points. <nPoints, nDim>
+         */
+        Matrix< DDRMat > get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell );
     };
 
 }    // namespace moris::xtk

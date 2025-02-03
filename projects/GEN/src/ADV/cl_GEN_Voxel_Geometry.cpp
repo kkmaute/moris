@@ -117,6 +117,15 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Geometric_Region Voxel_Geometry::disambiguate_geometric_region(
+            const Matrix< DDRMat >& aNodeCoordinates )
+    {
+        // Since the Voxel geometry relies on purely nodal data, return undefined
+        return Geometric_Region::UNDEFINED;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Intersection_Node* Voxel_Geometry::create_intersection_node(
             uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,

@@ -86,6 +86,17 @@ namespace moris::gen
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
 
         /**
+         * Gets the geometric region of an arbitrary point in space
+         * NOTE: Only to be used when get_geometric_region() cannot be used to get the region of an element
+         * WARNING: For some geometries (discretized level sets), the region may still not be resolved
+         *
+         * @param aNodeCoordinates Global coordinates
+         * @return Region for this geometry at the query location
+         */
+        Geometric_Region disambiguate_geometric_region(
+                const Matrix< DDRMat >& aNodeCoordinates ) override;
+
+        /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.

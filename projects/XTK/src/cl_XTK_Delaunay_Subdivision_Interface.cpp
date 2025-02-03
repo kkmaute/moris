@@ -16,6 +16,8 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Interpolation_Function_Factory.hpp"
+#include "cl_MTK_Interpolation_Function.hpp"
 #include "cl_XTK_Octree_Interface.hpp"
 
 // Fortran function used during the triangulation of 3D physical element. Will return an organized array of the triangulation (number of tetrahedra-by-4 vertices)
@@ -170,22 +172,25 @@ namespace moris::xtk
             mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( tBgCellIndex );
 
             // Get the global coordinates of all the nodes of aCell
-            Matrix< DDRMat > tBackgroundCellCoords = trans( tCell.get_vertex_coords() );
+            Matrix< DDRMat > tBackgroundCellCoords = tCell.get_vertex_coords();
 
-            uint tDim = tBackgroundCellCoords.n_rows();
+            uint tDim = tBackgroundCellCoords.n_cols();
 
             // Get the length of the element for local coordinate transformation later
             Vector< real > tElementLengths( tDim );
             for ( uint iDim = 0; iDim < tDim; iDim++ )
             {
-                tElementLengths( iDim ) = tBackgroundCellCoords.get_row( iDim ).max() - tBackgroundCellCoords.get_row( iDim ).min();
+                tElementLengths( iDim ) = tBackgroundCellCoords.get_column( iDim ).max() - tBackgroundCellCoords.get_column( iDim ).min();
             }
 
-            // Get the surface points for this cell
+            // Get the surface points for this cell - parametric coordinates
             Matrix< DDRMat > tSurfacePoints = aMeshGenerationData->mDelaunayPoints( tBgCellIndex );
 
+            // Get the associated parametric coordinates for the surface points
+            Matrix< DDRMat > tGlobalSurfacePoints = this->get_surface_point_global_coordinates( tSurfacePoints, tCell );
+
             // Make requests for these vertices
-            for ( uint iPoint = 0; iPoint < tSurfacePoints.n_cols(); iPoint++ )
+            for ( uint iPoint = 0; iPoint < tSurfacePoints.n_rows(); iPoint++ )
             {
                 // get the parent rank of the new node
                 mtk::EntityRank tParentRank = mtk::EntityRank::ELEMENT;
@@ -214,49 +219,43 @@ namespace moris::xtk
                             tSecondaryID,
                             tOwningProc,
                             (mtk::EntityRank)tParentRank,
-                            trans( tSurfacePoints.get_column( iPoint ) ) );    // FIXME: trans() is annoying, coords should be column vectors
+                            tGlobalSurfacePoints.get_row( iPoint ) );
 
-                    // Compute the parametric coordinates of the surface point
-                    Matrix< DDRMat > tNewNodeXi = tSurfacePoints.get_column( iPoint ) - tBackgroundCellCoords.get_column( 0 );
-                    for ( uint iDim = 0; iDim < tDim; iDim++ )
-                    {
-                        tNewNodeXi( iDim ) = 2.0 / tElementLengths( iDim ) * tNewNodeXi( iDim ) - 1.0;
-                    }
-                    std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
+                    std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tSurfacePoints.get_row( iPoint ) );
 
                     // Associate this node with the child mesh
                     mDecompositionData->tCMNewNodeLoc( tBgCellIndex ).push_back( tNewNodeIndexInSubdivision );
-                    mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( trans( tNewNodeXi ) );    // FIXME: annoying transpose
+                    mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( tSurfacePoints.get_row( iPoint ) );
 
                     // Register new floating node in GEN
                     mGeometryEngine->create_floating_node(
                             mMeshGenerationData->mDelaunayGeometryIndices( tBgCellIndex )( iPoint ),
                             tCell,
-                            tNewNodeXi,
+                            tSurfacePoints.get_row( iPoint ),
                             tCell.get_geometry_type(),
                             tCell.get_interpolation_order() );
                 }
             }    // end for: iterate through surface points
 
             // Compute the total number of points for this child mesh
-            uint tNumCMPoints = tSurfacePoints.n_cols() + tBackgroundCellCoords.n_cols();
+            uint tNumCMPoints = tSurfacePoints.n_rows() + tBackgroundCellCoords.n_rows();
 
             // Get all of the points for this child mesh into a single vector - background points
             Vector< real > tSurfacePointsVector( tNumCMPoints * tDim );
-            for ( uint iPoint = 0; iPoint < tBackgroundCellCoords.n_cols(); iPoint++ )
+            for ( uint iPoint = 0; iPoint < tBackgroundCellCoords.n_rows(); iPoint++ )
             {
                 for ( uint iDim = 0; iDim < tDim; iDim++ )
                 {
-                    tSurfacePointsVector( iDim + iPoint * tDim ) = tBackgroundCellCoords( iDim, iPoint );
+                    tSurfacePointsVector( iDim + iPoint * tDim ) = tBackgroundCellCoords( iPoint, iDim );
                 }
             }
 
             // Get all of the points for this child mesh into a single vector - surface points
-            for ( uint iPoint = 0; iPoint < tSurfacePoints.n_cols(); iPoint++ )
+            for ( uint iPoint = 0; iPoint < tSurfacePoints.n_rows(); iPoint++ )
             {
                 for ( uint iDim = 0; iDim < tDim; iDim++ )
                 {
-                    tSurfacePointsVector( iDim + ( iPoint + tBackgroundCellCoords.n_cols() ) * tDim ) = tSurfacePoints( iDim, iPoint );
+                    tSurfacePointsVector( iDim + ( iPoint + tBackgroundCellCoords.n_rows() ) * tDim ) = tGlobalSurfacePoints( iPoint, iDim );
                 }
             }
 
@@ -344,6 +343,52 @@ namespace moris::xtk
 
         mNumNewCells += mNumTotalCells;
     }    // end function: Delaunay_Subdivision_Interface::perform_impl_generate_mesh()
+
+    //--------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Delaunay_Subdivision_Interface::get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell )
+    {
+        // Create interpolator
+        mtk::Interpolation_Function_Factory tInterpolationFactory;
+        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
+                aCell.get_geometry_type(),
+                mtk::Interpolation_Type::LAGRANGE,
+                aCell.get_interpolation_order() );
+
+        // Get number of bases
+        uint tNumberOfBases = tInterpolation->get_number_of_bases();
+
+        // Size output matrix
+        Matrix< DDRMat > tGlobalCoordinates( aParametricCoordinates.n_rows(), aParametricCoordinates.n_cols() );
+
+        // Get the global coordinates of the background nodes
+        Matrix< DDRMat > tBackgroundCellCoords = aCell.get_vertex_coords();
+
+        for ( uint iPoint = 0; iPoint < aParametricCoordinates.n_rows(); iPoint++ )
+        {
+
+            // Perform interpolation using parametric coordinates
+            Matrix< DDRMat > tBasis;
+            tInterpolation->eval_N( aParametricCoordinates.get_row( iPoint ), tBasis );
+
+            // Size global coordinates based on parametric coordinates
+            Matrix< DDRMat > tPointGlobalCoordinates = Matrix< DDRMat >( 1, aParametricCoordinates.n_cols(), 0.0 );
+
+            // Add contributions from all locators
+            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
+            {
+                tPointGlobalCoordinates += tBackgroundCellCoords.get_row( iBasisIndex ) * tBasis( iBasisIndex );
+            }
+
+            tGlobalCoordinates.set_row( iPoint, tPointGlobalCoordinates );
+        }
+
+        // Clean up
+        delete tInterpolation;
+
+        return tGlobalCoordinates;
+    }
 
     //--------------------------------------------------------------------------------------------------
 

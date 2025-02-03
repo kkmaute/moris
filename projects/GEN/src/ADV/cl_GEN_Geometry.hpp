@@ -40,7 +40,8 @@ namespace moris::gen
     {
         NEGATIVE  = -1,
         INTERFACE = 0,
-        POSITIVE  = 1
+        POSITIVE  = 1,
+        UNDEFINED = 2    // This should only be returned if the region is being determined by disambiguation
     };
 
     class Geometry : public Design
@@ -78,6 +79,17 @@ namespace moris::gen
          */
         virtual Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
+                const Matrix< DDRMat >& aNodeCoordinates ) = 0;
+
+        /**
+         * Gets the geometric region of an arbitrary point in space
+         * NOTE: Only to be used when get_geometric_region() cannot be used to get the region of an element
+         * WARNING: For some geometries (discretized level sets), the region may still not be resolved
+         *
+         * @param aNodeCoordinates Global coordinates
+         * @return Region for this geometry at the query location
+         */
+        virtual Geometric_Region disambiguate_geometric_region(
                 const Matrix< DDRMat >& aNodeCoordinates ) = 0;
 
         /**

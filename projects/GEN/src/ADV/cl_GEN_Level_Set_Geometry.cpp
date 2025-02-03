@@ -125,6 +125,15 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Geometric_Region
+    Level_Set_Geometry::disambiguate_geometric_region( const Matrix< DDRMat >& aNodeCoordinates )
+    {
+        // Try to directly determine the geometric region based on the field value alone
+        return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
             uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
@@ -531,6 +540,10 @@ namespace moris::gen
         else if ( aLevelSetValue - mParameters.mIsocontourThreshold < 0 )
         {
             return Geometric_Region::NEGATIVE;
+        }
+        else if( std::isnan( aLevelSetValue ) )
+        {
+            return Geometric_Region::UNDEFINED;
         }
         else
         {

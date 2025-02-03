@@ -130,13 +130,15 @@ namespace moris::gen
         Vector< uint >                     mFixedVertexIndices;                  // Indices of surface mesh vertices that are unaffected by ADVs
         Vector< std::shared_ptr< Field > > mPerturbationFields;                  // Vector of perturbation fields
         Matrix< DDRMat >                   mOriginalVertexBases;                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
-        Matrix< DDRMat >                   mCurrentVertexBases;                  // Basis function values for each vertex <number of fields> x <number of vertices>
         Vector< const mtk::Cell* >         mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
-        Vector< const mtk::Cell* >         mCurrentVertexBackgroundElements;     // Index of the background element the facet vertex is in currently
 
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
-        std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
+        std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;                    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
+        Matrix< DDRMat >                             mCurrentVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< const mtk::Cell* >                   mCurrentVertexBackgroundElements;    // Index of the background element the facet vertex is in currently
+        Matrix< DDRMat >                             mVertexParametricCoordinates;        // Parametric coordinates of the facet vertex in the background element in the current configuration
+
 
       public:
         /**
@@ -165,6 +167,9 @@ namespace moris::gen
          */
         Geometric_Region get_geometric_region(
                 uint                    aNodeIndex,
+                const Matrix< DDRMat >& aNodeCoordinates ) override;
+
+        Geometric_Region disambiguate_geometric_region(
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
 
         /**
@@ -459,10 +464,14 @@ namespace moris::gen
          */
         bool facet_vertex_depends_on_advs( uint aFacetVertexIndex );
 
+        //-----------------------------------------------
+        // PRIVATE FUNCTIONS
+        //-----------------------------------------------
 
       private:
         /**
-         * @brief Batch raycasts all nodes in mMesh whose index is not already stored in mNodeMeshRegions
+         * @brief Batch raycasts to get the regions of all nodes in mMesh whose index is not already stored in mNodeMeshRegions.
+         * Updates mNodeMeshRegions with the new information.
          *
          */
         void raycast_remaining_unknown_nodes();

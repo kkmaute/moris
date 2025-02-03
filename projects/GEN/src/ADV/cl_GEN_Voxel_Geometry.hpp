@@ -49,6 +49,9 @@ namespace moris::gen
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
 
+        Geometric_Region disambiguate_geometric_region(
+                const Matrix< DDRMat >& aNodeCoordinates ) override;
+
         /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be

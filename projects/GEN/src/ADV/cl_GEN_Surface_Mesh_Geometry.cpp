@@ -72,6 +72,7 @@ namespace moris::gen
             , mPerturbationFields( 0 )
             , mOriginalVertexBases( 0, 0 )
             , mOriginalVertexBackgroundElements( 0 )
+            , mVertexParametricCoordinates( Surface_Mesh::get_spatial_dimension(), Surface_Mesh::get_number_of_vertices() )
     {
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
@@ -159,6 +160,36 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Geometric_Region
+    Surface_Mesh_Geometry::disambiguate_geometric_region( const Matrix< DDRMat >& aNodeCoordinates )
+    {
+        // Have to raycast to determine the region
+        mtk::Mesh_Region tRegion = this->get_region_from_raycast( aNodeCoordinates );
+
+        switch ( tRegion )
+        {
+            case mtk::Mesh_Region::INSIDE:
+            {
+                return Geometric_Region::NEGATIVE;
+            }
+            case mtk::Mesh_Region::OUTSIDE:
+            {
+                return Geometric_Region::POSITIVE;
+            }
+            case mtk::Mesh_Region::INTERFACE:
+            {
+                return Geometric_Region::INTERFACE;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Unexpected sdf::Object_Region of %d returned from raycast.", tRegion );
+                return Geometric_Region::INTERFACE;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool Surface_Mesh_Geometry::has_surface_points( mtk::Cell* aCell )
     {
         // Try and see if the pointer is in the stored list
@@ -200,10 +231,20 @@ namespace moris::gen
         uint tNumNodes = this->get_number_of_vertices();
 
         // Initialize matrix
-        Matrix< DDRMat > tSurfacePoints( tDim, tNumNodes );
+        Matrix< DDRMat > tSurfacePoints( tNumNodes, tDim );
 
         // Initialize counter for number of vertices added
         uint iDelaunayPointIndex = 0;
+
+        // Get the coordinates of the background nodes
+        Matrix< DDRMat > tBackgroundCellCoords = aCell->get_vertex_coords();
+
+        // Get the length of each dimension of the element
+        Vector< real > tElementLengths( tDim );
+        for ( uint iDim = 0; iDim < tDim; iDim++ )
+        {
+            tElementLengths( iDim ) = tBackgroundCellCoords.get_column( iDim ).max() - tBackgroundCellCoords.get_column( iDim ).min();
+        }
 
         // Loop over all surface mesh vertices and check if they are in the background element
         // FIXME: brute force search could be optimized
@@ -220,13 +261,20 @@ namespace moris::gen
                     continue;
                 }
 
+                // convert to parametric coordinates
+                Matrix< DDRMat > tParametricCoordinates = trans( this->get_vertex_coordinates( iSurfaceMeshVertex ) ) - tBackgroundCellCoords.get_row( 0 );
+                for ( uint iDim = 0; iDim < tDim; iDim++ )
+                {
+                    tParametricCoordinates( iDim ) = 2.0 / tElementLengths( iDim ) * tParametricCoordinates( iDim ) - 1.0;
+                }
+
                 // Add the vertex to the matrix if lies in the cell and isnt on the edge
-                tSurfacePoints.set_column( iDelaunayPointIndex++, this->get_vertex_coordinates( iSurfaceMeshVertex ) );
+                tSurfacePoints.set_row( iDelaunayPointIndex++, mVertexParametricCoordinates.get_column( iSurfaceMeshVertex ) );
             }
         }
 
         // Trim output matrix
-        tSurfacePoints.resize( tDim, iDelaunayPointIndex );
+        tSurfacePoints.resize( iDelaunayPointIndex, tDim );
 
         return tSurfacePoints;
     }
@@ -243,30 +291,7 @@ namespace moris::gen
         uint tNumVertices = this->get_number_of_vertices();
         uint tDims        = this->get_spatial_dimension();
 
-        // initialize global coordinates
-        Matrix< DDRMat > tGlobalCoordinates( 1, tDims );
-
-        // Convert the parametric coordinates back to global coordinates
-        // Create interpolator
-        mtk::Interpolation_Function_Factory tInterpolationFactory;
-        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
-                aBackgroundGeometryType,
-                mtk::Interpolation_Type::LAGRANGE,
-                aBackgroundInterpolationOrder );
-
-        // Perform interpolation using parametric coordinates
-        Matrix< DDRMat > tBasis;
-        tInterpolation->eval_N( aParametricCoordinates, tBasis );
-
-        // Get number of bases
-        uint tNumberOfBases = tInterpolation->get_number_of_bases();
-
-        // Add contributions from all locators
-        for ( uint iBasis = 0; iBasis < tNumberOfBases; iBasis++ )
-        {
-            tGlobalCoordinates += aBackgroundNodes( iBasis )->get_global_coordinates() * tBasis( iBasis );
-        }
-        tGlobalCoordinates = trans( tGlobalCoordinates );    // FIXME: annoying transpose
+        Matrix< DDRMat > tParametricCoordsColumn = trans( aParametricCoordinates );    // FIXME annoying transpose
 
         // Determine the parent vertex that lies in the background cell
         uint tParentVertex = MORIS_UINT_MAX;
@@ -275,7 +300,7 @@ namespace moris::gen
             bool tVertexFound = true;
             for ( uint iDim = 0; iDim < tDims; iDim++ )
             {
-                if ( std::abs( tGlobalCoordinates( iDim ) - this->get_vertex_coordinates( iVertex )( iDim ) ) > MORIS_REAL_EPS )
+                if ( std::abs( mVertexParametricCoordinates( iDim, iVertex ) - tParametricCoordsColumn( iDim ) ) > Surface_Mesh::mIntersectionTolerance )
                 {
                     tVertexFound = false;
                     break;
@@ -289,7 +314,11 @@ namespace moris::gen
             }
         }
 
-        MORIS_ERROR( tParentVertex != MORIS_UINT_MAX, "Floating node %d does not lie on a vertex of the surface mesh", aNodeIndex );
+        if ( tParentVertex == MORIS_UINT_MAX )    // brendan delete
+        {
+            this->write_to_file( "failed.obj" );
+        }
+        MORIS_ERROR( tParentVertex != MORIS_UINT_MAX, "Floating node %d does not lie on a vertex of surface mesh \"%s\"", aNodeIndex, this->get_name().c_str() );
 
         // Create surface mesh floating node
         return new Floating_Node_Surface_Mesh(
@@ -330,8 +359,9 @@ namespace moris::gen
         }
 
         MORIS_ERROR( tIntersection.first != MORIS_UINT_MAX and ( tIntersection.second < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) and tIntersection.second > ( -1.0 - Surface_Mesh::mIntersectionTolerance ) ),
-                "Intersection node %d has local coordinate %f. Should be [-1, 1]",
+                "Intersection node %d on surface mesh %s has local coordinate %f. Should be [-1, 1]",
                 aNodeIndex,
+                this->get_name().c_str(),
                 tIntersection.second );
 
         // Create surface mesh intersection node
@@ -356,6 +386,16 @@ namespace moris::gen
         // Get the parent node global coordinates. The origin of the ray will be the first parent node
         Matrix< DDRMat > tFirstParentNodeCoordinates  = aFirstParentNode.get_global_coordinates();
         Matrix< DDRMat > tSecondParentNodeCoordinates = aSecondParentNode.get_global_coordinates();
+
+        // brendan hacky
+        if ( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, -1.0 );    // this intersection wont get admitted, so the parent facet shouldnt matter
+        }
+        if ( this->get_geometric_region( aSecondParentNode.get_index(), tSecondParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, 1.0 );    // this intersection wont get admitted, so the parent facet shouldnt matter
+        }
 
         // Need to cast along the edge to determine where the edge is intersected
         Matrix< DDRMat > tRayDirection = tSecondParentNodeCoordinates - tFirstParentNodeCoordinates;
@@ -559,11 +599,7 @@ namespace moris::gen
             mPerturbationFields( iFieldIndex )->reset_nodal_data( aInterpolationMesh );
         }
 
-        if ( !mBasesComputed )
-        {
-            this->update_vertex_basis_data();
-            mBasesComputed = true;
-        }
+        this->update_vertex_basis_data();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -859,14 +895,6 @@ namespace moris::gen
 
         // Return true if this surface mesh can move, its movement was either defined by the user or is discretized
         // and not fixed in all directions by the user, and it lies in the Lagrange mesh domain
-        std::cout << "SURFACE MESH DEPENDS ON ADVS: " << this->depends_on_advs() << std::endl;
-        std::cout << "USER DEFINED FUNCTION: " << ( get_vertex_adv_dependency_user_defined != nullptr ) << std::endl;
-        std::cout << "ORIGINAL VERTEX BACKGROUND ELEMENTS: " << ( mOriginalVertexBackgroundElements( aFacetVertexIndex ) != nullptr ) << std::endl;
-
-        std::cout << "WHOLE CONDITION " << ( this->depends_on_advs() and ( get_vertex_adv_dependency_user_defined != nullptr or ( mOriginalVertexBackgroundElements( aFacetVertexIndex ) != nullptr and std::any_of( tFactor.cbegin(), tFactor.cend(),    //
-                                                                                                                                          []( const real tDirectionFactor ) { return tDirectionFactor != 0.0; } ) ) ) )
-                  << std::endl;
-
         return this->depends_on_advs()
            and ( get_vertex_adv_dependency_user_defined != nullptr
                    or ( mOriginalVertexBackgroundElements( aFacetVertexIndex ) != nullptr
@@ -1149,44 +1177,6 @@ namespace moris::gen
         // Get the spatial dimension
         uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
 
-        // Set size if it has not been set already
-        if ( not mBasesComputed and this->depends_on_advs() )
-        {
-            mOriginalVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
-            mOriginalVertexBackgroundElements.resize( Surface_Mesh::get_number_of_vertices() );
-
-            // Compute the bases for all facet vertices
-            for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
-            {
-                // Get this vertex's coordinates
-                Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
-
-                Matrix< DDRMat > tVertexParametricCoordinates( tSpatialDimension, 1 );
-
-                // Determine which element this vertex lies in, will be the same for every field)
-                mOriginalVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( tVertexCoordinates );
-
-                // check if the vertex is inside the mesh domain
-                if ( mOriginalVertexBackgroundElements( iVertexIndex ) != nullptr )
-                {
-                    // Get the bounding box for this element
-                    Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mOriginalVertexBackgroundElements( iVertexIndex ) );
-
-                    // determine the local coordinates of the vertex inside the mtk::Cell
-                    for ( uint iDimensionIndex = 0; iDimensionIndex < tSpatialDimension; iDimensionIndex++ )
-                    {
-                        tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                                   / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                           - 1.0;
-                    }
-
-                    // Get the basis function values at the vertex location
-                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( mOriginalVertexBackgroundElements( iVertexIndex ), tVertexParametricCoordinates );
-                    mOriginalVertexBases.set_column( iVertexIndex, trans( tBasis ) );
-                }
-            }
-        }
-
         if ( mCurrentVertexBackgroundElements.size() != Surface_Mesh::get_number_of_vertices() )
         {
             mCurrentVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
@@ -1198,8 +1188,6 @@ namespace moris::gen
         {
             // Get this vertex's coordinates
             Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
-
-            Matrix< DDRMat > tVertexParametricCoordinates( tSpatialDimension, 1 );
 
             // Determine which element this vertex lies in, will be the same for every field)
             mCurrentVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( tVertexCoordinates );
@@ -1213,15 +1201,24 @@ namespace moris::gen
                 // determine the local coordinates of the vertex inside the mtk::Cell
                 for ( uint iDimensionIndex = 0; iDimensionIndex < tSpatialDimension; iDimensionIndex++ )
                 {
-                    tVertexParametricCoordinates( iDimensionIndex, 0 ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                               / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                       - 1.0;
+                    mVertexParametricCoordinates( iDimensionIndex, iVertexIndex ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                                          / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                                  - 1.0;
                 }
 
                 // Get the basis function values at the vertex location
-                Matrix< DDRMat > tBasis = this->compute_vertex_basis( mCurrentVertexBackgroundElements( iVertexIndex ), tVertexParametricCoordinates );
+                Matrix< DDRMat > tBasis = this->compute_vertex_basis( mCurrentVertexBackgroundElements( iVertexIndex ), mVertexParametricCoordinates.get_column( iVertexIndex ) );
                 mCurrentVertexBases.set_column( iVertexIndex, trans( tBasis ) );
             }
+        }
+
+        // Store the first iteration of the bases and the background elements as they are needed for optimization
+        if ( not mBasesComputed and this->depends_on_advs() )
+        {
+            mOriginalVertexBases              = mCurrentVertexBases;
+            mOriginalVertexBackgroundElements = mCurrentVertexBackgroundElements;
+
+            mBasesComputed = true;
         }
     }
 

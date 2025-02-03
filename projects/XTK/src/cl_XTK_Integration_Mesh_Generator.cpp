@@ -499,7 +499,7 @@ namespace moris::xtk
                     tSurfacePoints( iGeom ) = mXTKModel->get_geom_engine()->get_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) );
 
                     // Store the geometry index for all of these surface points
-                    tGeomIndices.append( Vector< moris_index >( tSurfacePoints( iGeom ).n_cols(), iGeom ) );
+                    tGeomIndices.append( Vector< moris_index >( tSurfacePoints( iGeom ).n_rows(), iGeom ) );
 
                     // add background cell to the list for delaunay triangulation
                     aMeshGenerationData.mDelaunayBgCellInds.push_back( iCell );
@@ -536,7 +536,7 @@ namespace moris::xtk
             if ( tDelaunay )
             {
                 // add surface points to the list of all surface points
-                aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 0 ) );
+                aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 1 ) );
                 aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
             }
         }
@@ -3683,16 +3683,6 @@ namespace moris::xtk
         {
             // vertices of the edge
             Vector< mtk::Vertex* > const & tEdgeVertices = aIgCellGroupEdgeConnectivity->mEdgeVertices( iEdge );
-
-            if ( iEdge == 9 )    // brendan delete
-            {
-                std::cout << "";
-
-                std::cout << "Edge vertex " << tEdgeVertices( 0 )->get_index() << "\n";
-                PRINT( tEdgeVertices( 0 )->get_coords() );
-                std::cout << "Edge vertex " << tEdgeVertices( 1 )->get_index() << "\n";
-                PRINT( tEdgeVertices( 1 )->get_coords() );
-            }
 
             // get the parent of these vertices from the mesh
             Vector< moris::moris_index > tEdgeVertexParentInds( tEdgeVertices.size() );
