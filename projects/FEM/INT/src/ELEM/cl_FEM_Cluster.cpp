@@ -714,16 +714,67 @@ namespace moris::fem
         // reset cluster measures
         this->reset_cluster_measure();
 
-        // loop over the IG elements
-        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        // if flag for moment fitting is set
+        if ( mSet->get_moment_fitting_flag() )
         {
-            // check whether to compute QI
-            if ( mComputeResidualAndIQI( iElem ) )
+            // The entire cluster is the IG element
+            //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian_and_residual - Moment fitting is only supported for bulk elements.");
+
+            if( mElementType == fem::Element_Type::BULK )
             {
-                // compute the quantities of interest for the IG element
-                mElements( iElem )->compute_QI();
+                // Set quadrature points from the mesh cluster
+                this->set_quadrature_points();
+
+                // Set quadrature weights from the mesh cluster
+                this->set_quadrature_weights();
+                
+                // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+                mElements( 0 )->compute_QI();
             }
+            else
+            {
+                // loop over the IG elements
+                for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+                {
+                    // check whether to compute residual and jacobian for this element
+                    if ( mComputeResidualAndIQI( iElem ) )
+                    {
+                        // compute the jacobian and residual for the IG element
+                        mElements( iElem )->compute_QI();
+                    }
+                }
+            }
+
+            // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
+            //mElements( 0 )->compute_jacobian_and_residual();
+            
         }
+        else
+        {
+
+          // loop over the IG elements
+           for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+           {
+              // check whether to compute residual and jacobian for this element
+              if ( mComputeResidualAndIQI( iElem ) )
+              {
+                   // compute the quantities of interest for the IG element
+                   mElements( iElem )->compute_QI();
+              }
+           
+           }
+        }
+
+        // loop over the IG elements
+        //for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        //{
+        //    // check whether to compute QI
+        //    if ( mComputeResidualAndIQI( iElem ) )
+        //    {
+        //        // compute the quantities of interest for the IG element
+        //        mElements( iElem )->compute_QI();
+        //    }
+        //}
     }
 
     //------------------------------------------------------------------------------

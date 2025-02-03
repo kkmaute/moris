@@ -386,6 +386,13 @@ namespace moris::fem
 
         // get integration weights
         tIntegrator.get_weights( mIntegWeights );
+        
+           
+
+        
+        
+
+        
     }
 
     //------------------------------------------------------------------------------

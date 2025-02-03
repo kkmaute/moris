@@ -172,10 +172,10 @@ namespace moris::fem
             //real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
 
             // skip if detJ smaller than threshold
-            //if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            //{
-            //    continue;
-            //}
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
 
             // compute integration point weight
             real tWStar = tQuadratureWeights( iGP )*tDetJ ;
@@ -306,10 +306,10 @@ namespace moris::fem
             real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
 
             // skip if detJ smaller than threshold
-            //if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            //{
-            //    continue;
-            //}
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
 
             // compute integration point weight
             real tWStar = tQuadratureWeights( iGP )*tDetJ ;
@@ -442,10 +442,10 @@ namespace moris::fem
             real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
 
             // skip if detJ smaller than threshold
-            //if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            //{
-            //    continue;
-            //}
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
 
             // compute integration point weight
             real tWStar = tQuadratureWeights( iGP )*tDetJ;
@@ -679,63 +679,136 @@ namespace moris::fem
     void
     Element_Bulk::compute_QI()
     {
-        // get number of IQIs
-        uint tNumIQIs = mSet->get_number_of_requested_IQIs();
-
-        // check for active IQIs
-        if ( tNumIQIs == 0 )
+        if ( mSet->get_moment_fitting_flag() )
         {
-            return;
-        }
+            // Get quadrature points
+            Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
 
-        // set physical and parametric space and time coefficients for IG element
-        this->init_ig_geometry_interpolator();
+            // Get quadrature weights
+            Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
 
-        // loop over integration points
-        uint tNumIntegPoints = mSet->get_number_of_integration_points();
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
-        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
-        {
-            // get the ith integration point in the IG param space
-            const Matrix< DDRMat >& tLocalIntegPoint =
-                    mSet->get_integration_points().get_column( iGP );
-
-            // set evaluation point for interpolators (FIs and GIs)
-            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
-
-            // if eigen vectors
-            if ( mSet->mNumEigenVectors > 0 )
+            // check for active IQIs
+            if ( tNumIQIs == 0 )
             {
+                return;
+            }
+
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
+
+            // loop over integration points
+            uint tNumIntegPoints = tQuadratureWeights.numel();
+
+            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                const Matrix< DDRMat >& tIntegPoint =
+                      tQuadraturePoints.get_column( iGP );
+
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+
+                // if eigen vectors
+                if ( mSet->mNumEigenVectors > 0 )
+                {
+                   // set evaluation point for interpolators (FIs and GIs)
+                   mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tIntegPoint );
+                }
+
+                   // compute detJ of integration domain
+                   real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                   continue;
+                }
+
+                // compute integration point weight
+                real tWStar = tQuadratureWeights( iGP ) * tDetJ;
+
+                // loop over the IQIs
+                for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                         mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // compute QI at evaluation point
+                    tReqIQI->compute_QI( tWStar );
+                }
             }
+                    
+        }   
+        else 
+        {
+            // get number of IQIs
+            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
-            // compute detJ of integration domain
-            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
-
-            // skip if detJ smaller than threshold
-            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            // check for active IQIs
+            if ( tNumIQIs == 0 )
             {
-                continue;
+                return;
             }
 
-            // compute integration point weight
-            real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
 
-            // loop over the IQIs
-            for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
-                // get requested IQI
-                const std::shared_ptr< IQI >& tReqIQI =
-                        mSet->get_requested_IQIs()( iIQI );
+                // get the ith integration point in the IG param space
+                const Matrix< DDRMat >& tLocalIntegPoint =
+                      mSet->get_integration_points().get_column( iGP );
 
-                // reset IQI
-                tReqIQI->reset_eval_flags();
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
 
-                // compute QI at evaluation point
-                tReqIQI->compute_QI( tWStar );
+                // if eigen vectors
+                if ( mSet->mNumEigenVectors > 0 )
+                {
+                   // set evaluation point for interpolators (FIs and GIs)
+                   mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                }
+
+                   // compute detJ of integration domain
+                   real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                   continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // loop over the IQIs
+                for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                         mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // compute QI at evaluation point
+                    tReqIQI->compute_QI( tWStar );
+                }
             }
-        }
+                    
+        }   
+        
+        
     }
 
     //------------------------------------------------------------------------------

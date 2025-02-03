@@ -2845,7 +2845,7 @@ namespace moris::xtk
         uint tNumBaseIpCells = mModel->mBackgroundMesh->get_num_elems();
 
         // Get polynomial order
-        uint mOrder = mCutIgMesh->get_order();
+        //uint mOrder = mCutIgMesh->get_order();
             
         // get dimension 
         uint mDim = mCutIgMesh->get_spatial_dim();
@@ -2912,7 +2912,7 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
 
                      // Place quadrature points inside cluster
-                    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( mOrder , mDim );
+                    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( 3 , mDim );
                 
 
                 }
@@ -2953,7 +2953,7 @@ namespace moris::xtk
                         mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
 
                         // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
-                        mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( mOrder , mDim );
+                        mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( 3 , mDim );
 
 
                         // sanity check for this case
@@ -2990,7 +2990,7 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity );
 
                     // Compute quadrature weights via moment fitting
-                    mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( mOrder, mDim );
+                    mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( 3 , mDim );
 
                     //fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
 

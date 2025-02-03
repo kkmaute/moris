@@ -13,6 +13,7 @@
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
+#include "cl_MTK_Interpolation_Function_Base.hpp"
 
 // forward declare the mtk::Cluster_Group
 namespace moris::mtk
@@ -58,6 +59,8 @@ namespace moris::xtk
         Vector< Vector< moris::mtk::Vertex* > >       mFacetVerticesOnSubphaseBoundary;
         Vector< Matrix< DDRMat > >                    mFacetNormals;
         Vector< Matrix< DDRMat > >                    mFacetVertexCoordinates;
+        mtk::Interpolation_Function_Base*             mIPInterp; // Interpolation object to get the basis functions for moment fitting
+        
 
         //------------------------------------------------------------------------------
 
