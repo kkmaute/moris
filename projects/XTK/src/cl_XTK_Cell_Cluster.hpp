@@ -147,7 +147,8 @@ namespace moris::xtk
         void 
         find_subphase_boundary_vertices(
                 const std::shared_ptr< IG_Cell_Group >  aSubphaseIGCells,
-                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity 
+                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
+                const uint aDim
         );
 
         // ------------------------------------------------------------------------------

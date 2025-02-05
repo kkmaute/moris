@@ -23,6 +23,8 @@
 #include "fn_inv.hpp"
 #include "fn_dot.hpp"
 #include "fn_linsolve.hpp"
+#include "fn_det.hpp"
+#include "fn_cross.hpp"
 
 
 // namespace moris
@@ -312,51 +314,106 @@ namespace moris::xtk
     {
     
         //MORIS_ASSERT( aDim < 3, "Currently moment fitting only works for 2D problems" );
-
-        if ( aOrder == 1 )
+        if ( aDim == 2 )
         {
-            mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+            if ( aOrder == 1 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
-            const mtk::Integrator tIntData( tIntObj );
+                const mtk::Integrator tIntData( tIntObj );
 
-            Matrix< DDRMat >  tMTKPoints;
+                Matrix< DDRMat >  tMTKPoints;
         
-            tIntData.get_points( tMTKPoints );
+                tIntData.get_points( tMTKPoints );
 
-            mQuadraturePoints = tMTKPoints;
+                mQuadraturePoints = tMTKPoints;
+
+            }
+            else if ( aOrder == 2 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_3x3 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat >  tMTKPoints;
+        
+                tIntData.get_points( tMTKPoints );
+
+                mQuadraturePoints = tMTKPoints;
+
+            }
+            else if ( aOrder == 3 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_4x4 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat >  tMTKPoints;
+        
+                tIntData.get_points( tMTKPoints );
+
+                mQuadraturePoints = tMTKPoints;
+
+            }
+            else
+            {
+                MORIS_ASSERT( aOrder < 4, "Only 3rd order supported currently");
+            }
+
+            
+
 
         }
-        else if ( aOrder == 2 )
+
+        else if ( aDim == 3 )
         {
-            mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_3x3 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+            if ( aOrder == 1 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::HEX , mtk::Integration_Type::GAUSS , mtk::Integration_Order::HEX_2x2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
-            const mtk::Integrator tIntData( tIntObj );
+                const mtk::Integrator tIntData( tIntObj );
 
-            Matrix< DDRMat >  tMTKPoints;
+                Matrix< DDRMat >  tMTKPoints;
         
-            tIntData.get_points( tMTKPoints );
+                tIntData.get_points( tMTKPoints );
 
-            mQuadraturePoints = tMTKPoints;
+                mQuadraturePoints = tMTKPoints;
 
+            }
+            else if ( aOrder == 2 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::HEX , mtk::Integration_Type::GAUSS , mtk::Integration_Order::HEX_3x3x3 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat >  tMTKPoints;
+        
+                tIntData.get_points( tMTKPoints );
+
+                mQuadraturePoints = tMTKPoints;
+
+            }
+            else if ( aOrder == 3 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::HEX , mtk::Integration_Type::GAUSS , mtk::Integration_Order::HEX_4x4x4 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat >  tMTKPoints;
+        
+                tIntData.get_points( tMTKPoints );
+
+                mQuadraturePoints = tMTKPoints;
+
+            }
+            else
+            {
+                MORIS_ASSERT( aOrder < 4, "Only 3rd order supported currently");
+            }
+
+        
+        
         }
-        else if ( aOrder == 3 )
-        {
-            mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_4x4 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
-        
-            const mtk::Integrator tIntData( tIntObj );
-
-            Matrix< DDRMat >  tMTKPoints;
-        
-            tIntData.get_points( tMTKPoints );
-
-            mQuadraturePoints = tMTKPoints;
-
-        }
-        else
-        {
-            MORIS_ASSERT( aOrder < 4, "Only 3rd order supported currently");
-        }
-
         //MORIS_ASSERT( aOrder < 2, "Currently moment fitting only works for linear problems" );
 
         
@@ -419,49 +476,105 @@ namespace moris::xtk
 
         //MORIS_ASSERT(aDim < 3, "Currently moment fitting only works for 2D problems");
 
-        if ( aOrder == 1 )
+        if ( aDim == 2 )
         {
-            mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
-        
-            const mtk::Integrator tIntData( tIntObj );
 
-            Matrix< DDRMat >  tMTKWeights;
+            if ( aOrder == 1 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
-            tIntData.get_weights( tMTKWeights );
+                const mtk::Integrator tIntData( tIntObj );
 
-            mQuadratureWeights = tMTKWeights;
+                Matrix< DDRMat >  tMTKWeights;
+        
+                tIntData.get_weights( tMTKWeights );
+
+                mQuadratureWeights = tMTKWeights;
+
+            }
+            else if ( aOrder == 2 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_3x3 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat >  tMTKWeights;
+        
+                tIntData.get_weights( tMTKWeights );
+
+                mQuadratureWeights = tMTKWeights;
+
+            }
+            else if ( aOrder == 3 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_4x4 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat > tMTKWeights;
+        
+                tIntData.get_weights( tMTKWeights );
+
+                mQuadratureWeights = tMTKWeights;
+
+            }
+            else
+            {
+                MORIS_ASSERT( aOrder < 4, "Only 3rd order supported currently");
+            }
+
 
         }
-        else if ( aOrder == 2 )
+        else if ( aDim == 3 )
         {
-            mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_3x3 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
-        
-            const mtk::Integrator tIntData( tIntObj );
 
-            Matrix< DDRMat >  tMTKWeights;
+            if ( aOrder == 1 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::HEX , mtk::Integration_Type::GAUSS , mtk::Integration_Order::HEX_2x2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
-            tIntData.get_weights( tMTKWeights );
+                const mtk::Integrator tIntData( tIntObj );
 
-            mQuadratureWeights = tMTKWeights;
+                Matrix< DDRMat >  tMTKWeights;
+        
+                tIntData.get_weights( tMTKWeights );
+
+                mQuadratureWeights = tMTKWeights;
+
+            }
+            else if ( aOrder == 2 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::HEX , mtk::Integration_Type::GAUSS , mtk::Integration_Order::HEX_3x3x3 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat >  tMTKWeights;
+        
+                tIntData.get_weights( tMTKWeights );
+
+                mQuadratureWeights = tMTKWeights;
+
+            }
+            else if ( aOrder == 3 )
+            {
+                mtk::Integration_Rule tIntObj( mtk::Geometry_Type::HEX , mtk::Integration_Type::GAUSS , mtk::Integration_Order::HEX_4x4x4 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        
+                const mtk::Integrator tIntData( tIntObj );
+
+                Matrix< DDRMat > tMTKWeights;
+        
+                tIntData.get_weights( tMTKWeights );
+
+                mQuadratureWeights = tMTKWeights;
+
+            }
+            else
+            {
+                MORIS_ASSERT( aOrder < 4, "Only 3rd order supported currently");
+            }
+
 
         }
-        else if ( aOrder == 3 )
-        {
-            mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_4x4 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
-            const mtk::Integrator tIntData( tIntObj );
-
-            Matrix< DDRMat > tMTKWeights;
-        
-            tIntData.get_weights( tMTKWeights );
-
-            mQuadratureWeights = tMTKWeights;
-
-        }
-        else
-        {
-            MORIS_ASSERT( aOrder < 4, "Only 3rd order supported currently");
-        }
         
         //mtk::Integration_Rule tIntObj( mtk::Geometry_Type::QUAD , mtk::Integration_Type::GAUSS , mtk::Integration_Order::QUAD_2x2 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
         
@@ -509,7 +622,8 @@ namespace moris::xtk
     void 
     Cell_Cluster::find_subphase_boundary_vertices(
                 const std::shared_ptr< IG_Cell_Group >  aSubphaseIGCells,
-                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity
+                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
+                const uint aDim
                 )
     {
         // Get the primary subphase IG cells first
@@ -597,7 +711,15 @@ namespace moris::xtk
 
                 Matrix< DDRMat > tVertexCoordinatesFacetOrdered;
 
-                tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 2 );
+                if ( aDim == 2 )
+                {
+                    tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 2 );
+                }
+                else if ( aDim == 3 )
+                {
+                    tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 3 );
+                }
+                
 
                 // Get the vertex local coordinates and add to mFacetCoordinates
                 for ( uint iVertex = 0; iVertex < tVerticesOnFacet.size(); iVertex++ )
@@ -646,7 +768,17 @@ namespace moris::xtk
         
         Matrix < DDRMat > tFacetNormals;
 
-        tFacetNormals.reshape( mFacetNormals.size() , 2 );
+        if ( aDim == 2 )
+        {
+            tFacetNormals.reshape( mFacetNormals.size() , 2 );
+        }
+        else if ( aDim == 3 )
+        {
+            tFacetNormals.reshape( mFacetNormals.size() , 3 );
+        }
+
+
+        
 
 
         for (uint iFacetNormalIndex = 0; iFacetNormalIndex < mFacetNormals.size(); iFacetNormalIndex++ )
@@ -661,16 +793,38 @@ namespace moris::xtk
 
         Matrix < DDRMat > tFacetCoords;
 
-        tFacetCoords.reshape( 2*mFacetVertexCoordinates.size() , 2 );
+        if ( aDim == 2 )
+        {
+            tFacetCoords.reshape( 2*mFacetVertexCoordinates.size() , 2 );
+        }
+        else if ( aDim == 3 )
+        {
+            tFacetCoords.reshape( 3*mFacetVertexCoordinates.size() , 3 );
+        }
 
+        
 
         for (uint iFacetNormalIndex = 0; iFacetNormalIndex < mFacetVertexCoordinates.size(); iFacetNormalIndex++ )
         {
             Matrix < DDRMat > tFacetCoord = mFacetVertexCoordinates( iFacetNormalIndex );
             
-            tFacetCoords.set_row( 2*iFacetNormalIndex , tFacetCoord.get_row( 0 ) );
+            if ( aDim == 2 )
+            {
+                tFacetCoords.set_row( 2*iFacetNormalIndex , tFacetCoord.get_row( 0 ) );
 
-            tFacetCoords.set_row( 2*iFacetNormalIndex + 1 , tFacetCoord.get_row( 1 ) );
+                tFacetCoords.set_row( 2*iFacetNormalIndex + 1 , tFacetCoord.get_row( 1 ) );
+
+            }
+            else if ( aDim == 3 )
+            {
+                tFacetCoords.set_row( 3*iFacetNormalIndex , tFacetCoord.get_row( 0 ) );
+
+                tFacetCoords.set_row( 3*iFacetNormalIndex + 1 , tFacetCoord.get_row( 1 ) );
+
+                tFacetCoords.set_row( 3*iFacetNormalIndex + 2 , tFacetCoord.get_row( 2 ) );
+
+            }
+            
                 
         }
 
@@ -681,6 +835,9 @@ namespace moris::xtk
         std::vector< double > tFacetCoordinatesFileVectorX;
 
         std::vector< double > tFacetCoordinatesFileVectorY;
+        
+        std::vector< double > tFacetCoordinatesFileVectorZ;
+        
 
 
         for(uint iVertInd = 0; iVertInd < mFacetVerticesOnSubphaseBoundary.size(); iVertInd++)
@@ -701,6 +858,11 @@ namespace moris::xtk
                 tFacetCoordinatesFileVectorX.push_back(tBdryCoords( 0 , 0 ));
 
                 tFacetCoordinatesFileVectorY.push_back(tBdryCoords( 0 , 1 ));
+
+                if ( aDim == 3 )
+                {
+                    tFacetCoordinatesFileVectorZ.push_back(tBdryCoords( 0 , 2 ));;
+                }
 
              }
 
@@ -734,6 +896,12 @@ namespace moris::xtk
 
         close_hdf5_file( tFileID3 );
 
+        hid_t  tFileID4 = create_hdf5_file( "FacetVertices_Z.hdf5" );
+        herr_t tStatus4 = 0;
+        save_vector_to_hdf5_file( tFileID4, std::string("Coords"), tFacetCoordinatesFileVectorZ, tStatus4 );
+
+        close_hdf5_file( tFileID4 );
+
         
 
     }
@@ -743,13 +911,13 @@ namespace moris::xtk
     void
     Cell_Cluster::compute_quadrature_weights( const uint aOrder, const uint aDim )
     {
-        MORIS_ASSERT( aDim < 3 , "Only 2D supported at present");
+        //MORIS_ASSERT( aDim < 3 , "Only 2D supported at present");
 
         // Get midpoint of facet coordinates -
 
-        Matrix< DDRMat > tFacetMidpoints;
+        /*Matrix< DDRMat > tFacetMidpoints;
 
-        tFacetMidpoints.reshape( mFacetVerticesOnSubphaseBoundary.size() , 2 );
+        tFacetMidpoints.reshape( mFacetVerticesOnSubphaseBoundary.size() , aDim );
 
         for (uint iFacetIndex = 0; iFacetIndex < mFacetVerticesOnSubphaseBoundary.size(); iFacetIndex++)
         {
@@ -761,42 +929,95 @@ namespace moris::xtk
 
             mtk::Vertex* tSecondFacetCoord = tFacetCoords( 1 );
 
-            Matrix< DDRMat > tFacetMidpointCoords = 0.5*(tFirstFacetCoord->get_coords() + tSecondFacetCoord->get_coords()) ;
+            mtk::Vertex* tThirdFacetCoord;
+            
+            if ( aDim == 3 )
+            {
+                tThirdFacetCoord = tFacetCoords( 2 );                
+            }
+
+            Matrix< DDRMat > tFacetMidpointCoords;
+            
+            if ( aDim == 2 )
+            {
+                tFacetMidpointCoords = 0.5*(tFirstFacetCoord->get_coords() + tSecondFacetCoord->get_coords()) ;
+
+            }
+            else if ( aDim == 3 )
+            {
+                tFacetMidpointCoords = ( 1.0 / 3.0 )*(tFirstFacetCoord->get_coords() + tSecondFacetCoord->get_coords() + tThirdFacetCoord->get_coords() ) ;
+            }
 
             tFacetMidpoints.set_row( iFacetIndex, tFacetMidpointCoords ) ;
             
-        }
+        }*/
 
         // Now, create interpolation objects for specifying the basis function for each facet. One for the IP and one for the geometry.
         //mtk::Interpolation_Rule tInterpolationRule( mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
-        if ( aOrder == 1 )
+        if ( aDim == 2 )
         {
-            mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+            if ( aOrder == 1 )
+            {
+                mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
-            mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+                mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+            }
+            else if ( aOrder == 2 )
+            {
+                mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::QUADRATIC , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+                mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+            }
+            else if ( aOrder == 3 )
+            {
+                mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::CUBIC , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+                mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+            }
+            else
+            {
+
+              MORIS_ASSERT( aOrder < 4, "Only upto 3rd order supported currently");
+
+            }
 
         }
-        else if ( aOrder == 2 )
+        else if ( aDim == 3 )
         {
-            mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::QUADRATIC , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+            if ( aOrder == 1 )
+            {
+                mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::HEX , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
-            mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+                mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+            }
+            else if ( aOrder == 2 )
+            {
+                mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::HEX , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::QUADRATIC , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+                mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+            }
+            else if ( aOrder == 3 )
+            {
+                mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::HEX , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::CUBIC , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+                mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+            }
+            else
+            {
+
+              MORIS_ASSERT( aOrder < 4, "Only upto 3rd order supported currently");
+
+            }
 
         }
-        else if ( aOrder == 3 )
-        {
-            mtk::Interpolation_Rule tIPInterpolationRule( mtk::Geometry_Type::QUAD , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::CUBIC , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
-
-            mIPInterp = tIPInterpolationRule.create_space_interpolation_function();
-
-        }
-        else
-        {
-
-            MORIS_ASSERT( aOrder < 4, "Only upto 3rd order supported currently");
-
-        }
+        
 
         
 
@@ -863,22 +1084,11 @@ namespace moris::xtk
         //Declare LHS matrix
         Matrix < DDRMat > tMomentFittingLHS;
 
-        if (aOrder == 1)
-        {
-            tMomentFittingLHS.reshape( 4 , 4 );
-        }
-        else if (aOrder == 2)
-        {
-            tMomentFittingLHS.reshape( 9 , 9 );
-        }
-        else if (aOrder == 3)
-        {
-            tMomentFittingLHS.reshape( 16 , 16 );
-        }
-        
-        
-        
+        // Determine the number of moments
+        uint tNmoments = std::pow( aOrder + 1 , aDim ); 
 
+        tMomentFittingLHS.reshape( tNmoments , tNmoments );
+            
         // Generate LHS
         for (uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols() ; iQuadPointIndex++)
         {
@@ -896,24 +1106,12 @@ namespace moris::xtk
 
         }
 
-        // Generate RHS
+        // create RHS vector
         Matrix < DDRMat > tMomentFittingRHS;
-
-        // Allocate memory for RHS
-        if (aOrder == 1)
-        {
-            tMomentFittingRHS.reshape( 4 , 1 );
-        }
-        else if (aOrder == 2)
-        {
-            tMomentFittingRHS.reshape( 9 , 1 );
-        }
-        else if (aOrder == 3)
-        {
-            tMomentFittingRHS.reshape( 16 , 1 );
-        }
         
-
+        // Allocate memory for RHS
+        tMomentFittingRHS.reshape( tNmoments , 1 );
+        
         // Compute the RHS
         for (uint iFacetIndex = 0; iFacetIndex < mFacetVerticesOnSubphaseBoundary.size() ; iFacetIndex++)
         {
@@ -926,13 +1124,37 @@ namespace moris::xtk
             // Get individual facet normal coordinates
             real tNx  = tFacetNormal( 0 , 0 );
             real tNy  = tFacetNormal( 1 , 0 );
+            real tNz;
+            if ( aDim == 3 )
+            {
+                tNz = tFacetNormal( 2 , 0 );
+            }
 
             // Get quadrature object
-            mtk::Integration_Rule tIntObjLine( mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_32 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+            mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+
+            mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::BAR_1;
+
+            if ( aDim == 2 )
+            {
+                tGeometryType = mtk::Geometry_Type::LINE ;
+
+                tIntegrationOrder = mtk::Integration_Order::BAR_32 ;
+
+            }
+            else if ( aDim == 3 )
+            {
+                tGeometryType = mtk::Geometry_Type::TRI ;
+
+                tIntegrationOrder = mtk::Integration_Order::TRI_12 ;
+
+            }
+
+            mtk::Integration_Rule tIntObjLine( tGeometryType , mtk::Integration_Type::GAUSS , tIntegrationOrder , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
             
             mtk::Integrator tIntDataLine( tIntObjLine );
             
-            // Get line quadrature points
+            // Get quadrature points (line or surface)
             Matrix< DDRMat > tIntPointsLine;
 
             tIntDataLine.get_points( tIntPointsLine );
@@ -942,9 +1164,15 @@ namespace moris::xtk
 
             tIntDataLine.get_weights( tIntWeightsLine );
 
-            // Get length of facet
-            real tD  = std::sqrt(std::pow( tFacetCoords( 1, 0 ) - tFacetCoords( 0, 0 ) , 2) + std::pow( tFacetCoords( 1, 1 ) - tFacetCoords( 0, 1 ) , 2 ));
+            // Get geometric jacobian
+            real tD ;
+            
+            if ( aDim == 2 )
+            {
+                tD  = std::sqrt(std::pow( tFacetCoords( 1, 0 ) - tFacetCoords( 0, 0 ) , 2) + std::pow( tFacetCoords( 1, 1 ) - tFacetCoords( 0, 1 ) , 2 ));
+            }
 
+            
             // Loop over line quadrature points to compute the integral
             for( uint iQuadPtIndex = 0 ; iQuadPtIndex < tIntWeightsLine.numel() ; iQuadPtIndex++ )
             {
@@ -954,14 +1182,90 @@ namespace moris::xtk
                 // Get quad weight
                 real tQuadWeight = tIntWeightsLine( iQuadPtIndex );
 
-                // Get the mapped quad point value x
-                real tXm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 0 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 0 );
+                real tXm;
+                real tYm;
+                real tZm;
 
-                // Get the mapped quad point value x
-                real tYm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 1 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 1 );
+                Matrix< DDRMat > tXvector ; 
+                Matrix< DDRMat > tYvector ;
+                Matrix< DDRMat > tZvector ; 
+                if ( aDim == 2 )
+                {
+                    tXvector  = {{ tFacetCoords( 0 , 0 ) },{ tFacetCoords( 1 , 0 ) }};
+                    tYvector  = {{ tFacetCoords( 0 , 1 ) },{ tFacetCoords( 1 , 1 ) }};
+
+                }
+                if ( aDim == 3 )
+                {
+                    tXvector = {{ tFacetCoords( 0 , 0 ) },{ tFacetCoords( 1 , 0 ) },{ tFacetCoords( 2 , 0 ) }};
+                    tYvector = {{ tFacetCoords( 0 , 1 ) },{ tFacetCoords( 1 , 1 ) },{ tFacetCoords( 2 , 1 ) }};
+                    tZvector = {{ tFacetCoords( 0 , 2 ) },{ tFacetCoords( 1 , 2 ) },{ tFacetCoords( 2 , 2 ) }};
+
+                } 
+                
+
+
+                if ( aDim == 2 )
+                {
+                    // Get the mapped quad point value x
+                    tXm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 0 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 0 );
+
+                    // Get the mapped quad point value x
+                    tYm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 1 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 1 );
+                }
+                else if ( aDim == 3 )
+                {
+                    // Define interpolation rule
+                    mtk::Interpolation_Rule tIGInterpolationRule( mtk::Geometry_Type::TRI , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+                    mtk::Interpolation_Function_Base* tIGInterp = tIGInterpolationRule.create_space_interpolation_function();
+
+                    // Declare matrix for basis functions
+                    Matrix< DDRMat > tNmapping;
+
+                    // Get the mapped quad point value x
+                    tIGInterp->eval_N( tQuadPoint , tNmapping );                    
+
+                    // get mapped quad point value x
+                    Matrix< DDRMat > tXmat = tNmapping * tXvector;
+                    tXm = tXmat( 0 );
+
+                    // get mapped quad point value y
+                    Matrix< DDRMat > tYmat = tNmapping * tYvector;
+                    tYm = tYmat( 0 );
+
+                    // get mapped quad point value z
+                    Matrix< DDRMat > tZmat = tNmapping * tZvector;
+                    tZm = tZmat( 0 );
+
+                    // Allocate matrix for storing mapping
+                    Matrix< DDRMat > tNximapping;
+
+                    // Compute geometric Jacobian
+                    tIGInterp->eval_dNdXi( tQuadPoint , tNximapping );
+
+                    Matrix< DDRMat > tRxi_x = tNximapping.get_row(0) * tXvector;
+                    Matrix< DDRMat > tRxi_y = tNximapping.get_row(0) * tYvector;
+                    Matrix< DDRMat > tRxi_z = tNximapping.get_row(0) * tZvector;
+
+                    Matrix< DDRMat > tReta_x = tNximapping.get_row(1) * tXvector;
+                    Matrix< DDRMat > tReta_y = tNximapping.get_row(1) * tYvector;
+                    Matrix< DDRMat > tReta_z = tNximapping.get_row(1) * tZvector;
+                    
+
+                    Matrix< DDRMat > tRxi = {{ tRxi_x( 0 ) }, { tRxi_y( 0 ) }, { tRxi_z( 0 ) }};
+
+                    Matrix< DDRMat > tReta = {{ tReta_x( 0 ) }, { tReta_y( 0 ) }, { tReta_z( 0 ) }};
+
+                    Matrix < DDRMat > tCrossProdRxiReta = cross( tRxi , tReta );
+
+                    tD = std::sqrt( std::pow(tCrossProdRxiReta( 0 ), 2) + std::pow(tCrossProdRxiReta( 1 ), 2) + std::pow(tCrossProdRxiReta( 2 ),2) ); 
+
+                }
+
+                
 
                 // Evaluate the moments
-                if ( aOrder == 1 )
+                if ( aOrder == 1 && aDim == 2)
                 {
                     tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm - 0.5 * ( tXm * tXm ) ) * ( 1.0 - tYm ) + 0.25 * tNy * ( tYm - 0.5 * ( tYm * tYm ) ) * ( 1.0 - tXm ) ) ;
 
@@ -972,7 +1276,7 @@ namespace moris::xtk
                     tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm - 0.5 * ( tXm * tXm ) ) * ( 1.0 + tYm ) + 0.25 * tNy * ( tYm + 0.5 * ( tYm * tYm ) ) * ( 1.0 - tXm ) ) ;
 
                 }
-                else if ( aOrder == 2 )
+                else if ( aOrder == 2 && aDim == 2 )
                 {
                     tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm ) * ( -tYm ) + 0.25 * tNy * ( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 - tXm ) * ( -tXm ) ) ;
 
@@ -993,7 +1297,7 @@ namespace moris::xtk
                     tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 1.0 * tNx * ( tXm - ( 1.0/3.0 ) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm * tYm ) + 1.0 * tNy * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) * ( 1.0 - tXm * tXm ) ) ;
 
                 } 
-                else if ( aOrder == 3)
+                else if ( aOrder == 3 && aDim == 2 )
                 {
                     real tt2 = std::pow(tXm,2);
                     real tt3 = std::pow(tXm,3);
@@ -1047,6 +1351,29 @@ namespace moris::xtk
 
                     tMomentFittingRHS( 15 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(7.29e+2/5.12e+2)-tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*7.119140625e-1-tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(2.43e+2/2.56e+2)-tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
                     tMomentFittingRHS( 15 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(7.29e+2/5.12e+2)+tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*7.119140625e-1+tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(2.43e+2/2.56e+2)+tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
+
+                }
+                else if ( aOrder == 1 && aDim == 3 )
+                {
+                    tMomentFittingRHS( 0 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm - 1),2)*(tYm - 1.0)*(tZm - 1.0)) / 16.0 + tNy * -((tXm - 1.0)*std::pow((tYm - 1.0),2)*(tZm - 1.0))/16.0 + tNz * -((tXm - 1.0)*(tYm - 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+
+                    tMomentFittingRHS( 1 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm + 1.0),2)*(tYm - 1.0)*(tZm - 1.0))/16.0 + tNy * ((tXm + 1.0)*std::pow((tYm - 1.0),2)*(tZm - 1.0))/16.0 + tNz * ((tXm + 1.0)*(tYm - 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+
+                    tMomentFittingRHS( 2 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm + 1.0),2)*(tYm + 1.0)*(tZm - 1.0))/16.0 + tNy * -((tXm + 1.0)*std::pow((tYm + 1.0),2)*(tZm - 1.0))/16.0 + tNz * -((tXm + 1.0)*(tYm + 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+
+                    tMomentFittingRHS( 3 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm - 1.0),2)*(tYm + 1.0)*(tZm - 1.0))/16.0 + tNy * ((tXm - 1.0)*std::pow((tYm + 1.0),2)*(tZm - 1.0))/16.0 + tNz * ((tXm - 1.0)*(tYm + 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+
+                    tMomentFittingRHS( 4 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm - 1.0),2)*(tYm - 1.0)*(tZm + 1.0))/16.0 + tNy * ((tXm - 1.0)*std::pow((tYm - 1.0),2)*(tZm + 1.0))/16.0 + tNz * ((tXm - 1.0)*(tYm - 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+
+                    tMomentFittingRHS( 5 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm + 1.0),2)*(tYm - 1.0)*(tZm + 1.0))/16.0 + tNy * -((tXm + 1.0)*std::pow((tYm - 1.0),2)*(tZm + 1.0))/16.0 + tNz * -((tXm + 1.0)*(tYm - 1.0)*std::pow((tZm + 1.0),2))/16.0 );
+
+                    tMomentFittingRHS( 6 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm + 1.0),2)*(tYm + 1.0)*(tZm + 1.0))/16.0 + tNy * ((tXm + 1.0)*std::pow((tYm + 1.0),2)*(tZm + 1.0))/16.0 + tNz * ((tXm + 1.0)*(tYm + 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+
+                    tMomentFittingRHS( 7 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx* -(std::pow((tXm - 1),2)*(tYm + 1.0)*(tZm + 1.0))/16.0 + tNy * -((tXm - 1.0)*std::pow((tYm + 1.0),2)*(tZm + 1.0))/16.0 + tNz * -((tXm - 1.0)*(tYm + 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+
+
+                    
+
 
                 }
                 
@@ -1273,31 +1600,25 @@ namespace moris::xtk
         // Solve the system
         //mQuadratureWeights = {{0.0}, {0.0}, {0.0}, {0.0}};
         
-        if ( aOrder == 1 || aOrder == 2 )
+        if ( ( aOrder == 1 || aOrder == 2 )  && aDim == 2 )
         {
             mQuadratureWeights = ( inv( tMomentFittingLHS ) * tMomentFittingRHS);
+        }
+        else if ( aOrder == 1 && aDim == 3 )
+        {
+            mQuadratureWeights = ( inv( tMomentFittingLHS ) * tMomentFittingRHS);
+        }
+        else if ( aOrder == 2 && aDim == 3 )
+        {
+            mQuadratureWeights =  solve( tMomentFittingLHS  , tMomentFittingRHS);
         }
         else if ( aOrder == 3 )
         {
             mQuadratureWeights =  solve( tMomentFittingLHS  , tMomentFittingRHS);
         }
         
-        
-
-        
-
-        if ( aOrder == 1 )
-        {
-            mQuadratureWeights.reshape( 1 , 4 );
-        }
-        else if ( aOrder == 2 )
-        {
-            mQuadratureWeights.reshape( 1 , 9 );
-        }
-        else if ( aOrder == 3 )
-        {
-            mQuadratureWeights.reshape( 1 , 16 );
-        }
+        // Reshape so as to be compatible with format required downstream
+        mQuadratureWeights.reshape( 1 , tNmoments );
         
         
     }

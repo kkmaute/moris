@@ -2805,7 +2805,7 @@ namespace moris::xtk
                 mCellClusters( tInterpCellIndex )->set_quadrature_points( mOrder , mDim );
                 
                 // Identify subphase boundary facets
-                mCellClusters( tInterpCellIndex )->find_subphase_boundary_vertices( tSubphaseCells , tFacetConnectivity );
+                mCellClusters( tInterpCellIndex )->find_subphase_boundary_vertices( tSubphaseCells , tFacetConnectivity, mDim );
                 
                 // Compute Weights as per moment fitting
                 //mCellClusters( tInterpCellIndex )->compute_quadrature_weights_moment_fitting( mOrder , mDim );
@@ -2912,7 +2912,7 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
 
                      // Place quadrature points inside cluster
-                    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( 3 , mDim );
+                    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( 1 , mDim );
                 
 
                 }
@@ -2953,7 +2953,7 @@ namespace moris::xtk
                         mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
 
                         // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
-                        mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( 3 , mDim );
+                        mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( 1 , mDim );
 
 
                         // sanity check for this case
@@ -2987,10 +2987,10 @@ namespace moris::xtk
                     auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
                     
                     // Identify subphase boundary facets
-                    mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity );
+                    mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , mDim );
 
                     // Compute quadrature weights via moment fitting
-                    mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( 3 , mDim );
+                    mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( 1 , mDim );
 
                     //fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
 
