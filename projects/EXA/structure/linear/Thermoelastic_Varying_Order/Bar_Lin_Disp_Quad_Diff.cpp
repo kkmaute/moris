@@ -64,7 +64,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim = "4, 2, 2";
+    Vector< uint > tNumElemsPerDim = { 4, 2, 2 };
     std::string tDomainDims     = "2.0, 0.25, 0.25";
     std::string tDomainOffset   = "0, 0, 0";
 

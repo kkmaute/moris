@@ -48,7 +48,7 @@ namespace moris
     real tWallThickness = 0.05;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "45,15,15" : "60,20";
+    Vector< uint > tNumElementsPerDir = tIs3D ? Vector< uint >{ 45, 15, 15 } : Vector< uint >{ 60, 20 };
     std::string tDimensions        = tIs3D ? "3,1,1" : "3,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
 

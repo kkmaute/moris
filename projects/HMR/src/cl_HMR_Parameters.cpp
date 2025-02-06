@@ -39,7 +39,7 @@ namespace moris::hmr
         mBSplinePatterns.clear();
 
         // Number of elements per dimension
-        string_to_vector( aParameterList.get< std::string >( "number_of_elements_per_dimension" ), mNumberOfElementsPerDimension );
+        mNumberOfElementsPerDimension = aParameterList.get< Vector< uint > >( "number_of_elements_per_dimension" );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.size() == 2 or mNumberOfElementsPerDimension.size() == 3,

@@ -290,7 +290,7 @@ namespace moris::xtk
 
             Parameter_List tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "3, 1" );
+            tParameters.set( "number_of_elements_per_dimension", 3, 1 );
             tParameters.set( "domain_dimensions", "6,2" );
             tParameters.set( "domain_offset", "-3,-1" );
             tParameters.set( "lagrange_output_meshes", "0" );

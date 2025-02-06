@@ -73,7 +73,7 @@ namespace moris::xtk
             // HMR parameter list
             moris::ParameterList tParameters = moris::prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 2, 2" );
+            tParameters.set( "number_of_elements_per_dimension", 2, 2, 2 );
             tParameters.set( "domain_dimensions", "1, 1, 1" );
             tParameters.set( "domain_offset", "0.0, 0.0, 0.0" );
             tParameters.set( "lagrange_output_meshes", "0" );

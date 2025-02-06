@@ -160,7 +160,7 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "176,88" );
+        aParameterLists.set( "number_of_elements_per_dimension", 176, 88 );
         aParameterLists.set( "processor_decomposition_method", 1 );
         aParameterLists.set( "processor_dimensions", "2,1" );
         aParameterLists.set( "domain_dimensions", "4,2" );

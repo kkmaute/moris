@@ -265,7 +265,7 @@ namespace moris
         std::cout << "Time continuity weight: " << tTCWeight << " \n"
                   << std::flush;
 
-        aParameterLists.set( "number_of_elements_per_dimension", ios::stringify( tNumXElems ) + "," + ios::stringify( tNumYElems ) );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumXElems, tNumYElems );
         aParameterLists.set( "domain_dimensions", ios::stringify( tChannelLength ) + "," + ios::stringify( tChannelHeight ) );
         aParameterLists.set( "domain_offset", "0.0,0.0" );
         aParameterLists.set( "lagrange_output_meshes", "0" );

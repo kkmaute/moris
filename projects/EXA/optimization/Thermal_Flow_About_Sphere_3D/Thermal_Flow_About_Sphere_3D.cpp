@@ -115,9 +115,9 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // background mesh
-    std::string tNumElemX = moris_to_string( std::ceil( tDimX / tApproxEleSize ) );
-    std::string tNumElemY = moris_to_string( std::ceil( tDimY / tApproxEleSize ) );
-    std::string tNumElemZ = moris_to_string( std::ceil( tDimZ / tApproxEleSize ) );
+    uint tNumElemX = std::ceil( tDimX / tApproxEleSize );
+    uint tNumElemY = std::ceil( tDimY / tApproxEleSize );
+    uint tNumElemZ = std::ceil( tDimZ / tApproxEleSize );
 
     std::string tDomainDimX = moris_to_string( tDimX );
     std::string tDomainDimY = moris_to_string( tDimY );
@@ -127,7 +127,6 @@ namespace moris
     std::string tDomainOffY = moris_to_string( tOffsetY );
     std::string tDomainOffZ = moris_to_string( tOffsetZ );
 
-    std::string tNumElemsPerDim = tNumElemX + "," + tNumElemY + "," + tNumElemZ;
     std::string tDomainDims     = tDomainDimX + "," + tDomainDimY + "," + tDomainDimZ;
     std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY + "," + tDomainOffZ;
 
@@ -471,7 +470,7 @@ namespace moris
 
         aParameterLists( 0 ).push_back( prm::create_hmr_parameter_list() );
 
-        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElemX, tNumElemY, tNumElemZ );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
 

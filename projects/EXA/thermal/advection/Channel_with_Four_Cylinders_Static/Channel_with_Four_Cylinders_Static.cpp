@@ -70,7 +70,7 @@ namespace moris
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists.set( "number_of_elements_per_dimension", "176,88" );
+        aParameterLists.set( "number_of_elements_per_dimension", 176, 88 );
         aParameterLists.set( "domain_dimensions", "4,2" );
         aParameterLists.set( "domain_offset", "-1.24,-0.86" );
         aParameterLists.set( "lagrange_output_meshes", "0" );

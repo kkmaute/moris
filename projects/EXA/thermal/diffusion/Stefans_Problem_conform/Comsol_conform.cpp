@@ -45,9 +45,9 @@ namespace moris
     moris::real tEps     = 1.0e-4;
 
     // mesh
-    // std::string tNumElemsPerDim = "500,1";
+    // Vector< uint > tNumElemsPerDim = "500,1";
     // std::string tHMRDomainDimensions = "0.28,0.0005";
-    std::string tNumElemsPerDim      = "50,1";
+    Vector< uint > tNumElemsPerDim      = { 50, 1 };
     std::string tHMRDomainDimensions = "0.028,0.0005";
 
     // time solver parameters

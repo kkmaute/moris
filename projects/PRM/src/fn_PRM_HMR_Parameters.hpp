@@ -25,7 +25,7 @@ namespace moris::prm
 
         // number of elements per direction in overall mesh, without aura
         // 2D or 3D is determined by length of this vector
-        tParameterList.insert( "number_of_elements_per_dimension", "2, 2" );
+        tParameterList.insert( "number_of_elements_per_dimension", Vector< uint >() );
 
         // Processor Decomposition Method (0=user defined; 1=min proc interface; 2=min mesh interface)
         tParameterList.insert( "processor_decomposition_method", 1 );

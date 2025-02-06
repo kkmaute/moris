@@ -71,7 +71,7 @@ namespace moris
     uint tNumConstraints = 3;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "4,4,4" : "4,4";
+    Vector< uint > tNumElementsPerDir( 2 + tIs3D, 4 );
     std::string tDimensions        = tIs3D ? "1,1,1" : "1,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
 

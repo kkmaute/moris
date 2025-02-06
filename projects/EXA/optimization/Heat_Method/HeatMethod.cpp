@@ -127,7 +127,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim = tIs3D ? "4, 4, 4" : "4, 4";
+    Vector< uint > tNumElementsPerDir( 2 + tIs3D, 4 );
     std::string tDomainDims     = tIs3D ? "2.0, 2.0, 2.0" : "2.0, 2.0";
     std::string tDomainOffset   = tIs3D ? "-1.0, -1.0, -1.0" : "-1.0, -1.0";
 
@@ -428,7 +428,7 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
         aParameterLists.set( "lagrange_output_meshes", "0" );

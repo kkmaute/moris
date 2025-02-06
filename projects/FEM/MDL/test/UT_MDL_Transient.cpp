@@ -350,7 +350,7 @@ namespace moris
         uint          tLagrangeMeshIndex = 0;
         ParameterList tParameters        = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
+        tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
         tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
         tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2.1 ) + "," + std::to_string( 0 ) );
         tParameters.set( "lagrange_output_meshes", "0" );

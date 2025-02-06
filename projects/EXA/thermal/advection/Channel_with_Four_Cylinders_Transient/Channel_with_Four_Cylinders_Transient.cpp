@@ -176,7 +176,7 @@ namespace moris
     {
         aParameterLists( 0 ).push_back( prm::create_hmr_parameter_list() );
 
-        aParameterLists.set( "number_of_elements_per_dimension", "22,11" );
+        aParameterLists.set( "number_of_elements_per_dimension", 22, 11 );
         aParameterLists.set( "domain_dimensions", "4,2" );
         aParameterLists.set( "domain_offset", "-1.24,-0.86" );
         aParameterLists.set( "lagrange_output_meshes", "0" );

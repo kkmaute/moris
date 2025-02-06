@@ -307,7 +307,7 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "32, 8" );
+        aParameterLists.set( "number_of_elements_per_dimension", 32, 8 );
         aParameterLists.set( "domain_dimensions", "0.8,0.2" );
         aParameterLists.set( "domain_offset", "0.0,0.0" );
         aParameterLists.set( "lagrange_output_meshes", "0" );

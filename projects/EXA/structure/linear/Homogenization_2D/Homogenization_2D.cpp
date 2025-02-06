@@ -82,7 +82,7 @@
         /* ------------------------------------------------------------------------ */
         // HMR parameters
 
-        std::string tNumElemsPerDim     = "10, 10";
+        Vector< uint > tNumElemsPerDim     = { 10, 10 };
         std::string tDomainDims         = "1.0, 1.0";
         std::string tDomainOffset       = "0, 0";
 

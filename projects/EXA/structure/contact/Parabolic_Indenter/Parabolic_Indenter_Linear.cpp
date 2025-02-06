@@ -243,8 +243,7 @@ namespace moris
     void HMRParameterList( Module_Parameter_Lists &aParameterLists )
     {
         /* --------------------------------------- Domain Settings ------------------------------------ */
-        aParameterLists.set( "number_of_elements_per_dimension",
-                std::to_string( tNumElemsX ) + "," + std::to_string( tNumElemsY ) );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsX, tNumElemsY );
         aParameterLists.set( "domain_dimensions", std::to_string( tWidth ) + "," + std::to_string( tHeight ) );
         aParameterLists.set( "domain_offset", tDomainOffset );
 

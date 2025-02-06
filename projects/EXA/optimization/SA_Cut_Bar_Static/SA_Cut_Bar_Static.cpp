@@ -103,7 +103,7 @@ namespace moris
     std::string tPcmGhost = "ghost_p2";
 
     // HMR parameters -------------------------------------------------
-    std::string tNumElemsPerDim = "1, 40";
+    Vector< uint > tNumElemsPerDim = { 1, 40 };
     std::string tDomainDims     = "0.16, 0.6";
     std::string tDomainOffset   = "-0.0342356,-0.031345";
 

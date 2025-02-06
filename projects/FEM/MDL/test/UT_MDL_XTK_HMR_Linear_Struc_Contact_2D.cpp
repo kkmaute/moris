@@ -196,7 +196,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         Parameter_List tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
+        tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
         tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
         tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
         tParameters.set( "lagrange_output_meshes", "0" );

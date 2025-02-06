@@ -74,7 +74,7 @@ namespace moris
     // Interpolation order
     std::string tOrder = "1";
 
-    std::string tNumElemsPerDim = "40,1200";
+    Vector< uint > tNumElemsPerDim = { 40, 1200 };
     std::string tDomainDims     = "0.01, 0.30";
     std::string tDomainOffset   = "0.0,0.0";
 

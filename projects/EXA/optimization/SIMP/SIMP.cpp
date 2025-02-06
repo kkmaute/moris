@@ -202,7 +202,7 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "40,20" );
+        aParameterLists.set( "number_of_elements_per_dimension", 40, 20 );
         aParameterLists.set( "domain_dimensions", "2,1" );
         aParameterLists.set( "domain_offset", "0.0,0.0" );
         aParameterLists.set( "lagrange_output_meshes", "0" );

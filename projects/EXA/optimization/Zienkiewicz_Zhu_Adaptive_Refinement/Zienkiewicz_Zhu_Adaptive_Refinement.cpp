@@ -853,7 +853,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "60,30" );
+        aParameterLists.set( "number_of_elements_per_dimension", 60, 30 );
         aParameterLists.set( "domain_dimensions", "8,4" );
         aParameterLists.set( "domain_offset", "-4.0,-2.0" );
         aParameterLists.set( "lagrange_output_meshes", "0" );

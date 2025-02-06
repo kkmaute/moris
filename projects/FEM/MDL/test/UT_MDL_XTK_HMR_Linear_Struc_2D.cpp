@@ -174,7 +174,7 @@ namespace moris
 
             moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "20, 20" );
+            tParameters.set( "number_of_elements_per_dimension", 20, 20 );
             tParameters.set( "domain_dimensions", "2, 2" );
             tParameters.set( "domain_offset", "-1.0, -1.0" );
             tParameters.set( "lagrange_output_meshes", "0" );
@@ -749,7 +749,7 @@ namespace moris
 
             moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "20, 20" );
+            tParameters.set( "number_of_elements_per_dimension", 20, 20 );
             tParameters.set( "domain_dimensions", "2, 2" );
             tParameters.set( "domain_offset", "-1.0, -1.0" );
             tParameters.set( "lagrange_output_meshes", "0" );
@@ -1064,7 +1064,7 @@ namespace moris
 
             moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "20, 20" );
+            tParameters.set( "number_of_elements_per_dimension", 20, 20 );
             tParameters.set( "domain_dimensions", "2, 2" );
             tParameters.set( "domain_offset", "-1.0, -1.0" );
             tParameters.set( "lagrange_output_meshes", "0" );

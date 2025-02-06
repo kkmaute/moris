@@ -89,17 +89,16 @@ namespace moris
 
         // get the base grid parameters
         std::string tBaseGridPath = aHmrPath + ".BaseGrid";
-        std::string tBaseGridSize;
+        std::string tGridParameter;
         std::string tDomainDimensions;
         std::string tBaseGridOrigin;
-        mXmlReader->get( tBaseGridPath + ".Size", tBaseGridSize, std::string( "" ) );
+        mXmlReader->get( tBaseGridPath + ".Size", tGridParameter, std::string( "" ) );
+        Vector< uint > tBaseGridSize = string_to_vector< uint >( tGridParameter );
         mXmlReader->get( tBaseGridPath + ".Dimensions", tDomainDimensions, std::string( "" ) );
         mXmlReader->get( tBaseGridPath + ".Origin", tBaseGridOrigin, std::string( "" ) );
 
         // check the number of spatial dimensions
-        Matrix< DDUMat > tBaseGridMat;
-        moris::string_to_matrix( tBaseGridSize, tBaseGridMat );
-        mNumSpatialDims = tBaseGridMat.numel();
+        mNumSpatialDims = tBaseGridSize.size();
 
         Matrix< DDRMat > tDomainDimsMat;
         moris::string_to_matrix( tDomainDimensions, tDomainDimsMat );

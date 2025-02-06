@@ -151,8 +151,8 @@ namespace moris
     //     // background mesh_sol
 
     // number of elements
-    std::string tNumElemX = moris_to_string( std::ceil( tDimX / tApproxEleSize ) );
-    std::string tNumElemY = moris_to_string( std::ceil( tDimY / tApproxEleSize ) );
+    uint tNumElemX = std::ceil( tDimX / tApproxEleSize );
+    uint tNumElemY = std::ceil( tDimY / tApproxEleSize );
 
     // dimension of background mesh
     std::string tDomainDimX = moris_to_string( tDimX );
@@ -163,7 +163,6 @@ namespace moris
     std::string tDomainOffY = moris_to_string( 0.0 );
 
     // setting up information for HMR parameter list
-    std::string tNumElemsPerDim = tNumElemX + "," + tNumElemY;
     std::string tDomainDims     = tDomainDimX + "," + tDomainDimY;
     std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY;
 
@@ -493,7 +492,7 @@ namespace moris
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElemX, tNumElemY );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
 
