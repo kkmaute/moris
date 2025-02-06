@@ -3575,13 +3575,13 @@ namespace moris::fem
 
                     // FIXME BRENDAN: This is a hack to do sensitivity analysis from external code
                     gLogger.set_action_data(
-                            "OPT",
+                            "GlobalClock",
                             "Arbitrary",
                             "Arbitrary",
                             "Epsilon",
                             tFDScheme( 0 )( iPoint ) * tDeltaH );
                     gLogger.set_action_data(
-                            "OPT",
+                            "GlobalClock",
                             "Arbitrary",
                             "Arbitrary",
                             "ADVID",
@@ -3600,6 +3600,14 @@ namespace moris::fem
                         { tResDofAssemblyStart, tResDofAssemblyStop },
                         { iAdv, iAdv } ) += tDrDpGeo.matrix_data();
             }
+
+            // reset the epsilon BRENDAN
+            gLogger.set_action_data(
+                    "GlobalClock",
+                    "Arbitrary",
+                    "Arbitrary",
+                    "Epsilon",
+                    0.0 );
         }
 
         // reset xyz values

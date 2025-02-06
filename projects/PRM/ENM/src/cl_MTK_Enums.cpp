@@ -214,6 +214,16 @@ namespace moris::mtk
         tFieldTypeMap[ "FIELD_7" ] = Field_Type::FIELD_7;
         tFieldTypeMap[ "FIELD_8" ] = Field_Type::FIELD_8;
         tFieldTypeMap[ "FIELD_9" ] = Field_Type::FIELD_9;
+        tFieldTypeMap[ "FIELD_10" ] = Field_Type::FIELD_10;
+        tFieldTypeMap[ "FIELD_11" ] = Field_Type::FIELD_11;
+        tFieldTypeMap[ "FIELD_12" ] = Field_Type::FIELD_12;
+        tFieldTypeMap[ "FIELD_13" ] = Field_Type::FIELD_13;
+        tFieldTypeMap[ "FIELD_14" ] = Field_Type::FIELD_14;
+        tFieldTypeMap[ "FIELD_15" ] = Field_Type::FIELD_15;
+        tFieldTypeMap[ "FIELD_16" ] = Field_Type::FIELD_16;
+        tFieldTypeMap[ "FIELD_17" ] = Field_Type::FIELD_17;
+        tFieldTypeMap[ "FIELD_18" ] = Field_Type::FIELD_18;
+        tFieldTypeMap[ "FIELD_19" ] = Field_Type::FIELD_19;
         tFieldTypeMap[ "" ]        = Field_Type::UNDEFINED;
         return tFieldTypeMap;
     }

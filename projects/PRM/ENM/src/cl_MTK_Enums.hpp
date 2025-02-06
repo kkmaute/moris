@@ -285,6 +285,16 @@ namespace moris::mtk
         FIELD_7,
         FIELD_8,
         FIELD_9,
+        FIELD_10, // BRENDAN ?????
+        FIELD_11,
+        FIELD_12,
+        FIELD_13,
+        FIELD_14,
+        FIELD_15,
+        FIELD_16,
+        FIELD_17,
+        FIELD_18,
+        FIELD_19,
         UNDEFINED
     };
 

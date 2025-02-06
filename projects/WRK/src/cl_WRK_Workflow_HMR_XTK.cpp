@@ -184,7 +184,7 @@ namespace moris::wrk
 
             // re-initialize GEN
             Module_Parameter_Lists tGENParameterList = tLibrary->get_parameters_for_module( Module_Type::GEN );
-            tGeometryEngine                       = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
+            tGeometryEngine                          = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
         }
 
         // Step 2: Initialize Level set field in GEN -----------------------------------------------
@@ -431,14 +431,13 @@ namespace moris::wrk
         mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
 
         // Stage 3: MDL perform ---------------------------------------------------------------------
-
         mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
                 mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
         // store whether the new ghost sets are being used
         mPerformerManager->mMDLPerformer( 0 )->set_use_new_ghost_mesh_sets( tUseNewGhostSets );
 
-        mPerformerManager->mMDLPerformer( 0 )->initialize();
+        mPerformerManager->mMDLPerformer( 0 )->initialize();    // brendan HERE is where we need to have the mesh
 
         mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 

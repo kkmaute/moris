@@ -65,7 +65,8 @@ namespace moris::opt
         // Trace optimization
         Tracer tTracer( "OPT", "Manager", "Perform" );
 
-        gLogger.set_action_data( "OPT", "Arbitrary", "Arbitrary", "Epsilon", 0.0 );    // BRENDAN remove this hack to set action data
+        gLogger.set_action_data( "GlobalClock", "Arbitrary", "Arbitrary", "Epsilon", 0.0 );    // BRENDAN remove this hack to set action data
+        gLogger.set_action_data( "GlobalClock", "Arbitrary", "Arbitrary", "ADVID", 0 );        // BRENDAN remove this hack to set action data
 
         // initialize the problem
         mProblem->initialize();

@@ -81,6 +81,21 @@ main( int argc, char* argv[] )
     // set severity level 0 - all outputs
     gLogger.initialize( argc, argv );
 
+    // BRENDAN HACK FOR JENNY'S WORK
+    gLogger.set_action_data(
+            "GlobalClock",
+            "Arbitrary",
+            "Arbitrary",
+            "Epsilon",
+            0.0 );
+    gLogger.set_action_data(
+            "GlobalClock",
+            "Arbitrary",
+            "Arbitrary",
+            "ADVID",
+            0 );
+
+
     // print banner
     moris::print_banner( argc, argv );
 

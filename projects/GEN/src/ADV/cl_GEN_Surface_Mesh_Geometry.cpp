@@ -210,6 +210,15 @@ namespace moris::gen
             const Parent_Node&                aSecondParentNode )
     {
 
+        if ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, -1.0 );
+        }
+        else if ( this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, 1.0 );
+        }
+
         // -------------------------------------------------------------------------------------
         // STEP 1: Get the direction to cast the ray in
         // -------------------------------------------------------------------------------------
