@@ -49,7 +49,7 @@ namespace moris::hmr
         this->set_processor_decomp_method( aParameterList.get< sint >( "processor_decomposition_method" ) );
 
         // get user defined processor dimensions. Only matters if decomp method == 3.
-        string_to_vector( aParameterList.get< std::string >( "processor_dimensions" ), mProcessorDimensions );
+        mProcessorDimensions = aParameterList.get< Vector< uint > >( "processor_dimensions" );
 
         // get domain dimensions
         string_to_vector( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );

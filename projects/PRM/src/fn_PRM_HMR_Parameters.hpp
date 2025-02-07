@@ -31,7 +31,7 @@ namespace moris::prm
         tParameterList.insert( "processor_decomposition_method", 1 );
 
         // User defined processor grid.  Decomp method must = 0.  Product of array must match number of processors used
-        tParameterList.insert( "processor_dimensions", "2, 2" );
+        tParameterList.insert( "processor_dimensions", Vector< uint >() );
 
         // width, height and depth of domain (without aura)
         tParameterList.insert( "domain_dimensions", "1, 1" );
