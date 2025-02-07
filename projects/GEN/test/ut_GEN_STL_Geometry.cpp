@@ -27,7 +27,7 @@ namespace moris
 
         tParameterlist.set( "number_of_elements_per_dimension", 10, 10, 10 );
         tParameterlist.set( "domain_dimensions",                5.6, 2.6, 3.4 );
-        tParameterlist.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
+        tParameterlist.set( "domain_offset",                    -4.9, 3.25, -1.7 );
 
         tParameterlist.set( "lagrange_output_meshes",           "0");
 

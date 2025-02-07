@@ -97,7 +97,6 @@ namespace moris
     // background mesh parameters
     Vector< uint > tNumElementsPerDir( 2 + tIs3D, 1 );
     Vector< real > tDimensions( 2 + tIs3D, 1.0 );
-    std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
 
     bool tUseBsplineForLevelset = gUseBspline;    // use simple plane to define intersection
     real tPlaneTilde            = 75;             // tilde of plane in degree; 90 being straight up
@@ -341,7 +340,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDimensions );
-        aParameterLists.set( "domain_offset", tOffSet );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tLagrangeOrder );

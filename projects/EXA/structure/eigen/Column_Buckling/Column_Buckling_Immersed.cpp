@@ -77,7 +77,7 @@ namespace moris
 
     Vector< uint > tNumElemsPerDim = tDim == 3 ? Vector< uint >{ 10, 55, 10 } : Vector< uint >{ 10, 55 };
     Vector< real > tDomainDims     = tDim == 3 ? Vector< real >{ 2, 11, 2 } : Vector< real >{ 2, 11 };
-    std::string tDomainOffset   = tDim == 3 ? "-0.5,-0.5,-0.5" : "-0.5,-0.5";
+    Vector< real > tDomainOffset( tDim, -0.5 );
 
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information

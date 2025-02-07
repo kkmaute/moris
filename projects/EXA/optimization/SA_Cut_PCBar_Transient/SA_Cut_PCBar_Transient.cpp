@@ -119,7 +119,7 @@ namespace moris
     // Vector< uint > tNumElemsPerDim = "2, 16";
     Vector< uint > tNumElemsPerDim = { 1, 40 };
     Vector< real > tDomainDims     = { 0.16, 0.6 };
-    std::string tDomainOffset   = "-0.0342356,-0.031345";
+    Vector< real > tDomainOffset   = { -0.0342356, -0.031345 };
 
     //------------------------------------------------------------------------------
     //-------------------------------- FUNCTIONS -----------------------------------

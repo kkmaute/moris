@@ -66,7 +66,6 @@ namespace moris
 
     Vector< uint > tNumElemsPerDim = { 4, 2, 2 };
     Vector< real > tDomainDims     = { 2.0, 0.25, 0.25 };
-    std::string tDomainOffset   = "0, 0, 0";
 
     int tRefineBuffer = 0;
 
@@ -149,7 +148,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "2" );

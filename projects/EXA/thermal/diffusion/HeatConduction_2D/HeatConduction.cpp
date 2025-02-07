@@ -149,13 +149,6 @@ namespace moris
     uint tNumElemX = std::ceil( tDimX / tApproxEleSize );
     uint tNumElemY = std::ceil( tDimY / tApproxEleSize );
 
-    // offeset of background mesh
-    std::string tDomainOffX = moris_to_string( 0.0 );
-    std::string tDomainOffY = moris_to_string( 0.0 );
-
-    // setting up information for HMR parameter list
-    std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY;
-
     // interpolation orders for level set and temperature fields
     int tLevelsetOrder = 2;
     int tDispOrder     = 1;
@@ -445,7 +438,6 @@ namespace moris
 
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemX, tNumElemY );
         aParameterLists.set( "domain_dimensions", tDimX, tDimY );
-        aParameterLists.set( "domain_offset", tDomainOffset );
 
         aParameterLists.set( "lagrange_output_meshes", "0" );
 

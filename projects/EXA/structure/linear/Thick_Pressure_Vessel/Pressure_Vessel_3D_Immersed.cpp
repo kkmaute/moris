@@ -88,7 +88,7 @@ namespace moris
 
     Vector< uint > tNumElemsPerDim = { 24, 24, 24 };
     Vector< real > tDomainDims     = { 0.6, 0.6, 0.6 };
-    std::string tDomainOffset   = "-0.1, -0.1, -0.1";
+    Vector< real > tDomainOffset   = { -0.1, -0.1, -0.1 };
 
     int tRefineBuffer = 1;
 

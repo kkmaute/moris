@@ -292,7 +292,7 @@ namespace moris::xtk
 
             tParameters.set( "number_of_elements_per_dimension", 3, 1 );
             tParameters.set( "domain_dimensions", 6.0, 2.0 );
-            tParameters.set( "domain_offset", "-3,-1" );
+            tParameters.set( "domain_offset", -3.0, -1.0 );
             tParameters.set( "lagrange_output_meshes", "0" );
             tParameters.set( "lagrange_orders", "2" );
             tParameters.set( "lagrange_pattern", "0" );

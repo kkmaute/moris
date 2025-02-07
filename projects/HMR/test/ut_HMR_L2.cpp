@@ -186,7 +186,7 @@ namespace moris::hmr
 
             tParameters.set( "number_of_elements_per_dimension", 6, 6, 6 );
             tParameters.set( "domain_dimensions", 6.0, 6.0, 6.0 );
-            tParameters.set( "domain_offset", "-3.0, -3.0, -3.0" );
+            tParameters.set( "domain_offset", -3.0, -3.0, -3.0 );
 
             tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "lagrange_orders", "1" );

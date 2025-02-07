@@ -170,7 +170,7 @@ namespace moris
 
             tParameters.set( "number_of_elements_per_dimension", 2, 1 );
             tParameters.set( "domain_dimensions", 2.0, 2.0 );
-            tParameters.set( "domain_offset", "-1.0, -1.0" );
+            tParameters.set( "domain_offset", -1.0, -1.0 );
             tParameters.set( "lagrange_output_meshes", std::string( "0" ) );
 
             tParameters.set( "lagrange_orders", std::string( "1" ) );
@@ -638,7 +638,7 @@ namespace moris
 
             tParameters.set( "number_of_elements_per_dimension", 2, 1 );
             tParameters.set( "domain_dimensions", 2.0, 2.0 );
-            tParameters.set( "domain_offset", "-1.0, -1.0" );
+            tParameters.set( "domain_offset", -1.0, -1.0 );
             tParameters.set( "lagrange_output_meshes", "0" );
 
             tParameters.set( "lagrange_orders", "1" );

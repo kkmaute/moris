@@ -50,7 +50,6 @@ namespace moris
     // background mesh parameters
     Vector< uint > tNumElementsPerDir = tIs3D ? Vector< uint >{ 45, 15, 15 } : Vector< uint >{ 60, 20 };
     Vector< real > tDimensions        = tIs3D ? Vector< real >{ 3, 1, 1 } : Vector< real >{ 3, 1 };
-    std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
 
     int tDispOrder = 1;
 
@@ -389,7 +388,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDimensions );
-        aParameterLists.set( "domain_offset", tOffSet );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "1" );

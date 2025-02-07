@@ -90,20 +90,17 @@ namespace moris
         // get the base grid parameters
         std::string tBaseGridPath = aHmrPath + ".BaseGrid";
         std::string tGridParameter;
-        std::string tBaseGridOrigin;
         mXmlReader->get( tBaseGridPath + ".Size", tGridParameter, std::string( "" ) );
         Vector< uint > tBaseGridSize = string_to_vector< uint >( tGridParameter );
         mXmlReader->get( tBaseGridPath + ".Dimensions", tGridParameter, std::string( "" ) );
         Vector< real > tDomainDimensions = string_to_vector< real >( tGridParameter );
-        mXmlReader->get( tBaseGridPath + ".Origin", tBaseGridOrigin, std::string( "" ) );
+        mXmlReader->get( tBaseGridPath + ".Origin", tGridParameter, std::string( "" ) );
+        Vector< real > tBaseGridOrigin = string_to_vector< real >( tGridParameter );
 
         // check the number of spatial dimensions
         mNumSpatialDims = tBaseGridSize.size();
         uint tNumDimsDimensions = tDomainDimensions.size();
-
-        Matrix< DDRMat > tDomainOriginMat;
-        moris::string_to_matrix( tBaseGridOrigin, tDomainOriginMat );
-        uint tNumDimsOrigin = tDomainOriginMat.numel();
+        uint tNumDimsOrigin = tBaseGridOrigin.size();
 
         // perform some checks on the user inputs
         MORIS_ERROR( mNumSpatialDims == 2 || mNumSpatialDims == 3,

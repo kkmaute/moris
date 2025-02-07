@@ -23,6 +23,12 @@ namespace moris::prm
     {
         Parameter_List tParameterList( "General" );
 
+        // width, height and depth of domain (without aura)
+        tParameterList.insert( "domain_dimensions", Vector< real >{ 1.0, 1.0 } );
+
+        // offset from the origin
+        tParameterList.insert( "domain_offset", Vector< real >() );
+
         // number of elements per direction in overall mesh, without aura
         // 2D or 3D is determined by length of this vector
         tParameterList.insert( "number_of_elements_per_dimension", Vector< uint >() );
@@ -32,11 +38,6 @@ namespace moris::prm
 
         // User defined processor grid.  Decomp method must = 0.  Product of array must match number of processors used
         tParameterList.insert( "processor_dimensions", Vector< uint >() );
-
-        // width, height and depth of domain (without aura)
-        tParameterList.insert( "domain_dimensions", Vector< real >{ 1.0, 1.0 } );
-        // offset from the origin
-        tParameterList.insert( "domain_offset", "0, 0" );
 
         // Lagrange Meshes that are used as output meshes
         tParameterList.insert( "lagrange_output_meshes", "" );

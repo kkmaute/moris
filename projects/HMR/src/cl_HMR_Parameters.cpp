@@ -59,11 +59,20 @@ namespace moris::hmr
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension." );
 
         // get domain offset
-        string_to_vector( aParameterList.get< std::string >( "domain_offset" ), mDomainOffset );
+        mDomainOffset = aParameterList.get< Vector< real > >( "domain_offset" );
 
-        // check sanity of input
-        MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainOffset.size(),
-                "length of domain_offset must be equal to number_of_elements_per_dimension." );
+        // Check size of offset
+        if ( mDomainOffset.size() == 0 )
+        {
+            // If no offset specified, assume zero offset
+            mDomainOffset.resize( mNumberOfElementsPerDimension.size(), 0.0 );
+        }
+        else
+        {
+            // Otherwise make sure size matches up
+            MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainOffset.size(),
+                    "length of domain_offset must be equal to number_of_elements_per_dimension." );
+        }
 
         // set buffer sizes
         this->set_refinement_buffer( aParameterList.get< uint >( "refinement_buffer" ) );

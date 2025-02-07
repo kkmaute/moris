@@ -61,7 +61,6 @@ namespace moris
 
     Vector< uint > tNumElemsPerDim     = { 20, 20 };
     Vector< real > tDomainDims         = { 1.0, 1.0 };
-    std::string tDomainOffset       = "0.0, 0.0";
     std::string tInterpolationOrder = "1";
 
     int tRefineBuffer = 1;
@@ -360,7 +359,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tInterpolationOrder );

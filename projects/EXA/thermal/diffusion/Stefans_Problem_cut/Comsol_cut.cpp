@@ -135,7 +135,7 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tHMRDomainDimensions );
-        aParameterLists.set( "domain_offset", "-0.0015,-0.0008" );
+        aParameterLists.set( "domain_offset", -0.0015, -0.0008 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         switch ( gInterpolationOrder )

@@ -208,11 +208,6 @@ namespace moris
     uint tNumElemX = std::ceil( tDimX / tApproxEleSize ) + 1;
     uint tNumElemY = std::ceil( tDimY / tApproxEleSize ) + 1;
 
-    std::string tDomainOffX = moris_to_string( tOffsetX );
-    std::string tDomainOffY = moris_to_string( tOffsetY );
-
-    std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY;
-
     // Bspline limit
     int tLevelsetOrder = 2;
     int tDispOrder     = 1;
@@ -1144,7 +1139,7 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemX, tNumElemY );
         aParameterLists.set( "domain_dimensions", tDimX, tDimY );
-        aParameterLists.set( "domain_offset", tDomainOffset );
+        aParameterLists.set( "domain_offset", tOffsetX, tOffsetY );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tLagrangeOrder );

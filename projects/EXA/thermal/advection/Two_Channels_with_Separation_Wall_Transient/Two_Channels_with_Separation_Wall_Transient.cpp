@@ -115,7 +115,7 @@ namespace moris
 
         aParameterLists.set( "number_of_elements_per_dimension", 62, 31 );
         aParameterLists.set( "domain_dimensions", 3.0, 1.0 );
-        aParameterLists.set( "domain_offset", "-0.835,-0.186" );
+        aParameterLists.set( "domain_offset", -0.835, -0.186 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "1" );

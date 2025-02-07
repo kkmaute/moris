@@ -77,7 +77,6 @@ namespace moris
 
     Vector< uint > tNumElemsPerDim = tDim == 3 ? Vector< uint >{ 5, 50, 5 } : Vector< uint >{ 5, 50 };
     Vector< real > tDomainDims     = tDim == 3 ? Vector< real >{ 1.0, 10.0, 1.0 } : Vector< real >{ 1.0, 10.0 };
-    std::string tDomainOffset   = tDim == 3 ? "0.0,0.0,0.0" : "0.0,0.0";
 
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information
@@ -131,7 +130,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
         aParameterLists.set( "lagrange_output_meshes", std::string( "0" ) );
 
         aParameterLists.set( "lagrange_orders", tOrder );

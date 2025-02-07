@@ -105,18 +105,14 @@ namespace moris::xtk
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // HMR parameters
-            Vector< uint > tNumElemsPerDim  = { 2, 1 };
-            Vector< real > tDomainDims      = { 2.0, 2.0 };
-            std::string tDomainOffset       = "-1.0, -1.0";
-            std::string tDomainSidesets     = "1,2,3,4";
             std::string tInterpolationOrder = "1";
 
             int                                      tRefineBuffer = 1;
             Module_Parameter_Lists tHMRParams( Module_Type::HMR );
             tHMRParams( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-            tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
-            tHMRParams( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
-            tHMRParams( 0 )( 0 ).set( "domain_offset", tDomainOffset );
+            tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", 2, 1 );
+            tHMRParams( 0 )( 0 ).set( "domain_dimensions", 2.0, 2.0 );
+            tHMRParams( 0 )( 0 ).set( "domain_offset", -1.0, -1.0 );
             tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
             tHMRParams( 0 )( 0 ).set( "lagrange_orders", tInterpolationOrder );
             tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ) );

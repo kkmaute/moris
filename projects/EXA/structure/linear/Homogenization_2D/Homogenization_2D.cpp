@@ -83,8 +83,7 @@
         // HMR parameters
 
         Vector< uint > tNumElemsPerDim     = { 10, 10 };
-        std::string tDomainDims         = "1.0, 1.0";
-        std::string tDomainOffset       = "0, 0";
+        Vector< real > tDomainDims         = { 1.0, 1.0 };
 
         std::string tEigenStrain  = "1.0;0.0;0.0";
 
@@ -178,7 +177,6 @@
 
             aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
             aParameterLists.set( "domain_dimensions",                tDomainDims );
-            aParameterLists.set( "domain_offset",                    tDomainOffset );
             aParameterLists.set( "lagrange_output_meshes",           "0");
 
             aParameterLists.set( "lagrange_orders",  std::to_string( 1 ));

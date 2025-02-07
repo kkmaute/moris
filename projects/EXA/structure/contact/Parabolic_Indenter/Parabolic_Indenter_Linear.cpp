@@ -85,7 +85,6 @@ namespace moris
     real tBottomPois = 0.0;
 
     /* --------------------------------------- Domain Setting --------------------------------------- */
-    std::string tDomainOffset           = "0.0,0.0";    //
     std::string tInterpolationOrder     = std::to_string( gInterpolationOrder );
     std::string tDomainTop              = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tDomainBottom           = "HMR_dummy_n_p2,HMR_dummy_c_p2";
@@ -245,7 +244,6 @@ namespace moris
         /* --------------------------------------- Domain Settings ------------------------------------ */
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsX, tNumElemsY );
         aParameterLists.set( "domain_dimensions", tWidth, tHeight );
-        aParameterLists.set( "domain_offset", tDomainOffset );
 
         /* ---------------------------------------- Lagrange Mesh ------------------------------------- */
         aParameterLists.set( "lagrange_pattern", "0" );
