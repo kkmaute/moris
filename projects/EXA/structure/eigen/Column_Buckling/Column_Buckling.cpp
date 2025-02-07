@@ -174,7 +174,6 @@ namespace moris
 
     void GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists( 0 ).add_parameter_list();
     }
 
     /* ------------------------------------------------------------------------ */

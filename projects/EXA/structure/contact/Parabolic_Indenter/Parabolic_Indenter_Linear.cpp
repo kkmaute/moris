@@ -326,9 +326,9 @@ namespace moris
             // use a parabola for the top side
             pl = prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED );
             pl.set( "field_function_name", "Parabola" );
-            pl.insert( "variable_1", tTopXShift );
-            pl.insert( "variable_2", tTopYShift );
-            pl.insert( "variable_3", tTopParabolaFactor );
+            pl.insert< Design_Variable >( "variable_1", tTopXShift );
+            pl.insert< Design_Variable >( "variable_2", tTopYShift );
+            pl.insert< Design_Variable >( "variable_3", tTopParabolaFactor );
             aParameterLists( GEN::GEOMETRIES ).add_parameter_list( pl );
         }
 
