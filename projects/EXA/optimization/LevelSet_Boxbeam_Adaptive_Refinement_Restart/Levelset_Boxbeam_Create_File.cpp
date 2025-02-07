@@ -558,7 +558,6 @@ namespace moris
 
         aParameterLists.set( "use_number_aura", 1 );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
 
         aParameterLists.set( "use_refine_low_level_elements", false );

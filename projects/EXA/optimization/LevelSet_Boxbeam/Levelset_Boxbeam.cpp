@@ -269,7 +269,6 @@ namespace moris
         aParameterLists.set( "staircase_buffer", 3 );
         aParameterLists.set( "initial_refinement", std::to_string( tInitialRef ) );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
     }
 

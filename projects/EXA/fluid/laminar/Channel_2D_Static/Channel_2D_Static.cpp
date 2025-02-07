@@ -138,8 +138,6 @@ extern "C"
             aParameterLists.set( "initial_refinement_pattern", "0" );
 
             aParameterLists.set( "use_number_aura", 1 );
-
-            aParameterLists.set( "use_multigrid",  0 );
             aParameterLists.set( "severity_level", 0 );
 
             aParameterLists.set( "adaptive_refinement_level", 0 );

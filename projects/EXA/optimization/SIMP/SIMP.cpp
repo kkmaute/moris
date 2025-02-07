@@ -217,7 +217,6 @@ namespace moris
         aParameterLists.set( "staircase_buffer", 3 );
         aParameterLists.set( "initial_refinement", "0" );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 1 );
 
         aParameterLists.set( "adaptive_refinement_level", 1 );

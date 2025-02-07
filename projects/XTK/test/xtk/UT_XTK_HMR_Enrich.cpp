@@ -305,7 +305,6 @@ namespace moris::xtk
             tParameters.set( "initial_refinement", "0" );
             tParameters.set( "initial_refinement_pattern", "0" );
 
-            tParameters.set( "use_multigrid", 0 );
             tParameters.set( "severity_level", 2 );
             tParameters.set( "use_number_aura", 1 );
 

@@ -502,7 +502,6 @@ namespace moris
 
         aParameterLists.set( "use_number_aura", 1 );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
 
         aParameterLists.set( "basis_function_vtk_file", "basisinhmr.vtk" );

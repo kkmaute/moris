@@ -197,7 +197,6 @@ namespace moris::hmr
 
             tParameters.set( "lagrange_to_bspline", "0" );
 
-            tParameters.set( "use_multigrid", 0 );
 
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
@@ -249,7 +248,6 @@ namespace moris::hmr
 
             tParameters.set( "lagrange_to_bspline", "0, 1; 2, 3" );
 
-            tParameters.set( "use_multigrid", 0 );
 
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );

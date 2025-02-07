@@ -315,7 +315,6 @@ namespace moris
         aParameterList( 0 ).set( "initial_refinement", "0" );
         aParameterList( 0 ).set( "initial_refinement_pattern", "0" );
 
-        aParameterList( 0 ).set( "use_multigrid", 0 );
         aParameterList( 0 ).set( "severity_level", 2 );
 
         aParameterList( 0 ).set( "adaptive_refinement_level", 2 );

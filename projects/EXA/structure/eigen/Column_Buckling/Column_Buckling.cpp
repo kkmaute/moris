@@ -144,7 +144,6 @@ namespace moris
 
         aParameterLists.set( "initial_refinement_pattern", "0" );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
 
         aParameterLists.set( "lagrange_mesh_output_file_name", "LBAProblem.exo" );

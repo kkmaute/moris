@@ -96,7 +96,6 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
 
         tParameters.set( "use_number_aura", 1 );
 
-        tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 0 );
 
         Parameter_List tRefinementParameters( "Refinement" );

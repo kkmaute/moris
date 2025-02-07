@@ -73,7 +73,7 @@ namespace moris::prm
         tParameterList.insert( "truncate_bsplines", true );
 
         // boolean for multigrid
-        tParameterList.insert( "use_multigrid", 0 );
+        tParameterList.insert( "use_multigrid", false );
 
         // boolean for numbering of aura
         tParameterList.insert( "use_number_aura", 1 );

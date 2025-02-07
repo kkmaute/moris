@@ -160,7 +160,7 @@ namespace moris::hmr
         this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
 
         // get multigrid parameter
-        this->set_multigrid( aParameterList.get< sint >( "use_multigrid" ) == 1 );
+        this->set_multigrid( aParameterList.get< bool >( "use_multigrid" ) );
 
         // get renumber lagrange nodes
         this->set_renumber_lagrange_nodes( aParameterList.get< sint >( "renumber_lagrange_nodes" ) == 1 );

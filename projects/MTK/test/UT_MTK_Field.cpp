@@ -117,7 +117,6 @@ namespace moris
 
                 tParameters.set( "use_number_aura", 0 );
 
-                tParameters.set( "use_multigrid", 0 );
                 tParameters.set( "severity_level", 2 );
 
                 hmr::HMR tHMR( tParameters );
@@ -239,7 +238,6 @@ namespace moris
 
                 tParameters.set( "use_number_aura", 0 );
 
-                tParameters.set( "use_multigrid", 0 );
                 tParameters.set( "severity_level", 2 );
 
                 hmr::HMR tHMR( tParameters );
@@ -383,7 +381,6 @@ namespace moris
 
                 tParameters.set( "use_number_aura", 0 );
 
-                tParameters.set( "use_multigrid", 0 );
                 tParameters.set( "severity_level", 2 );
 
                 hmr::HMR tHMR( tParameters );
@@ -535,7 +532,6 @@ namespace moris
 
                 tParameters.set( "use_number_aura", 0 );
 
-                tParameters.set( "use_multigrid", 0 );
                 tParameters.set( "severity_level", 2 );
 
                 hmr::HMR tHMR( tParameters );

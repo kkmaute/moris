@@ -124,7 +124,6 @@ namespace moris::xtk
             tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
             tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
             tHMRParams( 0 )( 0 ).set( "use_number_aura", 1 );
-            tHMRParams( 0 )( 0 ).set( "use_multigrid", 0 );
             tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // PSEUDO Workflow

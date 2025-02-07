@@ -406,7 +406,6 @@ namespace moris
 
         aParameterLists.set( "use_number_aura", 1 );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
 
         aParameterLists.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh_Quadratic.exo" );

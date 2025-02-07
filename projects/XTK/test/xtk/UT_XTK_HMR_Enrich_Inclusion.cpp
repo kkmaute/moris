@@ -87,7 +87,6 @@
 //     tParameterlist.set( "refinement_buffer",  tRefineBuffer );
 //     tParameterlist.set( "staircase_buffer",   tRefineBuffer );
 //     tParameterlist.set( "use_number_aura", 1);
-//     tParameterlist.set( "use_multigrid",  0 );
 //     tParameterlist.set( "severity_level", 0 );
 
 //         return tParameterlist
