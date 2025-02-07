@@ -1860,7 +1860,7 @@ namespace moris::hmr
         // elements to be flagged for refinement
         Vector< hmr::Element* > tRefinementList;
 
-        // get candidates for surface
+        // get candidates for refinement - these are simply all active/used elements in the Lagrange mesh
         this->get_candidates_for_refinement(
                 tCandidates,
                 aLagrangeMeshIndex );

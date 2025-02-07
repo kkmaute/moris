@@ -589,7 +589,7 @@ namespace moris::hmr
                         tBasis->increment_element_counter();
                     }
                 }
-            }
+            } // for each: element - these are (active or refined) elements on the current level passed to this function
 
             // initialize basis counter
             luint tBasisCount = 0;

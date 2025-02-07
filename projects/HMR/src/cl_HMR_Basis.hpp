@@ -1144,11 +1144,11 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /*virtual const Matrix< DDRMat > *
-     get_weights( const uint aOrder ) const
-     {
-         MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
-         return nullptr;
-     }*/
+        get_weights( const uint aOrder ) const
+        {
+            MORIS_ERROR( false, "get_weights() not available for for selected basis type.");
+            return nullptr;
+        }*/
 
         //------------------------------------------------------------------------------
 
@@ -1174,7 +1174,37 @@ namespace moris::hmr
         {
             MORIS_ERROR( false, "init_interpolation() not available for for selected basis type." );
         }
-    };
+
+        //------------------------------------------------------------------------------
+
+        virtual void
+        print() const
+        {
+            MORIS_ERROR( false, "hmr::Basis::print() - not available for for selected basis type." );
+        }
+
+        //------------------------------------------------------------------------------
+
+    }; // class hmr::Basis
+
+    //------------------------------------------------------------------------------
+
+    inline void
+    print_basis_functions(
+            const Vector< Basis* >& aBasisList,
+            const std::string&      aListName )
+    {
+        std::cout << "\n===================================================\n";
+        std::cout << "Printing basis functions from list: " << aListName << " of size " << aBasisList.size() << "\n";
+
+        for ( uint i = 0; i < aBasisList.size(); ++i )
+        {
+            std::cout << "\nBF #" << i << ":";
+            aBasisList( i )->print();
+        }
+        std::cout << "\n===================================================\n" << std::endl;
+    }
+
     //------------------------------------------------------------------------------
 
 }    // namespace moris::hmr

@@ -20,13 +20,14 @@
 # See the Spack documentation for more information on packaging.
 # ----------------------------------------------------------------------------
 
-from spack import *
-
 import os
-import re
-import subprocess
 
-class Moris(CMakePackage):
+import spack.build_systems.cmake
+import spack.build_systems.generic
+from spack.package import *
+
+
+class Moris(CMakePackage, Package):
     """MORIS"""
 
     git = "ssh://git@github.com/kkmaute/moris"
@@ -153,6 +154,11 @@ class Moris(CMakePackage):
         return options
     
     def setup_build_environment(self, env):
+        openssl_lib_path = self.spec['openssl'].prefix.lib
+        if not os.path.exists(openssl_lib_path):
+            openssl_lib_path = self.spec['openssl'].prefix.lib64
+        env.append_path('LD_LIBRARY_PATH', openssl_lib_path)
+
         if '-petsc' in self.spec:
             # Get gfortran library of space fortran compiler
             fc = Executable(self.compiler.fc)

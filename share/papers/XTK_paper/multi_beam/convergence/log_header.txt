@@ -1,0 +1,31 @@
+Global Clock Initialized ... 
+Memory usage in MB: total 74 | max 74 | min 74 || current 74 | max 74 | min 74
+
+            .___  ___.   ______   .______       __       _______.
+            |   \/   |  /  __  \  |   _  \     |  |     /       |
+            |  \  /  | |  |  |  | |  |_)  |    |  |    |   (----`
+            |  |\/|  | |  |  |  | |      /     |  |     \   \
+            |  |  |  | |  `--'  | |  |\  \----.|  | .----)   |
+            |__|  |__|  \______/  | _| `._____||__| |_______/
+
+                   2023 University of Colorado Boulder
+                        Aerospace Mechanics Research Center
+
+
+     DEBUG flags are OFF.
+
+     User/Host    : wunsch at mirage.colorado.edu ( linux / x86_64 )
+     CPU Info     : AMD Ryzen 9 5950X 16-Core Processor 
+     Procs Used   : 1 
+
+     Build Date   : Oct 24 2024 at 14:08:13
+     Date of Run  : Tue Nov  5 13:06:48 2024
+ 
+     Matrix Lib   : Armadillo
+
+     Executable   : /home/wunsch/codes/moris/build_opt/projects/mains/moris
+     Arguments    : ./Multi_Beam_Reference.so
+     Run Dir      : /home/wunsch/work/XTK_Paper/multi_beam/convergence_study_v3/Enrichment_true/Reference_Solution
+
+     GIT branch   : refs/heads/main
+     GIT revision : 79a60968133f39e8f10f85228da1185733ae22e9

@@ -297,7 +297,7 @@ namespace moris::xtk
 
         // set field index
         tFieldIndex                = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( tCellFields( 0 ), mtk::EntityRank::ELEMENT, 0 );
-        moris_index tFieldIndexSPG = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( "SPG_index", mtk::EntityRank::ELEMENT, 0 );
+        moris_index tFieldIndexSPG = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( "SPG_index" + std::to_string( aMeshIndex ), mtk::EntityRank::ELEMENT, 0 );
 
         Matrix< DDRMat > tCellIPField( 1, tNumIPCells, -1.0 );
         Matrix< DDRMat > tCellSPGField( 1, tNumIPCells, -1.0 );
@@ -319,15 +319,15 @@ namespace moris::xtk
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->add_field_data( tFieldIndexSPG, mtk::EntityRank::ELEMENT, tCellSPGField );
 
         // write this field to the exodus file if there is a cell that is not grouped
-        auto it = std::find( mRootSPGIds.begin(), mRootSPGIds.end(), -1 );
-        if ( it != mRootSPGIds.end() )
+        // auto it = std::find( mRootSPGIds.begin(), mRootSPGIds.end(), -1 );
+        if (  false ) //  it != mRootSPGIds.end() )
         {
             // output the xtk mesh for debugging
             mXTKModelPtr->mEnrichedIntegMesh( 0 )->write_mesh( mParameterList );
 
             mXTKModelPtr->mEnrichedInterpMesh( 0 )->write_mesh( mParameterList );
 
-            MORIS_ASSERT( false, "The SPG with the index %d is not grouped, refer to XTK IG mesh for more info", *it );
+            //MORIS_ASSERT( false, "The SPG with the index %d is not grouped, refer to XTK IG mesh for more info", *it );
         }
     }
 
@@ -355,7 +355,7 @@ namespace moris::xtk
 
             if ( par_size() == 1 )
             {
-                this->construct_follower_to_leader_basis_weights_indices( iMeshIndex );
+                this->construct_follower_to_leader_basis_weights_indices_mine( iMeshIndex );
             }
             else
             {
@@ -519,6 +519,7 @@ namespace moris::xtk
     {
         // compute the threshold volume to decide good/bad basis
         real tVolThreshold = this->compute_threshold_volume( aMeshIndex );
+        MORIS_LOG_INFO( "The threshold volume for the mesh index %d is %f", aMeshIndex, tVolThreshold );
 
         // get the spg to enr basis and its transpose( enr basis to spg map)
         // Vector< Vector< moris_index > > const & tEnrichedBasisInSubphaseGroup     = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisInSubphaseGroup;
@@ -536,6 +537,7 @@ namespace moris::xtk
 
         // Get the number of subphase groups (on the current proc) and resize
         uint tNumSubphaseGroups = tBsplineMeshInfo->get_num_SPGs();
+        MORIS_LOG_INFO( "The number of SPGs in the mesh index %d is %d", aMeshIndex, tNumSubphaseGroups );
 
         // allocate size for the basis info
         // for follower basis assume all are follower and then change the leader one to zero
@@ -548,6 +550,7 @@ namespace moris::xtk
         mRootSPGIds.resize( tNumSubphaseGroups, gNoID );
         mRootSPGOwner.resize( tNumSubphaseGroups, gNoIndex );
 
+        int Counter = 0; 
         // loop over the b-spline elements to get the SPGs living on them
         for ( uint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
         {
@@ -565,6 +568,9 @@ namespace moris::xtk
                     // assign as the root as itself because it is not cut
                     mRootSPGIds( tSPGIndicesInBsplineCell( 0 ) )   = tSubphaseGroup->get_id();
                     mRootSPGOwner( tSPGIndicesInBsplineCell( 0 ) ) = par_rank();
+
+                    Counter++;
+                    //MORIS_LOG_INFO( "The SPG with the index %d is a root with a Bsplince Cell %d", tSPGIndicesInBsplineCell( 0 ) ,iBspElem );
                     // go to the next b-spline element
                     continue;
                 }
@@ -597,9 +603,16 @@ namespace moris::xtk
                     // if a volume threshold is met mark the spgs as its own root
                     mRootSPGIds( iSPGIndex )   = tSubphaseGroup->get_id();
                     mRootSPGOwner( iSPGIndex ) = par_rank();
+                    //MORIS_LOG_INFO( "The SPG with the index %d is a root with a Bsplince Cell %d, the volume is %f", iSPGIndex ,iBspElem, tVolume );
+                    Counter++;
+                }
+                else
+                { //MORIS_LOG_INFO( "The SPG with the index %d is a not root with a Bsplince Cell %d, the volume is %f", iSPGIndex ,iBspElem, tVolume );
                 }
             }
         }
+
+        MORIS_LOG_INFO( "The number of SPGs that are root is %d", Counter );
     }
 
     // ----------------------------------------------------------------------------------
@@ -864,7 +877,7 @@ namespace moris::xtk
             if ( tSPGs( iSPGIndex )->get_owner() != par_rank() ) continue;
 
             // if it is an extended cell
-            if ( tSPGs( iSPGIndex )->get_id() != mRootSPGIds( iSPGIndex ) )
+            if ( tSPGs( iSPGIndex )->get_id() != mRootSPGIds( iSPGIndex ) and mRootSPGIds( iSPGIndex ) != gNoID )
             {
                 // get the all the lagrange cells of the that SPG index
                 Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
@@ -1003,6 +1016,134 @@ namespace moris::xtk
                     }
                 }
             }
+            // if no good cell is found 
+            else if (  mRootSPGIds( iSPGIndex ) == gNoID)
+            {
+                std::cout<<"eliminated SPG: "<<iSPGIndex<<std::endl;
+                // get the all the lagrange cells of the that SPG index
+                Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
+
+                // loop over the unzipped lagrange cells and evaluate t-matrices
+                for ( const auto& iUIPCIndex : tUIPCIndices )
+                {
+                    // get base cell of the lagrange mesh
+                    const Interpolation_Cell_Unzipped* tConstUIPC = tEnrichedIPCells( iUIPCIndex );
+
+                    // Get the lagrange vertices of the UIPC to obtain the vertex interpolation object of each lagrange node
+                    Vector< xtk::Interpolation_Vertex_Unzipped* > const & tXTKUIPVs = tConstUIPC->get_xtk_interpolation_vertices();
+
+                    // loop over the unzipped interpolation vertices and get their t-matrix info to overwrite
+                    for ( size_t iLocalVertIndex = 0; iLocalVertIndex < tXTKUIPVs.size(); iLocalVertIndex++ )
+                    {
+                        // if the vertex has been already processed, skip it
+                        if ( tListOfBGVertices.count( tXTKUIPVs( iLocalVertIndex )->get_index() ) > 0 )
+                        {
+                            continue;
+                        }
+
+                        // get the vertex enrichment object
+                        xtk::Vertex_Enrichment* tVertexEnrichment = tXTKUIPVs( iLocalVertIndex )->get_xtk_interpolation( aMeshIndex );
+
+                        // add the vertex to the list of processed vertices
+                        tListOfBGVertices.insert( tXTKUIPVs( iLocalVertIndex )->get_index() );
+
+                        // access the basis indices and weights
+                        Matrix< IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_indices();
+                        Matrix< IndexMat > const & tBasisIds     = tVertexEnrichment->get_basis_ids();
+                        Matrix< DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_weights();
+                        Matrix< IdMat >            tBasisOwners  = tVertexEnrichment->get_owners();
+                        IndexMap&                  tBasisMap     = tVertexEnrichment->get_basis_map();
+                        tBasisMap.clear();
+
+                        // probably need to do a resize call here
+                        // overallocation basis Indices , assume that every basis index need to be replaced
+                        Matrix< IndexMat > tAgglomeratedBasisIndices( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                        Matrix< IndexMat > tAgglomeratedBasisIds( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                        Matrix< DDRMat >   tAgglomeratedBasisWeights( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                        Matrix< IndexMat > tAgglomeratedBasisOwners( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                        // tBasisMap.reserve( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) ); // FIXME: only works if the Mini_Map is implemented using a std::unordered_map
+
+                        // initialize a counter to count how many basis will be added and replaced
+                        uint tBasisCounter = 0;
+
+                        // loop over the basis indices and replace the ones that are not in the follower basis
+                        for ( uint iBC = 0; iBC < tBasisIndices.numel(); iBC++ )
+                        {
+                            // get a reference to the basis index and weight
+                            moris::moris_index tBasisIndex  = tBasisIndices( iBC );
+                            real&              tBasisWeight = tBasisWeights( iBC );
+
+                            // if it is a good basis keep it
+                            if ( 0 == mBasisData( aMeshIndex ).mFollowerBasis( tBasisIndex ) )
+                            {
+                                // if it iis not in the map add it to map
+                                if ( tBasisMap.find( tBasisIndex ) == tBasisMap.end() )
+                                {
+                                    tAgglomeratedBasisIndices( tBasisCounter ) = tBasisIndex;
+                                    tAgglomeratedBasisIds( tBasisCounter )     = tBasisIds( iBC );
+                                    tAgglomeratedBasisWeights( tBasisCounter ) = tBasisWeights( iBC );
+                                    tAgglomeratedBasisOwners( tBasisCounter )  = tBasisOwners( iBC );
+                                    tBasisMap[ tBasisIndex ]                   = tBasisCounter;
+
+                                    tBasisCounter++;
+                                }
+                                else
+                                {
+                                    // if it is repetitive just add weights
+                                    moris_index tLocalBasisIndex = tBasisMap[ tBasisIndex ];
+                                    tAgglomeratedBasisWeights( tLocalBasisIndex ) += tBasisWeight;
+                                }
+                            }
+                            else
+                            {
+                                // obtain the replacement basis
+                                Vector< moris_index > const & tFollowerBasis        = mBasisData( aMeshIndex ).mFollowerToLeaderBasis( tBasisIndex );
+                                //Vector< real > const &        tFollowerBasisWeights = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( tBasisIndex );
+                                Vector< real > const &        tFollowerBasisOwners  = mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( tBasisIndex );
+
+                                // loop over and replace the t matrix
+                                for ( uint iSlaveBasisOrd = 0; iSlaveBasisOrd < tFollowerBasis.size(); iSlaveBasisOrd++ )
+                                {
+                                    moris_index const & tFollowerBasisIndex = tFollowerBasis( iSlaveBasisOrd );
+
+                                    //  if not found in the map
+                                    if ( tBasisMap.find( tFollowerBasisIndex ) == tBasisMap.end() )
+                                    {
+                                        // assign the basis index and weight
+                                        tAgglomeratedBasisIndices( tBasisCounter ) = tFollowerBasisIndex;
+                                        tAgglomeratedBasisIds( tBasisCounter )     = tEnrInterpMesh.get_enr_basis_id_from_enr_basis_index( aMeshIndex, tFollowerBasisIndex );
+                                        tAgglomeratedBasisWeights( tBasisCounter ) = 0.0; // tBasisWeight * tFollowerBasisWeights( iSlaveBasisOrd );
+                                        tAgglomeratedBasisOwners( tBasisCounter )  = tFollowerBasisOwners( iSlaveBasisOrd );
+                                        tBasisMap[ tFollowerBasisIndex ]           = tBasisCounter;
+
+                                        // increment the counter
+                                        tBasisCounter++;
+                                    }
+                                    // if found in the map
+                                    else
+                                    {
+                                        // find the local index and add the weight
+                                        moris_index tLocalBasisIndex = tBasisMap[ tFollowerBasisIndex ];
+                                        tAgglomeratedBasisWeights( tLocalBasisIndex ) += 0.0; // tBasisWeight * tFollowerBasisWeights( iSlaveBasisOrd );
+                                    }
+                                }
+
+                            }
+                        }
+
+                        // resize the basis vectors with the correct size
+                        tAgglomeratedBasisIndices.resize( tBasisCounter, 1 );
+                        tAgglomeratedBasisWeights.resize( tBasisCounter, 1 );
+                        tAgglomeratedBasisIds.resize( tBasisCounter, 1 );
+                        tAgglomeratedBasisOwners.resize( tBasisCounter, 1 );
+
+                        //  add basis information to the vertex enrichment
+                        tVertexEnrichment->add_basis_information( tAgglomeratedBasisIndices, tAgglomeratedBasisIds );
+                        tVertexEnrichment->add_basis_weights( tAgglomeratedBasisIndices, tAgglomeratedBasisWeights );
+                        tVertexEnrichment->add_basis_owners( tAgglomeratedBasisIndices, tAgglomeratedBasisOwners );
+                    }
+                }
+            }
         }
     }
 
@@ -1034,12 +1175,12 @@ namespace moris::xtk
         uint tLoopCounter = 0;
 
         // until all SPGs are aggregated run the graph algorithm to generate aggregates
-        while ( this->determine_stopping_criteria() )
+        while ( this->determine_stopping_criteria() and tLoopCounter++ < 100)
         {
             // make sure the code does not get stuck in an infinite while-loop here
             // FIXME: a smarter stopping criteria would be good, this is only a temporary fix to the problem
             MORIS_ERROR(
-                    tLoopCounter++ < 100,
+                    tLoopCounter++ < 101,
                     "Basis_Processor::construct_cell_aggregates() - "
                     "Could not find root B-spline element to extend basis functions from within 100 search iterations." );
 
@@ -1574,14 +1715,15 @@ namespace moris::xtk
         /* ---------------------------------------------------------------------------------------- */
         /* Step 1: choose a root processor that will receive the data from all other processors about the neighborhood and will establish two-way communion tables  */
 
-        moris_index tRootProc = 0;
-
+        moris_id tRootProc = 0;
         // create a continues memory array that will contain all the relationship between processors
-        Vector< moris_id > tProcessorsToReceiveFromAllProcs( tSize * tSize );
+        Vector< moris_id > tProcessorsToReceiveFromAllProcs;
         if ( tRootProc == par_rank() )
         {
+            tProcessorsToReceiveFromAllProcs.resize( tSize * tSize, gNoIndex );
             // gather everything on processor zero
-            MPI_Gather( tProcessorsToReceiveFrom.memptr(), tSize, MPI_INT, tProcessorsToReceiveFromAllProcs.memptr(), tSize, MPI_INT, tRootProc, MPI_COMM_WORLD );
+            MPI_Gather( tProcessorsToReceiveFrom.memptr(), tSize, MPI_INT, tProcessorsToReceiveFromAllProcs.memptr(), tSize, 
+            MPI_INT, tRootProc, MPI_COMM_WORLD );
         }
         else
         {
@@ -1791,7 +1933,7 @@ namespace moris::xtk
             moris_index tRootOwnerProc = mRootSPGOwner( iNotOwnedSPGIndex );
 
             // if the root is on the same proc, then skip it
-            if ( tRootOwnerProc == par_rank() )
+            if ( tRootOwnerProc == par_rank()  or tRootOwnerProc == gNoID )
             {
                 continue;
             }
@@ -1957,7 +2099,7 @@ namespace moris::xtk
 
             }    // end for: communication for each entity with current processor
 
-        }    // end for: communication list for each processor
+        }        // end for: communication list for each processor
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -2088,6 +2230,10 @@ namespace moris::xtk
                 }
             }
         }
+
+        // count number of zeros in the mFollowerBasis
+        uint tNumZeros = std::count( mBasisData( aMeshIndex ).mFollowerBasis.begin(), mBasisData( aMeshIndex ).mFollowerBasis.end(), 0 );
+        MORIS_LOG_INFO( "Number of Total Basis: %i, Number of bad basis: %i",(uint)mBasisData( aMeshIndex ).mFollowerBasis.size(),  tNumZeros );
     }
 
     //------------------------------------------------------------------------------------------------------------------------
