@@ -310,7 +310,6 @@ namespace moris
             tParameters.set( "initial_refinement_pattern", "0" );
 
             tParameters.set( "severity_level", 2 );
-            tParameters.set( "use_number_aura", 1 );
 
             hmr::HMR tHMR( tParameters );
 

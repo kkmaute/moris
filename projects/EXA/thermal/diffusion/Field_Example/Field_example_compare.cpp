@@ -153,10 +153,6 @@ namespace moris
         aParameterLists.set( "staircase_buffer",   1 );
         aParameterLists.set( "initial_refinement", "1,0" );
         aParameterLists.set( "initial_refinement_pattern", "0,1" );
-
-        aParameterLists.set( "use_number_aura", 1);
-
-        aParameterLists.set( "severity_level", 0 );
     }
 
     void XTKParameterList( Module_Parameter_Lists & aParameterLists )

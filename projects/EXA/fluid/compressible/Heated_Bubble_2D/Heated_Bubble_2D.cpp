@@ -281,9 +281,6 @@ namespace moris
         {
             aParameterLists.set( "lagrange_to_bspline", "-1" );
         }
-
-        aParameterLists.set( "use_number_aura", 1 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     //------------------------------------------------------------------------------

@@ -206,7 +206,7 @@ namespace moris
             tParameters.set( "initial_refinement_pattern", "0" );
 
             tParameters.set( "severity_level", 2 );
-            tParameters.set( "use_number_aura", 0 );
+            tParameters.set( "use_number_aura", false );
 
             std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameters );
 
@@ -500,7 +500,7 @@ namespace moris
             tParameters.set( "initial_refinement_pattern", "0" );
 
             tParameters.set( "severity_level", 2 );
-            tParameters.set( "use_number_aura", 0 );
+            tParameters.set( "use_number_aura", false );
 
             std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameters );
 
@@ -837,7 +837,7 @@ namespace moris
             tParameters.set( "initial_refinement_pattern", "0" );
 
             tParameters.set( "severity_level", 2 );
-            tParameters.set( "use_number_aura", 0 );
+            tParameters.set( "use_number_aura", false );
 
             std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameters );
 
@@ -1173,7 +1173,7 @@ namespace moris
             tParameters.set( "initial_refinement_pattern", "0" );
 
             tParameters.set( "severity_level", 2 );
-            tParameters.set( "use_number_aura", 0 );
+            tParameters.set( "use_number_aura", false );
 
             std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameters );
 

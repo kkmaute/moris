@@ -166,7 +166,7 @@ namespace moris::hmr
         this->set_renumber_lagrange_nodes( aParameterList.get< sint >( "renumber_lagrange_nodes" ) == 1 );
 
         // get multigrid parameter
-        this->set_number_aura( aParameterList.get< sint >( "use_number_aura" ) == 1 );
+        this->set_number_aura( aParameterList.get< bool >( "use_number_aura" ) );
 
         this->set_use_advanced_t_matrices( aParameterList.get< sint >( "use_advanced_T_matrix_scheme" ) == 1 );
 

@@ -88,8 +88,6 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "staircase_buffer", 1 );
             tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
             tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
-            tParameterlist( 0 )( 0 ).set( "use_number_aura", 1 );
-            tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
             std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameterlist( 0 )( 0 ) );
 

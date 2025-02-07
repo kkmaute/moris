@@ -1373,8 +1373,6 @@ namespace moris::hmr
             tParameterlist_test.set( "refinement_buffer", 1 );
             tParameterlist_test.set( "staircase_buffer", 1 );
 
-            tParameterlist_test.set( "use_number_aura", 1 );
-
             tParameterlist_test.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh.vtk" );
 
             // create the HMR object by passing the settings to the constructor
@@ -1456,8 +1454,6 @@ namespace moris::hmr
 
             tParameterlist_test.set( "refinement_buffer", 1 );
             tParameterlist_test.set( "staircase_buffer", 1 );
-
-            tParameterlist_test.set( "use_number_aura", 1 );
 
             //tParameterlist_test.set( "severity_level", 0 );
 

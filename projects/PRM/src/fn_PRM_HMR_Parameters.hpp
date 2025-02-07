@@ -66,7 +66,7 @@ namespace moris::prm
         // defines which B-Spline mesh is associated with which lagrange mesh
         tParameterList.insert( "lagrange_to_bspline", "0" );
 
-        // output severity level for moris
+        // output severity level for moris TODO this should not be a part of HMR
         tParameterList.insert( "severity_level", 0 );
 
         // boolean for truncated B-Splines
@@ -76,7 +76,7 @@ namespace moris::prm
         tParameterList.insert( "use_multigrid", false );
 
         // boolean for numbering of aura
-        tParameterList.insert( "use_number_aura", 1 );
+        tParameterList.insert( "use_number_aura", true );
 
         // initial refinement level
         tParameterList.insert( "initial_refinement", "0" );

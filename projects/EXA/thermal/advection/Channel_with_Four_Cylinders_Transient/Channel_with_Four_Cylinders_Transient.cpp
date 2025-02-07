@@ -193,9 +193,7 @@ namespace moris
         aParameterLists.set( "initial_refinement", "4" );
         aParameterLists.set( "initial_refinement_pattern", "0" );
 
-        aParameterLists.set( "use_number_aura", 0 );
-
-        aParameterLists.set( "severity_level", 0 );
+        aParameterLists.set( "use_number_aura", false );
 
         aParameterLists.set( "adaptive_refinement_level", 1 );
     }

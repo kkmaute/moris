@@ -583,11 +583,6 @@ namespace moris
         //        aParameterLists.set( "refinement_buffer",  tRefineBuffer );
         //        aParameterLists.set( "staircase_buffer",   tRefineBuffer );
         //        aParameterLists.set( "initial_refinement", tInitialRefinement );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "severity_level", 0 );
-
         //        aParameterLists.set( "adaptive_refinement_level", tAdaptiveRefineBuffer );
     }
 

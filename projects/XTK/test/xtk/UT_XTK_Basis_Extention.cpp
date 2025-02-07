@@ -65,8 +65,6 @@ namespace moris::xtk
             tParameters.set( "initial_refinement", "0" );
             tParameters.set( "initial_refinement_pattern", "0" );
 
-            tParameters.set( "severity_level", 0 );
-
             // create the hmr mesh
             hmr::HMR tHMR( tParameters );
 
@@ -181,8 +179,6 @@ namespace moris::xtk
             tParameters.set( "staircase_buffer", 1 );
             tParameters.set( "initial_refinement", "0" );
             tParameters.set( "initial_refinement_pattern", "0" );
-
-            tParameters.set( "severity_level", 0 );
 
             // create the hmr mesh
             hmr::HMR tHMR( tParameters );

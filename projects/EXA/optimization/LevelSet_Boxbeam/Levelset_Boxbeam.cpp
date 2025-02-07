@@ -268,8 +268,6 @@ namespace moris
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
         aParameterLists.set( "initial_refinement", std::to_string( tInitialRef ) );
-
-        aParameterLists.set( "severity_level", 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

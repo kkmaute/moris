@@ -872,10 +872,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
 
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "severity_level", 0 );
-
         // aParameterLists.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh.vtk" );
 
         // aParameterLists.set( "use_refine_low_level_elements", true );

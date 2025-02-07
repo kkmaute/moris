@@ -214,7 +214,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "severity_level", 2 );
-        tParameters.set("use_number_aura",1);
 
         hmr::HMR tHMR( tParameters );
 

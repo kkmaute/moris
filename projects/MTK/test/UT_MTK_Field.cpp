@@ -115,7 +115,7 @@ namespace moris
                 tParameters.set( "initial_refinement", "0,0" );
                 tParameters.set( "initial_refinement_pattern", "0,1" );
 
-                tParameters.set( "use_number_aura", 0 );
+                tParameters.set( "use_number_aura", false );
 
                 tParameters.set( "severity_level", 2 );
 
@@ -236,7 +236,7 @@ namespace moris
                 tParameters.set( "initial_refinement", "0,0" );
                 tParameters.set( "initial_refinement_pattern", "0,1" );
 
-                tParameters.set( "use_number_aura", 0 );
+                tParameters.set( "use_number_aura", false );
 
                 tParameters.set( "severity_level", 2 );
 
@@ -379,7 +379,7 @@ namespace moris
                 tParameters.set( "initial_refinement", "0,0" );
                 tParameters.set( "initial_refinement_pattern", "0,1" );
 
-                tParameters.set( "use_number_aura", 0 );
+                tParameters.set( "use_number_aura", false );
 
                 tParameters.set( "severity_level", 2 );
 
@@ -530,7 +530,7 @@ namespace moris
                 tParameters.set( "initial_refinement", "0,0" );
                 tParameters.set( "initial_refinement_pattern", "0,1" );
 
-                tParameters.set( "use_number_aura", 0 );
+                tParameters.set( "use_number_aura", false );
 
                 tParameters.set( "severity_level", 2 );
 

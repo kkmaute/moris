@@ -259,10 +259,6 @@ namespace moris
         aParameterLists.set( "staircase_buffer", 0 );
         aParameterLists.set( "initial_refinement", "0" );
         aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        /* ---------------------------------------- Miscellaneous ------------------------------------- */
-        aParameterLists.set( "use_number_aura", 1 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     /* ---------------------------------------------------------------------------------------------- */

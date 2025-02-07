@@ -555,13 +555,7 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "severity_level", 0 );
-
         aParameterLists.set( "use_refine_low_level_elements", false );
-
         aParameterLists.set( "write_refinement_pattern_file", true );
     }
 

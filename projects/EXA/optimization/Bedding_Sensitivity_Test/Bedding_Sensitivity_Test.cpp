@@ -270,8 +270,6 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "use_number_aura", 1 );
-
         aParameterLists.set( "severity_level", 0 );
     }
 

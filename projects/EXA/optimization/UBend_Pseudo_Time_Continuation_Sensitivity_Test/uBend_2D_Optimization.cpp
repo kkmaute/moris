@@ -1155,11 +1155,6 @@ namespace moris
 
         aParameterLists.set( "initial_refinement", tInitialRef );
         aParameterLists.set( "initial_refinement_pattern", "0,1" );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "severity_level", 0 );
-
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
     }
 

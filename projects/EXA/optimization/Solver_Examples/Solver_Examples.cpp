@@ -315,9 +315,6 @@ namespace moris
         aParameterLists.set( "lagrange_pattern", "0" );
         aParameterLists.set( "bspline_orders", "1" );
         aParameterLists.set( "bspline_pattern", "0" );
-
-        aParameterLists.set( "use_number_aura", 1 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     /* ------------------------------------------------------------------------ */

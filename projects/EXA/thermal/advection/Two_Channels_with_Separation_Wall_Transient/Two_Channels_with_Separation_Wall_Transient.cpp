@@ -130,8 +130,6 @@ namespace moris
         aParameterLists.set( "initial_refinement", "0" );
         aParameterLists.set( "initial_refinement_pattern", "0" );
 
-        aParameterLists.set( "severity_level", 0 );
-
         aParameterLists.set( "adaptive_refinement_level", 0 );
     }
 
