@@ -70,7 +70,7 @@ namespace moris::prm
         tParameterList.insert( "severity_level", 0 );
 
         // boolean for truncated B-Splines
-        tParameterList.insert( "truncate_bsplines", 1 );
+        tParameterList.insert( "truncate_bsplines", true );
 
         // boolean for multigrid
         tParameterList.insert( "use_multigrid", 0 );

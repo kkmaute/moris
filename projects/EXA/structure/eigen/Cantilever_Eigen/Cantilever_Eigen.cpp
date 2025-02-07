@@ -216,7 +216,6 @@ namespace moris
         aParameterLists.set( "bspline_orders", tOrder );
         aParameterLists.set( "bspline_pattern", std::string( "0" ) );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
 
         aParameterLists.set( "use_number_aura", 1 );
 

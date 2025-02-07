@@ -85,7 +85,6 @@ namespace moris::xtk
 
             tParameters.set( "lagrange_to_bspline", "0" );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
             tParameters.set( "initial_refinement", "0" );

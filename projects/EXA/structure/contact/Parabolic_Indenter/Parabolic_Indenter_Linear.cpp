@@ -253,7 +253,6 @@ namespace moris
         aParameterLists.set( "bspline_pattern", "0" );
         aParameterLists.set( "bspline_orders", tInterpolationOrder );
         aParameterLists.set( "lagrange_to_bspline", "0" );
-        aParameterLists.set( "truncate_bsplines", 1 );
 
         /* ----------------------------------------- Refinement --------------------------------------- */
         aParameterLists.set( "refinement_buffer", 0 );

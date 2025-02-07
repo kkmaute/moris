@@ -1370,7 +1370,6 @@ namespace moris::hmr
 
             tParameterlist_test.set( "lagrange_to_bspline", "0,1" );
 
-            tParameterlist_test.set( "truncate_bsplines", 1 );
             tParameterlist_test.set( "refinement_buffer", 1 );
             tParameterlist_test.set( "staircase_buffer", 1 );
 
@@ -1458,7 +1457,6 @@ namespace moris::hmr
 
             tParameterlist_test.set( "lagrange_to_bspline", "0,1" );
 
-            tParameterlist_test.set( "truncate_bsplines", 1 );
             tParameterlist_test.set( "refinement_buffer", 1 );
             tParameterlist_test.set( "staircase_buffer", 1 );
 

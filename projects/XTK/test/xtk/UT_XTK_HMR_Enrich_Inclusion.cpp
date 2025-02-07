@@ -84,7 +84,6 @@
 //     tParameterlist.set( "initial_refinement",         tInitialRef );
 //     tParameterlist.set( "initial_refinement_pattern", "0,1" );
 //     tParameterlist.set( "lagrange_to_bspline", "0,1");
-//     tParameterlist.set( "truncate_bsplines",  1 );
 //     tParameterlist.set( "refinement_buffer",  tRefineBuffer );
 //     tParameterlist.set( "staircase_buffer",   tRefineBuffer );
 //     tParameterlist.set( "use_number_aura", 1);

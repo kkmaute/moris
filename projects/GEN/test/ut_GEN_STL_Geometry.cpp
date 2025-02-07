@@ -38,7 +38,6 @@ namespace moris
 
         tParameterlist.set( "lagrange_to_bspline", "0" );
 
-        tParameterlist.set( "truncate_bsplines",  1 );
         tParameterlist.set( "refinement_buffer",  1 );
         tParameterlist.set( "staircase_buffer",   1 );
         tParameterlist.set( "initial_refinement", "0");

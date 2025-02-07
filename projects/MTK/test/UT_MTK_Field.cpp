@@ -110,7 +110,6 @@ namespace moris
 
                 tParameters.set( "lagrange_to_bspline", "0;1" );
 
-                tParameters.set( "truncate_bsplines", 1 );
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
                 tParameters.set( "initial_refinement", "0,0" );
@@ -233,7 +232,6 @@ namespace moris
 
                 tParameters.set( "lagrange_to_bspline", "0;1" );
 
-                tParameters.set( "truncate_bsplines", 1 );
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
                 tParameters.set( "initial_refinement", "0,0" );
@@ -378,7 +376,6 @@ namespace moris
 
                 tParameters.set( "lagrange_to_bspline", "0;1" );
 
-                tParameters.set( "truncate_bsplines", 1 );
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
                 tParameters.set( "initial_refinement", "0,0" );
@@ -531,7 +528,6 @@ namespace moris
 
                 tParameters.set( "lagrange_to_bspline", "0;1" );
 
-                tParameters.set( "truncate_bsplines", 1 );
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
                 tParameters.set( "initial_refinement", "0,0" );

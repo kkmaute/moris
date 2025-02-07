@@ -467,7 +467,6 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 

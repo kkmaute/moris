@@ -310,7 +310,6 @@ namespace moris
 
         aParameterList( 0 ).set( "lagrange_to_bspline", "0" );
 
-        aParameterList( 0 ).set( "truncate_bsplines", 1 );
         aParameterList( 0 ).set( "refinement_buffer", 3 );
         aParameterList( 0 ).set( "staircase_buffer", 3 );
         aParameterList( 0 ).set( "initial_refinement", "0" );

@@ -300,7 +300,6 @@ namespace moris::xtk
             tParameters.set( "bspline_pattern", "0,0" );
             tParameters.set( "lagrange_to_bspline", "0,1" );
             tParameters.set( "max_refinement_level", 3 );
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 2 );
             tParameters.set( "staircase_buffer", 2 );
             tParameters.set( "initial_refinement", "0" );

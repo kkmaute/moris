@@ -84,7 +84,6 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "bspline_orders", std::to_string( iOrder ) );
             tParameterlist( 0 )( 0 ).set( "bspline_pattern", std::string( "0" ) );
             tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-            tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
             tParameterlist( 0 )( 0 ).set( "refinement_buffer", 1 );
             tParameterlist( 0 )( 0 ).set( "staircase_buffer", 1 );
             tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );

@@ -188,7 +188,6 @@ namespace moris::hmr
             tParameters.set( "domain_dimensions", 6.0, 6.0, 6.0 );
             tParameters.set( "domain_offset", -3.0, -3.0, -3.0 );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "lagrange_orders", "1" );
             tParameters.set( "lagrange_pattern", "0" );
             tParameters.set( "bspline_orders", "1" );
@@ -241,7 +240,6 @@ namespace moris::hmr
 
             tParameters.set( "number_of_elements_per_dimension", 2, 2 );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "lagrange_orders", "1, 1" );
             tParameters.set( "lagrange_pattern", "0, 1" );
             tParameters.set( "bspline_orders", "1, 1, 1, 2" );

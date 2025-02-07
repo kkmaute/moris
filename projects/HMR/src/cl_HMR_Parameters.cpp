@@ -152,7 +152,7 @@ namespace moris::hmr
         }
 
         // set truncation flag
-        this->set_bspline_truncation( (bool)aParameterList.get< sint >( "truncate_bsplines" ) );
+        this->set_bspline_truncation( aParameterList.get< bool >( "truncate_bsplines" ) );
 
         //        // set minimum initial refinement
         string_to_vector( aParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );

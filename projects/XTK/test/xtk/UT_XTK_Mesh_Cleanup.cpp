@@ -165,7 +165,6 @@
 //         tHMRParams( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-//         tHMRParams( 0 )( 0 ).set( "truncate_bsplines",  1 );
 //         tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
@@ -355,7 +354,6 @@
 //         tHMRParams( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-//         tHMRParams( 0 )( 0 ).set( "truncate_bsplines",  1 );
 //         tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );

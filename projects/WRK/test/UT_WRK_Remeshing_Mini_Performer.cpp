@@ -89,7 +89,6 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
 
         tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 0 );
         tParameters.set( "staircase_buffer", 1 );
         tParameters.set( "initial_refinement", "1" );

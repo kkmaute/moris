@@ -316,7 +316,6 @@ namespace moris
         aParameterLists.set( "bspline_orders", "1" );
         aParameterLists.set( "bspline_pattern", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "use_number_aura", 1 );
         aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );

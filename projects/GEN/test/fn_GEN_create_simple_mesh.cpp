@@ -38,7 +38,6 @@ namespace moris::gen
         tParameters.set( "lagrange_to_bspline", "0" );
 
         tParameters.set( "initial_refinement", std::to_string(aRefinement) );
-        tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
 
