@@ -76,7 +76,7 @@ namespace moris
             Module_Parameter_Lists tParameterlist( Module_Type::HMR );
             tParameterlist( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
             tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", 6, 6, 6 );
-            tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0,2.0,2.0" );
+            tParameterlist( 0 )( 0 ).set( "domain_dimensions", 2.0, 2.0, 2.0 );
             tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0,1.0,-2.0" );
             tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
             tParameterlist( 0 )( 0 ).set( "lagrange_orders", std::to_string( iOrder ) );

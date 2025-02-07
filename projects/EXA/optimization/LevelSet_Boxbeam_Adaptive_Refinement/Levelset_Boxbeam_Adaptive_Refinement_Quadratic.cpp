@@ -49,7 +49,7 @@ namespace moris
 
     // background mesh parameters
     Vector< uint > tNumElementsPerDir = tIs3D ? Vector< uint >{ 45, 15, 15 } : Vector< uint >{ 60, 20 };
-    std::string tDimensions        = tIs3D ? "3,1,1" : "3,1";
+    Vector< real > tDimensions        = tIs3D ? Vector< real >{ 3, 1, 1 } : Vector< real >{ 3, 1 };
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
 
     int tDispOrder = 2;

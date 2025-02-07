@@ -78,7 +78,7 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         Parameter_List tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", 4, 4 );
-        tParameters.set( "domain_dimensions", "4.0,   4.0" );
+        tParameters.set( "domain_dimensions", 4.0, 4.0 );
         tParameters.set( "domain_offset", "-2.0,  -2.0" );
         tParameters.set( "lagrange_output_meshes", "0" );
 

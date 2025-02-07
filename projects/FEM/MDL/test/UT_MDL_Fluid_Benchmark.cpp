@@ -176,7 +176,7 @@ namespace moris
 
             Parameter_List tParameters = prm::create_hmr_parameter_list();
             tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
-            tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
+            tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tCenterPoint( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tCenterPoint( 1 ) ) );
             tParameters.set( "lagrange_output_meshes", "0" );
 
@@ -536,7 +536,7 @@ namespace moris
 
             Parameter_List tParameters = prm::create_hmr_parameter_list();
             tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
-            tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
+            tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tCenterPoint( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tCenterPoint( 1 ) ) );
             tParameters.set( "lagrange_output_meshes", "0" );
 
@@ -2219,7 +2219,7 @@ namespace moris
             Parameter_List tParameters = prm::create_hmr_parameter_list();
 
             tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
-            tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
+            tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
             tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 + tShift( 0 ) ) + "," + std::to_string( -tDomainLY / 2 + tShift( 1 ) ) );
             tParameters.set( "lagrange_output_meshes", "0" );
 

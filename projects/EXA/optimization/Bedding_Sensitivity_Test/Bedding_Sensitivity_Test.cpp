@@ -72,7 +72,7 @@ namespace moris
 
     // background mesh parameters
     Vector< uint > tNumElementsPerDir( 2 + tIs3D, 4 );
-    std::string tDimensions        = tIs3D ? "1,1,1" : "1,1";
+    Vector< real > tDimensions( 2 + tIs3D, 1.0 );
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
 
     int tRefineBuffer = 0;

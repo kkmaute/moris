@@ -120,7 +120,7 @@ TEST_CASE( "Sensitivity test", "[Sensitivity test]" )
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
         tParameters.set( "number_of_elements_per_dimension", 5, 2 );
-        tParameters.set( "domain_dimensions", "6,2" );
+        tParameters.set( "domain_dimensions", 6.0, 2.0 );
         tParameters.set( "domain_offset", "-3.0,-1.0" );
         tParameters.set( "lagrange_output_meshes", "0" );
 

@@ -75,7 +75,7 @@ namespace moris
     std::string tOrder = "1";
 
     Vector< uint > tNumElemsPerDim = { 40, 1200 };
-    std::string tDomainDims     = "0.01, 0.30";
+    Vector< real > tDomainDims     = { 0.01, 0.30 };
     std::string tDomainOffset   = "0.0,0.0";
 
     /* ------------------------------------------------------------------------ */

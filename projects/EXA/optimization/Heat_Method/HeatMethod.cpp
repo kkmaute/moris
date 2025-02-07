@@ -128,7 +128,7 @@ namespace moris
     // HMR parameters
 
     Vector< uint > tNumElementsPerDir( 2 + tIs3D, 4 );
-    std::string tDomainDims     = tIs3D ? "2.0, 2.0, 2.0" : "2.0, 2.0";
+    Vector< real > tDomainDims( 2 + tIs3D, 2.0 );
     std::string tDomainOffset   = tIs3D ? "-1.0, -1.0, -1.0" : "-1.0, -1.0";
 
     std::string tInitialRefinement   = "0";

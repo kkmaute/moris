@@ -40,10 +40,8 @@ namespace moris
     real tEps     = 1.0e-4;
 
     // mesh
-    // Vector< uint > tNumElemsPerDim = "520,6";
-    // std::string tHMRDomainDimensions = "0.2912,0.0030";
     Vector< uint > tNumElemsPerDim      = { 26, 3 };
-    std::string tHMRDomainDimensions = "0.030,0.0030";
+    Vector< real > tHMRDomainDimensions = { 0.030,0.0030 };
 
     // time solver parameters
     sint tStep = 15;

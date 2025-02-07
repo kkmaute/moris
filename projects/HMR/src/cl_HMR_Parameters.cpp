@@ -52,7 +52,7 @@ namespace moris::hmr
         mProcessorDimensions = aParameterList.get< Vector< uint > >( "processor_dimensions" );
 
         // get domain dimensions
-        string_to_vector( aParameterList.get< std::string >( "domain_dimensions" ), mDomainDimensions );
+        mDomainDimensions = aParameterList.get< Vector< real > >( "domain_dimensions" );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainDimensions.size(),

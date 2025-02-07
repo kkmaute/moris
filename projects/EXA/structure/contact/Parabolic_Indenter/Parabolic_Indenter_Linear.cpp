@@ -244,7 +244,7 @@ namespace moris
     {
         /* --------------------------------------- Domain Settings ------------------------------------ */
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsX, tNumElemsY );
-        aParameterLists.set( "domain_dimensions", std::to_string( tWidth ) + "," + std::to_string( tHeight ) );
+        aParameterLists.set( "domain_dimensions", tWidth, tHeight );
         aParameterLists.set( "domain_offset", tDomainOffset );
 
         /* ---------------------------------------- Lagrange Mesh ------------------------------------- */

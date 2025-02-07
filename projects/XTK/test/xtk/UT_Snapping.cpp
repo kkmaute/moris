@@ -106,7 +106,7 @@ namespace moris::xtk
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // HMR parameters
             Vector< uint > tNumElemsPerDim  = { 2, 1 };
-            std::string tDomainDims         = "2.0,2.0";
+            Vector< real > tDomainDims      = { 2.0, 2.0 };
             std::string tDomainOffset       = "-1.0, -1.0";
             std::string tDomainSidesets     = "1,2,3,4";
             std::string tInterpolationOrder = "1";

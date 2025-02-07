@@ -87,7 +87,7 @@ namespace moris
     // HMR parameters
 
     Vector< uint > tNumElemsPerDim = { 24, 24, 24 };
-    std::string tDomainDims     = "0.6, 0.6, 0.6";
+    Vector< real > tDomainDims     = { 0.6, 0.6, 0.6 };
     std::string tDomainOffset   = "-0.1, -0.1, -0.1";
 
     int tRefineBuffer = 1;

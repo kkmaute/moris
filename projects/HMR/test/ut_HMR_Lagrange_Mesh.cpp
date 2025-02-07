@@ -1356,7 +1356,7 @@ namespace moris::hmr
             Parameter_List tParameterlist_test = prm::create_hmr_parameter_list();
 
             tParameterlist_test.set( "number_of_elements_per_dimension", 2, 2 );
-            tParameterlist_test.set( "domain_dimensions", "1,1" );
+            tParameterlist_test.set( "domain_dimensions", 1.0, 1.0 );
             tParameterlist_test.set( "domain_offset", "0,0" );
             tParameterlist_test.set( "lagrange_output_meshes", "0" );
 
@@ -1445,7 +1445,7 @@ namespace moris::hmr
             Parameter_List tParameterlist_test = prm::create_hmr_parameter_list();
 
             tParameterlist_test.set( "number_of_elements_per_dimension", 2, 2 );
-            tParameterlist_test.set( "domain_dimensions", "1,1" );
+            tParameterlist_test.set( "domain_dimensions", 1.0, 1.0 );
             tParameterlist_test.set( "domain_offset", "0,0" );
             tParameterlist_test.set( "lagrange_output_meshes", "0" );
 

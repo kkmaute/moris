@@ -34,7 +34,7 @@ namespace moris::prm
         tParameterList.insert( "processor_dimensions", Vector< uint >() );
 
         // width, height and depth of domain (without aura)
-        tParameterList.insert( "domain_dimensions", "1, 1" );
+        tParameterList.insert( "domain_dimensions", Vector< real >{ 1.0, 1.0 } );
         // offset from the origin
         tParameterList.insert( "domain_offset", "0, 0" );
 
