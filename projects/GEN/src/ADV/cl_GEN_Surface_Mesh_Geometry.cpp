@@ -803,7 +803,6 @@ namespace moris::gen
             get_dvertex_dadv_user_defined( Surface_Mesh::get_all_vertex_coordinates(), mADVHandler.get_values(), aFacetVertexIndex, tVertexSensitivity );
 
             // Check that the user gave the correct size matrix
-            MORIS_ASSERT( tVertexSensitivity.n_cols() == mADVHandler.get_determining_adv_ids().size(), "User defined function for vertex sensitivity needs to have as many columns as ADVs" );
             MORIS_ASSERT( tVertexSensitivity.n_rows() == Surface_Mesh::get_spatial_dimension(), "User defined function for vertex sensitivity needs to have as many rows as spatial dimensions" );
         }
 

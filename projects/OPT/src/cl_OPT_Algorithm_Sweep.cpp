@@ -95,7 +95,12 @@ namespace moris::opt
         // update aOptProb
         aOptProb = mProblem;
 
-        return 0;
+        // BRENDAN sweep solve should not iterate, hack for Jenny's work
+        uint tOptIter = gLogger.get_opt_iteration();
+
+        gLogger.set_iteration( "OPT", "Manager", "Perform", tOptIter );
+
+        return tOptIter;
     }
 
     //----------------------------------------------------------------------------------------------------------
@@ -208,7 +213,8 @@ namespace moris::opt
         else
         {
             MORIS_ERROR( mEvaluationPoints.n_rows() == tNumADVs,
-                    "Number of rows in custom_adv_evaluations must match the number of ADVs (%d).", tNumADVs );
+                    "Number of rows in custom_adv_evaluations must match the number of ADVs (%d).",
+                    tNumADVs );
         }
     }
 

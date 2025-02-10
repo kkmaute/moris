@@ -84,14 +84,14 @@ main( int argc, char* argv[] )
     // BRENDAN HACK FOR JENNY'S WORK
     gLogger.set_action_data(
             "GlobalClock",
-            "Arbitrary",
-            "Arbitrary",
+            LOGGER_ARBITRARY_DESCRIPTOR,
+            LOGGER_ARBITRARY_DESCRIPTOR,
             "Epsilon",
             0.0 );
     gLogger.set_action_data(
             "GlobalClock",
-            "Arbitrary",
-            "Arbitrary",
+            LOGGER_ARBITRARY_DESCRIPTOR,
+            LOGGER_ARBITRARY_DESCRIPTOR,
             "ADVID",
             0 );
 
