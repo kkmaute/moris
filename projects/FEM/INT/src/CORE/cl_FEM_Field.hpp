@@ -29,6 +29,8 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
+        typedef void ( *Void_Function )();    // for pausing field updates
+
         //------------------------------------------------------------------------------
 
         class Field : public mtk::Field
@@ -43,11 +45,13 @@ namespace moris
             //! input/output file name and path
             std::string mInputFilePath;
             std::string mOutputFilePath;
-            uint mTimeIndex = 0;
-            bool mUpdateFromFile = false;
+            uint        mTimeIndex      = 0;
+            bool        mUpdateFromFile = false;
 
             // ! bool indicating if field shall be populated with the help of an IQI
             bool mPopulateFieldWithIQI = false;
+
+            Void_Function mPauseUpdateFunction = []() {};
 
             //------------------------------------------------------------------------------
 
@@ -86,6 +90,10 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
+            void set_pause_update_function( Void_Function aFunction );
+
+            //---------------------------------------------------------------------------------
+
             void output_field_to_file();
 
             //-----------------------------------------------------------------------------
@@ -107,8 +115,8 @@ namespace moris
             //-----------------------------------------------------------------------------
 
             void get_values(
-                    Matrix< IndexMat > const &      aIndex,
-                    Matrix< DDRMat >&               aValues,
+                    Matrix< IndexMat > const &        aIndex,
+                    Matrix< DDRMat >&                 aValues,
                     Vector< mtk::Field_Type > const & aFieldTypes );
 
             //-----------------------------------------------------------------------------

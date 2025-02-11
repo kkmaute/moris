@@ -30,7 +30,7 @@ namespace moris::fem
     void Model_Initializer::create_properties()
     {
         Submodule_Parameter_Lists tPropParameterList = mParameterList( 0 );
-        uint                     tNumProps          = tPropParameterList.size();
+        uint                      tNumProps          = tPropParameterList.size();
 
         mProperties.resize( tNumProps, nullptr );
 
@@ -100,7 +100,7 @@ namespace moris::fem
     void Model_Initializer::create_fields()
     {
         Submodule_Parameter_Lists tFieldParameterList = mParameterList( 6 );
-        sint                     tNumFields          = tFieldParameterList.size();
+        sint                      tNumFields          = tFieldParameterList.size();
 
         mFields.resize( tNumFields, nullptr );
 
@@ -153,6 +153,11 @@ namespace moris::fem
             if ( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
             {
                 tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
+            }
+
+            if ( not tFieldParameter.get< std::string >( "update_wait_function_name" ).empty() )
+            {
+                tField->set_pause_update_function( mLibrary->load_function< Void_Function >( tFieldParameter.get< std::string >( "update_wait_function_name" ) ) );
             }
 
             mFields( iField ) = tField;

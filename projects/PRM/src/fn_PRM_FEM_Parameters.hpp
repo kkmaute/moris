@@ -62,6 +62,7 @@ namespace moris::prm
         tParameterList.insert( "field_file_update", false );
         tParameterList.insert( "IQI_Name", "" );
         tParameterList.insert( "field_output_to_file", "" );
+        tParameterList.insert( "update_wait_function_name", "" ); // function to wait to load the field in case it needs to be written by another process
 
         return tParameterList;
     }

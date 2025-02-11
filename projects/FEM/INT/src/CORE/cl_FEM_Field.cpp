@@ -40,6 +40,9 @@ namespace moris::fem
 
     void Field::update_field()
     {
+        // pause update if needed
+        mPauseUpdateFunction();
+
         if ( not mInputFilePath.empty() and mUpdateFromFile )
         {
             // detect file type
@@ -61,6 +64,14 @@ namespace moris::fem
                 MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here." );
             }
         }
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void
+    Field::set_pause_update_function( Void_Function aFunction )
+    {
+        mPauseUpdateFunction = aFunction;
     }
 
     //-----------------------------------------------------------------------------
@@ -95,8 +106,8 @@ namespace moris::fem
 
     void
     Field::get_values(
-            Matrix< IndexMat > const &      aIndex,
-            Matrix< DDRMat >&               aValues,
+            Matrix< IndexMat > const &        aIndex,
+            Matrix< DDRMat >&                 aValues,
             Vector< mtk::Field_Type > const & aFieldTypes )
     {
         // FIXME translate field types into index. implement map
@@ -127,9 +138,9 @@ namespace moris::fem
             bool               aUpdateTimeIndex )
     {
         // Store inputs for update
-        mInputFilePath = aString;
-        mTimeIndex = aTimeIndex;
-        mFieldIndex = aFieldIndex;
+        mInputFilePath  = aString;
+        mTimeIndex      = aTimeIndex;
+        mFieldIndex     = aFieldIndex;
         mUpdateFromFile = true;
 
         // Update field
@@ -174,4 +185,4 @@ namespace moris::fem
     }
 
     //------------------------------------------------------------------------------
-}
+}    // namespace moris::fem
