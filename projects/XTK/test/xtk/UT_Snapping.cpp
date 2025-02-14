@@ -122,7 +122,6 @@ namespace moris::xtk
             tHMRParams( 0 )( 0 ).set( "refinement_buffer", tRefineBuffer );
             tHMRParams( 0 )( 0 ).set( "staircase_buffer", tRefineBuffer );
             tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
-            tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // PSEUDO Workflow
             // HMR initialize

@@ -477,7 +477,6 @@ namespace moris
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
         aParameterLists.set( "initial_refinement", tInitialRef );
-        aParameterLists.set( "initial_refinement_pattern", "0,1" );
     }
 
     /* ------------------------------------------------------------------------ */

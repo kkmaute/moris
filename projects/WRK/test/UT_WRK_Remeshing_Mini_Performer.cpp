@@ -92,7 +92,6 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
         tParameters.set( "refinement_buffer", 0 );
         tParameters.set( "staircase_buffer", 1 );
         tParameters.set( "initial_refinement", "1" );
-        tParameters.set( "initial_refinement_pattern", "0" );
 
         Parameter_List tRefinementParameters( "Refinement" );
         prm::create_refinement_parameterlist( tRefinementParameters );

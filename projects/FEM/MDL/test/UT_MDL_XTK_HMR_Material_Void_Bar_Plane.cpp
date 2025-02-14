@@ -119,7 +119,6 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         tParameters.set_bspline_patterns( { 0 } );
 
         tParameters.set_create_side_sets( true );
-        tParameters.set_max_refinement_level( 2 );
         tParameters.set_union_pattern( 2 );
         tParameters.set_working_pattern( 3 );
 

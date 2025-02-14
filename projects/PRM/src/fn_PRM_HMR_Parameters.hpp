@@ -18,6 +18,11 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
+    /**
+     * Creates an HMR general parameter list with default inputs.
+     *
+     * @return HMR general parameter list
+     */
     inline Parameter_List
     create_hmr_parameter_list()
     {
@@ -81,9 +86,6 @@ namespace moris::prm
         // initial refinement level
         tParameterList.insert( "initial_refinement", "0" );
 
-        // initial refinement level
-        tParameterList.insert( "initial_refinement_pattern", "0" );
-
         // label of background mesh output file
         tParameterList.insert( "write_background_mesh", "" );
 
@@ -98,9 +100,6 @@ namespace moris::prm
 
         // name of vtk file for writing basis function locations
         tParameterList.insert( "basis_function_vtk_file", "" );
-
-        // add comment by the person who implemented this
-        tParameterList.insert( "max_refinement_level", -1 );
 
         // legacy functions
         tParameterList.insert( "additional_lagrange_refinement", 0 );
@@ -118,6 +117,34 @@ namespace moris::prm
         return tParameterList;
     }
 
-    //------------------------------------------------------------------------------
+    /**
+     * Creates an HMR B-spline mesh parameter list.
+     *
+     * @return B-spline mesh parameter list
+     */
+    inline Parameter_List
+    create_bspline_mesh_parameter_list()
+    {
+        Parameter_List tParameterList( "B-spline Mesh" );
+        return tParameterList;
+    }
+
+    /**
+     * Creates an HMR Lagrange mesh parameter list.
+     *
+     * @return B-spline mesh parameter list
+     */
+    inline Parameter_List
+    create_lagrange_mesh_parameter_list()
+    {
+        Parameter_List tParameterList( "Lagrange Mesh" );
+        // Lagrange Meshes that are used as output meshes
+        tParameterList.insert( "lagrange_output_meshes", "" );
+
+        // Lagrange Mesh Names of output meshes
+        tParameterList.insert( "lagrange_output_mesh_names", "" );
+
+        return tParameterList;
+    }
 
 }    // namespace moris::prm

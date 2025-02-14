@@ -144,7 +144,6 @@ namespace moris
 
         aParameterLists.set( "initial_refinement", "0" );
 
-        aParameterLists.set( "initial_refinement_pattern", "0" );
     }
 
     /* ------------------------------------------------------------------------ */

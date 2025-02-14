@@ -365,7 +365,6 @@ namespace moris
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
         tParameters.set( "initial_refinement", "2" );
-        tParameters.set( "initial_refinement_pattern", "0" );
 
         tParameters.set( "severity_level", 2 );
         tParameters.set( "use_number_aura", false );

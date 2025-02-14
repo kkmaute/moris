@@ -85,7 +85,6 @@ namespace moris
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
         aParameterLists.set( "initial_refinement", "1" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
     }
 
     void

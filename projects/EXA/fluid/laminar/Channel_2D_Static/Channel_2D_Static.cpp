@@ -135,7 +135,6 @@ extern "C"
             aParameterLists.set( "refinement_buffer",  3 );
             aParameterLists.set( "staircase_buffer",   3 );
             aParameterLists.set( "initial_refinement", "0" );
-            aParameterLists.set( "initial_refinement_pattern", "0" );
             aParameterLists.set( "adaptive_refinement_level", 0 );
         }
 

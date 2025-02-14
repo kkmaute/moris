@@ -336,7 +336,6 @@ namespace moris
         }
 
         // set initial refinement
-        tHmrParamList.set( "initial_refinement_pattern", sPatterns );
         tHmrParamList.set( "initial_refinement", sInitialRefinements );
 
         // sort information about B-spline meshes

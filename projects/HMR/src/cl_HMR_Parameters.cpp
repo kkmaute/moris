@@ -157,8 +157,6 @@ namespace moris::hmr
         //        // set minimum initial refinement
         string_to_vector( aParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );
 
-        this->set_max_refinement_level( aParameterList.get< sint >( "max_refinement_level" ) );
-
         // get multigrid parameter
         this->set_multigrid( aParameterList.get< bool >( "use_multigrid" ) );
 

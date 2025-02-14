@@ -218,7 +218,6 @@ namespace moris::xtk
             tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_create_side_sets( true );
-            tParameters.set_max_refinement_level( 2 );
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
 
@@ -299,11 +298,9 @@ namespace moris::xtk
             tParameters.set( "bspline_orders", "1,2" );
             tParameters.set( "bspline_pattern", "0,0" );
             tParameters.set( "lagrange_to_bspline", "0,1" );
-            tParameters.set( "max_refinement_level", 3 );
             tParameters.set( "refinement_buffer", 2 );
             tParameters.set( "staircase_buffer", 2 );
             tParameters.set( "initial_refinement", "0" );
-            tParameters.set( "initial_refinement_pattern", "0" );
 
             tParameters.set( "severity_level", 2 );
 

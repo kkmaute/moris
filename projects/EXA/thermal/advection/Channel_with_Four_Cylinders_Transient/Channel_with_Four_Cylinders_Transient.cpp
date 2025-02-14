@@ -191,7 +191,6 @@ namespace moris
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 5 );
         aParameterLists.set( "initial_refinement", "4" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
 
         aParameterLists.set( "use_number_aura", false );
 

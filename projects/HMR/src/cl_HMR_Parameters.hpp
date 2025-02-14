@@ -136,10 +136,6 @@ namespace moris::hmr
 
         std::string mRestartFromRefinedPatternFileName;
 
-        //! maximum level for refinement. Default value is specified
-        //! by global constant
-        uint mMaxRefinementLevel = gMaxNumberOfLevels - 1;
-
         //! Renumber Lagrange Nodes
         bool mRenumberLagrangeNodes = false;
 
@@ -1010,28 +1006,6 @@ namespace moris::hmr
         get_restart_refinement_pattern_file()
         {
             return mRestartFromRefinedPatternFileName;
-        }
-
-        /**
-         * Gets the maximum refinement level.
-         *
-         * @return Max refinement level
-         */
-        uint
-        get_max_refinement_level() const
-        {
-            return mMaxRefinementLevel;
-        }
-
-        /**
-         * Sets the maximum refinement level.
-         *
-         * @param aLevel Max refinement level
-         */
-        void
-        set_max_refinement_level( uint aLevel )
-        {
-            mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
         }
 
         /**
