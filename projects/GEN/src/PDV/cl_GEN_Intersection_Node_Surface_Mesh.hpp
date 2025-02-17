@@ -100,7 +100,7 @@ namespace moris::gen
         /**
          * Computes the sensitivity of the local coordinate of a parent edge with respect to the facet vertices
          *
-         * @return Matrix< DDRMat > Sensitivities of the local coordinate with respect to the facet vertices. Size <Object dimension x number of vertices>
+         * @return Matrix< DDRMat > Sensitivities of the local coordinate with respect to the facet vertices. Size <spatial dimension x number of vertices per facet>
          */
         Matrix< DDRMat >
         compute_dxi_dfacet() const;
