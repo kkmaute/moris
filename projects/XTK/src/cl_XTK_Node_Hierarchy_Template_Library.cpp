@@ -55,6 +55,13 @@ namespace moris::xtk
         aNodeHierTemplate->mCellTopology = mtk::CellTopology::TRI3;
         switch ( aTemplateId )
         {
+            // Trivial template
+            case 0:
+            {
+                aNodeHierTemplate->mCellToNodeOrdinal = Matrix< IndexMat >( { { 0, 1, 2 } } );
+                aNodeHierTemplate->mNumCells          = 1;
+                break;
+            }
             case 1:
             {
                 aNodeHierTemplate->mCellToNodeOrdinal = Matrix< IndexMat >( { { 0, 3, 2 }, { 3, 1, 4 }, { 3, 4, 2 } } );
@@ -96,7 +103,6 @@ namespace moris::xtk
                 aNodeHierTemplate->mNumCells          = 2;
                 break;
             }
-
             default:
             {
                 MORIS_ERROR( false, "Node_Hierarchy_Template_Library::load_2d_template() - Undefined template ID (%d).", aTemplateId );

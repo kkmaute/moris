@@ -240,16 +240,14 @@ namespace moris::xtk
                         tGeometricQuery.get_geometry_type(),
                         tGeometricQuery.get_interpolation_order() );
 
-                bool tBothVerticesNotOnInterface =
-                        !mGeometryEngine->queued_intersection_first_parent_on_interface()
-                        && !mGeometryEngine->queued_intersection_second_parent_on_interface();
+                real tIntersectionLocalCoordinate = mGeometryEngine->get_queued_intersection_local_coordinate();
 
-                // if one of the end vertices is on the interface, skip this general intersection procedure
-                if ( tBothVerticesNotOnInterface )
+                // only add the intersection node if the intersection does not lie on either end
+                if ( std::abs( tIntersectionLocalCoordinate ) < ( 1.0 - MORIS_REAL_EPS ) )
                 {
                     // add index and intersection position to list of intersected edges
                     aIntersectedEdges.push_back( (moris_index)iEdge );
-                    aEdgeLocalCoordinate.push_back( mGeometryEngine->get_queued_intersection_local_coordinate() );
+                    aEdgeLocalCoordinate.push_back( tIntersectionLocalCoordinate );
 
                     // get edge parent entity index and rank
                     moris_index tParentIndex = aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge );
@@ -780,9 +778,8 @@ namespace moris::xtk
             ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
             ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
         }
-
         // intersection goes through one of the vertices
-        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 )
+        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 and aCellIndexIntersectedEdgeOrdinals->size() == 1 )
         {
             moris_index tVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
             aPermutation                 = tVertexIdEdgeOrd + 10;
@@ -792,6 +789,16 @@ namespace moris::xtk
             ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
             ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
             ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        }
+        // Intersection goes through only one vertex, or the entire element is on the interface. In either case, load trivial template
+        else
+        {
+            aPermutation = 0;
+
+            aSortedNodeInds->resize( 3 );
+            ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+            ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+            ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
         }
     }
 

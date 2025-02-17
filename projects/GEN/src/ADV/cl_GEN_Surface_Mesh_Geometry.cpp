@@ -387,16 +387,6 @@ namespace moris::gen
         Matrix< DDRMat > tFirstParentNodeCoordinates  = aFirstParentNode.get_global_coordinates();
         Matrix< DDRMat > tSecondParentNodeCoordinates = aSecondParentNode.get_global_coordinates();
 
-        // brendan hacky
-        if ( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
-        {
-            return std::make_pair( 0, -1.0 );    // this intersection wont get admitted, so the parent facet shouldnt matter
-        }
-        if ( this->get_geometric_region( aSecondParentNode.get_index(), tSecondParentNodeCoordinates ) == Geometric_Region::INTERFACE )
-        {
-            return std::make_pair( 0, 1.0 );    // this intersection wont get admitted, so the parent facet shouldnt matter
-        }
-
         // Need to cast along the edge to determine where the edge is intersected
         Matrix< DDRMat > tRayDirection = tSecondParentNodeCoordinates - tFirstParentNodeCoordinates;
 
@@ -413,9 +403,31 @@ namespace moris::gen
         // no intersections detected or multiple along parent edge
         if ( tLocalCoordinate.size() == 0 )
         {
+            // As a last ditch effort, check to see if either parent node is on the interface and we can return this
+            // FIXME: the raycast should be able to detect this case, but ArborX doesn't recognize any canidate facets in this case. Adjust bounding boxes somehow?
+            if ( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+            {
+                return std::make_pair( 0, -1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
+            }
+            else if ( this->get_geometric_region( aSecondParentNode.get_index(), tSecondParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+            {
+                return std::make_pair( 0, 1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
+            }
+
             return std::make_pair( MORIS_UINT_MAX, std::numeric_limits< real >::quiet_NaN() );
         }
 
+        // Iterate through the intersections to find the first value that is within the exclusive range (-1, 1)
+        for ( const auto& tIntersection : tLocalCoordinate )
+        {
+            if ( std::abs( tIntersection.second ) < ( 1.0 - Surface_Mesh::mIntersectionTolerance ) )
+            {
+                return tIntersection;
+            }
+        }
+
+        // No intersection not on either parent node found, return the first intersection with the local coordinate at -1 or 1
+        tLocalCoordinate( 0 ).second = ( tLocalCoordinate( 0 ).second > 0 ) - ( tLocalCoordinate( 0 ).second < 0 );
         return tLocalCoordinate( 0 );
     }
 
