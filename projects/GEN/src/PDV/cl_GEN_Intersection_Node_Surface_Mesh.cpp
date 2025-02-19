@@ -309,8 +309,32 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_first_parent() const
     {
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh does not yet support intersections on intersections." );
-        return { { 0 } };
+        Matrix< DDRMat > tFacetVertex1           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 0 );
+        Matrix< DDRMat > tFacetVertex2           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 1 );
+        Matrix< DDRMat > tFirstParentNodeCoords  = this->get_first_parent_node().get_global_coordinates();
+        Matrix< DDRMat > tSecondParentNodeCoords = this->get_second_parent_node().get_global_coordinates();
+
+        if ( mInterfaceGeometry.get_spatial_dimension() == 2 )
+        {
+            real tM = mtk::cross_2d( tFacetVertex1, tFirstParentNodeCoords );
+            real tN = mtk::cross_2d( tFirstParentNodeCoords, tFacetVertex2 );
+            real tP = mtk::cross_2d( tSecondParentNodeCoords, tFacetVertex1 );
+            real tQ = mtk::cross_2d( tFacetVertex2, tSecondParentNodeCoords );
+            real tS = mtk::cross_2d( tFacetVertex2, tFacetVertex1 );
+
+            real tFacetDiffX = tFacetVertex1( 0 ) - tFacetVertex2( 0 );
+            real tFacetDiffY = tFacetVertex1( 1 ) - tFacetVertex2( 1 );
+
+            real tG = tM + tN + tS;
+            real tH = tM + tN + tP + tQ;
+
+            return { { 2.0 * tFacetDiffY / tH * ( tG / tH - 1 ), 2.0 * tFacetDiffX / tH * ( 1 - tG / tH ) } };
+        }
+        else
+        {
+            MORIS_ERROR( false, "3D sensitivities not implemented if parent vertex depends on ADVs" );
+            return { {} };
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -319,8 +343,32 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_second_parent() const
     {
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh does not yet support intersections on intersections." );
-        return { { 0 } };
+        Matrix< DDRMat > tFacetVertex1           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 0 );
+        Matrix< DDRMat > tFacetVertex2           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 1 );
+        Matrix< DDRMat > tFirstParentNodeCoords  = this->get_first_parent_node().get_global_coordinates();
+        Matrix< DDRMat > tSecondParentNodeCoords = this->get_second_parent_node().get_global_coordinates();
+
+        if ( mInterfaceGeometry.get_spatial_dimension() == 2 )
+        {
+            real tM = mtk::cross_2d( tFacetVertex1, tFirstParentNodeCoords );
+            real tN = mtk::cross_2d( tFirstParentNodeCoords, tFacetVertex2 );
+            real tP = mtk::cross_2d( tSecondParentNodeCoords, tFacetVertex1 );
+            real tQ = mtk::cross_2d( tFacetVertex2, tSecondParentNodeCoords );
+            real tS = mtk::cross_2d( tFacetVertex2, tFacetVertex1 );
+
+            real tFacetDiffX = tFacetVertex1( 0 ) - tFacetVertex2( 0 );
+            real tFacetDiffY = tFacetVertex1( 1 ) - tFacetVertex2( 1 );
+
+            real tG = tM + tN + tS;
+            real tH = tM + tN + tP + tQ;
+
+            return { { -2.0 * tFacetDiffY * tG / std::pow( tH, 2 ), 2.0 * tFacetDiffX * tG / std::pow( tH, 2 ) } };
+        }
+        else
+        {
+            MORIS_ERROR( false, "3D sensitivities not implemented if parent vertex depends on ADVs" );
+            return { {} };
+        }
     }
 
 }    // namespace moris::gen
