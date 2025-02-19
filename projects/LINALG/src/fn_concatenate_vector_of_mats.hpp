@@ -23,6 +23,8 @@ namespace moris
         moris_index tFixedDimSize = 0;
         moris_index tTotalSize    = 0;
 
+        bool tFixedDimSizeSet = false;
+
         Vector< moris_index > tMatSize( 2 );
 
         MORIS_ASSERT( aFixedDim <= 2, "Fixed dim can be 0 for row or 1 for col." );
@@ -33,11 +35,16 @@ namespace moris
             tMatSize( 0 ) = aMat( i ).n_rows();
             tMatSize( 1 ) = aMat( i ).n_cols();
 
-            if ( i == 0 )
+            if ( tMatSize( aFixedDim ) == 0 )
             {
-                tFixedDimSize = tMatSize( aFixedDim );
+                continue;
             }
 
+            if ( not tFixedDimSizeSet )
+            {
+                tFixedDimSize    = tMatSize( aFixedDim );
+                tFixedDimSizeSet = true;
+            }
             else
             {
                 MORIS_ASSERT( tMatSize( aFixedDim ) == tFixedDimSize, "fixed dimension not consistent." );
@@ -63,6 +70,11 @@ namespace moris
 
             for ( moris::uint i = 0; i < aMat.size(); i++ )
             {
+                if ( aMat( i ).n_rows() == 0 )
+                {
+                    continue;
+                }
+
                 tEnd = tStart + aMat( i ).n_cols() - 1;
 
                 tConcatenatedMat( { 0, tFixedDimSize - 1 }, { tStart, tEnd } ) = aMat( i ).matrix_data();
@@ -74,6 +86,11 @@ namespace moris
             tConcatenatedMat.resize( tTotalSize / tFixedDimSize, tFixedDimSize );
             for ( moris::uint i = 0; i < aMat.size(); i++ )
             {
+                if ( aMat( i ).n_cols() == 0 )
+                {
+                    continue;
+                }
+
                 tEnd = tStart + aMat( i ).n_rows() - 1;
 
                 tConcatenatedMat( { tStart, tEnd }, { 0, tFixedDimSize - 1 } ) = aMat( i ).matrix_data();

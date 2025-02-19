@@ -515,8 +515,12 @@ namespace moris::xtk
                 }
                 else if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
                 {
-                    // add background cell to the list of cells for regular subdivision
-                    aMeshGenerationData.mRegularSubdivisionBgCellInds.push_back( iCell );
+                    // check to see if this cell will be delaunay triangulated by another geometry
+                    if ( not tDelaunay or std::find( aMeshGenerationData.mDelaunayBgCellInds.begin(), aMeshGenerationData.mDelaunayBgCellInds.end(), iCell ) == aMeshGenerationData.mDelaunayBgCellInds.end() )
+                    {
+                        // add background cell to the list of cells for regular subdivision
+                        aMeshGenerationData.mRegularSubdivisionBgCellInds.push_back( iCell );
+                    }
 
                     // add background cell to the list for iGEOM
                     aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
