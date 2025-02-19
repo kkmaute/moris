@@ -31,21 +31,13 @@ namespace moris::gen
                       aBackgroundGeometryType,
                       aBackgroundInterpolationOrder )
     {
-        // TODO: Make the basis nodes from the background nodes and the basis for this node
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     bool Floating_Node::depends_on_advs() const
     {
-        return this->get_interface_geometry().depends_on_advs() or mParentNodes( 0 ).depends_on_advs() or mParentNodes( 1 ).depends_on_advs();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Vector< Basis_Node >& Floating_Node::get_locator_nodes() const
-    {
-        return mParentNodes;
+        return this->get_interface_geometry().depends_on_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------

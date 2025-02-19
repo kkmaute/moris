@@ -61,7 +61,8 @@ namespace moris::gen
             const Matrix< DDRMat >& aSensitivityFactor ) const
     {
         // Since the floating node lies on the surface mesh vertex, its sensitivities are identical to the vertex
-        Matrix< DDRMat > tSensitivitiesToAdd = mInterfaceGeometry.get_dvertex_dadv( mParentVertex );
+        Matrix< DDRMat > tSensitivitiesToAdd = mInterfaceGeometry.facet_vertex_depends_on_advs( mParentVertex ) ? aSensitivityFactor * mInterfaceGeometry.get_dvertex_dadv( mParentVertex )
+                                                                                                                : Matrix< DDRMat >();
 
         // Resize sensitivities
         uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
@@ -69,12 +70,12 @@ namespace moris::gen
                 tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
 
         // Join sensitivities
-        for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
+        for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
         {
-            for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
+            for ( uint iAddedSensitivity = 0; iAddedSensitivity < tSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
             {
-                aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
-                        tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
+                aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + iAddedSensitivity ) =
+                        tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
             }
         }
     }

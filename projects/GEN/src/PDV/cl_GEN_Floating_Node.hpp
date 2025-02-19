@@ -24,7 +24,6 @@ namespace moris::gen
     class Floating_Node : public Derived_Node
     {
       private:
-        Vector< Basis_Node > mParentNodes;
         moris_id             mPDVStartingID;
         moris_id             mNodeID    = -1;
         moris_index          mNodeOwner = -1;
@@ -54,13 +53,6 @@ namespace moris::gen
          * @return ADV dependence
          */
         bool depends_on_advs() const override;
-
-        /**
-         * Gets the locator nodes of this derived node.
-         *
-         * @return Locator nodes
-         */
-        const Vector< Basis_Node >& get_locator_nodes() const override;
 
         /**
          * Gets if this floating node can be determined that it is on a specific interface without any field evaluation.
