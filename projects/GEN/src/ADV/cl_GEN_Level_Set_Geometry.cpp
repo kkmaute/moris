@@ -541,7 +541,7 @@ namespace moris::gen
         {
             return Geometric_Region::NEGATIVE;
         }
-        else if( std::isnan( aLevelSetValue ) )
+        else if ( std::isnan( aLevelSetValue ) )
         {
             return Geometric_Region::UNDEFINED;
         }

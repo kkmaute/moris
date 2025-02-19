@@ -140,9 +140,9 @@ namespace moris
     }
 
     Vector< real >
-    Facet_Vertex_Factor( const uint aFacetVertexIndex, const Matrix< DDRMat >& aCoordinates )
+    Facet_Vertex_Factor( const Matrix< DDRMat >& aCoordinates )
     {
-        if ( aFacetVertexIndex == 3 )
+        if ( aCoordinates( 0 ) > 1.0 )
         {
             return { 0.5, 1.0 };
         }
@@ -196,9 +196,22 @@ namespace moris
         aParameterLists.set( "print_enriched_ig_mesh", false );
         aParameterLists.set( "exodus_output_XTK_ig_mesh", true );
         aParameterLists.set( "high_to_low_dbl_side_sets", true );
-        if ( tGeoModel == 2 )
+        switch ( tGeoModel )
         {
-            aParameterLists.set( "delaunay", true );
+            case 0:
+                aParameterLists.set( "delaunay", false );
+                break;
+            case 1:
+                aParameterLists.set( "delaunay", true );
+                break;
+            case 2:
+                aParameterLists.set( "delaunay", false );
+                break;
+            case 3:
+                aParameterLists.set( "delaunay", true );
+                break;
+            default:
+                MORIS_ERROR( false, "geometric model not implemented in test case" );
         }
     }
 
@@ -214,16 +227,34 @@ namespace moris
         aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
         switch ( tGeoModel )
         {
-            case 0:
+            case 0:    // delaunay off
                 aParameterLists.set( "discretization_mesh_index", 0 );
+                aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 break;
-            case 1:
+            case 1:    // delaunay on
+                aParameterLists.set( "discretization_mesh_index", 0 );
+                aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                break;
+            case 2:    // delaunay off
                 aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 aParameterLists.set( "discretization_mesh_index", 0 );
+
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+                aParameterLists.set( "center_x", 0.0 );
+                aParameterLists.set( "center_y", 0.6 );
+                aParameterLists.set( "normal_x", 0.0 );
+                aParameterLists.set( "normal_y", 1.0 );
                 break;
-            case 2:
+            case 3:    // delaunay on
                 aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 aParameterLists.set( "discretization_mesh_index", 0 );
+
+                // add a second geometry to test intersections on intersections
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+                aParameterLists.set( "center_x", 0.0 );
+                aParameterLists.set( "center_y", 0.6 );
+                aParameterLists.set( "normal_x", 0.0 );
+                aParameterLists.set( "normal_y", 1.0 );
                 break;
             default:
                 MORIS_ERROR( false, "geometric model not implemented in test case" );

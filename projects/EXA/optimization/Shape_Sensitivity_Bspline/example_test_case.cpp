@@ -148,7 +148,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_Surface_Mesh_2D",
     if ( par_size() == 1 )
     {
         // loop over all test configurations
-        for ( tGeoModel = 0; tGeoModel < 3; ++tGeoModel )
+        for ( tGeoModel = 0; tGeoModel < 3; ++tGeoModel ) // brendan add back all test cases
         {
             // call to performance manager main interface
             int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
