@@ -129,7 +129,10 @@ namespace moris::gen
     Level_Set_Geometry::disambiguate_geometric_region( const Matrix< DDRMat >& aNodeCoordinates )
     {
         // Try to directly determine the geometric region based on the field value alone
-        return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
+        // return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
+
+        //FIXME BRENDAN: Let analytic level set fields determine the geometric region directly
+        return Geometric_Region::UNDEFINED;
     }
 
     //--------------------------------------------------------------------------------------------------------------
