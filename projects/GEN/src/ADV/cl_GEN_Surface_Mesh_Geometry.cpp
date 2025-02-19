@@ -291,7 +291,27 @@ namespace moris::gen
         uint tNumVertices = this->get_number_of_vertices();
         uint tDims        = this->get_spatial_dimension();
 
-        Matrix< DDRMat > tParametricCoordsColumn = trans( aParametricCoordinates );    // FIXME annoying transpose
+        mtk::Interpolation_Function_Factory tInterpolationFactory;
+        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
+                aBackgroundGeometryType,
+                mtk::Interpolation_Type::LAGRANGE,
+                aBackgroundInterpolationOrder );
+
+        // Perform interpolation using parametric coordinates
+        Matrix< DDRMat > tBasis;
+        tInterpolation->eval_N( aParametricCoordinates, tBasis );
+
+        // Size global coordinates based on first locator
+        Matrix< DDRMat > tGlobalCoordinate = Matrix< DDRMat >( 1, this->get_spatial_dimension(), 0.0 );
+        delete tInterpolation;
+
+        // Add contributions from all locators
+        for ( uint iNode = 0; iNode < aBackgroundNodes.size(); iNode++ )
+        {
+            tGlobalCoordinate += aBackgroundNodes( iNode )->get_global_coordinates() * tBasis( iNode );
+        }
+
+        Matrix< DDRMat > tVertexGlobalCoords = Surface_Mesh::get_all_vertex_coordinates();
 
         // Determine the parent vertex that lies in the background cell
         uint tParentVertex = MORIS_UINT_MAX;
@@ -300,7 +320,7 @@ namespace moris::gen
             bool tVertexFound = true;
             for ( uint iDim = 0; iDim < tDims; iDim++ )
             {
-                if ( std::abs( mVertexParametricCoordinates( iDim, iVertex ) - tParametricCoordsColumn( iDim ) ) > Surface_Mesh::mIntersectionTolerance )
+                if ( std::abs( tVertexGlobalCoords( iDim, iVertex ) - tGlobalCoordinate( iDim ) ) > Surface_Mesh::mIntersectionTolerance )
                 {
                     tVertexFound = false;
                     break;

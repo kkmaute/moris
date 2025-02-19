@@ -127,7 +127,6 @@ namespace moris::gen
         Discretization_Factor_Function     get_discretization_scaling_user_defined = nullptr;
         Perturbation_Function              get_vertex_adv_dependency_user_defined  = nullptr;
         Sensitivity_Function               get_dvertex_dadv_user_defined           = nullptr;
-        Vector< uint >                     mFixedVertexIndices;                  // Indices of surface mesh vertices that are unaffected by ADVs
         Vector< std::shared_ptr< Field > > mPerturbationFields;                  // Vector of perturbation fields
         Matrix< DDRMat >                   mOriginalVertexBases;                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
         Vector< const mtk::Cell* >         mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
@@ -459,7 +458,6 @@ namespace moris::gen
          * Determines if the requested facet vertex depends on ADVs or not
          *
          * @param aFacetVertexIndex the index of the facet vertex that is queried
-         * @return true if the vertex's index is not in mParameters.mFixedVertexIndices and the node's position is within the boundaries of the mesh
          * @return false if either of the above conditions are true
          */
         bool facet_vertex_depends_on_advs( uint aFacetVertexIndex );
