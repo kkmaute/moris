@@ -209,25 +209,25 @@ namespace moris::hmr
             return new BSpline_Mesh< x, y, 0 >(                                     \
                     mParameters,                                                    \
                     aBackgroundMesh,                                                \
-                    aPattern,                                                       \
+                    tPattern,                                                       \
                     aMeshIndex );                                                   \
         case 1:                                                                     \
             return new BSpline_Mesh< x, y, 1 >(                                     \
                     mParameters,                                                    \
                     aBackgroundMesh,                                                \
-                    aPattern,                                                       \
+                    tPattern,                                                       \
                     aMeshIndex );                                                   \
         case 2:                                                                     \
             return new BSpline_Mesh< x, y, 2 >(                                     \
                     mParameters,                                                    \
                     aBackgroundMesh,                                                \
-                    aPattern,                                                       \
+                    tPattern,                                                       \
                     aMeshIndex );                                                   \
         case 3:                                                                     \
             return new BSpline_Mesh< x, y, 3 >(                                     \
                     mParameters,                                                    \
                     aBackgroundMesh,                                                \
-                    aPattern,                                                       \
+                    tPattern,                                                       \
                     aMeshIndex );                                                   \
         default:                                                                    \
             MORIS_ERROR( false, "Cannot create B-spline mesh with z order %d", z ); \
@@ -255,17 +255,13 @@ namespace moris::hmr
     BSpline_Mesh_Base*
     Factory::create_bspline_mesh(
             Background_Mesh_Base* aBackgroundMesh,
-            uint                  aPattern,
-            uint                  aPolynomialDegree,
             uint                  aMeshIndex )
     {
-        // get number of dimensions from settings
-        uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
-
-        // Set B-spline orders
-        uint tBSplineOrderX = aPolynomialDegree;
-        uint tBSplineOrderY = aPolynomialDegree;
-        uint tBSplineOrderZ = aPolynomialDegree * ( tNumberOfDimensions > 2 );
+        // Get pattern and orders from parameters
+        uint tPattern = mParameters->get_bspline_pattern( aMeshIndex );
+        uint tBSplineOrderX = mParameters->get_bspline_order_x( aMeshIndex );
+        uint tBSplineOrderY = mParameters->get_bspline_order_y( aMeshIndex );
+        uint tBSplineOrderZ = mParameters->get_bspline_order_z( aMeshIndex );
 
         switch ( tBSplineOrderX )
         {
@@ -288,8 +284,8 @@ namespace moris::hmr
     BSpline_Mesh_Base*
     Factory::create_dummy_bspline_mesh(
             Background_Mesh_Base* aBackgroundMesh,
-            uint                  aOrder,
-            uint                  aPattern )
+            uint                  aPattern,
+            uint                  aOrder )
     {
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();

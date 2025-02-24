@@ -165,8 +165,8 @@ namespace moris::hmr
         Factory tFactory( mDatabase->get_parameters() );
         mDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
                 mDatabase->get_background_mesh(),
-                aBSplineOrder,
-                aBSplinePattern );
+                aBSplinePattern,
+                aBSplineOrder );
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(

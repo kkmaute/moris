@@ -838,8 +838,8 @@ namespace moris::hmr
         Factory tFactory( mParameters );
         BSpline_Mesh_Base* tDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
                 mDatabase->get_background_mesh(),
-                aLagrangeOrder,
-                aBsplinePattern );
+                aBsplinePattern,
+                aLagrangeOrder );
 
         return std::make_shared< Mesh >(
                 mDatabase,
@@ -902,8 +902,8 @@ namespace moris::hmr
         Factory tFactory( mParameters );
         BSpline_Mesh_Base* tDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
                 mDatabase->get_background_mesh(),
-                aOrder,
-                aBsplinePattern );
+                aBsplinePattern,
+                aOrder );
 
         return new Interpolation_Mesh_HMR(
                 mDatabase,

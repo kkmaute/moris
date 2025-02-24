@@ -101,11 +101,10 @@ namespace moris::hmr
                     }
 
                     // create B-Spline mesh
-                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_dummy_bspline_mesh(
                             tBackgroundMesh,
                             0,
-                            tOrder,
-                            MORIS_UINT_MAX );
+                            tOrder );
 
                     // test basis uniqueness
                     REQUIRE( tBSplineMesh->test_for_double_basis() );
@@ -188,7 +187,7 @@ namespace moris::hmr
                     }
 
                     // create B-Spline mesh
-                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tBackgroundMesh, 0, tOrder, MORIS_UINT_MAX );
+                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_dummy_bspline_mesh( tBackgroundMesh, 0, tOrder );
 
                     // test basis uniqueness
                     REQUIRE( tBSplineMesh->test_for_double_basis() );
@@ -257,9 +256,8 @@ namespace moris::hmr
             tBackgroundMesh->perform_refinement( 1 );
 
             // create B-Spline mesh
-            //( Parameters, Background mesh, Pattern, Order)
-            BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tBackgroundMesh, 0, 1, MORIS_UINT_MAX );
-            BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tBackgroundMesh, 1, 1, MORIS_UINT_MAX );
+            BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_dummy_bspline_mesh( tBackgroundMesh, 0, 1 );
+            BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_dummy_bspline_mesh( tBackgroundMesh, 1, 1 );
 
             tBSplineMesh_1->test_sanity();
             tBSplineMesh_2->test_sanity();

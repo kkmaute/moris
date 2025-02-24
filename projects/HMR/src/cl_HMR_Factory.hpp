@@ -86,16 +86,14 @@ namespace moris::hmr
          * @param[in] aBackgroundMesh       pointer to background mesh
          * @param[in] anPattern    pattern (i.e. grid) used for building the mesh
          * @param[in] aPolynomialDegree     degree of Lagrange mesh
-         * @param[in] aMeshIndex            index to be assigned to the mesh
+         * @param[in] aMeshIndex            B-spline mesh index
          *
          * @return BSpline_Mesh_Base* pointer to new Lagrange mesh
          */
         BSpline_Mesh_Base*
         create_bspline_mesh(
                 Background_Mesh_Base* aBackgroundMesh,
-                uint                  aPattern,
-                uint                  aPolynomialDegree,
-                uint                  aMeshIndex = MORIS_UINT_MAX );
+                uint                  aMeshIndex );
 
         /**
          * Creates a dummy B-spline mesh, for L2 testing purposes.
@@ -108,8 +106,8 @@ namespace moris::hmr
         BSpline_Mesh_Base*
         create_dummy_bspline_mesh(
                 Background_Mesh_Base* aBackgroundMesh,
-                uint                  aOrder,
-                uint                  aPattern );
+                uint                  aPattern,
+                uint                  aOrder );
 
         // ----------------------------------------------------------------------------
 

@@ -89,11 +89,10 @@ namespace moris::hmr
                         Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
                         // create B-Spline Mesh
-                        BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                        BSpline_Mesh_Base* tBSplineMesh = tFactory.create_dummy_bspline_mesh(
                                 tBackgroundMesh,
                                 0,
-                                iOrder,
-                                MORIS_UINT_MAX );
+                                iOrder );
 
                         // create container of B-Spline meshes
                         Vector< BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
