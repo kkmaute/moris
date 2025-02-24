@@ -35,7 +35,9 @@ namespace moris::hmr
         mDomainDimensions.clear();
         mLagrangeOrders.clear();
         mLagrangePatterns.clear();
-        mBSplineOrders.clear();
+        mBSplineOrdersX.clear();
+        mBSplineOrdersY.clear();
+        mBSplineOrdersZ.clear();
         mBSplinePatterns.clear();
 
         // Number of elements per dimension
@@ -138,8 +140,21 @@ namespace moris::hmr
         // Set orders/patterns
         string_to_vector( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
         string_to_vector( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );
-        string_to_vector( aParameterList.get< std::string >( "bspline_orders" ), mBSplineOrders );
         string_to_vector( aParameterList.get< std::string >( "bspline_pattern" ), mBSplinePatterns );
+
+        // B-spline orders TODO this will be removed!
+        Vector< uint > tBSplineOrders;
+        string_to_vector( aParameterList.get< std::string >( "bspline_orders" ), tBSplineOrders );
+        mBSplineOrdersX = tBSplineOrders;
+        mBSplineOrdersY = tBSplineOrders;
+        if ( mDomainDimensions.size() > 2 )
+        {
+            mBSplineOrdersZ = tBSplineOrders;
+        }
+        else
+        {
+            mBSplineOrdersZ.resize( tBSplineOrders.size(), 0 );
+        }
 
         this->set_union_pattern( aParameterList.get< sint >( "union_pattern" ) );
         this->set_working_pattern( aParameterList.get< sint >( "working_pattern" ) );
@@ -309,7 +324,16 @@ namespace moris::hmr
         MORIS_ERROR( 1 <= aMeshOrders.min(), "B-spline polynomial degree must be between 1 and 3" );
 
         // Assign B-spline orders
-        mBSplineOrders = aMeshOrders;
+        mBSplineOrdersX = aMeshOrders;
+        mBSplineOrdersY = aMeshOrders;
+        if ( mDomainDimensions.size() > 2 )
+        {
+            mBSplineOrdersZ = aMeshOrders;
+        }
+        else
+        {
+            mBSplineOrdersZ.resize( aMeshOrders.size(), 0 );
+        }
 
         // make sure that max polynomial is up to date
         this->update_max_polynomial_and_truncated_buffer();
@@ -319,7 +343,7 @@ namespace moris::hmr
 
     uint Parameters::get_max_bspline_order() const
     {
-        return mBSplineOrders.max();
+        return std::max( std::max( mBSplineOrdersX.max(), mBSplineOrdersY.max() ), mBSplineOrdersZ.max() );
     }
 
     //--------------------------------------------------------------------------------
@@ -327,7 +351,7 @@ namespace moris::hmr
     void
     Parameters::update_max_polynomial_and_truncated_buffer()
     {
-        mMaxPolynomial = ( mLagrangeOrders.max() > mBSplineOrders.max() ) ? ( mLagrangeOrders.max() ) : ( mBSplineOrders.max() );
+        mMaxPolynomial = std::max( mLagrangeOrders.max(), get_max_bspline_order() );
     }
 
     //--------------------------------------------------------------------------------
@@ -598,7 +622,7 @@ namespace moris::hmr
         this->error_if_locked( "set_bspline_patterns" );
 
         // test sanity of input
-        MORIS_ERROR( aPatterns.size() == mBSplineOrders.size(),
+        MORIS_ERROR( aPatterns.size() == mBSplineOrdersX.size(),
                 "set_bspline_patterns() : referred refinement pattern does not exist. Call set_bspline_orders() first." );
 
         MORIS_ERROR( aPatterns.max() < gNumberOfPatterns - 2,
@@ -629,10 +653,10 @@ namespace moris::hmr
             MORIS_ERROR( mDomainOffset.size() == tNumberOfDimensions,
                     "Domain offset and Number of Elements per dimension do not match" );
 
-            MORIS_ERROR( mBSplinePatterns.size() == mBSplineOrders.size(),
+            MORIS_ERROR( mBSplinePatterns.size() == mBSplineOrdersX.size(),
                     "Number of B-spline meshes given by patterns (%lu) doesn't match number of B-spline meshes given by orders (%lu)",
                     mBSplinePatterns.size(),
-                    mBSplineOrders.size() );
+                    mBSplineOrdersX.size() );
 
             MORIS_ERROR( mLagrangePatterns.size() ==  mLagrangeOrders.size(),
                     "Number of Lagrange meshes given by patterns (%lu) doesn't match number of Lagrange meshes given by orders (%lu)",

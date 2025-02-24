@@ -112,14 +112,27 @@ namespace moris::hmr
                 mStatus );
 
         // save bspline mesh orders
-        Vector< uint > tBSplineOrders( aParameters->get_number_of_bspline_meshes() );
+        uint tNumberOfBSplineMeshes = aParameters->get_number_of_bspline_meshes();
+        Vector< uint > tBSplineOrdersX( tNumberOfBSplineMeshes );
+        Vector< uint > tBSplineOrdersY( tNumberOfBSplineMeshes );
+        Vector< uint > tBSplineOrdersZ( tNumberOfBSplineMeshes );
         for ( uint iMeshIndex = 0; iMeshIndex < aParameters->get_number_of_bspline_meshes(); iMeshIndex++ )
         {
-            tBSplineOrders( iMeshIndex ) = aParameters->get_bspline_order( iMeshIndex );
+            tBSplineOrdersX( iMeshIndex ) = aParameters->get_bspline_order_x( iMeshIndex );
+            tBSplineOrdersY( iMeshIndex ) = aParameters->get_bspline_order_y( iMeshIndex );
+            tBSplineOrdersZ( iMeshIndex ) = aParameters->get_bspline_order_z( iMeshIndex );
         }
         save_vector_to_hdf5_file( mFileID,
-                "BSplineOrders",
-                tBSplineOrders.data(),
+                "BSplineOrdersX",
+                tBSplineOrdersX.data(),
+                mStatus );
+        save_vector_to_hdf5_file( mFileID,
+                "BSplineOrdersY",
+                tBSplineOrdersX.data(),
+                mStatus );
+        save_vector_to_hdf5_file( mFileID,
+                "BSplineOrdersZ",
+                tBSplineOrdersX.data(),
                 mStatus );
 
         // save bspline mesh patterns

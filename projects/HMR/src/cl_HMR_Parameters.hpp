@@ -95,7 +95,9 @@ namespace moris::hmr
         Vector< uint > mLagrangeOrders = { 1 };
 
         //! mesh orders, by default, a linear mesh is generated
-        Vector< uint > mBSplineOrders = { 1 };
+        Vector< uint > mBSplineOrdersX = { 1 };
+        Vector< uint > mBSplineOrdersY = { 1 };
+        Vector< uint > mBSplineOrdersZ = { 0 };
 
         //! defines which Lagrange mesh is associated with which refinement pattern
         Vector< uint > mLagrangePatterns = { 0 };
@@ -380,16 +382,36 @@ namespace moris::hmr
         }
 
         /**
-         * Returns the order of a B-spline mesh by index.
+         * Returns the x-order of a B-spline mesh by index.
          *
          * @param aIndex B-spline mesh index
-         * @return B-spline order
+         * @return B-spline order (x)
          */
-        auto
-        get_bspline_order( uint aIndex ) const
-                -> decltype( mBSplineOrders( aIndex ) )
+        uint get_bspline_order_x( uint aIndex ) const
         {
-            return mBSplineOrders( aIndex );
+            return mBSplineOrdersX( aIndex );
+        }
+
+        /**
+         * Returns the y-order of a B-spline mesh by index.
+         *
+         * @param aIndex B-spline mesh index
+         * @return B-spline order (y)
+         */
+        uint get_bspline_order_y( uint aIndex ) const
+        {
+            return mBSplineOrdersY( aIndex );
+        }
+
+        /**
+         * Returns the z-order of a B-spline mesh by index.
+         *
+         * @param aIndex B-spline mesh index
+         * @return B-spline order (z)
+         */
+        uint get_bspline_order_z( uint aIndex ) const
+        {
+            return mBSplineOrdersZ( aIndex );
         }
 
         /**
@@ -428,7 +450,7 @@ namespace moris::hmr
         uint
         get_number_of_bspline_meshes() const
         {
-            return mBSplineOrders.size();
+            return mBSplinePatterns.size();
         }
 
         /**

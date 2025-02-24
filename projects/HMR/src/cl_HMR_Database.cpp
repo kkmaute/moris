@@ -302,7 +302,7 @@ namespace moris::hmr
         {
             // get the mesh pattern and polynomial order associated with the current B-spline mesh
             uint tPatternForBspMesh   = mParameters->get_bspline_pattern( iBspMesh );
-            uint tPolyOrderForBspMesh = mParameters->get_bspline_order( iBspMesh );
+            uint tPolyOrderForBspMesh = mParameters->get_bspline_order_x( iBspMesh );
 
             // create and initialize the HMR B-spline meshes
             mBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
