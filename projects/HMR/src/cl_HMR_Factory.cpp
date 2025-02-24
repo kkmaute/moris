@@ -262,28 +262,22 @@ namespace moris::hmr
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-        // Set B-spline order vector
-        Vector< uint > tBSplineOrders;
-        if ( tNumberOfDimensions == 2 )
-        {
-            tBSplineOrders = { aPolynomialDegree, aPolynomialDegree, 0 };
-        }
-        else
-        {
-            tBSplineOrders = { aPolynomialDegree, aPolynomialDegree, aPolynomialDegree };
-        }
+        // Set B-spline orders
+        uint tBSplineOrderX = aPolynomialDegree;
+        uint tBSplineOrderY = aPolynomialDegree;
+        uint tBSplineOrderZ = aPolynomialDegree * ( tNumberOfDimensions > 2 );
 
-        switch ( tBSplineOrders( 0 ) )
+        switch ( tBSplineOrderX )
         {
             case ( 1 ):
-                SWITCH_ORDER_Y( 1, tBSplineOrders( 1 ), tBSplineOrders( 2 ) )
+                SWITCH_ORDER_Y( 1, tBSplineOrderY, tBSplineOrderZ )
             case ( 2 ):
-                SWITCH_ORDER_Y( 2, tBSplineOrders( 1 ), tBSplineOrders( 2 ) )
+                SWITCH_ORDER_Y( 2, tBSplineOrderY, tBSplineOrderZ )
             case ( 3 ):
-                SWITCH_ORDER_Y( 3, tBSplineOrders( 1 ), tBSplineOrders( 2 ) )
+                SWITCH_ORDER_Y( 3, tBSplineOrderY, tBSplineOrderZ )
             default:
             {
-                MORIS_ERROR( false, "Cannot create B-spline mesh with x order %d", tBSplineOrders( 0 ) );
+                MORIS_ERROR( false, "Cannot create B-spline mesh with x order %d", tBSplineOrderX );
                 return nullptr;
             }
         }
