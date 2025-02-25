@@ -89,7 +89,7 @@ namespace moris::gen
                 if ( iParameterList.exists( "dependencies" ) )
                 {
                     // Get field dependency names
-                    Vector< std::string > tDependencyNames = iParameterList.get< Vector< std::string > >( "dependencies" );
+                    Vector< std::string > tDependencyNames = iParameterList.get_vector< std::string >( "dependencies" );
 
                     // Resize dependencies
                     tDependencyFields.resize( tDependencyNames.size() );
@@ -155,8 +155,8 @@ namespace moris::gen
                         {
                             // Get voxel-specific info
                             auto tVoxelFieldName   = iParameterList.get< std::string >( "voxel_field_file" );
-                            auto tDomainDimensions = iParameterList.get< Vector< real > >( "domain_dimensions" );
-                            auto tDomainOffset     = iParameterList.get< Vector< real > >( "domain_offset" );
+                            auto tDomainDimensions = iParameterList.get_vector< real >( "domain_dimensions" );
+                            auto tDomainOffset     = iParameterList.get_vector< real >( "domain_offset" );
 
                             // Create voxel input
                             auto tVoxelInput = std::make_shared< Voxel_Input >(

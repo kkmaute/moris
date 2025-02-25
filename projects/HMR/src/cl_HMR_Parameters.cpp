@@ -44,7 +44,7 @@ namespace moris::hmr
         Parameter_List tHMRParameterList = aParameterLists( HMR::GENERAL )( 0 );
 
         // Number of elements per dimension
-        mNumberOfElementsPerDimension = tHMRParameterList.get< Vector< uint > >( "number_of_elements_per_dimension" );
+        mNumberOfElementsPerDimension = tHMRParameterList.get_vector< uint >( "number_of_elements_per_dimension" );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.size() == 2 or mNumberOfElementsPerDimension.size() == 3,
@@ -54,17 +54,17 @@ namespace moris::hmr
         this->set_processor_decomp_method( tHMRParameterList.get< sint >( "processor_decomposition_method" ) );
 
         // get user defined processor dimensions. Only matters if decomp method == 3.
-        mProcessorDimensions = tHMRParameterList.get< Vector< uint > >( "processor_dimensions" );
+        mProcessorDimensions = tHMRParameterList.get_vector< uint >( "processor_dimensions" );
 
         // get domain dimensions
-        mDomainDimensions = tHMRParameterList.get< Vector< real > >( "domain_dimensions" );
+        mDomainDimensions = tHMRParameterList.get_vector< real >( "domain_dimensions" );
 
         // check sanity of input
         MORIS_ERROR( mNumberOfElementsPerDimension.size() == mDomainDimensions.size(),
                 "length of domain_dimensions must be equal to number_of_elements_per_dimension." );
 
         // get domain offset
-        mDomainOffset = tHMRParameterList.get< Vector< real > >( "domain_offset" );
+        mDomainOffset = tHMRParameterList.get_vector< real >( "domain_offset" );
 
         // Check size of offset
         if ( mDomainOffset.size() == 0 )
@@ -176,7 +176,7 @@ namespace moris::hmr
                 uint tNumberOfDimensions = mDomainDimensions.size();
 
                 // Get raw orders, resized to 3
-                Vector< uint > tBSplineOrders = aParameterLists( HMR::BSPLINE_MESHES )( iBSplineMeshIndex ).get< Vector< uint > >( "orders" );
+                Vector< uint > tBSplineOrders = aParameterLists( HMR::BSPLINE_MESHES )( iBSplineMeshIndex ).get_vector< uint >( "orders" );
                 MORIS_ASSERT( tBSplineOrders.size() > 0, "At least one order must be given for each HMR B-spline mesh." );
 
                 // Assign order in x
