@@ -194,7 +194,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tTopFieldName    = "TopPlane";
         std::string tBottomFieldName = "BottomPlane";
 
-        Parameter_List tParameters = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameters( Module_Type::HMR );
 
         tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
         tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );

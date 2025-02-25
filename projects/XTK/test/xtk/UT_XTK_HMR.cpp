@@ -88,7 +88,7 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "staircase_buffer", 1 );
             tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
 
-            std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameterlist( 0 )( 0 ) );
+            std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameterlist );
 
             // initialize a mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();

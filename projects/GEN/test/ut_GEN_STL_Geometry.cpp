@@ -22,8 +22,7 @@ namespace moris
 {
     TEST_CASE("SDF Teapot", "[SDF_Teapot]")
     {
-        Parameter_List tParameterlist = prm::create_hmr_parameter_list();
-        tParameterlist = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameterlist( Module_Type::HMR );
 
         tParameterlist.set( "number_of_elements_per_dimension", 10, 10, 10 );
         tParameterlist.set( "domain_dimensions",                5.6, 2.6, 3.4 );

@@ -109,7 +109,6 @@ namespace moris::xtk
 
             int                                      tRefineBuffer = 1;
             Module_Parameter_Lists tHMRParams( Module_Type::HMR );
-            tHMRParams( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
             tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", 2, 1 );
             tHMRParams( 0 )( 0 ).set( "domain_dimensions", 2.0, 2.0 );
             tHMRParams( 0 )( 0 ).set( "domain_offset", -1.0, -1.0 );
@@ -125,7 +124,7 @@ namespace moris::xtk
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // PSEUDO Workflow
             // HMR initialize
-            std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
+            std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams );
 
             // Geometry engine initialize
             std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGENParams, nullptr );

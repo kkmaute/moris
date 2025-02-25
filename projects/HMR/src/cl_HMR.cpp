@@ -80,9 +80,9 @@ namespace moris::hmr
 
     // alternative constructor that uses parameter list
     HMR::HMR(
-            Parameter_List&                             aParameterList,
+            Module_Parameter_Lists&                     aParameterLists,
             const std::shared_ptr< moris::Library_IO >& aLibrary )
-            : HMR( new Parameters( aParameterList, aLibrary ) )
+            : HMR( new Parameters( aParameterLists, aLibrary ) )
     {
         mDatabase->set_parameter_owning_flag();
 

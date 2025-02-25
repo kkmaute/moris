@@ -166,7 +166,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", 2, 1 );
             tParameters.set( "domain_dimensions", 2.0, 2.0 );
@@ -630,7 +630,7 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", 2, 1 );
             tParameters.set( "domain_dimensions", 2.0, 2.0 );

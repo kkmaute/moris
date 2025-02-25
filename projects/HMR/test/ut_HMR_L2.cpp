@@ -182,7 +182,7 @@ namespace moris::hmr
             //------------------------------------------------------------------------------
 
             // The parameter object controls the behavior of HMR.
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", 6, 6, 6 );
             tParameters.set( "domain_dimensions", 6.0, 6.0, 6.0 );
@@ -235,7 +235,7 @@ namespace moris::hmr
             //------------------------------------------------------------------------------
 
             // The parameter object controls the behavior of HMR.
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", 2, 2 );
 

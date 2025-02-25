@@ -47,8 +47,6 @@ namespace moris
     int  tMMAMaxIter  = 2;
 
     int         tInitialRef    = 2;
-    std::string tLagrangeOrder = "1";
-    std::string tBsplineOrder  = "1,1";
 
     real tElementEdgeLength = 1.0 / 15.0 / pow( 2, tInitialRef );
     real tLoadLimitY        = std::floor( 0.2 / tElementEdgeLength ) * tElementEdgeLength;
@@ -256,18 +254,19 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", 45, 15 );
         aParameterLists.set( "domain_dimensions", 3.0, 1.0 );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
-
-        aParameterLists.set( "lagrange_orders", tLagrangeOrder );
-        aParameterLists.set( "lagrange_pattern", "0" );
-        aParameterLists.set( "bspline_orders", tBsplineOrder );
-        aParameterLists.set( "bspline_pattern", "0,0" );
-
-        aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
         aParameterLists.set( "initial_refinement", std::to_string( tInitialRef ) );
+
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", 1 );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", 1 );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

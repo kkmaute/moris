@@ -174,7 +174,7 @@ namespace moris
 
             uint tLagrangeMeshIndex = 0;
 
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
             tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
             tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
             tParameters.set( "domain_offset", -tDomainLX / 2 + tCenterPoint( 0 ), -tDomainLY / 2 + tCenterPoint( 1 ) );
@@ -531,7 +531,7 @@ namespace moris
 
             moris::uint tLagrangeMeshIndex = 0;
 
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
             tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
             tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
             tParameters.set( "domain_offset", -tDomainLX / 2 + tCenterPoint( 0 ), -tDomainLY / 2 + tCenterPoint( 1 ) );
@@ -2202,7 +2202,7 @@ namespace moris
 
             moris::uint tLagrangeMeshIndex = 0;
 
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
             tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );

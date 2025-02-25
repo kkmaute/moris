@@ -47,7 +47,7 @@ namespace moris::xtk
             uint tLagrangeMeshIndex = 0;
 
             // HMR parameter list
-            moris::Parameter_List tParameters = moris::prm::create_hmr_parameter_list();
+            moris::Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", 3, 3 );
             tParameters.set( "domain_dimensions", 1.0, 1.0 );
@@ -161,7 +161,7 @@ namespace moris::xtk
             uint tLagrangeMeshIndex = 0;
 
             // HMR parameter list
-            moris::Parameter_List tParameters = moris::prm::create_hmr_parameter_list();
+            moris::Module_Parameter_Lists tParameters( Module_Type::HMR );
 
             tParameters.set( "number_of_elements_per_dimension", 3, 3 );
             tParameters.set( "domain_dimensions", 1.0, 1.0 );

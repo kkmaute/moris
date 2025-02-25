@@ -1353,7 +1353,7 @@ namespace moris::hmr
 
         if ( par_size() == 1 )
         {
-            Parameter_List tParameterlist_test = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameterlist_test( Module_Type::HMR );
 
             tParameterlist_test.set( "number_of_elements_per_dimension", 2, 2 );
             tParameterlist_test.set( "domain_dimensions", 1.0, 1.0 );
@@ -1434,7 +1434,7 @@ namespace moris::hmr
 
         if ( par_size() == 1 )
         {
-            Parameter_List tParameterlist_test = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameterlist_test( Module_Type::HMR );
 
             tParameterlist_test.set( "number_of_elements_per_dimension", 2, 2 );
             tParameterlist_test.set( "domain_dimensions", 1.0, 1.0 );

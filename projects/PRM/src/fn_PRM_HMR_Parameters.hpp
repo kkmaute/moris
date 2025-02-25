@@ -118,18 +118,6 @@ namespace moris::prm
     }
 
     /**
-     * Creates an HMR B-spline mesh parameter list.
-     *
-     * @return B-spline mesh parameter list
-     */
-    inline Parameter_List
-    create_bspline_mesh_parameter_list()
-    {
-        Parameter_List tParameterList( "B-spline Mesh" );
-        return tParameterList;
-    }
-
-    /**
      * Creates an HMR Lagrange mesh parameter list.
      *
      * @return B-spline mesh parameter list
@@ -138,11 +126,28 @@ namespace moris::prm
     create_lagrange_mesh_parameter_list()
     {
         Parameter_List tParameterList( "Lagrange Mesh" );
-        // Lagrange Meshes that are used as output meshes
-        tParameterList.insert( "lagrange_output_meshes", "" );
 
-        // Lagrange Mesh Names of output meshes
-        tParameterList.insert( "lagrange_output_mesh_names", "" );
+        tParameterList.insert( "pattern_index", 0u ); // Pattern to use for this Lagrange mesh
+        tParameterList.insert( "order", 1u ); // Lagrange order
+        tParameterList.insert( "is_output_mesh", true ); // If this is an output mesh or not
+        tParameterList.insert( "output_mesh_name", "" ); // Custom name for this output mesh
+
+        return tParameterList;
+    }
+
+    /**
+     * Creates an HMR B-spline mesh parameter list.
+     *
+     * @return B-spline mesh parameter list
+     */
+    inline Parameter_List
+    create_bspline_mesh_parameter_list()
+    {
+        Parameter_List tParameterList( "B-spline Mesh" );
+
+        tParameterList.insert( "pattern_index", 0u ); // Pattern to use for this B-spline mesh
+        tParameterList.insert( "orders", Vector< uint >{ 1 } ); // B-spline orders (single order, or order per dimension)
+        tParameterList.insert( "paired_lagrange_mesh_index", 0u ); // Lagrange mesh index to assign this B-spline mesh to
 
         return tParameterList;
     }

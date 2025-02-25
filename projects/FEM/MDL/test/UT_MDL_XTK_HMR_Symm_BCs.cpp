@@ -119,7 +119,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         uint tLagrangeMeshIndex = 0;
         std::string tFieldName = "Cylinder";
 
-        moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
+        moris::Module_Parameter_Lists tParameters( Module_Type::HMR );
 
         tParameters.set( "number_of_elements_per_dimension", 600, 6 );
         tParameters.set( "domain_dimensions", 100.0, 2.0 );

@@ -181,7 +181,8 @@ namespace moris::hmr
         /**
          * Constructor that loads parameters from a library
          */
-        Parameters( Parameter_List&                         aParameterList,
+        Parameters(
+                Module_Parameter_Lists&                     aParameterLists,
                 const std::shared_ptr< moris::Library_IO >& aLibrary );
 
         /**

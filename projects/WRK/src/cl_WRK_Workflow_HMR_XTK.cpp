@@ -58,7 +58,7 @@ namespace moris::wrk
         Module_Parameter_Lists tMORISParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::MORISGENERAL );
 
         // create HMR performer
-        mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
+        mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList, mPerformerManager->mLibrary );
 
         // create MTK performer - will be used for HMR mesh
         mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();

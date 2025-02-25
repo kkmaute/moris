@@ -82,10 +82,10 @@ namespace moris
         INTERFACE,
         ALGORITHMS )
 
-    enum class HMR_Submodule
-    {
-        GENERAL
-    };
+    ENUM_MACRO( HMR_Submodule,
+        GENERAL,
+        LAGRANGE_MESHES,
+        BSPLINE_MESHES )
 
     enum class STK_Submodule
     {

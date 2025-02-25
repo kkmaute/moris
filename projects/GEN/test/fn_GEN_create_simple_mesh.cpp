@@ -24,7 +24,7 @@ namespace moris::gen
             uint aBSplineOrder,
             uint aRefinement)
     {
-        Parameter_List tParameters = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameters( Module_Type::HMR );
 
         tParameters.set( "number_of_elements_per_dimension", aNumXElements, aNumYElements );
         tParameters.set( "domain_dimensions", 2.0, 2.0 );
