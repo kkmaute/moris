@@ -313,7 +313,7 @@ namespace moris
         template< typename T >
         Vector< T > get_vector( const std::string& aName ) const
         {
-            return string_to_vector< T >( this->get< std::string >( aName ) );
+            return get< Vector< T > >( aName );
         }
 
         /**
