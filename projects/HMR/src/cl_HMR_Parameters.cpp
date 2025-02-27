@@ -202,6 +202,15 @@ namespace moris::hmr
                 uint tLagrangeMeshIndex = aParameterLists( HMR::BSPLINE_MESHES )( iBSplineMeshIndex ).get< uint >( "paired_lagrange_mesh_index" );
                 mLagrangeToBSplineMesh( tLagrangeMeshIndex ).push_back( iBSplineMeshIndex );
             }
+
+            // Check for trivial interpolation
+            for ( auto& iLagrangeToBSpline : mLagrangeToBSplineMesh )
+            {
+                if ( iLagrangeToBSpline.size() == 0 )
+                {
+                    iLagrangeToBSpline.push_back( -1 );
+                }
+            }
         }
         else
         {

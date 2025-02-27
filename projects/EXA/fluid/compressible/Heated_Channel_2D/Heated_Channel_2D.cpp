@@ -267,15 +267,14 @@ namespace moris
 
         aParameterLists.set( "number_of_elements_per_dimension", tNumXElems, tNumYElems );
         aParameterLists.set( "domain_dimensions", tChannelLength, tChannelHeight );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
 
-        aParameterLists.set( "lagrange_orders", ios::stringify( tIpOrder ) );
-        aParameterLists.set( "lagrange_pattern", "0" );
-        aParameterLists.set( "bspline_orders", ios::stringify( tIpOrder ) );
-        aParameterLists.set( "bspline_pattern", "0" );
-        if ( tUseLagrange )
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", tIpOrder );
+
+        if ( not tUseLagrange )
         {
-            aParameterLists.set( "lagrange_to_bspline", "-1" );
+            aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+            aParameterLists.set( "orders", tIpOrder );
         }
     }
 

@@ -557,17 +557,8 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", 60, 20 );
         aParameterLists.set( "domain_dimensions", 60.0, 20.0 );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
-
-        aParameterLists.set( "lagrange_orders", "2,1" );
-        aParameterLists.set( "lagrange_pattern", "0,1" );
-
-        aParameterLists.set( "bspline_orders", "1,2" );
-        aParameterLists.set( "bspline_pattern", "0,1" );
 
         aParameterLists.set( "initial_refinement", 1, 0 );
-
-        aParameterLists.set( "lagrange_to_bspline", "0,1;-1" );
 
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
@@ -575,6 +566,20 @@ namespace moris
         // aParameterLists.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh.vtk" );
 
         aParameterLists.set( "use_refine_low_level_elements", false );
+
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", 2 );
+
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", 1 );
+        aParameterLists.set( "pattern_index", 1 );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", 1 );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", 2 );
+        aParameterLists.set( "pattern_index", 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

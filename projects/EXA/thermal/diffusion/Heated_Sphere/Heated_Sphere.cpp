@@ -233,20 +233,16 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
-
-        aParameterLists.set( "lagrange_orders", std::to_string( gInterpolationOrder ) );
-        aParameterLists.set( "lagrange_pattern", "0" );
-        aParameterLists.set( "bspline_orders", std::to_string( gInterpolationOrder ) );
-        aParameterLists.set( "bspline_pattern", "0" );
-
-        aParameterLists.set( "lagrange_to_bspline", "0" );
 
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
         aParameterLists.set( "initial_refinement", 1 );
-        //
-        //        aParameterLists.set( "lagrange_input_meshes", "0");
+
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", gInterpolationOrder );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", gInterpolationOrder );
     }
 
     void

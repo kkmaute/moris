@@ -239,17 +239,27 @@ namespace moris::hmr
 
             tParameters.set( "number_of_elements_per_dimension", 2, 2 );
 
-            tParameters.set( "lagrange_orders", "1, 1" );
-            tParameters.set( "lagrange_pattern", "0, 1" );
-            tParameters.set( "bspline_orders", "1, 1, 1, 2" );
-            tParameters.set( "bspline_pattern", "0, 0, 1, 1" );
-
             tParameters.set( "union_pattern", 2 );
+            
+            tParameters( moris::HMR::LAGRANGE_MESHES ).add_parameter_list();
+            
+            tParameters( moris::HMR::LAGRANGE_MESHES ).add_parameter_list();
+            tParameters.set( "pattern_index", 1 );
 
-            tParameters.set( "lagrange_to_bspline", "0, 1; 2, 3" );
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
 
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
 
-            tParameters.set( "refinement_buffer", 1 );
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
+            tParameters.set( "pattern_index", 1 );
+            tParameters.set( "paired_lagrange_mesh_index", 1 );
+
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
+            tParameters.set( "pattern_index", 1 );
+            tParameters.set( "orders", 2 );
+            tParameters.set( "paired_lagrange_mesh_index", 1 );
+
+            tParameters( moris::HMR::GENERAL ).set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
 
             //------------------------------------------------------------------------------
