@@ -496,7 +496,7 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tLevelsetInitialRef, tDispInitialRef );
+        aParameterLists.set( "pattern_initial_refinement", tLevelsetInitialRef, tDispInitialRef );
 
         aParameterLists.set( "basis_function_vtk_file", "basisinhmr.vtk" );
         aParameterLists.set( "lagrange_mesh_output_file_name", "lagrangehmr.exo" );

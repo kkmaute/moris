@@ -167,7 +167,7 @@
 //         tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
 //         tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
-//         tHMRParams( 0 )( 0 ).set( "initial_refinement", 0 );
+//         tHMRParams( 0 )( 0 ).set( "pattern_initial_refinement", 0 );
 //         tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 //         tHMRParams( 0 )( 0 ).set( "use_number_aura", 1);
 //         tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
@@ -355,7 +355,7 @@
 //         tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
 //         tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
-//         tHMRParams( 0 )( 0 ).set( "initial_refinement", 0 );
+//         tHMRParams( 0 )( 0 ).set( "pattern_initial_refinement", 0 );
 //         tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 //         tHMRParams( 0 )( 0 ).set( "use_number_aura", 1);
 //         tHMRParams( 0 )( 0 ).set( "severity_level", 0 );

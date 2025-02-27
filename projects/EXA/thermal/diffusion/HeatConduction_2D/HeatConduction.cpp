@@ -451,7 +451,7 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tLevelsetInitialRef, tDispInitialRef );
+        aParameterLists.set( "pattern_initial_refinement", tLevelsetInitialRef, tDispInitialRef );
 
         aParameterLists.set( "lagrange_mesh_output_file_name", "HeatConduction_HMR.exo" );
     }

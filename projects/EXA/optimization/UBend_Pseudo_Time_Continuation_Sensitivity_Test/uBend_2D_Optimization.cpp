@@ -1152,7 +1152,7 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tDispInitialRef, tLevelsetInitialRef );
+        aParameterLists.set( "pattern_initial_refinement", tDispInitialRef, tLevelsetInitialRef );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
     }
 

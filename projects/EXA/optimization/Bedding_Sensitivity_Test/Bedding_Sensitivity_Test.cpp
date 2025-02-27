@@ -260,7 +260,7 @@ namespace moris
         aParameterLists.set( "bspline_orders", tBsplineOrder );
         aParameterLists.set( "bspline_pattern", "0" );
 
-        aParameterLists.set( "initial_refinement", 1 );
+        aParameterLists.set( "pattern_initial_refinement", 1 );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
 
         aParameterLists.set( "lagrange_to_bspline", "0" );

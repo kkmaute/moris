@@ -37,7 +37,7 @@ namespace moris::gen
         tParameters.set( "bspline_pattern", "0" );
         tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "initial_refinement", aRefinement );
+        tParameters.set( "pattern_initial_refinement", aRefinement );
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
 

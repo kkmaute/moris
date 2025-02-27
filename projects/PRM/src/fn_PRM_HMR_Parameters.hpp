@@ -84,7 +84,7 @@ namespace moris::prm
         tParameterList.insert( "use_number_aura", true );
 
         // initial refinement level per pattern. Each entry creates a new pattern
-        tParameterList.insert( "initial_refinement", Vector< uint >{ 0 } );
+        tParameterList.insert( "pattern_initial_refinement", Vector< uint >{ 0 } );
 
         // label of background mesh output file
         tParameterList.insert( "write_background_mesh", "" );

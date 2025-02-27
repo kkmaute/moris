@@ -903,7 +903,7 @@ namespace moris
     //
     //     //         tParameters.set( "refinement_buffer", 3 );
     //         tParameters.set( "staircase_buffer", 3 );
-    //         tParameters.set( "initial_refinement", 0 );
+    //         tParameters.set( "pattern_initial_refinement", 0 );
     //
     //     //         tParameters.set( "severity_level", 2 );
     //         tParameters.set( "use_number_aura", false );
@@ -1321,7 +1321,7 @@ namespace moris
     //
     //     //         tParameters.set( "refinement_buffer", 3 );
     //         tParameters.set( "staircase_buffer", 3 );
-    //         tParameters.set( "initial_refinement", 0 );
+    //         tParameters.set( "pattern_initial_refinement", 0 );
     //
     //     //         tParameters.set( "severity_level", 2 );
     //         tParameters.set( "use_number_aura", false );
@@ -1586,7 +1586,7 @@ namespace moris
     //
     //     //         tParameters.set( "refinement_buffer", 3 );
     //         tParameters.set( "staircase_buffer", 3 );
-    //         tParameters.set( "initial_refinement", 0 );
+    //         tParameters.set( "pattern_initial_refinement", 0 );
     //
     //     //         tParameters.set( "severity_level", 2 );
     //         tParameters.set( "use_number_aura", false );
@@ -1848,7 +1848,7 @@ namespace moris
     //
     //     //         tParameters.set( "refinement_buffer", 3 );
     //         tParameters.set( "staircase_buffer", 3 );
-    //         tParameters.set( "initial_refinement", 0 );
+    //         tParameters.set( "pattern_initial_refinement", 0 );
     //
     //     //         tParameters.set( "severity_level", 2 );
     //         tParameters.set( "use_number_aura", false );
@@ -2214,7 +2214,7 @@ namespace moris
 
             tParameters.set( "refinement_buffer", 3 );
             tParameters.set( "staircase_buffer", 3 );
-            tParameters.set( "initial_refinement", 2 );
+            tParameters.set( "pattern_initial_refinement", 2 );
 
             tParameters.set( "severity_level", 2 );
             tParameters.set( "use_number_aura", false );

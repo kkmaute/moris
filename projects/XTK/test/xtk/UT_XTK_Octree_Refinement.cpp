@@ -108,7 +108,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6114,7 +6114,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6173,7 +6173,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6232,7 +6232,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6291,7 +6291,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6349,7 +6349,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6407,7 +6407,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", 0 );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );

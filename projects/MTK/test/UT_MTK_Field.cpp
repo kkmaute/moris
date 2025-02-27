@@ -112,7 +112,7 @@ namespace moris
 
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
-                tParameters.set( "initial_refinement", 0, 0 );
+                tParameters.set( "pattern_initial_refinement", 0, 0 );
 
                 tParameters.set( "use_number_aura", false );
 
@@ -232,7 +232,7 @@ namespace moris
 
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
-                tParameters.set( "initial_refinement", 0, 0 );
+                tParameters.set( "pattern_initial_refinement", 0, 0 );
 
                 tParameters.set( "use_number_aura", false );
 
@@ -374,7 +374,7 @@ namespace moris
 
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
-                tParameters.set( "initial_refinement", 0, 0 );
+                tParameters.set( "pattern_initial_refinement", 0, 0 );
 
                 tParameters.set( "use_number_aura", false );
 
@@ -524,7 +524,7 @@ namespace moris
 
                 tParameters.set( "refinement_buffer", 0 );
                 tParameters.set( "staircase_buffer", 1 );
-                tParameters.set( "initial_refinement", 0, 0 );
+                tParameters.set( "pattern_initial_refinement", 0, 0 );
 
                 tParameters.set( "use_number_aura", false );
 

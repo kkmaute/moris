@@ -236,7 +236,7 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", 1 );
+        aParameterLists.set( "pattern_initial_refinement", 1 );
 
         aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
         aParameterLists.set( "order", gInterpolationOrder );

@@ -317,7 +317,7 @@ namespace moris
         // Finalize the HMR parameter list
 
         // set initial refinement
-        tHMRParameters.set( "initial_refinement", tInitialRefinements );
+        tHMRParameters.set( "pattern_initial_refinement", tInitialRefinements );
 
         // sort information about B-spline meshes
         for ( uint iBspMesh = 0; iBspMesh < tBspMeshIndices.size(); iBspMesh++ )

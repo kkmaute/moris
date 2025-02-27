@@ -81,7 +81,7 @@
 //     tParameterlist.set( "lagrange_pattern", tLagrangePattern );
 //     tParameterlist.set( "bspline_orders",   tBsplineOrder );
 //     tParameterlist.set( "bspline_pattern",  "0,1" );
-//     tParameterlist.set( "initial_refinement",         tInitialRef );
+//     tParameterlist.set( "pattern_initial_refinement",         tInitialRef );
 //     tParameterlist.set( "initial_refinement_pattern", "0,1" );
 //     tParameterlist.set( "lagrange_to_bspline", "0,1");
 //     tParameterlist.set( "refinement_buffer",  tRefineBuffer );

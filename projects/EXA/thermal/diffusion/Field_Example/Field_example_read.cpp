@@ -176,7 +176,7 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
-        aParameterLists.set( "initial_refinement", 1, 1 );
+        aParameterLists.set( "pattern_initial_refinement", 1, 1 );
     }
 
     void

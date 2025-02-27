@@ -558,7 +558,7 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", 60, 20 );
         aParameterLists.set( "domain_dimensions", 60.0, 20.0 );
 
-        aParameterLists.set( "initial_refinement", 1, 0 );
+        aParameterLists.set( "pattern_initial_refinement", 1, 0 );
 
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );

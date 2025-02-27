@@ -151,7 +151,7 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer",  1 );
         aParameterLists.set( "staircase_buffer",   1 );
-        aParameterLists.set( "initial_refinement", 1, 0 );
+        aParameterLists.set( "pattern_initial_refinement", 1, 0 );
     }
 
     void XTKParameterList( Module_Parameter_Lists & aParameterLists )
