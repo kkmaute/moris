@@ -33,12 +33,13 @@ namespace moris::hmr
         mProcessorDimensions.clear();
         mNumberOfElementsPerDimension.clear();
         mDomainDimensions.clear();
-        mLagrangeOrders.clear();
         mLagrangePatterns.clear();
+        mLagrangeOrders.clear();
         mBSplineOrdersX.clear();
         mBSplineOrdersY.clear();
-        mBSplineOrdersZ.clear();
         mBSplinePatterns.clear();
+        mBSplineOrdersZ.clear();
+        mLagrangeToBSplineMesh.clear();
 
         // Get main HMR parameter list
         Parameter_List tHMRParameterList = aParameterLists( HMR::GENERAL )( 0 );
@@ -84,8 +85,6 @@ namespace moris::hmr
         this->set_staircase_buffer( tHMRParameterList.get< uint >( "staircase_buffer" ) );
         this->set_union_pattern( tHMRParameterList.get< sint >( "union_pattern" ) );
         this->set_working_pattern( tHMRParameterList.get< sint >( "working_pattern" ) );
-
-        string_to_vector_of_vectors( tHMRParameterList.get< std::string >( "lagrange_to_bspline" ), mLagrangeToBSplineMesh );
 
         if ( tHMRParameterList.get< sint >( "severity_level" ) != 1 )
         {
@@ -233,6 +232,9 @@ namespace moris::hmr
 
             MORIS_ERROR( mOutputMeshes.size() <= 2,
                     "Output mesh list can only have one list of main output meshes and one list of secondary output meshes" );
+
+            // Lagrange to B-spline mesh pairing
+            string_to_vector_of_vectors( tHMRParameterList.get< std::string >( "lagrange_to_bspline" ), mLagrangeToBSplineMesh );
         }
 
         // Output mesh size TODO look at this further, should be set as a default in parameter lists

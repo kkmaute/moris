@@ -22,8 +22,6 @@ namespace moris
     Library_IO_Meshgen::Library_IO_Meshgen()
             : Library_IO()    // initialize base class data as usual
     {
-        // list of supported parameter list types
-        mSupportedParamListTypes = { Module_Type::HMR, Module_Type::XTK, Module_Type::GEN };
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -82,7 +80,7 @@ namespace moris
             std::string const & aXtkPath )
     {
         // quick access to the parameter list
-        Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
+        Module_Parameter_Lists& tHMRParameters = mParameterLists( static_cast< uint >( Module_Type::HMR ) );
 
         // ------------------------------
         // Base grid
@@ -114,9 +112,9 @@ namespace moris
         std::string tDomainSideSets = ( mNumSpatialDims == 3 ) ? "1,2,3,4,5,6" : "1,2,3,4";
 
         // set the parameters in the parameter lists
-        tHmrParamList.set( "number_of_elements_per_dimension", tBaseGridSize );
-        tHmrParamList.set( "domain_dimensions", tDomainDimensions );
-        tHmrParamList.set( "domain_offset", tBaseGridOrigin );
+        tHMRParameters.set( "number_of_elements_per_dimension", tBaseGridSize );
+        tHMRParameters.set( "domain_dimensions", tDomainDimensions );
+        tHMRParameters.set( "domain_offset", tBaseGridOrigin );
 
         // ------------------------------
         // grids and refinements
@@ -319,43 +317,27 @@ namespace moris
         // Finalize the HMR parameter list
 
         // set initial refinement
-        tHmrParamList.set( "initial_refinement", tInitialRefinements );
+        tHMRParameters.set( "initial_refinement", tInitialRefinements );
 
         // sort information about B-spline meshes
-        std::string sLagrangeToBspline = "";
-        std::string sBspPatterns       = "";
-        std::string sBspPolyOrders     = "";
         for ( uint iBspMesh = 0; iBspMesh < tBspMeshIndices.size(); iBspMesh++ )
         {
-            // get the number of refinements for this current grid
-            moris_index tPattern   = tGridsForMeshes( iBspMesh );
-            moris_index tPolyOrder = tPolyOrders( iBspMesh );
+            // Create new B-spline mesh parameters
+            tHMRParameters( HMR::BSPLINE_MESHES ).add_parameter_list();
 
-            // add it to the string
-            if ( iBspMesh != 0 )
-            {
-                // add it to the string
-                sLagrangeToBspline += ",";
-                sBspPatterns += ",";
-                sBspPolyOrders += ",";
-            }
-
-            sLagrangeToBspline += std::to_string( iBspMesh );
-            sBspPatterns += std::to_string( tPattern );
-            sBspPolyOrders += std::to_string( tPolyOrder );
+            // Set parameters
+            tHMRParameters.set( "pattern_index", tGridsForMeshes( iBspMesh ) );
+            tHMRParameters.set( "orders", tPolyOrders( iBspMesh ) );
+            tHMRParameters.set( "paired_lagrange_mesh_index", 0 );
         }
 
-        // set the B-spline meshes in the parameter list
-        tHmrParamList.set( "bspline_orders", sBspPolyOrders );
-        tHmrParamList.set( "bspline_pattern", sBspPatterns );
-
         // create lagrange meshes for the decomposition grid ...
-        std::string sLagrangeOrders   = std::to_string( tMaxPolyOrder );
-        std::string sLagrangePatterns = std::to_string( tGridIndexForDecomp );
-        mGenNumRefinements            = { (uint)tBoundaryRefinements( tGridIndexForDecomp ) };
+        tHMRParameters( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        tHMRParameters.set( "pattern_index", tGridIndexForDecomp );
+        tHMRParameters.set( "order", tMaxPolyOrder );
+        mGenNumRefinements = { (uint)tBoundaryRefinements( tGridIndexForDecomp ) };
 
         // create dummy lagrange meshes using the other grids to trigger geometric refinement through these
-        std::string sLagrangeToBsplineAddOn = "";
         mGenRefineMeshIndices               = { 0 };
         uint tLagMeshCounter                = 1;    // start at 1 as Lagrange mesh index 0 is already occupied by the decomposition grid
         for ( uint iGrid = 0; iGrid < tGridIndices.size(); iGrid++ )
@@ -366,9 +348,9 @@ namespace moris
             // don't create a dummy lagrange mesh for the grid specified for decomposition
             if ( tPatternIndex != tGridIndexForDecomp )
             {
-                sLagrangeOrders += "," + std::to_string( tMaxPolyOrder );
-                sLagrangePatterns += ( "," + std::to_string( tPatternIndex ) );
-                sLagrangeToBsplineAddOn += ";-1";
+                tHMRParameters( HMR::LAGRANGE_MESHES ).add_parameter_list();
+                tHMRParameters.set( "pattern_index", tPatternIndex );
+                tHMRParameters.set( "order", tMaxPolyOrder );
 
                 // store boundary refinements associated with this pattern to later feed through the GEN parameter list
                 mGenRefineMeshIndices.push_back( tLagMeshCounter );
@@ -377,14 +359,9 @@ namespace moris
             }
         }
 
-        // all parameters that have been retrieved up to this point (set pattern information and Lagrange mesh)
-        tHmrParamList.set( "lagrange_orders", sLagrangeOrders );
-        tHmrParamList.set( "lagrange_pattern", sLagrangePatterns );
-        tHmrParamList.set( "lagrange_to_bspline", sLagrangeToBspline + sLagrangeToBsplineAddOn );
-
         // set the refinement buffer such that the refinement actually has an effect on the highest order B-spline mesh
         int tRefinementBuffer = std::max( (int)tMaxPolyOrder - 1, 1 );
-        tHmrParamList.set( "refinement_buffer", tRefinementBuffer );
+        tHMRParameters( HMR::GENERAL ).set( "refinement_buffer", tRefinementBuffer );
 
     }    // end function: Library_IO_Meshgen::load_HMR_parameters_from_xml()
 
@@ -399,12 +376,21 @@ namespace moris
         Parameter_List& tXtkParamList = mParameterLists( (uint)( Module_Type::XTK ) )( 0 )( 0 );
         Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
 
-        // turn on SPG based enrichment to make sure
+        // Turn on defaults specific to Meshgen
+        tXtkParamList.set( "enrich", true );
+        tXtkParamList.set( "basis_rank", "bspline" );
+        tXtkParamList.set( "output_file", "foreground_mesh.exo" );
+        tXtkParamList.set( "high_to_low_dbl_side_sets", true );
+        tXtkParamList.set( "exodus_output_XTK_ig_mesh", true );
         tXtkParamList.set( "use_SPG_based_enrichment", true );
 
         // enriched mesh indices
-        std::string sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
-        std::string sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ';' ) );
+        uint tNumberOfBSplineMeshes = mParameterLists( (uint)( Module_Type::HMR ) )( HMR::BSPLINE_MESHES ).size();
+        std::string sBsplineMeshIndices = "0";
+        for ( uint iBSplineMeshIndex = 1; iBSplineMeshIndex < tNumberOfBSplineMeshes; iBSplineMeshIndex++ )
+        {
+            sBsplineMeshIndices += ", " + std::to_string( iBSplineMeshIndex );
+        }
         tXtkParamList.set( "enrich_mesh_indices", sBsplineMeshIndices );
 
         // get whether to triangulate all
@@ -457,7 +443,7 @@ namespace moris
         bool tOutputGlobal    = ( tTmatOutputFormats.find( "Global" ) != std::string::npos );
 
         // if non have been specified just output elemental
-        if ( !tOutputElemental && !tOutputElemental )
+        if ( not tOutputElemental and not tOutputGlobal )
         {
             tOutputElemental = true;
         }
@@ -812,7 +798,7 @@ namespace moris
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "No image file name provided for geometry #%i. Please provide an .hdf5 image file using the tag 'FileName' ",
                         iGeom );
-                MORIS_ERROR( this->string_ends_with( tFileName, ".h5" ) || this->string_ends_with( tFileName, ".hdf5" ),
+                MORIS_ERROR( string_ends_with( tFileName, ".h5" ) or string_ends_with( tFileName, ".hdf5" ),
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "File provided is not an .h5 or .hdf5 file. Image data needs to be provided in this format." );
                 tGenParamList( 1 )( iGeom ).set( "image_file", tFileName );
@@ -867,7 +853,7 @@ namespace moris
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "No object file name provided for geometry #%i. Please provide an .obj file using the tag 'FileName' ",
                         iGeom );
-                MORIS_ERROR( this->string_ends_with( tFileName, ".obj" ),
+                MORIS_ERROR( string_ends_with( tFileName, ".obj" ),
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "File provided is not an .obj file. STL data needs to be provided in this format." );
                 tGenParamList( 1 )( iGeom ).set( "sdf_object_path", tFileName );
@@ -953,105 +939,17 @@ namespace moris
     // STANDARD PARAMETER LIST FUNCTIONS
     //------------------------------------------------------------------------------------------------------------------
 
-    void
-    Library_IO_Meshgen::load_all_standard_parameters()
+    bool Library_IO_Meshgen::is_module_supported( moris::Module_Type aModuleType )
     {
-        // go over all modules and check that
-        for ( uint iModule = 0; iModule < (uint)( Module_Type::END_ENUM ); iModule++ )
+        switch ( aModuleType )
         {
-            // get the current module
-            Module_Type tParamListType = (Module_Type)( iModule );
-
-            // fill the parameter list entry with the standard parameters
-            this->create_standard_parameter_list_for_module( tParamListType, mParameterLists( iModule ) );
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::create_standard_parameter_list_for_module(
-            Module_Type             aParamListType,
-            Module_Parameter_Lists& aParameterList )
-    {
-        switch ( aParamListType )
-        {
-            case Module_Type::OPT:
-                this->create_standard_OPT_parameter_list( aParameterList );
-                break;
-
             case Module_Type::HMR:
-                this->create_standard_HMR_parameter_list( aParameterList );
-                break;
-
             case Module_Type::XTK:
-                this->create_standard_XTK_parameter_list( aParameterList );
-                break;
-
             case Module_Type::GEN:
-                this->create_standard_GEN_parameter_list( aParameterList );
-                break;
-
-            case Module_Type::END_ENUM:
-                MORIS_ERROR( false,
-                        "Library_IO_Meshgen::create_standard_parameter_list_for_module() - "
-                        "No standard library defined for module UNDEFINED" );
-                break;
-
-            // create an empty parameter list for modules that are not needed
+                return true;
             default:
-                aParameterList = Module_Parameter_Lists( Module_Type::END_ENUM );
-                break;
+                return false;
         }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::create_standard_OPT_parameter_list( Module_Parameter_Lists& aParameterList )
-    {
-        // resize and initialize with standard parameters
-        aParameterList( 0 ).add_parameter_list( prm::create_opt_problem_parameter_list() );
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::create_standard_XTK_parameter_list( Module_Parameter_Lists& aParameterList )
-    {
-        // resize and initialize with standard parameters
-        aParameterList( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
-
-        // enrichment
-        aParameterList( 0 )( 0 ).set( "enrich", true );
-        aParameterList( 0 )( 0 ).set( "basis_rank", "bspline" );
-
-        // output
-        aParameterList( 0 )( 0 ).set( "output_file", "foreground_mesh.exo" );
-        aParameterList( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
-        aParameterList( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
-        aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::create_standard_HMR_parameter_list( Module_Parameter_Lists& aParameterList )
-    {
-        // resize and initialize with standard parameters
-        aParameterList( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-
-        // Lagrange mesh is always 0
-        aParameterList( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    void
-    Library_IO_Meshgen::create_standard_GEN_parameter_list( Module_Parameter_Lists& aParameterList )
-    {
-        // resize and initialize with standard parameters
-        aParameterList( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
     }
 
     //------------------------------------------------------------------------------------------------------------------
