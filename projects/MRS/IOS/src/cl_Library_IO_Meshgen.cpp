@@ -377,8 +377,6 @@ namespace moris
         Parameter_List& tHmrParamList = mParameterLists( (uint)( Module_Type::HMR ) )( 0 )( 0 );
 
         // Turn on defaults specific to Meshgen
-        tXtkParamList.set( "enrich", true );
-        tXtkParamList.set( "basis_rank", "bspline" );
         tXtkParamList.set( "output_file", "foreground_mesh.exo" );
         tXtkParamList.set( "high_to_low_dbl_side_sets", true );
         tXtkParamList.set( "exodus_output_XTK_ig_mesh", true );

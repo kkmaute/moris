@@ -145,8 +145,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", std::string( "conformal" ) );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", std::string( "bspline" ) );
         aParameterLists.set( "enrich_mesh_indices", std::string( "0" ) );
         aParameterLists.set( "ghost_stab", false );
         aParameterLists.set( "multigrid", false );
