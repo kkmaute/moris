@@ -308,14 +308,14 @@ namespace moris
                 // log that the parameter list has been recognized
                 MORIS_LOG( "Parameters for %s provided in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
 
-                // throw out a warning if unknown parameter list types are used
+                // if parameter list is supported, overwrite and add parameters to standard parameters
                 if ( is_module_supported( tParamListType ) )
                 {
-                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
-                }
-                else    // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
-                {
                     tUserDefinedParamListFunc( mParameterLists( iParamListType ) );
+                }
+                else    // otherwise, throw out a warning if unknown parameter list types are used
+                {
+                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
                 }
             }
             else
