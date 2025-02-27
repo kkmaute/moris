@@ -31,6 +31,8 @@ class Snopt(Package):
 
     version('main', branch='main', submodules=True, preferred=True)
 
+    depends_on("gmake", type="build")
+
     # FIXME: Add a list of GitHub accounts to
     # notify when the package is updated.
     # maintainers = ["github_user1", "github_user2"]
