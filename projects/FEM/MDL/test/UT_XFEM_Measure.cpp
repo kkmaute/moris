@@ -140,26 +140,25 @@ namespace moris
             // create settings object
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 2, 2 );
             tParameters.set_domain_dimensions( 10, 5, 5 );
             tParameters.set_domain_offset( 0.0, 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_output_meshes( { { 0 } } );
             //        tParameters.set_lagrange_input_mesh( { { 0 } } );
 
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_initial_refinement( { { 0 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 0 } );
 
             tParameters.set_number_aura( true );
 

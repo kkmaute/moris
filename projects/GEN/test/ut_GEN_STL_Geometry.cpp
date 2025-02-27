@@ -22,12 +22,11 @@ namespace moris
 {
     TEST_CASE("SDF Teapot", "[SDF_Teapot]")
     {
-        Parameter_List tParameterlist = prm::create_hmr_parameter_list();
-        tParameterlist = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameterlist( Module_Type::HMR );
 
-        tParameterlist.set( "number_of_elements_per_dimension", "10, 10, 10" );
-        tParameterlist.set( "domain_dimensions",                "5.6, 2.6, 3.4" );
-        tParameterlist.set( "domain_offset",                    "-4.9, 3.25, -1.7" );
+        tParameterlist.set( "number_of_elements_per_dimension", 10, 10, 10 );
+        tParameterlist.set( "domain_dimensions",                5.6, 2.6, 3.4 );
+        tParameterlist.set( "domain_offset",                    -4.9, 3.25, -1.7 );
 
         tParameterlist.set( "lagrange_output_meshes",           "0");
 
@@ -38,18 +37,9 @@ namespace moris
 
         tParameterlist.set( "lagrange_to_bspline", "0" );
 
-        tParameterlist.set( "truncate_bsplines",  1 );
         tParameterlist.set( "refinement_buffer",  1 );
         tParameterlist.set( "staircase_buffer",   1 );
-        tParameterlist.set( "initial_refinement", "0");
-        tParameterlist.set( "initial_refinement_pattern", "0" );
-
-        tParameterlist.set( "use_number_aura", 1);
-
-        tParameterlist.set( "use_multigrid",  0 );
-        tParameterlist.set( "severity_level", 0 );
-
-        std::string tObjectPath = get_base_moris_dir() + "/projects/HMR/tutorials/bracket.obj";
+        std::string tObjectPath = get_base_moris_dir() + "/projects/GEN/test/bracket.obj";
 
         // create SDF generator
         sdf::SDF_Generator tSdfGen( tObjectPath );

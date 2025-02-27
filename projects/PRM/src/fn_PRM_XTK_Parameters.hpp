@@ -34,9 +34,9 @@ namespace moris::prm
         tParameterList.insert( "cleanup_cut_mesh", false );
 
         // enrichment and enrichment related parameters
-        tParameterList.insert( "enrich", false );
+        tParameterList.insert( "enrich", true );
         tParameterList.insert( "use_SPG_based_enrichment", false );
-        tParameterList.insert( "basis_rank", "node" );
+        tParameterList.insert( "basis_rank", "bspline" );
         tParameterList.insert( "enrich_mesh_indices", "0" );
         tParameterList.insert( "sort_basis_enrichment_levels", false );
         tParameterList.insert( "unenriched_mesh_indices", "" );

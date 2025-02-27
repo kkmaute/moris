@@ -192,10 +192,9 @@ namespace moris
 
     // std::string tOrder = "1";
 
-    std::string tNumElemsPerDim = "36, 18";
-    std::string tDomainDims     = "0.016, 0.008";
-    std::string tDomainOffset   = "-0.004,-0.004";
-    std::string tDomainSidesets = "1,2,3,4";
+    Vector< uint > tNumElemsPerDim = { 36, 18 };
+    Vector< real > tDomainDims     = { 0.016, 0.008 };
+    Vector< real > tDomainOffset   = { -0.004, -0.004 };
 
     int         tRefineBuffer         = 2;
     int         tAdaptiveRefineBuffer = 3;
@@ -572,8 +571,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tOrder );
@@ -583,16 +580,9 @@ namespace moris
 
         //        aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         //        aParameterLists.set( "refinement_buffer",  tRefineBuffer );
         //        aParameterLists.set( "staircase_buffer",   tRefineBuffer );
-        //        aParameterLists.set( "initial_refinement", tInitialRefinement );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-
+        //        aParameterLists.set( "pattern_initial_refinement", tInitialRefinement );
         //        aParameterLists.set( "adaptive_refinement_level", tAdaptiveRefineBuffer );
     }
 
@@ -603,8 +593,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", true );
         aParameterLists.set( "multigrid", false );

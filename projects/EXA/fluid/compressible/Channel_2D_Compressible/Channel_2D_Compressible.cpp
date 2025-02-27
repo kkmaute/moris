@@ -221,7 +221,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", ios::stringify( tNumXElems ) + "," + ios::stringify( tNumYElems ) );
         aParameterLists.set( "domain_dimensions",                ios::stringify( tChannelLength ) + "," + ios::stringify( tChannelHeight ) );
         aParameterLists.set( "domain_offset",                    "0.0," + ios::stringify( tChannelHeight / -2.0 ) );
-        aParameterLists.set( "domain_sidesets",                  "1,2,3,4");
         aParameterLists.set( "lagrange_output_meshes",           "0");
 
         aParameterLists.set( "lagrange_orders",  ios::stringify( tIpOrder ) );
@@ -232,11 +231,6 @@ namespace moris
         {
             aParameterLists.set( "lagrange_to_bspline", "-1") ;
         }
-
-        aParameterLists.set( "truncate_bsplines", 1 );
-        aParameterLists.set( "use_number_aura",   1 );
-        aParameterLists.set( "use_multigrid",     0 );
-        aParameterLists.set( "severity_level",    0 );
     }
 
     //------------------------------------------------------------------------------
@@ -246,8 +240,6 @@ namespace moris
         aParameterLists( 0 ).push_back( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose",                 true );
         aParameterLists.set( "decomposition_type",        "conformal") ;
-        aParameterLists.set( "enrich",                    true );
-        aParameterLists.set( "basis_rank",                "bspline") ;
         aParameterLists.set( "enrich_mesh_indices",       "0") ;
         aParameterLists.set( "ghost_stab",                false );
         aParameterLists.set( "multigrid",                 false );

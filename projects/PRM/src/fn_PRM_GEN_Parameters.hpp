@@ -358,13 +358,13 @@ namespace moris::prm
     inline Parameter_List
     create_gen_property_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tPropertyParameterList = create_design_parameter_list();  // Create a design parameter list
-        tPropertyParameterList.set( "design_type", "property" );                 // Set the design type to a property
-        insert_design_field_parameters( tPropertyParameterList, aFieldType );    // Inserts all design field parameters
-        tPropertyParameterList.insert( "pdv_type", "" );                         // The type of PDV that this property will be assigned to
-        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );       // Mesh type for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_names", "" );               // Mesh set names for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_indices", "" );             // Mesh set indices for assigning PDVs
+        Parameter_List tPropertyParameterList = create_design_parameter_list();         // Create a design parameter list
+        tPropertyParameterList.set( "design_type", "property" );                        // Set the design type to a property
+        insert_design_field_parameters( tPropertyParameterList, aFieldType );           // Inserts all design field parameters
+        tPropertyParameterList.insert( "pdv_type", "" );                                // The type of PDV that this property will be assigned to
+        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );              // Mesh type for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_names", Vector< std::string >() ); // Mesh set names for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_indices", Vector< uint >() );                    // Mesh set indices for assigning PDVs
 
         return tPropertyParameterList;
     }

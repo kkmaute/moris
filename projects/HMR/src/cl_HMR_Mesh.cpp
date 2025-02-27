@@ -21,6 +21,7 @@
 #include "cl_HMR_Element.hpp"
 #include "fn_HMR_refinement_transition_locations.hpp"
 #include "MTK_Tools.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_sort.hpp"
 #include "fn_unique.hpp"
 
@@ -70,20 +71,12 @@ namespace moris::hmr
                         tMesh->get_order() == aLagrangeOrder )
                 {
                     mMesh      = tMesh;
-                    tMeshFound = true;
                     break;
                 }
             }
         }
 
         MORIS_ERROR( mMesh != nullptr, "Mesh::Mesh(), Mesh not found" );
-
-        if ( mDatabase->is_finalized() )
-        {
-            // setup_glb_to_local_maps();
-        }
-
-        // MORIS_ERROR( mMesh != nullptr, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
     }
 
     //-----------------------------------------------------------------------------
@@ -116,30 +109,19 @@ namespace moris::hmr
             std::shared_ptr< Database > aDatabase,
             uint                        aOrder,
             uint                        aLagrangePattern,
-            uint                        aBsplinePattern )
+            BSpline_Mesh_Base*          aDummyBSplineMesh )
+            : mDummyBSplineMesh( aDummyBSplineMesh )
     {
         // copy database pointer
         mDatabase = std::move( aDatabase );
 
-        mDummyBSplineMeshes.resize( 3, nullptr );
-
         // Create factory
         Factory tFactory( mDatabase->get_parameters() );
-
-        for ( uint iBspMesh = 0; iBspMesh < 3; iBspMesh++ )
-        {
-            // FIXME only one mesh
-            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
-                    mDatabase->get_background_mesh(),
-                    aBsplinePattern,
-                    aOrder,
-                    MORIS_UINT_MAX );
-        }
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(
                 mDatabase->get_background_mesh(),
-                mDummyBSplineMeshes,
+                { mDummyBSplineMesh, mDummyBSplineMesh },
                 aLagrangePattern,
                 aOrder );
 
@@ -158,10 +140,7 @@ namespace moris::hmr
         mMesh->calculate_node_sharing();
         mMesh->calculate_t_matrices();
 
-        for ( auto tMesh : mDummyBSplineMeshes )    // FIXME only one mesh
-        {
-            tMesh->calculate_basis_indices( mDatabase->get_communication_table() );
-        }
+        mDummyBSplineMesh->calculate_basis_indices( mDatabase->get_communication_table() );
 
         // reset active pattern
         if ( mDatabase->get_background_mesh()->get_activation_pattern() != tActivePattern )
@@ -182,23 +161,17 @@ namespace moris::hmr
         // copy database pointer
         mDatabase = std::move( aDatabase );
 
-        mDummyBSplineMeshes.resize( 1, nullptr );
+        // Create dummy B-spline mesh
         Factory tFactory( mDatabase->get_parameters() );
-
-        for ( uint iBspMesh = 0; iBspMesh < 1; iBspMesh++ )
-        {
-            // FIXME only one mesh
-            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
-                    mDatabase->get_background_mesh(),
-                    aBSplinePattern,
-                    aBSplineOrder,
-                    MORIS_UINT_MAX );
-        }
+        mDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
+                mDatabase->get_background_mesh(),
+                aBSplinePattern,
+                aBSplineOrder );
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(
                 mDatabase->get_background_mesh(),
-                mDummyBSplineMeshes,
+                { mDummyBSplineMesh },
                 aLagrangePattern,
                 aLagrangeOrder );
 
@@ -217,10 +190,7 @@ namespace moris::hmr
         mMesh->calculate_node_sharing();
         mMesh->calculate_t_matrices();
 
-        for ( auto tMesh : mDummyBSplineMeshes )    // FIXME only one mesh
-        {
-            tMesh->calculate_basis_indices( mDatabase->get_communication_table() );
-        }
+        mDummyBSplineMesh->calculate_basis_indices( mDatabase->get_communication_table() );
 
         // reset active pattern
         if ( mDatabase->get_background_mesh()->get_activation_pattern() != tActivePattern )
@@ -233,14 +203,8 @@ namespace moris::hmr
 
     Mesh::~Mesh()
     {
-        // Delete dummy B-spline meshes
-        for ( auto tMesh : mDummyBSplineMeshes )
-        {
-            delete tMesh;
-        }
-
-        // Clear dummy B-spline meshes
-        mDummyBSplineMeshes.clear();
+        // Delete dummy B-spline mesh
+        delete mDummyBSplineMesh;
     }
 
     //-----------------------------------------------------------------------------
@@ -249,14 +213,6 @@ namespace moris::hmr
     Mesh::get_communication_table() const
     {
         return mDatabase->get_communication_table();
-    }
-
-    //-----------------------------------------------------------------------------
-
-    Matrix< IdMat >
-    Mesh::get_proc_neighbors() const
-    {
-        return mDatabase->get_proc_neighbors();
     }
 
     //-----------------------------------------------------------------------------
@@ -323,33 +279,27 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return this->get_num_nodes();
-                break;
             }
             case mtk::EntityRank::EDGE:
             {
                 return this->get_num_edges();
-                break;
             }
             case mtk::EntityRank::FACE:
             {
                 return this->get_num_faces();
-                break;
             }
             case mtk::EntityRank::ELEMENT:
             {
                 return this->get_num_elems();
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
                 return this->get_max_num_coeffs_on_proc( aIndex );
-                break;
             }
             default:
             {
                 MORIS_ERROR( false, "unknown entity rank" );
                 return 0;
-                break;
             }
         }
     }
@@ -554,35 +504,28 @@ namespace moris::hmr
                     case mtk::EntityRank::NODE:
                     {
                         return this->get_nodes_connected_to_node_loc_inds( aEntityIndex );
-                        break;
                     }
                     case mtk::EntityRank::EDGE:
                     {
                         Matrix< IndexMat > tNodeToEdge = this->get_nodes_connected_to_edge_loc_inds( aEntityIndex );
                         return tNodeToEdge;
-
-                        break;
                     }
                     case mtk::EntityRank::FACE:
                     {
                         Matrix< IndexMat > tNodeToFace = this->get_nodes_connected_to_face_loc_inds( aEntityIndex );
                         return tNodeToFace;
-                        break;
                     }
                     case mtk::EntityRank::ELEMENT:
                     {
                         Matrix< IndexMat > tNodeToElement = this->get_nodes_connected_to_element_loc_inds( aEntityIndex );
                         return tNodeToElement;
-                        break;
                     }
                     default:
                     {
                         MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                 }
-                break;
             }    // end output rank node
             case mtk::EntityRank::EDGE:
             {
@@ -591,19 +534,16 @@ namespace moris::hmr
                     case mtk::EntityRank::NODE:
                     {
                         return this->get_edges_connected_to_node_loc_inds( aEntityIndex );
-                        break;
                     }
                     case mtk::EntityRank::EDGE:
                     {
                         MORIS_ERROR( false, "HMR does not provide edge to edge connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                     case mtk::EntityRank::FACE:
                     {
                         MORIS_ERROR( false, "HMR does not provide edge to face connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                     case mtk::EntityRank::ELEMENT:
                     {
@@ -615,16 +555,13 @@ namespace moris::hmr
                         {
                             return this->get_faces_connected_to_element_loc_inds( aEntityIndex );
                         }
-                        break;
                     }
                     default:
                     {
                         MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                 }
-                break;
             }    // end output rank edge
             case mtk::EntityRank::FACE:
             {
@@ -633,33 +570,27 @@ namespace moris::hmr
                     case mtk::EntityRank::NODE:
                     {
                         return this->get_faces_connected_to_node_loc_inds( aEntityIndex );
-                        break;
                     }
                     case mtk::EntityRank::EDGE:
                     {
                         MORIS_ERROR( false, "HMR does not provide face to edge connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                     case mtk::EntityRank::FACE:
                     {
                         MORIS_ERROR( false, "HMR does not provide face to face connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                     case mtk::EntityRank::ELEMENT:
                     {
                         return this->get_faces_connected_to_element_loc_inds( aEntityIndex );
-                        break;
                     }
                     default:
                     {
                         MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                 }
-                break;
             }    // end output rank face
             case mtk::EntityRank::ELEMENT:
             {
@@ -668,32 +599,26 @@ namespace moris::hmr
                     case mtk::EntityRank::NODE:
                     {
                         return this->get_elements_connected_to_node_loc_inds( aEntityIndex );
-                        break;
                     }
                     case mtk::EntityRank::EDGE:
                     {
                         MORIS_ERROR( false, "HMR does not provide element to edge connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                     case mtk::EntityRank::FACE:
                     {
                         return this->get_elements_connected_to_face_loc_inds( aEntityIndex );
-                        break;
                     }
                     case mtk::EntityRank::ELEMENT:
                     {
                         return this->get_elements_connected_to_element_and_face_ind_loc_inds( aEntityIndex );
-                        break;
                     }
                     default:
                     {
                         MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                 }
-                break;
             }    // end output rank element
             case mtk::EntityRank::BSPLINE:
             {
@@ -702,22 +627,19 @@ namespace moris::hmr
                     case mtk::EntityRank::ELEMENT:
                     {
                         return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( aIndex )
-                                        ->get_basis_by_index( aEntityIndex ) );
-                        break;
+                                    ->get_basis_by_index( aEntityIndex ) );
                     }
                     default:
                     {
                         MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                        return Matrix< IndexMat >( 0, 0 );
-                        break;
+                        return {{}};
                     }
                 }
             }    // end output rank linear bspline
             default:
             {
                 MORIS_ERROR( false, "HMR does not provide the requested connectivity" );
-                return Matrix< IndexMat >( 0, 0 );
-                break;
+                return {{}};
             }
         }
     }
@@ -1114,7 +1036,7 @@ namespace moris::hmr
             Vector< Vector< mtk::Vertex* > >& tBsplineBasis,
             Vector< Matrix< DDRMat > >&       tWeights )
     {
-        Element& aHMRLagrangeCell = dynamic_cast< Element& >( aLagrangeCell );
+        auto& aHMRLagrangeCell = dynamic_cast< Element& >( aLagrangeCell );
         mMesh->get_extended_t_matrix( aDiscretizationMeshIndex,
                 aBSplineCellIndex,
                 aHMRLagrangeCell,
@@ -1133,8 +1055,8 @@ namespace moris::hmr
             Vector< const mtk::Vertex* >&           tExtendedBsplineBasis,
             Vector< Matrix< DDRMat > >&             tWeights )
     {
-        const Element* aHMRRootCell     = dynamic_cast< const Element* >( aRootBSplineCell );
-        const Element* aHMRExtendedCell = dynamic_cast< const Element* >( aExtendedBSplineCell );
+        const auto aHMRRootCell     = dynamic_cast< const Element* >( aRootBSplineCell );
+        const auto aHMRExtendedCell = dynamic_cast< const Element* >( aExtendedBSplineCell );
 
         mMesh->get_L2_projection_matrix( aDiscretizationMeshIndex,
                 aHMRRootCell,
@@ -1491,10 +1413,6 @@ namespace moris::hmr
         // reset counter
         aCounter = 0;
 
-        // number of descendance
-        uint tStart = 0;
-        uint tEnd   = 0;
-
         // loop over all neighbors
         for ( uint k = 0; k < tNumberOfFacets; ++k )
         {
@@ -1518,7 +1436,7 @@ namespace moris::hmr
                         Matrix< IndexMat > tMyChildOrds;
                         tBackElement->get_child_cell_ordinals_on_side( k, tMyChildOrds );
 
-                        tStart = aCounter;
+                        uint tStart = aCounter;
 
                         tNeighbor->collect_active_descendants_by_memory_index(
                                 tPattern,
@@ -1527,7 +1445,7 @@ namespace moris::hmr
                                 k );
 
                         // mark facets that we share with other element
-                        tEnd = aCounter;
+                        uint tEnd = aCounter;
 
                         uint tZeroStart = 0;
                         for ( uint i = tStart; i < tEnd; i++ )
@@ -1629,17 +1547,14 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return mMesh->get_node_by_index( aEntityIndex )->get_id();
-                break;
             }
             case mtk::EntityRank::EDGE:
             {
                 return mMesh->get_edge( aEntityIndex )->get_id();
-                break;
             }
             case mtk::EntityRank::FACE:
             {
                 return mMesh->get_facet( aEntityIndex )->get_id();
-                break;
             }
             case mtk::EntityRank::ELEMENT:
             {
@@ -1652,7 +1567,6 @@ namespace moris::hmr
                 {
                     return mMesh->get_element( aEntityIndex )->get_id();
                 }
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
@@ -1664,7 +1578,6 @@ namespace moris::hmr
                 {
                     return this->get_glb_entity_id_from_entity_loc_index( aEntityIndex, mtk::EntityRank::NODE, aIndex );
                 }
-                break;
             }
             default:
             {
@@ -1672,14 +1585,6 @@ namespace moris::hmr
                 return 0;
             }
         }
-    }
-
-    //-----------------------------------------------------------------------------
-
-    moris_id
-    Mesh::get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const
-    {
-        return mMesh->get_element_including_aura( aEntityIndex )->get_id();
     }
 
     //-----------------------------------------------------------------------------
@@ -1714,22 +1619,18 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return mMesh->get_max_node_id();
-                break;
             }
             case mtk::EntityRank::EDGE:
             {
                 return mMesh->get_max_edge_id();
-                break;
             }
             case mtk::EntityRank::FACE:
             {
                 return mMesh->get_max_facet_id();
-                break;
             }
             case mtk::EntityRank::ELEMENT:
             {
                 return mMesh->get_max_element_id();
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
@@ -1749,7 +1650,6 @@ namespace moris::hmr
 
                 moris_id tGlobalMaxId = moris::max_all( tLocalMaxId );
                 return tGlobalMaxId;
-                break;
             }
             default:
             {
@@ -1796,7 +1696,6 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return mMesh->get_node_by_index( aEntityIndex )->get_owner();
-                break;
             }
             case mtk::EntityRank::EDGE:
             {
@@ -1808,12 +1707,10 @@ namespace moris::hmr
                 {
                     return mMesh->get_facet( aEntityIndex )->get_owner();
                 }
-                break;
             }
             case mtk::EntityRank::FACE:
             {
                 return mMesh->get_facet( aEntityIndex )->get_owner();
-                break;
             }
             case mtk::EntityRank::ELEMENT:
             {
@@ -1826,7 +1723,6 @@ namespace moris::hmr
                 {
                     return mMesh->get_element( aEntityIndex )->get_owner();
                 }
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
@@ -1838,13 +1734,11 @@ namespace moris::hmr
                 {
                     return this->get_entity_owner( aEntityIndex, mtk::EntityRank::NODE, aIndex );
                 }
-                break;
             }
             default:
             {
                 MORIS_ERROR( false, "unknown entity rank" );
                 return 0;
-                break;
             }
         }
     }
@@ -1931,14 +1825,9 @@ namespace moris::hmr
         switch ( aEntityRank )
         {
             case mtk::EntityRank::NODE:
-            {
-                return mMesh->get_number_of_real_scalar_fields();
-                break;
-            }
             case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_number_of_real_scalar_fields();
-                break;
             }
             default:
             {
@@ -1962,18 +1851,15 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
-                break;
             }
             default:
             {
                 MORIS_ERROR( false, "Entity not supported in hmr::Mesh::get_value_of_scalar_field()" );
                 return mDummyReal;
-                break;
             }
         }
     }
@@ -1992,12 +1878,10 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
-                break;
             }
             default:
             {
@@ -2020,12 +1904,10 @@ namespace moris::hmr
             case mtk::EntityRank::NODE:
             {
                 return mMesh->get_real_scalar_field_data( aFieldIndex );
-                break;
             }
             case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_real_scalar_field_coeffs( aFieldIndex );
-                break;
             }
             default:
             {
@@ -2183,7 +2065,7 @@ namespace moris::hmr
             MORIS_ERROR( false, "Mesh::get_set_entity_loc_inds(), only mtk::EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you." );
         }
 
-        return Matrix< IndexMat >( 0, 0 );
+        return {{}};
     }
 
     //-------------------------------------------------------------------------------
@@ -2490,6 +2372,35 @@ namespace moris::hmr
     Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
         return mtk::CellShape::RECTANGULAR;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    void Mesh::save_to_file()
+    {
+        // Get file name
+        std::string tFileName = mDatabase->get_parameters()->get_lagrange_mesh_output_file_name();
+
+        // Output to exodus or vtk as long as there is a valid file extension
+        if ( tFileName.size() > 4 )
+        {
+            // report on this operation
+            MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
+
+            // Exodus
+            if ( tFileName.substr( tFileName.size() - 4 ) == ".exo" )
+            {
+                mtk::Writer_Exodus tWriter( this );
+                tWriter.write_mesh( "", tFileName, "", "hmr_temp.exo" );
+                tWriter.close_file();
+            }
+
+            // VTK
+            else if ( tFileName.substr( tFileName.size() - 4 ) == ".vtk" )
+            {
+                mMesh->save_to_vtk( tFileName );
+            }
+        }
     }
 
     //-------------------------------------------------------------------------------

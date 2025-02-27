@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_HPP_
-#define SRC_HMR_CL_HMR_HPP_
+#pragma once
 
 // #include "cl_HMR_Database.hpp"     //HMR/src
 #include "cl_HMR_Element.hpp"
@@ -128,7 +127,7 @@ namespace moris::hmr
          * @param[in] aParameters  ref to container of user defined settings
          */
         HMR(
-                Parameter_List&                             aParameterList,
+                Module_Parameter_Lists&                     aParameterLists,
                 const std::shared_ptr< moris::Library_IO >& aLibrary = nullptr );
 
         // -----------------------------------------------------------------------------
@@ -137,15 +136,6 @@ namespace moris::hmr
          * alternative constructor which loads a mesh from a h5 file
          */
         HMR( const std::string& aPath );
-
-        // -----------------------------------------------------------------------------
-
-        /**
-         * alternative constructor which loads input and output patterns from path
-         */
-        HMR(
-                const std::string& aInPath,
-                const std::string& aOutPath );
 
         // -----------------------------------------------------------------------------
 
@@ -598,5 +588,3 @@ namespace moris::hmr
     }; /* HMR */
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_HPP_ */

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
+#pragma once
 
 // database is always a shared pointer, so we need std::memory
 #include <memory>
@@ -92,15 +91,6 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         /**
-         * alternative constructor which loads two patterns
-         */
-        Database(
-                const std::string& aInputPath,
-                const std::string& aOutputPath );
-
-        // -----------------------------------------------------------------------------
-
-        /**
          * destructor
          */
         ~Database();
@@ -108,8 +98,7 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
 
         void load_pattern_from_hdf5_file(
-                const std::string& aPath,
-                const bool         aMode );
+                const std::string& aPath );
 
         // -----------------------------------------------------------------------------
 
@@ -159,8 +148,8 @@ namespace moris::hmr
          * returns true if at least one element has been refined
          */
         void perform_refinement(
-                const uint aActivePattern,
-                const bool aResetPattern = true );
+                uint aActivePattern,
+                bool aResetPattern = true );
 
         // -----------------------------------------------------------------------------
 
@@ -331,7 +320,7 @@ namespace moris::hmr
 
         // -----------------------------------------------------------------------------
 
-        void create_extra_refinement_buffer_for_level( const uint aLevel );
+        void create_extra_refinement_buffer_for_level( uint aLevel );
 
         // -----------------------------------------------------------------------------
 
@@ -509,7 +498,11 @@ namespace moris::hmr
             return mFinalizedCalled;
         }
 
-        // -----------------------------------------------------------------------------
+        /**
+         * creates the communication table and writes it into
+         * mCommunicationTable. Must be called after mesh has been finalized.
+         */
+        void create_communication_table();
 
       private:
         // -----------------------------------------------------------------------------
@@ -524,12 +517,6 @@ namespace moris::hmr
 
         // -----------------------------------------------------------------------------
 
-        bool is_lagrange_input_mesh( const uint aMeshIndex );
-
-        bool is_bspline_input_mesh( const uint aMeshIndex );
-
-        // -----------------------------------------------------------------------------
-
         /**
          * this function deletes the Lagrange and B-Spline meshes
          * the function is called before create_meshes
@@ -540,24 +527,10 @@ namespace moris::hmr
 
         void delete_additional_meshes( uint aPattern );
 
-        // -----------------------------------------------------------------------------
-
-        /**
-         * creates the communication table and writes it into
-         * mCommunicationTable. Must be called after mesh has been finalized.
-         */
-        void create_communication_table();
-
-        // -----------------------------------------------------------------------------
-
         /**
          * creates the sidesets
          */
         void create_side_sets();
-
-        // -----------------------------------------------------------------------------
-
-        void create_working_pattern_for_bspline_refinement();
 
         // -----------------------------------------------------------------------------
 
@@ -569,5 +542,3 @@ namespace moris::hmr
         // -----------------------------------------------------------------------------
     };
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_ */

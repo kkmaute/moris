@@ -24,23 +24,20 @@ namespace moris::gen
             uint aBSplineOrder,
             uint aRefinement)
     {
-        Parameter_List tParameters = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-        tParameters.set( "number_of_elements_per_dimension",
-                         std::to_string(aNumXElements) + ", " + std::to_string(aNumYElements));
-        tParameters.set( "domain_dimensions", "2, 2");
-        tParameters.set( "domain_offset", "-1.0, -1.0");
-        tParameters.set( "domain_sidesets", "1,2,3,4");
-        tParameters.set( "lagrange_output_meshes", "0");
+        tParameters.set( "number_of_elements_per_dimension", aNumXElements, aNumYElements );
+        tParameters.set( "domain_dimensions", 2.0, 2.0 );
+        tParameters.set( "domain_offset", -1.0, -1.0 );
+        tParameters.set( "lagrange_output_meshes", "0" );
 
-        tParameters.set( "lagrange_orders", std::to_string(aLagrangeOrder));
-        tParameters.set( "lagrange_pattern", "0");
-        tParameters.set( "bspline_orders", std::to_string(aBSplineOrder));
-        tParameters.set( "bspline_pattern", "0");
-        tParameters.set( "lagrange_to_bspline", "0");
+        tParameters.set( "lagrange_orders", std::to_string(aLagrangeOrder) );
+        tParameters.set( "lagrange_pattern", "0" );
+        tParameters.set( "bspline_orders", std::to_string(aBSplineOrder) );
+        tParameters.set( "bspline_pattern", "0" );
+        tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "initial_refinement", std::to_string(aRefinement) );
-        tParameters.set( "truncate_bsplines", 1 );
+        tParameters.set( "pattern_initial_refinement", aRefinement );
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
 

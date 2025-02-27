@@ -118,10 +118,9 @@ namespace moris
 
     void HMRParameterList( Module_Parameter_Lists & aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "11,11");
-        aParameterLists.set( "domain_dimensions",                "4,4");
-        aParameterLists.set( "domain_offset",                    "-2.0,-2.0");
-        aParameterLists.set( "domain_sidesets",                  "1,2,3,4");
+        aParameterLists.set( "number_of_elements_per_dimension", 11, 11 );
+        aParameterLists.set( "domain_dimensions",                4.0, 4.0 );
+        aParameterLists.set( "domain_offset",                    -2.0, -2.0 );
         aParameterLists.set( "lagrange_output_meshes",           "0");
 
         aParameterLists.set( "lagrange_orders",  "1");
@@ -131,24 +130,14 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0") ;
 
-        aParameterLists.set( "truncate_bsplines",  1 );
         aParameterLists.set( "refinement_buffer",  1 );
         aParameterLists.set( "staircase_buffer",   1 );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_number_aura",    1 );
-
-        aParameterLists.set( "use_multigrid",  0 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     void XTKParameterList( Module_Parameter_Lists & aParameterLists )
     {
         aParameterLists.set( "decompose",                     true );
         aParameterLists.set( "decomposition_type",            "conformal") ;
-        aParameterLists.set( "enrich",                        true );
-        aParameterLists.set( "basis_rank",                    "bspline") ;
         aParameterLists.set( "enrich_mesh_indices",           "0") ;
         aParameterLists.set( "ghost_stab",                    isGhost );
         aParameterLists.set( "multigrid",                     false );

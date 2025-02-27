@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_T_MATRIX_HPP_
-#define SRC_HMR_CL_HMR_T_MATRIX_HPP_
+#pragma once
 
 #include "cl_HMR_T_Matrix_Base.hpp"
 #include "cl_HMR_BSpline_Mesh_Base.hpp"     //HMR/src
@@ -752,5 +751,3 @@ namespace moris::hmr
     Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_T_MATRIX_HPP_ */

@@ -194,12 +194,11 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::string tTopFieldName    = "TopPlane";
         std::string tBottomFieldName = "BottomPlane";
 
-        Parameter_List tParameters = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-        tParameters.set( "number_of_elements_per_dimension", std::to_string(tNumX) + "," + std::to_string(tNumY));
-        tParameters.set( "domain_dimensions", std::to_string(tDomainLX) + "," + std::to_string(tDomainLY) );
-        tParameters.set( "domain_offset", std::to_string(-tDomainLX/2) + "," + std::to_string(-tDomainLY/2) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
+        tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
+        tParameters.set( "domain_offset", -tDomainLX / 2, -tDomainLY / 2 );
         tParameters.set( "lagrange_output_meshes", "0" );
 
         tParameters.set( "lagrange_orders", "1" );
@@ -209,15 +208,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", "0" );
-        tParameters.set( "initial_refinement_pattern", "0" );
-
-        tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
-        tParameters.set("use_number_aura",1);
 
         hmr::HMR tHMR( tParameters );
 

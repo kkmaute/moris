@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_FN_HMR_BSPLINE_SHAPE_HPP
-#define MORIS_FN_HMR_BSPLINE_SHAPE_HPP
+#pragma once
 
 #include "moris_typedefs.hpp"
 
@@ -41,5 +40,3 @@ namespace moris::hmr
             uint aBasisNumber,
             real aXi );
 }
-
-#endif //MORIS_FN_HMR_BSPLINE_SHAPE_HPP

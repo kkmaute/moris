@@ -60,17 +60,17 @@ namespace moris::hmr
 
                             tParameters.set_multigrid( tMultigrid == 1 );
 
-                            Matrix< DDLUMat > tNumberOfElements( tDimension, 1, 2 * tOrder );
+                            Vector< uint > tNumberOfElements( tDimension, 2 * tOrder );
                             tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-                            Matrix< DDRMat > tDomainOffset( tDimension, 1, 0.0 );
+                            Vector< real > tDomainOffset( tDimension, 0.0 );
                             tParameters.set_domain_offset( tDomainOffset );
 
-                            tParameters.set_lagrange_orders( { { 1 } } );
-                            tParameters.set_lagrange_patterns( { { 0 } } );
+                            tParameters.set_lagrange_orders( { 1 } );
+                            tParameters.set_lagrange_patterns( { 0 } );
 
-                            tParameters.set_bspline_orders( { { tOrder } } );
-                            tParameters.set_bspline_patterns( { { 0 } } );
+                            tParameters.set_bspline_orders( { tOrder } );
+                            tParameters.set_bspline_patterns( { 0 } );
 
                             // set buffer
                             tParameters.set_refinement_buffer( tOrder );

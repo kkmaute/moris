@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_CELL_CLUSTER_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_CELL_CLUSTER_HPP_
+#pragma once
 
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_Matrix.hpp"
@@ -136,6 +135,3 @@ namespace moris::hmr
                           moris_index aVertexLocalIndex);
     };
 }
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_CELL_CLUSTER_HPP_ */
-

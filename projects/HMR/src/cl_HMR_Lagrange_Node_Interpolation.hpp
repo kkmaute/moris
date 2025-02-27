@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_
+#pragma once
 
 #include "cl_HMR_Basis.hpp"
 #include "moris_typedefs.hpp"
@@ -105,6 +104,3 @@ public:
 // ----------------------------------------------------------------------------
     };
 }
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_ */
-

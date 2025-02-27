@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_MESH_INTEGRATION_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_MESH_INTEGRATION_HPP_
+#pragma once
 
 #include "cl_HMR_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -475,5 +474,3 @@ namespace moris::hmr
         }
     };
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTEGRATION_HPP_ */

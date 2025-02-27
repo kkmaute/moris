@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_
+#pragma once
 
 #include "HMR_Globals.hpp" //HMR/src
 #include "moris_typedefs.hpp"
@@ -142,6 +141,3 @@ namespace moris::hmr
 
 //-------------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_ */
-
