@@ -133,6 +133,9 @@ namespace moris
             // integration points
             Matrix< DDRMat > mIntegPoints;
 
+            // moment fitting integration points
+            Matrix< DDRMat > mIntegPointsMomentFitting;
+
             // map for the dof type
             Matrix< DDSMat > mUniqueDofTypeMap;
             Matrix< DDSMat > mUniqueDvTypeMap;
@@ -261,7 +264,15 @@ namespace moris
                 return mUseMomentFitting;
             }
 
+            //-----------------------------------------------------------------------------
+
+            void set_moment_fitting_points( const Matrix< DDRMat > &aMomentFittingPoints )
+            {
+                mIntegPointsMomentFitting = aMomentFittingPoints;
+            }
+
             //------------------------------------------------------------------------------
+
             /**
              * finalize the fem sets
              * create and set the field interpolators
@@ -803,6 +814,18 @@ namespace moris
             get_integration_points()
             {
                 return mIntegPoints;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get the integration points
+             * @param[ out ] aIntegPoints integration points
+             */
+
+            const Matrix< DDRMat >&
+            get_integration_points_moment_fitting()
+            {
+                return mIntegPointsMomentFitting;
             }
 
             //------------------------------------------------------------------------------

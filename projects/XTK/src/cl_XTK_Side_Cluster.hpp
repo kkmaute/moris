@@ -11,6 +11,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_SIDE_CLUSTER_HPP_
 
 #include "cl_MTK_Side_Cluster.hpp"
+#include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include <unordered_map>
 
 // forward declare the mtk::Cluster_Group
@@ -27,6 +28,7 @@ namespace moris::xtk
     class Cell_Cluster;
 
     struct IG_Vertex_Group;
+    struct Facet_Based_Connectivity;
 
     class Side_Cluster : public mtk::Side_Cluster
     {
@@ -48,6 +50,7 @@ namespace moris::xtk
         Matrix< DDRMat >                              mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
         xtk::Cell_Cluster const *                     mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in Nitsche).*/
         Vector< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
+        Vector< Vector< mtk::Vertex* > >              mFacetBoundary; // boundary vertices for each side cluster facet
 
         //---------------------------------------------------------------------------------------
 
@@ -185,6 +188,12 @@ namespace moris::xtk
                 uint                       aDirection,
                 const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const override;
+
+        //---------------------------------------------------------------------------------------
+
+        void
+        find_facet_boundary( const uint aDim , const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity );
+
 
         //---------------------------------------------------------------------------------------
 

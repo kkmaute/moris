@@ -133,11 +133,7 @@ namespace moris::fem
     void
     Element_Bulk::compute_residual()
     {
-     if ( mSet->get_moment_fitting_flag() )
-     {
-        // Get quadrature points
-        Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
-
+        
         // Get quadrature weights
         Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
         
@@ -158,13 +154,25 @@ namespace moris::fem
 
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get the current integration point in the IG param space
-            const Matrix< DDRMat >& tLocalIntegPoint =
-                    tQuadraturePoints.get_column( iGP );
+            if ( mSet->get_moment_fitting_flag() )
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points_moment_fitting().get_column( iGP );
 
-            // set evaluation point for interpolators (FIs and GIs)
-            mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
-
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+                
+            }
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
+    
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+    
+            }
+                        
             // compute detJ of integration domain
             real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
 
@@ -199,10 +207,11 @@ namespace moris::fem
                 // compute off-diagonal Jacobian for staggered solve
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
             }
+            mSet->mFemModel->mBulkGaussPoints++;
         }
 
-     }
-     else
+     
+     /*else
      {
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -259,9 +268,10 @@ namespace moris::fem
                 // compute off-diagonal Jacobian for staggered solve
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
             }
+            mSet->mFemModel->mBulkGaussPoints++;
         }
 
-     }
+     }*/
         
     }
 
@@ -270,11 +280,7 @@ namespace moris::fem
     void
     Element_Bulk::compute_jacobian()
     {
-     if ( mSet->get_moment_fitting_flag() )
-     {
-        // Get quadrature points
-        Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
-
+        
         // Get quadrature weights
         Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
 
@@ -295,12 +301,24 @@ namespace moris::fem
 
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get the ith integration point in the IG param space
-            const Matrix< DDRMat >& tLocalIntegPoint =
-                    tQuadraturePoints.get_column( iGP );
+            if ( mSet->get_moment_fitting_flag() )
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points_moment_fitting().get_column( iGP );
 
-            // set evaluation point for interpolators (FIs and GIs)
-            mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+                
+            }
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
+    
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+    
+            }
 
             // compute detJ of integration domain
             real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
@@ -334,8 +352,8 @@ namespace moris::fem
         }
 
 
-     }
-     else
+     
+     /*else
      { 
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -392,7 +410,7 @@ namespace moris::fem
             }
         }
 
-     }
+     }*/
         
         
         
@@ -403,11 +421,6 @@ namespace moris::fem
     void
     Element_Bulk::compute_jacobian_and_residual()
     {
-      if ( mSet->get_moment_fitting_flag() )
-      { 
-        // Get quadrature points
-        Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
-
         // Get quadrature weights
         Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
 
@@ -431,12 +444,23 @@ namespace moris::fem
 
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
-            // get the ith integration point in the IG param space
-            const Matrix< DDRMat >& tIntegPoint =
-                    tQuadraturePoints.get_column( iGP );
+            if ( mSet->get_moment_fitting_flag() )
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points_moment_fitting().get_column( iGP );
 
-            // set evaluation point for interpolators (FIs and GIs)
-            mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+                
+            }
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
+    
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
+    
+            }
 
             // compute detJ of integration domain
             real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
@@ -510,8 +534,8 @@ namespace moris::fem
 
 
 
-      }
-      else
+      
+      /*else
       {
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
@@ -607,8 +631,8 @@ namespace moris::fem
             }
 
             mSet->mFemModel->mBulkGaussPoints++;
-        }
-      }
+        }*/
+      
     }
 
     //------------------------------------------------------------------------------
@@ -679,16 +703,12 @@ namespace moris::fem
     void
     Element_Bulk::compute_QI()
     {
-        if ( mSet->get_moment_fitting_flag() )
-        {
-            // Get quadrature points
-            Matrix< DDRMat > tQuadraturePoints = mCluster->get_quadrature_points();
+        // Get quadrature weights
+        Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
+        
 
-            // Get quadrature weights
-            Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
-
-            // get number of IQIs
-            uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+        // get number of IQIs
+        uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
             // check for active IQIs
             if ( tNumIQIs == 0 )
@@ -696,28 +716,45 @@ namespace moris::fem
                 return;
             }
 
-            // set physical and parametric space and time coefficients for IG element
-            this->init_ig_geometry_interpolator();
+        // set physical and parametric space and time coefficients for IG element
+        this->init_ig_geometry_interpolator();
 
-            // loop over integration points
-            uint tNumIntegPoints = tQuadratureWeights.numel();
+        // loop over integration points
+        uint tNumIntegPoints = tQuadratureWeights.numel();
 
-            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        {
+            if ( mSet->get_moment_fitting_flag() )
             {
-                // get the ith integration point in the IG param space
-                const Matrix< DDRMat >& tIntegPoint =
-                      tQuadraturePoints.get_column( iGP );
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points_moment_fitting().get_column( iGP );
 
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
 
-                // if eigen vectors
-                if ( mSet->mNumEigenVectors > 0 )
-                {
-                   // set evaluation point for interpolators (FIs and GIs)
-                   mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tIntegPoint );
-                }
+                 // if eigen vectors
+                 if ( mSet->mNumEigenVectors > 0 )
+                 {
+                    // set evaluation point for interpolators (FIs and GIs)
+                    mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tLocalIntegPoint );
+                 }
+                
+            }
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
+    
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
 
+                 // if eigen vectors
+                 if ( mSet->mNumEigenVectors > 0 )
+                 {
+                    // set evaluation point for interpolators (FIs and GIs)
+                    mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tLocalIntegPoint );
+                 }
+    
+            }
                    // compute detJ of integration domain
                    real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
 
@@ -745,8 +782,8 @@ namespace moris::fem
                 }
             }
                     
-        }   
-        else 
+  
+        /*else 
         {
             // get number of IQIs
             uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -806,7 +843,7 @@ namespace moris::fem
                 }
             }
                     
-        }   
+        }   */
         
         
     }
@@ -1253,34 +1290,34 @@ namespace moris::fem
     real
     Element_Bulk::compute_volume( mtk::Leader_Follower aIsLeader )
     {
-        // set physical and parametric space and time coefficients for IG element
-        this->init_ig_geometry_interpolator();
+       // set physical and parametric space and time coefficients for IG element
+       this->init_ig_geometry_interpolator();
 
-        // get number of integration points
-        uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
+       // get number of integration points
+       uint tNumOfIntegPoints = mSet->get_number_of_integration_points();
 
-        // init volume
-        real tVolume = 0;
+       // init volume
+       real tVolume = 0;
 
-        // get geometry interpolator
-        Geometry_Interpolator* tIGGI =
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+       // get geometry interpolator
+       Geometry_Interpolator* tIGGI =
+               mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
-        // loop over integration points
-        for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-        {
-            // set integration point for geometry interpolator
-            tIGGI->set_space_time( mSet->get_integration_points().get_column( iGP ) );
+       // loop over integration points
+       for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+       {
+           // set integration point for geometry interpolator
+           tIGGI->set_space_time( mSet->get_integration_points().get_column( iGP ) );
 
-            // compute and add integration point contribution to volume
-            tVolume += tIGGI->det_J() * mSet->get_integration_weights()( iGP );
-        }
+           // compute and add integration point contribution to volume
+           tVolume += tIGGI->det_J() * mSet->get_integration_weights()( iGP );
+       }
 
-        // get time step
-        real tTimeStep = tIGGI->get_time_step();
+       // get time step
+       real tTimeStep = tIGGI->get_time_step();
 
-        // return the volume value
-        return tVolume / tTimeStep;
+       // return the volume value
+       return tVolume / tTimeStep;
     }
 
     //------------------------------------------------------------------------------

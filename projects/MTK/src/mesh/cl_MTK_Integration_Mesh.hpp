@@ -48,7 +48,7 @@ namespace moris::mtk
         Vector< Vector< moris::mtk::Double_Side_Set * > >       mColorToDoubleSideSet;          // outer cell: color | inner cell: double side set index
         Vector< Vector< moris::mtk::Nonconformal_Side_Set * > > mColorToNonconformalSideSet;    // outer cell: color | inner cell: nonconformal side set index
         Vector< Vector< moris::mtk::Set * > >                   mColorToAllSets;                // outer cell: color | inner cell: set index
-
+        
         // ----------------------------------------------------------------------------
 
       public:
@@ -186,6 +186,17 @@ namespace moris::mtk
          * Returns the index given a label
          */
         virtual moris_index get_block_set_index( const std::string &aBlockSetLabel ) const;
+
+        // ----------------------------------------------------------------------------
+
+        // Check if moment fitting is being used or not.
+        virtual bool get_moment_fitting_flag() const;
+
+        // ----------------------------------------------------------------------------
+
+        // Get moment fitting poins associated with the entire mesh, 
+        // since the points in IP cell parent element space are the same for all IP cells.
+        virtual const Matrix< DDRMat >& get_moment_fitting_points() const;
 
         // ----------------------------------------------------------------------------
 

@@ -287,6 +287,9 @@ namespace moris::xtk
             // get flag whether basis enrichments need to be sorted
             bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
 
+            // Set moment fitting flag
+            this->set_moment_fitting_flag();
+
             // perform the enrichment
             this->perform_basis_enrichment( tBasisRank, mBsplineMeshIndices, tSortBasisEnrichmentLevels, this->uses_SPG_based_enrichment() );
 
@@ -1421,6 +1424,12 @@ namespace moris::xtk
             // override the required maps
             mEnrichedInterpMesh( 0 )->override_maps();
         }
+    }
+    
+    void 
+    Model::set_moment_fitting_flag()
+    {
+        mMomentFittingFlag = mParameterList.get< bool >( "use_moment_fitting" );
     }
 
     //------------------------------------------------------------------------------

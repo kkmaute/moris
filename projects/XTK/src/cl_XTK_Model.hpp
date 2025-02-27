@@ -101,6 +101,7 @@ namespace moris::xtk
         Vector< Enriched_Integration_Mesh* >    mEnrichedIntegMesh;
         std::shared_ptr< xtk::Multigrid >       mMultigrid;
         Matrix< IndexMat >                      mBsplineMeshIndices;
+        bool                                    mMomentFittingFlag = false;
 
         //--------------------------------------------------------------------------------
 
@@ -160,6 +161,7 @@ namespace moris::xtk
         // Public member functions/data
         bool        mVerbose      = false;
         moris::uint mVerboseLevel = 0;
+        
 
         //--------------------------------------------------------------------------------
         // Initialization
@@ -862,6 +864,11 @@ namespace moris::xtk
         perform_unenrichment( Matrix< IndexMat > const & aUnenrichedBsplineMeshIndices );
 
         //------------------------------------------------------------------------------
+
+        void 
+        set_moment_fitting_flag(  );
+
+        //----------------------------------------------------------------------------------
 
       private:
         //------------------------------------------------------------------------------

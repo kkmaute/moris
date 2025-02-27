@@ -144,6 +144,9 @@ namespace moris::prm
         tParameterList.insert( "activate_cell_agglomeration", false );
         tParameterList.insert( "visualize_cell_association", true );
 
+        // Flag for moment fitting
+        tParameterList.insert( "use_moment_fitting", false );
+
         return tParameterList;
     }
     //------------------------------------------------------------------------------

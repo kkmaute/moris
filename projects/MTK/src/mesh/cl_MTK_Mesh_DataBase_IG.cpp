@@ -101,6 +101,39 @@ namespace moris::mtk
 
     //-----------------------------------------------------------------------------
 
+    bool
+    Integration_Mesh_DataBase_IG::get_moment_fitting_flag() const
+    {
+        return mMomentFittingFlag;
+    }
+    //-----------------------------------------------------------------------------
+
+    void 
+    Integration_Mesh_DataBase_IG::set_moment_fitting_flag( bool aMomentFittingFlag ) 
+    {
+        mMomentFittingFlag = aMomentFittingFlag;       
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void 
+    Integration_Mesh_DataBase_IG::set_moment_fitting_points( Matrix< DDRMat > aMomentFittingPoints ) 
+    {
+        mMomentFittingPoints = aMomentFittingPoints;       
+    }
+
+    //-----------------------------------------------------------------------------
+
+
+    const Matrix< DDRMat >& 
+    Integration_Mesh_DataBase_IG::get_moment_fitting_points(  ) const 
+    {
+        return mMomentFittingPoints;       
+    }
+
+
+    //-----------------------------------------------------------------------------
+
     uint
     Integration_Mesh_DataBase_IG::get_num_entities(
             enum EntityRank   aEntityRank,

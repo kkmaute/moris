@@ -241,7 +241,7 @@ namespace moris::mtk
         /* Modify the quadrature weights
          */
         void
-        set_quadrature_weights( Matrix< DDRMat > aQuadratureWeights );
+        set_quadrature_weights( const Matrix< DDRMat > &aQuadratureWeights );
 
         //------------------------------------------------------------------------------
 
@@ -249,7 +249,7 @@ namespace moris::mtk
         /* Modify the quadrature points
          */
         void
-        set_quadrature_points( Matrix< DDRMat > aQuadraturePoints );
+        set_quadrature_points( const Matrix< DDRMat > &aQuadraturePoints );
 
         //------------------------------------------------------------------------------
 
@@ -266,6 +266,12 @@ namespace moris::mtk
         Matrix< DDRMat >
         get_quadrature_points( ) const override;
 
+        //------------------------------------------------------------------------------
+
+        /* Modify the quadrature weights
+         */
+        void
+        compute_mapped_quadrature_weights_and_points( const Matrix< DDRMat > aIntegrationPoints , const Matrix< DDRMat> aIntegrationWeights , uint aDim );
 
         //------------------------------------------------------------------------------
 

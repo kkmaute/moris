@@ -420,7 +420,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Matrix< DDRMat > 
+    const Matrix< DDRMat >& 
     Cluster::get_quadrature_points(  ) const
     {
         return mQuadraturePoints;
@@ -444,8 +444,7 @@ namespace moris::fem
         this->reset_cluster_measure();
 
         // If moment fitting flag is set
-        if ( mSet->get_moment_fitting_flag() )
-        {
+        
             // The entire cluster is the IG element
             //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian - Moment fitting is only supported for bulk elements.");
 
@@ -472,27 +471,7 @@ namespace moris::fem
                         mElements( iElem )->compute_jacobian();
                      }
                 }
-            }
-
-                
-
-            
-        }
-        else
-        {
-             // loop over the IG elements
-            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-            {
-                // check whether to compute jacobian
-                 if ( mComputeResidualAndIQI( iElem ) )
-                {
-                     // compute the jacobian for the IG element
-                     mElements( iElem )->compute_jacobian();
-                }
-            }
-        }
-
-        
+            }        
     }
 
     //------------------------------------------------------------------------------
@@ -503,12 +482,8 @@ namespace moris::fem
         // reset cluster measures
         this->reset_cluster_measure();
 
-        // if flag for moment fitting is set
-        if ( mSet->get_moment_fitting_flag() )
-        {
             // The entire cluster is the IG element
-            //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_residual - Moment fitting is only supported for bulk elements.");
-
+            
             if( mElementType == fem::Element_Type::BULK )
             {
                 // Get quadrature points from the mesh cluster
@@ -533,23 +508,12 @@ namespace moris::fem
                     }
                 }
             }
-        }
+        
 
         
-        else
-        {
-            // loop over the IG elements
-          for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-          {
-              // check whether to compute residual
-              if ( mComputeResidualAndIQI( iElem ) )
-              {
-                  // compute the residual for the IG element
-                  mElements( iElem )->compute_residual();
-              }
-          }
+        
 
-        }
+        
 
           
     }
@@ -563,8 +527,7 @@ namespace moris::fem
         this->reset_cluster_measure();
 
         // if flag for moment fitting is set
-        if ( mSet->get_moment_fitting_flag() )
-        {
+        
             // The entire cluster is the IG element
             //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian_and_residual - Moment fitting is only supported for bulk elements.");
 
@@ -596,22 +559,9 @@ namespace moris::fem
             // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
             //mElements( 0 )->compute_jacobian_and_residual();
             
-        }
-        else
-        {
+        
 
-          // loop over the IG elements
-           for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-           {
-              // check whether to compute residual and jacobian for this element
-              if ( mComputeResidualAndIQI( iElem ) )
-              {
-                   // compute the jacobian and residual for the IG element
-                   mElements( iElem )->compute_jacobian_and_residual();
-              }
-           
-           }
-        }
+          
         
         
 
@@ -715,8 +665,7 @@ namespace moris::fem
         this->reset_cluster_measure();
 
         // if flag for moment fitting is set
-        if ( mSet->get_moment_fitting_flag() )
-        {
+       
             // The entire cluster is the IG element
             //MORIS_ASSERT( mElementType == fem::Element_Type::BULK, "Cluster::compute_jacobian_and_residual - Moment fitting is only supported for bulk elements.");
 
@@ -748,22 +697,7 @@ namespace moris::fem
             // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
             //mElements( 0 )->compute_jacobian_and_residual();
             
-        }
-        else
-        {
-
-          // loop over the IG elements
-           for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
-           {
-              // check whether to compute residual and jacobian for this element
-              if ( mComputeResidualAndIQI( iElem ) )
-              {
-                   // compute the quantities of interest for the IG element
-                   mElements( iElem )->compute_QI();
-              }
-           
-           }
-        }
+        
 
         // loop over the IG elements
         //for ( uint iElem = 0; iElem < mElements.size(); iElem++ )

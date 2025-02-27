@@ -25,6 +25,7 @@
 #include "fn_linsolve.hpp"
 #include "fn_det.hpp"
 #include "fn_cross.hpp"
+#include "fn_norm.hpp"
 
 
 // namespace moris
@@ -766,7 +767,7 @@ namespace moris::xtk
 
         // Code below for testing the facet normal computation function. Not needed otherwise, but still kept.
         
-        Matrix < DDRMat > tFacetNormals;
+        /*Matrix < DDRMat > tFacetNormals;
 
         if ( aDim == 2 )
         {
@@ -869,9 +870,9 @@ namespace moris::xtk
                    
                    
         
-        }  
+        }  */
 
-        hid_t  tFileID = create_hdf5_file( "FacetVertices_X.hdf5" );
+        /*hid_t  tFileID = create_hdf5_file( "FacetVertices_X.hdf5" );
         herr_t tStatus = 0;
         save_vector_to_hdf5_file( tFileID, std::string("Coords"), tFacetCoordinatesFileVectorX, tStatus );
 
@@ -900,7 +901,7 @@ namespace moris::xtk
         herr_t tStatus4 = 0;
         save_vector_to_hdf5_file( tFileID4, std::string("Coords"), tFacetCoordinatesFileVectorZ, tStatus4 );
 
-        close_hdf5_file( tFileID4 );
+        close_hdf5_file( tFileID4 );*/
 
         
 
@@ -909,7 +910,7 @@ namespace moris::xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::compute_quadrature_weights( const uint aOrder, const uint aDim )
+    Cell_Cluster::compute_quadrature_weights( const uint aOrder, Matrix< DDRMat > &aMomentFittingLHSInv , const uint aDim )
     {
         //MORIS_ASSERT( aDim < 3 , "Only 2D supported at present");
 
@@ -955,7 +956,7 @@ namespace moris::xtk
         // Now, create interpolation objects for specifying the basis function for each facet. One for the IP and one for the geometry.
         //mtk::Interpolation_Rule tInterpolationRule( mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
-        if ( aDim == 2 )
+        /*if ( aDim == 2 )
         {
             if ( aOrder == 1 )
             {
@@ -1016,7 +1017,7 @@ namespace moris::xtk
 
             }
 
-        }
+        }*/
         
 
         
@@ -1082,15 +1083,15 @@ namespace moris::xtk
         close_hdf5_file( tFileID2 );*/
 
         //Declare LHS matrix
-        Matrix < DDRMat > tMomentFittingLHS;
+        //Matrix < DDRMat > tMomentFittingLHS;
 
         // Determine the number of moments
         uint tNmoments = std::pow( aOrder + 1 , aDim ); 
 
-        tMomentFittingLHS.reshape( tNmoments , tNmoments );
+        // tMomentFittingLHS.reshape( tNmoments , tNmoments );
             
         // Generate LHS
-        for (uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols() ; iQuadPointIndex++)
+        /*for (uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols() ; iQuadPointIndex++)
         {
             // Declare matrix for basis function values
             Matrix< DDRMat > tN;
@@ -1104,7 +1105,7 @@ namespace moris::xtk
             // Place it in LHS 
             tMomentFittingLHS.set_column( iQuadPointIndex , trans( tN ) );
 
-        }
+        }*/
 
         // create RHS vector
         Matrix < DDRMat > tMomentFittingRHS;
@@ -1139,7 +1140,7 @@ namespace moris::xtk
             {
                 tGeometryType = mtk::Geometry_Type::LINE ;
 
-                tIntegrationOrder = mtk::Integration_Order::BAR_32 ;
+                tIntegrationOrder = mtk::Integration_Order::BAR_6 ;
 
             }
             else if ( aDim == 3 )
@@ -1172,210 +1173,318 @@ namespace moris::xtk
                 tD  = std::sqrt(std::pow( tFacetCoords( 1, 0 ) - tFacetCoords( 0, 0 ) , 2) + std::pow( tFacetCoords( 1, 1 ) - tFacetCoords( 0, 1 ) , 2 ));
             }
 
-            
-            // Loop over line quadrature points to compute the integral
-            for( uint iQuadPtIndex = 0 ; iQuadPtIndex < tIntWeightsLine.numel() ; iQuadPtIndex++ )
+            if ( aDim == 3 && tNz == 0 )
             {
-                // Get quad point
-                Matrix< DDRMat > tQuadPoint = tIntPointsLine.get_column( iQuadPtIndex );
+                Matrix< DDRMat > tZeroMoments;
+                tZeroMoments.set_size( tNmoments , 1 , 0.0 );
+                tMomentFittingRHS += tZeroMoments;
 
-                // Get quad weight
-                real tQuadWeight = tIntWeightsLine( iQuadPtIndex );
-
-                real tXm;
-                real tYm;
-                real tZm;
-
-                Matrix< DDRMat > tXvector ; 
-                Matrix< DDRMat > tYvector ;
-                Matrix< DDRMat > tZvector ; 
-                if ( aDim == 2 )
+            }
+            else
+            {
+                // Loop over line quadrature points to compute the integral
+                for( uint iQuadPtIndex = 0 ; iQuadPtIndex < tIntWeightsLine.numel() ; iQuadPtIndex++ )
                 {
-                    tXvector  = {{ tFacetCoords( 0 , 0 ) },{ tFacetCoords( 1 , 0 ) }};
-                    tYvector  = {{ tFacetCoords( 0 , 1 ) },{ tFacetCoords( 1 , 1 ) }};
+                    // Get quad point
+                    Matrix< DDRMat > tQuadPoint = tIntPointsLine.get_column( iQuadPtIndex );
 
-                }
-                if ( aDim == 3 )
-                {
-                    tXvector = {{ tFacetCoords( 0 , 0 ) },{ tFacetCoords( 1 , 0 ) },{ tFacetCoords( 2 , 0 ) }};
-                    tYvector = {{ tFacetCoords( 0 , 1 ) },{ tFacetCoords( 1 , 1 ) },{ tFacetCoords( 2 , 1 ) }};
-                    tZvector = {{ tFacetCoords( 0 , 2 ) },{ tFacetCoords( 1 , 2 ) },{ tFacetCoords( 2 , 2 ) }};
+                    // Get quad weight
+                    real tQuadWeight = tIntWeightsLine( iQuadPtIndex );
 
-                } 
+                    real tXm;
+                    real tYm;
+                    real tZm;
+
+                    Matrix< DDRMat > tXvector ; 
+                    Matrix< DDRMat > tYvector ;
+                    Matrix< DDRMat > tZvector ; 
+
+                    if ( aDim == 3 )
+                    {
+                        tXvector = {{ tFacetCoords( 0 , 0 ) },{ tFacetCoords( 1 , 0 ) },{ tFacetCoords( 2 , 0 ) }};
+                        tYvector = {{ tFacetCoords( 0 , 1 ) },{ tFacetCoords( 1 , 1 ) },{ tFacetCoords( 2 , 1 ) }};
+                        tZvector = {{ tFacetCoords( 0 , 2 ) },{ tFacetCoords( 1 , 2 ) },{ tFacetCoords( 2 , 2 ) }};
+
+                    } 
                 
+                    if ( aDim == 2 )
+                    {
+                        // Get the mapped quad point value x
+                        tXm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 0 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 0 );
 
+                        // Get the mapped quad point value x
+                        tYm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 1 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 1 );
+                    }
+                    else if ( aDim == 3 )
+                    {
+                         // Define interpolation rule
+                        /*mtk::Interpolation_Rule tIGInterpolationRule( mtk::Geometry_Type::TRI , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+                        mtk::Interpolation_Function_Base* tIGInterp = tIGInterpolationRule.create_space_interpolation_function();
 
-                if ( aDim == 2 )
-                {
-                    // Get the mapped quad point value x
-                    tXm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 0 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 0 );
+                        // Declare matrix for basis functions
+                        Matrix< DDRMat > tNmapping;
 
-                    // Get the mapped quad point value x
-                    tYm = 0.5 * ( 1.0 - tQuadPoint( 0 ) ) * tFacetCoords( 0 , 1 ) + 0.5 * ( 1.0 + tQuadPoint( 0 ) ) * tFacetCoords( 1 , 1 );
-                }
-                else if ( aDim == 3 )
-                {
-                    // Define interpolation rule
-                    mtk::Interpolation_Rule tIGInterpolationRule( mtk::Geometry_Type::TRI , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
-                    mtk::Interpolation_Function_Base* tIGInterp = tIGInterpolationRule.create_space_interpolation_function();
+                        // Get the mapped quad point value x
+                        tIGInterp->eval_N( tQuadPoint , tNmapping );                    
 
-                    // Declare matrix for basis functions
-                    Matrix< DDRMat > tNmapping;
+                        // get mapped quad point value x
+                        Matrix< DDRMat > tXmat = tNmapping * tXvector;
+                        tXm = tXmat( 0 );
 
-                    // Get the mapped quad point value x
-                    tIGInterp->eval_N( tQuadPoint , tNmapping );                    
+                        // get mapped quad point value y
+                        Matrix< DDRMat > tYmat = tNmapping * tYvector;
+                        tYm = tYmat( 0 );
 
-                    // get mapped quad point value x
-                    Matrix< DDRMat > tXmat = tNmapping * tXvector;
-                    tXm = tXmat( 0 );
+                        // get mapped quad point value z
+                       Matrix< DDRMat > tZmat = tNmapping * tZvector;
+                       tZm = tZmat( 0 );
 
-                    // get mapped quad point value y
-                    Matrix< DDRMat > tYmat = tNmapping * tYvector;
-                    tYm = tYmat( 0 );
+                        // Allocate matrix for storing mapping
+                        Matrix< DDRMat > tNximapping;
 
-                    // get mapped quad point value z
-                    Matrix< DDRMat > tZmat = tNmapping * tZvector;
-                    tZm = tZmat( 0 );
+                        // Compute geometric Jacobian
+                        tIGInterp->eval_dNdXi( tQuadPoint , tNximapping );
 
-                    // Allocate matrix for storing mapping
-                    Matrix< DDRMat > tNximapping;
+                        Matrix< DDRMat > tRxi_x = tNximapping.get_row(0) * tXvector;
+                        Matrix< DDRMat > tRxi_y = tNximapping.get_row(0) * tYvector;
+                        Matrix< DDRMat > tRxi_z = tNximapping.get_row(0) * tZvector;
 
-                    // Compute geometric Jacobian
-                    tIGInterp->eval_dNdXi( tQuadPoint , tNximapping );
-
-                    Matrix< DDRMat > tRxi_x = tNximapping.get_row(0) * tXvector;
-                    Matrix< DDRMat > tRxi_y = tNximapping.get_row(0) * tYvector;
-                    Matrix< DDRMat > tRxi_z = tNximapping.get_row(0) * tZvector;
-
-                    Matrix< DDRMat > tReta_x = tNximapping.get_row(1) * tXvector;
-                    Matrix< DDRMat > tReta_y = tNximapping.get_row(1) * tYvector;
-                    Matrix< DDRMat > tReta_z = tNximapping.get_row(1) * tZvector;
+                        Matrix< DDRMat > tReta_x = tNximapping.get_row(1) * tXvector;
+                        Matrix< DDRMat > tReta_y = tNximapping.get_row(1) * tYvector;
+                        Matrix< DDRMat > tReta_z = tNximapping.get_row(1) * tZvector;
                     
 
-                    Matrix< DDRMat > tRxi = {{ tRxi_x( 0 ) }, { tRxi_y( 0 ) }, { tRxi_z( 0 ) }};
+                        Matrix< DDRMat > tRxi = {{ tRxi_x( 0 ) }, { tRxi_y( 0 ) }, { tRxi_z( 0 ) }};
 
-                    Matrix< DDRMat > tReta = {{ tReta_x( 0 ) }, { tReta_y( 0 ) }, { tReta_z( 0 ) }};
+                        Matrix< DDRMat > tReta = {{ tReta_x( 0 ) }, { tReta_y( 0 ) }, { tReta_z( 0 ) }};
 
-                    Matrix < DDRMat > tCrossProdRxiReta = cross( tRxi , tReta );
+                        Matrix < DDRMat > tCrossProdRxiReta = cross( tRxi , tReta );
 
-                    tD = std::sqrt( std::pow(tCrossProdRxiReta( 0 ), 2) + std::pow(tCrossProdRxiReta( 1 ), 2) + std::pow(tCrossProdRxiReta( 2 ),2) ); 
+                        tD = std::sqrt( std::pow(tCrossProdRxiReta( 0 ), 2) + std::pow(tCrossProdRxiReta( 1 ), 2) + std::pow(tCrossProdRxiReta( 2 ),2) ); */
 
-                }
+                        // Define interpolation rule
+                        mtk::Interpolation_Rule tIGInterpolationRule( mtk::Geometry_Type::TRI , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+                        mtk::Interpolation_Function_Base* tIGInterp = tIGInterpolationRule.create_space_interpolation_function();
 
+                        mtk::Interpolation_Order tInterpOrder;
+                        if ( aOrder == 1 )
+                        {
+                            tInterpOrder = mtk::Interpolation_Order::LINEAR;
+                        }
+
+                        if ( aOrder == 2 )
+                        {
+                            tInterpOrder = mtk::Interpolation_Order::QUADRATIC;
+                        }
+
+                        if ( aOrder == 3 )
+                        {
+                            tInterpOrder = mtk::Interpolation_Order::CUBIC;
+                        }
+                        // Define interpolation rule for getting the moment expressions
+                        mtk::Interpolation_Rule tMomentInterpolationRule( mtk::Geometry_Type::HEX , mtk::Interpolation_Type::LAGRANGE , tInterpOrder , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+                        mtk::Interpolation_Function_Base* tMomentInterp = tMomentInterpolationRule.create_space_interpolation_function();
+
+                        // Declare matrix for basis functions
+                        Matrix< DDRMat > tNmapping;
+
+                        // Get the mapped quad point value x
+                        tIGInterp->eval_N( tQuadPoint , tNmapping );                    
+
+                        // get mapped quad point value x
+                        Matrix< DDRMat > tXmat = tNmapping * tXvector;
+                        tXm = tXmat( 0 );
+
+                        // get mapped quad point value y
+                        Matrix< DDRMat > tYmat = tNmapping * tYvector;
+                        tYm = tYmat( 0 );
+
+                        // get mapped quad point value z
+                        Matrix< DDRMat > tZmat = tNmapping * tZvector;
+                        tZm = tZmat( 0 );
+
+                        // Allocate matrix for storing mapping
+                        Matrix< DDRMat > tNximapping;
+
+                        // Compute geometric Jacobian
+                        tIGInterp->eval_dNdXi( tQuadPoint , tNximapping );
+
+                        Matrix< DDRMat > tRxi_x = tNximapping.get_row( 0 ) * tXvector;
+                        Matrix< DDRMat > tRxi_y = tNximapping.get_row( 0 ) * tYvector;
+                        Matrix< DDRMat > tRxi_z = tNximapping.get_row( 0 ) * tZvector;
+
+
+                        Matrix< DDRMat > tReta_x = tNximapping.get_row( 1 ) * tXvector;
+                        Matrix< DDRMat > tReta_y = tNximapping.get_row( 1 ) * tYvector;
+                        Matrix< DDRMat > tReta_z = tNximapping.get_row( 1 ) * tZvector;
+
+                        Matrix< DDRMat > tRxi = {{ tRxi_x( 0 ) }, { tRxi_y( 0 ) }, { tRxi_z( 0 ) }};
+
+                        Matrix< DDRMat > tReta = {{ tReta_x( 0 ) }, { tReta_y( 0 ) }, { tReta_z( 0 ) }};
+
+                        Matrix < DDRMat > tCrossProdRxiReta = cross( tRxi , tReta );
+
+                        tD = std::sqrt( std::pow(tCrossProdRxiReta( 0 ), 2) + std::pow(tCrossProdRxiReta( 1 ), 2) + std::pow(tCrossProdRxiReta( 2 ),2) ); 
+                    
+                        // Define 1D quadrature for evaluating the antiderivative
+                        mtk::Integration_Rule tIntObjAntiDeriv( mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_6 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+                        mtk::Integrator tIntDataAntiDeriv( tIntObjAntiDeriv );
+                    
+                        // Get 1D quadrature points and weights
+                        Matrix< DDRMat > tIntPointsAntiDeriv;
+                        Matrix< DDRMat > tIntWeightsAntiDeriv;
+
+                        tIntDataAntiDeriv.get_weights( tIntWeightsAntiDeriv );
+                        tIntDataAntiDeriv.get_points( tIntPointsAntiDeriv );
+
+                        for (uint iAntiDerivQuadPoint = 0; iAntiDerivQuadPoint < tIntWeightsAntiDeriv.numel() ; iAntiDerivQuadPoint ++)
+                        {
+                            // Get 1D quadrature point
+                            Matrix< DDRMat > tAntiDerivQuadPoint = tIntPointsAntiDeriv.get_column( iAntiDerivQuadPoint );
+
+                            // Develop mapping for x,y,z
+                            real tSigma_z = 0.5 * ( 1.0 + tAntiDerivQuadPoint( 0 ) ) * ( tZm );
+                        
+                            // Get final point coordinates for the moment functions
+                            Matrix< DDRMat > tAntiDerivativeEvalPoint_z = { {tXm} , {tYm} , {tSigma_z} };
+
+                            // Evaluate Moment fitting polynomial at this point
+                            Matrix< DDRMat > tMomentValue_z;
+
+                            tMomentInterp->eval_N( tAntiDerivativeEvalPoint_z , tMomentValue_z );
+
+                            // Geometric jacobian will be 0.5 * tZm
+
+                            // Compute value of moment
+                            tMomentFittingRHS +=  0.25 * trans( tMomentValue_z ) * tD * 0.5 * tZm * tNz * tQuadWeight * tIntWeightsAntiDeriv( iAntiDerivQuadPoint );
+                        
+                                                            
+                        }                
+
+                    }
+
+            
+                    // Evaluate the moments
+                    if ( aOrder == 1 && aDim == 2)
+                    {
+                        tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm - 0.5 * ( tXm * tXm ) ) * ( 1.0 - tYm ) + 0.25 * tNy * ( tYm - 0.5 * ( tYm * tYm ) ) * ( 1.0 - tXm ) ) ;
+
+                        tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm + 0.5 * ( tXm * tXm ) ) * ( 1.0 - tYm ) + 0.25 * tNy * ( tYm - 0.5 * ( tYm * tYm ) ) * ( 1.0 + tXm ) ) ;
+
+                        tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm + 0.5 * ( tXm * tXm ) ) * ( 1.0 + tYm ) + 0.25 * tNy * ( tYm + 0.5 * ( tYm * tYm ) ) * ( 1.0 + tXm ) ) ;
+
+                        tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm - 0.5 * ( tXm * tXm ) ) * ( 1.0 + tYm ) + 0.25 * tNy * ( tYm + 0.5 * ( tYm * tYm ) ) * ( 1.0 - tXm ) ) ;
+
+                    }
+                    else if ( aOrder == 2 && aDim == 2 )
+                    {
+                            tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm ) * ( -tYm ) + 0.25 * tNy * ( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 - tXm ) * ( -tXm ) ) ;
+
+                            tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * (  0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm ) * ( -tYm ) + 0.25 * tNy * ( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 + tXm ) * (  tXm ) ) ;
+
+                            tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * (  0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 + tYm ) * (  tYm ) + 0.25 * tNy * (  0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 + tXm ) * (  tXm ) ) ;
+
+                            tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 + tYm ) * (  tYm ) + 0.25 * tNy * (  0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 - tXm ) * ( -tXm ) ) ;
+
+                            tMomentFittingRHS( 4 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * ( 1.0 - tYm ) * ( -tYm ) * ( tXm - ( 1.0/3.0 ) * std::pow( tXm, 3 ) ) + 0.5 * tNy * ( 1.0 - tXm * tXm )*( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) ) ;
+
+                            tMomentFittingRHS( 5 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * (1.0 - tYm * tYm) * (  0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) + 0.5 * tNy * (tXm + 1.0 ) * ( tXm ) * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) ) ;
+
+                            tMomentFittingRHS( 6 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * ( tXm - ( 1.0 / 3.0 ) * ( std::pow( tXm , 3 ) ) ) * ( 1.0 + tYm ) * ( tYm ) + 0.5 * tNy * ( 1.0 - tXm * tXm ) * ( 0.5 * std::pow( tYm , 2 ) + ( 1.0 / 3.0 ) * ( std::pow( tYm , 3 ) ) ) ) ;
+
+                            tMomentFittingRHS( 7 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm * tYm ) + 0.5 * tNy * ( 1.0 - tXm ) * ( -tXm ) * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) ) ; 
+
+                            tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 1.0 * tNx * ( tXm - ( 1.0/3.0 ) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm * tYm ) + 1.0 * tNy * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) * ( 1.0 - tXm * tXm ) ) ;
+
+                    } 
+                    else if ( aOrder == 3 && aDim == 2 )
+                    {
+                            real tt2 = std::pow(tXm,2);
+                            real tt3 = std::pow(tXm,3);
+                            real tt4 = std::pow(tYm,2);
+                            real tt5 = std::pow(tYm,3);
+
+                            tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(9.0/5.12e+2)+tYm/5.12e+2-1.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*7.91015625e-2+tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)-tt5*(9.0/2.56e+2)+tYm/2.56e+2-1.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(9.0/5.12e+2)+tXm/5.12e+2-1.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*7.91015625e-2+tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)-tt3*(9.0/2.56e+2)+tXm/2.56e+2-1.0/2.56e+2)) ;
+
+                            tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(9.0/5.12e+2)+tYm/5.12e+2-1.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*7.91015625e-2+tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)-tt5*(9.0/2.56e+2)+tYm/2.56e+2-1.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(9.0/5.12e+2)-tXm/5.12e+2-1.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*7.91015625e-2-tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)+tt3*(9.0/2.56e+2)-tXm/2.56e+2-1.0/2.56e+2));
+
+                            tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(9.0/5.12e+2)-tYm/5.12e+2-1.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*7.91015625e-2-tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)+tt5*(9.0/2.56e+2)-tYm/2.56e+2-1.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(9.0/5.12e+2)-tXm/5.12e+2-1.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*7.91015625e-2-tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)+tt3*(9.0/2.56e+2)-tXm/2.56e+2-1.0/2.56e+2));
+
+                            tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(9.0/5.12e+2)-tYm/5.12e+2-1.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*7.91015625e-2-tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)+tt5*(9.0/2.56e+2)-tYm/2.56e+2-1.0/2.56e+2) );
+                            tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(9.0/5.12e+2)+tXm/5.12e+2-1.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*7.91015625e-2+tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)-tt3*(9.0/2.56e+2)+tXm/2.56e+2-1.0/2.56e+2) ) ;
+
+                            tMomentFittingRHS( 4 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(2.43e+2/5.12e+2)+tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*2.373046875e-1+tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(9.0/2.56e+2)-9.0/2.56e+2) );
+                            tMomentFittingRHS( 4 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(2.7e+1/5.12e+2)+tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*2.373046875e-1+tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) );
+                    
+                            tMomentFittingRHS( 5 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(2.43e+2/5.12e+2)+tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*2.373046875e-1+tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(9.0/2.56e+2)-9.0/2.56e+2) )  ;
+                            tMomentFittingRHS( 5 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(2.7e+1/5.12e+2)-tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*2.373046875e-1-tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
+                    
+                            tMomentFittingRHS( 6 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(2.7e+1/5.12e+2)+tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*2.373046875e-1+tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) )  ;
+                            tMomentFittingRHS( 6 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(2.43e+2/5.12e+2)-tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*2.373046875e-1-tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(9.0/2.56e+2)-9.0/2.56e+2) );
+
+                            tMomentFittingRHS( 7 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(2.7e+1/5.12e+2)-tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*2.373046875e-1-tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 7 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(2.43e+2/5.12e+2)-tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*2.373046875e-1-tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(9.0/2.56e+2)-9.0/2.56e+2) ); 
                 
+                            tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(2.43e+2/5.12e+2)-tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*2.373046875e-1-tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(9.0/2.56e+2)-9.0/2.56e+2) )  ;
+                            tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(2.7e+1/5.12e+2)-tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*2.373046875e-1-tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) )  ;
 
-                // Evaluate the moments
-                if ( aOrder == 1 && aDim == 2)
-                {
-                    tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm - 0.5 * ( tXm * tXm ) ) * ( 1.0 - tYm ) + 0.25 * tNy * ( tYm - 0.5 * ( tYm * tYm ) ) * ( 1.0 - tXm ) ) ;
+                            tMomentFittingRHS( 9 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(2.43e+2/5.12e+2)-tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*2.373046875e-1-tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(9.0/2.56e+2)-9.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 9 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(2.7e+1/5.12e+2)+tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*2.373046875e-1+tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) );
 
-                    tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm + 0.5 * ( tXm * tXm ) ) * ( 1.0 - tYm ) + 0.25 * tNy * ( tYm - 0.5 * ( tYm * tYm ) ) * ( 1.0 + tXm ) ) ;
+                            tMomentFittingRHS( 10 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(2.7e+1/5.12e+2)-tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*2.373046875e-1-tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 10 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(2.43e+2/5.12e+2)+tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*2.373046875e-1+tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(9.0/2.56e+2)-9.0/2.56e+2) );
 
-                    tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm + 0.5 * ( tXm * tXm ) ) * ( 1.0 + tYm ) + 0.25 * tNy * ( tYm + 0.5 * ( tYm * tYm ) ) * ( 1.0 + tXm ) ) ;
+                            tMomentFittingRHS( 11 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(2.7e+1/5.12e+2)+tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*2.373046875e-1+tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
+                            tMomentFittingRHS( 11 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(2.43e+2/5.12e+2)+tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*2.373046875e-1+tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(9.0/2.56e+2)-9.0/2.56e+2) ) ;
 
-                    tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( tXm - 0.5 * ( tXm * tXm ) ) * ( 1.0 + tYm ) + 0.25 * tNy * ( tYm + 0.5 * ( tYm * tYm ) ) * ( 1.0 - tXm ) ) ;
+                            tMomentFittingRHS( 12 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(7.29e+2/5.12e+2)+tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*7.119140625e-1+tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(2.43e+2/2.56e+2)+tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2)) ;
+                            tMomentFittingRHS( 12 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(7.29e+2/5.12e+2)+tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*7.119140625e-1+tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(2.43e+2/2.56e+2)+tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
 
-                }
-                else if ( aOrder == 2 && aDim == 2 )
-                {
-                    tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm ) * ( -tYm ) + 0.25 * tNy * ( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 - tXm ) * ( -tXm ) ) ;
+                            tMomentFittingRHS( 13 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(7.29e+2/5.12e+2)+tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*7.119140625e-1+tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(2.43e+2/2.56e+2)+tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
+                            tMomentFittingRHS( 13 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(7.29e+2/5.12e+2)-tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*7.119140625e-1-tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(2.43e+2/2.56e+2)-tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
 
-                    tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * (  0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm ) * ( -tYm ) + 0.25 * tNy * ( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 + tXm ) * (  tXm ) ) ;
+                            tMomentFittingRHS( 14 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(7.29e+2/5.12e+2)-tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*7.119140625e-1-tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(2.43e+2/2.56e+2)-tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
+                            tMomentFittingRHS( 14 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(7.29e+2/5.12e+2)-tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*7.119140625e-1-tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(2.43e+2/2.56e+2)-tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
 
-                    tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * (  0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 + tYm ) * (  tYm ) + 0.25 * tNy * (  0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 + tXm ) * (  tXm ) ) ;
+                            tMomentFittingRHS( 15 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(7.29e+2/5.12e+2)-tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*7.119140625e-1-tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(2.43e+2/2.56e+2)-tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
+                            tMomentFittingRHS( 15 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(7.29e+2/5.12e+2)+tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*7.119140625e-1+tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(2.43e+2/2.56e+2)+tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
 
-                    tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.25 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 + tYm ) * (  tYm ) + 0.25 * tNy * (  0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) * ( 1.0 - tXm ) * ( -tXm ) ) ;
-
-                    tMomentFittingRHS( 4 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * ( 1.0 - tYm ) * ( -tYm ) * ( tXm - ( 1.0/3.0 ) * std::pow( tXm, 3 ) ) + 0.5 * tNy * ( 1.0 - tXm * tXm )*( -0.5 * std::pow( tYm, 2 ) + (1.0/3.0) * std::pow( tYm, 3 ) ) ) ;
-
-                    tMomentFittingRHS( 5 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * (1.0 - tYm * tYm) * (  0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) + 0.5 * tNy * (tXm + 1.0 ) * ( tXm ) * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) ) ;
-
-                    tMomentFittingRHS( 6 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * ( tXm - ( 1.0 / 3.0 ) * ( std::pow( tXm , 3 ) ) ) * ( 1.0 + tYm ) * ( tYm ) + 0.5 * tNy * ( 1.0 - tXm * tXm ) * ( 0.5 * std::pow( tYm , 2 ) + ( 1.0 / 3.0 ) * ( std::pow( tYm , 3 ) ) ) ) ;
-
-                    tMomentFittingRHS( 7 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 0.5 * tNx * ( -0.5 * std::pow( tXm, 2 ) + (1.0/3.0) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm * tYm ) + 0.5 * tNy * ( 1.0 - tXm ) * ( -tXm ) * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) ) ; 
-
-                    tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * ( 1.0 * tNx * ( tXm - ( 1.0/3.0 ) * std::pow( tXm, 3 ) ) * ( 1.0 - tYm * tYm ) + 1.0 * tNy * ( tYm - ( 1.0/3.0 )*( std::pow(tYm, 3) ) ) * ( 1.0 - tXm * tXm ) ) ;
-
-                } 
-                else if ( aOrder == 3 && aDim == 2 )
-                {
-                    real tt2 = std::pow(tXm,2);
-                    real tt3 = std::pow(tXm,3);
-                    real tt4 = std::pow(tYm,2);
-                    real tt5 = std::pow(tYm,3);
-
-                    tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(9.0/5.12e+2)+tYm/5.12e+2-1.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*7.91015625e-2+tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)-tt5*(9.0/2.56e+2)+tYm/2.56e+2-1.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 0 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(9.0/5.12e+2)+tXm/5.12e+2-1.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*7.91015625e-2+tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)-tt3*(9.0/2.56e+2)+tXm/2.56e+2-1.0/2.56e+2)) ;
-
-                    tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(9.0/5.12e+2)+tYm/5.12e+2-1.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*7.91015625e-2+tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)-tt5*(9.0/2.56e+2)+tYm/2.56e+2-1.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 1 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(9.0/5.12e+2)-tXm/5.12e+2-1.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*7.91015625e-2-tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)+tt3*(9.0/2.56e+2)-tXm/2.56e+2-1.0/2.56e+2));
-
-                    tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(9.0/5.12e+2)-tYm/5.12e+2-1.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*7.91015625e-2-tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)+tt5*(9.0/2.56e+2)-tYm/2.56e+2-1.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 2 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(9.0/5.12e+2)-tXm/5.12e+2-1.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*7.91015625e-2-tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)+tt3*(9.0/2.56e+2)-tXm/2.56e+2-1.0/2.56e+2));
-
-                    tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(9.0/5.12e+2)-tYm/5.12e+2-1.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*7.91015625e-2-tYm*8.7890625e-3-8.7890625e-3)-tXm*(tt4*(9.0/2.56e+2)+tt5*(9.0/2.56e+2)-tYm/2.56e+2-1.0/2.56e+2) );
-                    tMomentFittingRHS( 3 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(9.0/5.12e+2)+tXm/5.12e+2-1.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*7.91015625e-2+tXm*8.7890625e-3-8.7890625e-3)-tYm*(tt2*(9.0/2.56e+2)-tt3*(9.0/2.56e+2)+tXm/2.56e+2-1.0/2.56e+2) ) ;
-
-                    tMomentFittingRHS( 4 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(2.43e+2/5.12e+2)+tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*2.373046875e-1+tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(9.0/2.56e+2)-9.0/2.56e+2) );
-                    tMomentFittingRHS( 4 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(2.7e+1/5.12e+2)+tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*2.373046875e-1+tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) );
-                    
-                    tMomentFittingRHS( 5 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(2.43e+2/5.12e+2)+tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*2.373046875e-1+tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(9.0/2.56e+2)-9.0/2.56e+2) )  ;
-                    tMomentFittingRHS( 5 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(2.7e+1/5.12e+2)-tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*2.373046875e-1-tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
-                    
-                    tMomentFittingRHS( 6 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(2.7e+1/5.12e+2)+tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*2.373046875e-1+tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) )  ;
-                    tMomentFittingRHS( 6 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(2.43e+2/5.12e+2)-tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*2.373046875e-1-tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(9.0/2.56e+2)-9.0/2.56e+2) );
-
-                    tMomentFittingRHS( 7 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(2.7e+1/5.12e+2)-tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*2.373046875e-1-tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 7 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(2.43e+2/5.12e+2)-tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*2.373046875e-1-tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(9.0/2.56e+2)-9.0/2.56e+2) ); 
-                
-                    tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(2.43e+2/5.12e+2)-tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*2.373046875e-1-tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(9.0/2.56e+2)-9.0/2.56e+2) )  ;
-                    tMomentFittingRHS( 8 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)+tt3*(2.7e+1/5.12e+2)-tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2+tt3*2.373046875e-1-tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)+tt3*(2.7e+1/2.56e+2)-tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) )  ;
-
-                    tMomentFittingRHS( 9 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(2.43e+2/5.12e+2)-tYm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*2.373046875e-1-tYm*2.63671875e-2-2.63671875e-2)+tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(9.0/2.56e+2)-9.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 9 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(9.0/5.12e+2)-tt3*(2.7e+1/5.12e+2)+tXm*(2.7e+1/5.12e+2)-9.0/5.12e+2)-std::pow(tYm,4)*(tt2*7.91015625e-2-tt3*2.373046875e-1+tXm*2.373046875e-1-7.91015625e-2)+tYm*(tt2*(9.0/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(2.7e+1/2.56e+2)-9.0/2.56e+2) );
-
-                    tMomentFittingRHS( 10 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)+tt5*(2.7e+1/5.12e+2)-tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2+tt5*2.373046875e-1-tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)+tt5*(2.7e+1/2.56e+2)-tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 10 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(2.43e+2/5.12e+2)+tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*2.373046875e-1+tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(9.0/2.56e+2)-9.0/2.56e+2) );
-
-                    tMomentFittingRHS( 11 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( -std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(9.0/5.12e+2)-tt5*(2.7e+1/5.12e+2)+tYm*(2.7e+1/5.12e+2)-9.0/5.12e+2)+std::pow(tXm,4)*(tt4*7.91015625e-2-tt5*2.373046875e-1+tYm*2.373046875e-1-7.91015625e-2)+tXm*(tt4*(9.0/2.56e+2)-tt5*(2.7e+1/2.56e+2)+tYm*(2.7e+1/2.56e+2)-9.0/2.56e+2) ) ;
-                    tMomentFittingRHS( 11 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( -std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(2.7e+1/2.56e+2)+tXm*(3.0/2.56e+2)-3.0/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(2.43e+2/5.12e+2)+tXm*(2.7e+1/5.12e+2)-2.7e+1/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*2.373046875e-1+tXm*2.63671875e-2-2.63671875e-2)+tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(9.0/2.56e+2)-9.0/2.56e+2) ) ;
-
-                    tMomentFittingRHS( 12 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(7.29e+2/5.12e+2)+tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*7.119140625e-1+tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(2.43e+2/2.56e+2)+tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2)) ;
-                    tMomentFittingRHS( 12 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(7.29e+2/5.12e+2)+tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*7.119140625e-1+tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(2.43e+2/2.56e+2)+tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
-
-                    tMomentFittingRHS( 13 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)-tt5*(8.1e+1/2.56e+2)+tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)-tt5*(7.29e+2/5.12e+2)+tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1-tt5*7.119140625e-1+tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)-tt5*(2.43e+2/2.56e+2)+tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
-                    tMomentFittingRHS( 13 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(7.29e+2/5.12e+2)-tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*7.119140625e-1-tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(2.43e+2/2.56e+2)-tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
-
-                    tMomentFittingRHS( 14 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(7.29e+2/5.12e+2)-tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*7.119140625e-1-tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(2.43e+2/2.56e+2)-tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
-                    tMomentFittingRHS( 14 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)+tt3*(8.1e+1/2.56e+2)-tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)+tt3*(7.29e+2/5.12e+2)-tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1+tt3*7.119140625e-1-tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)+tt3*(2.43e+2/2.56e+2)-tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
-
-                    tMomentFittingRHS( 15 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNx *( std::pow(tXm,3)*(tt4*(2.7e+1/2.56e+2)+tt5*(8.1e+1/2.56e+2)-tYm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)+std::pow(tXm,2)*(tt4*(2.43e+2/5.12e+2)+tt5*(7.29e+2/5.12e+2)-tYm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)-std::pow(tXm,4)*(tt4*2.373046875e-1+tt5*7.119140625e-1-tYm*7.119140625e-1-2.373046875e-1)-tXm*(tt4*(8.1e+1/2.56e+2)+tt5*(2.43e+2/2.56e+2)-tYm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) ) ;
-                    tMomentFittingRHS( 15 , 0 ) += 0.5 * 0.5 * tQuadWeight * tD * tNy *( std::pow(tYm,3)*(tt2*(2.7e+1/2.56e+2)-tt3*(8.1e+1/2.56e+2)+tXm*(8.1e+1/2.56e+2)-2.7e+1/2.56e+2)-std::pow(tYm,2)*(tt2*(2.43e+2/5.12e+2)-tt3*(7.29e+2/5.12e+2)+tXm*(7.29e+2/5.12e+2)-2.43e+2/5.12e+2)+std::pow(tYm,4)*(tt2*2.373046875e-1-tt3*7.119140625e-1+tXm*7.119140625e-1-2.373046875e-1)-tYm*(tt2*(8.1e+1/2.56e+2)-tt3*(2.43e+2/2.56e+2)+tXm*(2.43e+2/2.56e+2)-8.1e+1/2.56e+2) );
+                    }
 
                 }
-                else if ( aOrder == 1 && aDim == 3 )
+
+            
+            
+                /*else if ( aOrder == 1 && aDim == 3 )
                 {
-                    tMomentFittingRHS( 0 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm - 1),2)*(tYm - 1.0)*(tZm - 1.0)) / 16.0 + tNy * -((tXm - 1.0)*std::pow((tYm - 1.0),2)*(tZm - 1.0))/16.0 + tNz * -((tXm - 1.0)*(tYm - 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+                    Matrix< DDRMat > tMomentFittingRHSTest;
+                    tMomentFittingRHSTest.reshape( 8 , 1 );
+                    tMomentFittingRHSTest( 0 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm - 1),2)*(tYm - 1.0)*(tZm - 1.0)) / 16.0 + tNy * -((tXm - 1.0)*std::pow((tYm - 1.0),2)*(tZm - 1.0))/16.0 + tNz * -((tXm - 1.0)*(tYm - 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
 
-                    tMomentFittingRHS( 1 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm + 1.0),2)*(tYm - 1.0)*(tZm - 1.0))/16.0 + tNy * ((tXm + 1.0)*std::pow((tYm - 1.0),2)*(tZm - 1.0))/16.0 + tNz * ((tXm + 1.0)*(tYm - 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+                    tMomentFittingRHSTest( 1 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm + 1.0),2)*(tYm - 1.0)*(tZm - 1.0))/16.0 + tNy * ((tXm + 1.0)*std::pow((tYm - 1.0),2)*(tZm - 1.0))/16.0 + tNz * ((tXm + 1.0)*(tYm - 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
 
-                    tMomentFittingRHS( 2 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm + 1.0),2)*(tYm + 1.0)*(tZm - 1.0))/16.0 + tNy * -((tXm + 1.0)*std::pow((tYm + 1.0),2)*(tZm - 1.0))/16.0 + tNz * -((tXm + 1.0)*(tYm + 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+                    tMomentFittingRHSTest( 2 , 0 ) +=  0.5 *( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm + 1.0),2)*(tYm + 1.0)*(tZm - 1.0))/16.0 + tNy * -((tXm + 1.0)*std::pow((tYm + 1.0),2)*(tZm - 1.0))/16.0 + tNz * -((tXm + 1.0)*(tYm + 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
 
-                    tMomentFittingRHS( 3 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm - 1.0),2)*(tYm + 1.0)*(tZm - 1.0))/16.0 + tNy * ((tXm - 1.0)*std::pow((tYm + 1.0),2)*(tZm - 1.0))/16.0 + tNz * ((tXm - 1.0)*(tYm + 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
+                    tMomentFittingRHSTest( 3 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm - 1.0),2)*(tYm + 1.0)*(tZm - 1.0))/16.0 + tNy * ((tXm - 1.0)*std::pow((tYm + 1.0),2)*(tZm - 1.0))/16.0 + tNz * ((tXm - 1.0)*(tYm + 1.0)*std::pow((tZm - 1.0),2))/16.0 ) ;
 
-                    tMomentFittingRHS( 4 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm - 1.0),2)*(tYm - 1.0)*(tZm + 1.0))/16.0 + tNy * ((tXm - 1.0)*std::pow((tYm - 1.0),2)*(tZm + 1.0))/16.0 + tNz * ((tXm - 1.0)*(tYm - 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+                    tMomentFittingRHSTest( 4 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm - 1.0),2)*(tYm - 1.0)*(tZm + 1.0))/16.0 + tNy * ((tXm - 1.0)*std::pow((tYm - 1.0),2)*(tZm + 1.0))/16.0 + tNz * ((tXm - 1.0)*(tYm - 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
 
-                    tMomentFittingRHS( 5 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm + 1.0),2)*(tYm - 1.0)*(tZm + 1.0))/16.0 + tNy * -((tXm + 1.0)*std::pow((tYm - 1.0),2)*(tZm + 1.0))/16.0 + tNz * -((tXm + 1.0)*(tYm - 1.0)*std::pow((tZm + 1.0),2))/16.0 );
+                    tMomentFittingRHSTest( 5 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * -(std::pow((tXm + 1.0),2)*(tYm - 1.0)*(tZm + 1.0))/16.0 + tNy * -((tXm + 1.0)*std::pow((tYm - 1.0),2)*(tZm + 1.0))/16.0 + tNz * -((tXm + 1.0)*(tYm - 1.0)*std::pow((tZm + 1.0),2))/16.0 );
 
-                    tMomentFittingRHS( 6 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm + 1.0),2)*(tYm + 1.0)*(tZm + 1.0))/16.0 + tNy * ((tXm + 1.0)*std::pow((tYm + 1.0),2)*(tZm + 1.0))/16.0 + tNz * ((tXm + 1.0)*(tYm + 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+                    tMomentFittingRHSTest( 6 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx * (std::pow((tXm + 1.0),2)*(tYm + 1.0)*(tZm + 1.0))/16.0 + tNy * ((tXm + 1.0)*std::pow((tYm + 1.0),2)*(tZm + 1.0))/16.0 + tNz * ((tXm + 1.0)*(tYm + 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
 
-                    tMomentFittingRHS( 7 , 0 ) += 0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx* -(std::pow((tXm - 1),2)*(tYm + 1.0)*(tZm + 1.0))/16.0 + tNy * -((tXm - 1.0)*std::pow((tYm + 1.0),2)*(tZm + 1.0))/16.0 + tNz * -((tXm - 1.0)*(tYm + 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+                    tMomentFittingRHSTest( 7 , 0 ) +=  0.5 * ( 1.0 / 3.0 ) * tQuadWeight * tD * ( tNx* -(std::pow((tXm - 1),2)*(tYm + 1.0)*(tZm + 1.0))/16.0 + tNy * -((tXm - 1.0)*std::pow((tYm + 1.0),2)*(tZm + 1.0))/16.0 + tNz * -((tXm - 1.0)*(tYm + 1.0)*std::pow((tZm + 1.0),2))/16.0 ) ;
+
+
 
 
                     
 
 
-                }
+                }*/
                 
             } 
 
@@ -1600,22 +1709,9 @@ namespace moris::xtk
         // Solve the system
         //mQuadratureWeights = {{0.0}, {0.0}, {0.0}, {0.0}};
         
-        if ( ( aOrder == 1 || aOrder == 2 )  && aDim == 2 )
-        {
-            mQuadratureWeights = ( inv( tMomentFittingLHS ) * tMomentFittingRHS);
-        }
-        else if ( aOrder == 1 && aDim == 3 )
-        {
-            mQuadratureWeights = ( inv( tMomentFittingLHS ) * tMomentFittingRHS);
-        }
-        else if ( aOrder == 2 && aDim == 3 )
-        {
-            mQuadratureWeights =  solve( tMomentFittingLHS  , tMomentFittingRHS);
-        }
-        else if ( aOrder == 3 )
-        {
-            mQuadratureWeights =  solve( tMomentFittingLHS  , tMomentFittingRHS);
-        }
+       
+        mQuadratureWeights = ( aMomentFittingLHSInv * tMomentFittingRHS);
+        
         
         // Reshape so as to be compatible with format required downstream
         mQuadratureWeights.reshape( 1 , tNmoments );

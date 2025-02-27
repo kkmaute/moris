@@ -226,6 +226,23 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
+    bool Integration_Mesh::get_moment_fitting_flag() const
+    {
+        bool tDummy = false;
+        return tDummy;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Integration_Mesh::get_moment_fitting_points() const
+    {
+        static Matrix< DDRMat > tDummy;
+        return tDummy;
+    }
+
+
+    // ----------------------------------------------------------------------------
+
     moris::uint
     Integration_Mesh::get_num_side_set() const
     {

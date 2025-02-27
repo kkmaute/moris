@@ -21,6 +21,8 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Set_Communicator.hpp"
+#include "cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
 
 namespace moris::mtk
 {
@@ -925,6 +927,28 @@ namespace moris::mtk
     {
         mInputMesh->delete_visualization_sets();
 
+        // Generate points anfd weights for computing the 
+        Geometry_Type tGeometryType = Geometry_Type::UNDEFINED;
+        Integration_Order tIntegrationOrder = Integration_Order::BAR_1;
+        
+        
+        if ( mInputMesh->get_spatial_dim() == 2 )
+        {
+            tGeometryType = Geometry_Type::TRI;
+            tIntegrationOrder = Integration_Order::TRI_6;
+        }
+        else if ( mInputMesh->get_spatial_dim() == 3 )
+        {
+            tGeometryType = Geometry_Type::TET;
+            tIntegrationOrder = Integration_Order::TET_11;
+        }
+        
+        mtk::Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
+        mtk::Integrator tIntData( tIntObj );
+        
+        mQuadraturePoints  =  tIntData.get_points();
+        mQuadratureWeights =  tIntData.get_weights();
+
         // create the vertecies
         this->create_vertices();
 
@@ -963,6 +987,42 @@ namespace moris::mtk
 
         // collect all sets to clean up the lists
         mOutputMesh->collect_all_sets();
+
+        // Get moment fitting flag from input mesh to carry forward
+        bool tMomentFittingFlag = mInputMesh->get_moment_fitting_flag();
+
+        // Set value of moment fitting flag in database class IG mesh
+        mOutputMesh->set_moment_fitting_flag( tMomentFittingFlag );
+
+        
+        if( tMomentFittingFlag == true )
+        {
+            // Generate moment fitting points
+            Geometry_Type tGeometryType = Geometry_Type::UNDEFINED;
+            Integration_Order tIntegrationOrder = Integration_Order::BAR_1;
+
+
+            if ( mInputMesh->get_spatial_dim() == 2 )
+            {
+                tGeometryType = Geometry_Type::QUAD;
+                tIntegrationOrder = Integration_Order::QUAD_4x4;
+            }
+            else if ( mInputMesh->get_spatial_dim() == 3 )
+            {
+                tGeometryType = Geometry_Type::HEX;
+                tIntegrationOrder = Integration_Order::HEX_4x4x4;
+            }
+
+            Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
+            Integrator tIntData( tIntObj );
+
+            Matrix< DDRMat > tIntegrationPoints =  tIntData.get_points();
+
+            // Set moment fitting integration points to the output (database IG) mesh
+            mOutputMesh->set_moment_fitting_points( tIntegrationPoints );
+
+        }
+        
     }
 
     // ----------------------------------------------------------------------------
@@ -1096,22 +1156,41 @@ namespace moris::mtk
         for ( size_t iCell = 0; iCell < tNumCells; iCell++ )
         {
             // constrcut the cell cluster
-            mtk::Cell_Cluster_DataBase tCellCluster( (moris_index)iCell, mOutputMesh );
+            mtk::Cell_Cluster_DataBase tCellCluster( (moris_index)iCell, mOutputMesh );  
+            if ( mInputMesh->get_moment_fitting_flag() )
+            {
+                // Get the quadrature points and weights from the input mesh
+                const Matrix< DDRMat >& tQuadWeights = mInputMesh->get_cell_cluster( iCell ).get_quadrature_weights();
 
-            // Get the quadrature points and weights from the input mesh
-            Matrix< DDRMat > tQuadPoints = mInputMesh->get_cell_cluster( iCell ).get_quadrature_points();
+                // Set these quadrature weights in the database cell cluster
+                tCellCluster.set_quadrature_weights( tQuadWeights );
 
-            Matrix< DDRMat > tQuadWeights = mInputMesh->get_cell_cluster( iCell ).get_quadrature_weights();
+            }
+            
+                // Get quadrature points and weights from each IG element and add it into cluster
+                
 
-            // Set these quadrature points and weights in the database cell cluster
-            tCellCluster.set_quadrature_points( tQuadPoints );
-
-            tCellCluster.set_quadrature_weights( tQuadWeights );
             
 
+                        
             // add the cell cluster to the list
             mOutputMesh->mCellClusters.push_back( tCellCluster );
             mOutputMesh->mCellClusterIsTrivial.push_back( mInputMesh->get_cell_cluster( iCell ).is_trivial() );
+
+
+            
+            
+            
+        }
+        // Perform another loop to compute the quadrature points and weights if moment fitting is false
+        for( uint iCellCluster = 0; iCellCluster < mOutputMesh->mCellClusters.size() ; iCellCluster++ )
+        {
+            if(mInputMesh->get_moment_fitting_flag() == false)
+            {
+                mOutputMesh->mCellClusters( iCellCluster ).compute_mapped_quadrature_weights_and_points( mQuadraturePoints , mQuadratureWeights ,
+                    mInputMesh->get_spatial_dim() );
+            }
+            
         }
     }
 

@@ -107,6 +107,9 @@ namespace moris::mtk
 
         bool mCheckMesh = true;
 
+        Matrix< DDRMat > mQuadraturePoints;
+        Matrix< DDRMat > mQuadratureWeights;
+
         // counters in order to add data later
         uint mNumPreviousVertices       = 0;
         uint mNumPreviousCells          = 0;

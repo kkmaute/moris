@@ -51,6 +51,7 @@ namespace moris::xtk
         Matrix< IndexMat >                             mBsplineMeshIndices;
         std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;
         bool                                           mLocalMeshIndexMapIsSet = false;
+        bool                                           mMomentFittingFlag = false;
 
         // Cell Clusters
         Vector< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
@@ -149,6 +150,7 @@ namespace moris::xtk
         moris_id                                    get_max_entity_id( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
         uint                                        get_node_owner( moris_index aNodeIndex ) const override;
         uint                                        get_element_owner( moris_index aElementIndex ) const override;
+        bool                                        get_moment_fitting_flag() const override;
 
         //------------------------------------------------------------------------------
         // end mesh core functions
@@ -252,6 +254,10 @@ namespace moris::xtk
          */
         void
         deactivate_empty_sets();
+
+        //------------------------------------------------------------------------------
+        void
+        set_moment_fitting_flag() ;
 
         //------------------------------------------------------------------------------
 

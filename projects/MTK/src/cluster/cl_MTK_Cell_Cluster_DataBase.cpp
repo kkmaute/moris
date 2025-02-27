@@ -13,7 +13,11 @@
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "fn_TOL_Capacities.hpp"
-
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
+#include "fn_trans.hpp"
 namespace moris::mtk
 {
 
@@ -226,7 +230,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     void
-    Cell_Cluster_DataBase::set_quadrature_weights( Matrix< DDRMat > aQuadratureWeights )
+    Cell_Cluster_DataBase::set_quadrature_weights( const Matrix< DDRMat > &aQuadratureWeights )
     {
         this->mQuadratureWeights = aQuadratureWeights;
     }
@@ -235,7 +239,7 @@ namespace moris::mtk
 
 
     void
-    Cell_Cluster_DataBase::set_quadrature_points( Matrix< DDRMat > aQuadraturePoints )
+    Cell_Cluster_DataBase::set_quadrature_points( const Matrix< DDRMat > &aQuadraturePoints )
     {
         this->mQuadraturePoints = aQuadraturePoints;
     }
@@ -254,6 +258,109 @@ namespace moris::mtk
     Cell_Cluster_DataBase::get_quadrature_points( ) const
     {
         return mQuadraturePoints;
+    }
+
+    //------------------------------------------------------------------------------
+
+
+    void
+    Cell_Cluster_DataBase::compute_mapped_quadrature_weights_and_points( const Matrix< DDRMat > aIntegrationPoints , const Matrix< DDRMat> aIntegrationWeights, uint aDim )
+    {   
+        // if trivial, just get quadrature pts and weights for BG element
+        if( this->is_trivial() )
+        {
+            mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::UNDEFINED; 
+            mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED; 
+            
+            // Define integration order
+            if( aDim == 2 )
+            {
+                tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
+                tGeometryType = mtk::Geometry_Type::QUAD; 
+            }
+            else if ( aDim == 3 )
+            {
+                tIntegrationOrder = mtk::Integration_Order::HEX_3x3x3;
+                tGeometryType = mtk::Geometry_Type::HEX;
+            }
+
+            // Create integration rule
+            mtk::Integration_Rule tIntObj( tGeometryType , mtk::Integration_Type::GAUSS , tIntegrationOrder , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+            const mtk::Integrator tIntData( tIntObj );
+
+            // assign quadrature weights and points
+            mQuadraturePoints = tIntData.get_points();
+            mQuadratureWeights = tIntData.get_weights();
+           
+        }
+        else
+        {
+            // Get IP element 
+            moris::mtk::Cell const & tInterpolationCell = this->get_interpolation_cell();
+
+            // Create IP cell interpolation rule
+            mtk::Interpolation_Rule tIPInterpolationRule( tInterpolationCell.get_geometry_type() , mtk::Interpolation_Type::LAGRANGE 
+                    ,tInterpolationCell.get_interpolation_order() , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+            
+            // Get IG elements
+            Vector< moris::mtk::Cell const * > const& tIGCells =  this->get_primary_cells_in_cluster();
+
+            // Set the size of the quadrature points and weights matrices
+            mQuadraturePoints.reshape( aIntegrationPoints.n_rows() , tIGCells.size() * aIntegrationPoints.n_cols() );
+
+            mQuadratureWeights.reshape( aIntegrationWeights.n_rows() , tIGCells.size() * aIntegrationWeights.n_cols() );
+
+            // Loop over IG Elements
+            for( uint iPrimaryCell = 0; iPrimaryCell < tIGCells.size() ; iPrimaryCell++ )
+            {
+                
+                // Get cell info from tIGCell (required by space interpolator)
+                const mtk::Cell_Info* tCellInfo = tIGCells( iPrimaryCell )->get_cell_info();
+                
+                // Create Interpolation Rule
+                mtk::Interpolation_Rule tIGInterpolationRule( tIGCells( iPrimaryCell )->get_geometry_type() , mtk::Interpolation_Type::LAGRANGE 
+                    ,tIGCells( iPrimaryCell )->get_interpolation_order() , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+    
+                // Create space interpolator
+                mtk::Space_Interpolator tIGSpaceInterpolator =  mtk::Space_Interpolator(
+                    tIGInterpolationRule,
+                    tIPInterpolationRule,
+                    tCellInfo->compute_cell_shape( tIGCells( iPrimaryCell ) ),
+                    false ); // since the cell cluster is not a sideset this is false
+
+                // Get parametric points from cluster and set them in space interpolator
+                Matrix< DDRMat > tCellLocalCoords = this->get_primary_cell_local_coords_on_side_wrt_interp_cell( iPrimaryCell );
+                tIGSpaceInterpolator.set_space_param_coeff( tCellLocalCoords );
+
+                // Set coeffs for the jacobian
+                tIGSpaceInterpolator.set_space_coeff( tCellLocalCoords );
+
+                // Loop over all quadrature points in local IG element space to IP element local space
+                for( uint iQuadPoint = 0 ; iQuadPoint < aIntegrationWeights.numel(); iQuadPoint++ )
+                {
+                    // Set local coord point
+                    tIGSpaceInterpolator.set_space_time( aIntegrationPoints.get_column( iQuadPoint ) );
+                    
+                    // get mapped quadrature point (from IG element parent element space to IP element parent element space)
+                    Matrix< DDRMat > tMappedQuadraturePoint = tIGSpaceInterpolator.map_integration_point();
+
+                    // Place in quadrature point vector
+                    mQuadraturePoints.set_column( iPrimaryCell * aIntegrationWeights.numel() + iQuadPoint , ( tMappedQuadraturePoint ) );
+
+                    // Get determinant
+                    real tDetJ = tIGSpaceInterpolator.space_det_J();
+
+                    // Get modified weight
+                    real tWStar = aIntegrationWeights( iQuadPoint ) * tDetJ ;
+
+                    // Set quadrature point as multiplied with det_J
+                    mQuadratureWeights( iPrimaryCell * aIntegrationWeights.numel() + iQuadPoint ) = tWStar ;
+                    
+                }
+
+            }
+
+        }
     }
 
 

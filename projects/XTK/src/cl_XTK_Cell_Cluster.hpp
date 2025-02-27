@@ -164,7 +164,7 @@ namespace moris::xtk
         // -----------------------------------------------------------------------------
 
         void
-        compute_quadrature_weights( const uint aOrder , const uint aDim ) ;
+        compute_quadrature_weights( const uint aOrder , Matrix< DDRMat > &aMomentFittingLHSInv , const uint aDim ) ;
 
         //------------------------------------------------------------------------------
 

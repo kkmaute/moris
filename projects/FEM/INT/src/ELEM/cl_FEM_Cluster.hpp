@@ -158,7 +158,7 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > get_quadrature_points() const ;
+        const Matrix< DDRMat >& get_quadrature_points() const ;
 
         //------------------------------------------------------------------------------
           

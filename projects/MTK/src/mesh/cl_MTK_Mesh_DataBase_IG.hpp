@@ -128,6 +128,10 @@ namespace moris
             // coordinate of the ghost when they are not trivial
             moris::Matrix< moris::DDRMat >*                              mSecondaryClusterVertexCoords = nullptr;
             std::unordered_map< moris::moris_index, moris::moris_index > mSecondaryClusterIndexToRowNumber;
+            bool                                                         mMomentFittingFlag = false;
+
+            // Moment fitting points
+            Matrix< DDRMat >                                             mMomentFittingPoints;
 
           public:
             Integration_Mesh_DataBase_IG() = default;
@@ -179,6 +183,22 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             void reset_nonconformal_side_set();
+
+            // ----------------------------------------------------------------------------
+
+            bool get_moment_fitting_flag() const override;
+
+            // ----------------------------------------------------------------------------
+
+            void set_moment_fitting_flag( bool aMomentFittingFlag ) ;
+
+            // ----------------------------------------------------------------------------
+
+            const Matrix< DDRMat >& get_moment_fitting_points() const override;
+
+            // ----------------------------------------------------------------------------
+
+            void set_moment_fitting_points( Matrix< DDRMat > aMomentFittingPoints ) ;
 
             // ----------------------------------------------------------------------------
 

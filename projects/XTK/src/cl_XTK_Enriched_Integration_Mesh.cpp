@@ -33,6 +33,17 @@
 #include "fn_XTK_match_normal_to_side_ordinal.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "moris_typedefs.hpp"
+#include "cl_MTK_Integrator.hpp"
+#include "cl_MTK_Integration_Rule.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "fn_linsolve.hpp"
+#include "fn_inv.hpp"
+#include "fn_dot.hpp"
+#include "fn_linsolve.hpp"
+#include "fn_det.hpp"
+#include "fn_cross.hpp"
+#include "fn_norm.hpp"
 
 namespace moris::xtk
 {
@@ -68,6 +79,8 @@ namespace moris::xtk
         this->setup_color_to_set();
 
         this->collect_all_sets();
+
+        this->set_moment_fitting_flag();
 
         // get the Cell info for trivial integration clusters
         if ( this->get_spatial_dim() == 2 )
@@ -112,6 +125,8 @@ namespace moris::xtk
         this->setup_color_to_set();
 
         this->collect_all_sets();
+
+        this->set_moment_fitting_flag();
 
         // get the Cell info for trivial integration clusters
         if ( this->get_spatial_dim() == 2 )
@@ -2829,6 +2844,21 @@ namespace moris::xtk
             }
         }
     }
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Integration_Mesh::set_moment_fitting_flag() 
+    {
+        mMomentFittingFlag =  mModel->mMomentFittingFlag;
+    }
+
+    //------------------------------------------------------------------------------
+
+    bool
+    Enriched_Integration_Mesh::get_moment_fitting_flag() const
+    {
+        return mModel->mMomentFittingFlag;
+    }
 
     //------------------------------------------------------------------------------
 
@@ -2870,6 +2900,89 @@ namespace moris::xtk
         // reference the enriched IP cells
         Vector< Interpolation_Cell_Unzipped * > const &tEnrichedInterpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
 
+        // Create space interpolator object and integrator object for generating the moments ( LHS ) and the quadrature points
+        mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+        mtk::Interpolation_Order tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+        mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::POINT;
+
+        uint tOrder = 3;
+
+        if ( mDim == 2 )
+        {
+            tGeometryType = mtk::Geometry_Type::QUAD;
+
+            if ( tOrder == 1 )
+            {
+               tIntegrationOrder = mtk::Integration_Order::QUAD_2x2;
+            }
+            if ( tOrder == 2 )
+            {
+               tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
+               tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
+            }
+            if ( tOrder == 3 )
+            {
+                tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
+                tIntegrationOrder = mtk::Integration_Order::QUAD_4x4;
+            }
+            
+        }
+        if ( mDim == 3 )
+        {
+            tGeometryType = mtk::Geometry_Type::HEX;
+            
+            if ( tOrder == 1 )
+            {
+               tIntegrationOrder = mtk::Integration_Order::HEX_2x2x2;
+            }
+            if ( tOrder == 2 )
+            {
+               tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
+               tIntegrationOrder = mtk::Integration_Order::HEX_3x3x3;
+            }
+            if ( tOrder == 3 )
+            {
+                tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
+                tIntegrationOrder = mtk::Integration_Order::HEX_4x4x4;
+            }
+            
+        } 
+
+        mtk::Integration_Rule tIntObj( tGeometryType , mtk::Integration_Type::GAUSS , tIntegrationOrder , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        const mtk::Integrator tIntData( tIntObj );
+        
+        Matrix< DDRMat >  tQuadPoints;
+        tIntData.get_points( tQuadPoints );
+
+        mtk::Interpolation_Rule tIPInterpolationRule( tGeometryType , mtk::Interpolation_Type::LAGRANGE , tInterpolationOrder , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+        mtk::Interpolation_Function_Base* tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+
+        // Create moment fitting LHS
+        uint tNmoments = std::pow( tOrder + 1 , mDim ); 
+        Matrix< DDRMat > tMomentFittingLHS ; 
+        tMomentFittingLHS.reshape( tNmoments , tNmoments );
+
+        // Generate moment fitting LHS
+        for (uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols() ; iQuadPointIndex++)
+        {
+            // Declare matrix for basis function values
+            Matrix< DDRMat > tN;
+
+            // Get quad point
+            Matrix< DDRMat > tXi = tQuadPoints.get_column( iQuadPointIndex );
+
+            // Get value of basis functions at quad point
+            tIPInterp->eval_N( tXi , tN );
+
+            // Place it in LHS 
+            tMomentFittingLHS.set_column( iQuadPointIndex , trans( tN ) );
+
+        }
+
+        Matrix< DDRMat > tMomentFittingLHSInv = inv( tMomentFittingLHS );
+        Matrix< DDRMat >& tMomFitLHSInv = tMomentFittingLHSInv ;
+                   
         // loop over all base IP cells
         for ( uint iIpCell = 0; iIpCell < tNumBaseIpCells; iIpCell++ )
         {
@@ -2911,8 +3024,12 @@ namespace moris::xtk
                     // material cluster is only trivial if it is the only subphase on base IP cell, i.e. there are no triangulated child cells
                     mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
 
-                     // Place quadrature points inside cluster
-                    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( 1 , mDim );
+                    // Place quadrature points inside cluster if moment fitting active - Moved to MTK database IG mesh
+                    //if ( mModel->mMomentFittingFlag )
+                    //{
+                    //    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( tOrder , mDim );
+                    //}
+                    
                 
 
                 }
@@ -2953,7 +3070,10 @@ namespace moris::xtk
                         mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
 
                         // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
-                        mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( 1 , mDim );
+                        if ( mModel->mMomentFittingFlag )
+                        {
+                            mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( tOrder , mDim );
+                        }
 
 
                         // sanity check for this case
@@ -2985,13 +3105,18 @@ namespace moris::xtk
 
                     // Get facet connectivity map
                     auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
-                    
-                    // Identify subphase boundary facets
-                    mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , mDim );
 
-                    // Compute quadrature weights via moment fitting
-                    mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( 1 , mDim );
+                    // If moment fitting active then find subphase boundary facets and compute the moments
+                    if ( mModel->mMomentFittingFlag )
+                    {
+                        // Identify subphase boundary facets
+                        mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , mDim );
 
+                        // Compute quadrature weights via moment fitting
+                        mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , mDim );
+                        
+                    }
+                                        
                     //fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
 
                     // get the subphases in the void region
@@ -3280,6 +3405,8 @@ namespace moris::xtk
                         tSideCluster->mVerticesInCluster.append( tSideCluster->mIntegrationCells( 0 )->get_vertices_on_side_ordinal( tSideOrd ) );
 
                         tSideCluster->mAssociatedCellCluster = &this->get_xtk_cell_cluster( *tEnrichedCellsOfBaseCell( 0 ) );
+
+                        // Since it is a trivial side cluster, not cut by any
                     }
                 }
             }
@@ -4339,6 +4466,12 @@ namespace moris::xtk
         // initialize punch card for which UIPCs will be communicated
         Vector< bool > tCommunicatedUIPCs( tEnrIpCells.size(), false );
 
+        // get facet connectivity struct
+        //auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
+
+        // get dim
+        //const uint tDim = mCutIgMesh->get_spatial_dim();
+
         for ( uint iBP0 = 0; iBP0 < tDoubleSidedInterface.size(); iBP0++ )
         {
             for ( uint iBP1 = 0; iBP1 < tDoubleSidedInterface.size(); iBP1++ )
@@ -4503,6 +4636,10 @@ namespace moris::xtk
             }
 
             tSideClusters( iSC )->mIntegrationCellSideOrdinals = tSideOrds;
+
+            // Filter the boundary contours of the sideset cluster
+            //tSideClusters( iSC )->find_facet_boundary( tDim , tFacetConnectivity );
+
         }
 
         // build list of side set indices

@@ -177,6 +177,13 @@ namespace moris::xtk
     {
         return this->get_vertices_local_coordinates_wrt_interp_cell( aIsLeader ).n_cols();
     }
+    
+    //------------------------------------------------------------------------------
+
+    
+
+
+
 
     //------------------------------------------------------------------------------
 
@@ -280,6 +287,33 @@ namespace moris::xtk
 
         // compute the group measure derivative and return it
         return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsLeader );
+    }
+
+    //------------------------------------------------------------------------------
+    void
+    Side_Cluster::find_facet_boundary( const uint aDim , const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity )
+    {   
+        // Declare standard set to add the boundary vertices
+        std::set< Vector< mtk::Vertex* > > tBoundaryFacets;
+
+        // List of all side cluster vertices
+        Vector< mtk::Vertex* > tAttachedCellOrdinals;
+        
+        if ( aDim == 2 )
+        {
+            // First, find the facets constituting the side cluster
+            for (uint iAttachedCells = 0 ; iAttachedCells < mIntegrationCells.size() ; iAttachedCells++)
+            {
+                // Get attached cell
+                const mtk::Cell* tAttachedCell = mIntegrationCells( iAttachedCells );
+            
+                // Get vertices associated with cell edge ordinal
+                Vector< const mtk::Vertex* > tVerticesAttachedToFacet = tAttachedCell->get_vertices_on_side_ordinal( mIntegrationCellSideOrdinals( iAttachedCells ) );
+
+            }
+
+        }
+        
     }
 
     //------------------------------------------------------------------------------

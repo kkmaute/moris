@@ -106,6 +106,9 @@ namespace moris
             // column number : showing activation based on type
             Matrix< DDSMat > mXYZLocalAssemblyIndices;
 
+            // Moment Fitting Points
+            Matrix< DDRMat > mMomentFittingPoints;
+
             // parameter list to build the fem model
             Module_Parameter_Lists mParameterList = Module_Parameter_Lists( Module_Type::FEM );
 
@@ -129,6 +132,9 @@ namespace moris
 
             // flag to skip GEN procedures
             bool mFEMOnly = false;
+
+            // flag to check if moment fitting is being used
+            bool mMomentFitting = false;
 
           public:
             //! Gauss point information. Only used for output
@@ -269,6 +275,28 @@ namespace moris
              * @param[ in ] aIGMesh integration mesh pointer
              */
             void create_integration_nodes( mtk::Integration_Mesh *aIGMesh );
+            
+            //------------------------------------------------------------------------------
+
+            // Get if moment fitting is being used.
+            void set_moment_fitting_flag( mtk::Integration_Mesh *aIGMesh );
+
+            //------------------------------------------------------------------------------
+
+            // set moment fitting points
+            void set_moment_fitting_points( mtk::Integration_Mesh *aIGMesh );
+
+            //------------------------------------------------------------------------------
+
+            // get moment fitting points
+            const Matrix< DDRMat >& get_moment_fitting_points();
+
+
+            //------------------------------------------------------------------------------
+
+
+            //return the value of moment fitting flag in fem model
+            bool get_moment_fitting_flag( );
 
             //------------------------------------------------------------------------------
             /**
