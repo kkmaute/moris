@@ -46,7 +46,7 @@ namespace moris
     real tMMAStepSize = 0.01;
     int  tMMAMaxIter  = 2;
 
-    int         tInitialRef    = 2;
+    int tInitialRef    = 2;
 
     real tElementEdgeLength = 1.0 / 15.0 / pow( 2, tInitialRef );
     real tLoadLimitY        = std::floor( 0.2 / tElementEdgeLength ) * tElementEdgeLength;
@@ -257,7 +257,7 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
-        aParameterLists.set( "initial_refinement", std::to_string( tInitialRef ) );
+        aParameterLists.set( "initial_refinement", tInitialRef );
 
         aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
         aParameterLists.set( "order", 1 );

@@ -131,7 +131,7 @@ namespace moris
         // initialize a map that stores in what order the grids are defined
         std::map< moris_index, uint > tGridIndexMap;    // map: grid index | position in list
         Vector< moris_index >         tGridIndices( tNumGridsSpecified, 0 );
-        Vector< moris_index >         tInitialRefinements( tNumGridsSpecified, 0 );
+        Vector< uint >                tInitialRefinements( tNumGridsSpecified, 0 );
         Vector< moris_index >         tBoundaryRefinements( tNumGridsSpecified, 0 );
         moris_index                   tMaxGridIndex = -1;
 
@@ -167,8 +167,8 @@ namespace moris
             tGridIndices( iMeshGrid )   = tGridIndex;
 
             // get and store the number of refinements
-            moris_index& tNumInitRefines = tInitialRefinements( iMeshGrid );
-            mXmlReader->get_from_buffer( "InitialRefinements", tNumInitRefines, moris_index( 0 ) );
+            uint& tNumInitRefines = tInitialRefinements( iMeshGrid );
+            mXmlReader->get_from_buffer( "InitialRefinements", tNumInitRefines, 0u );
             moris_index& tNumBdRefines = tBoundaryRefinements( iMeshGrid );
             mXmlReader->get_from_buffer( "InterfaceRefinements", tNumBdRefines, moris_index( 0 ) );
         }
@@ -318,25 +318,8 @@ namespace moris
         // ------------------------------
         // Finalize the HMR parameter list
 
-        // list the patterns with their initial refinements
-        std::string sPatterns           = "";
-        std::string sInitialRefinements = "";
-        for ( uint iGrid = 0; iGrid < tGridIndices.size(); iGrid++ )
-        {
-            // add separators in string
-            if ( iGrid > 0 )
-            {
-                sInitialRefinements += ",";
-                sPatterns += ",";
-            }
-
-            // add it to the string
-            sInitialRefinements += std::to_string( tInitialRefinements( iGrid ) );
-            sPatterns += std::to_string( tGridIndices( iGrid ) );
-        }
-
         // set initial refinement
-        tHmrParamList.set( "initial_refinement", sInitialRefinements );
+        tHmrParamList.set( "initial_refinement", tInitialRefinements );
 
         // sort information about B-spline meshes
         std::string sLagrangeToBspline = "";

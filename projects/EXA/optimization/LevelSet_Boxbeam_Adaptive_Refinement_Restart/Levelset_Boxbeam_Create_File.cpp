@@ -548,7 +548,7 @@ namespace moris
         aParameterLists.set( "bspline_orders", "1,1" );
         aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists.set( "initial_refinement", "0,0" );
+        aParameterLists.set( "initial_refinement", 0, 0 );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1;-1" );
 
@@ -624,7 +624,7 @@ namespace moris
         aParameterLists.set( "dependencies", "Level_Set_Field" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
-        aParameterLists.set( "pdv_mesh_set_names", tTotalDomain1 );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "HMR_dummy_n_p2", "HMR_dummy_c_p2" );
         tParamCounter++;
     }
 

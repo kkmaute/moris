@@ -62,7 +62,6 @@ namespace moris::xtk
 
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
-            tParameters.set( "initial_refinement", "0" );
 
             // create the hmr mesh
             hmr::HMR tHMR( tParameters );
@@ -176,7 +175,6 @@ namespace moris::xtk
 
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
-            tParameters.set( "initial_refinement", "0" );
 
             // create the hmr mesh
             hmr::HMR tHMR( tParameters );

@@ -129,7 +129,6 @@ namespace moris
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = std::to_string( std::max( tLevelsetOrder, tDispOrder ) );
     std::string tBsplineOrder    = std::to_string( tLevelsetOrder ) + "," + std::to_string( tDispOrder );
-    std::string tInitialRef      = std::to_string( tLevelsetInitialRef ) + "," + std::to_string( tDispInitialRef );
     std::string tLagrangePattern = tLevelsetInitialRef > tDispInitialRef ? "0" : "1";
 
     uint tInterfaceRefinementSphere = 0;
@@ -476,7 +475,7 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
+        aParameterLists.set( "initial_refinement", tLevelsetInitialRef, tDispInitialRef );
     }
 
     /* ------------------------------------------------------------------------ */

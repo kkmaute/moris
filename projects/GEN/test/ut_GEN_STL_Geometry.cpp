@@ -39,8 +39,6 @@ namespace moris
 
         tParameterlist.set( "refinement_buffer",  1 );
         tParameterlist.set( "staircase_buffer",   1 );
-        tParameterlist.set( "initial_refinement", "0");
-
         std::string tObjectPath = get_base_moris_dir() + "/projects/GEN/test/bracket.obj";
 
         // create SDF generator

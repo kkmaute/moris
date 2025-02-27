@@ -215,7 +215,6 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
-        aParameterLists.set( "initial_refinement", "0" );
 
         aParameterLists.set( "severity_level", 1 );
 
@@ -257,8 +256,7 @@ namespace moris
         aParameterLists.set( "discretization_lower_bound", 0.001 );
         aParameterLists.set( "discretization_upper_bound", 1.0 );
         aParameterLists.set( "pdv_type", "DENSITY" );
-        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0,SideSet_4_n_p0,SideSet_2_n_p0" );
-        aParameterLists.set( "pdv_mesh_set_indices", "" );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "SideSet_4_n_p0", "SideSet_2_n_p0" );
     }
 
     void

@@ -300,7 +300,6 @@ namespace moris::xtk
             tParameters.set( "lagrange_to_bspline", "0,1" );
             tParameters.set( "refinement_buffer", 2 );
             tParameters.set( "staircase_buffer", 2 );
-            tParameters.set( "initial_refinement", "0" );
 
             tParameters.set( "severity_level", 2 );
 

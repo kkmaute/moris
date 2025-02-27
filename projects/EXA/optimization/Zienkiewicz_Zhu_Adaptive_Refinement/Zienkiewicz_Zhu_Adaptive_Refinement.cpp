@@ -864,7 +864,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "bspline_orders", "1,2" );
         aParameterLists.set( "bspline_pattern", "1,2" );
 
-        aParameterLists.set( "initial_refinement", "0,0" );
+        aParameterLists.set( "initial_refinement", 0, 0 );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
@@ -979,11 +979,11 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
 
         if ( tUseGhost )
         {
-            aParameterLists.set( "pdv_mesh_set_names", tTotalDomainAGhost );
+            aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p8", "HMR_dummy_c_p8", "HMR_dummy_n_p9", "HMR_dummy_c_p9" );
         }
         else
         {
-            aParameterLists.set( "pdv_mesh_set_names", tTotalDomain );
+            aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p8", "HMR_dummy_c_p8", "HMR_dummy_n_p9", "HMR_dummy_c_p9", "ghost_p9" );
         }
 
         tParamCounter++;

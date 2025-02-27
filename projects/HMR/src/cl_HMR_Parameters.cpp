@@ -95,8 +95,8 @@ namespace moris::hmr
         // set truncation flag
         this->set_bspline_truncation( tHMRParameterList.get< bool >( "truncate_bsplines" ) );
 
-        //        // set minimum initial refinement
-        string_to_vector( tHMRParameterList.get< std::string >( "initial_refinement" ), mInitialRefinementLevel );
+        // set minimum initial refinement
+        mInitialRefinementLevel = tHMRParameterList.get_vector< uint >( "initial_refinement" );
 
         // get multigrid parameter
         this->set_multigrid( tHMRParameterList.get< bool >( "use_multigrid" ) );

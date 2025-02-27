@@ -220,7 +220,6 @@ namespace moris
     // note:  pattern 0 - displacement field   pattern 1 - Levelset field
     std::string tLagrangeOrder   = std::to_string( tLagMeshOrder );
     std::string tBsplineOrder    = std::to_string( tDispOrder ) + "," + std::to_string( tLevelsetOrder );
-    std::string tInitialRef      = std::to_string( tDispInitialRef ) + "," + std::to_string( tLevelsetInitialRef );
     std::string tLagrangePattern = tDispInitialRef > tLevelsetInitialRef ? "0" : "1";
 
     uint tInterfaceRefinementInclusion = 0;
@@ -1153,7 +1152,7 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
+        aParameterLists.set( "initial_refinement", tDispInitialRef, tLevelsetInitialRef );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
     }
 
@@ -1273,7 +1272,7 @@ namespace moris
         aParameterLists.set( "dependencies", "Level_Set_Field" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
-        aParameterLists.set( "pdv_mesh_set_names", tFluid + "," + tInclusionSolid );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "HMR_dummy_n_p2", "HMR_dummy_c_p2" );
         tParamCounter++;
     }
 

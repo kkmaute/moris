@@ -135,8 +135,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", "0" );
-
         tParameters.set( "severity_level", 2 );
 
         hmr::HMR tHMR( tParameters );

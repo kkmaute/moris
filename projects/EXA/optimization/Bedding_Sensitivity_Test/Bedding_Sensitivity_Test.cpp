@@ -79,7 +79,6 @@ namespace moris
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = "1";
     std::string tBsplineOrder    = "1";
-    std::string tInitialRef      = "1";
     std::string tLagrangePattern = "0";
 
     int tDispOrder = 1;
@@ -261,7 +260,7 @@ namespace moris
         aParameterLists.set( "bspline_orders", tBsplineOrder );
         aParameterLists.set( "bspline_pattern", "0" );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
+        aParameterLists.set( "initial_refinement", 1 );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
 
         aParameterLists.set( "lagrange_to_bspline", "0" );

@@ -131,9 +131,6 @@ namespace moris
     Vector< real > tDomainDims( 2 + tIs3D, 2.0 );
     Vector< real > tDomainOffset( 2 + tIs3D, -1.0 );
 
-    std::string tInitialRefinement   = "0";
-    std::string tInterfaceRefinement = "0";
-
     int tRefineBuffer = 0;
 
     /* ------------------------------------------------------------------------ */
@@ -442,7 +439,6 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", tInitialRefinement );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -490,7 +486,7 @@ namespace moris
         aParameterLists.set( "dependencies", "ADVfield" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
-        aParameterLists.set( "pdv_mesh_set_names", tTotalDomain );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1" );
         tParamCounter++;
     }
 

@@ -257,7 +257,6 @@ namespace moris
         /* ----------------------------------------- Refinement --------------------------------------- */
         aParameterLists.set( "refinement_buffer", 0 );
         aParameterLists.set( "staircase_buffer", 0 );
-        aParameterLists.set( "initial_refinement", "0" );
     }
 
     /* ---------------------------------------------------------------------------------------------- */

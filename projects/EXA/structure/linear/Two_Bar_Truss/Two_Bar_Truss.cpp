@@ -370,7 +370,6 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", "0" );
         //
         //        aParameterLists.set( "lagrange_input_meshes", "0");
     }

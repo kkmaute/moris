@@ -396,8 +396,6 @@ namespace moris
         aParameterLists.set( "bspline_orders", "1" );
         aParameterLists.set( "bspline_pattern", "0" );
 
-        aParameterLists.set( "initial_refinement", "0" );
-
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
         aParameterLists.set( "refinement_buffer", 1 );

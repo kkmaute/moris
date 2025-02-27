@@ -312,8 +312,6 @@ namespace moris
 
         aParameterList( 0 ).set( "refinement_buffer", 3 );
         aParameterList( 0 ).set( "staircase_buffer", 3 );
-        aParameterList( 0 ).set( "initial_refinement", "0" );
-
         aParameterList( 0 ).set( "severity_level", 2 );
 
         aParameterList( 0 ).set( "adaptive_refinement_level", 2 );

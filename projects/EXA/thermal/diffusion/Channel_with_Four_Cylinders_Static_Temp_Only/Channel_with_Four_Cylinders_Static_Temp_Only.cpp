@@ -176,7 +176,6 @@ namespace moris
 
         aParameterLists.set( "refinement_buffer", (int)gInterpolationOrder );
         aParameterLists.set( "staircase_buffer", 1 );
-        aParameterLists.set( "initial_refinement", "0" );
     }
 
     void

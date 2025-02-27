@@ -140,10 +140,6 @@ namespace moris
         aParameterLists.set( "lagrange_pattern", "0" );
         aParameterLists.set( "bspline_orders", tOrder );
         aParameterLists.set( "bspline_pattern", "0" );
-
-
-        aParameterLists.set( "initial_refinement", "0" );
-
     }
 
     /* ------------------------------------------------------------------------ */

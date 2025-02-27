@@ -182,8 +182,6 @@ namespace moris
 
             tParameters.set( "refinement_buffer", 3 );
             tParameters.set( "staircase_buffer", 3 );
-            tParameters.set( "initial_refinement", "0" );
-
             tParameters.set( "use_multigrid", true );
             tParameters.set( "severity_level", 2 );
 
@@ -646,8 +644,6 @@ namespace moris
 
             tParameters.set( "refinement_buffer", 3 );
             tParameters.set( "staircase_buffer", 3 );
-            tParameters.set( "initial_refinement", "0" );
-
             tParameters.set( "severity_level", 2 );
 
             hmr::HMR tHMR( tParameters );

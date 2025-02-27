@@ -114,7 +114,6 @@ namespace moris
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = std::to_string( tLagMeshOrder );
     std::string tBsplineOrder    = std::to_string( tLevelsetOrder ) + "," + std::to_string( tDispOrder );
-    std::string tInitialRef      = std::to_string( tLevelsetInitialRef ) + "," + std::to_string( tDispInitialRef );
     std::string tLagrangePattern = tLevelsetInitialRef > tDispInitialRef ? "0" : "1";
 
     //------------------------------------------------------------------------------
@@ -348,7 +347,7 @@ namespace moris
         aParameterLists.set( "bspline_orders", tBsplineOrder );
         aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
+        aParameterLists.set( "initial_refinement", tLevelsetInitialRef, tDispInitialRef );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1" );
@@ -441,7 +440,7 @@ namespace moris
             aParameterLists.set( "dependencies", "ADVfield" );
             aParameterLists.set( "scaling_factor", 1.0 );
             aParameterLists.set( "pdv_type", "LS1" );
-            aParameterLists.set( "pdv_mesh_set_names", tTotalDomainSets );
+            aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p2", "HMR_dummy_c_p2", "HMR_dummy_n_p1", "HMR_dummy_c_p1" );
         }
         else
         {
@@ -457,7 +456,7 @@ namespace moris
             aParameterLists.set( "name", "LevelsetField" );
             aParameterLists.set( "constant", 1.0 );
             aParameterLists.set( "pdv_type", "LS1" );
-            aParameterLists.set( "pdv_mesh_set_names", tTotalDomainSets );
+            aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p2", "HMR_dummy_c_p2", "HMR_dummy_n_p1", "HMR_dummy_c_p1" );
 
             if ( tIsOpt )
             {

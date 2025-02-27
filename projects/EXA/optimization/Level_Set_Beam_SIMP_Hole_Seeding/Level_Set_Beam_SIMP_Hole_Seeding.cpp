@@ -565,7 +565,7 @@ namespace moris
         aParameterLists.set( "bspline_orders", "1,2" );
         aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists.set( "initial_refinement", "1,0" );
+        aParameterLists.set( "initial_refinement", 1, 0 );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1;-1" );
 
@@ -633,7 +633,7 @@ namespace moris
         // aParameterLists.set("discretization_mesh_index",   -1);
         // aParameterLists.set("discretization_lower_bound", 0.001);
         // aParameterLists.set("discretization_upper_bound", 1.0);
-        aParameterLists.set( "pdv_mesh_set_names", tTotalDomainAGhost );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "ghost_p1" );
         tParamCounter++;
 
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
@@ -641,7 +641,7 @@ namespace moris
         aParameterLists.set( "dependencies", "Level_Set_Field" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "DENSITY" );
-        aParameterLists.set( "pdv_mesh_set_names", tTotalDomainAGhost );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "ghost_p1" );
         tParamCounter++;
     }
 

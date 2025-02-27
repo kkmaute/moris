@@ -136,11 +136,6 @@ namespace moris
         aParameterLists.set( "lagrange_pattern", std::string( "0" ) );
         aParameterLists.set( "bspline_orders", tOrder );
         aParameterLists.set( "bspline_pattern", std::string( "0" ) );
-
-
-        aParameterLists.set( "initial_refinement", "0" );
-
-
         aParameterLists.set( "lagrange_mesh_output_file_name", "LBAProblem.exo" );
     }
 

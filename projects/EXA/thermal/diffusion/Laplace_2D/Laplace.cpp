@@ -163,7 +163,6 @@ namespace moris
 
     std::string tLagrangeOrder   = std::to_string( std::max( tLevelsetOrder, tDispOrder ) );
     std::string tBsplineOrder    = std::to_string( tLevelsetOrder ) + "," + std::to_string( tDispOrder );
-    std::string tInitialRef      = std::to_string( tLevelsetInitialRef ) + "," + std::to_string( tDispInitialRef );
     std::string tLagrangePattern = "0";
 
     uint tInterfaceRefinementSphere = 0;
@@ -497,7 +496,7 @@ namespace moris
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
+        aParameterLists.set( "initial_refinement", tLevelsetInitialRef, tDispInitialRef );
 
         aParameterLists.set( "basis_function_vtk_file", "basisinhmr.vtk" );
         aParameterLists.set( "lagrange_mesh_output_file_name", "lagrangehmr.exo" );
