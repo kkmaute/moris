@@ -253,7 +253,7 @@ namespace moris::gen
         if ( tFirstParentNode.depends_on_advs() )
         {
             Matrix< DDRMat > tLocCoord          = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
-            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
             tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
 
@@ -261,7 +261,7 @@ namespace moris::gen
         if ( tSecondParentNode.depends_on_advs() )
         {
             Matrix< DDRMat > tLocCoord          = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
-            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
             tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
     }
@@ -328,7 +328,7 @@ namespace moris::gen
             real tG = tM + tN + tS;
             real tH = tM + tN + tP + tQ;
 
-            return { { 2.0 * tFacetDiffY / tH * ( tG / tH - 1 ), 2.0 * tFacetDiffX / tH * ( 1 - tG / tH ) } };
+            return { { 2.0 * tFacetDiffY / tH * ( tG / tH - 1.0 ), 2.0 * tFacetDiffX / tH * ( 1.0 - tG / tH ) } };
         }
         else
         {

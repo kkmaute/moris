@@ -171,22 +171,18 @@ namespace moris::xtk
             // Get the intersected cell from the background mesh
             mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( tBgCellIndex );
 
+            // Get the type of cell (tri, quad, tet, hex)
+            mtk::Geometry_Type tCellType = tCell.get_geometry_type();
+
             // Get the global coordinates of all the nodes of aCell
             Matrix< DDRMat > tBackgroundCellCoords = tCell.get_vertex_coords();
-
-            uint tDim = tBackgroundCellCoords.n_cols();
-
-            // Get the length of the element for local coordinate transformation later
-            Vector< real > tElementLengths( tDim );
-            for ( uint iDim = 0; iDim < tDim; iDim++ )
-            {
-                tElementLengths( iDim ) = tBackgroundCellCoords.get_column( iDim ).max() - tBackgroundCellCoords.get_column( iDim ).min();
-            }
+            uint             tNumCornerNodes       = this->get_num_geometric_nodes( tCellType );
+            uint             tDim                  = tBackgroundCellCoords.n_cols();
 
             // Get the surface points for this cell - parametric coordinates
             Matrix< DDRMat > tSurfacePoints = aMeshGenerationData->mDelaunayPoints( tBgCellIndex );
 
-            // Get the associated parametric coordinates for the surface points
+            // Get the associated global coordinates for the surface points
             Matrix< DDRMat > tGlobalSurfacePoints = this->get_surface_point_global_coordinates( tSurfacePoints, tCell );
 
             // Make requests for these vertices
@@ -232,17 +228,17 @@ namespace moris::xtk
                             mMeshGenerationData->mDelaunayGeometryIndices( tBgCellIndex )( iPoint ),
                             tCell,
                             tSurfacePoints.get_row( iPoint ),
-                            tCell.get_geometry_type(),
+                            tCellType,
                             tCell.get_interpolation_order() );
                 }
             }    // end for: iterate through surface points
 
             // Compute the total number of points for this child mesh
-            uint tNumCMPoints = tSurfacePoints.n_rows() + tBackgroundCellCoords.n_rows();
+            uint tNumPointsForDelaunay = tSurfacePoints.n_rows() + tNumCornerNodes;
 
             // Get all of the points for this child mesh into a single vector - background points
-            Vector< real > tSurfacePointsVector( tNumCMPoints * tDim );
-            for ( uint iPoint = 0; iPoint < tBackgroundCellCoords.n_rows(); iPoint++ )
+            Vector< real > tSurfacePointsVector( tNumPointsForDelaunay * tDim );
+            for ( uint iPoint = 0; iPoint < tNumCornerNodes; iPoint++ )
             {
                 for ( uint iDim = 0; iDim < tDim; iDim++ )
                 {
@@ -255,7 +251,7 @@ namespace moris::xtk
             {
                 for ( uint iDim = 0; iDim < tDim; iDim++ )
                 {
-                    tSurfacePointsVector( iDim + ( iPoint + tBackgroundCellCoords.n_rows() ) * tDim ) = tGlobalSurfacePoints( iPoint, iDim );
+                    tSurfacePointsVector( iDim + ( iPoint + tNumCornerNodes ) * tDim ) = tGlobalSurfacePoints( iPoint, iDim );
                 }
             }
 
@@ -413,6 +409,33 @@ namespace moris::xtk
     {
         // BRENDAN UPDATE
         return mtk::CellTopology::TRI3;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    uint
+    Delaunay_Subdivision_Interface::get_num_geometric_nodes( mtk::Geometry_Type aCellType ) const
+    {
+        switch ( aCellType )
+        {
+            case mtk::Geometry_Type::POINT:
+                return 1;
+            case mtk::Geometry_Type::LINE:
+                return 2;
+            case mtk::Geometry_Type::TRI:
+                return 3;
+            case mtk::Geometry_Type::QUAD:
+                return 4;
+            case mtk::Geometry_Type::TET:
+                return 4;
+            case mtk::Geometry_Type::HEX:
+                return 8;
+            case mtk::Geometry_Type::PENTA:
+                return 6;
+            default:
+                MORIS_ASSERT( false, "Unknown geometry type for cell" );
+                return 0;
+        }
     }
 
 }    // namespace moris::xtk

@@ -232,9 +232,32 @@ namespace moris
         }
 
         aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
-        aParameterLists.set( "center_y", -1.0 );
+        aParameterLists.set( "center_y", -0.52 );
         aParameterLists.set( "normal_x", .707106781 );
         aParameterLists.set( "normal_y", .707106781 );
+        switch ( tGeoModel )
+        {
+            case 0:
+            case 3:
+                aParameterLists.set( "center_x", 0.65 );
+                break;
+            case 1:
+            case 2:
+                aParameterLists.set( "center_x", 0.0, 0.65, 1.0 );
+                break;
+            case 4:
+            case 5:
+                aParameterLists.set( "center_x", 0.65 );
+                aParameterLists.set( "discretization_mesh_index", 0 );
+                break;
+            default:
+                MORIS_ERROR( false, "geometric model not implemented in test case" );
+        }
+
+        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+        aParameterLists.set( "center_y", -0.1 );
+        aParameterLists.set( "normal_x", 0.0 );
+        aParameterLists.set( "normal_y", 1.0 );
         switch ( tGeoModel )
         {
             case 0:

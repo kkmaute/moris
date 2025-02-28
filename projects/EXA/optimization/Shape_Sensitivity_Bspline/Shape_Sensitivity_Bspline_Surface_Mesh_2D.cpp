@@ -225,36 +225,32 @@ namespace moris
 
         aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
         aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
+        aParameterLists.set( "discretization_mesh_index", 0 );
+
         switch ( tGeoModel )
         {
             case 0:    // delaunay off
-                aParameterLists.set( "discretization_mesh_index", 0 );
-                aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 break;
             case 1:    // delaunay on
-                aParameterLists.set( "discretization_mesh_index", 0 );
                 aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 break;
             case 2:    // delaunay off
                 aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Geometry_Type::SURFACE_MESH );
+                aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/square.obj" );
                 aParameterLists.set( "discretization_mesh_index", 0 );
 
-                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
-                aParameterLists.set( "center_x", 0.0 );
-                aParameterLists.set( "center_y", 0.6 );
-                aParameterLists.set( "normal_x", 0.0 );
-                aParameterLists.set( "normal_y", 1.0 );
+                // aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+                // aParameterLists.set( "center_x", 0.0 );
+                // aParameterLists.set( "center_y", 0.6 );
+                // aParameterLists.set( "normal_x", 0.0 );
+                // aParameterLists.set( "normal_y", 1.0 );
                 break;
             case 3:    // delaunay on
-                aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Geometry_Type::SURFACE_MESH );
+                aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/square.obj" );
                 aParameterLists.set( "discretization_mesh_index", 0 );
-
-                // add a second geometry to test intersections on intersections
-                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
-                aParameterLists.set( "center_x", 0.0 );
-                aParameterLists.set( "center_y", 0.6 );
-                aParameterLists.set( "normal_x", 0.0 );
-                aParameterLists.set( "normal_y", 1.0 );
                 break;
             default:
                 MORIS_ERROR( false, "geometric model not implemented in test case" );

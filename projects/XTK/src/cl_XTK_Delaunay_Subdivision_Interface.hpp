@@ -88,6 +88,14 @@ namespace moris::xtk
          * @return Matrix< DDRMat > Global coordinates of the surface points. <nPoints, nDim>
          */
         Matrix< DDRMat > get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell );
+
+        /**
+         * Gets the number of corner nodes for a given cell type
+         * 
+         * @param aCellType The type of cell (tri, quad, tet, hex, etc.)
+         * @return the number of corner nodes
+         */
+        uint get_num_geometric_nodes( mtk::Geometry_Type aCellType ) const;
     };
 
 }    // namespace moris::xtk

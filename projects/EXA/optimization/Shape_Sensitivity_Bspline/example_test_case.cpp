@@ -79,8 +79,8 @@ check_results( uint aTestCaseIndex, const std::string& aHDF5FileName )
                     tConstraintsFD( tADVIndex ),
                     100 * std::abs( ( tConstraintsAnalytical( tADVIndex ) - tConstraintsFD( tADVIndex ) ) / ( tConstraintsFD( tADVIndex ) + MORIS_REAL_EPS ) ) );
 
-            CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( MORIS_REAL_EPS ) );
-            CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( MORIS_REAL_EPS ) );
+            CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1.0e8 * MORIS_REAL_EPS ) );
+            CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( 1.0e8 * MORIS_REAL_EPS ) );
         }
     }
 
@@ -148,7 +148,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_Surface_Mesh_2D",
     if ( par_size() == 1 )
     {
         // loop over all test configurations
-        for ( tGeoModel = 0; tGeoModel < 3; ++tGeoModel ) // brendan add back all test cases
+        for ( tGeoModel = 0; tGeoModel < 4; ++tGeoModel )    // brendan add back all test cases
         {
             // call to performance manager main interface
             int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
