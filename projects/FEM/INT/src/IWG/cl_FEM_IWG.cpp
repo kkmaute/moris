@@ -169,6 +169,7 @@ namespace moris::fem
                 break;
             }
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             case fem::Element_Type::TIME_BOUNDARY:
             {
                 m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
