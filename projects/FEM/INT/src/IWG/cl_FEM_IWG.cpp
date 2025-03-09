@@ -3405,6 +3405,14 @@ namespace moris::fem
         Matrix< DDRMat > tEvaluationPoint;
         tIGGI->get_space_time( tEvaluationPoint );
 
+        // store space unperturbed space time coefficients in logger
+        // BRENDAN: hack for convective sensitivities
+        Matrix< DDRMat > tIPSpaceTime = tIPGI->get_space_time();
+        for ( uint iDim = 0; iDim < tIPSpaceTime.numel(); iDim++ )
+        {
+            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_" + std::to_string( iDim ), tIPSpaceTime( iDim ) );
+        }
+
         // store unperturbed evaluation point weight
         real tGPWeight = aWStar / tIGGI->det_J();
 
@@ -3511,7 +3519,7 @@ namespace moris::fem
                     }
                 }
 
-                // check for valie perturbation size
+                // check for valid perturbation size
                 if ( tDeltaH == MORIS_REAL_MAX )
                 {
                     continue;
@@ -3579,7 +3587,7 @@ namespace moris::fem
                             LOGGER_ARBITRARY_DESCRIPTOR,
                             LOGGER_ARBITRARY_DESCRIPTOR,
                             "Epsilon",
-                            tFDScheme( 0 )( iPoint ) * mSet->get_finite_difference_perturbation_size() );
+                            tFDScheme( 0 )( iPoint ) * tDeltaH );
 
                     gLogger.set_action_data(
                             "GlobalClock",
@@ -3610,6 +3618,8 @@ namespace moris::fem
                     "Epsilon",
                     0.0 );
         }
+
+        PRINT( mSet->get_drdpgeo() );    // brendan delete
 
         // reset xyz values
         tIGGI->set_space_coeff( tCoeff );
