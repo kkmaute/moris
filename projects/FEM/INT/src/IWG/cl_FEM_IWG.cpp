@@ -3405,14 +3405,6 @@ namespace moris::fem
         Matrix< DDRMat > tEvaluationPoint;
         tIGGI->get_space_time( tEvaluationPoint );
 
-        // store space unperturbed space time coefficients in logger
-        // BRENDAN: hack for convective sensitivities
-        Matrix< DDRMat > tIPSpaceTime = tIPGI->get_space_time();
-        for ( uint iDim = 0; iDim < tIPSpaceTime.numel(); iDim++ )
-        {
-            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_" + std::to_string( iDim ), tIPSpaceTime( iDim ) );
-        }
-
         // store unperturbed evaluation point weight
         real tGPWeight = aWStar / tIGGI->det_J();
 
@@ -3430,6 +3422,22 @@ namespace moris::fem
 
         Vector< Vector< uint > > tTableFDScheme( (uint)fem::FDScheme_Type::END_FD_SCHEME );
         Vector< Vector< real > > tTablePertubSize( (uint)fem::FDScheme_Type::END_FD_SCHEME );
+
+        // store space unperturbed space time coefficients in logger
+        // FIXME BRENDAN: hack for convective sensitivities
+        Matrix< DDRMat > tIPSpaceTime = tIPGI->get_space_time();
+        for ( uint iDim = 0; iDim < tNormal.numel(); iDim++ )
+        {
+            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_" + std::to_string( iDim ), tIPSpaceTime( iDim ) );
+            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "Normal_" + std::to_string( iDim ), tNormal( iDim ) );
+            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "EvaluationPoint" + std::to_string( iDim ), tEvaluationPoint( iDim ) );
+            for ( uint iCol = 0; iCol < tCoeff.n_cols(); iCol++ )
+            {
+                gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceCoeff_" + std::to_string( iDim ) + std::to_string( iCol ), tCoeff( iDim, iCol ) );
+                gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceCoeffParam_" + std::to_string( iDim ) + std::to_string( iCol ), tParamCoeff( iDim, iCol ) );
+            }
+        }
+        gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_2", tIPSpaceTime( 2 ) );    // brendan definitely hacky
 
         // loop over the spatial directions
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
@@ -3549,7 +3557,7 @@ namespace moris::fem
                     Matrix< DDRMat > tCoeffPert = tCoeff + tFDScheme( 0 )( iPoint ) * tDeltaH * tDCoordDAdvLocal;
 
                     // setting the perturbed coefficients
-                    tIGGI->set_space_coeff( tCoeffPert );
+                    // tIGGI->set_space_coeff( tCoeffPert );
 
                     // update local coordinates
                     Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
@@ -3564,15 +3572,15 @@ namespace moris::fem
                         tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
                     }
 
-                    tIGGI->set_space_param_coeff( tParamCoeffPert );
+                    // tIGGI->set_space_param_coeff( tParamCoeffPert );
 
                     // set evaluation point for interpolators (FIs and GIs)
-                    mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                    // mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
 
                     // reset the normal
                     Matrix< DDRMat > tNormalPert;
                     tIGGI->get_normal( tNormalPert );
-                    this->set_normal( tNormalPert );
+                    // this->set_normal( tNormalPert );
 
                     // reset properties, CM and SP for IWG
                     this->reset_eval_flags();
@@ -3618,8 +3626,6 @@ namespace moris::fem
                     "Epsilon",
                     0.0 );
         }
-
-        PRINT( mSet->get_drdpgeo() );    // brendan delete
 
         // reset xyz values
         tIGGI->set_space_coeff( tCoeff );
