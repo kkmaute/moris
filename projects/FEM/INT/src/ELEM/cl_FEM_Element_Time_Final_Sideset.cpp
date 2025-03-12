@@ -254,8 +254,11 @@ namespace moris::fem
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
+        // get number of IQIs
+        uint tNumIQIs = mSet->get_number_of_requested_IQIs();
+
         // check for active IWGs
-        if ( tNumIWGs == 0 )
+        if ( tNumIWGs == 0 && tNumIQIs == 0 )
         {
             return;
         }
@@ -312,6 +315,37 @@ namespace moris::fem
 
                 // compute Jacobian at evaluation point
                 ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+
+                // compute dRdp if direct sensitivity analysis
+                if ( !mSet->mEquationModel->is_forward_analysis() &&    //
+                        !mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+                {
+                    // just placeholder
+                    Matrix< DDSMat > tGeoLocalAssembly;
+
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
+            }
+
+            // if adjoint sensitivity analysis is used and IQIs exists
+            if ( ( !mSet->mEquationModel->is_forward_analysis() ) &&              //
+                    mSet->mEquationModel->is_adjoint_sensitivity_analysis() &&    //
+                    ( tNumIQIs > 0 ) )
+            {
+                // loop over the IQIs
+                for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI > &tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // compute dQIdu at evaluation point
+                    ( this->*m_compute_dQIdu )( tReqIQI, tWStar );
+                }
             }
         }
     }
