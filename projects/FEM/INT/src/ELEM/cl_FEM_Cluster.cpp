@@ -14,6 +14,7 @@
 #include "cl_FEM_Element.hpp"                       //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
+#include "cl_VIS_Vertex_Visualization.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
 
@@ -269,8 +270,31 @@ namespace moris::fem
                 tLeaderFollower = mtk::Leader_Follower::UNDEFINED;
             }
 
-            // get vertices indices on cluster
-            aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster( tLeaderFollower );
+
+            // Check if this cluster is a visualization cluster. If so, we need the FEM indices and not the VIS indices, so have to do some mapping
+            if ( mIsVisCluster )
+            {
+                // Get the vertices in the cluster, cast them to visualization vertices
+                Vector< const mtk::Vertex * > tVertices = mMeshCluster->get_vertices_in_cluster( tLeaderFollower );
+
+                // Set size of return matrix
+                aVerticesIndices.resize( 1, tVertices.size() );
+
+                // Loop over all of the vertices in the cluster
+                for ( uint iVertex = 0; iVertex < tVertices.size(); ++iVertex )
+                {
+                    // Convert to VIS vertex
+                    auto tVertexVIS = dynamic_cast< const vis::Vertex_Visualization * >( tVertices( iVertex ) );
+
+                    // Grab the FEM index associated with this VIS vertex
+                    aVerticesIndices( iVertex ) = tVertexVIS->get_integration_index();
+                }
+            }
+            else
+            {
+                // get vertices indices on cluster
+                aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster( tLeaderFollower );
+            }
         }
     }
 
