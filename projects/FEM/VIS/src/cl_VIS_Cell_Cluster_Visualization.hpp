@@ -28,12 +28,12 @@ namespace moris
         class Cell_Cluster_Visualization : public mtk::Cell_Cluster
         {
           private:
-            bool                                      mTrivial;
-            moris::mtk::Cell const                   *mInterpolationCell;
+            bool                                 mTrivial;
+            moris::mtk::Cell const              *mInterpolationCell;
             Vector< moris::mtk::Cell const * >   mPrimaryIntegrationCells;
             Vector< moris::mtk::Cell const * >   mVoidIntegrationCells;
             Vector< moris::mtk::Vertex const * > mVerticesInCluster;
-            moris::Matrix< moris::DDRMat >            mVertexParamCoords;
+            moris::Matrix< moris::DDRMat >       mVertexParamCoords;
 
             // map from vertex id to local index
             std::unordered_map< moris_index, moris_index > mVertexIdToLocalIndex;    // FIXME should be ordered map. about 1000 times faster
@@ -45,7 +45,7 @@ namespace moris
                     , mPrimaryIntegrationCells( 0, nullptr )
                     , mVoidIntegrationCells( 0, nullptr )
                     , mVerticesInCluster( 0, nullptr )
-                    , mVertexParamCoords( 0, 0 ){};
+                    , mVertexParamCoords( 0, 0 ) {};
 
             //    Cell_Cluster_Visualization( bool                     aIsTrivial,
             //                                moris::mtk::Cell const * aInterpolationCell, ) : mTrivial( aIsTrivial ),

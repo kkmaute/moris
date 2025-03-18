@@ -71,7 +71,7 @@ namespace moris::vis
         // add vertices to map
         moris_index tIndex = mVerticesInCluster.size();
 
-        // add vertices to map
+        // add vertices to map between global node IDs and VIS IDs
         for ( moris::uint i = 0; i < aVertex.size(); i++ )
         {
             this->add_vertex_to_map( aVertex( i )->get_id(), tIndex );
