@@ -414,7 +414,7 @@ namespace moris::xtk
     //--------------------------------------------------------------------------------------------------
 
     uint
-    Delaunay_Subdivision_Interface::get_num_geometric_nodes( mtk::Geometry_Type aCellType ) const
+    Delaunay_Subdivision_Interface::get_num_geometric_nodes( const mtk::Geometry_Type aCellType ) const
     {
         switch ( aCellType )
         {

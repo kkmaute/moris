@@ -34,7 +34,6 @@ namespace moris::xtk
         moris::uint                       mNumTotalCells = 0;
 
         Vector< Vector< real > > mAllSurfacePoints;
-        Vector< moris_index >    mCellsWithSurfacePoints;
 
       public:
         Delaunay_Subdivision_Interface( Parameter_List& aParameterList );
@@ -95,7 +94,7 @@ namespace moris::xtk
          * @param aCellType The type of cell (tri, quad, tet, hex, etc.)
          * @return the number of corner nodes
          */
-        uint get_num_geometric_nodes( mtk::Geometry_Type aCellType ) const;
+        uint get_num_geometric_nodes( const mtk::Geometry_Type aCellType ) const;
     };
 
 }    // namespace moris::xtk
