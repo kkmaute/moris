@@ -270,7 +270,6 @@ namespace moris::fem
                 tLeaderFollower = mtk::Leader_Follower::UNDEFINED;
             }
 
-
             // Check if this cluster is a visualization cluster. If so, we need the FEM indices and not the VIS indices, so have to do some mapping
             if ( mIsVisCluster )
             {
