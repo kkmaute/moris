@@ -3419,7 +3419,6 @@ namespace moris::fem
         Matrix< DDRMat > tDrDpGeo( tResDofAssemblyStop - tResDofAssemblyStart + 1, 1 );
 
         // determine feasible perturbation size and fd scheme
-
         Vector< Vector< uint > > tTableFDScheme( (uint)fem::FDScheme_Type::END_FD_SCHEME );
         Vector< Vector< real > > tTablePertubSize( (uint)fem::FDScheme_Type::END_FD_SCHEME );
 
@@ -3430,14 +3429,14 @@ namespace moris::fem
         {
             gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_" + std::to_string( iDim ), tIPSpaceTime( iDim ) );
             gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "Normal_" + std::to_string( iDim ), tNormal( iDim ) );
-            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "EvaluationPoint" + std::to_string( iDim ), tEvaluationPoint( iDim ) );
+            gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "EvaluationPoint_" + std::to_string( iDim ), tEvaluationPoint( iDim ) );
             for ( uint iCol = 0; iCol < tCoeff.n_cols(); iCol++ )
             {
                 gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceCoeff_" + std::to_string( iDim ) + std::to_string( iCol ), tCoeff( iDim, iCol ) );
                 gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceCoeffParam_" + std::to_string( iDim ) + std::to_string( iCol ), tParamCoeff( iDim, iCol ) );
             }
         }
-        gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_2", tIPSpaceTime( 2 ) );    // brendan definitely hacky
+        gLogger.set_action_data( "GlobalClock", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, "SpaceTime_" + std::to_string( tIPSpaceTime.numel() - 1 ), tIPSpaceTime( tIPSpaceTime.numel() - 1 ) );
 
         // loop over the spatial directions
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
