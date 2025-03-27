@@ -3454,7 +3454,7 @@ namespace moris::fem
                         iCoeffCol,
                         tUsedFDSchemeType );
 
-                tTableFDScheme( (uint)tUsedFDSchemeType ).push_back( iCoeffCol * tDerNumBases + iCoeffRow );
+                tTableFDScheme( (uint)tUsedFDSchemeType ).push_back( iCoeffCol + iCoeffRow * tDerNumDimensions );
                 tTablePertubSize( (uint)tUsedFDSchemeType ).push_back( tDeltaH );
             }
         }
@@ -3515,8 +3515,8 @@ namespace moris::fem
                 {
                     uint tKey = tTableFDScheme( iFDScheme )( iEntry );
 
-                    uint iNode = std::floor( tKey / tDerNumBases );
-                    uint iDir  = tKey % tDerNumBases;
+                    uint iNode = std::floor( tKey / tDerNumDimensions );
+                    uint iDir  = tKey - iNode * tDerNumDimensions;
 
                     tDCoordDAdvLocal( iNode, iDir ) = tDCoordDAdv( iNode, iDir );
 
