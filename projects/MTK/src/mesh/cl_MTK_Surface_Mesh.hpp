@@ -68,6 +68,14 @@ namespace moris::mtk
                 const Vector< Vector< moris_index > >& aFacetConnectivity,
                 real                                   aIntersectionTolerance = 1e-8 );
 
+        /**
+         * Removes vertices that are not part of any facet and updates the facet connectivity accordingly
+         *
+         * @param aVertexCoordinates <dimension> x <number of vertices> matrix containing vertex coordinates with potential extraneous vertices
+         * @param aFacetConnectivity Vector of vectors containing the local indices of the vertices that form each facet
+         */
+        void clean_extraneous_vertices();
+
         // -------------------------------------------------------------------------------
         // Mesh deformation methods
         // -------------------------------------------------------------------------------

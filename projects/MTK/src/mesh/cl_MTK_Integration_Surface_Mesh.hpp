@@ -42,6 +42,15 @@ namespace moris::mtk
                 const Vector< std::string >        &aSideSetNames );
 
         // methods
+        
+        [[nodiscard]] Matrix< DDRMat > initialize_vertex_coordinates( Integration_Mesh const *aIGMesh );
+
+        [[nodiscard]] Vector< Vector< moris_index > > get_cell_to_vertex_indices(
+                Integration_Mesh const           *aIGMesh,
+                const Vector< Side_Set const * > &aSideSets ) const;
+
+        Vector< Side_Set const * >
+        obtain_sidesets_from_names( Integration_Mesh_DataBase_IG const *aIGMesh, const Vector< std::string > &aSideSetNames );
 
         void set_all_displacements( const Matrix< DDRMat > &aDisplacements ) override;
 

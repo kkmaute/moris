@@ -57,6 +57,9 @@ namespace moris::mtk
             , mFacetConnectivity( aFacetConnnectivity )
             , mIntersectionTolerance( aIntersectionTolerance )
     {
+        // Remove the unused vertices, update the facet connectivity
+        this->clean_extraneous_vertices();
+
         // Initialize distortion vectors/matrices
         this->reset_coordinates();
 
@@ -69,6 +72,61 @@ namespace moris::mtk
 #else
         MORIS_LOG_WARNING( "You are using an mtk::Surface_Mesh without ArborX turned on. While all functionality is available, raycasting will be MUCH slower than you'd like." );
 #endif
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::clean_extraneous_vertices()
+    {
+        // STEP 1: Check if all vertices are used in the mesh
+        // Initialize vector to store all the vertices
+        Vector< moris_index > tUsedVertexIndices( mFacetConnectivity.size() * mFacetConnectivity( 0 ).size(), MORIS_INDEX_MAX );
+
+        // Loop through all the facets and store the used vertices
+        uint tIndex = 0;
+        for ( auto tFacet : mFacetConnectivity )
+        {
+            for ( moris_index tVertexIndex : tFacet )
+            {
+                tUsedVertexIndices( tIndex++ ) = tVertexIndex;
+            }
+        }
+
+        // Remove duplicates, sort in ascending order
+        std::sort( tUsedVertexIndices.begin(), tUsedVertexIndices.end() );
+        auto tLast = std::unique( tUsedVertexIndices.begin(), tUsedVertexIndices.end() );
+        tUsedVertexIndices.resize( std::distance( tUsedVertexIndices.begin(), tLast ) );
+
+        // STEP 2: Update the vertex coordinates and facet connectivity
+        if ( tUsedVertexIndices.size() < mVertexCoordinates.n_cols() )
+        {
+            // Create map to track the original vertex index to the cleaned vertex index
+            std::map< moris_index, moris_index > tVertexIndexMap;
+
+            // Get the number of used vertices
+            uint tNumUsedVertices = tUsedVertexIndices.size();
+
+            // Loop through the used vertices update the vertex coordinates
+            for ( uint iVertex = 0; iVertex < tNumUsedVertices; ++iVertex )
+            {
+                mVertexCoordinates.set_column( iVertex, mVertexCoordinates.get_column( tUsedVertexIndices( iVertex ) ) );
+
+                // Update the vertex index map
+                tVertexIndexMap[ tUsedVertexIndices( iVertex ) ] = iVertex;
+            }
+
+            // Trim the vertex coordinates matrix
+            mVertexCoordinates.resize( mVertexCoordinates.n_rows(), tNumUsedVertices );
+
+            // Loop through the facets and replace the vertex indices with the cleaned indices
+            for ( auto& tFacet : mFacetConnectivity )
+            {
+                for ( moris_index& tVertexIndex : tFacet )
+                {
+                    tVertexIndex = tVertexIndexMap[ tVertexIndex ];
+                }
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
