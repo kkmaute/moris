@@ -23,7 +23,7 @@ namespace moris::gen
     {
         Vector< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
         Vector< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
-        sint           mRefinementFunctionIndex;    // Index of a user-defined refinement function (-1 = default)
+        sint           mRefinementFunctionIndex;    // Index of a user-defined refinement function (default = -1)
 
         /**
          * Constructor with a given parameter list

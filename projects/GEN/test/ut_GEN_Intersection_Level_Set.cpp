@@ -194,10 +194,11 @@ namespace moris::gen
                             CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface );
                             CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
 
-                            // See if local coordinate is a number
-                            real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
-                            if ( not std::isnan( tLocalCoordinate ) )
+                            // Intersection only valid if one parent not on interface
+                            if ( not( tFirstParentOnInterface and tSecondParentOnInterface ) )
                             {
+                                real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
+
                                 // Check local coordinate; note reference values are for radius of exactly 0.75; thus higher margin needed
                                 CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
 
@@ -496,10 +497,12 @@ namespace moris::gen
                             CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface );
                             CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
 
-                            // See if local coordinate is a number
-                            real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
-                            if ( not std::isnan( tLocalCoordinate ) )
+                            // Local coordinate only valid if one parent node not on interface
+                            if ( not( tFirstParentOnInterface and tSecondParentOnInterface ) )
                             {
+                                // Get the local coordinate
+                                real tLocalCoordinate = tGeometryEngine.get_queued_intersection_local_coordinate();
+
                                 // Check local coordinate
                                 CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
 

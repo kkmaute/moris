@@ -239,6 +239,7 @@ namespace moris::prm
         tGeometryParameterList.set( "design_type", "geometry" );             // Set the design type to a geometry
         tGeometryParameterList.insert( "geometry_type", "" );                // Insert the geometry type parameter
         tGeometryParameterList.insert( "intersection_tolerance", 1e-12 );    // Interface tolerance based on intersection distance
+        tGeometryParameterList.insert( "delaunay", false );                  // Whether to use Delaunay triangulation for geometry
 
         return tGeometryParameterList;
     }

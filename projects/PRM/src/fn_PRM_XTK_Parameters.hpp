@@ -26,7 +26,6 @@ namespace moris::prm
         // decomposition and decomposition related parameters
         tParameterList.insert( "decompose", true );
         tParameterList.insert( "decomposition_type", "conformal" );
-        tParameterList.insert( "delaunay", false );    // Perform delaunay triangulation on surface points of geometries
         tParameterList.insert( "octree_refinement_level", "-1" );
         tParameterList.insert( "triangulate_all", false );    // NOTE: this option does fail if the Lagrange mesh is not uniformly refined
         tParameterList.insert( "ig_element_order", moris::uint( 1 ) );

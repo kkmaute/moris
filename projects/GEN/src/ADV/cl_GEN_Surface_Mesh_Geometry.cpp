@@ -192,6 +192,12 @@ namespace moris::gen
 
     bool Surface_Mesh_Geometry::has_surface_points( mtk::Cell* aCell )
     {
+        // Check if Delaunay triangulation is turned on for this geometry
+        if ( not mParameters.mDelaunay )
+        {
+            return false;
+        }
+
         // Try and see if the pointer is in the stored list
         auto tIt = std::find( mCurrentVertexBackgroundElements.begin(), mCurrentVertexBackgroundElements.end(), aCell );
 

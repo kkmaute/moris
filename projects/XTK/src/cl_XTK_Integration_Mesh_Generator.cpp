@@ -449,18 +449,9 @@ namespace moris::xtk
         aMeshGenerationData.mIntersectedBackgroundCellIndex.resize( tNumGeometries );
         aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
 
-        // Check if we need to do delaunay
-        bool tDelaunay = std::any_of(
-                mSubdivisionMethods.cbegin(),
-                mSubdivisionMethods.cend(),
-                []( const enum Subdivision_Method& aMethod ) { return aMethod == Subdivision_Method::C_DELAUNAY; } );
-
-        if ( tDelaunay )
-        {
-            // Allocate memory for all of the information used in the decomposition algorithms
-            aMeshGenerationData.mDelaunayPoints.reserve( tNumCells );
-            aMeshGenerationData.mDelaunayGeometryIndices.resize( tNumCells );
-        }
+        // Allocate memory for all of the information used in the decomposition algorithms
+        aMeshGenerationData.mDelaunayPoints.reserve( tNumCells );
+        aMeshGenerationData.mDelaunayGeometryIndices.resize( tNumCells );
 
         // Initialize geometric query
         Geometric_Query tGeometricQuery;
@@ -493,8 +484,16 @@ namespace moris::xtk
             // iterate through all geometries for current cell
             for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
             {
-                if ( tDelaunay and mXTKModel->get_geom_engine()->has_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) ) )
+                if ( mXTKModel->get_geom_engine()->has_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) ) )
                 {
+                    // check to see if this cell will be regular subdivided by another geometry - if so, we need to overwrite the subdivision for that cell
+                    auto tIter = std::find( aMeshGenerationData.mRegularSubdivisionBgCellInds.begin(), aMeshGenerationData.mRegularSubdivisionBgCellInds.end(), iCell );
+                    if ( tIter != aMeshGenerationData.mRegularSubdivisionBgCellInds.end() )
+                    {
+                        // remove this cell from the list of regular subdivision cells
+                        aMeshGenerationData.mRegularSubdivisionBgCellInds.erase( tIter );
+                    }
+
                     // Get the surface points for this cell for this geometry and store
                     tSurfacePoints( iGeom ) = mXTKModel->get_geom_engine()->get_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) );
 
@@ -516,7 +515,7 @@ namespace moris::xtk
                 else if ( mXTKModel->get_geom_engine()->is_intersected( iGeom, tGeometricQuery.get_query_entity_to_vertex_connectivity() ) )
                 {
                     // check to see if this cell will be delaunay triangulated by another geometry
-                    if ( not tDelaunay or std::find( aMeshGenerationData.mDelaunayBgCellInds.begin(), aMeshGenerationData.mDelaunayBgCellInds.end(), iCell ) == aMeshGenerationData.mDelaunayBgCellInds.end() )
+                    if ( std::find( aMeshGenerationData.mDelaunayBgCellInds.begin(), aMeshGenerationData.mDelaunayBgCellInds.end(), iCell ) == aMeshGenerationData.mDelaunayBgCellInds.end() )
                     {
                         // add background cell to the list of cells for regular subdivision
                         aMeshGenerationData.mRegularSubdivisionBgCellInds.push_back( iCell );
@@ -537,12 +536,10 @@ namespace moris::xtk
                     aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
                 }
             }
-            if ( tDelaunay )
-            {
-                // add surface points to the list of all surface points
-                aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 1 ) );
-                aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
-            }
+
+            // add surface points to the list of all surface points
+            aMeshGenerationData.mDelaunayPoints.push_back( concatenate_vector_of_mats( tSurfacePoints, 1 ) );
+            aMeshGenerationData.mDelaunayGeometryIndices( iCell ) = tGeomIndices;
         }
 
         // remove the excess space

@@ -617,7 +617,6 @@ namespace moris::xtk
         mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
         std::string        tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
         moris::lint        tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
-        bool               tDelaunay         = mParameterList.get< bool >( "delaunay" );
 
         if ( tDecompStr.compare( "octree_only" ) == 0 )
         {
@@ -644,8 +643,8 @@ namespace moris::xtk
             MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Non-conformal" );
         }
 
-        // add Delaunay if requested, note that this must come before the regular subdivision
-        if ( tDelaunay && tConformal )
+        // add Delaunay, note that this must come before the regular subdivision
+        if ( tConformal )
         {
             tSubdivisionMethods.push_back( Subdivision_Method::C_DELAUNAY );
         }
