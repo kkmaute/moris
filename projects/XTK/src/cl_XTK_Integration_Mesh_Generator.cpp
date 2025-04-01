@@ -486,12 +486,15 @@ namespace moris::xtk
             {
                 if ( mXTKModel->get_geom_engine()->has_surface_points( iGeom, &aBackgroundMesh->get_mtk_cell( iCell ) ) )
                 {
-                    // check to see if this cell will be regular subdivided by another geometry - if so, we need to overwrite the subdivision for that cell
+                    // check to see if this cell will be regular subdivided by other geometries - if so, we need to overwrite the subdivision for that cell
                     auto tIter = std::find( aMeshGenerationData.mRegularSubdivisionBgCellInds.begin(), aMeshGenerationData.mRegularSubdivisionBgCellInds.end(), iCell );
-                    if ( tIter != aMeshGenerationData.mRegularSubdivisionBgCellInds.end() )
+                    while ( tIter != aMeshGenerationData.mRegularSubdivisionBgCellInds.end() )
                     {
                         // remove this cell from the list of regular subdivision cells
                         aMeshGenerationData.mRegularSubdivisionBgCellInds.erase( tIter );
+
+                        // Check if another geometry added this cell to the list of intersected cells
+                        tIter = std::find( aMeshGenerationData.mRegularSubdivisionBgCellInds.begin(), aMeshGenerationData.mRegularSubdivisionBgCellInds.end(), iCell );
                     }
 
                     // Get the surface points for this cell for this geometry and store
