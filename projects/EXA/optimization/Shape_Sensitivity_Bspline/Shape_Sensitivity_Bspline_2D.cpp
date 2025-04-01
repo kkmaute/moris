@@ -8,6 +8,7 @@
  *
  */
 
+#include "paths.hpp"
 #include <string>
 #include <iostream>
 #include "moris_typedefs.hpp"
@@ -32,7 +33,7 @@
 // case 4: var: 0-8 + b-spline  |  var: na
 // case 5: na                   |  var: 0-8  + b-spline
 // case 6: var: 0-8 + b-spline  |  var: 9-15 + b-spline
-extern uint tGeoModel;
+extern std::shared_ptr< moris::Vector< std::string > > tGeometrySetup;
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +44,42 @@ namespace moris
 
     std::string tMeshSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
+    // Analytic function for surface mesh
+    Vector< real > SM_Perturbation( const Matrix< DDRMat >& aFacetVertexCoordinates,
+            const Vector< real >&                           aADVs )
+    {
+        // ADV only affects x coordinates
+        return { aADVs( 0 ), 0.0 };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void SM_Perturbation_Sensitivity( const Matrix< DDRMat >& aFacetVertexCoordinates,
+            const Vector< real >&                             aADVs,
+            Matrix< DDRMat >&                                 aSensitivity )
+    {
+        // Sensitivity of the coordinate perturbation by the ADV
+        aSensitivity = { { 1.0 }, { 0.0 } };
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    // Discretization scaling for surface mesh, arbitrary just to test different scalings
+    Vector< real >
+    Facet_Vertex_Factor( const Matrix< DDRMat >& aCoordinates )
+    {
+        if ( aCoordinates( 0 ) > 1.0 )
+        {
+            return { 0.5, 1.0 };
+        }
+        else
+        {
+            return { 1.2, 1.2 };
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     // Constant function for properties
     void
     Func_Const( moris::Matrix< moris::DDRMat >&       aPropMatrix,
@@ -51,6 +88,8 @@ namespace moris
     {
         aPropMatrix = aParameters( 0 );
     }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     bool
     Output_Criterion( moris::tsa::Time_Solver* aTimeSolver )
@@ -208,73 +247,88 @@ namespace moris
 
         // Geometry parameter lists
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
-        aParameterLists.set( "center_y", -1.0 );
-        aParameterLists.set( "normal_x", 1.0 );
-        aParameterLists.set( "normal_y", 0.0 );
-        switch ( tGeoModel )
+        // Create geometries based on the keys in tGeometrySetup
+        for ( const auto& tGeom : *tGeometrySetup )
         {
-            case 0:
-            case 2:
-                aParameterLists.set( "center_x", 0.0, 0.2, 1.0 );
-                break;
-            case 1:
-            case 4:
-                aParameterLists.set( "center_x", 0.2 );
-                break;
-            case 3:
-            case 5:
-                aParameterLists.set( "center_x", 0.2 );
-                aParameterLists.set( "discretization_mesh_index", 0 );
-                break;
-            default:
-                MORIS_ERROR( false, "geometric model not implemented in test case" );
-        }
+            // Get which geometry to create
+            size_t      tNamePos = tGeom.find( "-" );
+            std::string tName    = tGeom.substr( 0, tNamePos );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
-        aParameterLists.set( "center_y", -0.52 );
-        aParameterLists.set( "normal_x", .707106781 );
-        aParameterLists.set( "normal_y", .707106781 );
-        switch ( tGeoModel )
-        {
-            case 0:
-            case 3:
-                aParameterLists.set( "center_x", 0.65 );
-                break;
-            case 1:
-            case 2:
-                aParameterLists.set( "center_x", 0.0, 0.65, 1.0 );
-                break;
-            case 4:
-            case 5:
-                aParameterLists.set( "center_x", 0.65 );
-                aParameterLists.set( "discretization_mesh_index", 0 );
-                break;
-            default:
-                MORIS_ERROR( false, "geometric model not implemented in test case" );
-        }
+            // Get the ADV dependency type
+            size_t      tADVPos = tGeom.find( "-", tNamePos + 1 );
+            std::string tADV    = tGeom.substr( tNamePos + 1, tADVPos - tNamePos - 1 );
 
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
-        aParameterLists.set( "center_y", -0.1 );
-        aParameterLists.set( "normal_x", 0.0 );
-        aParameterLists.set( "normal_y", 1.0 );
-        switch ( tGeoModel )
-        {
-            case 0:
-            case 3:
-                aParameterLists.set( "center_x", 0.65 );
-                break;
-            case 1:
-            case 2:
-                aParameterLists.set( "center_x", 0.0, 0.65, 1.0 );
-                break;
-            case 4:
-            case 5:
-                aParameterLists.set( "center_x", 0.65 );
-                aParameterLists.set( "discretization_mesh_index", 0 );
-                break;
-            default:
-                MORIS_ERROR( false, "geometric model not implemented in test case" );
+            // Get the delaunay type
+            std::string tDelaunay = tGeom.substr( tADVPos + 1, tGeom.size() - tADVPos - 1 );
+
+            if ( tName == "VL" )    // make vertical line geometry
+            {
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+                aParameterLists.set( "center_y", -1.0 );
+                aParameterLists.set( "normal_x", 1.0 );
+                aParameterLists.set( "normal_y", 0.0 );
+
+                // Set the ADV dependency
+                if ( tADV == "A" )
+                {
+                    aParameterLists.set( "center_x", 0.0, 0.65, 1.0 );
+                }
+                else if ( tADV == "D" )
+                {
+                    aParameterLists.set( "center_x", 0.65 );
+                    aParameterLists.set( "discretization_mesh_index", 0 );
+                }
+            }
+            else if ( tName == "OL" )    // make oblique line geometry
+            {
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
+                aParameterLists.set( "center_y", -0.52 );
+                aParameterLists.set( "normal_x", .707106781 );
+                aParameterLists.set( "normal_y", .707106781 );
+
+                // Set the ADV dependency
+                if ( tADV == "A" )
+                {
+                    aParameterLists.set( "center_x", 0.0, 0.65, 1.0 );
+                }
+                else if ( tADV == "D" )
+                {
+                    aParameterLists.set( "center_x", 0.65 );
+                    aParameterLists.set( "discretization_mesh_index", 0 );
+                }
+            }
+            else if ( tName == "SM" )    // make surface mesh geometry
+            {
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
+                aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/test_trapezoid.obj" );
+
+                // Set the ADV dependency
+                if ( tADV == "A" )
+                {
+                    aParameterLists.insert( "x_pos", Design_Variable( -1.0, 0.0, 1.0 ) );
+                    aParameterLists.set( "field_function_name", "SM_Perturbation" );
+                    aParameterLists.set( "sensitivity_function_name", "SM_Perturbation_Sensitivity" );
+                }
+                else if ( tADV == "D" )
+                {
+                    aParameterLists.set( "discretization_mesh_index", 0 );
+                    aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                }
+            }
+            else
+            {
+                MORIS_ERROR( false, "Geometry model not implemented in test case, available keys are VL, OL, and SM - provided key is %s", tName.c_str() );
+            }
+
+            // Set delaunay if needed
+            if ( tDelaunay == "D" )
+            {
+                aParameterLists.set( "delaunay", true );
+            }
+            else
+            {
+                aParameterLists.set( "delaunay", false );
+            }
         }
     }
 
