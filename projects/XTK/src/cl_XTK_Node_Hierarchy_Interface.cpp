@@ -242,8 +242,12 @@ namespace moris::xtk
 
                 real tIntersectionLocalCoordinate = mGeometryEngine->get_queued_intersection_local_coordinate();
 
-                // only add the intersection node if the intersection does not lie on either end
-                if ( std::abs( tIntersectionLocalCoordinate ) < ( 1.0 - MORIS_REAL_EPS ) )
+                // Check if both parents are on the interface and if the intersection is somewhere in the middle of the edge
+                bool tBothParentsOnInterface = mGeometryEngine->queued_intersection_first_parent_on_interface() and mGeometryEngine->queued_intersection_second_parent_on_interface();
+                bool tValidIntersection      = std::abs( tIntersectionLocalCoordinate ) < ( 1.0 - MORIS_REAL_EPS );
+
+                // only add the intersection node if the intersection does not lie on either end and both parent nodes are not on the interface
+                if ( tValidIntersection and not tBothParentsOnInterface )
                 {
                     // add index and intersection position to list of intersected edges
                     aIntersectedEdges.push_back( (moris_index)iEdge );

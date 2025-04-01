@@ -131,7 +131,7 @@ namespace moris::gen
         // Try to directly determine the geometric region based on the field value alone
         // return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
 
-        //FIXME BRENDAN: Let analytic level set fields determine the geometric region directly
+        // FIXME BRENDAN: Let analytic level set fields determine the geometric region directly
         return Geometric_Region::UNDEFINED;
     }
 
@@ -191,6 +191,26 @@ namespace moris::gen
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode )
     {
+        // If either parent node is on the interface, we can skip the entire intersection procedure and return the local coordinates of the parent nodes
+        bool tFirstParentOnInterface  = ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
+        bool tSecondParentOnInterface = ( this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
+        if ( tFirstParentOnInterface and tSecondParentOnInterface )
+        {
+            return 0.0;
+        }
+        else if ( tFirstParentOnInterface )
+        {
+            return -1.0;
+        }
+        else if ( tSecondParentOnInterface )
+        {
+            return 1.0;
+        }
+
+        // Get the field value of the parent nodes
+        real tFirstParentFieldValue  = this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        real tSecondParentFieldValue = this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+
         if ( this->use_multilinear_interpolation() )
         {
             // get isocontour threshold from geometry
@@ -253,8 +273,8 @@ namespace moris::gen
             tIsocontourThreshold *= tPhiScaling;
 
             // Get scaled parent level set values
-            real tFirstParentPhi  = tPhiScaling * this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
-            real tSecondParentPhi = tPhiScaling * this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+            real tFirstParentPhi  = tPhiScaling * tFirstParentFieldValue;
+            real tSecondParentPhi = tPhiScaling * tSecondParentFieldValue;
 
             // check that line is intersected
             if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
@@ -461,8 +481,7 @@ namespace moris::gen
         else
         {
             // Interface geometry values
-            Matrix< DDRMat > tInterfaceGeometryValues = { { this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) },
-                { this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) } };
+            Matrix< DDRMat > tInterfaceGeometryValues = { { tFirstParentFieldValue }, { tSecondParentFieldValue } };
 
             // Get isocontour threshold
             real tIsocontourThreshold = this->get_isocontour_threshold();
