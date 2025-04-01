@@ -8,8 +8,6 @@
  *
  */
 
-// BRENDAN check for const correctness where possible
-
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Delaunay_Subdivision_Interface.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
@@ -91,7 +89,7 @@ namespace moris::xtk
 
                 Vector< real > tSurfacePoints = mAllSurfacePoints( iCM );
 
-                // Perform delaunay triangulation to get the connectivity for the new cells BRENDAN add compiler directive
+                // Perform delaunay triangulation to get the connectivity for the new cells FIXME @bc add compiler directive to check if geompack3d is available
                 dtris2_(
                         tNumAllSurfacePoints,
                         tMaxNumTriangles,
@@ -154,6 +152,14 @@ namespace moris::xtk
         uint tNumBackgroundCells = mCutIntegrationMesh->get_num_ig_cell_groups();
         uint tNumDelaunayCells   = aMeshGenerationData->mDelaunayBgCellInds.size();
 
+        if ( tNumDelaunayCells == 0 )
+        {
+            return;
+        }
+
+        // TODO @bc: implement 3D triangulation
+        MORIS_ERROR( aCutIntegrationMesh->get_spatial_dim() == 2, "Delaunay triangulation is only supported for 2D meshes. This needs to be implemented" );
+
         // Setup decomposition data for this algorithm
         mDecompositionData->mHasSecondaryIdentifier = true;
         mDecompositionData->tCMNewNodeLoc           = Vector< Vector< moris_index > >( tNumBackgroundCells );
@@ -191,7 +197,7 @@ namespace moris::xtk
                 // get the parent rank of the new node
                 mtk::EntityRank tParentRank = mtk::EntityRank::ELEMENT;
 
-                // get a unique ID for this vertex? BRENDAN: need to figure out how to do this
+                // FIXME @bc: this secondary ID is not guaranteed to be unique with intersection nodes right now
                 moris_index tSecondaryID = std::stoul( std::to_string( tBgCellIndex ) + std::to_string( iPoint ) );
 
                 moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
@@ -323,7 +329,7 @@ namespace moris::xtk
                 mNewCellChildMeshIndex( tNewCellIndex ) = iCM;
 
                 // Add the global indices of the vertices to the new cell connectivity
-                for ( uint iV = 0; iV < 3; iV++ )    // brendan hard coded
+                for ( uint iV = 0; iV < 3; iV++ )
                 {
                     // Get the local index of the vertex to be added to the cell from the local connectivity
                     moris_index tNewVertexCMOrdinal = tCellToVertexConnectivity( iCell )( iNewCell * 3 + iV ) - 1;
@@ -407,7 +413,7 @@ namespace moris::xtk
     mtk::CellTopology
     Delaunay_Subdivision_Interface::get_ig_cell_topology() const
     {
-        // BRENDAN UPDATE
+        // TODO @bc: implement 3D triangulation
         return mtk::CellTopology::TRI3;
     }
 

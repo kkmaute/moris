@@ -340,11 +340,11 @@ namespace moris::gen
             }
         }
 
-        if ( tParentVertex == MORIS_UINT_MAX )    // brendan delete
+        if ( tParentVertex == MORIS_UINT_MAX )
         {
             this->write_to_file( "failed.obj" );
+            MORIS_ERROR( false, "Floating node %d does not lie on a vertex of surface mesh \"%s\"", aNodeIndex, this->get_name().c_str() );
         }
-        MORIS_ERROR( tParentVertex != MORIS_UINT_MAX, "Floating node %d does not lie on a vertex of surface mesh \"%s\"", aNodeIndex, this->get_name().c_str() );
 
         // Create surface mesh floating node
         return new Floating_Node_Surface_Mesh(

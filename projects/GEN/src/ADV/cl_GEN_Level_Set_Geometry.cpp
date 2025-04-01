@@ -131,7 +131,7 @@ namespace moris::gen
         // Try to directly determine the geometric region based on the field value alone
         // return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
 
-        // FIXME BRENDAN: Let analytic level set fields determine the geometric region directly
+        // FIXME @bc: Let analytic level set fields determine the geometric region directly
         return Geometric_Region::UNDEFINED;
     }
 
@@ -508,6 +508,10 @@ namespace moris::gen
         {
             // Get parents
             const Vector< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
+
+            MORIS_ASSERT( tParentNodes.size() == 2,
+                    "Level_Set_Geometry::get_dfield_dcoordinates - Linear interpolation expects 2 parent nodes, but got %ld.",
+                    tParentNodes.size() );
 
             // Geometry values
             real tDeltaPhi = this->get_field_value( tParentNodes( 1 ).get_index(), tParentNodes( 1 ).get_global_coordinates() )
