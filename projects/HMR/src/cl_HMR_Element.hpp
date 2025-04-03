@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_ELEMENT_HPP_
-#define SRC_HMR_CL_HMR_ELEMENT_HPP_
+#pragma once
 
 #include <string>
 
@@ -664,5 +663,3 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_ELEMENT_HPP_ */

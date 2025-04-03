@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_FACTORY_HPP_
-#define SRC_HMR_CL_HMR_FACTORY_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Mesh_Base.hpp"    //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp"       //HMR/src
@@ -76,7 +75,7 @@ namespace moris::hmr
                 Background_Mesh_Base*      aBackgroundMesh,
                 Vector< BSpline_Mesh_Base* > aBSplineMeshes,
                 uint                       aActivationPattern,
-                luint                      aPolynomialDegree,
+                uint                       aPolynomialDegree,
                 uint                       aMeshIndex = MORIS_UINT_MAX );
 
         // ----------------------------------------------------------------------------
@@ -85,18 +84,30 @@ namespace moris::hmr
          * @brief creates a Lagrange mesh depending on the number of dimensions set
          *
          * @param[in] aBackgroundMesh       pointer to background mesh
-         * @param[in] aActivationPattern    pattern (i.e. grid) used for building the mesh
+         * @param[in] anPattern    pattern (i.e. grid) used for building the mesh
          * @param[in] aPolynomialDegree     degree of Lagrange mesh
-         * @param[in] aMeshIndex            index to be assigned to the mesh
+         * @param[in] aMeshIndex            B-spline mesh index
          *
          * @return BSpline_Mesh_Base* pointer to new Lagrange mesh
          */
         BSpline_Mesh_Base*
         create_bspline_mesh(
                 Background_Mesh_Base* aBackgroundMesh,
-                uint                  aActivationPattern,
-                luint                 aPolynomialDegree,
-                uint                  aMeshIndex = MORIS_UINT_MAX );
+                uint                  aMeshIndex );
+
+        /**
+         * Creates a dummy B-spline mesh, for L2 testing purposes.
+         *
+         * @param aBackgroundMesh Background mesh
+         * @param aOrder B-spline order
+         * @param aPattern B-spline pattern
+         * @return New B-spline mesh
+         */
+        BSpline_Mesh_Base*
+        create_dummy_bspline_mesh(
+                Background_Mesh_Base* aBackgroundMesh,
+                uint                  aPattern,
+                uint                  aOrder );
 
         // ----------------------------------------------------------------------------
 
@@ -149,5 +160,3 @@ namespace moris::hmr
     };    // end class: Factory
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_FACTORY_HPP_ */

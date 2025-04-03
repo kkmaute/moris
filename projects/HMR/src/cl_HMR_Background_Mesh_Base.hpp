@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
-#define SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Parameters.hpp"    //HMR/src
@@ -71,7 +70,7 @@ namespace moris::hmr
         Vector< Matrix< DDLUMat > > mCoarsestInverseAura;
 
         //! defines how many procs are used in i, j and k-direction
-        Matrix< DDUMat > mProcDims;
+        Vector< uint > mProcessorDimensions;
 
         //! i-j-k coordinate of current proc
         Matrix< DDUMat > mMyProcCoords;
@@ -638,10 +637,10 @@ namespace moris::hmr
          *
          * @return Matrix< DDUMat >
          */
-        const Matrix< DDUMat >&
+        const Vector< uint >&
         get_proc_dims() const
         {
-            return mProcDims;
+            return mProcessorDimensions;
         }
 
         //--------------------------------------------------------------------------------
@@ -1388,4 +1387,3 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
     };
 }    // namespace moris::hmr
-#endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_ */

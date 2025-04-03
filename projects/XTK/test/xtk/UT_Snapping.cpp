@@ -101,37 +101,25 @@ namespace moris::xtk
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // HMR parameters
-            std::string tNumElemsPerDim     = "2, 1";
-            std::string tDomainDims         = "2.0,2.0";
-            std::string tDomainOffset       = "-1.0, -1.0";
-            std::string tDomainSidesets     = "1,2,3,4";
             std::string tInterpolationOrder = "1";
 
             int                    tRefineBuffer = 1;
             Module_Parameter_Lists tHMRParams( Module_Type::HMR );
-            tHMRParams( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-            tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
-            tHMRParams( 0 )( 0 ).set( "domain_dimensions", tDomainDims );
-            tHMRParams( 0 )( 0 ).set( "domain_offset", tDomainOffset );
-            tHMRParams( 0 )( 0 ).set( "domain_sidesets", tDomainSidesets );
+            tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", 2, 1 );
+            tHMRParams( 0 )( 0 ).set( "domain_dimensions", 2.0, 2.0 );
+            tHMRParams( 0 )( 0 ).set( "domain_offset", -1.0, -1.0 );
             tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
             tHMRParams( 0 )( 0 ).set( "lagrange_orders", tInterpolationOrder );
             tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ) );
             tHMRParams( 0 )( 0 ).set( "bspline_orders", tInterpolationOrder );
             tHMRParams( 0 )( 0 ).set( "bspline_pattern", std::string( "0" ) );
             tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-            tHMRParams( 0 )( 0 ).set( "truncate_bsplines", 1 );
             tHMRParams( 0 )( 0 ).set( "refinement_buffer", tRefineBuffer );
             tHMRParams( 0 )( 0 ).set( "staircase_buffer", tRefineBuffer );
-            tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
-            tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
-            tHMRParams( 0 )( 0 ).set( "use_number_aura", 1 );
-            tHMRParams( 0 )( 0 ).set( "use_multigrid", 0 );
-            tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // PSEUDO Workflow
             // HMR initialize
-            std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams( 0 )( 0 ) );
+            std::shared_ptr< hmr::HMR > pHMR = std::make_shared< hmr::HMR >( tHMRParams );
 
             // Geometry engine initialize
             std::shared_ptr< gen::Geometry_Engine > pGEN = std::make_shared< gen::Geometry_Engine >( tGENParams, nullptr );

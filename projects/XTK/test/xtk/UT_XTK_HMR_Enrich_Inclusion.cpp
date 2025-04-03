@@ -76,20 +76,17 @@
 //     tParameterlist.set( "number_of_elements_per_dimension", tNumElementsPerDir);
 //     tParameterlist.set( "domain_dimensions",                tDimensions    );
 //     tParameterlist.set( "domain_offset",                    tOffSet);
-//     tParameterlist.set( "domain_sidesets",                  tSideSets);
 //     tParameterlist.set( "lagrange_output_meshes",           "0");
 //     tParameterlist.set( "lagrange_orders",  tLagrangeOrder   );
 //     tParameterlist.set( "lagrange_pattern", tLagrangePattern );
 //     tParameterlist.set( "bspline_orders",   tBsplineOrder );
 //     tParameterlist.set( "bspline_pattern",  "0,1" );
-//     tParameterlist.set( "initial_refinement",         tInitialRef );
+//     tParameterlist.set( "pattern_initial_refinement",         tInitialRef );
 //     tParameterlist.set( "initial_refinement_pattern", "0,1" );
 //     tParameterlist.set( "lagrange_to_bspline", "0,1");
-//     tParameterlist.set( "truncate_bsplines",  1 );
 //     tParameterlist.set( "refinement_buffer",  tRefineBuffer );
 //     tParameterlist.set( "staircase_buffer",   tRefineBuffer );
 //     tParameterlist.set( "use_number_aura", 1);
-//     tParameterlist.set( "use_multigrid",  0 );
 //     tParameterlist.set( "severity_level", 0 );
 
 //         return tParameterlist

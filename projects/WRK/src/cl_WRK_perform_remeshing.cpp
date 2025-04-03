@@ -235,7 +235,7 @@ namespace moris::wrk
             uint tNumMinRefPattern = mParameters.mMinimumRefinementLevel.size();
 
             Matrix< DDUMat > tMinRefinementPattern( tNumMinRefPattern, 1, 0 );
-            Matrix< DDUMat > tMinRefinement( tNumMinRefPattern, 1, 0 );
+            Vector< uint > tMinRefinement( tNumMinRefPattern, 0 );
 
             for ( uint Ik = 0; Ik < tNumMinRefPattern; Ik++ )
             {
@@ -254,7 +254,6 @@ namespace moris::wrk
 
             // set initial/minimum refinement
             tParameters->set_initial_refinement( tMinRefinement );
-            tParameters->set_initial_refinement_patterns( tMinRefinementPattern );
         }
 
         hmr::File tFile;

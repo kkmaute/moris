@@ -40,9 +40,6 @@ namespace moris::hmr
         // create background mesh object and initialize it with the coarsest level
         mBackgroundMesh = tFactory.create_background_mesh();
 
-        // fixme: this might already be done in set_activation_pattern
-        // during database update
-
         // update element table
         mBackgroundMesh->collect_active_elements();
 
@@ -63,8 +60,22 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     Database::Database( const std::string& aPath )
-            : mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
     {
+        // create file object
+        File tHDF5;
+
+        // open file on disk
+        tHDF5.open( aPath );
+
+        // create new parameter pointer
+        mParameters = new Parameters;
+
+        // load settings
+        tHDF5.load_settings( mParameters );
+
+        // close file
+        tHDF5.close();
+
         // create factory
         Factory tFactory( mParameters );
 
@@ -77,7 +88,7 @@ namespace moris::hmr
             mBackgroundMesh->reset_pattern( k );
         }
 
-        this->load_pattern_from_hdf5_file( aPath, false );
+        this->load_pattern_from_hdf5_file( aPath );
 
         // initialize mesh objects
         this->create_meshes();
@@ -85,45 +96,7 @@ namespace moris::hmr
         mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
 
         // activate input pattern
-        this->set_activation_pattern( mParameters->get_lagrange_input_pattern() );
-    }
-
-    // -----------------------------------------------------------------------------
-
-    Database::Database(
-            const std::string& aInputPath,
-            const std::string& aOutputPath )
-            : mParameters( create_hmr_parameters_from_hdf5_file( aOutputPath ) )
-    {
-        MORIS_ERROR( false, " Database(); constructor not updated yet" );
-        // create factory
-        Factory tFactory( mParameters );
-
-        // create background mesh object
-        mBackgroundMesh = tFactory.create_background_mesh();
-
-        // reset all patterns
-        for ( uint k = 0; k < gNumberOfPatterns; ++k )
-        {
-            mBackgroundMesh->reset_pattern( k );
-        }
-
-        this->load_pattern_from_hdf5_file( aInputPath, false );
-
-        this->load_pattern_from_hdf5_file( aOutputPath, true );
-
-        // create union mesh
-        //            this->create_union_pattern();  // FIXME
-
-        mHaveRefinedAtLeastOneElement = true;
-
-        // initialize mesh objects
-        this->create_meshes();
-
-        mAdditionalLagrangeMeshes.resize( gNumberOfPatterns );
-
-        // activate input pattern
-        this->set_activation_pattern( mParameters->get_lagrange_output_pattern() );
+        this->set_activation_pattern( Parameters::mLagrangeInputPattern );
     }
 
     // -----------------------------------------------------------------------------
@@ -161,8 +134,7 @@ namespace moris::hmr
 
     void
     Database::load_pattern_from_hdf5_file(
-            const std::string& aPath,
-            const bool         aMode )
+            const std::string& aPath )
     {
         // create file object
         File tHDF5;
@@ -171,7 +143,7 @@ namespace moris::hmr
         tHDF5.open( aPath );
 
         // load input pattern into file
-        tHDF5.load_refinement_pattern( mBackgroundMesh, aMode );
+        tHDF5.load_refinement_pattern( mBackgroundMesh );
 
         // close hdf5 file
         tHDF5.close();
@@ -300,7 +272,7 @@ namespace moris::hmr
     //                // link to sideset if this is an output mesh
     //                if ( mLagrangeMeshes( k )->get_activation_pattern() == mParameters->get_lagrange_output_pattern() )
     //                {
-    //                    mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
+    //                    mLagrangeMeshes( k )->set_create_side_sets( true );
     //                }
     //            }
     //        }
@@ -328,15 +300,9 @@ namespace moris::hmr
         // create all B-Spline meshes requested
         for ( uint iBspMesh = 0; iBspMesh < tNumberOfBSplineMeshes; ++iBspMesh )
         {
-            // get the mesh pattern and polynomial order associated with the current B-spline mesh
-            uint tPatternForBspMesh   = mParameters->get_bspline_pattern( iBspMesh );
-            uint tPolyOrderForBspMesh = mParameters->get_bspline_order( iBspMesh );
-
             // create and initialize the HMR B-spline meshes
             mBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
                     mBackgroundMesh,
-                    tPatternForBspMesh,
-                    tPolyOrderForBspMesh,
                     iBspMesh );
         }
 
@@ -426,48 +392,6 @@ namespace moris::hmr
         }
 
         mAdditionalLagrangeMeshes.clear();
-    }
-
-    // -----------------------------------------------------------------------------
-
-    bool
-    Database::is_lagrange_input_mesh( const uint aMeshIndex )
-    {
-        const Matrix< DDUMat >& tLagInputMeshes = mParameters->get_lagrange_input_mesh();
-
-        bool tIsLagrangeInputMesh = false;
-
-        for ( uint k = 0; k < tLagInputMeshes.numel(); ++k )
-        {
-            if ( aMeshIndex == tLagInputMeshes( k ) )
-            {
-                tIsLagrangeInputMesh = true;
-                break;
-            }
-        }
-
-        return tIsLagrangeInputMesh;
-    }
-
-    // -----------------------------------------------------------------------------
-
-    bool
-    Database::is_bspline_input_mesh( const uint aMeshIndex )
-    {
-        const Matrix< DDUMat >& tBSInputMeshes = mParameters->get_bspline_input_mesh();
-
-        bool tIsBsplineInputMesh = false;
-
-        for ( uint k = 0; k < tBSInputMeshes.numel(); ++k )
-        {
-            if ( aMeshIndex == tBSInputMeshes( k ) )
-            {
-                tIsBsplineInputMesh = true;
-                break;
-            }
-        }
-
-        return tIsBsplineInputMesh;
     }
 
     // -----------------------------------------------------------------------------
@@ -596,9 +520,9 @@ namespace moris::hmr
                     mBackgroundMesh->create_facets();
                 }
 
-                if ( not mParameters->get_write_background_mesh().empty() )
+                if ( not mParameters->get_background_mesh_output_file_name().empty() )
                 {
-                    mBackgroundMesh->save_to_vtk( mParameters->get_write_background_mesh() );
+                    mBackgroundMesh->save_to_vtk( mParameters->get_background_mesh_output_file_name() );
                 }
             }
         }
@@ -627,11 +551,6 @@ namespace moris::hmr
                 if ( mParameters->get_number_of_dimensions() == 3 )
                 {
                     tMesh->create_edges();
-                }
-
-                if ( not mParameters->get_write_output_lagrange_mesh().empty() )
-                {
-                    tMesh->save_to_vtk( mParameters->get_write_output_lagrange_mesh() );
                 }
             }
         }
@@ -1050,9 +969,6 @@ namespace moris::hmr
             mBackgroundMesh->perform_refinement( aActivePattern );
         }
 
-        // update max level
-        tMaxLevel = mBackgroundMesh->get_max_level();
-
         // tidy up working pattern
         mBackgroundMesh->reset_pattern( tWorkingPattern );
 
@@ -1450,13 +1366,9 @@ namespace moris::hmr
         // report on this operation
         MORIS_LOG_INFO( "Creating side sets in HMR Database" );
 
-        // matrix with side sets
-        const Matrix< DDUMat >& tSideSets = mParameters->get_side_sets();
-
-        moris_index tNumberOfSets = tSideSets.length();
-
-        if ( tNumberOfSets > 0 )
+        if ( mParameters->get_create_side_sets() )
         {
+            uint tNumberOfSets = 2 * mParameters->get_number_of_dimensions();
             Side_Set tEmpty;
 
             // allocate output side set
@@ -1478,28 +1390,26 @@ namespace moris::hmr
             mOutputSideSetMap.clear();
 
             // create side sets for output mesh
-            for ( moris_index s = 0; s < tNumberOfSets; ++s )
+            for ( uint iSet = 0; iSet < tNumberOfSets; iSet++ )
             {
-                uint tSet = tSideSets( s );
-
                 // collect elements from background mesh
                 Vector< Background_Element_Base* > tBackElements;
 
                 mBackgroundMesh->collect_side_set_elements(
                         tPatternList( 0 ),
-                        tSet,
+                        iSet + 1,
                         tBackElements );
 
                 // get number of elements
                 uint tNumberOfElements = tBackElements.size();
 
                 // get ref to side set
-                Side_Set& tSideSet = mOutputSideSets( s );
+                Side_Set& tSideSet = mOutputSideSets( iSet );
 
                 // create name
-                tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( s + 1 );
+                tSideSet.mInfo.mSideSetName = "SideSet_" + std::to_string( iSet + 1 );
 
-                mOutputSideSetMap[ tSideSet.mInfo.mSideSetName ] = s;
+                mOutputSideSetMap[ tSideSet.mInfo.mSideSetName ] = iSet;
 
                 // allocate memory for ids
                 tSideSet.mElemIdsAndSideOrds.set_size( tNumberOfElements, 2 );
@@ -1509,8 +1419,6 @@ namespace moris::hmr
 
                 // initialize counter
                 luint tCount = 0;
-
-                uint tSetIndex = tSet - 1;
 
                 // loop over all Background Elements
                 for ( Background_Element_Base* tBackElement : tBackElements )
@@ -1522,7 +1430,7 @@ namespace moris::hmr
                     tSideSet.mElemIdsAndSideOrds( tCount, 0 ) = tElement->get_id();
 
                     // write sideset ordinal
-                    tSideSet.mElemIdsAndSideOrds( tCount, 1 ) = tSetIndex;
+                    tSideSet.mElemIdsAndSideOrds( tCount, 1 ) = iSet;
 
                     // write element index
                     tSideSet.mElemIndices( tCount++ ) = tElement->get_index();
@@ -1551,92 +1459,6 @@ namespace moris::hmr
         mOutputSideSets.clear();
 
         mOutputSideSetMap.clear();
-    }
-
-    // -----------------------------------------------------------------------------
-
-    void
-    Database::calculate_t_matrices_for_input()
-    {
-        // remember active pattern // uint
-        auto tActivePattern = mBackgroundMesh->get_activation_pattern();
-
-        // create communication table
-        this->create_communication_table();
-
-        // calculate T-Matrices and node indices for input
-        for ( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
-        {
-            // only perform for input meshes
-            if ( this->is_lagrange_input_mesh( tMesh->get_index() ) )
-            {
-                tMesh->calculate_node_indices();
-                tMesh->calculate_t_matrices();
-            }
-        }
-
-        // calculate B-Spline IDs for input meshes
-        for ( BSpline_Mesh_Base* tMesh : mBSplineMeshes )
-        {
-            if ( this->is_bspline_input_mesh( tMesh->get_index() ) )
-            {
-                tMesh->calculate_basis_indices( mCommunicationTable );
-            }
-        }
-
-        // set flag for input matrices
-        mHaveInputTMatrix = true;
-
-        // reset active pattern
-        if ( mBackgroundMesh->get_activation_pattern() != tActivePattern )
-        {
-            mBackgroundMesh->set_activation_pattern( tActivePattern );
-        }
-    }
-
-    // -----------------------------------------------------------------------------
-
-    void
-    Database::create_working_pattern_for_bspline_refinement()
-    {
-        MORIS_ASSERT( false, "create_working_pattern_for_bspline_refinement(), not changed yet" );
-        // get pattern
-        uint tWorkingPattern = mParameters->get_working_pattern();
-
-        // get active elements
-        MORIS_ASSERT( mBackgroundMesh->get_activation_pattern() == mParameters->get_lagrange_output_pattern(),
-                "Need Lagrange output pattern active in order to create b-spline working pattern" );
-
-        // get number of active elements
-        uint tNumberOfElements = mBackgroundMesh->get_number_of_active_elements_on_proc();
-
-        // get delta levels
-        uint tDeltaLevel = mParameters->get_additional_lagrange_refinement();
-
-        // loop over all active elements
-        for ( uint e = 0; e < tNumberOfElements; ++e )
-        {
-            // get pointer to element
-            Background_Element_Base* tElement = mBackgroundMesh->get_element( e );
-
-            // jump up levels to get parent
-            for ( uint l = 0; l < tDeltaLevel; ++l )
-            {
-                tElement = tElement->get_parent();
-            }
-
-            // get level of this element
-            uint tLevel = tElement->get_level();
-
-            for ( uint l = 0; l < tLevel; ++l )
-            {
-                // get parent
-                tElement = tElement->get_parent();
-
-                // set flag on working pattern
-                tElement->set_refined_flag( tWorkingPattern );
-            }
-        }
     }
 
     // ----------------------------------------------------------------------------

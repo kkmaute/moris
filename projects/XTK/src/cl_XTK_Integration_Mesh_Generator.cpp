@@ -2473,6 +2473,9 @@ namespace moris::xtk
         // get the total number of bulk phases
         uint tNumBulkPhase = mGeometryEngine->get_num_bulk_phase();
 
+        MORIS_ERROR( tNumBulkPhase > 0,
+                "Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface() - No bulk phases found; check GEN setting." );
+
         // allocate the output
         aInterfaceBulkPhaseToBulk.resize( tNumBulkPhase, Vector< std::shared_ptr< IG_Cell_Side_Group > >( tNumBulkPhase, nullptr ) );
 

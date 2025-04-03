@@ -97,7 +97,7 @@ namespace moris
     create_proc_cart(
             const uint&       aDecompMethod,
             const uint&       aNumberOfDimensions,
-            Matrix< DDUMat >& aProcDims,
+            Vector< uint >&   aProcDims,
             Matrix< DDUMat >& aProcCoords,
             Matrix< IdMat >&  aProcNeighbors )
     {
@@ -154,24 +154,18 @@ namespace moris
         uint tProcCount = 1;
         switch ( aDecompMethod )
         {
-
             case 0:    // User defined processor grid
+            case 2:
             {
                 // Checking if user defined processor dimensions matches mesh dimensions, N.
-                if ( (uint)std::max( aProcDims.n_rows(), aProcDims.n_cols() ) != aNumberOfDimensions )
-                {
-                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions incompatible with mesh dimensions." );
-                }
+                MORIS_ERROR( aProcDims.size() == aNumberOfDimensions, "create_proc_cart: User defined processor grid dimensions incompatible with mesh dimensions." );
 
                 // Calculating the product of user defined proc dims dimensions
                 for ( uint i = 0; i < aNumberOfDimensions; ++i )
                 {
                     tProcCount = tProcCount * aProcDims( i );
                 }
-                if ( (uint)par_size() != tProcCount )
-                {
-                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions do not match number of processors used." );
-                }
+                MORIS_ERROR( (uint)par_size() == tProcCount, "create_proc_cart: User defined processor grid dimensions do not match number of processors used." );
 
                 tDims[ 1 ] = 1;
                 tDims[ 2 ] = 1;
@@ -181,7 +175,6 @@ namespace moris
                 }
                 break;
             }
-
             case 1:    // MPI Default Decomp Method
             {
                 MPI_Dims_create( par_size(),
@@ -189,34 +182,6 @@ namespace moris
                         tDims );
                 break;
             }
-
-            case 2:    // Decomposition method to minimize mesh interface
-            {
-                // Checking if user defined processor dimensions matches mesh dimensions, N.
-                if ( (uint)std::max( aProcDims.n_rows(), aProcDims.n_cols() ) != aNumberOfDimensions )
-                {
-                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions incompatible with mesh dimensions." );
-                }
-
-                // Calculating the product of user defined proc dims dimensions
-                for ( uint i = 0; i < aNumberOfDimensions; ++i )
-                {
-                    tProcCount = tProcCount * aProcDims( i );
-                }
-                if ( (uint)par_size() != tProcCount )
-                {
-                    MORIS_ERROR( false, "create_proc_cart: User defined processor grid dimensions do not match number of processors used." );
-                }
-
-                tDims[ 1 ] = 1;
-                tDims[ 2 ] = 1;
-                for ( uint i = 0; i < aNumberOfDimensions; ++i )
-                {
-                    tDims[ i ] = (int)aProcDims( i );
-                }
-                break;
-            }
-
             default:
             {
                 MORIS_ERROR( false, "create_proc_cart: Undefined decomposition method" );
@@ -262,7 +227,7 @@ namespace moris
         }
 
         // copy dims
-        aProcDims.set_size( aNumberOfDimensions, 1 );
+        aProcDims.resize( aNumberOfDimensions, 1 );
         for ( uint k = 0; k < aNumberOfDimensions; ++k )
         {
             aProcDims( k ) = (uint)tDims[ k ];

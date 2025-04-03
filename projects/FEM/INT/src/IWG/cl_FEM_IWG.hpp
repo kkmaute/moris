@@ -149,6 +149,9 @@ namespace moris::fem
         // bool for time continuity
         bool mTimeContinuity = false;
 
+        // real for time final
+        real mTimeFinal = -1.0;
+
         // bool for time boundary
         bool mTimeBoundary = false;
 
@@ -246,6 +249,28 @@ namespace moris::fem
         get_time_continuity()
         {
             return mTimeContinuity;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * set time final value
+         * param[ in ] aTimeFinal real for integration at final time
+         */
+        void
+        set_time_final( real aTimeFinal )
+        {
+            mTimeFinal = aTimeFinal;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get time final value
+         * param[ in ] mTimeFinal real for integration at final time
+         */
+        real
+        get_time_final()
+        {
+            return mTimeFinal;
         }
 
         //------------------------------------------------------------------------------

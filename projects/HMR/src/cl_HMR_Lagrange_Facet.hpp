@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_FACET_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_FACET_HPP_
+#pragma once
 
 #include "cl_HMR_Facet.hpp"
 #include "moris_typedefs.hpp"
@@ -167,5 +166,3 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_FACET_HPP_ */

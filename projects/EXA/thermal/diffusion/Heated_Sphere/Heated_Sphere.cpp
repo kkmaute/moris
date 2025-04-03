@@ -88,10 +88,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim = "8, 8, 8";
-    std::string tDomainDims     = "2.0, 2.0, 2.0";
-    std::string tDomainOffset   = "-1.0, -1.0, -1.0";
-    std::string tDomainSidesets = "1,2,3,4,5,6";
+    Vector< uint > tNumElemsPerDim = { 8, 8, 8 };
+    Vector< real > tDomainDims     = { 2.0, 2.0, 2.0 };
+    Vector< real > tDomainOffset   = { -1.0, -1.0, -1.0 };
 
     int tRefineBuffer = 1;
 
@@ -234,28 +233,16 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
 
-        aParameterLists.set( "lagrange_orders", std::to_string( gInterpolationOrder ) );
-        aParameterLists.set( "lagrange_pattern", "0" );
-        aParameterLists.set( "bspline_orders", std::to_string( gInterpolationOrder ) );
-        aParameterLists.set( "bspline_pattern", "0" );
-
-        aParameterLists.set( "lagrange_to_bspline", "0" );
-
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", "1" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "pattern_initial_refinement", 1 );
 
-        aParameterLists.set( "use_number_aura", 1 );
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", gInterpolationOrder );
 
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-        //
-        //        aParameterLists.set( "lagrange_input_meshes", "0");
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", gInterpolationOrder );
     }
 
     void
@@ -263,8 +250,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );

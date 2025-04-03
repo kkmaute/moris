@@ -204,10 +204,8 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "2,2" );
-        aParameterLists.set( "domain_dimensions", "1,1" );
-        aParameterLists.set( "domain_offset", "0.0,0.0" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "number_of_elements_per_dimension", 2, 2 );
+        aParameterLists.set( "domain_dimensions", 1.0, 1.0 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "1" );
@@ -217,12 +215,9 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
-        aParameterLists.set( "initial_refinement", "0" );
 
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 1 );
 
         aParameterLists.set( "adaptive_refinement_level", 1 );
@@ -235,8 +230,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", true );
         aParameterLists.set( "multigrid", false );
@@ -266,8 +259,7 @@ namespace moris
         aParameterLists.set( "discretization_lower_bound", 0.001 );
         aParameterLists.set( "discretization_upper_bound", 1.0 );
         aParameterLists.set( "pdv_type", "DENSITY" );
-        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0,SideSet_4_n_p0,SideSet_2_n_p0" );
-        aParameterLists.set( "pdv_mesh_set_indices", "" );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "SideSet_4_n_p0", "SideSet_2_n_p0" );
     }
 
     //--------------------------------------------------------------------------------------------------------------

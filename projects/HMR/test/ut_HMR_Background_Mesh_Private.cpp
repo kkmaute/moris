@@ -42,15 +42,14 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 6 }, { 4 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 6, 4 );
 
                 // set buffer sizes to zero
                 tParameters->set_refinement_buffer( 0 );
                 tParameters->set_staircase_buffer( 0 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -113,15 +112,14 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 4 }, { 6 }, { 4 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 4, 6, 4 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
                 tParameters->set_staircase_buffer( 0 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -190,16 +188,14 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension = { { 6 }, { 4 } };
-
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
+                tParameters->set_number_of_elements_per_dimension( 6, 4 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
                 tParameters->set_staircase_buffer( 0 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -387,9 +383,7 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension = { { 4 }, { 2 }, { 3 } };
-
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
+                tParameters->set_number_of_elements_per_dimension( 4, 2, 3 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
@@ -623,8 +617,7 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 6 }, { 6 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 6, 6 );
 
                 // set buffer size to one
                 tParameters->set_refinement_buffer( 0 );
@@ -730,8 +723,7 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 6 }, { 6 }, { 6 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 6, 6, 6 );
 
                 // set buffer size to one
                 tParameters->set_refinement_buffer( 0 );

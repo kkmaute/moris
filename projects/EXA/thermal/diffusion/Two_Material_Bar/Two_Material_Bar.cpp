@@ -105,10 +105,8 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim = gDim == 2 ? "2,   1" : "2,   1,   1";
-    std::string tDomainDims     = gDim == 2 ? std::to_string( sL ) + ", 1.0" : std::to_string( sL ) + ", 1.0, 1.0";
-    std::string tDomainOffset   = gDim == 2 ? "0.0,  0.0" : "0.0,  0.0, 0.0";
-    std::string tDomainSidesets = gDim == 2 ? "1,2,3,4" : "1,2,3,4,5,6";
+    Vector< uint > tNumElemsPerDim = gDim == 2 ? Vector< uint >{ 2, 1 } : Vector< uint >{ 2, 1, 1 };
+    Vector< real > tDomainDims     = gDim == 2 ? Vector< real >{ sL, 1.0 } : Vector< real >{ sL, 1.0, 1.0 };
 
     std::string tInterpolationOrder = "1";
 
@@ -244,8 +242,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", std::to_string( gInterpolationOrder ) );
@@ -255,16 +251,9 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", "1" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
+        aParameterLists.set( "pattern_initial_refinement", 1 );
     }
 
     void
@@ -272,8 +261,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );

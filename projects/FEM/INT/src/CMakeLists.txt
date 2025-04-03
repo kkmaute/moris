@@ -66,6 +66,7 @@ set(HEADERS
     ELEM/cl_FEM_Element_Double_Sideset.hpp
     ELEM/cl_FEM_Element_Nonconformal_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Sideset.hpp
+    ELEM/cl_FEM_Element_Time_Final_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Boundary.hpp
 
     IP/cl_FEM_Geometry_Interpolator.hpp
@@ -299,6 +300,7 @@ set(LIB_SOURCES
     ELEM/cl_FEM_Element_Double_Sideset.cpp
     ELEM/cl_FEM_Element_Nonconformal_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Sideset.cpp
+    ELEM/cl_FEM_Element_Time_Final_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Boundary.cpp
     ELEM/cl_FEM_Interpolation_Element.cpp
 

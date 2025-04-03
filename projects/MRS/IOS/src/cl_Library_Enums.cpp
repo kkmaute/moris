@@ -70,6 +70,9 @@ namespace moris
             case Module_Type::OPT:
                 return OPT_Submodule_String::values;
 
+            case Module_Type::HMR:
+                return HMR_Submodule_String::values;
+
             case Module_Type::GEN:
                 return GEN_Submodule_String::values;
 
@@ -117,7 +120,8 @@ namespace moris
                 break;
 
             case Module_Type::HMR:
-                break;    // standard name
+                tNames = { "General", "LagrangeMeshes", "BSplineMeshes" };
+                break;
 
             case Module_Type::STK:
                 break;    // standard name

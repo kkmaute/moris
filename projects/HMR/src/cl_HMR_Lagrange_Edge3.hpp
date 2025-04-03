@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_EDGE3_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_EDGE3_HPP_
+#pragma once
 
 #include "cl_HMR_Lagrange_Edge.hpp"
 #include "moris_typedefs.hpp"
@@ -130,5 +129,3 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
 } /* namespace moris */
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_EDGE3_HPP_ */
-

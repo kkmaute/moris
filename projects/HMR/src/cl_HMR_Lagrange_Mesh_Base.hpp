@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_
+#pragma once
 
 #include <string>
 
@@ -100,7 +99,7 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        ~Lagrange_Mesh_Base() override{};
+        ~Lagrange_Mesh_Base() override {};
 
         // ----------------------------------------------------------------------------
 
@@ -1110,5 +1109,3 @@ namespace moris::hmr
         void synchronize_edge_ids( uint aOwnedCount );
     };
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_ */

@@ -39,18 +39,18 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension;
+                Vector< uint > tNumberOfElementsPerDimension;
                 if ( par_size() == 1 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 2, 1, 3 );
+                    tNumberOfElementsPerDimension.resize( 2, 3 );
                 }
                 else if ( par_size() == 2 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 2, 1, 6 );
+                    tNumberOfElementsPerDimension.resize( 2, 6 );
                 }
                 else if ( par_size() == 4 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 2, 1, 10 );
+                    tNumberOfElementsPerDimension.resize( 2, 10 );
                 }
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
@@ -72,11 +72,11 @@ namespace moris::hmr
                     tParameters->set_staircase_buffer( tOrder );
 
                     // set mesh order
-                    tParameters->set_lagrange_orders( { { tOrder } } );
-                    tParameters->set_lagrange_patterns( { { 0 } } );
+                    tParameters->set_lagrange_orders( { tOrder } );
+                    tParameters->set_lagrange_patterns( { 0 } );
 
-                    tParameters->set_bspline_orders( { { tOrder } } );
-                    tParameters->set_bspline_patterns( { { 0 } } );
+                    tParameters->set_bspline_orders( { tOrder } );
+                    tParameters->set_bspline_patterns( { 0 } );
 
                     // create background mesh object
                     Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
@@ -101,11 +101,10 @@ namespace moris::hmr
                     }
 
                     // create B-Spline mesh
-                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_dummy_bspline_mesh(
                             tBackgroundMesh,
                             0,
-                            tOrder,
-                            MORIS_UINT_MAX );
+                            tOrder );
 
                     // test basis uniqueness
                     REQUIRE( tBSplineMesh->test_for_double_basis() );
@@ -125,19 +124,19 @@ namespace moris::hmr
                 auto tParameters = new Parameters;
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElementsPerDimension;
+                Vector< uint > tNumberOfElementsPerDimension;
 
                 if ( par_size() == 1 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 3, 1, 3 );
+                    tNumberOfElementsPerDimension.resize( 3, 3 );
                 }
                 else if ( par_size() == 2 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 3, 1, 6 );
+                    tNumberOfElementsPerDimension.resize( 3, 6 );
                 }
                 else if ( par_size() == 4 )
                 {
-                    tNumberOfElementsPerDimension.set_size( 3, 1, 10 );
+                    tNumberOfElementsPerDimension.resize( 3, 10 );
                 }
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
@@ -159,11 +158,11 @@ namespace moris::hmr
                     tParameters->set_refinement_buffer( tOrder );
                     tParameters->set_staircase_buffer( tOrder );
 
-                    tParameters->set_lagrange_orders( { { tOrder } } );
-                    tParameters->set_lagrange_patterns( { { 0 } } );
+                    tParameters->set_lagrange_orders( { tOrder } );
+                    tParameters->set_lagrange_patterns( { 0 } );
 
-                    tParameters->set_bspline_orders( { { tOrder } } );
-                    tParameters->set_bspline_patterns( { { 0 } } );
+                    tParameters->set_bspline_orders( { tOrder } );
+                    tParameters->set_bspline_patterns( { 0 } );
 
                     // create background mesh object
                     Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
@@ -188,7 +187,7 @@ namespace moris::hmr
                     }
 
                     // create B-Spline mesh
-                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tBackgroundMesh, 0, tOrder, MORIS_UINT_MAX );
+                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_dummy_bspline_mesh( tBackgroundMesh, 0, tOrder );
 
                     // test basis uniqueness
                     REQUIRE( tBSplineMesh->test_for_double_basis() );
@@ -213,7 +212,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -222,11 +221,11 @@ namespace moris::hmr
             tParameters->set_refinement_buffer( 1 );
             tParameters->set_staircase_buffer( 1 );
 
-            tParameters->set_lagrange_orders( { { 2 } } );
-            tParameters->set_lagrange_patterns( { { 0 } } );
+            tParameters->set_lagrange_orders( { 2 } );
+            tParameters->set_lagrange_patterns( { 0 } );
 
-            tParameters->set_bspline_orders( { { 2 } } );
-            tParameters->set_bspline_patterns( { { 0 } } );
+            tParameters->set_bspline_orders( { 2 } );
+            tParameters->set_bspline_patterns( { 0 } );
 
             // create factory
             Factory tFactory( tParameters );
@@ -257,9 +256,8 @@ namespace moris::hmr
             tBackgroundMesh->perform_refinement( 1 );
 
             // create B-Spline mesh
-            //( Parameters, Background mesh, Pattern, Order)
-            BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tBackgroundMesh, 0, 1, MORIS_UINT_MAX );
-            BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tBackgroundMesh, 1, 1, MORIS_UINT_MAX );
+            BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_dummy_bspline_mesh( tBackgroundMesh, 0, 1 );
+            BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_dummy_bspline_mesh( tBackgroundMesh, 1, 1 );
 
             tBSplineMesh_1->test_sanity();
             tBSplineMesh_2->test_sanity();

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_STATE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_STATE_HPP_
+#pragma once
 
 namespace moris::hmr
 {
@@ -26,6 +25,3 @@ namespace moris::hmr
     };
 // -----------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_STATE_HPP_ */
-

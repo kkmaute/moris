@@ -1355,6 +1355,13 @@ namespace moris::fem
         // get the dof type index
         const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
+        // get the derivative dof FI
+        Field_Interpolator* tFI =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // set the derivative size
+        mdSmoothDamagedu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
+
         // no smoothing and smooth damage is equal to damage
         real tDamage = this->damage()( 0 );
 
