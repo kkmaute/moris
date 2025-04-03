@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "fn_MTK_Integration_Surface_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "moris_typedefs.hpp"
@@ -30,20 +31,15 @@ namespace moris::mtk
 
       public:    // constructors
         Integration_Surface_Mesh(
-                Integration_Mesh const      *aIGMesh,
-                const Vector< std::string > &aSideSetNames );
-
-        Integration_Surface_Mesh(
-                Integration_Mesh const          *aIGMesh,
-                Vector< mtk::Side_Set const * > &aSideSets );
-
-        Integration_Surface_Mesh(
-                Integration_Mesh_DataBase_IG const *aIGMesh,
-                const Vector< std::string >        &aSideSetNames );
+                Integration_Surface_Mesh_Data const &aData );
 
         // methods
-        
+
         [[nodiscard]] Matrix< DDRMat > initialize_vertex_coordinates( Integration_Mesh const *aIGMesh );
+
+        [[nodiscard]] Matrix< DDRMat > initialize_vertex_coordinates_from_side_sets(
+                Integration_Mesh const           *aIGMesh,
+                const Vector< Side_Set const * > &aSideSets );
 
         [[nodiscard]] Vector< Vector< moris_index > > get_cell_to_vertex_indices(
                 Integration_Mesh const           *aIGMesh,
@@ -137,128 +133,15 @@ namespace moris::mtk
         Json to_json() const;
 
       private:    // methods
-        /**
-         * @brief This function initializes the surface mesh from an IG Mesh and side set names. It is called by the constructor.
-         * @details The surface mesh is initialized only once. During the initialization, the mapping between the global
-         * to the local indices is created. The local indices are the indices of the vertices/facets in the surface mesh (starting at 0).
-         */
-        void initialize_from_side_sets( const Vector< mtk::Side_Set const * > &aSideSets );
-
-        /**
-         * @brief Assigns the neighbors to each vertex in the surface mesh after the first pass over all vertices.
-         * This has to be done after all vertices have already been added to the list of vertices as the local indices of neighbors might otherwise not be known.
-         * @param aTmpNeighborMap Map from the global vertex index to the neighbors of the vertex (also global indices). This map is only required for the initialization
-         * of the surface mesh and is created in the initialization call.
-         */
-        void initialize_neighbors(
-                map< moris_index, Vector< moris_index > > &aTmpNeighborMap );
-
-        /**
-         * @brief Initializes the given side set (calls the cluster initializer for each cluster in the side set).
-         * @param aSideSet
-         */
-        void initialize_side_set( map< moris_index, Vector< moris_index > > &aTmpNeighborMap, Set const *aSideSet );
-
-        /**
-         * @brief Initializes the given cluster (calls the cell initializer for each cell in the cluster).
-         * @param aTmpNeighborMap
-         * @param aCluster
-         */
-        void initialize_cluster( map< moris_index, Vector< moris_index > > &aTmpNeighborMap, Cluster const *const &aCluster, moris_index aClusterIndex );
-
-        /**
-         * @brief Initializes all information for the given cell.
-         * @param aCell
-         */
-        void initialize_cell( map< moris_index, Vector< moris_index > > &aTmpNeighborMap, const Cell *aCell, int aCellOrdinal, moris_index aClusterIndex );
-
-        /**
-         * @brief Initializes all information for the given vertex.
-         * @param aTmpNeighborMap
-         * @param aCurrentLocalCellIndex
-         * @param aSideVertices
-         * @param aVertex
-         */
-        void initialize_vertex(
-                map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-                moris_index                                aCurrentLocalCellIndex,
-                Vector< Vertex const * >                  &aSideVertices,
-                Vertex const                              *aVertex );
-
-        void initialize_vertex_coordinates();
 
         void initialize_facet_measure();
 
         void initialize_vertex_normals();
 
-        // data
-        Integration_Mesh_DataBase_IG const *mIGMesh;
-
         /**
-         * @brief Map from the global vertex index to the index of the vertex in the surface mesh
-         * @example If a (global) mesh consists of vertices from 0 to n but the surface mesh only consists of some of
-         * those vertices (e.g. vertex 3, 18, 5, 20, ...), the map will provide mappings from 3 to 0, 18 to 1, 5 to 2 and 20
-         * to 3 (and so on). It is not ensured that the indices will map to vertices in ascending order!
+         * @brief Contains information about the surface mesh including mapping to the original IG mesh and other useful maps
          */
-        moris::map< moris_index, moris_index > mGlobalToLocalVertexIndex;
-
-        /**
-         * @brief The value at the n-th (local) index is the global index of the vertex in the global mesh.
-         * global index of the vertex in the global mesh.
-         * @example If a (global) mesh consists of vertices from 0 to n but the surface mesh only consists of some of
-         * those vertices (e.g. vertex 3, 18, 5, 20, ...), the list will contain the vertices 3, 18, 5, 20, ... in that
-         * order.
-         */
-        Vector< moris_index > mLocalToGlobalVertexIndex;
-
-        /**
-         * @brief List of neighboring vertices for each vertex in the surface mesh. The indices are the indices of the
-         * vertices in the surface mesh, not the global indices!
-         */
-        Vector< Vector< moris_index > > mVertexNeighbors;
-
-        /**
-         * @brief Map from the global cell index to the index of the cell in the surface mesh
-         * @example If a (global) mesh consists of cells from 0 to n but the surface mesh only consists of some of
-         * those cells (e.g. cells 3, 18, 5, 20, ...), the map will provide mappings from 3 to 0, 18 to 1, 5 to 2 and 20
-         * to 3 (and so on). It is not ensured that the indices will map to cells in ascending order!
-         */
-        moris::map< moris_index, moris_index > mGlobalToLocalCellIndex;
-
-        /**
-         * @brief The value at the n-th (local) index is the global index of the cell in the global mesh.
-         * @example If a (global) mesh consists of cells from 0 to n but the surface mesh only consists of some of
-         * those cells (e.g. cells 3, 18, 5, 20, ...), the list will contain the cells 3, 18, 5, 20, ... in that
-         * order.
-         */
-        Vector< moris_index > mLocalToGlobalCellIndex;
-
-        /**
-         * @brief Stores the side ordinal for each cell which is used to determine the surface facet of the cell.
-         * @example For a cell with three sides, that coincides with the surface mesh on side ordinal 1, the value at the
-         * index of the cell in the surface mesh will be 1.
-         */
-        Vector< moris_index > mCellSideOrdinals;
-
-        /**
-         * @brief List of vertices that are part of the cell with the given index. The indices are the
-         * indices of the vertices in the surface mesh, not the global indices!
-         */
-        Vector< Vector< moris_index > > mCellToVertexIndices;
-
-        /**
-         * @brief List of cell indices that the vertex with the given index is part of. The indices are the indices of
-         * the cell in the surface mesh, not the global indices!
-         */
-        Vector< Vector< moris_index > > mVertexToCellIndices;
-
-        Vector< mtk::Side_Set const * > mSideSets;
-
-        Vector< Vector< moris_index > > mSideSetToClusterIndices;
-
-        Vector< Vector< moris_index > > mClusterToCellIndices;
-
-        Vector< moris_index > mCellToClusterIndices;
+        Integration_Surface_Mesh_Data mData;
 
         /**
          * @brief Stores the averaged vertex normals for each vertex in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!

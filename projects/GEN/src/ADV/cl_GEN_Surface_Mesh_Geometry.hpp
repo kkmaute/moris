@@ -132,11 +132,11 @@ namespace moris::gen
         Vector< const mtk::Cell* >         mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
 
         // Forward analysis variables
-        const mtk::Mesh*                             mMesh = nullptr;
+        const mtk::Mesh*              mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;                    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
-        Matrix< DDRMat >                             mCurrentVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< const mtk::Cell* >                   mCurrentVertexBackgroundElements;    // Index of the background element the facet vertex is in currently
-        Matrix< DDRMat >                             mVertexParametricCoordinates;        // Parametric coordinates of the facet vertex in the background element in the current configuration
+        Matrix< DDRMat >              mCurrentVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< const mtk::Cell* >    mCurrentVertexBackgroundElements;    // Index of the background element the facet vertex is in currently
+        Matrix< DDRMat >              mVertexParametricCoordinates;        // Parametric coordinates of the facet vertex in the background element in the current configuration
 
 
       public:
