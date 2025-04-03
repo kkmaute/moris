@@ -79,10 +79,10 @@ namespace moris::mtk
     void Surface_Mesh::clean_extraneous_vertices()
     {
         // STEP 1: Check if all vertices are used in the mesh
-        // Initialize vector to store all the vertices
+        // Initialize vector to store the indices of all the vertices that are connected to facets
         Vector< moris_index > tUsedVertexIndices( mFacetConnectivity.size() * mFacetConnectivity( 0 ).size(), MORIS_INDEX_MAX );
 
-        // Loop through all the facets and store the used vertices
+        // Loop through all the facets and store the vertices they use
         uint tIndex = 0;
         for ( auto tFacet : mFacetConnectivity )
         {
