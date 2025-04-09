@@ -308,6 +308,26 @@ namespace moris
                     aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
                 }
             }
+            else if ( tName == "SM2" )    // make surface mesh geometry
+            {
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
+                aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/triangle_sensitivity_oblique.obj" );
+                aParameterLists.set( "offset", -1.0, 0.0 );
+                aParameterLists.set( "scale", 1.1, 1.1 );
+
+                // Set the ADV dependency
+                if ( tADV == "A" )
+                {
+                    aParameterLists.insert( "x_pos", Design_Variable( -1.0, 0.0, 1.0 ) );
+                    aParameterLists.set( "field_function_name", "SM_Perturbation" );
+                    aParameterLists.set( "sensitivity_function_name", "SM_Perturbation_Sensitivity" );
+                }
+                else if ( tADV == "D" )
+                {
+                    aParameterLists.set( "discretization_mesh_index", 0 );
+                    aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                }
+            }
             else
             {
                 MORIS_ERROR( false, "Geometry model not implemented in test case, available keys are VL, OL, and SM - provided key is %s", tName.c_str() );

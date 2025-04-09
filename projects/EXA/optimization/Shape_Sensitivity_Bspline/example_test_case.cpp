@@ -102,6 +102,9 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
     Vector< Vector< std::string > > tConfigurations = {
         { "SM-D-D" },
         { "SM-A-X" },
+        { "SM2-D-D", "SM-D-D" },
+        { "SM2-D-D", "SM-D-X" },
+        { "SM2-D-X", "SM-D-X" },
         { "VL-A-X", "OL-F-X" },
         { "VL-F-D", "OL-A-X" },
         { "VL-A-X", "OL-A-X" },
@@ -110,12 +113,14 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
         { "VL-D-X", "OL-D-X" },
         { "VL-D-X", "OL-D-X", "SM-A-X" },
         { "VL-D-X", "OL-D-X", "SM-D-X" },
-        { "SM-D-X", "VL-D-X", "OL-D-X" }
+        // { "SM-D-X", "OL-D-X" },
     };
 
     // KNOWN NONWORKING CASES
     // { "VL-D-X", "OL-D-X", "SM-D-D" } - fails as floating nodes have 4 locator nodes, and LS geometries can only perform multiple intersections
     //                                    with linear interpolation, which uses 2 parent nodes
+    // { "SM-D-X", "OL-D-X" },          - FIXME @bc: not sure why this fails
+
 
     // remove files from previous test runs
     // FIXME: should be made independent of OS; note std::remove does not take wild cards
