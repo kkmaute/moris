@@ -370,6 +370,6 @@ namespace moris::sdf
             }
         }
     }
-}    // namespace moris::sdf
-
 #endif    // MORIS_HAVE_ARBORX
+
+}    // namespace moris::sdf
