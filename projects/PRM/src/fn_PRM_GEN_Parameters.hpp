@@ -286,7 +286,6 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert( "field_function_name", "" );                         // Function for perturbation of surface mesh vertices
         tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );                   // Function name for evaluating the sensitivity of the perturbation
         tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
-        tSurfaceMeshParameterList.insert( "intersection_tolerance", 1e-8 );                    // Interface tolerance based on intersection distance
         tSurfaceMeshParameterList.insert( "output_file_name", "" );                            // Output file name for the surface mesh, to be output every optimization iteration
 
         return tSurfaceMeshParameterList;
