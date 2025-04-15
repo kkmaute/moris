@@ -31,6 +31,7 @@ namespace moris::gen
             , Design_Parameters( aParameterList )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
+            , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
     {
     }
 

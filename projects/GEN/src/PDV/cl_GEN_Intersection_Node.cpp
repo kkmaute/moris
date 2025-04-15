@@ -27,11 +27,11 @@ namespace moris::gen
             mtk::Geometry_Type                aBackgroundGeometryType,
             mtk::Interpolation_Order          aBackgroundInterpolationOrder )
             : Derived_Node(
-                    aNodeIndex,
-                    aBackgroundNodes,
-                    0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder )
+                      aNodeIndex,
+                      aBackgroundNodes,
+                      0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
+                      aBackgroundGeometryType,
+                      aBackgroundInterpolationOrder )
             , mParentNodes( { Basis_Node( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) ), Basis_Node( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) ) } )
     {
     }
@@ -84,8 +84,8 @@ namespace moris::gen
     bool
     Intersection_Node::is_first_parent_on_interface()
     {
-        return std::abs( this->get_local_coordinate() + 1.0 ) < this->get_interface_geometry().get_intersection_tolerance() 
-        or this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
+        return std::abs( this->get_local_coordinate() + 1.0 ) < this->get_interface_geometry().get_intersection_tolerance()
+            or this->get_interface_geometry().get_geometric_region( this->get_first_parent_node().get_index(), this->get_first_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -93,8 +93,8 @@ namespace moris::gen
     bool
     Intersection_Node::is_second_parent_on_interface()
     {
-        return std::abs( this->get_local_coordinate() - 1.0 ) < this->get_interface_geometry().get_intersection_tolerance() or 
-        this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
+        return std::abs( this->get_local_coordinate() - 1.0 ) < this->get_interface_geometry().get_intersection_tolerance()
+            or this->get_interface_geometry().get_geometric_region( this->get_second_parent_node().get_index(), this->get_second_parent_node().get_global_coordinates() ) == Geometric_Region::INTERFACE;
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -39,7 +39,6 @@ namespace moris::gen
          * @param aSecondParentNode Second parent node information
          * @param aBackgroundGeometryType Background element geometry type
          * @param aBackgroundInterpolationOrder Background element interpolation order
-         * @param aInterfaceGeometry Interface geometry
          */
         Intersection_Node(
                 uint                              aNodeIndex,
