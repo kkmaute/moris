@@ -420,17 +420,11 @@ namespace moris::gen
         bool                     tWarning;
         mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
-        // Put the intersections in the local coordinate frame
-        for ( uint iIntersection = 0; iIntersection < tLocalCoordinate.size(); iIntersection++ )
-        {
-            tLocalCoordinate( iIntersection ).second = 2.0 * tLocalCoordinate( iIntersection ).second - 1.0;
-        }
-
         // no intersections detected or multiple along parent edge
         if ( tLocalCoordinate.size() == 0 )
         {
-            // As a last ditch effort, check to see if either parent node is on the interface and we can return this
-            // FIXME: the raycast should be able to detect this case, but ArborX doesn't recognize any canidate facets in this case. Adjust bounding boxes somehow?
+            // Check to see if either parent node is on the interface and we can return this
+            // FIXME: the raycast should be able to detect this case, but ArborX may not reliably return the candidate facets in this case. Adjust bounding boxes somehow?
             if ( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
             {
                 return std::make_pair( 0, -1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
@@ -439,25 +433,51 @@ namespace moris::gen
             {
                 return std::make_pair( 0, 1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
             }
+        }
 
-            return std::make_pair( MORIS_UINT_MAX, std::numeric_limits< real >::quiet_NaN() );
+        // Process the raycast output and if no valid intersection was found, recast ray with looser tolerance
+        return this->process_raycast_for_local_coordinate( Surface_Mesh::mIntersectionTolerance, tFirstParentNodeCoordinates, tRayDirection, tLocalCoordinate );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::pair< uint, real >
+    Surface_Mesh_Geometry::process_raycast_for_local_coordinate(
+            real                      aOriginalTolerance,
+            Matrix< DDRMat >&         aOrigin,
+            Matrix< DDRMat >&         aDirection,
+            mtk::Intersection_Vector& aRaycastResult )
+    {
+        // Put the intersections in the local coordinate frame
+        for ( uint iIntersection = 0; iIntersection < aRaycastResult.size(); iIntersection++ )
+        {
+            aRaycastResult( iIntersection ).second = 2.0 * aRaycastResult( iIntersection ).second - 1.0;
         }
 
         // Iterate through the intersections to find the first value that is within the exclusive range (-1, 1)
-        for ( const auto& tIntersection : tLocalCoordinate )
+        for ( const auto& tIntersection : aRaycastResult )
         {
-            if ( std::abs( tIntersection.second ) < ( 1.0 - Surface_Mesh::mIntersectionTolerance ) )
+            if ( std::abs( tIntersection.second ) < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) )
             {
+                // reset intersection tolerance
+                Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
                 return tIntersection;
             }
         }
 
-        // No intersection not on either parent node found, return the first intersection with the local coordinate at -1 or 1
-        tLocalCoordinate( 0 ).second = ( tLocalCoordinate( 0 ).second > 0 ) - ( tLocalCoordinate( 0 ).second < 0 );
-        return tLocalCoordinate( 0 );
+        // If no intersection was found, loosen the intersection tolerance and try again
+        Surface_Mesh::mIntersectionTolerance *= 10.0;
+
+        // Recast the ray
+        bool tWarning;
+        mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aOrigin, aDirection, tWarning );
+
+        // Process new intersections
+        return this->process_raycast_for_local_coordinate( aOriginalTolerance, aOrigin, aDirection, tNewIntersections );
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
 
 #if MORIS_HAVE_ARBORX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()

@@ -132,11 +132,11 @@ namespace moris::gen
         Vector< const mtk::Cell* >         mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
 
         // Forward analysis variables
-        const mtk::Mesh*              mMesh = nullptr;
+        const mtk::Mesh*                             mMesh = nullptr;
         std::unordered_map< uint, mtk::Mesh_Region > mNodeMeshRegions;                    // contains information about the nodes in the interpolation mesh from a flood fill. The nodes that are undefined will be raycast to determine their region.
-        Matrix< DDRMat >              mCurrentVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
-        Vector< const mtk::Cell* >    mCurrentVertexBackgroundElements;    // Index of the background element the facet vertex is in currently
-        Matrix< DDRMat >              mVertexParametricCoordinates;        // Parametric coordinates of the facet vertex in the background element in the current configuration
+        Matrix< DDRMat >                             mCurrentVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
+        Vector< const mtk::Cell* >                   mCurrentVertexBackgroundElements;    // Index of the background element the facet vertex is in currently
+        Matrix< DDRMat >                             mVertexParametricCoordinates;        // Parametric coordinates of the facet vertex in the background element in the current configuration
 
 
       public:
@@ -237,6 +237,26 @@ namespace moris::gen
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode );
 
+        /**
+         * Takes a ray and its intersections and determines what the local coordinate of the intersection is.
+         * If there are no suitable intersections, the ray will be recast with a looser tolerance until a suitable intersection is found.
+         * NOTE: Since the function is recursive, it is possible that the function will never return if the ray does not intersect any facets.
+         * As such, the function relies on an assurance that there should be a valid intersection.
+         * This is determined by checking the geometric region of two points along the ray and ensuring that they are different. This is handled upstream when creating intersection nodes.
+         *
+         * @param aOriginalTolerance Original intersection tolerance (used to reset tolerance after successful intersection is found)
+         * @param aOrigin Origin of the ray
+         * @param aDirection Direction of the ray
+         * @param aRaycastResult Raycast result, containing the intersections and associated facet indices
+         * @return Pair of facet index and local coordinate of the intersection
+         */
+        std::pair< uint, real >
+        process_raycast_for_local_coordinate(
+                real                      aOriginalTolerance,
+                Matrix< DDRMat >&         aOrigin,
+                Matrix< DDRMat >&         aDirection,
+                mtk::Intersection_Vector& aRaycastResult );
+
         // ----------------------------------------------------------------------------------------------------------------
         // OPTIMIZATION FUNCTIONS
         // ----------------------------------------------------------------------------------------------------------------
@@ -246,8 +266,7 @@ namespace moris::gen
          * Whether or not the surface mesh has ADVs
          *
          */
-        bool
-        depends_on_advs() const override;
+        bool depends_on_advs() const override;
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
