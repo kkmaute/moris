@@ -32,6 +32,7 @@ class Snopt(Package):
     version('main', branch='main', submodules=True, preferred=True)
 
     depends_on("gmake", type="build")
+    depends_on("fortran", type="build")
 
     # FIXME: Add a list of GitHub accounts to
     # notify when the package is updated.
