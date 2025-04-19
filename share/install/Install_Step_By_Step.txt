@@ -209,7 +209,7 @@ setenv mklpro     intel-mkl
 
 * write setting to spack.yaml
 
-echo "  packages:\n    all:\n      providers:"                  >> spack.yaml
+echo "    all:\n      providers:"                  >> spack.yaml
 echo "        blas: [$blaspro]\n        lapack: [$lapackpro]"   >> spack.yaml
 echo "        scalapack: [$sclpackpro]\n        mkl: [$mklpro]" >> spack.yaml
 

@@ -218,7 +218,6 @@ fi
     
 #------------------------------------------------------------
 
-echo "  packages:"                      >> spack.yaml
 echo "    all:"                         >> spack.yaml
 echo "      providers:"                 >> spack.yaml
 echo "        blas: [$blaspro]"         >> spack.yaml
