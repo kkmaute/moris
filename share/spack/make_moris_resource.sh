@@ -33,12 +33,11 @@ spack env activate .
 
 export SPACKCOMP=`spack compiler list | tail -1`
 
-export  CC=`spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{print $2}' | xargs ls`
-export CXX=`spack compiler info $SPACKCOMP | grep 'cxx =' | awk -F = '{print $2}' | xargs ls`
-export  FC=`spack compiler info $SPACKCOMP | grep 'fc ='  | awk -F = '{print $2}' | xargs ls`
-export F77=`spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{print $2}' | xargs ls`
-
-export GCCLIB=`spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
+export  CC=`spack compiler info $SPACKCOMP | grep 'c:'       | awk -F : '{print $2}' | xargs ls`
+export CXX=`spack compiler info $SPACKCOMP | grep 'cxx:'     | awk -F : '{print $2}' | xargs ls`
+export  FC=`spack compiler info $SPACKCOMP | grep 'fortran:' | awk -F : '{print $2}' | xargs ls`
+export F77=`spack compiler info $SPACKCOMP | grep 'fortran:' | awk -F : '{print $2}' | xargs ls`
+export GCCLIB=`spack compiler info $SPACKCOMP | grep 'c:'    | awk -F : '{split($2,a,"/bin/");print a[1]}'`
 
 export GCMMA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "gcmma" )           {n=1}}END{print n}'`
 export SNOPT_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "snopt" )           {n=1}}END{print n}'`
