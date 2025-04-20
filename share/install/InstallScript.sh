@@ -227,18 +227,18 @@ echo "        mkl: [$mklpro]"           >> spack.yaml
 
 #------------------------------------------------------------
 
-spack add moris$petopt$paropt$mumopt$optopt %"$COMPILER"
+spack add moris $petopt$paropt$mumopt$optopt 
 
 spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack add doxygen %"$COMPILER"
-    spack add llvm@main~gold~libomptarget %"$COMPILER"
+    spack add doxygen 
+    spack add llvm@main ~gold~libomptarget 
 fi
 
-spack add openmpi %"$COMPILER" fabrics=auto 
+spack add openmpi fabrics=auto 
 
-spack add python %"$COMPILER"
+spack add python 
 
 #------------------------------------------------------------
 
@@ -261,7 +261,7 @@ fi
 
 #------------------------------------------------------------
 
-spack install $SOPTION python %"$COMPILER"
+spack install $SOPTION python 
 
 #------------------------------------------------------------
 
@@ -280,18 +280,18 @@ fi
 
 #------------------------------------------------------------
 
-spack install $SOPTION openmpi %"$COMPILER"
+spack install $SOPTION openmpi 
 
 #------------------------------------------------------------
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack install $SOPTION --only dependencies moris %"$COMPILER"
+    spack install $SOPTION --only dependencies moris 
     
-    spack install $SOPTION doxygen %"$COMPILER"
+    spack install $SOPTION doxygen 
 
-    spack install $SOPTION llvm %"$COMPILER"
+    spack install $SOPTION llvm 
 else
-    spack install $SOPTION moris %"$COMPILER"
+    spack install $SOPTION moris 
 fi
 
 #------------------------------------------------------------
