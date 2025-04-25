@@ -43,6 +43,10 @@ export COMPILER='gcc@11.3.0'
 # use lower number than available processors if build process runs out of memory
 export NUMPROC=0
 
+# set built target architecture (e.g. x86_64,x86_64, zen3, zen4, etc)
+# use "auto" for automatic selection
+export ARCH='auto'
+
 # set directory for temporary files during built
 export TMPDIR=/tmp
 
@@ -219,6 +223,9 @@ fi
 #------------------------------------------------------------
 
 echo "    all:"                         >> spack.yaml
+if [ ! $ARCH = "auto" ];then
+   echo "      target: ['$ARCH']"       >> spack.yaml
+fi
 echo "      providers:"                 >> spack.yaml
 echo "        blas: [$blaspro]"         >> spack.yaml
 echo "        lapack: [$lapackpro]"     >> spack.yaml
