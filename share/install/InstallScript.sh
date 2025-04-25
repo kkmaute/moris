@@ -45,7 +45,7 @@ export NUMPROC=0
 
 # set built target architecture (e.g. x86_64,x86_64, zen3, zen4, etc)
 # use "auto" for automatic selection
-export ARCH=auto
+export ARCH='auto'
 
 # set directory for temporary files during built
 export TMPDIR=/tmp

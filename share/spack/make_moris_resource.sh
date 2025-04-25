@@ -85,6 +85,7 @@ echo "setenv NETCDF_DIR "      `spack location --install-dir netcdf-c`         >
 echo "setenv ZLIB_DIR "        `spack location --install-dir zlib-ng`          >> $HOME/.cshrc_moris
 echo "setenv SSL_DIR  "        `spack location --install-dir openssl`          >> $HOME/.cshrc_moris
 echo "setenv CMAKE_DIR  "      `spack location --install-dir cmake`            >> $HOME/.cshrc_moris
+echo "setenv Kokkos_DIR "      `spack location --install-dir kokkos`           >> $HOME/.cshrc_moris
 echo "setenv Trilinos_DIR       $Trilinos_DIR"                                 >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
 
