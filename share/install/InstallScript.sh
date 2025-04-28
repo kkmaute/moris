@@ -240,7 +240,7 @@ spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
     spack add doxygen 
-    spack add llvm@main ~gold~libomptarget 
+    spack add llvm@main~gold~libomptarget~lld~llvm_dylib~lua~polly 
 fi
 
 spack add openmpi fabrics=auto 

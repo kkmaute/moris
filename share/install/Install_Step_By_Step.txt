@@ -266,7 +266,7 @@ spack add doxygen
 
 * add clang for clang formater (optional)
 
-spack add llvm@main~gold~libomptarget
+spack add llvm@main~gold~libomptarget~lld~llvm_dylib~lua~polly
 
 *------------------------------------------------------------
 
