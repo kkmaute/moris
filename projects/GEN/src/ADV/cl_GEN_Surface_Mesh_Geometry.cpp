@@ -455,12 +455,22 @@ namespace moris::gen
         }
 
         // Iterate through the intersections to find the first value that is within the exclusive range (-1, 1)
-        for ( const auto& tIntersection : aRaycastResult )
+        for ( auto& tIntersection : aRaycastResult )
         {
             if ( std::abs( tIntersection.second ) < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) )
             {
                 // reset intersection tolerance
                 Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+
+                // snap if needed
+                if ( std::abs( tIntersection.second - 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+                {
+                    tIntersection.second = 1.0;
+                }
+                else if ( std::abs( tIntersection.second + 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+                {
+                    tIntersection.second = -1.0;
+                }
                 return tIntersection;
             }
         }
@@ -469,7 +479,7 @@ namespace moris::gen
         Surface_Mesh::mIntersectionTolerance *= 10.0;
 
         // Recast the ray
-        bool tWarning;
+        bool                     tWarning;
         mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aOrigin, aDirection, tWarning );
 
         // Process new intersections
