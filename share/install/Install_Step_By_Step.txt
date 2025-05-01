@@ -209,7 +209,11 @@ setenv mklpro     intel-mkl
 
 * write setting to spack.yaml
 
-echo "  packages:\n    all:\n      providers:"                  >> spack.yaml
+echo "    all:"                                                 >> spack.yaml
+if ( $ARCH != "auto" ) then
+   echo "      target: ['$ARCH']"       >> spack.yaml
+endif
+echo "      providers:"                                         >> spack.yaml
 echo "        blas: [$blaspro]\n        lapack: [$lapackpro]"   >> spack.yaml
 echo "        scalapack: [$sclpackpro]\n        mkl: [$mklpro]" >> spack.yaml
 
@@ -262,7 +266,7 @@ spack add doxygen
 
 * add clang for clang formater (optional)
 
-spack add llvm@main~gold~libomptarget
+spack add llvm@main~gold~libomptarget~lld~llvm_dylib~lua~polly
 
 *------------------------------------------------------------
 

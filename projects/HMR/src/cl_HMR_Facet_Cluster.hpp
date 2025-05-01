@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_
+#pragma once
 
 #include "cl_Vector.hpp"
 
@@ -66,6 +65,3 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
     };
 }
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_ */
-

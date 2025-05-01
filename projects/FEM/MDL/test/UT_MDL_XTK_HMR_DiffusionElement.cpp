@@ -188,19 +188,19 @@ namespace moris
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 }, { 4 } } );
-            tParameters.set_domain_dimensions( { { 1 }, { 1 }, { 2 } } );
-            tParameters.set_domain_offset( { { 0.0 }, { 0.0 }, { 0.0 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 4, 4 );
+            tParameters.set_domain_dimensions( 1, 1, 2 );
+            tParameters.set_domain_offset( 0, 0, 0 );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_side_sets( { { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -426,19 +426,19 @@ namespace moris
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 }, { 4 } } );
-            tParameters.set_domain_dimensions( { { 1 }, { 1 }, { 2 } } );
-            tParameters.set_domain_offset( { { 0.0 }, { 0.0 }, { 0.0 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 4, 4 );
+            tParameters.set_domain_dimensions( 1, 1, 2 );
+            tParameters.set_domain_offset( 0, 0, 0 );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_side_sets( { { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -700,21 +700,21 @@ namespace moris
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 }, { 4 } } );
-            tParameters.set_domain_dimensions( { { 2 }, { 2 }, { 4 } } );
-            tParameters.set_domain_offset( { { -1.0 }, { -1.0 }, { -2.0 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2, 4 );
+            tParameters.set_domain_dimensions( 2, 2, 4 );
+            tParameters.set_domain_offset( -1, -1, -2 );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_side_sets( { { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_multigrid( true );
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -945,18 +945,18 @@ namespace moris
             moris::Matrix< DDRMat > tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
-            CHECK( equal_to( tSolution( 0, 0 ), 4.999702007294005e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 1, 0 ), 5.000060374039293e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 2, 0 ), 4.999702006950493e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 3, 0 ), 5.000060374198882e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 4, 0 ), 1.712285753707913e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 5, 0 ), 1.707413784393956e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 6, 0 ), 1.712285753672601e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 7, 0 ), 1.707413784389796e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 8, 0 ), 5.000177244537252e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 382, 0 ), 5.149916424143507e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 461, 0 ), 1.712285752727456e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 505, 0 ), 2.947091742301102e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 0, 0 ), 5.0044139, 1E9 ) );
+            CHECK( equal_to( tSolution( 1, 0 ), 4.9931409, 1E9 ) );
+            CHECK( equal_to( tSolution( 2, 0 ), 10.345315, 1E9 ) );
+            CHECK( equal_to( tSolution( 3, 0 ), 9.9661305, 1E9 ) );
+            CHECK( equal_to( tSolution( 4, 0 ), 4.9980205, 1E9 ) );
+            CHECK( equal_to( tSolution( 5, 0 ), 5.0207612, 1E9 ) );
+            CHECK( equal_to( tSolution( 6, 0 ), 11.35329, 1E9 ) );
+            CHECK( equal_to( tSolution( 7, 0 ), 10.945259, 1E9 ) );
+            CHECK( equal_to( tSolution( 8, 0 ), 5.0224099, 1E9 ) );
+            CHECK( equal_to( tSolution( 382, 0 ), 11.648252, 1E9 ) );
+            CHECK( equal_to( tSolution( 461, 0 ), 4.9980205, 1E9 ) );
+            CHECK( equal_to( tSolution( 505, 0 ), 4.9975687, 1E9 ) );
 
             // clean up
             delete tModel;
@@ -979,21 +979,21 @@ namespace moris
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 }, { 4 } } );
-            tParameters.set_domain_dimensions( { { 2 }, { 2 }, { 4 } } );
-            tParameters.set_domain_offset( { { -1.0 }, { -1.0 }, { -2.0 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2, 4 );
+            tParameters.set_domain_dimensions( 2, 2, 4 );
+            tParameters.set_domain_offset( -1, -1, -2 );
             tParameters.set_bspline_truncation( true );
-            tParameters.set_side_sets( { { 5 }, { 6 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_multigrid( true );
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -1224,18 +1224,18 @@ namespace moris
             moris::Matrix< DDRMat > tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
-            CHECK( equal_to( tSolution( 0, 0 ), 4.999702007294010e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 1, 0 ), 5.000060374039292e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 2, 0 ), 4.999702006950497e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 3, 0 ), 5.000060374198884e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 4, 0 ), 1.712285753707912e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 5, 0 ), 1.707413784393955e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 6, 0 ), 1.712285753672600e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 7, 0 ), 1.707413784389795e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 8, 0 ), 5.000177244537259e+00, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 382, 0 ), 5.149916424143507e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 461, 0 ), 1.712285752727455e+01, 1.0e+08 ) );
-            CHECK( equal_to( tSolution( 505, 0 ), 2.947091742301103e+01, 1.0e+08 ) );
+            CHECK( equal_to( tSolution( 0, 0 ), 5.0044139, 1E9 ) );
+            CHECK( equal_to( tSolution( 1, 0 ), 4.9931409, 1E9 ) );
+            CHECK( equal_to( tSolution( 2, 0 ), 10.345315, 1E9 ) );
+            CHECK( equal_to( tSolution( 3, 0 ), 9.9661305, 1E9 ) );
+            CHECK( equal_to( tSolution( 4, 0 ), 4.9980205, 1E9 ) );
+            CHECK( equal_to( tSolution( 5, 0 ), 5.0207612, 1E9 ) );
+            CHECK( equal_to( tSolution( 6, 0 ), 11.35329, 1E9 ) );
+            CHECK( equal_to( tSolution( 7, 0 ), 10.945259, 1E9 ) );
+            CHECK( equal_to( tSolution( 8, 0 ), 5.0224099, 1E9 ) );
+            CHECK( equal_to( tSolution( 382, 0 ), 11.648252, 1E9 ) );
+            CHECK( equal_to( tSolution( 461, 0 ), 4.9980205, 1E9 ) );
+            CHECK( equal_to( tSolution( 505, 0 ), 4.9975687, 1E9 ) );
 
             delete tInterpMesh;
         }

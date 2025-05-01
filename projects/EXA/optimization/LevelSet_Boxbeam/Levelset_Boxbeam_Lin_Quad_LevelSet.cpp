@@ -50,7 +50,6 @@ namespace moris
     std::string tNumElementsPerDir = tIs3D ? "45,15,15" : "15,5";
     std::string tDimensions        = tIs3D ? "3,1,1" : "3,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
-    std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
 
     int tLevelsetOrder = 2;
     int tDispOrder     = 1;
@@ -401,7 +400,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDimensions );
         aParameterLists.set( "domain_offset", tOffSet );
-        aParameterLists.set( "domain_sidesets", tSideSets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tLagrangeOrder );
@@ -410,19 +408,12 @@ namespace moris
         aParameterLists.set( "bspline_orders", tBsplineOrder );
         aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
-        aParameterLists.set( "initial_refinement_pattern", "0,1" );
+        aParameterLists.set( "pattern_initial_refinement", tInitialRef );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -433,8 +424,6 @@ namespace moris
         aParameterLists( 0 ).push_back( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0,1" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );

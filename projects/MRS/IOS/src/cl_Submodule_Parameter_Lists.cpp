@@ -45,7 +45,15 @@ namespace moris
 
     void Submodule_Parameter_Lists::add_parameter_list()
     {
-        if ( mType == FEM_Submodule_String::values( static_cast< uint >( FEM::PROPERTIES ) ) )
+        if ( mType == HMR_Submodule_String::values( static_cast< uint >( HMR::LAGRANGE_MESHES ) ) )
+        {
+            mParameterLists.push_back( prm::create_lagrange_mesh_parameter_list() );
+        }
+        else if ( mType == HMR_Submodule_String::values( static_cast< uint >( HMR::BSPLINE_MESHES ) ) )
+        {
+            mParameterLists.push_back( prm::create_bspline_mesh_parameter_list() );
+        }
+        else if ( mType == FEM_Submodule_String::values( static_cast< uint >( FEM::PROPERTIES ) ) )
         {
             mParameterLists.push_back( prm::create_property_parameter_list() );
         }

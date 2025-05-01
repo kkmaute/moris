@@ -41,10 +41,11 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
-         * @brief fills the member parameter lists with the standard parameters for all modules
+         * Gets a list of enums representing all of the modules being used, and requiring filled parameter lists
+         *
+         * @return Vector of used module enums
          */
-        void
-        load_all_standard_parameters() override;
+        bool is_module_supported( Module_Type aModuleType ) override;
 
         // -----------------------------------------------------------------------------
 

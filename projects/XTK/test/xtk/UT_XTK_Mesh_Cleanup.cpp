@@ -159,20 +159,17 @@
 //         tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
 //         tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
 //         tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
-//         tHMRParams( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
 //         tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 //         tHMRParams( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
 //         tHMRParams( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-//         tHMRParams( 0 )( 0 ).set( "truncate_bsplines",  1 );
 //         tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
-//         tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
+//         tHMRParams( 0 )( 0 ).set( "pattern_initial_refinement", 0 );
 //         tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 //         tHMRParams( 0 )( 0 ).set( "use_number_aura", 1);
-//         tHMRParams( 0 )( 0 ).set( "use_multigrid",  0 );
 //         tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
 
 //         // PSEUDO Workflow
@@ -350,20 +347,17 @@
 //         tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", tNumElemsPerDim );
 //         tHMRParams( 0 )( 0 ).set( "domain_dimensions",                tDomainDims );
 //         tHMRParams( 0 )( 0 ).set( "domain_offset",                    tDomainOffset );
-//         tHMRParams( 0 )( 0 ).set( "domain_sidesets",                  tDomainSidesets);
 //         tHMRParams( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 //         tHMRParams( 0 )( 0 ).set( "lagrange_orders",  tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
 //         tHMRParams( 0 )( 0 ).set( "bspline_orders",   tInterpolationOrder );
 //         tHMRParams( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
 //         tHMRParams( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-//         tHMRParams( 0 )( 0 ).set( "truncate_bsplines",  1 );
 //         tHMRParams( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
 //         tHMRParams( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
-//         tHMRParams( 0 )( 0 ).set( "initial_refinement", "0" );
+//         tHMRParams( 0 )( 0 ).set( "pattern_initial_refinement", 0 );
 //         tHMRParams( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 //         tHMRParams( 0 )( 0 ).set( "use_number_aura", 1);
-//         tHMRParams( 0 )( 0 ).set( "use_multigrid",  0 );
 //         tHMRParams( 0 )( 0 ).set( "severity_level", 0 );
 
 //         // PSEUDO Workflow

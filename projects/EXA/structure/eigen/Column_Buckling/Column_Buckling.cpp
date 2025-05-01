@@ -75,10 +75,8 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim = tDim == 3 ? "5,50,5" : "5,50";
-    std::string tDomainDims     = tDim == 3 ? "1,10,1" : "1,10";
-    std::string tDomainOffset   = tDim == 3 ? "0.0,0.0,0.0" : "0.0,0.0";
-    std::string tDomainSidesets = tDim == 3 ? "1,2,3,4,5,6" : "1,2,3,4";
+    Vector< uint > tNumElemsPerDim = tDim == 3 ? Vector< uint >{ 5, 50, 5 } : Vector< uint >{ 5, 50 };
+    Vector< real > tDomainDims     = tDim == 3 ? Vector< real >{ 1.0, 10.0, 1.0 } : Vector< real >{ 1.0, 10.0 };
 
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information
@@ -132,27 +130,13 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
         aParameterLists.set( "lagrange_output_meshes", std::string( "0" ) );
 
         aParameterLists.set( "lagrange_orders", tOrder );
         aParameterLists.set( "lagrange_pattern", std::string( "0" ) );
         aParameterLists.set( "bspline_orders", tOrder );
         aParameterLists.set( "bspline_pattern", std::string( "0" ) );
-
-        aParameterLists.set( "truncate_bsplines", 1 );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "initial_refinement", "0" );
-
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-
-        aParameterLists.set( "write_lagrange_output_mesh_to_exodus", "LBAProblem.exo" );
+        aParameterLists.set( "lagrange_mesh_output_file_name", "LBAProblem.exo" );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -161,8 +145,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", std::string( "conformal" ) );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", std::string( "bspline" ) );
         aParameterLists.set( "enrich_mesh_indices", std::string( "0" ) );
         aParameterLists.set( "ghost_stab", false );
         aParameterLists.set( "multigrid", false );

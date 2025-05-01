@@ -176,10 +176,9 @@ namespace moris
     {
         aParameterLists( 0 ).push_back( prm::create_hmr_parameter_list() );
 
-        aParameterLists.set( "number_of_elements_per_dimension", "22,11" );
-        aParameterLists.set( "domain_dimensions", "4,2" );
-        aParameterLists.set( "domain_offset", "-1.24,-0.86" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "number_of_elements_per_dimension", 22, 11 );
+        aParameterLists.set( "domain_dimensions", 4.0, 2.0 );
+        aParameterLists.set( "domain_offset", -1.24, -0.86 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "1" );
@@ -189,16 +188,11 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 5 );
-        aParameterLists.set( "initial_refinement", "4" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "pattern_initial_refinement", 4 );
 
-        aParameterLists.set( "use_number_aura", 0 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
+        aParameterLists.set( "use_number_aura", false );
 
         aParameterLists.set( "adaptive_refinement_level", 1 );
     }
@@ -209,8 +203,6 @@ namespace moris
         aParameterLists( 0 ).push_back( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", isGhost );
         aParameterLists.set( "multigrid", false );

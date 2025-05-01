@@ -347,10 +347,9 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "1,1" );
-        aParameterLists.set( "domain_dimensions", "10,10" );
-        aParameterLists.set( "domain_offset", "-5.0,-5.0" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "number_of_elements_per_dimension", 1, 1 );
+        aParameterLists.set( "domain_dimensions", 10.0, 10.0 );
+        aParameterLists.set( "domain_offset", -5.0, -5.0 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "1,1" );
@@ -359,21 +358,14 @@ namespace moris
         aParameterLists.set( "bspline_orders", "1,1" );
         aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists.set( "initial_refinement", "0,0" );
-        aParameterLists.set( "initial_refinement_pattern", "0,1" );
+        aParameterLists.set( "pattern_initial_refinement", 0, 0 );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1;-1" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 1 );
         aParameterLists.set( "staircase_buffer", 1 );
 
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-
-        // aParameterLists.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+        // aParameterLists.set( "lagrange_mesh_output_file_name", "HMRLagrangeMesh.vtk" );
 
         aParameterLists.set( "use_refine_low_level_elements", true );
     }
@@ -385,8 +377,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0,1" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );
@@ -431,7 +421,7 @@ namespace moris
         // aParameterLists.set("discretization_mesh_index",   0);
         aParameterLists.set( "discretization_lower_bound", 0.001 );
         aParameterLists.set( "discretization_upper_bound", 1.0 );
-        aParameterLists.set( "pdv_mesh_set_names", tTotalDomainAGhost );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0" );
         tParamCounter++;
     }
 

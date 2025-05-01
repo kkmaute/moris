@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BASIS_HPP_
-#define SRC_HMR_CL_HMR_BASIS_HPP_
+#pragma once
 
 #include "cl_HMR_Edge.hpp"          //HMR/src
 #include "cl_HMR_Element.hpp"       //HMR/src
@@ -1209,5 +1208,3 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif

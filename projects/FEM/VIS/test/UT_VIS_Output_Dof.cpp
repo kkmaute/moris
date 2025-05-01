@@ -117,20 +117,20 @@ namespace moris::vis
 
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 2 } } );
-            tParameters.set_domain_dimensions( { { 2 }, { 1 } } );
-            tParameters.set_domain_offset( { { -1.0 }, { -0.0 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 2 );
+            tParameters.set_domain_dimensions( 2, 1 );
+            tParameters.set_domain_offset( -1, 0 );
             tParameters.set_bspline_truncation( true );
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );

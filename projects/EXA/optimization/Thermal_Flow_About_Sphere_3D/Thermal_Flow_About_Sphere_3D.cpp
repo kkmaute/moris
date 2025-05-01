@@ -115,22 +115,9 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // background mesh
-    std::string tNumElemX = moris_to_string( std::ceil( tDimX / tApproxEleSize ) );
-    std::string tNumElemY = moris_to_string( std::ceil( tDimY / tApproxEleSize ) );
-    std::string tNumElemZ = moris_to_string( std::ceil( tDimZ / tApproxEleSize ) );
-
-    std::string tDomainDimX = moris_to_string( tDimX );
-    std::string tDomainDimY = moris_to_string( tDimY );
-    std::string tDomainDimZ = moris_to_string( tDimZ );
-
-    std::string tDomainOffX = moris_to_string( tOffsetX );
-    std::string tDomainOffY = moris_to_string( tOffsetY );
-    std::string tDomainOffZ = moris_to_string( tOffsetZ );
-
-    std::string tNumElemsPerDim = tNumElemX + "," + tNumElemY + "," + tNumElemZ;
-    std::string tDomainDims     = tDomainDimX + "," + tDomainDimY + "," + tDomainDimZ;
-    std::string tDomainOffset   = tDomainOffX + "," + tDomainOffY + "," + tDomainOffZ;
-    std::string tDomainSidesets = "1,2,3,4,5,6";
+    uint tNumElemX = std::ceil( tDimX / tApproxEleSize );
+    uint tNumElemY = std::ceil( tDimY / tApproxEleSize );
+    uint tNumElemZ = std::ceil( tDimZ / tApproxEleSize );
 
     int tLevelsetOrder = gInterpolationOrder;
     int tDispOrder     = gInterpolationOrder;
@@ -142,7 +129,6 @@ namespace moris
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = std::to_string( std::max( tLevelsetOrder, tDispOrder ) );
     std::string tBsplineOrder    = std::to_string( tLevelsetOrder ) + "," + std::to_string( tDispOrder );
-    std::string tInitialRef      = std::to_string( tLevelsetInitialRef ) + "," + std::to_string( tDispInitialRef );
     std::string tLagrangePattern = tLevelsetInitialRef > tDispInitialRef ? "0" : "1";
 
     uint tInterfaceRefinementSphere = 0;
@@ -472,10 +458,9 @@ namespace moris
 
         aParameterLists( 0 ).push_back( prm::create_hmr_parameter_list() );
 
-        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
-        aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElemX, tNumElemY, tNumElemZ );
+        aParameterLists.set( "domain_dimensions", tDimX, tDimY, tDimZ );
+        aParameterLists.set( "domain_offset", tOffsetX, tOffsetY, tOffsetZ );
 
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
@@ -487,17 +472,10 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
-        aParameterLists.set( "initial_refinement_pattern", "0,1" );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
+        aParameterLists.set( "pattern_initial_refinement", tLevelsetInitialRef, tDispInitialRef );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -508,8 +486,6 @@ namespace moris
         aParameterLists( 0 ).push_back( prm::create_xtk_parameter_list() );
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0,1" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );

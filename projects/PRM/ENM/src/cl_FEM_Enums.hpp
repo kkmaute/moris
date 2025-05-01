@@ -23,6 +23,7 @@ namespace moris::fem
             DOUBLE_SIDESET,
             NONCONFORMAL_SIDESET,
             TIME_SIDESET,
+            TIME_FINAL_SIDESET,
             TIME_BOUNDARY,
             END_ELEMENT_TYPE )
 

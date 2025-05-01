@@ -148,6 +148,9 @@ namespace moris
             // bool for time continuity
             bool mTimeContinuity = false;
 
+            // bool for final time integral
+            real mTimeFinal = -1.0;
+
             // bool for time boundary integral
             bool mTimeBoundary = false;
 
@@ -180,6 +183,7 @@ namespace moris
             friend class Element_Double_Sideset;
             friend class Element_Nonconformal_Sideset;
             friend class Element_Time_Continuity;
+            friend class Element_Time_Final_Sideset;
             friend class Element_Time_Boundary;
             friend class Element;
             friend class Field_Interpolator_Manager;
@@ -506,6 +510,17 @@ namespace moris
             get_time_continuity() const
             {
                 return mTimeContinuity;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get real for time final
+             * param[ out ] mTimeFinal real final time
+             */
+            real
+            get_final_time() const
+            {
+                return mTimeFinal;
             }
 
             //------------------------------------------------------------------------------

@@ -23,8 +23,8 @@ namespace moris::gen
             , Design_Parameters( aParameterList )
             , mPDVType( get_pdv_type_map()[ aParameterList.get< std::string >( "pdv_type" ) ] )
             , mInterpolationPDV( aParameterList.get< std::string >( "pdv_mesh_type" ) == "interpolation" )
-            , mPDVMeshSetIndices( aParameterList.get_cell< uint >( "pdv_mesh_set_indices" ) )
-            , mPDVMeshSetNames( aParameterList.get_cell< std::string >( "pdv_mesh_set_names" ) )
+            , mPDVMeshSetIndices( aParameterList.get_vector< uint >( "pdv_mesh_set_indices" ) )
+            , mPDVMeshSetNames( aParameterList.get_vector< std::string >( "pdv_mesh_set_names" ) )
     {
     }
 

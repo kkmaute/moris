@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_
+#pragma once
 
 #include <string>
 
@@ -95,7 +94,7 @@ namespace moris::hmr
          */
         Lagrange_Mesh_Base ( const Parameters * aParameters,
                 Background_Mesh_Base          * aBackgroundMesh,
-              Vector< BSpline_Mesh_Base *  >  & aBSplineMeshes,
+                Vector< BSpline_Mesh_Base* >  & aBSplineMeshes,
                 uint aOrder,
                 uint aActivationPattern );
 
@@ -1115,5 +1114,3 @@ namespace moris::hmr
         void synchronize_edge_ids( uint aOwnedCount );
     };
 }
-
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_ */

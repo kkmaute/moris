@@ -46,9 +46,7 @@ namespace moris
     real tMMAStepSize = 0.01;
     int  tMMAMaxIter  = 2;
 
-    int         tInitialRef    = 2;
-    std::string tLagrangeOrder = "1";
-    std::string tBsplineOrder  = "1,1";
+    int tInitialRef    = 2;
 
     real tElementEdgeLength = 1.0 / 15.0 / pow( 2, tInitialRef );
     real tLoadLimitY        = std::floor( 0.2 / tElementEdgeLength ) * tElementEdgeLength;
@@ -254,26 +252,21 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "45,15" );
-        aParameterLists.set( "domain_dimensions", "3,1" );
-        aParameterLists.set( "domain_offset", "0.0,0.0" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
+        aParameterLists.set( "number_of_elements_per_dimension", 45, 15 );
+        aParameterLists.set( "domain_dimensions", 3.0, 1.0 );
 
-        aParameterLists.set( "lagrange_orders", tLagrangeOrder );
-        aParameterLists.set( "lagrange_pattern", "0" );
-        aParameterLists.set( "bspline_orders", tBsplineOrder );
-        aParameterLists.set( "bspline_pattern", "0,0" );
-
-        aParameterLists.set( "lagrange_to_bspline", "0,1" );
-
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
-        aParameterLists.set( "initial_refinement", std::to_string( tInitialRef ) );
+        aParameterLists.set( "pattern_initial_refinement", tInitialRef );
 
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
+        aParameterLists( HMR::LAGRANGE_MESHES ).add_parameter_list();
+        aParameterLists.set( "order", 1 );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", 1 );
+
+        aParameterLists( HMR::BSPLINE_MESHES ).add_parameter_list();
+        aParameterLists.set( "orders", 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -283,8 +276,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0,1" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );

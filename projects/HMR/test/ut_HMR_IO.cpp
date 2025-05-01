@@ -43,26 +43,25 @@ namespace moris::hmr
                 // create settings object
                 Parameters tParameters;
 
-                tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+                tParameters.set_number_of_elements_per_dimension( 4, 4 );
 
-                tParameters.set_domain_dimensions( { { 1 }, { 1 } } );
-                tParameters.set_domain_offset( { { -0.5 }, { -0.5 } } );
+                tParameters.set_domain_dimensions( 1, 1 );
+                tParameters.set_domain_offset( -0.5, -0.5 );
 
                 // B-Spline truncation is turned on by default.
                 // It is recommended to leave this setting as is.
                 tParameters.set_bspline_truncation( true );
 
-                tParameters.set_lagrange_orders( { { tOrder } } );
-                tParameters.set_lagrange_patterns( { { 2 } } );
+                tParameters.set_lagrange_orders( { tOrder } );
+                tParameters.set_lagrange_patterns( { 2 } );
 
-                tParameters.set_bspline_orders( { { tOrder }, { tOrder } } );
-                tParameters.set_bspline_patterns( { { 0 }, { 1 } } );
+                tParameters.set_bspline_orders( { tOrder, tOrder } );
+                tParameters.set_bspline_patterns( { 0, 1 } );
 
                 tParameters.set_staircase_buffer( 3 );
                 tParameters.set_refinement_buffer( 3 );
 
-                tParameters.set_initial_refinement( { { 1 } } );
-                tParameters.set_initial_refinement_patterns( { { 0 } } );
+                tParameters.set_initial_refinement( { 1 } );
 
                 Vector< Vector< uint > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { { 0, 1 } };
@@ -166,6 +165,20 @@ namespace moris::hmr
 
                 // perform test
                 REQUIRE( tR2 > 0.99 );
+//
+//                // create file object
+//                File tHDF5;
+//
+//                // create file on disk
+//                tHDF5.create( "/home/christopherson/new.hdf5" );
+//
+//                // store settings object
+//                tHDF5.save_settings( tHMR.get_parameters() );
+//
+//                Lagrange_Mesh_Base* tLagrangeMesh = tHMR.get_database()->get_lagrange_mesh_by_index( 0 );
+//
+//                // get pointer to background mesh
+//                tHDF5.save_refinement_pattern( tLagrangeMesh );
             }
         }
     }
@@ -182,28 +195,25 @@ namespace moris::hmr
                 // create settings object
                 Parameters tParameters;
 
-                tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+                tParameters.set_number_of_elements_per_dimension( 4, 4 );
 
-                tParameters.set_domain_dimensions( { { 1 }, { 1 } } );
-                tParameters.set_domain_offset( { { -0.5 }, { -0.5 } } );
+                tParameters.set_domain_dimensions( 1, 1 );
+                tParameters.set_domain_offset( -0.5, -0.5 );
 
                 // B-Spline truncation is turned on by default.
                 // It is recommended to leave this setting as is.
                 tParameters.set_bspline_truncation( true );
 
-                tParameters.set_lagrange_orders( { { tOrder } } );
-                tParameters.set_lagrange_patterns( { { 2 } } );
+                tParameters.set_lagrange_orders( { tOrder } );
+                tParameters.set_lagrange_patterns( { 2 } );
 
-                tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 } } );
-                tParameters.set_bspline_patterns( { { 0 }, { 1 }, { 2 } } );
-
-                tParameters.set_lagrange_input_mesh( { { 0 } } );
+                tParameters.set_bspline_orders( { 1, 1, 1 } );
+                tParameters.set_bspline_patterns( { 0, 1, 2 } );
 
                 tParameters.set_staircase_buffer( 3 );
                 tParameters.set_refinement_buffer( 3 );
 
-                tParameters.set_initial_refinement( { { 1 } } );
-                tParameters.set_initial_refinement_patterns( { { 0 } } );
+                tParameters.set_initial_refinement( { 1 } );
 
                 Vector< Vector< uint > > tLagrangeToBSplineMesh( 1 );
                 tLagrangeToBSplineMesh( 0 ) = { 0, 1, 2 };

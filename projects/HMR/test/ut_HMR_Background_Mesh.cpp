@@ -40,8 +40,7 @@ namespace moris::hmr
                 tParameters->set_processor_decomp_method( tDecompMethod );
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 4 }, { 4 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
                 // do not print debug information during test
                 tParameters->set_severity_level( 0 );
@@ -50,8 +49,8 @@ namespace moris::hmr
                 tParameters->set_refinement_buffer( 1 );
                 tParameters->set_staircase_buffer( 1 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -366,15 +365,14 @@ namespace moris::hmr
                 tParameters->set_processor_decomp_method( tDecompMethod );
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 4 }, { 4 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
                 tParameters->set_staircase_buffer( 0 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -627,7 +625,7 @@ namespace moris::hmr
             auto tParameters = new Parameters;
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
             // Processor Decomposition Method
             uint tDecompMethod = 1;
@@ -637,8 +635,8 @@ namespace moris::hmr
             tParameters->set_refinement_buffer( 1 );
             tParameters->set_staircase_buffer( 1 );
 
-            tParameters->set_lagrange_orders( { { 2 } } );
-            tParameters->set_lagrange_patterns( { { 0 } } );
+            tParameters->set_lagrange_orders( { 2 } );
+            tParameters->set_lagrange_patterns( { 0 } );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -742,14 +740,14 @@ namespace moris::hmr
             tParameters->set_processor_decomp_method( tDecompMethod );
 
             // set number of elements
-            tParameters->set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters->set_number_of_elements_per_dimension( 4, 4 );
 
             // set buffer size to zero
             tParameters->set_refinement_buffer( 1 );
             tParameters->set_staircase_buffer( 1 );
 
-            tParameters->set_lagrange_orders( { { 2 } } );
-            tParameters->set_lagrange_patterns( { { 0 } } );
+            tParameters->set_lagrange_orders( { 2 } );
+            tParameters->set_lagrange_patterns( { 0 } );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -867,17 +865,17 @@ namespace moris::hmr
 
             tParameters.set_processor_decomp_method( 1 );
 
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
             //        tParameters.set_verbose( true );
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( false );
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             // create HMR object
             HMR tHMR( tParameters );
@@ -913,7 +911,7 @@ namespace moris::hmr
 
             tParameters.set_processor_decomp_method( 1 );
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 4 );
             //        tParameters.set_verbose( true );
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( false );
@@ -922,11 +920,11 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_number_aura( false );
 
@@ -998,7 +996,7 @@ namespace moris::hmr
 
             tParameters.set_processor_decomp_method( 1 );
 
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 4 );
             //        tParameters.set_verbose( true );
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( false );
@@ -1007,11 +1005,11 @@ namespace moris::hmr
             tParameters.set_refinement_buffer( 2 );
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_number_aura( false );
 
@@ -1071,8 +1069,7 @@ namespace moris::hmr
                 tParameters->set_processor_decomp_method( tDecompMethod );
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 2 }, { 8 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 2, 8 );
 
                 // do not print debug information during test
                 tParameters->set_severity_level( 0 );
@@ -1081,8 +1078,8 @@ namespace moris::hmr
                 tParameters->set_refinement_buffer( 1 );
                 tParameters->set_staircase_buffer( 1 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -1397,15 +1394,14 @@ namespace moris::hmr
                 tParameters->set_processor_decomp_method( tDecompMethod );
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 2 }, { 8 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 2, 8 );
 
                 // set buffer size to zero
                 tParameters->set_refinement_buffer( 0 );
                 tParameters->set_staircase_buffer( 0 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -1685,8 +1681,7 @@ namespace moris::hmr
             tParameters->set_processor_decomp_method( tDecompMethod );
 
             // set number of elements
-            Matrix< DDLUMat > tNumberOfElements = { { 4 }, { 5 } };
-            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+            tParameters->set_number_of_elements_per_dimension( 4, 5 );
 
             // do not print debug information during test
             tParameters->set_severity_level( 0 );
@@ -1695,8 +1690,8 @@ namespace moris::hmr
             tParameters->set_refinement_buffer( 1 );
             tParameters->set_staircase_buffer( 1 );
 
-            tParameters->set_lagrange_orders( { { 2 } } );
-            tParameters->set_lagrange_patterns( { { 0 } } );
+            tParameters->set_lagrange_orders( { 2 } );
+            tParameters->set_lagrange_patterns( { 0 } );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );
@@ -2185,8 +2180,7 @@ namespace moris::hmr
                 tParameters->set_processor_decomp_method( tDecompMethod );
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 4 }, { 5 }, { 8 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 4, 5, 8 );
 
                 // do not print debug information during test
                 tParameters->set_severity_level( 0 );
@@ -2195,8 +2189,8 @@ namespace moris::hmr
                 tParameters->set_refinement_buffer( 1 );
                 tParameters->set_staircase_buffer( 1 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );
@@ -2442,8 +2436,7 @@ namespace moris::hmr
                 tParameters->set_processor_decomp_method( tDecompMethod );
 
                 // set number of elements
-                Matrix< DDLUMat > tNumberOfElements = { { 4 }, { 5 }, { 8 } };
-                tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+                tParameters->set_number_of_elements_per_dimension( 4, 5, 8 );
 
                 // do not print debug information during test
                 tParameters->set_severity_level( 0 );
@@ -2452,8 +2445,8 @@ namespace moris::hmr
                 tParameters->set_refinement_buffer( 1 );
                 tParameters->set_staircase_buffer( 1 );
 
-                tParameters->set_lagrange_orders( { { 2 } } );
-                tParameters->set_lagrange_patterns( { { 0 } } );
+                tParameters->set_lagrange_orders( { 2 } );
+                tParameters->set_lagrange_patterns( { 0 } );
 
                 // deactivate truncation
                 tParameters->set_bspline_truncation( false );

@@ -64,8 +64,8 @@ namespace moris
         if ( moris::par_size() == 1 or moris::par_size() == 2 or moris::par_size() == 4 )
         {
             uint             tNumberOfDimensions = 3;
-            Matrix< DDUMat > tProcDims;
-            Matrix< DDUMat > tProcDimsCompare;
+            Vector< uint >   tProcDims;
+            Vector< uint > tProcDimsCompare;
             Matrix< DDUMat > tError;
             Matrix< DDUMat > tProcCoords;
             Matrix< IdMat >  tProcNeighbors;
@@ -74,23 +74,23 @@ namespace moris
             {
                 if ( moris::par_size() == 1 )
                 {
-                    tProcDims        = { { 1 }, { 1 }, { 1 } };
+                    tProcDims        = { 1, 1, 1 };
                     tProcDimsCompare = tProcDims;
                 }
                 else if ( moris::par_size() == 2 )
                 {
                     if ( iDecompMethod == 1 )
                     {
-                        tProcDimsCompare = { { 2 }, { 1 }, { 1 } };
+                        tProcDimsCompare = { 2, 1, 1 };
                     }
                     else if ( iDecompMethod == 2 )
                     {
-                        tProcDims        = { { 1 }, { 2 }, { 1 } };
+                        tProcDims        = { 1, 2, 1 };
                         tProcDimsCompare = tProcDims;
                     }
                     else if ( iDecompMethod == 0 )
                     {
-                        tProcDims        = { { 1 }, { 1 }, { 2 } };
+                        tProcDims        = { 1, 1, 2 };
                         tProcDimsCompare = tProcDims;
                     }
                 }
@@ -98,16 +98,16 @@ namespace moris
                 {
                     if ( iDecompMethod == 1 )
                     {
-                        tProcDimsCompare = { { 2 }, { 2 }, { 1 } };
+                        tProcDimsCompare = { 2, 2, 1 };
                     }
                     else if ( iDecompMethod == 2 )
                     {
-                        tProcDims        = { { 1 }, { 2 }, { 2 } };
+                        tProcDims        = { 1, 2, 2 };
                         tProcDimsCompare = tProcDims;
                     }
                     else if ( iDecompMethod == 0 )
                     {
-                        tProcDims        = { { 2 }, { 1 }, { 2 } };
+                        tProcDims        = { 2, 1, 2 };
                         tProcDimsCompare = tProcDims;
                     }
                 }
@@ -119,8 +119,10 @@ namespace moris
                         tProcCoords,
                         tProcNeighbors );
 
-                tError = tProcDims - tProcDimsCompare;
-                REQUIRE( ( tError.max() == 0 && tError.min() == 0 ) );
+                for ( uint iCheckIndex = 0; iCheckIndex < tProcDims.size(); iCheckIndex++ )
+                {
+                    REQUIRE( tProcDims( iCheckIndex ) == tProcDimsCompare( iCheckIndex ) );
+                }
             }
         }
     }

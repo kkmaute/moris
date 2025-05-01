@@ -12,7 +12,6 @@
 #include <ios>
 #include <limits>
 
-#include "../MRS/IOS/src/cl_Git_info.hpp"
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Logger.hpp"                   // MRS/IOS/src
 #include "banner.hpp"                      // COR/src
@@ -28,8 +27,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 //---------------------------------------------------------------
 
-void
-moris_pause( int& argc, char* argv[] )
+void moris_pause( int& argc, char* argv[] )
 {
     // go through user arguments and look for flags
     for ( int k = 0; k < argc; ++k )
@@ -67,8 +65,7 @@ moris_pause( int& argc, char* argv[] )
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-int
-main( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
@@ -84,17 +81,7 @@ main( int argc, char* argv[] )
     // print banner
     moris::print_banner( argc, argv );
 
-    // print git branch and hash
-    if ( par_rank() == 0 )
-    {
-        git_info tGitInfo;
-
-        std::fprintf( stdout, "     GIT branch   : %s\n", tGitInfo.get_git_branch().c_str() );
-        std::fprintf( stdout, "     GIT revision : %s\n\n", tGitInfo.get_git_hash().c_str() );
-
-        MORIS_LOG_SPEC( "Par Rank", par_rank() );
-        MORIS_LOG_SPEC( "Par Size", par_size() );
-    }
+    fprintf( stdout, "par_rank() = %d \n", (int)par_rank() );
 
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 

@@ -15,6 +15,7 @@
 #include "cl_FEM_Element_Sideset.hpp"
 #include "cl_FEM_Element_Double_Sideset.hpp"
 #include "cl_FEM_Element_Time_Sideset.hpp"
+#include "cl_FEM_Element_Time_Final_Sideset.hpp"
 #include "cl_FEM_Element_Time_Boundary.hpp"
 #include "cl_FEM_Interpolation_Element.hpp"
 // FEM/MSI/src
@@ -60,6 +61,10 @@ namespace moris::fem
 
             case fem::Element_Type::TIME_SIDESET:
                 tElement = new Element_Time_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
+                break;
+
+            case fem::Element_Type::TIME_FINAL_SIDESET:
+                tElement = new Element_Time_Final_Sideset( aCell, aSet, aCluster, aCellIndexInCluster );
                 break;
 
             case fem::Element_Type::TIME_BOUNDARY:

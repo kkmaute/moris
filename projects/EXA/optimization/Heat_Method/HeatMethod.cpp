@@ -127,13 +127,9 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim = tIs3D ? "4, 4, 4" : "4, 4";
-    std::string tDomainDims     = tIs3D ? "2.0, 2.0, 2.0" : "2.0, 2.0";
-    std::string tDomainOffset   = tIs3D ? "-1.0, -1.0, -1.0" : "-1.0, -1.0";
-    std::string tDomainSidesets = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
-
-    std::string tInitialRefinement   = "0";
-    std::string tInterfaceRefinement = "0";
+    Vector< uint > tNumElementsPerDir( 2 + tIs3D, 4 );
+    Vector< real > tDomainDims( 2 + tIs3D, 2.0 );
+    Vector< real > tDomainOffset( 2 + tIs3D, -1.0 );
 
     int tRefineBuffer = 0;
 
@@ -429,10 +425,9 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tInterpolationOrder );
@@ -442,16 +437,8 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", tInitialRefinement );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -461,8 +448,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );
@@ -499,7 +484,7 @@ namespace moris
         aParameterLists.set( "dependencies", "ADVfield" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
-        aParameterLists.set( "pdv_mesh_set_names", tTotalDomain );
+        aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1" );
         tParamCounter++;
     }
 

@@ -43,6 +43,8 @@ namespace moris::fem
             , mIWGs( aSetInfo.get_IWGs() )
             , mIQIs( aSetInfo.get_IQIs() )
             , mTimeContinuity( aSetInfo.get_time_continuity() )
+            , mTimeFinal( aSetInfo.get_time_final() )
+            , mTimeBoundary( aSetInfo.get_time_boundary() )
             , mIsAnalyticalFA( aSetInfo.get_is_analytical_forward_analysis() )
             , mFDSchemeForFA( aSetInfo.get_finite_difference_scheme_for_forward_analysis() )
             , mFDPerturbationFA( aSetInfo.get_finite_difference_perturbation_size_for_forward_analysis() )
@@ -285,6 +287,7 @@ namespace moris::fem
                 case fem::Element_Type::BULK:
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::TIME_SIDESET:
+                case fem::Element_Type::TIME_FINAL_SIDESET:
                 case fem::Element_Type::TIME_BOUNDARY:
                 {
                     tInterpolationCell.resize( 1, &( tMeshCluster->get_interpolation_cell() ) );
@@ -2986,6 +2989,7 @@ namespace moris::fem
         {
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             case fem::Element_Type::TIME_BOUNDARY:
             {
                 switch ( aGeometryType )
@@ -3701,8 +3705,14 @@ namespace moris::fem
                     mElementType = fem::Element_Type::TIME_SIDESET;
                 }
 
+                // if final time
+                if ( mTimeBoundary && ( mTimeFinal > -1.0 ) )
+                {
+                    mElementType = fem::Element_Type::TIME_FINAL_SIDESET;
+                }
+
                 // if time boundary
-                if ( mTimeBoundary )
+                if ( mTimeBoundary && ( mTimeFinal <= -1.0 ) )
                 {
                     mElementType = fem::Element_Type::TIME_BOUNDARY;
                 }

@@ -5,6 +5,31 @@
 #------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
+# Kokkos libraries and includes -----------------------------------------
+# -------------------------------------------------------------------------
+
+if(NOT KOKKOS_FOUND_ONCE)
+
+     find_package(Kokkos REQUIRED HINTS $ENV{Kokkos_DIR})
+ 
+     if(Kokkos_FOUND)
+        set(KOKKOS_FOUND_ONCE TRUE)
+        
+        set(MORIS_KOKKOS_INCLUDE_DIRS $ENV{Kokkos_DIR}/include CACHE INTERNAL "Kokkos include dir" )
+	         
+        mark_as_advanced(
+            MORIS_KOKKOS_INCLUDE_DIRS
+            Kokkos_DIR )
+    endif()
+
+endif()
+
+if(NOT TARGET ${MORIS}::kokkos)
+	add_library(${MORIS}::kokkos INTERFACE IMPORTED GLOBAL)
+	target_link_libraries(${MORIS}::kokkos INTERFACE Kokkos::kokkos)
+endif()
+
+# -------------------------------------------------------------------------
 # Trilinos libraries and includes -----------------------------------------
 # -------------------------------------------------------------------------
 
@@ -116,7 +141,8 @@ if(NOT TRILINOS_FOUND_ONCE)
         MESSAGE(FATAL_ERROR "Could not find Trilinos!")
     ENDIF()
 
-	MESSAGE("Trilinos was found.")
+    MESSAGE("Trilinos was found.")
+    set(TRILINOS_FOUND_ONCE TRUE)
 
     # -------------------------------------------------------------------------
 
@@ -129,6 +155,7 @@ if(NOT TRILINOS_FOUND_ONCE)
     set(MORIS_TRILINOS_INCLUDE_DIRS
         ${Trilinos_INCLUDE_DIRS}
         ${Trilinos_TPL_INCLUDE_DIRS}
+	    ${MORIS_KOKKOS_INCLUDE_DIRS}
         CACHE INTERNAL "Directories included by Trilinos. Very long." )
 
     mark_as_advanced(
@@ -145,6 +172,7 @@ if(NOT TRILINOS_FOUND_ONCE)
     message(STATUS "TRILINOS_PATH: ${TRILINOS_PATH}")
     
     mark_as_advanced(MORIS_TRILINOS_LIBRARIES)
+    
 endif()
 
 # -------------------------------------------------------------------------

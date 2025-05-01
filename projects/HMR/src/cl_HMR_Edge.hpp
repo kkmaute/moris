@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_
+#pragma once
 
 #include "cl_HMR_Element.hpp"
 #include "cl_HMR_Mesh_Base.hpp"
@@ -213,5 +212,3 @@ namespace moris::hmr
     // ----------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_EDGE_HPP_ */

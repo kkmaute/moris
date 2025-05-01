@@ -46,21 +46,21 @@ namespace moris::hmr
     void File::save_settings( const Parameters* aParameters )
     {
         // save dimensions of field
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "DomainDimensions",
-                aParameters->get_domain_dimensions(),
+                aParameters->get_domain_dimensions().data(),
                 mStatus );
 
         // save domain offset
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "DomainOffset",
-                aParameters->get_domain_offset(),
+                aParameters->get_domain_offset().data(),
                 mStatus );
 
         // save number of elements on coarsest mesh
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "CoarsestElements",
-                aParameters->get_number_of_elements_per_dimension(),
+                aParameters->get_number_of_elements_per_dimension().data(),
                 mStatus );
 
         // save buffer size
@@ -88,21 +88,9 @@ namespace moris::hmr
                 mStatus );
 
         // save initial refinement
-        save_matrix_to_hdf5_file( mFileID,
+        save_vector_to_hdf5_file( mFileID,
                 "InitialBSplineRefinement",
-                aParameters->get_initial_refinement(),
-                mStatus );
-
-        // save initial refinement
-        save_scalar_to_hdf5_file( mFileID,
-                "AdditionalLagrangeRefinement",
-                aParameters->get_additional_lagrange_refinement(),
-                mStatus );
-
-        // save maximal refinement level
-        save_scalar_to_hdf5_file( mFileID,
-                "MaxRefinementLevel",
-                aParameters->get_max_refinement_level(),
+                aParameters->get_initial_refinement().data(),
                 mStatus );
 
         // save mesh scaling factor for gmsh
@@ -111,40 +99,46 @@ namespace moris::hmr
                 aParameters->get_gmsh_scale(),
                 mStatus );
 
-        // save Lagrange mesh associations
-        save_matrix_to_hdf5_file( mFileID,
+        // save Lagrange mesh orders
+        save_vector_to_hdf5_file( mFileID,
                 "LagrangeOrders",
-                aParameters->get_lagrange_orders(),
+                aParameters->get_lagrange_orders().data(),
                 mStatus );
 
-        // save Lagrange mesh associations
-        save_matrix_to_hdf5_file( mFileID,
+        // save Lagrange mesh patterns
+        save_vector_to_hdf5_file( mFileID,
                 "LagrangePatterns",
-                aParameters->get_lagrange_patterns(),
+                aParameters->get_lagrange_patterns().data(),
                 mStatus );
 
-        // save bspline mesh associations
-        save_matrix_to_hdf5_file( mFileID,
-                "BSplineOrders",
-                aParameters->get_bspline_orders(),
-                mStatus );
-
-        // save bspline mesh associations
-        save_matrix_to_hdf5_file( mFileID,
-                "BSplinePatterns",
-                aParameters->get_bspline_patterns(),
-                mStatus );
-
-        // save Sidesets
-        Matrix< DDUMat > tSideSets = aParameters->get_side_sets();
-        if ( tSideSets.length() == 0 )
+        // save bspline mesh orders
+        uint tNumberOfBSplineMeshes = aParameters->get_number_of_bspline_meshes();
+        Vector< uint > tBSplineOrdersX( tNumberOfBSplineMeshes );
+        Vector< uint > tBSplineOrdersY( tNumberOfBSplineMeshes );
+        Vector< uint > tBSplineOrdersZ( tNumberOfBSplineMeshes );
+        for ( uint iMeshIndex = 0; iMeshIndex < aParameters->get_number_of_bspline_meshes(); iMeshIndex++ )
         {
-            tSideSets.set_size( 1, 1, 0 );
+            tBSplineOrdersX( iMeshIndex ) = aParameters->get_bspline_order_x( iMeshIndex );
+            tBSplineOrdersY( iMeshIndex ) = aParameters->get_bspline_order_y( iMeshIndex );
+            tBSplineOrdersZ( iMeshIndex ) = aParameters->get_bspline_order_z( iMeshIndex );
         }
+        save_vector_to_hdf5_file( mFileID,
+                "BSplineOrdersX",
+                tBSplineOrdersX.data(),
+                mStatus );
+        save_vector_to_hdf5_file( mFileID,
+                "BSplineOrdersY",
+                tBSplineOrdersX.data(),
+                mStatus );
+        save_vector_to_hdf5_file( mFileID,
+                "BSplineOrdersZ",
+                tBSplineOrdersX.data(),
+                mStatus );
 
-        save_matrix_to_hdf5_file( mFileID,
-                "SideSets",
-                tSideSets,
+        // save bspline mesh patterns
+        save_vector_to_hdf5_file( mFileID,
+                "BSplinePatterns",
+                aParameters->get_bspline_patterns().data(),
                 mStatus );
     }
 
@@ -154,49 +148,49 @@ namespace moris::hmr
     {
         // placeholders for data read from file
         Matrix< DDRMat >  tMatReal;
-        Matrix< DDLUMat > tMatLuint;
         Matrix< DDUMat >  tMatUint;
+        Vector< uint >    tUnsignedVector;
+        Vector< real >    tRealVector;
         real              tValReal;
         uint              tValUint;
         sint              tValSint;
-        luint             tValLuint;
         bool              tValBool;
 
         // load dimensions from field
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "DomainDimensions",
-                tMatReal,
+                tRealVector.data(),
                 mStatus );
 
         // set domain dimensions
-        aParameters->set_domain_dimensions( tMatReal );
+        aParameters->set_domain_dimensions( tRealVector );
 
         // load domain offset
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "DomainOffset",
-                tMatReal,
+                tRealVector.data(),
                 mStatus );
 
         // set domain offset
-        aParameters->set_domain_offset( tMatReal );
+        aParameters->set_domain_offset( tRealVector );
 
         // load number of elements on coarsest mesh
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "CoarsestElements",
-                tMatLuint,
+                tUnsignedVector.data(),
                 mStatus );
 
         // set number of elements
-        aParameters->set_number_of_elements_per_dimension( tMatLuint );
+        aParameters->set_number_of_elements_per_dimension( tUnsignedVector );
 
         // load buffer size
         load_scalar_from_hdf5_file( mFileID,
                 "RefinementBuffer",
-                tValLuint,
+                tValUint,
                 mStatus );
 
         // set buffer size
-        aParameters->set_refinement_buffer( tValLuint );
+        aParameters->set_refinement_buffer( tValUint );
 
         // load truncation flag
         load_scalar_from_hdf5_file( mFileID,
@@ -214,7 +208,7 @@ namespace moris::hmr
                 mStatus );
 
         // set verbose flag
-        aParameters->set_severity_level( tValSint );
+        moris::hmr::Parameters::set_severity_level( tValSint );
 
         // load multigrid flag
         load_scalar_from_hdf5_file( mFileID,
@@ -230,22 +224,7 @@ namespace moris::hmr
                 tValUint,
                 mStatus );
 
-        aParameters->set_initial_refinement( { { tValUint } } );
-
-        // load initial refinement
-        load_scalar_from_hdf5_file( mFileID,
-                "AdditionalLagrangeRefinement",
-                tValUint,
-                mStatus );
-
-        aParameters->set_additional_lagrange_refinement( tValUint );
-
-        // loadmaximal refinement level
-        load_scalar_from_hdf5_file( mFileID,
-                "MaxRefinementLevel",
-                tValUint,
-                mStatus );
-        aParameters->set_max_refinement_level( tValUint );
+        aParameters->set_initial_refinement( { tValUint } );
 
         // load scaling factor for gmsh
         load_scalar_from_hdf5_file( mFileID,
@@ -257,63 +236,45 @@ namespace moris::hmr
         aParameters->set_gmsh_scale( tValReal );
 
         // load orders of meshes
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "OrderToLagrangeMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_lagrange_orders( tMatUint );
+        aParameters->set_lagrange_orders( tUnsignedVector );
 
         // load Lagrange mesh associations
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "PatternToLagrangeMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_lagrange_patterns( tMatUint );
+        aParameters->set_lagrange_patterns( tUnsignedVector );
 
         // load orders of meshes
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "OrderToBspMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_bspline_orders( tMatUint );
+        aParameters->set_bspline_orders( tUnsignedVector );
 
         // load bspline mesh associations
-        load_matrix_from_hdf5_file( mFileID,
+        load_vector_from_hdf5_file( mFileID,
                 "PatternToBspMeshList",
-                tMatUint,
+                tUnsignedVector.data(),
                 mStatus );
 
-        aParameters->set_bspline_patterns( tMatUint );
+        aParameters->set_bspline_patterns( tUnsignedVector );
 
         // set lagrange to bpline mesh dependecies. since we read one lag mesh from file all bsplines belong to this mesh
-        Vector< Vector< uint > > tMatBspToLag( 1 );
-        tMatBspToLag( 0 ).resize( tMatUint.numel() );
-
-        for ( uint Ik = 0; Ik < tMatUint.numel(); Ik++ )
+        Vector< Vector< uint > > tBsplineToLagrange( 1 );
+        tBsplineToLagrange( 0 ).resize( tUnsignedVector.size() );
+        for ( uint Ik = 0; Ik < tUnsignedVector.size(); Ik++ )
         {
-            tMatBspToLag( 0 )( Ik ) = Ik;
+            tBsplineToLagrange( 0 )( Ik ) = Ik;
         }
-
-        aParameters->set_lagrange_to_bspline_mesh( tMatBspToLag );
-
-        // load side sets
-        load_matrix_from_hdf5_file( mFileID,
-                "SideSets",
-                tMatUint,
-                mStatus );
-
-        // test if matrix has values
-        if ( tMatUint.length() > 0 )
-        {
-            if ( tMatUint( 0 ) != 0 )
-            {
-                // reset matrix
-                aParameters->set_side_sets( tMatUint );
-            }
-        }
+        aParameters->set_lagrange_to_bspline_mesh( tBsplineToLagrange );
     }
 
     //------------------------------------------------------------------------------
@@ -559,13 +520,13 @@ namespace moris::hmr
 
     void File::save_refinement_pattern(
             Background_Mesh_Base*          aBackgroundMesh,
-            const moris::Matrix< DDUMat >& tPatternToSave,
+            const moris::Matrix< DDUMat >& aPatternToSave,
             Matrix< DDLUMat >&             aElementCounterPerLevelAndPattern,
             Vector< Matrix< DDLUMat > >&   aElementPerPattern )
     {
         uint tMaxLevel = aBackgroundMesh->get_max_level();
 
-        uint tNumPattern = tPatternToSave.numel();
+        uint tNumPattern = aPatternToSave.numel();
 
         moris::Matrix< DDUMat > tPatterns( tNumPattern, 1 );
 
@@ -587,7 +548,7 @@ namespace moris::hmr
                 for ( uint Ik = 0; Ik < tNumPattern; ++Ik )
                 {
                     // test if B-Spline Element is refined
-                    if ( tElement->is_refined( tPatternToSave( Ik ) ) )
+                    if ( tElement->is_refined( aPatternToSave( Ik ) ) )
                     {
                         // increment counter
                         ++aElementCounterPerLevelAndPattern( l, Ik );
@@ -618,7 +579,7 @@ namespace moris::hmr
                 for ( uint Ik = 0; Ik < tNumPattern; ++Ik )
                 {
                     // test if element is refined
-                    if ( tElement->is_refined( tPatternToSave( Ik ) ) )
+                    if ( tElement->is_refined( aPatternToSave( Ik ) ) )
                     {
                         aElementPerPattern( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
                     }
@@ -629,157 +590,7 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    void File::save_refinement_pattern(
-            Lagrange_Mesh_Base*          aLagrangeMesh,
-            const uint                   aDiscretizationMeshIndex,
-            Matrix< DDLUMat >&           aElementCounterPerLevelAndPattern,
-            Vector< Matrix< DDLUMat > >& aElementPerPattern )
-    {
-        Background_Mesh_Base* aBackgroundMesh = aLagrangeMesh->get_background_mesh();
-        // step 1: count how many elements need are refined on each level
-        uint tMaxLevel = aBackgroundMesh->get_max_level();
-
-        moris::Matrix< DDUMat > tPatterns( 2, 1 );
-
-        uint tSourceLagrangePattern = aLagrangeMesh->get_activation_pattern();
-        uint tSourceBSplinePattern  = aLagrangeMesh->get_bspline_pattern( aDiscretizationMeshIndex );
-
-        moris::Matrix< DDUMat > tPatternList;
-
-        if ( tSourceLagrangePattern == tSourceBSplinePattern )
-        {
-            tPatternList = { { tSourceLagrangePattern } };
-        }
-        else
-        {
-            tPatternList = { { tSourceLagrangePattern }, { tSourceBSplinePattern } };
-        }
-
-        uint tNumPattern = tPatternList.numel();
-
-        // element counter
-        aElementCounterPerLevelAndPattern.set_size( tMaxLevel + 1, tNumPattern, 0 );
-
-        // collect all elements that are flagged for refinement
-        for ( uint l = 0; l < tMaxLevel; ++l )
-        {
-            // cell which contains elements
-            Vector< Background_Element_Base* > tElements;
-
-            // collect elements from this level
-            aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-            // loop over all elements
-            for ( auto tElement : tElements )
-            {
-                for ( uint Ik = 0; Ik < tNumPattern; ++Ik )
-                {
-                    // test if B-Spline Element is refined
-                    if ( tElement->is_refined( tPatternList( Ik ) ) )
-                    {
-                        // increment counter
-                        ++aElementCounterPerLevelAndPattern( l, Ik );
-                    }
-                }
-            }
-        }
-
-        aElementPerPattern.resize( tNumPattern );
-        Vector< luint > tElementPerPatternCount( tNumPattern, 0 );
-
-        for ( uint Ik = 0; Ik < tNumPattern; ++Ik )
-        {
-            aElementPerPattern( Ik ).set_size( sum( aElementCounterPerLevelAndPattern.get_column( Ik ) ), 1 );
-        }
-
-        for ( uint l = 0; l < tMaxLevel; ++l )
-        {
-            // cell which contains elements
-            Vector< Background_Element_Base* > tElements;
-
-            // collect elements from this level
-            aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-            // loop over all elements
-            for ( Background_Element_Base* tElement : tElements )
-            {
-                for ( uint Ik = 0; Ik < tNumPattern; ++Ik )
-                {
-                    // test if element is refined
-                    if ( tElement->is_refined( tPatternList( Ik ) ) )
-                    {
-                        aElementPerPattern( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
-                    }
-                }
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
-    void File::load_refinement_pattern(
-            Background_Mesh_Base*        aMesh,
-            Matrix< DDLUMat >&           aElementCounterPerLevelAndPattern,
-            Vector< Matrix< DDLUMat > >& aElementPerPattern )
-    {
-        uint tNumPattern = aElementPerPattern.size();
-
-        Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
-        tPatternListUniqueMat( 0 ) = 5;
-        if ( tNumPattern == 2 )
-        {
-            tPatternListUniqueMat( 1 ) = 6;
-        }
-
-        // get number of levels
-        uint tNumberOfLevels = aElementCounterPerLevelAndPattern.n_rows();
-
-        for ( uint Ik = 0; Ik < tNumPattern; Ik++ )
-        {
-            // reset counter
-            luint tCount = 0;
-
-            // select B-Spline pattern
-            aMesh->set_activation_pattern( tPatternListUniqueMat( Ik ) );
-
-            // loop over all levels
-            for ( uint l = 0; l < tNumberOfLevels; ++l )
-            {
-                // cell which contains elements
-                Vector< Background_Element_Base* > tElements;
-
-                // collect elements from this level
-                aMesh->collect_elements_on_level_within_proc_domain( l, tElements );
-
-                // create a map with ids
-                map< moris_id, luint > tMap;
-
-                luint j = 0;
-                for ( Background_Element_Base* tElement : tElements )
-                {
-                    tMap[ tElement->get_hmr_id() ] = j++;
-                }
-
-                luint tNumberOfElements = aElementCounterPerLevelAndPattern( l, Ik );
-
-                for ( luint k = 0; k < tNumberOfElements; ++k )
-                {
-                    tElements( tMap.find( aElementPerPattern( Ik )( tCount++ ) ) )->put_on_refinement_queue();
-                }
-
-                // refine mesh
-                aMesh->perform_refinement( tPatternListUniqueMat( Ik ) );
-            }
-        }
-
-        aMesh->update_database();
-    }
-
-    //------------------------------------------------------------------------------
-
-    void File::load_refinement_pattern(
-            Background_Mesh_Base* aMesh,
-            const bool            aMode )
+    void File::load_refinement_pattern( Background_Mesh_Base* aMesh )
     {
         Matrix< DDUMat > tPatternListUniqueMat;
         load_matrix_from_hdf5_file( mFileID,
@@ -861,55 +672,4 @@ namespace moris::hmr
         aMesh->update_database();
     }
 
-    //-------------------------------------------------------------------------------
-
-    std::string File::parralize_filename( const std::string& aPath )
-    {
-        // test if running in parallel mode
-        if ( par_size() > 1 )
-        {
-            // get file extesion
-            auto tFileExt = aPath.substr( aPath.find_last_of( '.' ),
-                    aPath.length() );
-
-            // get base path
-            auto tBasePath = aPath.substr( 0, aPath.find_last_of( '.' ) );
-
-            // add proc number to path
-            std::string aParallelPath = tBasePath + "_" + std::to_string( par_rank() ) + tFileExt;
-            return aParallelPath;
-        }
-        else
-        {
-            // do not modify path
-            return aPath;
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    /**
-     * free function needed by loading constructor
-     */
-    Parameters* create_hmr_parameters_from_hdf5_file( const std::string& aPath )
-    {
-        // create file object
-        File tHDF5;
-
-        // open file on disk
-        tHDF5.open( aPath );
-
-        // create new parameter pointer
-        Parameters* aParameters = new Parameters;
-
-        // load settings
-        tHDF5.load_settings( aParameters );
-
-        // close file
-        tHDF5.close();
-
-        // return pointer
-        return aParameters;
-    }
-
-}    // namespace moris::hmr
+} /* namespace moris */

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_
-#define SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_
+#pragma once
 
 #include "cl_HMR_BSpline_Mesh_Base.hpp"     //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
@@ -203,5 +202,3 @@ namespace moris::hmr
         virtual void recompute_lagrange_matrix() = 0;
     };
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_ */

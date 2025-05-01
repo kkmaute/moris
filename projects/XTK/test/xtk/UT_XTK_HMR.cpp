@@ -75,26 +75,19 @@ namespace moris
 
             Module_Parameter_Lists tParameterlist( Module_Type::HMR );
             tParameterlist( 0 ).add_parameter_list( prm::create_hmr_parameter_list() );
-            tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "6,6,6" );
-            tParameterlist( 0 )( 0 ).set( "domain_dimensions", "2.0,2.0,2.0" );
-            tParameterlist( 0 )( 0 ).set( "domain_offset", "-1.0,1.0,-2.0" );
-            tParameterlist( 0 )( 0 ).set( "domain_sidesets", "1,2,3,4,5,6" );
+            tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", 6, 6, 6 );
+            tParameterlist( 0 )( 0 ).set( "domain_dimensions", 2.0, 2.0, 2.0 );
+            tParameterlist( 0 )( 0 ).set( "domain_offset", -1.0, 1.0, -2.0 );
             tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes", "0" );
             tParameterlist( 0 )( 0 ).set( "lagrange_orders", std::to_string( iOrder ) );
             tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" ) );
             tParameterlist( 0 )( 0 ).set( "bspline_orders", std::to_string( iOrder ) );
             tParameterlist( 0 )( 0 ).set( "bspline_pattern", std::string( "0" ) );
             tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
-            tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
             tParameterlist( 0 )( 0 ).set( "refinement_buffer", 1 );
             tParameterlist( 0 )( 0 ).set( "staircase_buffer", 1 );
-            tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
-            tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
-            tParameterlist( 0 )( 0 ).set( "use_number_aura", 1 );
-            tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
-            tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
-            std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameterlist( 0 )( 0 ) );
+            std::shared_ptr< hmr::HMR > tHMR = std::make_shared< hmr::HMR >( tParameterlist );
 
             // initialize a mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
