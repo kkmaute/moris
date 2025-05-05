@@ -42,6 +42,7 @@ OptAlgGCMMA::OptAlgGCMMA( const Parameter_List& aParameterList )
     mRestartIndex         = aParameterList.get< moris::sint >( "restart_index" );
     mMaxIterationsInitial = aParameterList.get< moris::sint >( "max_its" );
     mMaxIterations        = mMaxIterationsInitial;
+    mInterpolationBasedImmersedOptimization = aParameterList.get< bool >( "is_interpolation_based_immersed_optimization" );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

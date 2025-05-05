@@ -15,12 +15,14 @@
 #include "cl_Matrix.hpp"
 #include "cl_Parameter_List.hpp"
 
+
 using namespace moris;
 
 namespace moris::xtk
 {
     class Model;
     class HMR_Helper;
+    class Subphase_Group;
 
     enum Dependency_Criteria
     {
@@ -37,9 +39,12 @@ namespace moris::xtk
         Vector< moris::moris_index > mFollowerBasis;
 
         // The following maps are required to construct the follower basis in terms of leader basis
-        Vector< Vector< moris::moris_index > > mFollowerToLeaderBasis;           // input: enriched BF index || output: list of leader basis corresponding to the follower basis
-        Vector< Vector< moris::real > >        mFollowerToLeaderBasisWeights;    // input: enriched BF index || output: list of leader basis corresponding to the follower basis          // input: enriched BF index || output: list of leader basis corresponding to the follower basis
-        Vector< Vector< moris::real > >        mFollowerToLeaderBasisOwners;     // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasis;           // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::real > >              mFollowerToLeaderBasisWeights;    // input: enriched BF index || output: list of leader basis corresponding to the follower basis          // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::real > >              mFollowerToLeaderBasisOwners;     // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< Subphase_Group* > >     mSubphaseGroupsAssociatedWithBasis;    // Input: enriched BF index || output: list of SPGs corresponding to the LEADER basis
+        std::multimap< moris_index, moris_id >    mEliminatedBasis;                 // input: bulk subphase index || output: list of basis IDs deleted due to not having a root cell.
+        
 
         // averaging weights for each enriched BF index
         // input: enriched BF index |  output: the list of weights corresponding to each SPGs that the basis is active
@@ -211,6 +216,16 @@ namespace moris::xtk
 
         void
         compute_averaging_weights( moris_index aMeshIndex );
+
+        // ----------------------------------------------------------------------------------
+        
+        /**
+        * @brief compute the derivatives of the averaging weights
+        *
+        */
+
+        void
+        compute_averaging_weight_derivatives( moris_index aMeshIndex );
 
         // ----------------------------------------------------------------------------------
 

@@ -33,6 +33,7 @@ private:
     moris::real mStepSize;            // GCMMA step size
     moris::real mPenalty;             // GCMMA constraint penalty
     moris::sint mIvers;               // GCMMA version
+    bool mInterpolationBasedImmersedOptimization; // flag for interpolation based immersed optimization
 
     /**
      * @brief External function call for computing objective and constraints, to

@@ -82,6 +82,7 @@ namespace moris::prm
         tParameterList.insert( "step_size", 0.01 );       // GCMMA step size
         tParameterList.insert( "penalty", 100.0 );        // GCMMA constraint penalty
         tParameterList.insert( "version", 1 );            // GCMMA version
+        tParameterList.insert( "is_interpolation_based_immersed_optimization", false );             // Print level
 
         return tParameterList;
     }

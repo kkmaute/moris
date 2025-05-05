@@ -74,6 +74,7 @@ namespace moris::gen
         std::string mOutputMeshFile;
         bool        mShapeSensitivities = false;
         real        mTimeOffset;
+        bool        mWriteDesignExtractionOperators = false;
 
         // PDVs
         PDV_Host_Manager                     mPDVHostManager;

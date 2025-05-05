@@ -359,7 +359,12 @@ namespace moris::mtk
         // global
         void get_IG_to_IP_nodal_T_matrices(
                 Vector< Matrix< IdMat > >  &aIGtoIPIds,
+                Vector< Matrix< IdMat > >  &aIGtoIPIdsX,
+                Vector< Matrix< IdMat > >  &aIGtoIPIdsY,
                 Vector< Matrix< DDRMat > > &aIGtoIPWeights,
+                Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsX,
+                Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY,
+                std::vector< int >        &aIGNodeIDs,
                 uint                        aSetIndex );
 
         // ----------------------------------------------------------------------------
@@ -394,11 +399,19 @@ namespace moris::mtk
         // global
         void get_IG_to_BS_nodal_T_matrices(
                 Vector< Matrix< IdMat > >  &aIGtoBSIds,
+                Vector< Matrix< IdMat > >  &aIGtoBSIdsX,
+                Vector< Matrix< IdMat > >  &aIGtoBSIdsY,
                 Vector< Matrix< DDRMat > > &aIGtoBSWeights,
+                Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsX,
+                Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsY,
                 Vector< Matrix< IdMat > >  &aIPtoBSIds,
                 Vector< Matrix< DDRMat > > &aIPtoBSWeights,
                 Vector< Matrix< IdMat > >  &aIGtoIPIds,
-                Vector< Matrix< DDRMat > > &aIGtoIPWeights );
+                Vector< Matrix< IdMat > >  &aIGtoIPIdsX,
+                Vector< Matrix< IdMat > >  &aIGtoIPIdsY,
+                Vector< Matrix< DDRMat > > &aIGtoIPWeights,
+                Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsX,
+                Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY );
 
         // ----------------------------------------------------------------------------
 
@@ -412,9 +425,17 @@ namespace moris::mtk
 
         void build_sparse_extraction_operator(
                 Vector< Matrix< IdMat > >  &aIGtoBSIds,
+                Vector< Matrix< IdMat > >  &aIGtoBSIdsX,
+                Vector< Matrix< IdMat > >  &aIGtoBSIdsY,
                 Vector< Matrix< DDRMat > > &aIGtoBSWeights,
+                Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsX,
+                Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsY,
                 Matrix< DDUMat >           &aSparseIndices,
-                Matrix< DDRMat >           &aWeights );
+                Matrix< DDUMat >           &aSparseIndicesX,
+                Matrix< DDUMat >           &aSparseIndicesY,
+                Matrix< DDRMat >           &aWeights,
+                Matrix< DDRMat >           &aGradientWeightsX,
+                Matrix< DDRMat >           &aGradientWeightsY );
 
         // ----------------------------------------------------------------------------
         /**

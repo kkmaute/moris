@@ -204,6 +204,11 @@ namespace moris::opt
                 MORIS_LOG_SPEC( "MaxADV", mADVs.max() );
             }
 
+            // If criteria is NaN then most likely interpolation based immersed optimization is in use
+            MORIS_ASSERT(mCriteria(0) == mCriteria(0),"NaN Criteria. Assuming MORIS is being used for interpolation based immersed optimization");             
+            //MORIS_ASSERT( mCriteria(0) == mCriteria(0), "NaN Criteria. Assuming MORIS is being used for interpolation based immersed optimization. Aborting Execution" );
+            
+
             // compute objective
             mObjectives = this->compute_objectives();
 

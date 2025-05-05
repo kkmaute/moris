@@ -32,6 +32,8 @@
 
 #include "cl_WRK_Reinitialize_Performer.hpp"
 
+#include "HDF5_Tools.hpp"
+
 namespace moris::wrk
 {
 
@@ -201,6 +203,21 @@ namespace moris::wrk
             aLowerBounds = tGeometryEngine->get_lower_bounds();
             aUpperBounds = tGeometryEngine->get_upper_bounds();
             aIjklIDs     = tGeometryEngine->get_IjklIDs();
+
+            std::vector< double > aADVv;
+            // Write to H5 file here itself.
+            for (uint iADVInd = 0 ; iADVInd < aADVs.size() ; iADVInd++)
+            {
+                aADVv.push_back(aADVs(iADVInd));
+            }
+
+            hid_t  tFileID2 = create_hdf5_file( "ADVvals.hdf5" );
+            herr_t tStatus2 = 0;
+            save_vector_to_hdf5_file( tFileID2, std::string("ADVs"), aADVv , tStatus2 );
+            close_hdf5_file( tFileID2 );
+
+
+
         }
 
     }    // end function: Workflow_HMR_XTK::initialize()
@@ -272,6 +289,7 @@ namespace moris::wrk
 
                 // initialize HMR and GEN
                 this->initialize( tADVs, tLowerBounds, tUpperBounds, tIjklIDs );
+
 
                 // Set new advs in GE
                 mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
@@ -375,11 +393,32 @@ namespace moris::wrk
         if ( tXTKPerformer->kill_workflow_flag() )
         {
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
-            MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
+            MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );   
+            MORIS_LOG( "Design T-Matrix output also being written to file. Need to change this to work only on requesting." );
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
+             // get the MIG parameter list
+            ModuleParameterList tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MIG );
+
+            // check if there are MIG parameters specified
+            if ( tMIGParameterList.size() > 0 )
+            {
+                    moris::mig::MIG tMIGPerformer = moris::mig::MIG(
+                                    mPerformerManager->mMTKPerformer( 1 ),
+                                    tMIGParameterList( 0 )( 0 ),
+                                    mPerformerManager->mGENPerformer( 0 ).get() );
+
+            tMIGPerformer.perform();
+            }
+
+            
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
+
+            // Assign PDVs
+            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
             Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
             delete tXTKPerformer;
             return tVector;
+
         }
 
         if ( tDeleteXTK )
@@ -541,7 +580,15 @@ namespace moris::wrk
         if ( tTmatrixFileName != "" )
         {
             mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_global_T_matrix_to_file( tTmatrixFileName );
+            // Also write elemental matrices to file
+            std::string tElementalTmatrixFileName = aXTKPerformer->get_elemental_T_matrix_output_file_name();
 
+            if ( tElementalTmatrixFileName != "" )
+            {
+                uint tNumBsplineMeshes = mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_interpolations();
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_elemental_T_matrices_to_file( tElementalTmatrixFileName, tNumBsplineMeshes );
+            }
+                   
             // return flag stopping the workflow after the T-Matrix output
             return true;
         }

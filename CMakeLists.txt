@@ -175,10 +175,10 @@ option(MORIS_USE_CHECK_MEMORY
 option(MORIS_USE_XTK "Have XTK Library" ON)    
 
 option(MORIS_HAVE_SYMBOLIC
-    "Use symbolic information in executable." OFF )
+    "Use symbolic information in executable." ON )
 
 option(MORIS_HAVE_SYMBOLIC_STRONG
-    "Use symbolic information (strong) in executable." OFF )
+    "Use symbolic information (strong) in executable." ON )
 
 option(MORIS_HAVE_PEDANTIC 
     "Use strict compiler checking" ON)
@@ -205,7 +205,7 @@ option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
 option(MORIS_HAVE_SLEPC
-    "Build MORIS with support for SLEPC." OFF )
+    "Build MORIS with support for SLEPC." ON )
 
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -229,7 +229,7 @@ option(MORIS_HAVE_ARBORX
 #     "Run linear solver performance tests." OFF )
 
 option(MORIS_USE_TESTS
-    "Compile unit tests." ON )
+    "Compile unit tests." OFF )
     
 option(MORIS_USE_PERF_TESTS 
     " Build the performance tests" OFF)
@@ -238,7 +238,7 @@ option(MORIS_USE_EXAMPLES
      "Build the examples." ON)
 
 option(MORIS_HAVE_PARALLEL_TESTS
-    "Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
+    "Run unit tests in parallel. MORIS_USE_TESTS must be ON." OFF)
 
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )

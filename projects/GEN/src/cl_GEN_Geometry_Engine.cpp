@@ -13,6 +13,7 @@
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Library_IO.hpp"
+#include "HDF5_Tools.hpp"
 
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -54,9 +55,10 @@ namespace moris::gen
         mRequestedIQIs = aParameterLists( 0 )( 0 ).get< Vector< std::string > >( "IQI_types" );
 
         // Geometries
-        mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
-        mOutputMeshFile    = aParameterLists( 0 )( 0 ).get< std::string >( "output_mesh_file" );
-        mTimeOffset        = aParameterLists( 0 )( 0 ).get< real >( "time_offset" );
+        mGeometryFieldFile                     = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
+        mOutputMeshFile                        = aParameterLists( 0 )( 0 ).get< std::string >( "output_mesh_file" );
+        mTimeOffset                            = aParameterLists( 0 )( 0 ).get< real >( "time_offset" );
+        mWriteDesignExtractionOperators        = aParameterLists( 0 )( 0 ).get< bool >( "write_design_extraction_operator_to_file" );
 
         // Create designs with the factory
         for ( uint iParameterIndex = 2; iParameterIndex < aParameterLists.size(); iParameterIndex++ )
@@ -695,6 +697,18 @@ namespace moris::gen
 
         // Create Design Extraction Operators
         mPDVHostManager.create_design_extraction_operators();
+
+        // Get the number of ADVs
+        Vector< real > tADVs = this->get_advs();
+        int tNumADVs = tADVs.size();
+        
+        if ( mWriteDesignExtractionOperators )
+        {
+            // Write design extraction operators to file
+            mPDVHostManager.write_design_extraction_operators_to_file( tNumADVs );
+
+        }
+        
     }
 
     //--------------------------------------------------------------------------------------------------------------
