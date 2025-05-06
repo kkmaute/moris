@@ -353,6 +353,20 @@ namespace moris::fem
         eval_equivalent_strain_deVree_3d(
                 const Matrix< DDRMat >& aLEqStrainParam );
 
+        /**
+         * formulation based on difference in tensile and compressive strength
+         * Drucker and Prager (1952)
+         */
+        void
+        eval_equivalent_strain_DruckerPrager_2d_plane_stress(
+                const Matrix< DDRMat >& aLEqStrainParam );
+        void
+        eval_equivalent_strain_DruckerPrager_2d_plane_strain(
+                const Matrix< DDRMat >& aLEqStrainParam );
+        void
+        eval_equivalent_strain_DruckerPrager_3d(
+                const Matrix< DDRMat >& aLEqStrainParam );
+
         //--------------------------------------------------------------------------------------------------------------
         /**
          * evaluate the constitutive model equivalent strain derivative wrt to a dof type
@@ -376,6 +390,17 @@ namespace moris::fem
         void eval_dEqStraindu_deVree_2d_plane_strain(
                 const Vector< MSI::Dof_Type >& aDofTypes );
         void eval_dEqStraindu_deVree_3d(
+                const Vector< MSI::Dof_Type >& aDofTypes );
+
+        /**
+         * formulation based on difference in tensile and compressive strength
+         * Drucker and Prager (1952)
+         */
+        void eval_dEqStraindu_DruckerPrager_2d_plane_stress(
+                const Vector< MSI::Dof_Type >& aDofTypes );
+        void eval_dEqStraindu_DruckerPrager_2d_plane_strain(
+                const Vector< MSI::Dof_Type >& aDofTypes );
+        void eval_dEqStraindu_DruckerPrager_3d(
                 const Vector< MSI::Dof_Type >& aDofTypes );
 
         //--------------------------------------------------------------------------------------------------------------
