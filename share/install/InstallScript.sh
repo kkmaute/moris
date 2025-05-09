@@ -192,12 +192,12 @@ spack create --name snopt --skip-editor
 
 #------------------------------------------------------------
 
-cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/trilinos/package.py
 
-cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
-cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
-cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
-cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/snopt/package.py
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/moris/package.py
+cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/gcmma/package.py
+cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/lbfgs/package.py
+cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/snopt/package.py
 
 #------------------------------------------------------------
 
@@ -240,7 +240,7 @@ spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
     spack add doxygen 
-    spack add llvm@main~gold~libomptarget~lld~llvm_dylib~lua~polly 
+    spack add llvm@main~gold~libomptarget~llvm_dylib~lua~polly 
 fi
 
 spack add openmpi fabrics=auto 
