@@ -52,6 +52,11 @@ namespace moris::opt
         // Compute design criteria
         this->mProblem->compute_design_criteria( aADVs );
 
+        if ( this->mProblem->get_interpolation_based_immersed() )
+        {
+            this->mInterpolationBasedImmersed = true;
+        }
+
         // Set flag that for this design gradients have not been computed yet
         mGradientsHaveBeenComputed = false;
     }

@@ -75,6 +75,7 @@ namespace moris::opt
         // Function pointers for computing the objective and constraint either analytically or by finite differencing
         const Matrix< DDRMat >& ( Algorithm::*get_objective_gradients_by_type )()  = nullptr;
         const Matrix< DDRMat >& ( Algorithm::*get_constraint_gradients_by_type )() = nullptr;
+        bool mInterpolationBasedImmersed = false;    // Flag for interpolation based immersed optimization.
 
       public:
         /**
@@ -175,6 +176,16 @@ namespace moris::opt
          * @brief set restart index
          */
         void set_restart_index( uint aRestartIndex );
+
+         /**
+         * @brief set restart index
+         */
+        bool get_interpolation_based_immersed()
+        {
+            return mInterpolationBasedImmersed;
+        }
+
+
 
       private:
         void compute_design_criteria_gradients_analytically( const Vector< real >& aADVs );

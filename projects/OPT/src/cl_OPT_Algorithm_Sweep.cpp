@@ -260,6 +260,12 @@ namespace moris::opt
             // Compute design criteria at current evaluation point
             this->compute_design_criteria( tEvaluationPoint );
 
+            if (this->get_interpolation_based_immersed())
+            {
+                MORIS_LOG_INFO( "MORIS Being used for interpolation-based immersed optimization. Execution ends here" );
+                break;
+            }
+
             // Set evaluation name
             tEvaluationName = " eval_" + std::to_string( tEvaluationIndex + 1 ) + "-" + std::to_string( tTotalEvaluations );
 

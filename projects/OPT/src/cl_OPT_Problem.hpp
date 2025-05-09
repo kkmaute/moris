@@ -38,6 +38,7 @@ namespace moris::opt
 
         uint mNumObjectives;                           // Number of objectives (should be one)
         uint mNumConstraints;                          // Number of constraints
+        bool mInterpolationBasedImmersed = false;      // Flag for interpolation based immersed optimization.
 
       protected:
         Vector< real > mADVs;        // Abstract Design Variable vector
@@ -160,6 +161,17 @@ namespace moris::opt
          * @return vector of objectives
          */
         const Matrix< DDRMat >& get_objectives();
+
+        /**
+        * Gets the objective values
+        *
+        * @return vector of objectives
+        */
+
+        bool get_interpolation_based_immersed()
+        {
+            return mInterpolationBasedImmersed;
+        }
 
         /**
          * Gets the constraint values

@@ -205,7 +205,15 @@ namespace moris::opt
             }
 
             // If criteria is NaN then most likely interpolation based immersed optimization is in use
-            MORIS_ASSERT(mCriteria(0) == mCriteria(0),"NaN Criteria. Assuming MORIS is being used for interpolation based immersed optimization");             
+            if(mCriteria(0) != mCriteria(0))
+            {
+                // Set the flag for interpolation based immersed optimization
+                this->mInterpolationBasedImmersed = true;
+                
+                // Exit the function
+                return;
+            }
+        
             //MORIS_ASSERT( mCriteria(0) == mCriteria(0), "NaN Criteria. Assuming MORIS is being used for interpolation based immersed optimization. Aborting Execution" );
             
 
