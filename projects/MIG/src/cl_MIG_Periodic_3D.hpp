@@ -12,7 +12,7 @@
 #define SRC_cl_MIG_Periodic_3D
 
 #include "cl_MTK_Mesh_Manager.hpp"
-//#include "cl_MTK_Side_Cluster_ISC_Impl.hpp"
+// #include "cl_MTK_Side_Cluster_ISC_Impl.hpp"
 #include "cl_Parameter_List.hpp"
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
@@ -24,7 +24,7 @@ namespace moris::mig
       private:
         std::shared_ptr< moris::mtk::Mesh_Manager > mMeshManager;
         moris::moris_index                          mMeshIndex;
-        Vector< Vector< std::string > >   mMeshSideSetPairs;
+        Vector< Vector< std::string > >             mMeshSideSetPairs;
         moris::uint                                 mNumBulkPhases;
 
         // Index of double sided cluster ( relevant indices of each cluster )
@@ -56,21 +56,21 @@ namespace moris::mig
         uint mNumDblSideCluster = 0;
         uint mNumParamCoords    = 0;
 
-        //maps, outer cell is the pair number
-        //inside map, key: ijk of the IP cell, value: side clusters within the same background cell
+        // maps, outer cell is the pair number
+        // inside map, key: ijk of the IP cell, value: side clusters within the same background cell
         Vector< std::unordered_map< moris::moris_index, Vector< moris_index > > > mBackgroundCellToSideClusterMap1;
         Vector< std::unordered_map< moris::moris_index, Vector< moris_index > > > mBackgroundCellToSideClusterMap2;
 
       public:
         // ----------------------------------------------------------------------------
-        Periodic_3D() = default ;
+        Periodic_3D() = default;
         /*
          *Default Constructor
          */
         Periodic_3D( std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
-            moris::moris_index                                   aMeshIndex,
-            moris::Parameter_List                           &aParameterList,
-            moris::uint                                          aNumBulkPhases );
+                moris::moris_index                               aMeshIndex,
+                moris::Parameter_List                           &aParameterList,
+                moris::uint                                      aNumBulkPhases );
 
         // ----------------------------------------------------------------------------
         /*
@@ -95,12 +95,12 @@ namespace moris::mig
          * @param[in] tPhaseToPhaseIndex a index showing interaction of leader-side and follower-side phases
          */
         void create_dbl_sided_cluster(
-            Vector< Matrix< DDRMat > > tP,
-            Vector< moris_index >     &aIndicesinCutCell,
-            moris::mtk::Cell const         &aRightInterpCell,
-            moris::mtk::Cell const         &aLeftInterpCell,
-            uint                            aPairCount,
-            moris_index                     aPhaseToPhase );
+                Vector< Matrix< DDRMat > > tP,
+                Vector< moris_index >     &aIndicesinCutCell,
+                moris::mtk::Cell const    &aRightInterpCell,
+                moris::mtk::Cell const    &aLeftInterpCell,
+                uint                       aPairCount,
+                moris_index                aPhaseToPhase );
 
         // ----------------------------------------------------------------------------
         /**
@@ -110,9 +110,9 @@ namespace moris::mig
          * @param[in] aPairCount number of the pair in the periodic side set pair
          */
         void
-        create_leader_ig_cell( Matrix< IndexMat > const & tVertexIndex,
-            moris::mtk::Cell const               &aLeaderInterpCell,
-            uint                                  aPairCount );
+        create_leader_ig_cell( Matrix< IndexMat > const &tVertexIndex,
+                moris::mtk::Cell const                  &aLeaderInterpCell,
+                uint                                     aPairCount );
 
         // ----------------------------------------------------------------------------
         /**
@@ -122,16 +122,16 @@ namespace moris::mig
          * @param[in] aPairCount number of the pair in the periodic side set pair
          */
         void
-        create_follower_ig_cell( Matrix< IndexMat > const & tVertexIndex,
-            moris::mtk::Cell const              &aFollowerInterpCell,
-            uint                                 aPairCount );
+        create_follower_ig_cell( Matrix< IndexMat > const &tVertexIndex,
+                moris::mtk::Cell const                    &aFollowerInterpCell,
+                uint                                       aPairCount );
 
         // ----------------------------------------------------------------------------
         /*
          * constrcuts and add all the double sided sets to the mesh
          * @param[ in ] tPhaseInteractionTable a matrix specifying an index to each phase to phase interaction
          */
-        void construct_add_dbl_sided_set( const moris::Matrix< IndexMat > &tPhaseInteractionTable );
+        void construct_add_dbl_sided_set( const Matrix< IndexMat > &tPhaseInteractionTable );
 
         // ----------------------------------------------------------------------------
         /**
@@ -142,10 +142,10 @@ namespace moris::mig
          * @param[ in ] aPairCount Number of the pair in the periodic side set pair
          */
         void
-        offset_vector( moris::Matrix< DDRMat > &tOffsetVector,
-            Vector< std::string >         &tFirstSideSetNames,
-            Vector< std::string >         &tSecondSideSetNames,
-            uint                                aPairCount );
+        offset_vector( Matrix< DDRMat > &tOffsetVector,
+                Vector< std::string >   &tFirstSideSetNames,
+                Vector< std::string >   &tSecondSideSetNames,
+                uint                     aPairCount );
 
         // ----------------------------------------------------------------------------
         /**
@@ -179,9 +179,9 @@ namespace moris::mig
          */
         void
         rotation_matrix(
-            moris::Matrix< DDRMat > &aRotation,
-            moris::Matrix< DDRMat > &aInverseRotation,
-            uint                     aPairCount );
+                Matrix< DDRMat > &aRotation,
+                Matrix< DDRMat > &aInverseRotation,
+                uint              aPairCount );
 
         // ----------------------------------------------------------------------------
         /**
@@ -192,9 +192,9 @@ namespace moris::mig
          * @param[ out ] aMap map relating the background cells to the side clusters
          */
         void
-        generate_identifier( Vector< mtk::Cluster const * >                 &aSideClusters,
-            uint                                                                 &aPairCount,
-            std::unordered_map< moris::moris_index, Vector< moris_index > > &aBackgroundCellToSideClusterMap ) const;
+        generate_identifier( Vector< mtk::Cluster const * >                     &aSideClusters,
+                uint                                                            &aPairCount,
+                std::unordered_map< moris::moris_index, Vector< moris_index > > &aBackgroundCellToSideClusterMap ) const;
 
         // ----------------------------------------------------------------------------
         /*
@@ -208,69 +208,12 @@ namespace moris::mig
 
         void
         elementwise_bruteforce_search(
-            Vector< moris::Matrix< DDRMat > > const &tParamCoordsCell,
-            moris::Matrix< moris::IndexMat > const       &tIGCellToSideClusterMap,
-            Vector< moris::Matrix< DDRMat > > const &tParamCoordsCell2,
-            moris::Matrix< moris::IndexMat > const       &tIGCellToSideClusterMap2,
-            Vector< moris::Matrix< DDRMat > >       &tCutTriangles,
-            moris::Matrix< moris::IndexMat >             &tCutTrianglesIdentifier ) const;
-
-        // ----------------------------------------------------------------------------
-        /*
-         * computes the edge intersection of two triangles
-         * @param[ in ]  aFirstTRICoords coordinates of first triangle
-         * @param[ in ]  aSecondTRICoords coordinates of second triangle
-         * @param[ out ] aIntersectedPoints intersection points and
-         * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
-         *  are also intersecting the second triangle
-         */
-        void
-        EdgeIntersect(
-            moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
-            moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
-            moris::Matrix< moris::DDRMat >       &aIntersectedPoints,
-            moris::Matrix< moris::DDUMat >       &aIntersectVec ) const;
-
-        // ----------------------------------------------------------------------------
-        /*
-         * finds corners of one triangle within another one
-         * computes for the two given triangles
-         * @param[ in ]  aFirstTRICoords coordinates of first triangle
-         * @param[ in ]  aSecondTRICoords coordinates of second triangle
-         * @param[ out ] aIntersectedPoints intersection points and
-         * @note (point coordinates are stored column-wise, in counter clock
-         *order) the corners of first which lie in the interior of second.
-         */
-        void PointsXInY(
-            moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
-            moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
-            moris::Matrix< moris::DDRMat >       &aIntersectedPoints ) const;
-
-        // ----------------------------------------------------------------------------
-        /*
-         * sort points and remove duplicates
-         * orders polygon corners in counter clock wise and removes duplicates
-         * @param[ in ] aIntersectedPoints polygon points, not ordered
-         * @param[ out ] aIntersectedPoints polygon points, ordered
-         */
-        void
-        SortAndRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const;
-
-        // ----------------------------------------------------------------------------
-        /*
-         * All intersection points of two triangles
-         * @param[ in ]  aFirstTRICoords coordinates of first triangle
-         * @param[ in ]  aSecondTRICoords coordinates of second triangle
-         * @param[ out ] aIntersectedPoints intersection points and
-         * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
-         *  are also intersecting the second triangle
-         */
-        void
-        Intersect(
-            moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
-            moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
-            moris::Matrix< moris::DDRMat >       &aIntersectedPoints,
-            moris::Matrix< moris::DDUMat >       &aIntersectVec ) const;
+                Vector< Matrix< DDRMat > > const &tParamCoordsCell,
+                Vector< moris_index > const      &tIGCellToSideClusterMap,
+                Vector< Matrix< DDRMat > > const &tParamCoordsCell2,
+                Vector< moris_index > const      &tIGCellToSideClusterMap2,
+                Vector< Matrix< DDRMat > >       &tCutTriangles,
+                Vector< moris_index >            &tCutTrianglesIdentifier ) const;
 
         // ----------------------------------------------------------------------------
 
@@ -281,8 +224,8 @@ namespace moris::mig
          * @param[ out ] indices which we should use
          */
         void
-        group_cut_cells( moris::Matrix< IndexMat > const                  &aCutCellIndetiferMatrix,
-            std::unordered_map< moris_index, Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
+        group_cut_cells( Vector< moris_index > const                     &aCutCellIndetiferMatrix,
+                std::unordered_map< moris_index, Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
 
         // ----------------------------------------------------------------------------
 
@@ -306,6 +249,6 @@ namespace moris::mig
 
         friend class Periodic_Mesh_Editor;
     };
-}// namespace moris::MIG
+}    // namespace moris::mig
 
 #endif /* cl_MTK_Periodic_3D.hpp */
