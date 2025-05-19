@@ -34,8 +34,12 @@ namespace moris::xtk
                 return std::make_shared< xtk::Regular_Subdivision_Interface >( aParameterList, mtk::CellTopology::HEX8 );
                 break;
 
-            case Subdivision_Method::C_DELAUNAY:
-                return std::make_shared< xtk::Delaunay_Subdivision_Interface >( aParameterList );
+            case Subdivision_Method::C_DELAUNAY_QUAD4:
+                return std::make_shared< xtk::Delaunay_Subdivision_Interface >( aParameterList, mtk::CellTopology::QUAD4 );
+                break;
+
+            case Subdivision_Method::C_DELAUNAY_HEX8:
+                return std::make_shared< xtk::Delaunay_Subdivision_Interface >( aParameterList, mtk::CellTopology::HEX8 );
                 break;
 
             case Subdivision_Method::C_TRI3:

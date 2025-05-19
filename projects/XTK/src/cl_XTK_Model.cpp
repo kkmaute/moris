@@ -643,17 +643,11 @@ namespace moris::xtk
             MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Non-conformal" );
         }
 
-        // add Delaunay, note that this must come before the regular subdivision
-        if ( tConformal )
-        {
-            tSubdivisionMethods.push_back( Subdivision_Method::C_DELAUNAY );
-        }
-
         if ( tSpatialDimension == 2 )
         {
             if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
             {
-                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_DELAUNAY_QUAD4, Subdivision_Method::C_TRI3 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )
@@ -666,7 +660,7 @@ namespace moris::xtk
         {
             if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
             {
-                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_DELAUNAY_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::HEX && !tConformal )

@@ -20,23 +20,126 @@ namespace moris::mtk
 
 namespace moris::xtk
 {
+    struct Delaunay_Template
+    {
+        virtual Matrix< DDRMat > get_node_param_coords( uint aPoint ) const = 0;
+        virtual uint             get_num_corner_nodes() const               = 0;
+        virtual uint             get_num_new_template_nodes() const         = 0;
+        virtual Vector< uint >   get_new_node_face_ordinal() const          = 0;
+    };
+
+    struct Delaunay_Template_QUAD4 : public Delaunay_Template
+    {
+      public:
+        Matrix< DDRMat > get_node_param_coords( uint aPoint ) const override
+        {
+            switch ( aPoint )
+            {
+                case 0:
+                    return { { -1.0, -1.0 } };
+                case 1:
+                    return { { 1.0, -1.0 } };
+                case 2:
+                    return { { 1.0, 1.0 } };
+                case 3:
+                    return { { -1.0, 1.0 } };
+                default:
+                    MORIS_ERROR( false, "Invalid point index for delaunay template." );
+                    return { { 0.0, 0.0 } };
+            }
+        }
+
+        uint get_num_corner_nodes() const override
+        {
+            return 4;
+        }
+
+        uint get_num_new_template_nodes() const override
+        {
+            return 0;    // No new derived nodes for QUAD4
+        }
+
+        Vector< uint > get_new_node_face_ordinal() const override
+        {
+            return { MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX };    // No new derived nodes for QUAD4
+        }
+    };
+
+    struct Delaunay_Template_HEX8 : public Delaunay_Template
+    {
+      public:
+        Matrix< DDRMat > get_node_param_coords( uint aPoint ) const override
+        {
+            switch ( aPoint )
+            {
+                case 0:
+                    return { { -1.0, -1.0, -1.0 } };
+                case 1:
+                    return { { 1.0, -1.0, -1.0 } };
+                case 2:
+                    return { { 1.0, 1.0, -1.0 } };
+                case 3:
+                    return { { -1.0, 1.0, -1.0 } };
+                case 4:
+                    return { { -1.0, -1.0, 1.0 } };
+                case 5:
+                    return { { 1.0, -1.0, 1.0 } };
+                case 6:
+                    return { { 1.0, 1.0, 1.0 } };
+                case 7:
+                    return { { -1.0, 1.0, 1.0 } };
+                case 8:
+                    return { { 0.0, -1.0, 0.0 } };
+                case 9:
+                    return { { 1.0, 0.0, 0.0 } };
+                case 10:
+                    return { { 0.0, 1.0, 0.0 } };
+                case 11:
+                    return { { -1.0, 0.0, 0.0 } };
+                case 12:
+                    return { { 0.0, 0.0, -1.0 } };
+                case 13:
+                    return { { 0.0, 0.0, 1.0 } };
+                default:
+                    MORIS_ERROR( false, "Invalid point index for delaunay template." );
+                    return { { 0.0, 0.0, 0.0 } };
+            }
+        }
+
+        uint get_num_corner_nodes() const override
+        {
+            return 8;
+        }
+
+        uint get_num_new_template_nodes() const override
+        {
+            return 6;    // 1 new node per face (+ surface point nodes later on)
+        }
+
+        Vector< uint > get_new_node_face_ordinal() const override
+        {
+            return { MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, MORIS_UINT_MAX, 0, 1, 2, 3, 4, 5 };
+        }
+    };
+
     // -------------------------------------------------------------------------
 
     class Delaunay_Subdivision_Interface : public Decomposition_Algorithm
     {
       private:
-        moris::gen::Geometry_Engine*      mGeometryEngine;
-        Integration_Mesh_Generation_Data* mMeshGenerationData;
-        Decomposition_Data*               mDecompositionData;
-        Cut_Integration_Mesh*             mCutIntegrationMesh;
-        moris::mtk::Mesh*                 mBackgroundMesh;
-        Integration_Mesh_Generator*       mGenerator;
-        moris::uint                       mNumTotalCells = 0;
+        moris::gen::Geometry_Engine*         mGeometryEngine;
+        Integration_Mesh_Generation_Data*    mMeshGenerationData;
+        Decomposition_Data*                  mDecompositionData;
+        Cut_Integration_Mesh*                mCutIntegrationMesh;
+        moris::mtk::Mesh*                    mBackgroundMesh;
+        Integration_Mesh_Generator*          mGenerator;
+        moris::uint                          mNumTotalCells = 0;
+        std::shared_ptr< Delaunay_Template > mDelaunayTemplate;
 
         Vector< Vector< real > > mAllSurfacePoints;
 
       public:
-        Delaunay_Subdivision_Interface( Parameter_List& aParameterList );
+        Delaunay_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology );
 
         ~Delaunay_Subdivision_Interface() override {}
 
@@ -77,20 +180,37 @@ namespace moris::xtk
          */
         Vector< Vector< moris_index > > triangulation();
 
+        /**
+         * Checks that the volume of the tetrahedra is positive, inplace reorders vertices if this is not the case
+         *
+         * @param aCoordinates Coordinates of all the vertices in a given child mesh. Flattened vector where each group of 3 is a vertex
+         * @param aConnectivity Tet connectivity of all the tets in the child mesh. Flattened vector where each group of 4 is a tet. This is modified in place
+         * @param aNumTetrahedra Number of tetrahedra in the child mesh, since aConnectivity is oversized
+         */
+        void reorder_tet_connectivity( const Vector< real >& aCoordinates, Vector< uint >& aConnectivity, uint aNumTetrahedra );
+
+        /**
+         * Computes the sign of the volume of a tetrahedron given the coordinates of its vertices.
+         * NOTE: the true volume is 1/6 of the returned value
+         *
+         * @param aTetCoords Coordinates of the vertices of the tetrahedron. <3, 4>
+         */
+        static real compute_tet_volume_sign( const Matrix< DDRMat >& aTetCoords );
+
         mtk::CellTopology get_ig_cell_topology() const;
 
         /**
          * Computes the global coordinate matrix from the parametric coordinates
-         * 
+         *
          * @param aParametricCoordinates Parametric coordinates of all the surface points within the cell. <nPoints, nDim>
          * @param aCell The background cell that the surface points lie in
          * @return Matrix< DDRMat > Global coordinates of the surface points. <nPoints, nDim>
          */
-        Matrix< DDRMat > get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell );
+        static Matrix< DDRMat > get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell );
 
         /**
          * Gets the number of corner nodes for a given cell type
-         * 
+         *
          * @param aCellType The type of cell (tri, quad, tet, hex, etc.)
          * @return the number of corner nodes
          */

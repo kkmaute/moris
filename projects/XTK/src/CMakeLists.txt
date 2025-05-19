@@ -180,6 +180,7 @@ set(LIB_DEPENDENCIES
         ${HMR}-lib
         ${TOL}-lib
         ${ENM}-lib
+        ${MIG}-lib
         )
 
 # Set the output path for library

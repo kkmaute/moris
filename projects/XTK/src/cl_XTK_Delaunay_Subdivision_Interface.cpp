@@ -18,6 +18,9 @@
 #include "cl_MTK_Interpolation_Function.hpp"
 #include "cl_XTK_Octree_Interface.hpp"
 
+#include "fn_dot.hpp"
+#include "fn_cross.hpp"
+
 // Fortran function used during the triangulation of 3D physical element. Will return an organized array of the triangulation (number of tetrahedra-by-4 vertices)
 extern "C" {
 void tetlst_( uint&, uint*, uint*, uint&, uint* );
@@ -40,8 +43,21 @@ void dtris3_( uint&, uint&, uint&, uint&, real*, uint*, uint&, uint&, uint&, uin
 
 namespace moris::xtk
 {
-    Delaunay_Subdivision_Interface::Delaunay_Subdivision_Interface( Parameter_List& aParameterList )
+    Delaunay_Subdivision_Interface::Delaunay_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology )
     {
+        switch ( aCellTopology )
+        {
+            case mtk::CellTopology::QUAD4:
+                mDelaunayTemplate = std::make_shared< Delaunay_Template_QUAD4 >();
+                break;
+
+            case mtk::CellTopology::HEX8:
+                mDelaunayTemplate = std::make_shared< Delaunay_Template_HEX8 >();
+                break;
+
+            default:
+                MORIS_ERROR( false, "Delaunay_Subdivision_Interface::Delaunay_Subdivision_Interface() - subdivision routine for BG element type unknown" );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -56,8 +72,9 @@ namespace moris::xtk
     Vector< Vector< moris_index > >
     Delaunay_Subdivision_Interface::triangulation()
     {
+        uint tDim = mBackgroundMesh->get_spatial_dim();
+
         // Reset the number of cells created by this algorithm
-        mNumNewCells += mNumTotalCells;
         mNumTotalCells = 0;
 
         // Get the number of child mesh points - these are all the child meshes, not just the ones with surface points
@@ -67,47 +84,100 @@ namespace moris::xtk
         Vector< Vector< moris_index > > tConnectivities( tNumCMPoints );
 
         // Allocate variables used for geompack3d call
-        uint  tMaxNumTriangles = 24;                                                    // Unused but required by the function
+        uint  tMaxNumTriangles = tDim == 2 ? 24 : 10000;                                // Input: maximum number of triangles (faces in 3D)
         uint* tStack           = (uint*)alloca( sizeof( uint ) * tMaxNumTriangles );    // Unused but required by the function
-        uint  tNumTriangles    = 0;                                                     // Total number of cells after triangulation
+        uint  tNumTriangles    = 0;                                                     // OUTPUT: number of cells after triangulation
         uint  tError           = 0;                                                     // Error flag
+
+        // Allocate additional variables that are used for 3D triangulation only
+        uint tHashTableSize    = 0;
+        uint tMaxBoundaryFaces = 10000;    // Maximum number of boundary faces
+        uint tNumTetrahedra    = 0;        // OUTPUT: Number of tetrahedra in the triangulation
+        uint tNumBoundaryFaces = 0;        // OUTPUT: of boundary faces in the triangulation
+        uint tNumFC            = 0;        // Number of entries used in the face array
+
+        // Temporary variable that stores the number of indices in the connectivity vector
+        size_t tSize;
 
         // Loop through all the surface points
         for ( uint iCM = 0; iCM < tNumCMPoints; iCM++ )
         {
             // Get the number of surface points for this child mesh to estimate the number of potential triangles
-            uint tNumAllSurfacePoints = mAllSurfacePoints( iCM ).size() / mBackgroundMesh->get_spatial_dim();
+            uint tNumAllSurfacePoints = mAllSurfacePoints( iCM ).size() / tDim;
 
             // Check if delaunay triangulation is needed for this cell
             if ( tNumAllSurfacePoints > 0 )
             {
                 // Allocate outputs for delaunay triangulation
                 Vector< uint > tDelaunayTriangulation( tNumAllSurfacePoints * tMaxNumTriangles );       // Vector containing the connectivity of the triangles
-                Vector< uint > tDelaunayTriangulationNBR( tNumAllSurfacePoints * tMaxNumTriangles );    // I don't know what this is for and I don't use it but the function requires it
+                Vector< uint > tDelaunayTriangulationNBR( tNumAllSurfacePoints * tMaxNumTriangles );    // Used in 3D triangulation for hash table
                 Vector< uint > tLocalIndices( tNumAllSurfacePoints );                                   // Indices of the points in the triangulation
                 std::iota( tLocalIndices.begin(), tLocalIndices.end(), 1 );
 
                 Vector< real > tSurfacePoints = mAllSurfacePoints( iCM );
 
-                // Perform delaunay triangulation to get the connectivity for the new cells FIXME @bc add compiler directive to check if geompack3d is available
-                dtris2_(
-                        tNumAllSurfacePoints,
-                        tMaxNumTriangles,
-                        &tSurfacePoints( 0 ),
-                        &tLocalIndices( 0 ),
-                        tNumTriangles,
-                        &tDelaunayTriangulation( 0 ),
-                        &tDelaunayTriangulationNBR( 0 ),
-                        tStack,
-                        tError );
+                if ( tDim == 2 )
+                {
+                    // Perform delaunay triangulation to get the connectivity for the new cells FIXME @bc add compiler directive to check if geompack3d is available
+                    dtris2_(
+                            tNumAllSurfacePoints,
+                            tMaxNumTriangles,
+                            &tSurfacePoints( 0 ),
+                            &tLocalIndices( 0 ),
+                            tNumTriangles,
+                            &tDelaunayTriangulation( 0 ),
+                            &tDelaunayTriangulationNBR( 0 ),
+                            tStack,
+                            tError );
+
+                    tSize = tNumTriangles * 3;    // Number of indices for all triangles
+
+                    // Add to the number of new cells created by this algorithm
+                    mNumTotalCells += tNumTriangles;
+                }
+                else if ( tDim == 3 )
+                {
+                    tHashTableSize = 3.0 / 2.0 * tNumAllSurfacePoints;                    // Hash table size
+                    tHashTableSize = prime_( tHashTableSize );                            // Get the next prime number
+                    tStack         = (uint*)alloca( sizeof( uint ) * tHashTableSize );    // Hash table
+                    std::fill( tStack, tStack + tHashTableSize, 0 );                      // Initialize the hash table
+
+                    // Perform delaunay triangulation to get the connectivity for the new cells FIXME @bc add compiler directive to check if geompack3d is available
+                    dtris3_(
+                            tNumAllSurfacePoints,               // NPT
+                            tHashTableSize,                     // SIZHT
+                            tMaxBoundaryFaces,                  // BF_MAX
+                            tMaxNumTriangles,                   // FC_MAX
+                            &tSurfacePoints( 0 ),               // VM
+                            &tLocalIndices( 0 ),                // NPT
+                            tNumBoundaryFaces,                  // BF_NUM
+                            tNumFC,                             // NFC
+                            tNumTriangles,                      // NFACE
+                            tNumTetrahedra,                     // NTETRA
+                            &tDelaunayTriangulation( 0 ),       // BF
+                            &tDelaunayTriangulationNBR( 0 ),    // FC
+                            tStack,                             // HT
+                            tError );                           // IERR
+
+                    tSize = tNumTetrahedra * 4;    // Number of indices for all tetrahedra
+
+                    // Add to the number of new cells created by this algorithm
+                    mNumTotalCells += tNumTetrahedra;
+
+                    // Extract the tetrahedra connectivity from the face connectivity output
+                    tetlst_( tNumFC, &tLocalIndices( 0 ), &tDelaunayTriangulationNBR( 0 ), tNumTetrahedra, &tDelaunayTriangulation( 0 ) );
+
+                    // Reorder vertices so they follow a right handed coordinate system (ensures volume computation is positive)
+                    this->reorder_tet_connectivity( tSurfacePoints, tDelaunayTriangulation, tNumTetrahedra );
+                }
+                else
+                {
+                    MORIS_ERROR( false, "Delaunay triangulation is only supported for 2D and 3D meshes." );
+                }
 
                 MORIS_ERROR( not tError, "geompack3d reported an error during delaunay triangulation for child mesh %d.", mMeshGenerationData->mDelaunayBgCellInds( iCM ) );
 
-                // Add to the number of new cells created by this algorithm
-                mNumTotalCells += tNumTriangles;
-
-                // Annoying conversion to moris_index
-                size_t                tSize = tNumTriangles * 3;
+                // Annoying conversion to moris_index, shorten vector to size as well
                 Vector< moris_index > tDelaunayTriangulationIndex( tSize );
                 std::transform(
                         tDelaunayTriangulation.begin(),
@@ -122,6 +192,48 @@ namespace moris::xtk
 
         // return success if finished
         return tConnectivities;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void Delaunay_Subdivision_Interface::reorder_tet_connectivity(
+            const Vector< real >& aCoordinates,
+            Vector< uint >&       aConnectivity,
+            uint                  aNumTetrahedra )
+    {
+        // Loop through all the tetrahedra
+        for ( uint iTet = 0; iTet < aNumTetrahedra; iTet++ )
+        {
+            // Get the coordinates of the vertices of this tetrahedron
+            Matrix< DDRMat > tTetCoords( 3, 4 );
+            for ( uint iVertex = 0; iVertex < 4; iVertex++ )
+            {
+                tTetCoords.set_column( iVertex, { { aCoordinates( ( aConnectivity( iTet * 4 + iVertex ) - 1 ) * 3 ) }, { aCoordinates( ( aConnectivity( iTet * 4 + iVertex ) - 1 ) * 3 + 1 ) }, { aCoordinates( ( aConnectivity( iTet * 4 + iVertex ) - 1 ) * 3 + 2 ) } } );
+            }
+
+            // Compute the volume of the tetrahedron
+            real tSign = this->compute_tet_volume_sign( tTetCoords );
+
+            // Check if the volume is negative
+            if ( tSign < 0 )
+            {
+                // Reorder the vertices to make the volume positive
+                std::swap( aConnectivity( iTet * 4 + 1 ), aConnectivity( iTet * 4 + 2 ) );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    real Delaunay_Subdivision_Interface::compute_tet_volume_sign( const Matrix< DDRMat >& aTetCoords )
+    {
+        const Matrix< DDRMat > tNodeCoords0 = aTetCoords.get_column( 0 );
+
+        const Matrix< DDRMat > tNodeCoords10 = aTetCoords.get_column( 1 ) - tNodeCoords0;
+        const Matrix< DDRMat > tNodeCoords20 = aTetCoords.get_column( 2 ) - tNodeCoords0;
+        const Matrix< DDRMat > tNodeCoords30 = aTetCoords.get_column( 3 ) - tNodeCoords0;
+
+        return dot( tNodeCoords10, cross( tNodeCoords20, tNodeCoords30 ) );
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -157,16 +269,21 @@ namespace moris::xtk
             return;
         }
 
-        // TODO @bc: implement 3D triangulation
-        MORIS_ERROR( aCutIntegrationMesh->get_spatial_dim() == 2, "Delaunay triangulation is only supported for 2D meshes. This needs to be implemented" );
-
         // Setup decomposition data for this algorithm
-        mDecompositionData->mHasSecondaryIdentifier = true;
-        mDecompositionData->tCMNewNodeLoc           = Vector< Vector< moris_index > >( tNumBackgroundCells );
-        mDecompositionData->tCMNewNodeParamCoord    = Vector< Vector< Matrix< DDRMat > > >( tNumBackgroundCells );
+        mDecompositionData->tCMNewNodeLoc        = Vector< Vector< moris_index > >( tNumBackgroundCells );
+        mDecompositionData->tCMNewNodeParamCoord = Vector< Vector< Matrix< DDRMat > > >( tNumBackgroundCells );
 
         // Stores the surface points for each child mesh as a flattened matrix
         mAllSurfacePoints.resize( tNumDelaunayCells );
+
+        // Spatial dimension
+        uint tDim = mBackgroundMesh->get_spatial_dim();
+
+        // Number of corner nodes + new derived nodes and their parametric coordinates
+        uint tNumDerivedAndBackgroundNodes = mDelaunayTemplate->get_num_new_template_nodes() + mDelaunayTemplate->get_num_corner_nodes();
+
+        // Now adding nodes with a secondary identifier, so change the flag
+        mDecompositionData->mHasSecondaryIdentifier = true;
 
         // Loop through the list of cells with surface points
         for ( uint iCell = 0; iCell < tNumDelaunayCells; iCell++ )
@@ -174,24 +291,21 @@ namespace moris::xtk
             // Get the index of the cell
             uint tBgCellIndex = aMeshGenerationData->mDelaunayBgCellInds( iCell );
 
-            // Get the intersected cell from the background mesh
+            // Get the intersected cell from the background mesh, its cell info, and connectivity
             mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( tBgCellIndex );
 
             // Get the type of cell (tri, quad, tet, hex)
             mtk::Geometry_Type tCellType = tCell.get_geometry_type();
 
-            // Get the global coordinates of all the nodes of aCell
-            Matrix< DDRMat > tBackgroundCellCoords = tCell.get_vertex_coords();
-            uint             tNumCornerNodes       = this->get_num_geometric_nodes( tCellType );
-            uint             tDim                  = tBackgroundCellCoords.n_cols();
-
+            //-------------------------------------------------------
+            // Make requests for surface points inside the cell
+            //-------------------------------------------------------
             // Get the surface points for this cell - parametric coordinates
-            Matrix< DDRMat > tSurfacePoints = aMeshGenerationData->mDelaunayPoints( tBgCellIndex );
+            Matrix< DDRMat >& tSurfacePoints = aMeshGenerationData->mDelaunayPoints( tBgCellIndex );
 
             // Get the associated global coordinates for the surface points
             Matrix< DDRMat > tGlobalSurfacePoints = this->get_surface_point_global_coordinates( tSurfacePoints, tCell );
 
-            // Make requests for these vertices
             for ( uint iPoint = 0; iPoint < tSurfacePoints.n_rows(); iPoint++ )
             {
                 // get the parent rank of the new node
@@ -239,16 +353,20 @@ namespace moris::xtk
                 }
             }    // end for: iterate through surface points
 
+            //-------------------------------------------------------
+            // Setup input for delaunay triangulation
+            //-------------------------------------------------------
+
             // Compute the total number of points for this child mesh
-            uint tNumPointsForDelaunay = tSurfacePoints.n_rows() + tNumCornerNodes;
+            uint tNumPointsForDelaunay = tSurfacePoints.n_rows() + tNumDerivedAndBackgroundNodes;
 
             // Get all of the points for this child mesh into a single vector - background points
             Vector< real > tSurfacePointsVector( tNumPointsForDelaunay * tDim );
-            for ( uint iPoint = 0; iPoint < tNumCornerNodes; iPoint++ )
+            for ( uint iPoint = 0; iPoint < tNumDerivedAndBackgroundNodes; iPoint++ )
             {
                 for ( uint iDim = 0; iDim < tDim; iDim++ )
                 {
-                    tSurfacePointsVector( iDim + iPoint * tDim ) = tBackgroundCellCoords( iPoint, iDim );
+                    tSurfacePointsVector( iDim + iPoint * tDim ) = mDelaunayTemplate->get_node_param_coords( iPoint )( iDim );
                 }
             }
 
@@ -257,7 +375,7 @@ namespace moris::xtk
             {
                 for ( uint iDim = 0; iDim < tDim; iDim++ )
                 {
-                    tSurfacePointsVector( iDim + ( iPoint + tNumCornerNodes ) * tDim ) = tGlobalSurfacePoints( iPoint, iDim );
+                    tSurfacePointsVector( iDim + ( iPoint + tNumDerivedAndBackgroundNodes ) * tDim ) = tSurfacePoints( iPoint, iDim );
                 }
             }
 
@@ -291,13 +409,14 @@ namespace moris::xtk
 
         // new cell info
         moris::mtk::Cell_Info_Factory            tFactory;
-        std::shared_ptr< moris::mtk::Cell_Info > tIgCellInfo = tFactory.create_cell_info_sp( this->get_ig_cell_topology() );
+        std::shared_ptr< moris::mtk::Cell_Info > tIgCellInfo      = tFactory.create_cell_info_sp( this->get_ig_cell_topology() );
+        uint                                     tNumNodesPerCell = tIgCellInfo->get_num_verts();
 
         // Perform a delaunay triangulation on the surface points to get new cell connectivity in the cells local indexing
         Vector< Vector< moris_index > > tCellToVertexConnectivity = this->triangulation();
 
         // This is the global node indices and is used in the integration mesh generator, so we must set it here
-        mNewCellToVertexConnectivity = Vector< Vector< moris::moris_index > >( mNumTotalCells, Vector< moris::moris_index >( 3 ) );
+        mNewCellToVertexConnectivity = Vector< Vector< moris::moris_index > >( mNumTotalCells, Vector< moris::moris_index >( tNumNodesPerCell ) );
 
         // Since each child mesh should just be a background cell, there are no cell indices we need to replace
         mNewCellCellIndexToReplace = Vector< moris::moris_index >( mNumTotalCells, MORIS_INDEX_MAX );
@@ -321,7 +440,7 @@ namespace moris::xtk
             std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );
 
             // Get the number of new cells to be created for this child mesh
-            uint tNumNewCells = tCellToVertexConnectivity( iCell ).size() / 3;
+            uint tNumNewCells = tCellToVertexConnectivity( iCell ).size() / tNumNodesPerCell;
 
             // Loop through the new cells to be created from the connectivity table
             for ( uint iNewCell = 0; iNewCell < tNumNewCells; iNewCell++ )
@@ -329,10 +448,10 @@ namespace moris::xtk
                 mNewCellChildMeshIndex( tNewCellIndex ) = iCM;
 
                 // Add the global indices of the vertices to the new cell connectivity
-                for ( uint iV = 0; iV < 3; iV++ )
+                for ( uint iV = 0; iV < tNumNodesPerCell; iV++ )
                 {
-                    // Get the local index of the vertex to be added to the cell from the local connectivity
-                    moris_index tNewVertexCMOrdinal = tCellToVertexConnectivity( iCell )( iNewCell * 3 + iV ) - 1;
+                    // Get the local index of the vertex to be added to the cell from the local connectivity (subtract 1 because Fortran call was 1 indexed)
+                    moris_index tNewVertexCMOrdinal = tCellToVertexConnectivity( iCell )( iNewCell * tNumNodesPerCell + iV ) - 1;
                     MORIS_ERROR( tNewVertexCMOrdinal < (moris::moris_index)tChildMesh->mIgVerts->size(), "Template ordinal out of bounds" );
 
                     // Get the global index of the vertex and add it to the new cell connectivity
@@ -413,35 +532,9 @@ namespace moris::xtk
     mtk::CellTopology
     Delaunay_Subdivision_Interface::get_ig_cell_topology() const
     {
-        // TODO @bc: implement 3D triangulation
-        return mtk::CellTopology::TRI3;
+        return mBackgroundMesh->get_spatial_dim() == 2 ? mtk::CellTopology::TRI3 : mtk::CellTopology::TET4;
     }
 
     //--------------------------------------------------------------------------------------------------
-
-    uint
-    Delaunay_Subdivision_Interface::get_num_geometric_nodes( const mtk::Geometry_Type aCellType ) const
-    {
-        switch ( aCellType )
-        {
-            case mtk::Geometry_Type::POINT:
-                return 1;
-            case mtk::Geometry_Type::LINE:
-                return 2;
-            case mtk::Geometry_Type::TRI:
-                return 3;
-            case mtk::Geometry_Type::QUAD:
-                return 4;
-            case mtk::Geometry_Type::TET:
-                return 4;
-            case mtk::Geometry_Type::HEX:
-                return 8;
-            case mtk::Geometry_Type::PENTA:
-                return 6;
-            default:
-                MORIS_ASSERT( false, "Unknown geometry type for cell" );
-                return 0;
-        }
-    }
 
 }    // namespace moris::xtk

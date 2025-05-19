@@ -71,9 +71,9 @@ namespace moris::mig
     void sort_and_remove( Matrix< DDRMat > &aIntersectedPoints );
 
 
-    // BRENDAN DOCUMENTATION AND VARIABLE RENAMING FOR ALL
+    // TODO @bc DOCUMENTATION AND VARIABLE RENAMING FOR ALL
 
-    real cross_tri( const Matrix< DDRMat >& p1, const Matrix< DDRMat >& p2, const Matrix< DDRMat >& p3 );
+    real cross_tri( const Matrix< DDRMat > &p1, const Matrix< DDRMat > &p2, const Matrix< DDRMat > &p3 );
 
     real orientation( const Matrix< DDRMat > &p, const Matrix< DDRMat > &q, const Matrix< DDRMat > &r );
 

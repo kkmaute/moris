@@ -41,7 +41,8 @@ enum class Subdivision_Method
     // T  - specifies a Test method
     NC_REGULAR_SUBDIVISION_QUAD4,    // Non-conforming and a regular subdivision template will be used
     NC_REGULAR_SUBDIVISION_HEX8,
-    C_DELAUNAY,          // Conformal Delaunay triangulation
+    C_DELAUNAY_QUAD4,    // Conformal Delaunay triangulation
+    C_DELAUNAY_HEX8,
     C_HIERARCHY_TRI3,    // Conformal and a hierarchy template will be used
     C_HIERARCHY_TET4,
     C_TRI3,    // Conformal tri 3 mesh  will be constructed

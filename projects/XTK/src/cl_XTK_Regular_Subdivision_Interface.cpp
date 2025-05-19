@@ -24,10 +24,12 @@ namespace moris::xtk
         if ( aCellTopology == mtk::CellTopology::QUAD4 )
         {
             mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_4_TRIS >();
+            mDelaunayTemplate           = std::make_shared< Delaunay_Subdivision_Template_QUAD4 >();
         }
         else if ( aCellTopology == mtk::CellTopology::HEX8 )
         {
             mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_24_TETS >();
+            mDelaunayTemplate           = std::make_shared< Delaunay_Subdivision_Template_HEX8 >();
         }
         else
         {
@@ -40,7 +42,7 @@ namespace moris::xtk
     Vector< moris_index >
     Regular_Subdivision_Interface::get_decomposed_cell_indices()
     {
-        return mMeshGenerationData->mRegularSubdivisionBgCellInds;
+        return mMeshGenerationData->mAllIntersectedBgCellInds;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -72,10 +74,12 @@ namespace moris::xtk
         if ( aMeshGenerator->get_spatial_dim() == 2 )
         {
             mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_4_TRIS >();
+            mDelaunayTemplate           = std::make_shared< Delaunay_Subdivision_Template_QUAD4 >();
         }
         else if ( aMeshGenerator->get_spatial_dim() == 3 )
         {
             mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_24_TETS >();
+            mDelaunayTemplate           = std::make_shared< Delaunay_Subdivision_Template_HEX8 >();
         }
         else
         {
@@ -106,6 +110,7 @@ namespace moris::xtk
         tRegSubInterfaceData.mNewNodesOnFacesOrd = this->get_new_node_on_parent_face_face_ordinal();
         tRegSubInterfaceData.mNewNodesOnCellsOrd = this->get_new_node_on_parent_cell_cell_ordinal();
         tRegSubInterfaceData.mVertexAncestry     = mRegularSubdivisionTemplate->get_vertex_ancestry();
+        tRegSubInterfaceData.mNumIgCells         = mRegularSubdivisionTemplate->get_num_ig_cells();
 
         tRegSubInterfaceData.mNewNodeXi = this->get_new_vertex_parametric_coordinates_wrt_parent();
 
@@ -115,7 +120,34 @@ namespace moris::xtk
             std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCell );
 
             // make new vertex requests
-            this->make_new_vertex_requests( tChildMesh.get(), aCutIntegrationMesh, this, &tRegSubInterfaceData, aBackgroundMesh, aDecompositionData );
+            this->make_new_vertex_requests( tChildMesh.get(), aCutIntegrationMesh, &tRegSubInterfaceData, aBackgroundMesh, aDecompositionData );
+        }
+
+        // allocate a data struct to pass into functions - stores the matrix but doesnt require the method to store data
+        Regular_Subdivision_Interface_Data tDelaunaySubInterfaceData;
+
+        // get the new nodes on each entity rank
+        tDelaunaySubInterfaceData.mNewNodesOnEdges = mDelaunayTemplate->get_new_node_on_parent_edge();
+        tDelaunaySubInterfaceData.mNewNodesOnFaces = mDelaunayTemplate->get_new_node_on_parent_face();
+        tDelaunaySubInterfaceData.mNewNodesOnCells = mDelaunayTemplate->get_new_node_in_parent_cell();
+
+        // get the new node edge,face,cell ordinal
+        tDelaunaySubInterfaceData.mNewNodesOnEdgesOrd = mDelaunayTemplate->get_new_node_on_parent_edge_edge_ordinal();
+        tDelaunaySubInterfaceData.mNewNodesOnFacesOrd = mDelaunayTemplate->get_new_node_on_parent_face_face_ordinal();
+        tDelaunaySubInterfaceData.mNewNodesOnCellsOrd = mDelaunayTemplate->get_new_node_on_parent_cell_cell_ordinal();
+        tDelaunaySubInterfaceData.mVertexAncestry     = mDelaunayTemplate->get_vertex_ancestry();
+        tDelaunaySubInterfaceData.mNumIgCells         = mDelaunayTemplate->get_num_ig_cells();
+
+        // Get new node parametric coordinates
+        tDelaunaySubInterfaceData.mNewNodeXi = mDelaunayTemplate->get_new_vertex_parametric_coordinates_wrt_parent();
+
+        // Iterate through delaunay cells and make vertex requests
+        for ( auto& iCell : aMeshGenerationData->mDelaunayBgCellInds )
+        {
+            std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCell );
+
+            // make new vertex requests
+            this->make_new_vertex_requests( tChildMesh.get(), aCutIntegrationMesh, &tDelaunaySubInterfaceData, aBackgroundMesh, aDecompositionData );
         }
 
         // handle the requests
@@ -213,7 +245,6 @@ namespace moris::xtk
     Regular_Subdivision_Interface::make_new_vertex_requests(
             Child_Mesh_Experimental*            aChildMesh,
             Cut_Integration_Mesh*               aCutIntegrationMesh,
-            Regular_Subdivision_Interface*      aRegularSubdivisionInterface,
             Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
             moris::mtk::Mesh*                   aBackgroundMesh,
             Decomposition_Data*                 aDecompositionData )
@@ -225,12 +256,11 @@ namespace moris::xtk
             this->make_new_vertex_requests_trivial(
                     aChildMesh,
                     aCutIntegrationMesh,
-                    aRegularSubdivisionInterface,
                     aRegularSubdivisionInterfaceData,
                     aBackgroundMesh,
                     aDecompositionData );
 
-            mNumNewCells   = mNumNewCells + mRegularSubdivisionTemplate->get_num_ig_cells();
+            mNumNewCells   = mNumNewCells + aRegularSubdivisionInterfaceData->mNumIgCells;
             mNumTotalCells = mNumNewCells;
         }
         else
@@ -238,7 +268,6 @@ namespace moris::xtk
             this->make_new_vertex_requests_octree(
                     aChildMesh,
                     aCutIntegrationMesh,
-                    aRegularSubdivisionInterface,
                     aRegularSubdivisionInterfaceData,
                     aBackgroundMesh,
                     aDecompositionData );
@@ -257,7 +286,6 @@ namespace moris::xtk
     Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
             Child_Mesh_Experimental*            aChildMesh,
             Cut_Integration_Mesh*               aCutIntegrationMesh,
-            Regular_Subdivision_Interface*      aRegularSubdivisionInterface,
             Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
             moris::mtk::Mesh*                   aBackgroundMesh,
             Decomposition_Data*                 aDecompositionData )
@@ -290,9 +318,10 @@ namespace moris::xtk
                 tParentCellInfo->eval_N( tNewNodeXi, aRegularSubdivisionInterfaceData->mNXi );
 
                 // create a new request
-                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr              = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
-                Matrix< DDRMat >                    tNewNodePhysCoords         = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
-                moris_index                         tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
+                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr      = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
+                Matrix< DDRMat >                    tNewNodePhysCoords = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
+
+                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                         tBgFacetIndex,
                         tOwner,
                         mtk::EntityRank::FACE,
@@ -364,7 +393,6 @@ namespace moris::xtk
     Regular_Subdivision_Interface::make_new_vertex_requests_octree(
             Child_Mesh_Experimental*            aChildMesh,
             Cut_Integration_Mesh*               aCutIntegrationMesh,
-            Regular_Subdivision_Interface*      aRegularSubdivisionInterface,
             Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
             moris::mtk::Mesh*                   aBackgroundMesh,
             Decomposition_Data*                 aDecompositionData )

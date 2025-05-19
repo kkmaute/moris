@@ -609,25 +609,68 @@ namespace moris::xtk
         void
         collect_subphases_attached_to_facet_on_cell(
                 Cut_Integration_Mesh*                                  aCutIntegrationMesh,
-                moris::mtk::Cell const *                               aBGCell,
-                moris::moris_index                                     aFacetOrdinal,
-                moris::moris_index                                     aSharedFacetIndex,
+                mtk::Cell const *                                      aBGCell,
+                moris_index                                            aFacetOrdinal,
                 const std::shared_ptr< Facet_Based_Connectivity >&     aFacetConnectivity,
                 const std::shared_ptr< Vector< moris::moris_index > >& aBgFacetToChildrenFacets,
-                Vector< moris::moris_index >&                          aSubphaseIndices,
-                Vector< moris::moris_index >&                          aRepresentativeIgCells,
-                Vector< moris::moris_index >&                          aRepresentativeIgCellsOrdinal );
+                Vector< moris_index >&                                 aSubphaseIndices,
+                Vector< moris_index >&                                 aRepresentativeIgCells,
+                Vector< moris_index >&                                 aRepresentativeIgCellsOrdinal );
 
         // ----------------------------------------------------------------------------------
 
+        /**
+         * @brief Gets the subphase information of all IG cells in aBGCell that are overlapping with the given facet from another BG cell
+         */
         void
-        collect_ig_cells_and_side_ords_on_bg_facet(
+        collect_subphases_of_overlapping_facets_on_cell(
+                Cut_Integration_Mesh*                                  aCutIntegrationMesh,
+                moris_index                                            aMyIGFacetIndex,
+                mtk::Cell const *                                      aBGCell,
+                moris_index                                            aFacetOrdinal,
+                const std::shared_ptr< Facet_Based_Connectivity >&     aFacetConnectivity,
+                const std::shared_ptr< Vector< moris::moris_index > >& aBgFacetToChildrenFacets,
+                Vector< moris_index >&                                 aSubphaseIndices,
+                Vector< moris_index >&                                 aRepresentativeIgCells,
+                Vector< moris_index >&                                 aRepresentativeIgCellsOrdinal );
+
+        // ----------------------------------------------------------------------------------
+
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief Gets the 2D coordinates in plane coordinates of a facet on a specific side ordinal
+         *
+         * @param aMyIGFacetIndex index of the facet in the cut integration mesh
+         * @param aFacetConnectivity facet connectivity of the cut integration mesh, which holds information about the vertices of the facet
+         * @param aFacetOrdinal background cell side ordinal that defines the plane for the facet
+         */
+        static Matrix< DDRMat >
+        get_in_plane_facet_coordinates(
+                moris_index                                        aMyIGFacetIndex,
+                const std::shared_ptr< Facet_Based_Connectivity >& aFacetConnectivity,
+                moris_index                                        aFacetOrdinal );
+
+        // ----------------------------------------------------------------------------------
+
+        void collect_ig_cells_and_side_ords_on_bg_facet(
                 Cut_Integration_Mesh*        aCutIntegrationMesh,
                 moris::moris_index           aBackgroundFacetIndex,
                 Vector< moris::mtk::Cell* >& aIgCell,
                 Vector< moris_index >&       aIgCellSideOrds );
 
         // ----------------------------------------------------------------------------------
+
+        void append_subphase_information_on_facet(
+                moris_index                                                     aChildCellFacetIndex,
+                Cut_Integration_Mesh*                                           aCutIntegrationMesh,
+                mtk::Cell const *                                               aBGCell,
+                const std::shared_ptr< Facet_Based_Connectivity >&              aFacetConnectivity,
+                Vector< moris_index >&                                          aSubphaseIndices,
+                Vector< moris_index >&                                          aRepresentativeIgCells,
+                Vector< moris_index >&                                          aRepresentativeIgCellsOrdinal,
+                std::map< std::pair< moris_index, moris_index >, moris_index >& aSubphaseMap );
         // ----------------------------------------------------------------------------------
 
         /**

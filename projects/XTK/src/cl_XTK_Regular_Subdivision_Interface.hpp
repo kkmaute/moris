@@ -32,6 +32,7 @@ namespace moris::xtk
         Vertex_Ancestry            mVertexAncestry;
         Vector< Matrix< DDRMat > > mNewNodeXi;
         Matrix< DDRMat >           mNXi;
+        uint                       mNumIgCells;
     };
 
     class Integration_Mesh_Generator;
@@ -370,6 +371,233 @@ namespace moris::xtk
     };
 
     // -------------------------------------------------------------------------
+
+    class Delaunay_Subdivision_Template_QUAD4 : public Regular_Subdivision_Template
+    {
+      public:
+        Delaunay_Subdivision_Template_QUAD4() {}
+
+        moris_index
+        get_num_new_nodes() const override
+        {
+            return 0;
+        }
+
+        moris_index
+        get_total_ig_verts() const override
+        {
+            return 4;
+        }
+
+        moris_index
+        get_num_ig_cells() const override
+        {
+            return 0;
+        }
+
+        moris_index
+        get_num_verts_per_cell() const override
+        {
+            return 0;
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_edge() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_edge_edge_ordinal() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_face() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_face_face_ordinal() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_in_parent_cell() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_cell_cell_ordinal() const override
+        {
+            return { {} };
+        }
+
+        Vertex_Ancestry
+        get_vertex_ancestry() const override
+        {
+            return Vertex_Ancestry( {}, {} );
+        }
+
+        Vector< Matrix< DDRMat > >
+        get_new_vertex_parametric_coordinates_wrt_parent() const override
+        {
+            return { { {} } };
+        }
+
+        Vector< Vector< moris_index > >
+        get_ig_cell_to_vertex_connectivity() const override
+        {
+            return { {} };
+        }
+
+        moris_index
+        get_parametric_dimension() const override
+        {
+            return 2;
+        }
+
+        moris_index
+        get_signature() const override
+        {
+            return 0;
+        }
+
+        mtk::CellTopology
+        get_ig_cell_topology() const override
+        {
+            return mtk::CellTopology::TRI3;
+        }
+    };
+
+    // -------------------------------------------------------------------------
+
+    class Delaunay_Subdivision_Template_HEX8 : public Regular_Subdivision_Template
+    {
+      public:
+        Delaunay_Subdivision_Template_HEX8() {}
+
+        moris_index
+        get_num_new_nodes() const override
+        {
+            return 6;
+        }
+
+        moris_index
+        get_total_ig_verts() const override
+        {
+            return 14;
+        }
+
+        moris_index
+        get_num_ig_cells() const override
+        {
+            return 0;
+        }
+
+        moris_index
+        get_num_verts_per_cell() const override
+        {
+            return 4;
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_edge() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_edge_edge_ordinal() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_face() const override
+        {
+            return { { 0, 1, 2, 3, 4, 5 } };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_face_face_ordinal() const override
+        {
+            return { { 0, 1, 2, 3, 4, 5 } };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_in_parent_cell() const override
+        {
+            return { {} };
+        }
+
+        Matrix< IndexMat >
+        get_new_node_on_parent_cell_cell_ordinal() const override
+        {
+            return { {} };
+        }
+
+        Vertex_Ancestry
+        get_vertex_ancestry() const override
+        {
+            return Vertex_Ancestry(
+                    { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5 },
+                    { mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::NODE,
+                            mtk::EntityRank::FACE,
+                            mtk::EntityRank::FACE,
+                            mtk::EntityRank::FACE,
+                            mtk::EntityRank::FACE,
+                            mtk::EntityRank::FACE,
+                            mtk::EntityRank::FACE } );
+        }
+
+        Vector< Matrix< DDRMat > >
+        get_new_vertex_parametric_coordinates_wrt_parent() const override
+        {
+            return { { { 0.0, -1.0, 0.0 } },
+                { { 1.0, 0.0, 0.0 } },
+                { { 0.0, 1.0, 0.0 } },
+                { { -1.0, 0.0, 0.0 } },
+                { { 0.0, 0.0, -1.0 } },
+                { { 0.0, 0.0, 1.0 } } };
+        }
+
+        Vector< Vector< moris_index > >
+        get_ig_cell_to_vertex_connectivity() const override
+        {
+            return { {} };
+        }
+
+        moris_index
+        get_parametric_dimension() const override
+        {
+            return 3;
+        }
+
+        moris_index
+        get_signature() const override
+        {
+            return 3333;
+        }
+
+        mtk::CellTopology
+        get_ig_cell_topology() const override
+        {
+            return mtk::CellTopology::TET4;
+        }
+    };
+
     // -------------------------------------------------------------------------
 
     class Generated_Regular_Subdivision_Template
@@ -432,6 +660,7 @@ namespace moris::xtk
     {
       private:
         std::shared_ptr< Regular_Subdivision_Template >                     mRegularSubdivisionTemplate;
+        std::shared_ptr< Regular_Subdivision_Template >                     mDelaunayTemplate;    // second template for prepping elements for delaunay triangulation
         Vector< std::shared_ptr< Generated_Regular_Subdivision_Template > > mGeneratedTemplate;
 
         Integration_Mesh_Generation_Data* mMeshGenerationData;
@@ -554,7 +783,6 @@ namespace moris::xtk
         make_new_vertex_requests(
                 Child_Mesh_Experimental*            aChildMesh,
                 Cut_Integration_Mesh*               aCutIntegrationMesh,
-                Regular_Subdivision_Interface*      aRegularSubdivisionInterface,
                 Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
                 moris::mtk::Mesh*                   aBackgroundMesh,
                 Decomposition_Data*                 aDecompositionData );
@@ -562,7 +790,6 @@ namespace moris::xtk
         make_new_vertex_requests_trivial(
                 Child_Mesh_Experimental*            aChildMesh,
                 Cut_Integration_Mesh*               aCutIntegrationMesh,
-                Regular_Subdivision_Interface*      aRegularSubdivisionInterface,
                 Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
                 moris::mtk::Mesh*                   aBackgroundMesh,
                 Decomposition_Data*                 aDecompositionData );
@@ -570,7 +797,6 @@ namespace moris::xtk
         make_new_vertex_requests_octree(
                 Child_Mesh_Experimental*            aChildMesh,
                 Cut_Integration_Mesh*               aCutIntegrationMesh,
-                Regular_Subdivision_Interface*      aRegularSubdivisionInterface,
                 Regular_Subdivision_Interface_Data* aRegularSubdivisionInterfaceData,
                 moris::mtk::Mesh*                   aBackgroundMesh,
                 Decomposition_Data*                 aDecompositionData );
