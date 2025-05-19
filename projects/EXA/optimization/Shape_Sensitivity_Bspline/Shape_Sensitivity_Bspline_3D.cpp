@@ -289,7 +289,28 @@ namespace moris
             {
                 aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
                 aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );
-                aParameterLists.set( "offset", -1.6, -1.6, -1.0 );
+                aParameterLists.set( "offset", -0.8, -0.8, -1.0 );
+                aParameterLists.set( "name", "SM1" );
+
+                // Set the ADV dependency
+                if ( tADV == "A" )
+                {
+                    aParameterLists.insert( "x_pos", Design_Variable( -1.0, 0.0, 1.0 ) );
+                    aParameterLists.set( "field_function_name", "SM_Perturbation" );
+                    aParameterLists.set( "sensitivity_function_name", "SM_Perturbation_Sensitivity" );
+                }
+                else if ( tADV == "D" )
+                {
+                    aParameterLists.set( "discretization_mesh_index", 0 );
+                    aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                }
+            }
+            else if ( tName == "SM2" )    // make surface mesh geometry
+            {
+                aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
+                aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );
+                aParameterLists.set( "offset", -.8, -1.1, -0.3 );
+                aParameterLists.set( "name", "SM2" );
 
                 // Set the ADV dependency
                 if ( tADV == "A" )

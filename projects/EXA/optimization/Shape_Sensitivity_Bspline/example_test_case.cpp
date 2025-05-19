@@ -171,13 +171,14 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
     Vector< Vector< std::string > > tConfigurations = {
         { "SM-D-X" },
         { "SM-A-X" },
+        { "SM2-D-D", "SM-D-D" },
         { "VL-A-X", "OL-F-X" },
         { "VL-F-X", "OL-A-X" },
         { "VL-A-X", "OL-A-X" },
         { "VL-D-X", "OL-F-X" },
         { "VL-F-X", "OL-D-X" },
         { "VL-D-X", "OL-D-X" },
-        // { "VL-D-X", "OL-D-X", "SM-A-X" },
+        // { "VL-D-X", "OL-D-X", "SM-A-D" },
         // { "VL-D-X", "OL-D-X", "SM-D-X" },
         // { "SM-D-X", "VL-D-X", "OL-D-X" }
     };
@@ -185,8 +186,6 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
     // KNOWN NONWORKING CASES
     // { "VL-D-X", "OL-D-X", "SM-D-D" } - fails as floating nodes have 4 locator nodes, and LS geometries can only perform multiple intersections
     //                                    with linear interpolation, which uses 2 parent nodes
-    // ALL Delaunay triangulation cases fail as this has not yet been implemented yet @bc TODO
-    // ALL Intersections on intersections fail for surface meshes in 3D as this has not yet been implemented yet @bc TODO
 
     // remove files from previous test runs
     // FIXME: should be made independent of OS; note std::remove does not take wild cards

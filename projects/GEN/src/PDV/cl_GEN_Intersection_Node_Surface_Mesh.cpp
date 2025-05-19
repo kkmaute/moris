@@ -16,6 +16,7 @@
 #include "fn_eye.hpp"
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"
+#include "fn_cross.hpp"
 
 namespace moris::gen
 {
@@ -252,7 +253,7 @@ namespace moris::gen
         // Add first parent coordinate sensitivities
         if ( tFirstParentNode.depends_on_advs() )
         {
-            Matrix< DDRMat > tLocCoord          = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
             Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
             tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
@@ -260,10 +261,11 @@ namespace moris::gen
         // Add second parent coordinate sensitivities
         if ( tSecondParentNode.depends_on_advs() )
         {
-            Matrix< DDRMat > tLocCoord          = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
             Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
             tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
+
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -332,8 +334,28 @@ namespace moris::gen
         }
         else
         {
-            MORIS_ERROR( false, "3D sensitivities not implemented if parent vertex depends on ADVs" );
-            return { {} };
+            Matrix< DDRMat > tFacetVertex3 = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 2 );
+
+            // Compute edge vectors
+            Matrix< DDRMat > tEdge1 = tFacetVertex2 - tFacetVertex1;
+            Matrix< DDRMat > tEdge2 = tFacetVertex3 - tFacetVertex1;
+
+            // Compute the normal vector
+            Matrix< DDRMat > tNormal = trans( cross( tEdge1, tEdge2 ) );
+
+            // Compute barycentric coordinate p
+            Matrix< DDRMat > tP = cross( tSecondParentNodeCoords - tFirstParentNodeCoords, tEdge2 );
+
+            // Compute determinant
+            real tDet = dot( tEdge1, tP );
+
+            // Compute signed area of parallipiped formed by edges
+            real tArea = dot( tNormal, trans( tFirstParentNodeCoords ) - tFacetVertex1 );
+
+            PRINT( 2.0 * tDet * ( 1.0 - tArea / tDet ) * tNormal );
+
+            // Compute sensitivities
+            return 2.0 / tDet * ( 1.0 - tArea / tDet ) * tNormal;
         }
     }
 
@@ -366,8 +388,30 @@ namespace moris::gen
         }
         else
         {
-            MORIS_ERROR( false, "3D sensitivities not implemented if parent vertex depends on ADVs" );
-            return { {} };
+            tFacetVertex1                  = trans( tFacetVertex1 );
+            tFacetVertex2                  = trans( tFacetVertex2 );
+            Matrix< DDRMat > tFacetVertex3 = trans( mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 2 ) );
+
+            // Compute edge vectors
+            Matrix< DDRMat > tEdge1 = tFacetVertex2 - tFacetVertex1;
+            Matrix< DDRMat > tEdge2 = tFacetVertex3 - tFacetVertex1;
+
+            // Compute the normal vector
+            Matrix< DDRMat > tNormal = cross( tEdge1, tEdge2 );
+
+            // Compute barycentric coordinate p
+            Matrix< DDRMat > tP = cross( tSecondParentNodeCoords - tFirstParentNodeCoords, tEdge2 );
+
+            // Compute determinant
+            real tDet = dot( tEdge1, tP );
+
+            // Compute signed area of parallipiped formed by edges
+            real tArea = dot( tNormal, tFirstParentNodeCoords - tFacetVertex1 );
+
+            PRINT( 2.0 * tArea / tDet / tDet * tNormal );
+
+            // Compute sensitivities
+            return 2.0 * tArea / tDet / tDet * tNormal;
         }
     }
 
