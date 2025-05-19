@@ -48,6 +48,7 @@ namespace moris::gen
         std::string    mAnalyticADVSensitivityFunctionName;    // Name of the user-defined function that determines vertex/adv sensitivity. Mutually exclusive with mDiscretizationFactorFunctionName
         std::string    mAnalyticADVIDFunctionName;             // Name of the user-defined function that determines which ADVs a vertex depends on. Mutually exclusive with mDiscretizationFactorFunctionName
         std::string    mOutputFileName;                        // Name of the output file for the surface mesh
+        std::string    mName;                                  // Name of the surface mesh
 
         /**
          * Constructor with a given parameter list
@@ -120,7 +121,6 @@ namespace moris::gen
 
         Surface_Mesh_Parameters mParameters;
         Node_Manager*           mNodeManager;
-        std::string             mName;
 
         // Optimization variables
         ADV_Handler                        mADVHandler;
@@ -137,7 +137,6 @@ namespace moris::gen
         Matrix< DDRMat >                             mCurrentVertexBases;                 // Basis function values for each vertex <number of fields> x <number of vertices>
         Vector< const mtk::Cell* >                   mCurrentVertexBackgroundElements;    // Index of the background element the facet vertex is in currently
         Matrix< DDRMat >                             mVertexParametricCoordinates;        // Parametric coordinates of the facet vertex in the background element in the current configuration
-
 
       public:
         /**
@@ -244,17 +243,19 @@ namespace moris::gen
          * As such, the function relies on an assurance that there should be a valid intersection.
          * This is determined by checking the geometric region of two points along the ray and ensuring that they are different. This is handled upstream when creating intersection nodes.
          *
+         * @param aFirstParentNode First node of the edge to be intersected
+         * @param aSecondParentNode Second node of the edge to be intersected
+         * @param aDirection Direction of the ray. Can be computed by subtracting the two parent nodes, but passed to avoid recomputing
          * @param aOriginalTolerance Original intersection tolerance (used to reset tolerance after successful intersection is found)
-         * @param aOrigin Origin of the ray
-         * @param aDirection Direction of the ray
          * @param aRaycastResult Raycast result, containing the intersections and associated facet indices
          * @return Pair of facet index and local coordinate of the intersection
          */
         std::pair< uint, real >
         process_raycast_for_local_coordinate(
-                real                      aOriginalTolerance,
-                Matrix< DDRMat >&         aOrigin,
+                const Parent_Node&        aFirstParentNode,
+                const Parent_Node&        aSecondParentNode,
                 Matrix< DDRMat >&         aDirection,
+                real                      aOriginalTolerance,
                 mtk::Intersection_Vector& aRaycastResult );
 
         // ----------------------------------------------------------------------------------------------------------------

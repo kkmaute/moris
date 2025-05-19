@@ -50,6 +50,7 @@ namespace moris::gen
             , mAnalyticADVFunctionName( aParameterList.get< std::string >( "field_function_name" ) )
             , mAnalyticADVSensitivityFunctionName( aParameterList.get< std::string >( "sensitivity_function_name" ) )
             , mOutputFileName( aParameterList.get< std::string >( "output_file_name" ) )
+            , mName( aParameterList.get< std::string >( "name" ) )
     {
         MORIS_ASSERT( (uint)( mDiscretizationIndex < -1 + not mAnalyticADVFunctionName.empty() ) < 2, "Both a discretization index and an analytical function are provided. Pick only one or neither!" );
     }
@@ -77,8 +78,9 @@ namespace moris::gen
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
         // parse the file path and extract the file name
-        mName = aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
-                aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 );
+        aParameters.mName = aParameters.mName.empty() ? aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
+                                                                aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 )
+                                                      : aParameters.mName;
 
         // If this surface mesh is being optimized via B-spline fields, construct seeding fields and check for a scaling function
         if ( this->intended_discretization() )
@@ -106,7 +108,7 @@ namespace moris::gen
                         tFieldVariableIndices,
                         tADVIndices,
                         tConstants,
-                        mName + "_PERT_" + std::to_string( iFieldIndex ) );
+                        mParameters.mName + "_PERT_" + std::to_string( iFieldIndex ) );
             }
         }
         // Otherwise, check if this surface mesh is being optimized via an analytical function
@@ -198,7 +200,7 @@ namespace moris::gen
             return false;
         }
 
-        // Try and see if the pointer is in the stored list
+        // Try to see if the pointer is in the stored list
         auto tIt = std::find( mCurrentVertexBackgroundElements.begin(), mCurrentVertexBackgroundElements.end(), aCell );
 
         while ( tIt != mCurrentVertexBackgroundElements.end() )
@@ -420,32 +422,18 @@ namespace moris::gen
         bool                     tWarning;
         mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
-        // no intersections detected or multiple along parent edge
-        if ( tLocalCoordinate.size() == 0 )
-        {
-            // Check to see if either parent node is on the interface and we can return this
-            // FIXME: the raycast should be able to detect this case, but ArborX may not reliably return the candidate facets in this case. Adjust bounding boxes somehow?
-            if ( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
-            {
-                return std::make_pair( 0, -1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
-            }
-            else if ( this->get_geometric_region( aSecondParentNode.get_index(), tSecondParentNodeCoordinates ) == Geometric_Region::INTERFACE )
-            {
-                return std::make_pair( 0, 1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
-            }
-        }
-
         // Process the raycast output and if no valid intersection was found, recast ray with looser tolerance
-        return this->process_raycast_for_local_coordinate( Surface_Mesh::mIntersectionTolerance, tFirstParentNodeCoordinates, tRayDirection, tLocalCoordinate );
+        return this->process_raycast_for_local_coordinate( aFirstParentNode, aSecondParentNode, tRayDirection, Surface_Mesh::mIntersectionTolerance, tLocalCoordinate );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     std::pair< uint, real >
     Surface_Mesh_Geometry::process_raycast_for_local_coordinate(
-            real                      aOriginalTolerance,
-            Matrix< DDRMat >&         aOrigin,
+            const Parent_Node&        aFirstParentNode,
+            const Parent_Node&        aSecondParentNode,
             Matrix< DDRMat >&         aDirection,
+            real                      aOriginalTolerance,
             mtk::Intersection_Vector& aRaycastResult )
     {
         // Put the intersections in the local coordinate frame
@@ -457,33 +445,66 @@ namespace moris::gen
         // Iterate through the intersections to find the first value that is within the exclusive range (-1, 1)
         for ( auto& tIntersection : aRaycastResult )
         {
-            if ( std::abs( tIntersection.second ) < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) )
+            if ( std::abs( tIntersection.second ) < ( 1.0 - Surface_Mesh::mIntersectionTolerance ) )
             {
                 // reset intersection tolerance
                 Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
 
-                // snap if needed
-                if ( std::abs( tIntersection.second - 1.0 ) < Surface_Mesh::mIntersectionTolerance )
-                {
-                    tIntersection.second = 1.0;
-                }
-                else if ( std::abs( tIntersection.second + 1.0 ) < Surface_Mesh::mIntersectionTolerance )
-                {
-                    tIntersection.second = -1.0;
-                }
+                // Found a valid intersection that will NOT snap to either parent node
                 return tIntersection;
             }
         }
 
-        // If no intersection was found, loosen the intersection tolerance and try again
+        // If no middle intersection was found, check for intersections that are very close to the parent nodes
+        for ( auto& tIntersection : aRaycastResult )
+        {
+            if ( std::abs( tIntersection.second - 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+            {
+                // reset intersection tolerance
+                Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+
+                // Found an intersection that is very close to the second parent node
+                // This will be ignored in the intersection node creation
+                tIntersection.second = 1.0;
+                return tIntersection;
+            }
+            else if ( std::abs( tIntersection.second + 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+            {
+                // reset intersection tolerance
+                Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+
+                // Found an intersection that is very close to the first parent node
+                // This will be ignored in the intersection node creation
+                tIntersection.second = -1.0;
+                return tIntersection;
+            }
+        }
+
+        // ---------------------------------------------------------
+        // No intersection found, check for pathological cases
+        // ---------------------------------------------------------
+
+        // Check to see if either parent node is on the interface. Needed if node will snap or raycast tolerancing is off
+        if ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, -1.0 );    // FIXME: XTK will ignore this node, but ideally this should identify the intersecting facet
+        }
+        else if ( this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, 1.0 );    // FIXME: XTK will ignore this node, but ideally this should identify the intersecting facet
+        }
+
+        // If no intersection was found (but there should be one), loosen the intersection tolerance and try again
         Surface_Mesh::mIntersectionTolerance *= 10.0;
+
+        MORIS_ASSERT( Surface_Mesh::mIntersectionTolerance < 0.1, "Surface mesh intersection tolerance is too large. No valid intersection found." );
 
         // Recast the ray
         bool                     tWarning;
-        mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aOrigin, aDirection, tWarning );
+        mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aFirstParentNode.get_global_coordinates(), aDirection, tWarning );
 
-        // Process new intersections
-        return this->process_raycast_for_local_coordinate( aOriginalTolerance, aOrigin, aDirection, tNewIntersections );
+        // Recursively call this function to process new intersections
+        return this->process_raycast_for_local_coordinate( aFirstParentNode, aSecondParentNode, aDirection, aOriginalTolerance, tNewIntersections );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -507,7 +528,7 @@ namespace moris::gen
         // Matrix< DDRMat >      tNodeCoordinates( Surface_Mesh::get_spatial_dimension(), tNumNodes );
         Vector< moris_index > tCellIndices( tNumNodes );
 
-        // Build the element connectivity from the interpolation mesh
+        // Build the node connectivity from the interpolation mesh
         Matrix< IndexMat > tNodeConnectivity;
         for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
         {
@@ -1242,6 +1263,8 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::update_vertex_basis_data()
     {
+        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Find background element brute force" );
+
         // Get the spatial dimension
         uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
 
@@ -1257,7 +1280,7 @@ namespace moris::gen
             // Get this vertex's coordinates
             Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
 
-            // Determine which element this vertex lies in, will be the same for every field)
+            // Determine which element this vertex lies in, will be the same for every field
             mCurrentVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( tVertexCoordinates );
 
             // check if the vertex is inside the mesh domain
@@ -1326,7 +1349,7 @@ namespace moris::gen
     std::string
     Surface_Mesh_Geometry::get_name()
     {
-        return mName;
+        return mParameters.mName;
     }
 
     //--------------------------------------------------------------------------------------------------------------
