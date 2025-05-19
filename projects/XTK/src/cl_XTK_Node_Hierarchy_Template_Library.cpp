@@ -103,6 +103,12 @@ namespace moris::xtk
                 aNodeHierTemplate->mNumCells          = 2;
                 break;
             }
+            case 100:
+            {
+                aNodeHierTemplate->mCellToNodeOrdinal = Matrix< IndexMat >( { { 0, 3, 5 }, { 1, 4, 3 }, { 4, 2, 5 }, { 3, 4, 5 } } );
+                aNodeHierTemplate->mNumCells          = 4;
+                break;
+            }
             default:
             {
                 MORIS_ERROR( false, "Node_Hierarchy_Template_Library::load_2d_template() - Undefined template ID (%d).", aTemplateId );
@@ -827,9 +833,7 @@ namespace moris::xtk
                 break;
             default:
             {
-                std::cout << "Node_Hierarchy_Template_Library::load_3d_template(): \n"
-                          << std::flush;
-                std::cout << "WARNING UNDEFINED TEMPLATE ID: " << aTemplateId << '\n';
+                MORIS_LOG_WARNING( "Undefined template ID: %d", aTemplateId );
                 break;
             }
         }

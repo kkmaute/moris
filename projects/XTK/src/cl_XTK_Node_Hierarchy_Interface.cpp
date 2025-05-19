@@ -794,6 +794,19 @@ namespace moris::xtk
             ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
             ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
         }
+        // intersection goes through all three vertices (double intersection somewhere that is not resolved)
+        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 3 )
+        {
+            aPermutation = 100;
+
+            aSortedNodeInds->resize( 6 );
+            ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+            ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+            ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
+            ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+            ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
+            ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 2 ) );
+        }
         // Intersection goes through only one vertex, or the entire element is on the interface. In either case, load trivial template
         else
         {
