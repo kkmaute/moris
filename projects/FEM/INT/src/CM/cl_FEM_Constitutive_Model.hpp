@@ -261,7 +261,7 @@ namespace moris::fem
         /**
          * virtual destructor
          */
-        virtual ~Constitutive_Model() {};
+        virtual ~Constitutive_Model(){};
 
         //------------------------------------------------------------------------------
         /**
@@ -304,6 +304,17 @@ namespace moris::fem
         get_property_map()
         {
             return mPropertyMap;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get material model map
+         * @param[ out ]  mMaterialModelMap map of string to uint of material models
+         */
+        std::map< std::string, uint >&
+        get_material_model_map()
+        {
+            return mMaterialModelMap;
         }
 
         //------------------------------------------------------------------------------

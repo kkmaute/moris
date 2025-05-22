@@ -419,7 +419,7 @@ namespace moris
                     std::string tSubParameterListName = get_inner_sub_parameter_list_name( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ] );
                     mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setText( 0, QString::fromStdString( tSubParameterListName ) + " " + QString::number( tCurrentWidget->getSubFormCountProps() ) );
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setSubFormType( -1 );
-                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list( create_parameter_list( (Module_Type)tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], 0 ) );
+                    mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).add_parameter_list();
                 }
                 else
                 {
@@ -435,8 +435,8 @@ namespace moris
                 mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].last()->setIndex( { tCurrentIndex[ 0 ], tCurrentIndex[ 1 ], (uint)mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ].size() - 1 } );
 
                 // Append to mLibrary.get_parameter_lists() and pass it into add_elements
-                Submodule_Parameter_Lists &tSubmoduleParameterList = mLibrary.get_parameter_lists()( tRoot )( tChild );
-                mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->add_elements( tSubmoduleParameterList( tSubmoduleParameterList.size() - 1 ) );
+                // Submodule_Parameter_Lists &tSubmoduleParameterList = mLibrary.get_parameter_lists()( tRoot )( tChild );
+                mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->add_elements( mLibrary.get_parameter_lists()( tRoot )(tChild)( mLibrary.get_parameter_lists()( tRoot )( tChild ).size() - 1 ) );
                 mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->set_form_visible( false );
 
                 // Connecting the QTreeWidgetItem to the Moris_Tree_Widget_Item
@@ -474,44 +474,43 @@ namespace moris
 
                 // Get mWidget from the Moris_Tree_Widget_Item by reference
                 // Loop over all the widgets in mTreeWidgetSubChildren[ tRoot ][ tChild ] and assign tWidget to every one
-                QList< QList< QWidget * > > tWidget;
-                tWidget.resize( mTreeWidgetSubChildren[ tRoot ][ tChild ].size() );
-                for ( uint i = 0; i < mTreeWidgetSubChildren[ tRoot ][ tChild ].size(); i++ )
+                // QList< QList< QWidget * > > tWidget;
+                // tWidget.resize( mTreeWidgetSubChildren[ tRoot ][ tChild ].size() );
+                // for ( uint i = 0; i < mTreeWidgetSubChildren[ tRoot ][ tChild ].size(); i++ )
+                // {
+
+                for ( uint it = 0; it < mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->mWidget.size(); it++ )
                 {
-                    tWidget[ i ] = mTreeWidgetSubChildren[ tRoot ][ tChild ][ i ]->mWidget;
-
-                    for ( uint it = 0; it < tWidget[ i ].size(); it++ )
+                    if ( endswith( mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->mWidget[ it ]->objectName().toStdString(), "name" ) )
                     {
-                        if ( endswith( tWidget[ i ][ it ]->objectName().toStdString(), "name" ) )
+                        auto  tLineEdit      = dynamic_cast< Moris_Line_Edit  *>( mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->mWidget[ it ] );
+                        auto &treeWidgetItem = mTreeWidgetSubChildren[ tRoot ][ tChild ].last();
+
+                        if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
                         {
-                            auto &tLineEdit      = dynamic_cast< Moris_Line_Edit      &>( *tWidget[ i ][ it ] );
-                            auto &treeWidgetItem = mTreeWidgetSubChildren[ tRoot ][ tChild ][ i ];
-
-                            if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
-                            {
-                                connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                    // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                    update_property_tree_widget_name( treeWidgetItem, aText );
-                                } );
-                            }
-                            else if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PHASES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
-                            {
-                                connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                    // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                    update_phase_tree_widget_name( treeWidgetItem, aText );
-                                } );
-                            }
-                            else
-                            {
-
-                                connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                    // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                    update_tree_widget_name( treeWidgetItem, aText );
-                                } );
-                            }
-                            break;
+                            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                update_property_tree_widget_name( treeWidgetItem, aText );
+                            } );
                         }
+                        else if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PHASES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
+                        {
+                            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                update_phase_tree_widget_name( treeWidgetItem, aText );
+                            } );
+                        }
+                        else
+                        {
+
+                            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
+                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
+                                update_tree_widget_name( treeWidgetItem, aText );
+                            } );
+                        }
+                        break;
                     }
+                    //}
                 }
             }
             else
@@ -757,7 +756,7 @@ namespace moris
         // set the text of the QTreeWidgetItem
         mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ][ tIndex[ 2 ] ]->setText( 0, aText );
 
-        if ( mQTreeWidgetChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ]->text( 0 ).toStdString() == get_submodule_names( Module_Type::FEM )( (uint) FEM_Submodule::PHASES ) && mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size() > 0 )
+        if ( mQTreeWidgetChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ]->text( 0 ).toStdString() == get_submodule_names( Module_Type::FEM )( (uint)FEM_Submodule::PHASES ) && mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size() > 0 )
         {
             mPhaseNameList.resize( mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size() );
             for ( uint i = 0; i < mQTreeWidgetSubChildren[ tIndex[ 0 ] ][ tIndex[ 1 ] ].size(); i++ )

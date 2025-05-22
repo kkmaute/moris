@@ -106,6 +106,7 @@ namespace moris
 
         QStringList mPropertyNameList;
         QStringList mPhaseNameList;
+        QStringList mMaterialModelList;
 
       public:
         // Add argument that reads a parameter list
@@ -126,10 +127,10 @@ namespace moris
          * @param std::string aFileName
          * @note This constructor initializes the GUI, sets up the layout, the layout and elements related objects and connects the signals and slots
          */
-        explicit Moris_Gui( QWidget *parent, std::string aFileName ); 
+        explicit Moris_Gui( QWidget *parent, std::string aFileName );
 
         //--------------------------------------------------------------------------------------------------------------
-        //Initialize the GUI
+        // Initialize the GUI
         /**
          * @brief Function to initialize the GUI
          * @param NONE
@@ -138,7 +139,6 @@ namespace moris
          */
         void initialize_gui();
 
-        
       private slots:
 
         /**
@@ -171,7 +171,6 @@ namespace moris
          */
 
         void write_to_xml();
-        
 
       private:
         //--------------------------------------------------------------------------------------------------------------
@@ -191,15 +190,12 @@ namespace moris
          * @param uint aChild
          * @param uint aSubChild
          * @note Small function to add projects on construction; Handles form formatting, renaming and eliminates redundant code
-         */ 
+         */
         void add_project( uint aRoot, uint aChild, uint aSubChild );
 
         void update_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
         void update_property_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
         void update_phase_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
     };
-
-
-
 
 }    // namespace moris
