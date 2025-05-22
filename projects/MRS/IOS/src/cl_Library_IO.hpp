@@ -341,11 +341,12 @@ namespace moris
      * @return Parameter_List - The parameter list with the set values from the XML file
      */
 
-    Parameter_List create_and_set_parameter_list( Module_Type aModule,
-            uint                                                      aChild,
-            uint                                                      aSubChild,
-            Vector< std::string >&                              aKeys,
-            Vector< std::string >&                              aValues );
+    Parameter_List create_and_set_parameter_list(
+            Module_Type                  aModule,
+            uint                         aChild,
+            uint                         aSubChild,
+            Vector< std::string >&       aKeys,
+            const Vector< std::string >& aValues );
 
     /**
      * @brief Create a parameter list for a given module, child, and sub-child
@@ -363,6 +364,6 @@ namespace moris
      */
     void set_new_parameter( Parameter& aParameter, std::string& aKey, const std::string& aValue );
 
-    void set_parameter_list ( Parameter_List& tParameterList, Vector< std::string >& aKeys, Vector< std::string >& aValues );
+    void set_parameter_list( Parameter_List& tParameterList, Vector< std::string >& aKeys, const Vector< std::string >& aValues );
 
 }    // namespace moris

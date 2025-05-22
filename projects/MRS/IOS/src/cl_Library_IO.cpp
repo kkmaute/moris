@@ -976,11 +976,12 @@ namespace moris
      * @return Parameter_List - The parameter list with the set values from the XML file
      */
 
-    Parameter_List create_and_set_parameter_list( Module_Type aModule,
-            uint                                                      aChild,
-            uint                                                      aSubChild,
-            const Vector< std::string >&                              aKeys,
-            const Vector< std::string >&                              aValues )
+    Parameter_List create_and_set_parameter_list(
+            Module_Type                  aModule,
+            uint                         aChild,
+            uint                         aSubChild,
+            Vector< std::string >&       aKeys,
+            const Vector< std::string >& aValues )
     {
         // If aModule is GEN and aChild is (uint) GEOMETRIES and and if aKeys contains a string called "lower_bound_x" then create a field array parameter list
         if ( aModule == Module_Type::GEN && aChild == (uint)GEN_Submodule::GEOMETRIES  && std::find( aKeys.begin(), aKeys.end(), "lower_bound_x" ) != aKeys.end() )
@@ -988,14 +989,15 @@ namespace moris
             Parameter_List tParameterList = prm::create_field_array_parameter_list( gen::Field_Type ( aSubChild ) );
             set_parameter_list( tParameterList, aKeys, aValues );
 
-        return tParameterList;
+            return tParameterList;
         }
-        else {
-        // Create the parameter list with default values
-        Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
-set_parameter_list( tParameterList, aKeys, aValues );
+        else
+        {
+            // Create the parameter list with default values
+            Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
+            set_parameter_list( tParameterList, aKeys, aValues );
 
-        return tParameterList;
+            return tParameterList;
         }
 
         // Loop through the default parameter list
@@ -1007,8 +1009,8 @@ set_parameter_list( tParameterList, aKeys, aValues );
     }
 
     void set_parameter_list( Parameter_List& tParameterList,
-            Vector< std::string >&           aKeys,
-            Vector< std::string >&           aValues )
+            Vector< std::string >&       aKeys,
+            const Vector< std::string >& aValues )
     {
         for ( uint iIndex = 0; iIndex < aKeys.size(); iIndex++ )
         {
@@ -1047,7 +1049,6 @@ set_parameter_list( tParameterList, aKeys, aValues );
 
         // Replace $ with whitespace in key
         std::replace( aKey.begin(), aKey.end(), '$', ' ' );
-
 
         // Set the value based on the type of parameter
         if ( aParameter.index() == variant_index< bool >() )
