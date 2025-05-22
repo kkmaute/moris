@@ -66,6 +66,7 @@ set(HEADERS
     ELEM/cl_FEM_Element_Double_Sideset.hpp
     ELEM/cl_FEM_Element_Nonconformal_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Sideset.hpp
+    ELEM/cl_FEM_Element_Time_Final_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Boundary.hpp
 
     IP/cl_FEM_Geometry_Interpolator.hpp
@@ -239,6 +240,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_ALM_Dof.hpp
     IQI/cl_FEM_IQI_Max_Dof.hpp
     IQI/cl_FEM_IQI_Max_Stress.hpp
+    IQI/cl_FEM_IQI_Max_Damage.hpp
     IQI/cl_FEM_IQI_Property.hpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -299,6 +301,7 @@ set(LIB_SOURCES
     ELEM/cl_FEM_Element_Double_Sideset.cpp
     ELEM/cl_FEM_Element_Nonconformal_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Sideset.cpp
+    ELEM/cl_FEM_Element_Time_Final_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Boundary.cpp
     ELEM/cl_FEM_Interpolation_Element.cpp
 
@@ -488,6 +491,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_ALM_Dof.cpp
     IQI/cl_FEM_IQI_Max_Dof.cpp
     IQI/cl_FEM_IQI_Max_Stress.cpp
+    IQI/cl_FEM_IQI_Max_Damage.cpp
     IQI/cl_FEM_IQI_Property.cpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp

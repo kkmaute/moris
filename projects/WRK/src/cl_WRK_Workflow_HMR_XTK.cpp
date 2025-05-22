@@ -363,8 +363,13 @@ namespace moris::wrk
             MORIS_LOG( "------------------------------------------------------------------------------" );
             MORIS_LOG( "Only output of the foreground mesh requested. Stopping workflow after XTK/MTK." );
             MORIS_LOG( "------------------------------------------------------------------------------" );
-            Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
+
+            // delete data that needs to be deleted explicitly to prevent memory leaks
             delete tXTKPerformer;
+            mPerformerManager->mDataBasePerformer( 0 )->free_memory();
+
+            // return empty vector for design criteria
+            Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
             return tVector;
         }
 
@@ -377,8 +382,13 @@ namespace moris::wrk
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
             MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
-            Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
+
+            // delete data that needs to be deleted explicitly to prevent memory leaks
             delete tXTKPerformer;
+            mPerformerManager->mDataBasePerformer( 0 )->free_memory();
+
+            // return empty vector for design criteria
+            Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );
             return tVector;
         }
 
@@ -389,18 +399,18 @@ namespace moris::wrk
         }
         else
         {
-            // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
+            // IMPORTANT!!! do not overwrite previous XTK and MTK performer before we know if this XTK performer triggers a restart.
             // otherwise the fem::field meshes are deleted and cannot be used anymore.
             mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr< xtk::Model >( tXTKPerformer );
             mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
         }
 
-        //            mtk::Mesh_Checker tMeshCheckerXTK(
-        //                    0,
-        //                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
-        //                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh());
-        //            tMeshCheckerXTK.perform();
-        //            tMeshCheckerXTK.print_diagnostics();
+        // mtk::Mesh_Checker tMeshCheckerXTK(
+        //         0,
+        //         mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
+        //         mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh() );
+        // tMeshCheckerXTK.perform();
+        // tMeshCheckerXTK.print_diagnostics();
 
         // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
         // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_global_T_matrix_to_file();

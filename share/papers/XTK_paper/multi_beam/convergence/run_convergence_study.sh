@@ -35,11 +35,11 @@ CoarseSolnDirName="Coarse_Solution"
 CompareSolnDirName="Compare_Solution" 
 
 ### Parameters to iterate over:
-ReferenceRefinement="5"
-ReferenceElementSize="0.03125"
+ReferenceRefinement="7"
+ReferenceElementSize="0.0078125"
 EnrichmentValues=("true" "false")
-RefinementValues=("0" "1" "2" "3" "4")
-ElementSizes=("1.0" "0.5" "0.25" "0.125" "0.0625")
+RefinementValues=("0" "1" "2" "3" "4" "5" "6")
+ElementSizes=("1.0" "0.5" "0.25" "0.125" "0.0625" "0.03125" "0.015625")
 
 ### Debug or optimized version of MORIS
 UseDebug=0

@@ -132,6 +132,38 @@ namespace moris::fem
                 }
                 break;
             }
+            case 2:
+            {
+                // check correct number of parameters provided for the local equivalent strain
+                MORIS_ERROR( mParameters( 0 ).numel() - 1 == 1,
+                        "CM_Struc_Linear_Isotropic_Damage::set_parameters - 1 parameter need to be provided." );
+
+                // unpack the parameters
+                mLEqStrainParam = mParameters( 0 )( { 0, 0 }, { 1, mParameters( 0 ).numel() - 1 } );
+                mK              = mParameters( 0 )( 1 );
+
+                // set function pointer for evaluation of local equivalent strain
+                if ( mSpaceDim == 2 && mPlaneType == Model_Type::PLANE_STRESS )
+                {
+                    m_eval_equivalent_strain = &CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_DruckerPrager_2d_plane_stress;
+                    m_eval_dEqStraindu       = &CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_2d_plane_stress;
+                }
+                else if ( mSpaceDim == 2 && mPlaneType == Model_Type::PLANE_STRAIN )
+                {
+                    m_eval_equivalent_strain = &CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_DruckerPrager_2d_plane_strain;
+                    m_eval_dEqStraindu       = &CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_2d_plane_strain;
+                }
+                else if ( mSpaceDim == 3 )
+                {
+                    m_eval_equivalent_strain = &CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_DruckerPrager_3d;
+                    m_eval_dEqStraindu       = &CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_3d;
+                }
+                else
+                {
+                    MORIS_ERROR( false, "Unknown equivalent strain implementation based on Drucker Prager" );
+                }
+                break;
+            }
             default:
             {
                 MORIS_ERROR( false, "Unknown equivalent strain implementation." );
@@ -810,6 +842,87 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
+    CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_DruckerPrager_2d_plane_stress(
+            const Matrix< DDRMat >& aLEqStrainParam )
+    {
+        // grab Poisson's ratio value
+        real tNu = mPropPoisson->val()( 0 );
+
+        // unpack the strain components
+        real tEpsilon11 = this->strain()( 0 );
+        real tEpsilon22 = this->strain()( 1 );
+        real tEpsilon33 = -tNu * ( tEpsilon11 + tEpsilon22 ) / ( 1.0 - tNu );
+        real tEpsilon12 = this->strain()( 2 );
+
+        // unpack the square of the strain components
+        real tEpsilon1122Square = std::pow( tEpsilon11 - tEpsilon22, 2.0 );
+        real tEpsilon2233Square = std::pow( tEpsilon22 - tEpsilon33, 2.0 );
+        real tEpsilon3311Square = std::pow( tEpsilon33 - tEpsilon11, 2.0 );
+        real tEpsilon12Square   = std::pow( tEpsilon12, 2.0 );
+
+        // compute first invariant
+        real tI1 = tEpsilon11 + tEpsilon22 + tEpsilon33;
+
+        // compute second deviatoric invariant
+        real tJ2 = tEpsilon12Square + ( tEpsilon1122Square + tEpsilon2233Square + tEpsilon3311Square ) / 6.0;
+
+        // compute local equivalent strain
+        mEqStrain = mK * tI1 + std::max( std::sqrt( 3.0 * tJ2 ), mEpsilon );
+
+        // clean equivalent strain value FIXME
+        if ( mEqStrain( 0 ) < 0.0 )
+        {
+            mEqStrain = 0.0;
+        }
+    }
+
+    void
+    CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_DruckerPrager_2d_plane_strain(
+            const Matrix< DDRMat >& aLEqStrainParam )
+    {
+        MORIS_ERROR( false, "CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_deVree_2d_plane_strain - case not implemented." );
+    }
+
+    void
+    CM_Struc_Linear_Isotropic_Damage::eval_equivalent_strain_DruckerPrager_3d(
+            const Matrix< DDRMat >& aLEqStrainParam )
+    {
+        // unpack the strain components
+        real tEpsilon11 = this->strain()( 0 );
+        real tEpsilon22 = this->strain()( 1 );
+        real tEpsilon33 = this->strain()( 2 );
+        real tEpsilon12 = this->strain()( 5 );
+        real tEpsilon23 = this->strain()( 3 );
+        real tEpsilon31 = this->strain()( 4 );
+
+        // unpack the square of the strain components
+        real tEpsilon1122Square = std::pow( tEpsilon11 - tEpsilon22, 2.0 );
+        real tEpsilon2233Square = std::pow( tEpsilon22 - tEpsilon33, 2.0 );
+        real tEpsilon3311Square = std::pow( tEpsilon33 - tEpsilon11, 2.0 );
+        real tEpsilon12Square   = std::pow( tEpsilon12, 2.0 );
+        real tEpsilon23Square   = std::pow( tEpsilon23, 2.0 );
+        real tEpsilon31Square   = std::pow( tEpsilon31, 2.0 );
+
+        // compute first invariant
+        real tI1 = tEpsilon11 + tEpsilon22 + tEpsilon33;
+
+        // compute second deviatoric invariant
+        real tJ2 = ( ( tEpsilon1122Square + tEpsilon2233Square + tEpsilon3311Square ) / 6.0 )    //
+                 + tEpsilon12Square + tEpsilon23Square + tEpsilon31Square;
+
+        // compute local equivalent strain
+        mEqStrain = mK * tI1 + std::max( std::sqrt( 3.0 * tJ2 ), mEpsilon );
+
+        // clean equivalent strain value FIXME
+        if ( mEqStrain( 0 ) < 0.0 )
+        {
+            mEqStrain = 0.0;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
     CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu(
             const Vector< MSI::Dof_Type >& aDofTypes )
     {
@@ -1106,6 +1219,215 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
+    CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_2d_plane_stress(
+            const Vector< MSI::Dof_Type >& aDofTypes )
+    {
+        // get the dof type as a uint
+        const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+        // get the dof type index
+        const uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+        // get the derivative dof FI
+        Field_Interpolator* tFI =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // set the derivative size
+        mdEqStraindu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
+
+        // get the equivalent strain value
+        real tEqStrain = this->equivalent_strain()( 0 );
+
+        // check that the equivalent strain is nonzero
+        if ( tEqStrain > 0.0 )
+        {
+            // if derivative dof type is nonlocal equivalent strain
+            if ( aDofTypes( 0 ) == mDofDispl )
+            {
+                // grab Poisson's ratio value
+                real tNu = mPropPoisson->val()( 0 );
+
+                // unpack the strain components
+                real tEpsilon11 = this->strain()( 0 );
+                real tEpsilon22 = this->strain()( 1 );
+                real tEpsilon33 = -tNu * ( tEpsilon11 + tEpsilon22 ) / ( 1.0 - tNu );
+                real tEpsilon12 = this->strain()( 2 );
+
+                // unpack the strain components derivatives
+                const Matrix< DDRMat >& tdEpsilon11du = this->dStraindDOF( aDofTypes ).get_row( 0 );
+                const Matrix< DDRMat >& tdEpsilon22du = this->dStraindDOF( aDofTypes ).get_row( 1 );
+                const Matrix< DDRMat >& tdEpsilon33du = -tNu * ( tdEpsilon11du + tdEpsilon22du ) / ( 1.0 - tNu );
+                const Matrix< DDRMat >& tdEpsilon12du = this->dStraindDOF( aDofTypes ).get_row( 2 );
+
+                // unpack the difference of the strain components
+                real tEpsilon1122 = tEpsilon11 - tEpsilon22;
+                real tEpsilon2233 = tEpsilon22 - tEpsilon33;
+                real tEpsilon3311 = tEpsilon33 - tEpsilon11;
+
+                // unpack the square of the strain components
+                real tEpsilon1122Square = std::pow( tEpsilon1122, 2.0 );
+                real tEpsilon2233Square = std::pow( tEpsilon2233, 2.0 );
+                real tEpsilon3311Square = std::pow( tEpsilon3311, 2.0 );
+                real tEpsilon12Square   = std::pow( tEpsilon12, 2.0 );
+
+                // compute second deviatoric invariant
+                real tJ2 = tEpsilon12Square + ( tEpsilon1122Square + tEpsilon2233Square + tEpsilon3311Square ) / 6.0;
+
+                // compute dI1du
+                Matrix< DDRMat > dI1du = tdEpsilon11du + tdEpsilon22du + tdEpsilon33du;
+
+                mdEqStraindu( tDofIndex ) = mK * dI1du;
+
+                if ( std::sqrt( 3.0 * tJ2 ) > mEpsilon )
+                {
+                    // compute dJ2dEpsilonij
+                    real tdJ2dEpsilon11 = ( tEpsilon1122 - tEpsilon3311 ) / 3.0;
+                    real tdJ2dEpsilon22 = ( tEpsilon2233 - tEpsilon1122 ) / 3.0;
+                    real tdJ2dEpsilon33 = ( tEpsilon3311 - tEpsilon2233 ) / 3.0;
+                    real tdJ2dEpsilon12 = 2.0 * tEpsilon12;
+
+                    // compute dJ2du
+                    Matrix< DDRMat > dJ2du =                    //
+                            tdJ2dEpsilon11 * tdEpsilon11du      //
+                            + tdJ2dEpsilon22 * tdEpsilon22du    //
+                            + tdJ2dEpsilon33 * tdEpsilon33du    //
+                            + tdJ2dEpsilon12 * tdEpsilon12du;
+
+                    // compute the derivative of the local equivalent strain
+                    mdEqStraindu( tDofIndex ) += 3.0 * dJ2du / ( 2.0 * std::sqrt( 3.0 * tJ2 ) );
+                }
+
+                // if Poisson ratio property depends on dof type
+                if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR( false, "CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_deVree_2d_plane_stress - Poisson's ratio depends on dof, not handled." );
+                }
+            }
+            else
+            {
+                mdEqStraindu( tDofIndex ).fill( 0.0 );
+            }
+        }
+        else
+        {
+            mdEqStraindu( tDofIndex ).fill( 0.0 );
+        }
+    }
+
+    void
+    CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_2d_plane_strain(
+            const Vector< MSI::Dof_Type >& aDofTypes )
+    {
+        MORIS_ERROR( false, "CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_2d_plane_strain - case not implemented." );
+    }
+
+    void
+    CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_DruckerPrager_3d(
+            const Vector< MSI::Dof_Type >& aDofTypes )
+    {
+        // get the dof type as a uint
+        const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+        // get the dof type index
+        const uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+        // get the derivative dof FI
+        Field_Interpolator* tFI =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // set the derivative size
+        mdEqStraindu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
+
+        // get the equivalent strain value
+        real tEqStrain = this->equivalent_strain()( 0 );
+
+        // check that the equivalent strain is nonzero
+        if ( tEqStrain > 0.0 )
+        {
+            // if derivative dof type is nonlocal equivalent strain
+            if ( aDofTypes( 0 ) == mDofDispl )
+            {
+                // unpack the strain components
+                real tEpsilon11 = this->strain()( 0 );
+                real tEpsilon22 = this->strain()( 1 );
+                real tEpsilon33 = this->strain()( 2 );
+                real tEpsilon23 = this->strain()( 3 );
+                real tEpsilon31 = this->strain()( 4 );
+                real tEpsilon12 = this->strain()( 5 );
+
+                // unpack the strain components derivatives
+                const Matrix< DDRMat >& tdEpsilon11du = this->dStraindDOF( aDofTypes ).get_row( 0 );
+                const Matrix< DDRMat >& tdEpsilon22du = this->dStraindDOF( aDofTypes ).get_row( 1 );
+                const Matrix< DDRMat >& tdEpsilon33du = this->dStraindDOF( aDofTypes ).get_row( 2 );
+                const Matrix< DDRMat >& tdEpsilon23du = this->dStraindDOF( aDofTypes ).get_row( 3 );
+                const Matrix< DDRMat >& tdEpsilon31du = this->dStraindDOF( aDofTypes ).get_row( 4 );
+                const Matrix< DDRMat >& tdEpsilon12du = this->dStraindDOF( aDofTypes ).get_row( 5 );
+
+                // unpack the difference of the strain components
+                real tEpsilon1122 = tEpsilon11 - tEpsilon22;
+                real tEpsilon2233 = tEpsilon22 - tEpsilon33;
+                real tEpsilon3311 = tEpsilon33 - tEpsilon11;
+
+                // unpack the square of the strain components
+                real tEpsilon1122Square = std::pow( tEpsilon1122, 2.0 );
+                real tEpsilon2233Square = std::pow( tEpsilon2233, 2.0 );
+                real tEpsilon3311Square = std::pow( tEpsilon3311, 2.0 );
+                real tEpsilon12Square   = std::pow( tEpsilon12, 2.0 );
+                real tEpsilon23Square   = std::pow( tEpsilon23, 2.0 );
+                real tEpsilon31Square   = std::pow( tEpsilon31, 2.0 );
+
+                // compute second deviatoric invariant
+                real tJ2 = ( ( tEpsilon1122Square + tEpsilon2233Square + tEpsilon3311Square ) / 6.0 )    //
+                         + tEpsilon12Square + tEpsilon23Square + tEpsilon31Square;
+
+                // compute dI1du
+                Matrix< DDRMat > dI1du    = tdEpsilon11du + tdEpsilon22du + tdEpsilon33du;
+                mdEqStraindu( tDofIndex ) = mK * dI1du;
+
+                if ( std::sqrt( 3.0 * tJ2 ) > mEpsilon )
+                {
+                    // compute dJ2dEpsilonij
+                    real tdJ2dEpsilon11 = ( tEpsilon1122 - tEpsilon3311 ) / 3.0;
+                    real tdJ2dEpsilon22 = ( tEpsilon2233 - tEpsilon1122 ) / 3.0;
+                    real tdJ2dEpsilon33 = ( tEpsilon3311 - tEpsilon2233 ) / 3.0;
+                    real tdJ2dEpsilon12 = 2.0 * tEpsilon12;
+                    real tdJ2dEpsilon23 = 2.0 * tEpsilon23;
+                    real tdJ2dEpsilon31 = 2.0 * tEpsilon31;
+
+                    // compute dJ2du
+                    Matrix< DDRMat > dJ2du =                    //
+                            tdJ2dEpsilon11 * tdEpsilon11du      //
+                            + tdJ2dEpsilon22 * tdEpsilon22du    //
+                            + tdJ2dEpsilon33 * tdEpsilon33du    //
+                            + tdJ2dEpsilon12 * tdEpsilon12du    //
+                            + tdJ2dEpsilon23 * tdEpsilon23du    //
+                            + tdJ2dEpsilon31 * tdEpsilon31du;
+
+
+                    // compute the derivative of the local equivalent strain
+                    mdEqStraindu( tDofIndex ) += 3.0 * dJ2du / ( 2.0 * std::sqrt( 3.0 * tJ2 ) );
+                }
+
+                // if Poisson ratio property depends on dof type
+                if ( mPropPoisson->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR( false, "CM_Struc_Linear_Isotropic_Damage::eval_dEqStraindu_deVree_3d - Poisson's ratio depends on dof, not handled." );
+                }
+            }
+            else
+            {
+                mdEqStraindu( tDofIndex ).fill( 0.0 );
+            }
+        }
+        else
+        {
+            mdEqStraindu( tDofIndex ).fill( 0.0 );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
     CM_Struc_Linear_Isotropic_Damage::eval_damage()
     {
         // call function pointer for evaluation
@@ -1354,6 +1676,13 @@ namespace moris::fem
 
         // get the dof type index
         const uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+        // get the derivative dof FI
+        Field_Interpolator* tFI =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // set the derivative size
+        mdSmoothDamagedu( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
         // no smoothing and smooth damage is equal to damage
         real tDamage = this->damage()( 0 );

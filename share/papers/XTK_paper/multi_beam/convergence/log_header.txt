@@ -1,5 +1,5 @@
 Global Clock Initialized ... 
-Memory usage in MB: total 74 | max 74 | min 74 || current 74 | max 74 | min 74
+Memory usage in MB: total 171 | max 171 | min 171 || current 171 | max 171 | min 171
 
             .___  ___.   ______   .______       __       _______.
             |   \/   |  /  __  \  |   _  \     |  |     /       |
@@ -14,18 +14,18 @@ Memory usage in MB: total 74 | max 74 | min 74 || current 74 | max 74 | min 74
 
      DEBUG flags are OFF.
 
-     User/Host    : wunsch at mirage.colorado.edu ( linux / x86_64 )
+     User/Host    : maute at pegasus.colorado.edu ( linux / x86_64-linux )
      CPU Info     : AMD Ryzen 9 5950X 16-Core Processor 
      Procs Used   : 1 
 
-     Build Date   : Oct 24 2024 at 14:08:13
-     Date of Run  : Tue Nov  5 13:06:48 2024
+     Build Date   : Apr 18 2025 at 11:11:35
+     Date of Run  : Thu Apr 24 14:10:40 2025
  
      Matrix Lib   : Armadillo
 
-     Executable   : /home/wunsch/codes/moris/build_opt/projects/mains/moris
+     Executable   : /home/maute/codes/moris/build_opt/projects/mains/moris
      Arguments    : ./Multi_Beam_Reference.so
-     Run Dir      : /home/wunsch/work/XTK_Paper/multi_beam/convergence_study_v3/Enrichment_true/Reference_Solution
+     Run Dir      : /home/maute/work/Nils/for_Kurt/Enrichment_false/Reference_Solution
 
      GIT branch   : refs/heads/main
-     GIT revision : 79a60968133f39e8f10f85228da1185733ae22e9
+     GIT revision : 5610abcdbdab03e0dfe3d0bb08907f7998a706bf
