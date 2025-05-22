@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
-#define SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Edge.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -4504,5 +4503,3 @@ namespace moris::hmr
 #include "fn_HMR_Background_Element_Neighbors_2D.hpp"
 #include "fn_HMR_Background_Element_Neighbors_3D.hpp"
 #include "fn_HMR_Background_Element_Edges_3D.hpp"
-
-#endif /* SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_ */

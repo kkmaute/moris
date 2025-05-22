@@ -71,17 +71,14 @@ namespace moris
     uint tNumConstraints = 3;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "4,4,4" : "4,4";
-    std::string tDimensions        = tIs3D ? "1,1,1" : "1,1";
-    std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
-    std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
+    Vector< uint > tNumElementsPerDir( 2 + tIs3D, 4 );
+    Vector< real > tDimensions( 2 + tIs3D, 1.0 );
 
     int tRefineBuffer = 0;
 
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = "1";
     std::string tBsplineOrder    = "1";
-    std::string tInitialRef      = "1";
     std::string tLagrangePattern = "0";
 
     int tDispOrder = 1;
@@ -255,8 +252,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDimensions );
-        aParameterLists.set( "domain_offset", tOffSet );
-        aParameterLists.set( "domain_sidesets", tSideSets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tLagrangeOrder );
@@ -265,19 +260,14 @@ namespace moris
         aParameterLists.set( "bspline_orders", tBsplineOrder );
         aParameterLists.set( "bspline_pattern", "0" );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "pattern_initial_refinement", 1 );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
 
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
         aParameterLists.set( "severity_level", 0 );
     }
 
@@ -288,8 +278,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "multigrid", false );
         aParameterLists.set( "verbose", true );
@@ -446,7 +434,7 @@ namespace moris
             aParameterLists.set( "stabilization_parameters", std::string( "SPGhost_Material,GhostSP" ) );
             aParameterLists.set( "ghost_order", (uint)tDispOrder );
             aParameterLists.set( "mesh_set_names", tMaterialGhost );
-            }
+        }
 
         //------------------------------------------------------------------------------
         aParameterLists( FEM::IQI ).add_parameter_list();
@@ -474,7 +462,7 @@ namespace moris
             aParameterLists.set( "dof_quantity", tDofStrg );
             aParameterLists.set( "vectorial_field_index", 2 );
             aParameterLists.set( "mesh_set_names", tTotalDomainSets );
-            }
+        }
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkStrainEnergy" );
@@ -559,14 +547,14 @@ namespace moris
             aParameterLists.set( "Field_Names", std::string( "UX,UY,UZ,StrainEnergy,StrainEnergyWithBedding,Volume" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkUZ,IQIBulkStrainEnergy,"
-                                                                    "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
+                                                           "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
         }
         else
         {
             aParameterLists.set( "Field_Names", std::string( "UX,UY,StrainEnergy,StrainEnergyWithBedding,Volume" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkStrainEnergy,"
-                                                                    "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
+                                                           "IQIBulkStrainEnergyWithBedding,IQIBulkVolume" ) );
         }
 
         aParameterLists.set( "Save_Frequency", 1 );
@@ -581,7 +569,7 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    void create_petsc_parameter_list( Module_Parameter_Lists & aParameterLists )
+    void create_petsc_parameter_list( Module_Parameter_Lists& aParameterLists )
     {
 
         aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::PETSC );
@@ -592,17 +580,17 @@ namespace moris
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type", sol::MapType::Petsc );
         // aParameterLists.set( "SOL_save_operator_to_matlab", "jacc_par" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
         aParameterLists.set( "PCType", "mumps" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void create_trilinos_parameter_list( Module_Parameter_Lists & aParameterLists )
+    void create_trilinos_parameter_list( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

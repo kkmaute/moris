@@ -12,18 +12,15 @@
 #define SRC_CL_VIS_ENUMS_HPP_
 
 #include "cl_Map.hpp"
+#include "fn_enum_macros.hpp"
 
 namespace moris::vis
 {
-    enum class VIS_Mesh_Type
-    {
-        UNDEFINED,
+    ENUM_MACRO( VIS_Mesh_Type,
         STANDARD,
         STANDARD_WITH_OVERLAP,
         FULL_DISCONTINUOUS,
-        FULL_DISCONTINUOUS_WITH_OVERLAP,
-        END_ENUM    //
-    };
+        FULL_DISCONTINUOUS_WITH_OVERLAP )
 
     enum class Field_Type
     {

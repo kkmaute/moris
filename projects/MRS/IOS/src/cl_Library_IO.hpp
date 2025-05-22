@@ -65,9 +65,6 @@ namespace moris
         // XML parser for output
         std::unique_ptr< XML_Parser > mXmlWriter;
 
-        // list of parameter lists supported by the particular workflow
-        std::set< Module_Type > mSupportedParamListTypes;
-
         // -----------------------------------------------------------------------------
 
         /**
@@ -158,11 +155,6 @@ namespace moris
          * @param aFilePath Optional file path/name for printing out an XML parameter receipt
          */
         void finalize( const std::string& aFilePath = "" );
-
-        /**
-         * @brief fills the member parameter lists with the standard parameters for all modules
-         */
-        virtual void load_all_standard_parameters() = 0;
 
         /**
          * @brief loads parameters from an shared object library and overwrites any previously specified parameters by it
@@ -287,22 +279,14 @@ namespace moris
                 const External_Validator& aExternalValidator,
                 const Parameter_List&     aContainingParameterList );
 
-        /**
-         * @brief Checks whether a string has a certain ending. Good for checking file types.
-         *
-         * @param aString string to check the ending of
-         * @param aEnding ending to check for
-         * @return true/false whether this string has this ending
-         */
-        bool
-        string_ends_with(
-                std::string const & aString,
-                std::string const & aEnding )
-        {
-            return aString.substr( aString.length() - aEnding.length() ) == aEnding;
-        }
+      private:
 
-        // -----------------------------------------------------------------------------
+        /**
+         * Gets if a given module is being supported by the current library.
+         *
+         * @return If module is supported
+         */
+        virtual bool is_module_supported( Module_Type aModuleType ) = 0;
 
     };    // class Library_IO
 
@@ -310,6 +294,18 @@ namespace moris
 
     // FREE FUNCTIONS
     // These are for reading parameter lists from xml files and set to the correct type
+
+    /**
+     * @brief Checks whether a string has a certain ending. Good for checking file types.
+     *
+     * @param aString string to check the ending of
+     * @param aEnding ending to check for
+     * @return true/false whether this string has this ending
+     */
+    bool
+    string_ends_with(
+            std::string const & aString,
+            std::string const & aEnding );
 
     /**
      * @brief get_subchild_index_from_xml_list - Get the index of the sub-module type from the XML file
@@ -332,7 +328,7 @@ namespace moris
 
     template<>
     bool convert_parameter_from_string_to_type< bool >( const std::string& aString );
-    
+
     bool endswith( const std::string &aString, const std::string &aEnding );
 
     /**
@@ -363,10 +359,10 @@ namespace moris
     Parameter_List create_parameter_list( Module_Type aModule, uint aChild, uint aSubChild );
 
     /**
-     * 
+     *
      */
     void set_new_parameter( Parameter& aParameter, std::string& aKey, const std::string& aValue );
 
-    void set_parameter_list ( Parameter_List& tParameterList, Vector< std::string >& aKeys, Vector< std::string >& aValues );   
+    void set_parameter_list ( Parameter_List& tParameterList, Vector< std::string >& aKeys, Vector< std::string >& aValues );
 
 }    // namespace moris

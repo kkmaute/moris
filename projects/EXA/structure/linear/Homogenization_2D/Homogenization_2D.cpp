@@ -82,10 +82,8 @@
         /* ------------------------------------------------------------------------ */
         // HMR parameters
 
-        std::string tNumElemsPerDim     = "10, 10";
-        std::string tDomainDims         = "1.0, 1.0";
-        std::string tDomainOffset       = "0, 0";
-        std::string tDomainSidesets     = "1,2,3,4";
+        Vector< uint > tNumElemsPerDim     = { 10, 10 };
+        Vector< real > tDomainDims         = { 1.0, 1.0 };
 
         std::string tEigenStrain  = "1.0;0.0;0.0";
 
@@ -179,8 +177,6 @@
 
             aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
             aParameterLists.set( "domain_dimensions",                tDomainDims );
-            aParameterLists.set( "domain_offset",                    tDomainOffset );
-            aParameterLists.set( "domain_sidesets",                  tDomainSidesets);
             aParameterLists.set( "lagrange_output_meshes",           "0");
 
             aParameterLists.set( "lagrange_orders",  std::to_string( 1 ));
@@ -190,17 +186,8 @@
 
             aParameterLists.set( "lagrange_to_bspline", "0") ;
 
-            aParameterLists.set( "truncate_bsplines",  1 );
             aParameterLists.set( "refinement_buffer",  tRefineBuffer );
             aParameterLists.set( "staircase_buffer",   tRefineBuffer );
-            aParameterLists.set( "initial_refinement", "0" );
-            aParameterLists.set( "initial_refinement_pattern", "0" );
-
-            aParameterLists.set( "use_number_aura", 1);
-
-            aParameterLists.set( "use_multigrid",  0 );
-            aParameterLists.set( "severity_level", 0 );
-
         }
 
         void XTKParameterList( Vector< Vector< ParameterList > > & aParameterLists )
@@ -209,8 +196,6 @@
             aParameterLists( 0 ).push_back( prm::create_xtk_parameter_list() );;
             aParameterLists.set( "decompose",                 true );
             aParameterLists.set( "decomposition_type",        "conformal") ;
-            aParameterLists.set( "enrich",                    true );
-            aParameterLists.set( "basis_rank",                "bspline") ;
             aParameterLists.set( "enrich_mesh_indices",       "0") ;
             aParameterLists.set( "ghost_stab",                tUseGhost );
             aParameterLists.set( "multigrid",                 false );

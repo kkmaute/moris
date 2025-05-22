@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_DOC_CL_HMR_SIDE_SET_HPP_
-#define PROJECTS_HMR_SRC_DOC_CL_HMR_SIDE_SET_HPP_
+#pragma once
 
 #include <string>
 
@@ -29,6 +28,3 @@ namespace moris::hmr
     };
 
 }
-
-#endif /* PROJECTS_HMR_SRC_DOC_CL_HMR_SIDE_SET_HPP_ */
-

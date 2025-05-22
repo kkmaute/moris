@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_FN_HMR_CALCULATE_BASIS_IDENTIFIER_HPP
-#define MORIS_FN_HMR_CALCULATE_BASIS_IDENTIFIER_HPP
+#pragma once
 
 #include "moris_typedefs.hpp"
 
@@ -42,5 +41,3 @@ namespace moris::hmr
         return tIdentifier;
     }
 }
-
-#endif //MORIS_FN_HMR_CALCULATE_BASIS_IDENTIFIER_HPP

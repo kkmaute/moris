@@ -116,10 +116,10 @@ namespace moris
     std::string tPcmGhost = "ghost_p1";
 
     // HMR parameters -------------------------------------------------
-    // std::string tNumElemsPerDim = "2, 16";
-    std::string tNumElemsPerDim = "1, 40";
-    std::string tDomainDims     = "0.16, 0.6";
-    std::string tDomainOffset   = "-0.0342356,-0.031345";
+    // Vector< uint > tNumElemsPerDim = "2, 16";
+    Vector< uint > tNumElemsPerDim = { 1, 40 };
+    Vector< real > tDomainDims     = { 0.16, 0.6 };
+    Vector< real > tDomainOffset   = { -0.0342356, -0.031345 };
 
     //------------------------------------------------------------------------------
     //-------------------------------- FUNCTIONS -----------------------------------
@@ -251,7 +251,6 @@ namespace moris
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
         aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", "1" );
@@ -261,15 +260,8 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 0 );
         aParameterLists.set( "staircase_buffer", 0 );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-
         aParameterLists.set( "adaptive_refinement_level", 0 );
     }
 
@@ -294,8 +286,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", true );
         aParameterLists.set( "multigrid", false );

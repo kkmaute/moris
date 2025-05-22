@@ -51,20 +51,20 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            Matrix< DDLUMat > tNumberOfElements;
+            Vector< uint > tNumberOfElements;
 
             // set element size
             if ( par_size() == 1 )
             {
-                tNumberOfElements.set_size( tDimension, 1, 2 );
+                tNumberOfElements.resize( tDimension, 2 );
             }
             else if ( par_size() == 2 )
             {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
+                tNumberOfElements.resize( tDimension, 6 );
             }
             else if ( par_size() == 4 )
             {
-                tNumberOfElements.set_size( tDimension, 1, 6 );
+                tNumberOfElements.resize( tDimension, 6 );
             }
 
             // set values to parameters
@@ -74,11 +74,11 @@ namespace moris::hmr
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 }, { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+            tParameters.set_lagrange_orders( { 1, 1 } );
+            tParameters.set_lagrange_patterns( { 0, 1 } );
 
-            tParameters.set_bspline_orders( { { 1 }, { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 }, { 1 } } );
+            tParameters.set_bspline_orders( { 1, 1 } );
+            tParameters.set_bspline_patterns( { 0, 1 } );
 
             tParameters.set_refinement_buffer( 1 );
             tParameters.set_staircase_buffer( 1 );
@@ -182,13 +182,12 @@ namespace moris::hmr
             //------------------------------------------------------------------------------
 
             // The parameter object controls the behavior of HMR.
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-            tParameters.set( "number_of_elements_per_dimension", "6, 6, 6" );
-            tParameters.set( "domain_dimensions", "6, 6, 6" );
-            tParameters.set( "domain_offset", "-3.0, -3.0, -3.0" );
+            tParameters.set( "number_of_elements_per_dimension", 6, 6, 6 );
+            tParameters.set( "domain_dimensions", 6.0, 6.0, 6.0 );
+            tParameters.set( "domain_offset", -3.0, -3.0, -3.0 );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "lagrange_orders", "1" );
             tParameters.set( "lagrange_pattern", "0" );
             tParameters.set( "bspline_orders", "1" );
@@ -198,7 +197,6 @@ namespace moris::hmr
 
             tParameters.set( "lagrange_to_bspline", "0" );
 
-            tParameters.set( "use_multigrid", 0 );
 
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
@@ -209,6 +207,7 @@ namespace moris::hmr
 
             // create the HMR object by passing the settings to the constructor
             HMR tHMR( tParameters );
+            tHMR.get_parameters()->set_create_side_sets( false );
 
             // std::shared_ptr< Database >
             auto tDatabase = tHMR.get_database();
@@ -236,23 +235,31 @@ namespace moris::hmr
             //------------------------------------------------------------------------------
 
             // The parameter object controls the behavior of HMR.
-            Parameter_List tParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 2" );
-
-            tParameters.set( "truncate_bsplines", 1 );
-            tParameters.set( "lagrange_orders", "1, 1" );
-            tParameters.set( "lagrange_pattern", "0, 1" );
-            tParameters.set( "bspline_orders", "1, 1, 1, 2" );
-            tParameters.set( "bspline_pattern", "0, 0, 1, 1" );
+            tParameters.set( "number_of_elements_per_dimension", 2, 2 );
 
             tParameters.set( "union_pattern", 2 );
+            
+            tParameters( moris::HMR::LAGRANGE_MESHES ).add_parameter_list();
+            
+            tParameters( moris::HMR::LAGRANGE_MESHES ).add_parameter_list();
+            tParameters.set( "pattern_index", 1 );
 
-            tParameters.set( "lagrange_to_bspline", "0, 1; 2, 3" );
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
 
-            tParameters.set( "use_multigrid", 0 );
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
 
-            tParameters.set( "refinement_buffer", 1 );
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
+            tParameters.set( "pattern_index", 1 );
+            tParameters.set( "paired_lagrange_mesh_index", 1 );
+
+            tParameters( moris::HMR::BSPLINE_MESHES ).add_parameter_list();
+            tParameters.set( "pattern_index", 1 );
+            tParameters.set( "orders", 2 );
+            tParameters.set( "paired_lagrange_mesh_index", 1 );
+
+            tParameters( moris::HMR::GENERAL ).set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
 
             //------------------------------------------------------------------------------
@@ -261,6 +268,7 @@ namespace moris::hmr
 
             // create the HMR object by passing the settings to the constructor
             HMR tHMR( tParameters );
+            tHMR.get_parameters()->set_create_side_sets( false );
 
             // std::shared_ptr< Database >
             auto tDatabase = tHMR.get_database();
@@ -355,17 +363,17 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements;
 
             // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 2 }, { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+            tParameters.set_lagrange_orders( { 2, 1 } );
+            tParameters.set_lagrange_patterns( { 0, 1 } );
 
-            tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { 2 } } );
-            tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
+            tParameters.set_bspline_orders( { 1, 1, 1, 2 } );
+            tParameters.set_bspline_patterns( { 0, 0, 1, 1 } );
 
             tParameters.set_union_pattern( 2 );
 
@@ -477,17 +485,17 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements;
 
             // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 }, { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+            tParameters.set_lagrange_orders( { 1, 1 } );
+            tParameters.set_lagrange_patterns( { 0, 1 } );
 
-            tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { 2 } } );
-            tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
+            tParameters.set_bspline_orders( { 1, 1, 1, 2 } );
+            tParameters.set_bspline_patterns( { 0, 0, 1, 1 } );
 
             tParameters.set_union_pattern( 2 );
 
@@ -608,17 +616,17 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements;
 
             // set values to parameters
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 2 }, { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+            tParameters.set_lagrange_orders( { 2, 1 } );
+            tParameters.set_lagrange_patterns( { 0, 1 } );
 
-            tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { 2 } } );
-            tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
+            tParameters.set_bspline_orders( { 1, 1, 1, 2 } );
+            tParameters.set_bspline_patterns( { 0, 0, 1, 1 } );
 
             tParameters.set_union_pattern( 2 );
 
@@ -734,33 +742,33 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< uint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 2 );
+                        tNumberOfElements.resize( tDimension, 2 );
                     }
                     else if ( par_size() == 2 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
                     else if ( par_size() == 4 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
                     tParameters.set_bspline_truncation( true );
 
-                    tParameters.set_lagrange_orders( { { tOrder }, { tOrder } } );
-                    tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+                    tParameters.set_lagrange_orders( { tOrder, tOrder } );
+                    tParameters.set_lagrange_patterns( { 0, 1 } );
 
-                    tParameters.set_bspline_orders( { { tOrder }, { 2 }, { tOrder }, { 2 } } );
-                    tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
+                    tParameters.set_bspline_orders( { tOrder, 2, tOrder, 2 } );
+                    tParameters.set_bspline_patterns( { 0, 0, 1, 1 } );
 
                     tParameters.set_union_pattern( 2 );
 
@@ -879,33 +887,33 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< uint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 2 );
+                        tNumberOfElements.resize( tDimension, 2 );
                     }
                     else if ( par_size() == 2 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
                     else if ( par_size() == 4 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
                     tParameters.set_bspline_truncation( true );
 
-                    tParameters.set_lagrange_orders( { { tOrder }, { tOrder } } );
-                    tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+                    tParameters.set_lagrange_orders( { tOrder, tOrder } );
+                    tParameters.set_lagrange_patterns( { 0, 1 } );
 
-                    tParameters.set_bspline_orders( { { 1 }, { tOrder }, { 1 }, { tOrder } } );
-                    tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
+                    tParameters.set_bspline_orders( { 1, tOrder, 1, tOrder } );
+                    tParameters.set_bspline_patterns( { 0, 0, 1, 1 } );
 
                     tParameters.set_union_pattern( 2 );
 
@@ -1025,33 +1033,33 @@ namespace moris::hmr
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< uint > tNumberOfElements;
 
                     // set element size
                     if ( par_size() == 1 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 2 );
+                        tNumberOfElements.resize( tDimension, 2 );
                     }
                     else if ( par_size() == 2 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
                     else if ( par_size() == 4 )
                     {
-                        tNumberOfElements.set_size( tDimension, 1, 6 );
+                        tNumberOfElements.resize( tDimension, 6 );
                     }
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
                     tParameters.set_bspline_truncation( true );
 
-                    tParameters.set_lagrange_orders( { { 1 }, { tOrder } } );
-                    tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
+                    tParameters.set_lagrange_orders( { 1, tOrder } );
+                    tParameters.set_lagrange_patterns( { 0, 1 } );
 
-                    tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { tOrder } } );
-                    tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
+                    tParameters.set_bspline_orders( { 1, 1, 1, tOrder } );
+                    tParameters.set_bspline_patterns( { 0, 0, 1, 1 } );
 
                     tParameters.set_union_pattern( 2 );
 
@@ -1171,8 +1179,6 @@ namespace moris::hmr
         // do this test for 2 and 3 dimensions
         if ( par_size() == 1 )
         {
-            uint tDimension = 2;
-
             //------------------------------------------------------------------------------
             //  HMR Parameters setup
             //------------------------------------------------------------------------------
@@ -1180,30 +1186,23 @@ namespace moris::hmr
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
-            // set values to parameters
-            Matrix< DDLUMat > tNumberOfElements;
-
-            // set element size
-            tNumberOfElements.set_size( tDimension, 1, 2 );
-
-            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 2 } } );
-            tParameters.set_bspline_patterns( { { 1 } } );
+            tParameters.set_bspline_orders( { 2 } );
+            tParameters.set_bspline_patterns( { 1 } );
 
             tParameters.set_union_pattern( 2 );
 
             tParameters.set_staircase_buffer( 2 );
 
-            tParameters.set_initial_refinement( { { 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 1 } );
 
             tParameters.set_number_aura( false );
 

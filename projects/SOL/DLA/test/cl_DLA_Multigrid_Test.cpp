@@ -94,7 +94,7 @@ namespace moris
 
             // create parameter object
             moris::hmr::Parameters tParameters;
-            tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
+            tParameters.set_number_of_elements_per_dimension( 2, 2 );
 
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( true );
@@ -102,11 +102,11 @@ namespace moris
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );
@@ -504,7 +504,7 @@ namespace moris
 
             // create parameter object
             moris::hmr::Parameters tParameters;
-            tParameters.set_number_of_elements_per_dimension( { { 4 }, { 4 }, { 4 } } );
+            tParameters.set_number_of_elements_per_dimension( 4, 4, 4 );
 
             tParameters.set_severity_level( 0 );
             tParameters.set_multigrid( true );
@@ -512,11 +512,11 @@ namespace moris
 
             tParameters.set_output_meshes( { { 0 } } );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_union_pattern( 2 );
             tParameters.set_working_pattern( 3 );

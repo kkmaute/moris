@@ -1,0 +1,40 @@
+--------------------------------------------------------------------------
+WARNING: There is at least one non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: c3mem-a9-u7-4
+--------------------------------------------------------------------------
+Global Clock Initialized ... 
+Memory usage in MB: total 3679 | max 59 | min 57 || current 3695 | max 60 | min 58
+
+            .___  ___.   ______   .______       __       _______.
+            |   \/   |  /  __  \  |   _  \     |  |     /       |
+            |  \  /  | |  |  |  | |  |_)  |    |  |    |   (----`
+            |  |\/|  | |  |  |  | |      /     |  |     \   \
+            |  |  |  | |  `--'  | |  |\  \----.|  | .----)   |
+            |__|  |__|  \______/  | _| `._____||__| |_______/
+
+                   2023 University of Colorado Boulder
+                        Aerospace Mechanics Research Center
+
+
+     DEBUG flags are OFF.
+
+     User/Host    : NA at NA ( NA / NA )
+     CPU Info     : AMD EPYC 7713 64-Core Processor 
+     Procs Used   : 64 
+
+     Build Date   : Sep  8 2024 at 17:36:26
+     Date of Run  : Fri Sep 13 10:24:05 2024
+ 
+     Matrix Lib   : Armadillo
+
+     Executable   : /gpfs/alpine1/scratch/niwu6047/codes/moris/build_opt/projects/mains/moris
+     Arguments    : ./nTop_Sandwich.so
+     Run Dir      : /gpfs/alpine1/scratch/niwu6047/work/XTK_Paper/nTop_Sandwich/study_4_amem/v1/strong_scaling/np_64
+
+     GIT branch   : refs/heads/main
+     GIT revision : 73a414c5a0c5a90ce083fa5963f0d521bb60d328

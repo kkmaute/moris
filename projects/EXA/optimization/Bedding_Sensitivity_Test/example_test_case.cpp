@@ -402,7 +402,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     MORIS_LOG_INFO( "Executing Bedding Sensitivity Test - 2D - %i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
-    if ( par_size() == 2 )
+    if ( par_size() == 1 )
     {
         // set test case index
         gTestCaseIndex = 0;

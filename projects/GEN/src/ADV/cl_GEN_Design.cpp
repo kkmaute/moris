@@ -16,8 +16,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Parameters::Design_Parameters( const Parameter_List& aParameterList )
-            : mNumberOfRefinements( aParameterList.get< Vector< uint > >( "number_of_refinements" ) )
-            , mRefinementMeshIndices( aParameterList.get< Vector< uint > >( "refinement_mesh_index" ) )
+            : mNumberOfRefinements( aParameterList.get_vector< uint >( "number_of_refinements" ) )
+            , mRefinementMeshIndices( aParameterList.get_vector< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
     {
     }

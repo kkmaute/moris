@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Background_Mesh_Base.hpp"
@@ -407,10 +406,10 @@ namespace moris::hmr
         calculate_node_coordinates() override
         {
             // get domain dimensions from settings
-            Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
+            const Vector< real >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+            const Vector< uint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate step width
             real tDeltaX[ gMaxNumberOfLevels ][ N ];
@@ -431,7 +430,7 @@ namespace moris::hmr
             }
 
             // get domain offset
-            Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+            Vector< real > tParametersOffset = mParameters->get_domain_offset();
 
             // domain offset
             real tOffset[ N ];
@@ -485,7 +484,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void
-        calculate_t_matrices( const bool aBool ) override
+        calculate_t_matrices( bool aBool ) override
         {
             // log & trace this operation
             Tracer tTracer( "HMR", "Lagrange Mesh #" + std::to_string( this->get_index() ), "Compute T-matrices" );
@@ -526,11 +525,11 @@ namespace moris::hmr
 
         void
         get_extended_t_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aBSplineCellIndex,
-                Element&                                    aLagrangeCell,
+                moris_index                       aDiscretizationMeshIndex,
+                moris_index                       aBSplineCellIndex,
+                Element&                          aLagrangeCell,
                 Vector< Vector< mtk::Vertex* > >& aBsplineBasis,
-                Vector< Matrix< DDRMat > >&            aWeights ) override
+                Vector< Matrix< DDRMat > >&       aWeights ) override
         {
             // get B-Spline pattern of this mesh
             uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
@@ -555,12 +554,12 @@ namespace moris::hmr
 
         void
         get_L2_projection_matrix(
-                moris_index                                       aDiscretizationMeshIndex,
-                const Element*                                    aRootBSplineCell,
-                const Element*                                    aExtendedBSplineCell,
+                moris_index                             aDiscretizationMeshIndex,
+                const Element*                          aRootBSplineCell,
+                const Element*                          aExtendedBSplineCell,
                 Vector< Vector< const mtk::Vertex* > >& aRootBsplineBasis,
-                Vector< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                Vector< Matrix< DDRMat > >&                  aWeights ) override
+                Vector< const mtk::Vertex* >&           aExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&             aWeights ) override
         {
             // ask the t-matrix object to compute the weights
             mTMatrix( aDiscretizationMeshIndex )->evaluate_L2_projection( aRootBSplineCell, aExtendedBSplineCell, aRootBsplineBasis, aExtendedBsplineBasis, aWeights );
@@ -830,5 +829,3 @@ namespace moris::hmr
     }
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_ */

@@ -59,10 +59,8 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // HMR parameters
 
-    std::string tNumElemsPerDim     = "20, 20";
-    std::string tDomainDims         = "1.0, 1.0";
-    std::string tDomainOffset       = "0.0, 0.0";
-    std::string tDomainSidesets     = "1,2,3,4";
+    Vector< uint > tNumElemsPerDim     = { 20, 20 };
+    Vector< real > tDomainDims         = { 1.0, 1.0 };
     std::string tInterpolationOrder = "1";
 
     int tRefineBuffer = 1;
@@ -361,8 +359,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tDomainDims );
-        aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", tDomainSidesets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tInterpolationOrder );
@@ -372,16 +368,8 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
         //
         //        aParameterLists.set( "lagrange_input_meshes", "0");
     }
@@ -393,8 +381,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );

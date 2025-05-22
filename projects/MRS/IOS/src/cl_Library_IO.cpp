@@ -33,7 +33,6 @@ namespace moris
             , mXmlParserIsInitialized( false )
             , mLibraryIsFinalized( false )
             , mXmlWriter( std::make_unique< XML_Parser >() )
-            , mSupportedParamListTypes()
     {
         for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Module_Type::END_ENUM ); iTypeIndex++ )
         {
@@ -120,7 +119,7 @@ namespace moris
         {
             // TODO if we want to handle this again, give to the module parameter list for copying
             MORIS_ERROR( false, "Parameter lists are not the same size" );
-            // aParamListToModify.resize( tOuterSizeToAdd );
+            //aParamListToModify.resize( tOuterSizeToAdd );
         }
 
         // resize the inner cells, if the parameter lists to add are longer than the original ones
@@ -260,9 +259,6 @@ namespace moris
                 "Library_IO_Standard::finalize() - Neither an .xml nor a .so input file has been specified. "
                 "At least one input file is required." );
 
-        // load the standard parameters into the member variables
-        this->load_all_standard_parameters();
-
         // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
         if ( mSoLibIsInitialized )
         {
@@ -304,7 +300,7 @@ namespace moris
 
             // see if a function for this parameter list function exists in the provide input file
             Parameter_Function tUserDefinedParamListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
-            bool               tParamListFuncExists      = ( tUserDefinedParamListFunc != nullptr );
+            bool               tParamListFuncExists     = ( tUserDefinedParamListFunc != nullptr );
 
             // if the parameter list function exists, use it to overwrite and add to the standard parameters
             if ( tParamListFuncExists )
@@ -312,14 +308,14 @@ namespace moris
                 // log that the parameter list has been recognized
                 MORIS_LOG( "Parameters for %s provided in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
 
-                // throw out a warning if unknown parameter list types are used
-                if ( mSupportedParamListTypes.find( tParamListType ) == mSupportedParamListTypes.end() )
-                {
-                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
-                }
-                else    // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
+                // if parameter list is supported, overwrite and add parameters to standard parameters
+                if ( is_module_supported( tParamListType ) )
                 {
                     tUserDefinedParamListFunc( mParameterLists( iParamListType ) );
+                }
+                else    // otherwise, throw out a warning if unknown parameter list types are used
+                {
+                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
                 }
             }
             else
@@ -858,8 +854,14 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
-
     // FREE FUNCTIONS
+
+    bool string_ends_with(
+            const std::string& aString,
+            const std::string& aEnding )
+    {
+        return aString.substr( aString.length() - aEnding.length() ) == aEnding;
+    }
 
     /**
      * @brief get_subchild_index_from_xml_list - Get the index of the sub-module type from the XML file
@@ -975,10 +977,10 @@ namespace moris
      */
 
     Parameter_List create_and_set_parameter_list( Module_Type aModule,
-            uint                                              aChild,
-            uint                                              aSubChild,
-            Vector< std::string >&                            aKeys,
-            Vector< std::string >&                            aValues )
+            uint                                                      aChild,
+            uint                                                      aSubChild,
+            const Vector< std::string >&                              aKeys,
+            const Vector< std::string >&                              aValues )
     {
         // If aModule is GEN and aChild is (uint) GEOMETRIES and and if aKeys contains a string called "lower_bound_x" then create a field array parameter list
         if ( aModule == Module_Type::GEN && aChild == (uint)GEN_Submodule::GEOMETRIES  && std::find( aKeys.begin(), aKeys.end(), "lower_bound_x" ) != aKeys.end() )
@@ -1001,7 +1003,7 @@ set_parameter_list( tParameterList, aKeys, aValues );
         // Instead of looping through iElements, the following for loop should loop over the keys and check that against the parameter list
         // If the key is found in the parameter list, then set the value of the parameter list with the value from the XML file
 
-        
+
     }
 
     void set_parameter_list( Parameter_List& tParameterList,

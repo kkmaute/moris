@@ -59,9 +59,9 @@ namespace moris
     {
         return convert_parameter_list_enum_to_string( aParameterListType ) + "ParameterList";
     }
-    
+
     // -----------------------------------------------------------------------------
-    
+
     Vector< std::string > get_submodule_names( Module_Type aModuleType )
     {
         // get the names of the sub-parameter lists for each of the modules
@@ -69,6 +69,9 @@ namespace moris
         {
             case Module_Type::OPT:
                 return OPT_Submodule_String::values;
+
+            case Module_Type::HMR:
+                return HMR_Submodule_String::values;
 
             case Module_Type::GEN:
                 return GEN_Submodule_String::values;
@@ -82,7 +85,7 @@ namespace moris
             case Module_Type::MORISGENERAL:
                 // needs reworking anyways
                 return { "Remeshing", "Refinement", "Mapping" };
-                
+
             case Module_Type::END_ENUM:
                 return {};
 
@@ -117,7 +120,8 @@ namespace moris
                 break;
 
             case Module_Type::HMR:
-                break;    // standard name
+                tNames = { "General", "LagrangeMeshes", "BSplineMeshes" };
+                break;
 
             case Module_Type::STK:
                 break;    // standard name

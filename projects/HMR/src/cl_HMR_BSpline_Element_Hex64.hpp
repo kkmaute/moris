@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HEX64_HPP_
-#define SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HEX64_HPP_
+#pragma once
 
 #include "cl_HMR_BSpline_Element.hpp"
 #include "fn_HMR_get_basis_neighbors_3d.hpp"
@@ -15449,6 +15448,3 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HEX64_HPP_ */
-

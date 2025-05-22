@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
+#pragma once
 
 #include <utility>
 
@@ -53,12 +52,12 @@ namespace moris::hmr
                 std::shared_ptr< Database > aDatabase,
                 uint                        aOrder,
                 uint                        aLagrangePattern,
-                uint                        aBsplinePattern )
+                BSpline_Mesh_Base*          aDummyBSplineMesh )
                 : Mesh(
-                          std::move( aDatabase ),
-                          aOrder,
-                          aLagrangePattern,
-                          aBsplinePattern )
+                        std::move( aDatabase ),
+                        aOrder,
+                        aLagrangePattern,
+                        aDummyBSplineMesh )
         {
         }
 
@@ -92,4 +91,3 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-#endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_ */

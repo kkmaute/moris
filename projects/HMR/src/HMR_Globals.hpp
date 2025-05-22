@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_HMR_GLOBALS_HPP_
-#define SRC_HMR_HMR_GLOBALS_HPP_
+#pragma once
 #include "moris_typedefs.hpp" //COR/src
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
@@ -71,5 +70,3 @@ namespace moris::hmr
 
 // -----------------------------------------------------------------------------
 } /* namespace moris */
-#endif
-

@@ -133,10 +133,10 @@ namespace moris
             // create settings object
             moris::hmr::Parameters tParameters;
 
-            tParameters.set_number_of_elements_per_dimension( { { 1 }, { 1 } } );
+            tParameters.set_number_of_elements_per_dimension( 1, 1 );
             tParameters.set_domain_dimensions( 1, 1 );
             tParameters.set_domain_offset( 0.0, 0.0 );
-            tParameters.set_side_sets( { { 1 }, { 2 }, { 3 }, { 4 } } );
+            tParameters.set_create_side_sets( true );
 
             tParameters.set_bspline_truncation( true );
             tParameters.set_lagrange_orders( { { 1 } } );
@@ -350,10 +350,9 @@ namespace moris
         uint          tLagrangeMeshIndex = 0;
         ParameterList tParameters        = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
-        tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
-        tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2.1 ) + "," + std::to_string( 0 ) );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
+        tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
+        tParameters.set( "domain_offset", -tDomainLX / 2.1, 0.0 );
         tParameters.set( "lagrange_output_meshes", "0" );
 
         tParameters.set( "lagrange_orders", "1" );
@@ -363,15 +362,12 @@ namespace moris
 
         tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 3 );
         tParameters.set( "staircase_buffer", 3 );
-        tParameters.set( "initial_refinement", "2" );
-        tParameters.set( "initial_refinement_pattern", "0" );
+        tParameters.set( "pattern_initial_refinement", 2 );
 
-        tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
-        tParameters.set( "use_number_aura", 0 );
+        tParameters.set( "use_number_aura", false );
 
         hmr::HMR tHMR( tParameters );
 

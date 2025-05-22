@@ -133,8 +133,7 @@ namespace moris
          */
         void hack_for_legacy_fem()
         {
-            mSubmoduleParameterLists.erase( 8);
-            //mSubmoduleParameterLists.erase( 7 );
+            mSubmoduleParameterLists.erase( 8 );
         }
 
       private:

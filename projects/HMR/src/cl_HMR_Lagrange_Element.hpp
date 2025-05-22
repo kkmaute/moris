@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Element.hpp"    //HMR/src
 #include "cl_HMR_Element.hpp"               //HMR/src
@@ -570,5 +569,3 @@ namespace moris::hmr
 #include "cl_HMR_Lagrange_Element_Hex64.hpp" 
 
 //------------------------------------------------------------------------------
-
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */

@@ -122,10 +122,9 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "21,21" );
-        aParameterLists.set( "domain_dimensions", "5,5" );
-        aParameterLists.set( "domain_offset", "-2.5+0.13,-2.5+0.18" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "number_of_elements_per_dimension", 21, 21 );
+        aParameterLists.set( "domain_dimensions", 5.0, 5.0 );
+        aParameterLists.set( "domain_offset", -2.5 + 0.13, -2.5 + 0.18 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", std::to_string( gInterpolationOrder ) );
@@ -135,14 +134,8 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
 
         aParameterLists.set( "adaptive_refinement_level", 2 );
     }
@@ -152,8 +145,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", true );
         aParameterLists.set( "multigrid", false );
