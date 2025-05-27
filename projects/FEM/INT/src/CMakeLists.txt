@@ -240,6 +240,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_ALM_Dof.hpp
     IQI/cl_FEM_IQI_Max_Dof.hpp
     IQI/cl_FEM_IQI_Max_Stress.hpp
+    IQI/cl_FEM_IQI_Max_Damage.hpp
     IQI/cl_FEM_IQI_Property.hpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -490,6 +491,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_ALM_Dof.cpp
     IQI/cl_FEM_IQI_Max_Dof.cpp
     IQI/cl_FEM_IQI_Max_Stress.cpp
+    IQI/cl_FEM_IQI_Max_Damage.cpp
     IQI/cl_FEM_IQI_Property.cpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp

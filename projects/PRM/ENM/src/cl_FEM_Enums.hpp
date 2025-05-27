@@ -209,6 +209,7 @@ namespace moris::fem
             MIN_FEATURE_SIZE,
             ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
             LINEAR_ELASTICITY_DAMAGE,
+            MAX_DAMAGE,
             END_IQI_TYPE )
 
     ENUM_MACRO( Constitutive_Type,

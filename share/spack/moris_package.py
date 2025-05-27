@@ -22,12 +22,13 @@
 
 import os
 
-import spack.build_systems.cmake
-import spack.build_systems.generic
+from spack_repo.builtin.build_systems.generic import Package
+from spack_repo.builtin.build_systems.cmake import CMakePackage
+
 from spack.package import *
 
 
-class Moris(CMakePackage, Package):
+class Moris(CMakePackage,Package):
     """MORIS"""
 
     git = "ssh://git@github.com/kkmaute/moris"

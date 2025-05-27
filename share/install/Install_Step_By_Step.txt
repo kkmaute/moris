@@ -129,12 +129,12 @@ spack create --name snopt --skip-editor
 * important: you need to copy the spack package files for the optimization
 * libraries even if you do not want to install them
 
-cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/trilinos/package.py
 
-cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
-cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
-cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
-cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/snopt/package.py
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/moris/package.py
+cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/gcmma/package.py
+cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/lbfgs/package.py
+cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/snopt/package.py
 
 *------------------------------------------------------------
 
@@ -266,7 +266,7 @@ spack add doxygen
 
 * add clang for clang formater (optional)
 
-spack add llvm@main~gold~libomptarget~lld~llvm_dylib~lua~polly
+spack add llvm@main~gold~libomptarget~llvm_dylib~lua~polly
 
 *------------------------------------------------------------
 

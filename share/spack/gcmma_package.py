@@ -20,8 +20,9 @@
 # See the Spack documentation for more information on packaging.
 # ----------------------------------------------------------------------------
 
-from spack.package import *
+from spack_repo.builtin.build_systems.generic import Package
 
+from spack.package import *
 
 class Gcmma(Package):
     """FIXME: Put a proper description of your package here."""
