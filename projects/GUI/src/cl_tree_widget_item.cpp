@@ -221,7 +221,7 @@ namespace moris
 
     void Moris_Tree_Widget_Item::setPropertyNameList( QStringList &aPropertyNameList )
     {
-        mPropertyNameList = aPropertyNameList;          
+        mPropertyNameList = aPropertyNameList;
         if ( mWidget.size() > 0 )
         {
             for ( uint i = 0; i < mWidget.size(); i++ )
@@ -241,7 +241,7 @@ namespace moris
     void Moris_Tree_Widget_Item::setPhaseNameList( QStringList &aPhaseNameList )
     {
         mPhaseNameList = aPhaseNameList;
-        
+
     }
 
     bool Moris_Tree_Widget_Item::isPropertyListSet()
@@ -421,7 +421,7 @@ namespace moris
         mFormLayout->addRow( "Please select: ", mMSIComboBox );
 
         mFormLayout->addRow( mAddMSI, mRemoveMSI );
-        
+
         // Connect the signal from the add button pushed to the slot addMSI
         connect(mAddMSI, &QPushButton::clicked, this, [this]() { changeMSIRowVisibility(true); });
         connect(mRemoveMSI, &QPushButton::clicked, this, [this]() { changeMSIRowVisibility(false); });
@@ -444,7 +444,7 @@ namespace moris
             if ( iWidget->objectName() == tCurrentItem )
             {
                 // Set this row visible
-                mFormLayout->setRowVisible( iWidget, aVisible );                
+                mFormLayout->setRowVisible( iWidget, aVisible );
                 break;
             }
         }

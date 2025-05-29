@@ -182,6 +182,13 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Submodule_Parameter_Lists::erase( uint aParameterListIndex )
+    {
+        mParameterLists.erase( aParameterListIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool Submodule_Parameter_Lists::empty()
     {
         return mParameterLists.empty();
