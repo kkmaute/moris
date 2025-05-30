@@ -77,9 +77,6 @@ namespace moris::wrk
         // Set MTK performer to HMR
         mPerformerManager->mHMRPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 0 ) );
 
-        // Set HMR performer to MTK performer
-        mPerformerManager->mMTKPerformer( 0 )->set_performer( mPerformerManager->mHMRPerformer( 0 ) );
-
         // Set performer to MDL
         mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
