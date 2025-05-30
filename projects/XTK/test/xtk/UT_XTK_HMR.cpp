@@ -92,8 +92,6 @@ namespace moris
             // initialize a mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
 
-            tMeshManager->set_performer( tHMR );
-
             tHMR->set_performer( tMeshManager );
 
             tHMR->perform_initial_refinement();
