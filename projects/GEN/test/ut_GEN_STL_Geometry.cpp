@@ -51,7 +51,6 @@ namespace moris
         std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
 
         // perform HMR
-        tMeshManager->set_performer(tHMR);
         tHMR->set_performer(tMeshManager);
         tHMR->perform_initial_refinement();
         tHMR->perform();

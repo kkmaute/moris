@@ -92,36 +92,9 @@ namespace moris::mtk
     const Mesh_Pair&
     Mesh_Manager::get_mesh_pair( const std::string& aMeshPairName )
     {
-        moris_index tMeshPairIndex = gNoIndex;
+        MORIS_ASSERT( mMeshPairNameToIndexMap.key_exists( aMeshPairName ), "Mesh pair with name %s does not exist", aMeshPairName.c_str() );
 
-        if ( not mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
-        {
-            if ( mHMRPerformer.lock() )
-            {
-                std::shared_ptr< hmr::HMR > tHMRPerformer = mHMRPerformer.lock();
-
-                if ( tHMRPerformer->get_mesh_name_exists( aMeshPairName ) )
-                {
-                    Interpolation_Mesh* tInterpolationMesh = tHMRPerformer->create_interpolation_mesh( aMeshPairName, false );
-
-                    tMeshPairIndex = this->register_mesh_pair( tInterpolationMesh, nullptr, true, aMeshPairName );
-                }
-                else
-                {
-                    MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
-                }
-            }
-            else
-            {
-                MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
-            }
-        }
-        else
-        {
-            tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
-        }
-
-        return mMeshPairs( tMeshPairIndex );
+        return mMeshPairs( mMeshPairNameToIndexMap.find( aMeshPairName ) );
     }
 
     //-------------------------------------------------------------------------
@@ -131,58 +104,11 @@ namespace moris::mtk
     {
         if ( mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
         {
-            MORIS_ERROR( false, " this function will not work with the field observer function" );
             moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
 
             mMeshPairs.erase( tMeshPairIndex );
 
             mMeshPairNameToIndexMap.erase( aMeshPairName );
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
-    void
-    Mesh_Manager::update_mesh_pairs( const Vector< std::string >& aMeshPairNames )
-    {
-        for ( uint Ik = 0; Ik < aMeshPairNames.size(); Ik++ )
-        {
-            // get string
-            const std::string& tName = aMeshPairNames( Ik );
-
-            if ( mMeshPairNameToIndexMap.key_exists( tName ) )
-            {
-                moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( tName );
-
-                if ( mHMRPerformer.lock() )
-                {
-                    std::shared_ptr< hmr::HMR > tHMRPerformer = mHMRPerformer.lock();
-
-                    if ( tHMRPerformer->get_mesh_name_exists( tName ) )
-                    {
-                        Interpolation_Mesh* tInterpolationMesh = tHMRPerformer->create_interpolation_mesh( tName, false );
-
-                        Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, false );
-
-                        mMeshPairs( tMeshPairIndex ) = tMeshPair;
-
-                        for ( auto tFieldIndex : mMeshPairToFieldIndexMap( tMeshPairIndex ) )
-                        {
-                            std::shared_ptr< mtk::Field > tField = mFields( tFieldIndex ).lock();
-
-                            tField->update_field();
-                        }
-                    }
-                    else
-                    {
-                        MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
-                    }
-                }
-                else
-                {
-                    MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
-                }
-            }
         }
     }
 

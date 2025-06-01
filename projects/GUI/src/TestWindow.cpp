@@ -13,50 +13,50 @@ namespace moris
         auto *layout        = new QVBoxLayout( centralWidget );
 
         // Iterate over each parameter in the parameter list to initialize GUI elements
-        for ( std::pair< const std::string, moris::Parameter > &paramEntry : parameterList )
+        for ( auto paramEntry : parameterList )
         {
-            const auto &paramName = paramEntry.first;
+            const auto &paramName = paramEntry.get_name();
 
             // Initialize Moris_Line_Edit if the parameter name matches
             if ( paramName == "lineEdit" )
             {
-                lineEdit = new Moris_Line_Edit( this, paramEntry.second );
+                lineEdit = new Moris_Line_Edit( this, paramEntry.get_parameter() );
                 lineEdit->setObjectName( QString::fromStdString( paramName ) );
-                lineEdit->setText( QString::fromStdString( paramEntry.second.get_value< std::string >() ) );
+                lineEdit->setText( QString::fromStdString( paramEntry.get_parameter().get_value< std::string >() ) );
                 layout->addWidget( lineEdit );
                 connect( lineEdit, &Moris_Line_Edit::textChanged, this, &TestWindow::updateInput );
             }
             // Initialize Moris_Combo_Box if the parameter name matches
             else if ( paramName == "comboBox" )
             {
-                comboBox = new Moris_Combo_Box( this, paramEntry.second );
+                comboBox = new Moris_Combo_Box( this, paramEntry.get_parameter() );
                 comboBox->setObjectName( QString::fromStdString( paramName ) );
-                comboBox->setCurrentIndex( paramEntry.second.get_value< moris::uint >() );
+                comboBox->setCurrentIndex( paramEntry.get_parameter().get_value< moris::uint >() );
                 layout->addWidget( comboBox );
                 connect( comboBox, &Moris_Combo_Box::index_changed, this, &TestWindow::updateComboBox );
             }
             // Initialize Moris_Double_Spin_Box if the parameter name matches
             else if ( paramName == "doubleSpinBox" )
             {
-                doubleSpinBox = new Moris_Double_Spin_Box( this, paramEntry.second );
+                doubleSpinBox = new Moris_Double_Spin_Box( this, paramEntry.get_parameter() );
                 doubleSpinBox->setObjectName( QString::fromStdString( paramName ) );
-                doubleSpinBox->setValue( paramEntry.second.get_value< moris::real >() );
+                doubleSpinBox->setValue( paramEntry.get_parameter().get_value< moris::real >() );
                 layout->addWidget( doubleSpinBox );
                 connect( doubleSpinBox, &Moris_Double_Spin_Box::value_changed, this, &TestWindow::updateDoubleSpinBox );
             }
             // Initialize Moris_Int_Spin_Box if the parameter name matches
             else if ( paramName == "intSpinBox" )
             {
-                intSpinBox = new Moris_Int_Spin_Box( this, paramEntry.second );
+                intSpinBox = new Moris_Int_Spin_Box( this, paramEntry.get_parameter() );
                 intSpinBox->setObjectName( QString::fromStdString( paramName ) );
-                intSpinBox->setValue( paramEntry.second.get_value< int >() );
+                intSpinBox->setValue( paramEntry.get_parameter().get_value< int >() );
                 layout->addWidget( intSpinBox );
                 connect( intSpinBox, &Moris_Int_Spin_Box::value_changed, this, &TestWindow::updateIntSpinBox );
             }
             // Initialize Moris_Pair_Box if the parameter name matches
             // else if ( paramName == "pairBox" )
             // {
-            //     pairBox = new Moris_Pair_Box( this, paramEntry.second, QStringList() << "Example 1" << "Example 2" << "Example 3" );
+            //     pairBox = new Moris_Pair_Box( this, paramEntry.get_parameter(), QStringList() << "Example 1" << "Example 2" << "Example 3" );
             //     pairBox->setObjectName( QString::fromStdString( paramName ) );
             //     layout->addWidget( pairBox );
             //     connect( pairBox, &Moris_Pair_Box::combo_box_text_changed, this, &TestWindow::updatePairBox );
@@ -138,7 +138,7 @@ namespace moris
         // Iterate over each parameter in the parameter list and save the values to XML
         for ( const auto &paramEntry : parameterList )
         {
-            const auto &paramName = paramEntry.first;
+            const auto &paramName = paramEntry.get_name();
 
             // Save value of Moris_Line_Edit
             if ( paramName == "lineEdit" )
@@ -205,7 +205,7 @@ namespace moris
 
         for ( const auto &paramEntry : parameterList )
         {
-            const auto &paramName = paramEntry.first;
+            const auto &paramName = paramEntry.get_name();
 
             // Print value of Moris_Line_Edit
             if ( paramName == "lineEdit" )
