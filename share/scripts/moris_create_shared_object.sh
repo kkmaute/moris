@@ -35,7 +35,7 @@ else
        $MORISROOT/share/scripts/create_shared_object.sh . $MORISBUILDDBG $2 $3
    else
        echo ""
-       echo " Error - incorrect option"
+       echo " Error - incorrect option. Compile with 'opt' or 'dbg'. as the first argument"
        echo ""
    fi
 fi
