@@ -78,9 +78,9 @@ namespace moris::gen
         uint tDim = Surface_Mesh::get_spatial_dimension();
 
         // parse the file path and extract the file name
-        aParameters.mName = aParameters.mName.empty() ? aParameters.mFilePath.substr( aParameters.mFilePath.find_last_of( "/" ) + 1,
-                                                                aParameters.mFilePath.find_last_of( "." ) - aParameters.mFilePath.find_last_of( "/" ) - 1 )
-                                                      : aParameters.mName;
+        mParameters.mName = mParameters.mName.empty() ? mParameters.mFilePath.substr( mParameters.mFilePath.find_last_of( "/" ) + 1,
+                                                                mParameters.mFilePath.find_last_of( "." ) - mParameters.mFilePath.find_last_of( "/" ) - 1 )
+                                                      : mParameters.mName;
 
         // If this surface mesh is being optimized via B-spline fields, construct seeding fields and check for a scaling function
         if ( this->intended_discretization() )
@@ -513,7 +513,7 @@ namespace moris::gen
 #if MORIS_HAVE_ARBORX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
-        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Flood fill mesh nodes" );
+        Tracer tTracer( "GEN", "Surface Mesh Geometry", "Flood fill mesh nodes" );
 
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
         using MemorySpace    = ExecutionSpace::memory_space;
@@ -639,7 +639,7 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::raycast_remaining_unknown_nodes()
     {
-        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Raycast remaining unknown nodes" );
+        Tracer tTracer( "GEN", "Surface Mesh Geometry", "Raycast remaining unknown nodes" );
 
         // Get the number of nodes in the mesh and the spatial dimension
         uint tDims     = Surface_Mesh::get_spatial_dimension();
@@ -1263,7 +1263,7 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::update_vertex_basis_data()
     {
-        Tracer tTracer( "GEN", "Surface_Mesh_Geometry", "Find background element brute force" );
+        Tracer tTracer( "GEN", "Surface Mesh Geometry", "Find background element brute force" );
 
         // Get the spatial dimension
         uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
