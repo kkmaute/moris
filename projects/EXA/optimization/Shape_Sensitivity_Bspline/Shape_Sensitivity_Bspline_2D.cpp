@@ -306,6 +306,7 @@ namespace moris
                 {
                     aParameterLists.set( "discretization_mesh_index", 0 );
                     aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
+                    aParameterLists.set( "regularization_type", gen::Regularization_Type::ISOTROPIC_LAPLACIAN );
                 }
             }
             else if ( tName == "SM2" )    // make surface mesh geometry

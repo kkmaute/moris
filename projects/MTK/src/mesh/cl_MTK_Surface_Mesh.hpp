@@ -105,18 +105,27 @@ namespace moris::mtk
         // Accessor methods
         // -------------------------------------------------------------------------------
 
-        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates() const;
+        [[nodiscard]] virtual const Matrix< DDRMat > get_all_vertex_coordinates() const;
 
         /**
          * @brief Gets the coordinates of a single vertex from the local index aVertexIndex
          */
-        [[nodiscard]] virtual Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
+        [[nodiscard]] virtual const Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
 
         /**
          * Gets the original coordinates of a single vertex from the local index aVertexIndex
-         *
          */
-        [[nodiscard]] virtual Matrix< DDRMat > get_original_vertex_coordinates( const uint aVertexIndex ) const;
+        [[nodiscard]] virtual const Matrix< DDRMat > get_original_vertex_coordinates( const uint aVertexIndex ) const;
+
+        /**
+         * @brief gets the displacements of all vertices in the surface mesh
+         */
+        [[nodiscard]] const Matrix< DDRMat >& get_vertex_displacements() const;
+
+        /**
+         * @brief gets the entire vertex connectivity of the surface mesh
+         */
+        [[nodiscard]] const Vector< Vector< moris_index > >& get_facet_connectivity() const;
 
         /**
          * @brief Gets the indices to the vertices that form the facet with the local index aFacetIndex

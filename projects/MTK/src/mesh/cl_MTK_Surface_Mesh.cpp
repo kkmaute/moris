@@ -164,23 +164,37 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
+    const Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
     {
         return mVertexCoordinates + mDisplacements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates( uint aVertexIndex ) const
+    const Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates( uint aVertexIndex ) const
     {
         return mVertexCoordinates.get_column( aVertexIndex ) + mDisplacements.get_column( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::get_original_vertex_coordinates( const uint aVertexIndex ) const
+    const Matrix< DDRMat > Surface_Mesh::get_original_vertex_coordinates( const uint aVertexIndex ) const
     {
         return mVertexCoordinates.get_column( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Surface_Mesh::get_vertex_displacements() const
+    {
+        return mDisplacements;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< Vector< moris_index > >& Surface_Mesh::get_facet_connectivity() const
+    {
+        return mFacetConnectivity;
     }
 
     //--------------------------------------------------------------------------------------------------------------

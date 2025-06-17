@@ -231,10 +231,14 @@ namespace moris::gen
                 Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector *    //
                                                        ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex ) );
 
+                // Add sensitivities from regularization
+                Matrix< DDRMat > tRegularizationSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector *    //
+                                                                     ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * mInterfaceGeometry.get_regularization_sensitivity( iParentFacetVertexIndex ) );
+
                 // Resize sensitivities
                 uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
                 aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() + tRegularizationSensitivitiesToAdd.n_cols() );
 
                 // Join sensitivities
                 for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
@@ -245,6 +249,16 @@ namespace moris::gen
                                 tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
                     }
                 }
+
+                // Join regularization sensitivities
+                for ( uint iCoordinateIndex = 0; iCoordinateIndex < tRegularizationSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
+                {
+                    for ( uint iAddedSensitivity = 0; iAddedSensitivity < tRegularizationSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
+                    {
+                        aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() + iAddedSensitivity ) =
+                                tRegularizationSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
+                    }
+                }
             }
             // Increment local vertex index
             tLocalFacetVertexIndex++;
@@ -253,7 +267,7 @@ namespace moris::gen
         // Add first parent coordinate sensitivities
         if ( tFirstParentNode.depends_on_advs() )
         {
-            Matrix< DDRMat > tLocCoord = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tLocCoord          = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
             Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
             tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
@@ -261,11 +275,10 @@ namespace moris::gen
         // Add second parent coordinate sensitivities
         if ( tSecondParentNode.depends_on_advs() )
         {
-            Matrix< DDRMat > tLocCoord = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
+            Matrix< DDRMat > tLocCoord          = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
             Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
             tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
-
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -283,8 +296,12 @@ namespace moris::gen
             {    // Get the IDs for this vertex
                 Vector< sint > tVertexADVIds = mInterfaceGeometry.get_vertex_adv_ids( tParentFacetVertex );
 
+                // Get the IDs for this vertex as a result of regualrization
+                Vector< moris_index > tRegularizationADVIds = mInterfaceGeometry.get_regularization_adv_ids( tParentFacetVertex );
+
                 // Join IDs
                 Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tVertexADVIds );
+                Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tRegularizationADVIds );
             }
         }
 

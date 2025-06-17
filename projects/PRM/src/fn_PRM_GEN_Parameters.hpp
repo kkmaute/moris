@@ -277,17 +277,21 @@ namespace moris::prm
     inline Parameter_List
     create_surface_mesh_geometry_parameter_list()
     {
-        Parameter_List tSurfaceMeshParameterList = create_geometry_parameter_list();           // Inserts all geometry parameters
-        insert_design_field_parameters( tSurfaceMeshParameterList, gen::Field_Type::NONE );    // Inserts all design parameters
-        tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                // offset all points in the geometry by this much
-        tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                 // scaling factor for all points in the geometry
-        tSurfaceMeshParameterList.insert( "file_path", "" );                                   // path to .obj file
-        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );         // function name that determines which nodes are fixed
-        tSurfaceMeshParameterList.insert( "field_function_name", "" );                         // Function for perturbation of surface mesh vertices
-        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );                   // Function name for evaluating the sensitivity of the perturbation
-        tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
-        tSurfaceMeshParameterList.insert( "output_file_name", "" );                            // Output file name for the surface mesh, to be output every optimization iteration
-        tSurfaceMeshParameterList.insert( "name", "" );                                        // geometry name
+        Parameter_List tSurfaceMeshParameterList = create_geometry_parameter_list();                                // Inserts all geometry parameters
+        insert_design_field_parameters( tSurfaceMeshParameterList, gen::Field_Type::NONE );                         // Inserts all design parameters
+        tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                                     // offset all points in the geometry by this much
+        tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                                      // scaling factor for all points in the geometry
+        tSurfaceMeshParameterList.insert( "file_path", "" );                                                        // path to .obj file
+        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );                              // function name that determines which nodes are fixed
+        tSurfaceMeshParameterList.insert( "field_function_name", "" );                                              // Function for perturbation of surface mesh vertices
+        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );                                        // Function name for evaluating the sensitivity of the perturbation
+        tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                                           // set the geometry type to surface mesh
+        tSurfaceMeshParameterList.insert( "output_file_name", "" );                                                 // Output file name for the surface mesh, to be output every optimization iteration
+        tSurfaceMeshParameterList.insert( "name", "" );                                                             // geometry name
+        tSurfaceMeshParameterList.insert_enum( "regularization_type", gen::Regularization_Type_String::values );    // Regularization type (if any) for shape updates. Options are NONE, ISOTROPIC_LAPLACIAN, ANISOTROPIC_LAPLACIAN, TAUBIN, or USER_DEFINED
+        tSurfaceMeshParameterList.insert( "regularization_function_name", "" );                                     // User defined function name for regularization of surface mesh vertices
+        tSurfaceMeshParameterList.insert( "regularization_sensitivity_function_name", "" );                         // User defined function name for evaluating the sensitivity of the regularization
+        tSurfaceMeshParameterList.insert( "regularization_adv_id_function_name", "" );                              // User defined function name that returns which ADV IDs a given surface mesh vertex depends on
 
         return tSurfaceMeshParameterList;
     }

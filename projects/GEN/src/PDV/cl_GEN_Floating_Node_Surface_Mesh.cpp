@@ -64,10 +64,13 @@ namespace moris::gen
         Matrix< DDRMat > tSensitivitiesToAdd = mInterfaceGeometry.facet_vertex_depends_on_advs( mParentVertex ) ? aSensitivityFactor * mInterfaceGeometry.get_dvertex_dadv( mParentVertex )
                                                                                                                 : Matrix< DDRMat >();
 
+        // Get the regularization sensitivities for this vertex
+        Matrix< DDRMat > tRegularizationSensitivitiesToAdd = aSensitivityFactor * mInterfaceGeometry.get_regularization_sensitivity( mParentVertex );
+
         // Resize sensitivities
         uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
         aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+                tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() + tRegularizationSensitivitiesToAdd.n_cols() );
 
         // Join sensitivities
         for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
@@ -78,6 +81,16 @@ namespace moris::gen
                         tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
             }
         }
+
+        // Join regularization sensitivities
+        for ( uint iCoordinateIndex = 0; iCoordinateIndex < tRegularizationSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
+        {
+            for ( uint iAddedSensitivity = 0; iAddedSensitivity < tRegularizationSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
+            {
+                aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() + iAddedSensitivity ) =
+                        tRegularizationSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -86,7 +99,12 @@ namespace moris::gen
     Floating_Node_Surface_Mesh::get_coordinate_determining_adv_ids() const
     {
         // Since the floating node is exactly its parent vertex, its sensitivities are exactly the sensitivities of the parent vertex
-        return mInterfaceGeometry.get_vertex_adv_ids( mParentVertex );
+        Vector< moris_index > tVertexADVIds = mInterfaceGeometry.get_vertex_adv_ids( mParentVertex );
+
+        // Add any ADV IDs that are determined by the regularization function
+        tVertexADVIds.append( mInterfaceGeometry.get_regularization_adv_ids( mParentVertex ) );
+
+        return tVertexADVIds;
     }
 
     //--------------------------------------------------------------------------------------------------------------
