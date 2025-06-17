@@ -103,6 +103,18 @@ namespace moris
 
         //------------------------------------------------------------------
 
+        template< typename InputIt,
+                typename = typename std::enable_if< !std::is_integral< InputIt >::value >::type >
+        Vector( InputIt aBegin, InputIt aEnd )
+                : mVector( aBegin, aEnd )
+        {
+            MORIS_CHECK_MEMORY( sizeof( T ) * mVector.size() < MORIS_MAX_CELL_CAPACITY,
+                    "Vector: Maximum allowable capacity exceeded: %f MB.\n",
+                    sizeof( T ) * mVector.size() / 1e6 );
+        }
+
+        //------------------------------------------------------------------
+
         /**
          * Vector destructor
          */
