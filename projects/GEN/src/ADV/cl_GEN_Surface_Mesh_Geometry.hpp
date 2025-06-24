@@ -39,15 +39,22 @@ namespace moris::gen
     using Regularization_Function = Matrix< DDRMat > ( * )(
             const Matrix< DDRMat >&                aVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
-            const Vector< Vector< moris_index > >& aVertexConnectivity );
+            const Vector< Vector< moris_index > >& aVertexConnectivity,
+            const Vector< real >&                  aFactor );
 
-    using Regularization_Sensitivity_Function = Matrix< DDRMat > ( * )(
-            const Surface_Mesh_Geometry& aSurfaceMesh,
-            uint                         aVertexIndex );
+    using Regularization_Sensitivity_Function = Vector< Matrix< DDRMat > > ( * )(
+            const Matrix< DDRMat >&                aVertexCoordinates,
+            const Vector< Vector< moris_index > >& aFacetConnectivity,
+            const Vector< Vector< moris_index > >& aVertexConnectivity,
+            const Vector< real >&                  aFactor,
+            const uint                             aVertexIndex );
 
-    using Regularization_ADV_IDs_Function = Vector< moris_index > ( * )(
-            const Surface_Mesh_Geometry& aSurfaceMesh,
-            const uint                   aVertexIndex );
+    using Regularization_Vertex_Inds_Function = Vector< moris_index > ( * )(
+            const Matrix< DDRMat >&                aVertexCoordinates,
+            const Vector< Vector< moris_index > >& aFacetConnectivity,
+            const Vector< Vector< moris_index > >& aVertexConnectivity,
+            const Vector< real >&                  aFactor,
+            const uint                             aVertexIndex );
 
     /**
      * This is a struct used to simplify \ref moris::gen::Surface_Mesh_Geometry constructors. It contains all field and surface mesh parameters.
@@ -68,7 +75,8 @@ namespace moris::gen
         Regularization_Type mRegularizationType;                       // What regularization type (if any) to use for shape updates
         std::string         mRegularizationFunctionName;               // User-defined function name for regularization of surface mesh vertices
         std::string         mRegularizationSensitivityFunctionName;    // User-defined function name for evaluating the sensitivity of the regularization
-        std::string         mRegularizationADVIDFunctionName;          // User-defined function name for determining which ADVs are used to regularize a vertex
+        std::string         mRegularizationVertexIndsFunctionName;     // User-defined function name for determining which ADVs are used to regularize a vertex
+        Vector< real >      mRegularizationFactors;                    // Factors for scaling regularization functions, applied in order
 
         /**
          * Constructor with a given parameter list
@@ -143,17 +151,31 @@ namespace moris::gen
         Node_Manager*           mNodeManager;
 
         // Optimization variables
-        ADV_Handler                         mADVHandler;
-        Discretization_Factor_Function      get_discretization_scaling_user_defined = nullptr;
-        Perturbation_Function               get_vertex_adv_dependency_user_defined  = nullptr;
-        Sensitivity_Function                get_dvertex_dadv_user_defined           = nullptr;
-        Regularization_Function             regularize_mesh                         = nullptr;    // Regularization function for the surface mesh vertices
-        Regularization_Sensitivity_Function regularization_sensitivity              = nullptr;    // Regularization sensitivity function for the surface mesh vertices
-        Regularization_ADV_IDs_Function     regularization_adv_ids                  = nullptr;    // Function that gets the determining ADV IDs for a given vertex as a result of regularization
-        Vector< std::shared_ptr< Field > >  mPerturbationFields;                                  // Vector of perturbation fields
-        Matrix< DDRMat >                    mOriginalVertexBases;                                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
-        Vector< const mtk::Cell* >          mOriginalVertexBackgroundElements;                    // Index of the background element the facet vertex was in on construction
-        Vector< Vector< moris_index > >     mVertexConnectivity;                                  // Input: vertex index, Output: All vertices connected by an edge to this vertex
+        ADV_Handler                    mADVHandler;
+        Discretization_Factor_Function get_discretization_scaling_user_defined = nullptr;
+        Perturbation_Function          get_vertex_adv_dependency_user_defined  = nullptr;
+        Sensitivity_Function           get_dvertex_dadv_user_defined           = nullptr;
+        Regularization_Function        regularize_mesh                         =    // Function that gives the displacement for all vertices
+                []( const Matrix< DDRMat >&,
+                        const Vector< Vector< moris_index > >&,
+                        const Vector< Vector< moris_index > >&,
+                        const Vector< real >& ) { return Matrix< DDRMat >{ {} }; };
+        Regularization_Sensitivity_Function regularization_sensitivity =    // Function that gives dx_i/dx_k for every vertex that x_i depends on
+                []( const Matrix< DDRMat >&,
+                        const Vector< Vector< moris_index > >&,
+                        const Vector< Vector< moris_index > >&,
+                        const Vector< real >&,
+                        const uint ) { return Vector< Matrix< DDRMat > >{ { Matrix< DDRMat >{ {} } } }; };
+        Regularization_Vertex_Inds_Function regularization_vertex_inds =    // Function that gets the determining ADV IDs for a given vertex as a result of regularization
+                []( const Matrix< DDRMat >&,
+                        const Vector< Vector< moris_index > >&,
+                        const Vector< Vector< moris_index > >&,
+                        const Vector< real >&,
+                        const uint ) { return Vector< moris_index >{}; };
+        Vector< std::shared_ptr< Field > > mPerturbationFields;                  // Vector of perturbation fields
+        Matrix< DDRMat >                   mOriginalVertexBases;                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
+        Vector< const mtk::Cell* >         mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
+        Vector< Vector< moris_index > >    mVertexConnectivity;                  // Input: vertex index, Output: All vertices connected by an edge to this vertex
 
         // Forward analysis variables
         const mtk::Mesh*                             mMesh = nullptr;
@@ -497,6 +519,13 @@ namespace moris::gen
         bool intended_discretization() const override;
 
         /**
+         * Gets if this surface mesh geometry is to be regularized.
+         *
+         * @return Logic for regularization
+         */
+        bool do_regularization() const;
+
+        /**
          * Gets a discretization mesh index for a discretized field.
          *
          * @return Mesh index
@@ -624,7 +653,8 @@ namespace moris::gen
         static Matrix< DDRMat > isotropic_laplacian_regularization(
                 const Matrix< DDRMat >&                aVertexCoordinates,
                 const Vector< Vector< moris_index > >& aFacetConnectivity,
-                const Vector< Vector< moris_index > >& aVertexConnectivity );
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor );
 
 
         /**
@@ -634,9 +664,12 @@ namespace moris::gen
          * @param aVertexIndex Vertex index from the surface mesh for which the sensitivities are computed
          * @return Output matrix containing the sensitivities of the vertex with respect to the ADVs. Size <dims> x <num determining ADVs>
          */
-        static Matrix< DDRMat > isotropic_laplacian_regularization_sensitivity(
-                const Surface_Mesh_Geometry& aSurfaceMesh,
-                const uint                   aVertexIndex );
+        static Vector< Matrix< DDRMat > > isotropic_laplacian_regularization_sensitivity(
+                const Matrix< DDRMat >&                aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor,
+                const uint                             aVertexIndex );
 
         /**
          * Gets which ADVs affect the given vertex index of the surface mesh as a result of isotropic Laplacian regularization.
@@ -645,9 +678,12 @@ namespace moris::gen
          * @param aVertexIndex Vertex index from the surface mesh for which the ADVs are computed
          * @return Vector< moris_index > ADV IDs that affect the vertex. Size matches the n_cols() from isotropic_laplacian_regularization_sensitivity()
          */
-        static Vector< moris_index > get_determining_adv_ids_isotropic_laplacian(
-                const Surface_Mesh_Geometry& aSurfaceMesh,
-                const uint                   aVertexIndex );
+        static Vector< moris_index > get_determining_vertex_inds_isotropic_laplacian(
+                const Matrix< DDRMat >&                aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor,
+                const uint                             aVertexIndex );
 
         /**
          * Regularizes the entire surface mesh using an anisotropic Laplacian regularization.
@@ -657,10 +693,12 @@ namespace moris::gen
          * @param aFacetConnectivity Connectivity of the facets in the surface mesh
          * @return Matrix< DDRMat > Displacement for all surface mesh vertices as a result of the regularization
          */
-        static Matrix< DDRMat > anisotropic_laplacian_regularization(
+        static Matrix< DDRMat >
+        anisotropic_laplacian_regularization(
                 const Matrix< DDRMat >&                aVertexCoordinates,
                 const Vector< Vector< moris_index > >& aFacetConnectivity,
-                const Vector< Vector< moris_index > >& aVertexConnectivity );
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor );
 
         /**
          * Computes dvertex_dadv for a given vertex as a result of anisotropic Laplacian regularization.
@@ -669,9 +707,12 @@ namespace moris::gen
          * @param aVertexIndex Vertex index from the surface mesh for which the sensitivities are computed
          * @return Output matrix containing the sensitivities of the vertex with respect to the ADVs. Size <dims> x <num determining ADVs>
          */
-        static Matrix< DDRMat > anisotropic_laplacian_regularization_sensitivity(
-                const Surface_Mesh_Geometry& aSurfaceMesh,
-                const uint                   aVertexIndex );
+        static Vector< Matrix< DDRMat > > anisotropic_laplacian_regularization_sensitivity(
+                const Matrix< DDRMat >&                aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor,
+                const uint                             aVertexIndex );
 
         /**
          * Gets which ADVs affect the given vertex index of the surface mesh as a result of anisotropic Laplacian regularization.
@@ -680,9 +721,12 @@ namespace moris::gen
          * @param aVertexIndex Vertex index from the surface mesh for which the ADVs are computed
          * @return Vector< moris_index > ADV IDs that affect the vertex. Size matches the n_cols() from anisotropic_laplacian_regularization_sensitivity()
          */
-        static Vector< moris_index > get_determining_adv_ids_anisotropic_laplacian(
-                const Surface_Mesh_Geometry& aSurfaceMesh,
-                const uint                   aVertexIndex );
+        static Vector< moris_index > get_determining_vertex_inds_anisotropic_laplacian(
+                const Matrix< DDRMat >&                aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor,
+                const uint                             aVertexIndex );
 
         /**
          * Regularizes the entire surface mesh using a Taubin regularization.
@@ -696,7 +740,8 @@ namespace moris::gen
         static Matrix< DDRMat > taubin_regularization(
                 const Matrix< DDRMat >&                aVertexCoordinates,
                 const Vector< Vector< moris_index > >& aFacetConnectivity,
-                const Vector< Vector< moris_index > >& aVertexConnectivity );
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor );
 
         /**
          * Computes dvertex_dadv for a given vertex as a result of Taubin regularization.
@@ -705,9 +750,12 @@ namespace moris::gen
          * @param aVertexIndex Vertex index from the surface mesh for which the sensitivities are computed
          * @return Output matrix containing the sensitivities of the vertex with respect to the ADVs. Size <dims> x <num determining ADVs>
          */
-        static Matrix< DDRMat > taubin_regularization_sensitivity(
-                const Surface_Mesh_Geometry& aSurfaceMesh,
-                const uint                   aVertexIndex );
+        static Vector< Matrix< DDRMat > > taubin_regularization_sensitivity(
+                const Matrix< DDRMat >&                aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor,
+                const uint                             aVertexIndex );
 
         /**
          * Gets which ADVs affect the given vertex index of the surface mesh as a result of Taubin regularization.
@@ -716,9 +764,12 @@ namespace moris::gen
          * @param aVertexIndex Vertex index from the surface mesh for which the ADVs are computed
          * @return Vector< moris_index > ADV IDs that affect the vertex. ize matches the n_cols() from taubin_regularization_sensitivity()
          */
-        static Vector< moris_index > get_determining_adv_ids_taubin(
-                const Surface_Mesh_Geometry& aSurfaceMesh,
-                const uint                   aVertexIndex );
+        static Vector< moris_index > get_determining_vertex_inds_taubin(
+                const Matrix< DDRMat >&                aVertexCoordinates,
+                const Vector< Vector< moris_index > >& aFacetConnectivity,
+                const Vector< Vector< moris_index > >& aVertexConnectivity,
+                const Vector< real >&                  aFactor,
+                const uint                             aVertexIndex );
 
 #if MORIS_HAVE_ARBORX
         /**
