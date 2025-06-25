@@ -111,6 +111,12 @@ git clone https://github.com/kkmaute/moris
 
 *------------------------------------------------------------
 
+* set directory for spack repo
+
+spack repo set --destination $WORKSPACE/spack_repos builtin
+
+*------------------------------------------------------------
+
 * add moris specific packages to spack; ignore warnings
 * note: you may have to add "dummy" after "--skip-editor"
 
@@ -129,12 +135,12 @@ spack create --name snopt --skip-editor
 * important: you need to copy the spack package files for the optimization
 * libraries even if you do not want to install them
 
-cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/trilinos/package.py
 
-cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/moris/package.py
-cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/gcmma/package.py
-cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/lbfgs/package.py
-cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/snopt/package.py
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/moris/package.py
+cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/gcmma/package.py
+cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/lbfgs/package.py
+cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/snopt/package.py
 
 *------------------------------------------------------------
 
@@ -163,7 +169,7 @@ spack compiler find
 
 spack compiler list
 
-spack compiler rm <unwanted compiler>
+spack compiler remove <unwanted compiler>
 
 *------------------------------------------------------------
 
@@ -326,6 +332,8 @@ spack install moris
 * for developers
 
 spack install --only dependencies moris
+
+* in case install of moris fails repeat command above
 
 *------------------------------------------------------------
 

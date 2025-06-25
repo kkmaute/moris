@@ -31,7 +31,7 @@ export PATH=$PATH/:$SPACK_ROOT/bin
 . $SPACK_ROOT/share/spack/setup-env.sh
 spack env activate .
 
-export SPACKCOMP=`spack compiler list | tail -1`
+export SPACKCOMP=`spack compiler list | grep gcc | tail -1 | awk -F ']' '{print $NF}'`
 
 export  CC=`spack compiler info $SPACKCOMP | grep 'c:'       | awk -F : '{print $2}' | xargs ls`
 export CXX=`spack compiler info $SPACKCOMP | grep 'cxx:'     | awk -F : '{print $2}' | xargs ls`

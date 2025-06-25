@@ -185,6 +185,8 @@ fi
 
 #------------------------------------------------------------
 
+spack repo set --destination $WORKSPACE/spack_repos builtin
+
 spack create --name moris --skip-editor 
 spack create --name gcmma --skip-editor 
 spack create --name lbfgs --skip-editor 
@@ -192,12 +194,12 @@ spack create --name snopt --skip-editor
 
 #------------------------------------------------------------
 
-cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/trilinos/package.py
 
-cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/moris/package.py
-cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/gcmma/package.py
-cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/lbfgs/package.py
-cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/spack_repo/builtin/packages/snopt/package.py
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/moris/package.py
+cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/gcmma/package.py
+cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/lbfgs/package.py
+cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/snopt/package.py
 
 #------------------------------------------------------------
 
@@ -209,7 +211,7 @@ spack env activate .
 
 spack compiler find
 
-spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER '{ if ( match($0,compiler) == 0) {cmd="spack compiler rm "$0; system(cmd)}}'
+spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER -F ']' '{ if ( match($NF,compiler) == 0) {cmd="spack compiler remove "$NF; print cmd; system(cmd)}}'
 
 spack compiler list 
 
@@ -219,7 +221,7 @@ if [ ! $ret = "1" ];then
     echo "Error - $COMPILER not available"
     exit
 fi
-    
+
 #------------------------------------------------------------
 
 echo "    all:"                         >> spack.yaml
@@ -292,6 +294,7 @@ spack install $SOPTION openmpi
 #------------------------------------------------------------
 
 if [ $DEVELOPPER_MODE = "1" ];then
+    spack install $SOPTION --only dependencies moris 
     spack install $SOPTION --only dependencies moris 
     
     spack install $SOPTION doxygen 
