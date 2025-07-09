@@ -39,7 +39,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 extern "C" void check_results()
 {
     std::string tExoFileName =
-            "Parabolic_Indenter_Case_" + std::to_string( gCaseIndex ) + ".e-s.0000";
+            "Parabolic_Indenter_Linear_Case_" + std::to_string( gCaseIndex ) + ".e-s.0000";
 
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", gCaseIndex, par_size() );

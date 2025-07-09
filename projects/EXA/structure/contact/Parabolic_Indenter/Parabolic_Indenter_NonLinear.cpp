@@ -765,7 +765,6 @@ namespace moris
                 pl.set( "leader_dof_dependencies", "UX,UY" );
                 pl.set( "leader_phase_name", "Phase" + tLeaderSide );
                 pl.set( "vectorial_field_index", tDir );
-                tParameterList( tIQIIndex ).push_back( pl );
             }
 
             pl = prm::create_IQI_parameter_list();
