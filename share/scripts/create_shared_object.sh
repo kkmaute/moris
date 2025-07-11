@@ -167,7 +167,7 @@ if [ "$dbgflag" = '0' ];then
         echo " restoring input_file.cpp from git repository"
         echo ""
     
-        cd "$MORISROOT/$builddir"
+        cd "$MORISROOT"
         git checkout -- "$MORISROOT/projects/mains/input_file.cpp"
     fi
 else
