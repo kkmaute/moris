@@ -61,7 +61,7 @@ if [ "$2" ];then
     builddir=$2
 
     if [ ! -d "$MORISROOT/$builddir" ];then
-       echo " Error: $workdir does not exist"
+       echo " Error: $MORISROOT/$builddir does not exist"
        echo ""
        exit
     fi
