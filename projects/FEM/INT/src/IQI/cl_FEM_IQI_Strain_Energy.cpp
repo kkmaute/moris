@@ -16,10 +16,15 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    IQI_Strain_Energy::IQI_Strain_Energy()
+    IQI_Strain_Energy::IQI_Strain_Energy(
+            enum CM_Function_Type aStressType,
+            enum CM_Function_Type aStrainType )
     {
         // set fem IQI type
         mFEMIQIType = fem::IQI_Type::STRAIN_ENERGY;
+
+        mStressType = aStressType;
+        mStrainType = aStrainType;
 
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -101,7 +106,7 @@ namespace moris::fem
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
         // evaluate the QI
-        mSet->get_QI()( tQIIndex ) += aWStar * ( 0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain() );
+        mSet->get_QI()( tQIIndex ) += aWStar * 0.5 * trans( tCMElasticity->flux( mStressType ) ) * tCMElasticity->strain( mStrainType );
 
         // if bedding
         if ( tPropBedding != nullptr )
@@ -166,7 +171,9 @@ namespace moris::fem
             {
                 // compute dQIdu
                 mSet->get_residual()( tQIIndex )(
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * ( trans( tCMElasticity->dFluxdDOF( tDofType ) ) * tCMElasticity->strain() + trans( tCMElasticity->dStraindDOF( tDofType ) ) * tCMElasticity->flux() );
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+                        aWStar * 0.5 * ( trans( tCMElasticity->dFluxdDOF( tDofType, mStressType ) ) * tCMElasticity->strain( mStrainType ) +    //
+                                         trans( tCMElasticity->dStraindDOF( tDofType, mStrainType ) ) * tCMElasticity->flux( mStressType ) );
             }
 
             // if bedding

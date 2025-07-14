@@ -149,6 +149,7 @@ namespace moris::fem
     ENUM_MACRO( IQI_Type,
             VOLUME,
             STRAIN_ENERGY,
+            STRAIN_ENERGY_NL,
             VOLUME_FRACTION,
             GAP,
             DOF,
@@ -294,20 +295,20 @@ namespace moris::fem
             CELL_LENGTH_MEASURE,
             END_MEASURE_TYPE )
 
-inline map< std::string, enum fem::Measure_Type >
-get_measure_type_map()
-{
-    map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
+    inline map< std::string, enum fem::Measure_Type >
+    get_measure_type_map()
+    {
+        map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
 
         tFemMeasureTypeMap[ "CELL_MEASURE" ]        = fem::Measure_Type::CELL_MEASURE;
         tFemMeasureTypeMap[ "CELL_SIDE_MEASURE" ]   = fem::Measure_Type::CELL_SIDE_MEASURE;
         tFemMeasureTypeMap[ "CELL_LENGTH_MEASURE" ] = fem::Measure_Type::CELL_LENGTH_MEASURE;
         tFemMeasureTypeMap[ "END_MEASURE_TYPE" ]    = fem::Measure_Type::END_MEASURE_TYPE;
 
-    return tFemMeasureTypeMap;
-}
+        return tFemMeasureTypeMap;
+    }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     ENUM_MACRO( FDScheme_Type,
             POINT_1_FORWARD,
@@ -390,6 +391,6 @@ get_measure_type_map()
             FV1,
             FV1_SPACE_DER,
             END_CM_REQUEST_TYPE )
-} /* namespace moris */
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */
