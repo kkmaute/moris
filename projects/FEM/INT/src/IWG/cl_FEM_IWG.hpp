@@ -35,6 +35,87 @@
 
 namespace moris::fem
 {
+    struct GapData
+    {
+        bool mEval = true;    // flag to indicate if the gap data needs to be evaluate
+
+        real             mGap;
+        Matrix< DDRMat > mdGapdu;
+        Matrix< DDRMat > mdGap2du2;
+        Matrix< DDRMat > mdGapdv;
+        Matrix< DDRMat > mdGap2dv2;
+        Matrix< DDRMat > mdGap2duv;
+
+        Matrix< DDRMat > mEta;
+        Matrix< DDRMat > mdEtadu;
+        Matrix< DDRMat > mdEta2du2;
+        Matrix< DDRMat > mdEtadv;
+        Matrix< DDRMat > mdEta2dv2;
+        Matrix< DDRMat > mdEta2duv;
+
+        Matrix< DDRMat > mLeaderNormal;
+        Matrix< DDRMat > mLeaderRefNormal;
+        Matrix< DDRMat > mLeaderdNormaldu;
+        Matrix< DDRMat > mLeaderdNormal2du2;
+
+        Matrix< DDRMat > mGapVec;
+        Matrix< DDRMat > mdGapvecdu;
+        Matrix< DDRMat > mdGapvecdv;
+        Matrix< DDRMat > mdGapvec2du2;
+        Matrix< DDRMat > mdGapvec2dv2;
+        Matrix< DDRMat > mdGapvec2duv;
+
+        //----------------------------------------------------------------------------
+
+        void copy( const std::unique_ptr< GapData >& tGapData )
+        {
+            mGap      = tGapData->mGap;
+            mdGapdu   = tGapData->mdGapdu;
+            mdGap2du2 = tGapData->mdGap2du2;
+            mdGapdv   = tGapData->mdGapdv;
+            mdGap2dv2 = tGapData->mdGap2dv2;
+            mdGap2duv = tGapData->mdGap2duv;
+
+            mEta      = tGapData->mEta;
+            mdEtadu   = tGapData->mdEtadu;
+            mdEta2du2 = tGapData->mdEta2du2;
+            mdEtadv   = tGapData->mdEtadv;
+            mdEta2dv2 = tGapData->mdEta2dv2;
+            mdEta2duv = tGapData->mdEta2duv;
+
+            mLeaderNormal      = tGapData->mLeaderNormal;
+            mLeaderdNormaldu   = tGapData->mLeaderdNormaldu;
+            mLeaderdNormal2du2 = tGapData->mLeaderdNormal2du2;
+
+            mGapVec      = tGapData->mGapVec;
+            mdGapvecdu   = tGapData->mdGapvecdu;
+            mdGapvecdv   = tGapData->mdGapvecdv;
+            mdGapvec2du2 = tGapData->mdGapvec2du2;
+            mdGapvec2dv2 = tGapData->mdGapvec2dv2;
+            mdGapvec2duv = tGapData->mdGapvec2duv;
+        }
+
+        //----------------------------------------------------------------------------
+
+        Matrix< DDRMat > multiply_leader_dnormal2du2( const Matrix< DDRMat >& tVector )
+        {
+            uint tSpaceDim = mLeaderdNormal2du2.n_rows();
+            uint tNumDofs  = mdGapdu.numel();
+
+            MORIS_ASSERT( tVector.n_rows() == tSpaceDim,
+                    "GapData::multiply_leader_dnormal2du2 - spatial dimensions do not match." );
+
+            Matrix< DDRMat > tResult( tNumDofs, tNumDofs );
+
+            for ( uint i = 0; i < tNumDofs; i++ )
+            {
+                tResult.get_row( i ) = trans( tVector ) * mLeaderdNormal2du2( { 0, tSpaceDim - 1 }, { i * tNumDofs, ( i + 1 ) * tNumDofs - 1 } );
+            }
+
+            return tResult;
+        }
+    };
+
     class Set;
     class Cluster;
     class Field_Interpolator_Manager;
@@ -192,6 +273,11 @@ namespace moris::fem
                 const real& aMaxPerturbation,
                 const real& aTolerance ) = nullptr;
 
+        // for non-conformal IWGs - gap data
+        bool mUseDeformedGeometryForGap = false;
+
+        std::unique_ptr< GapData > mGapData = nullptr;
+
         //------------------------------------------------------------------------------
 
       public:
@@ -199,13 +285,13 @@ namespace moris::fem
         /**
          * constructor
          */
-        IWG(){};
+        IWG() {};
 
         //------------------------------------------------------------------------------
         /**
          * virtual destructor
          */
-        virtual ~IWG(){};
+        virtual ~IWG() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -1005,13 +1091,15 @@ namespace moris::fem
          * @param[ in ] aCoefficientToPerturb coefficient to perturb
          * @param[ in ] aSpatialDirection     spatial direction in which we perturb
          * @param[ in ] aUsedFDScheme         FD scheme to be used, updated
+         * @param[ in ] aIsLeader             if true leader IP element otherwise follower element is used (default is leader)
          * @param[ out ] aDeltaH              perturbation size built for finite difference
          */
         real check_ig_coordinates_inside_ip_element(
-                const real&         aPerturbation,
-                const real&         aCoefficientToPerturb,
-                const uint&         aSpatialDirection,
-                fem::FDScheme_Type& aUsedFDScheme );
+                const real&          aPerturbation,
+                const real&          aCoefficientToPerturb,
+                const uint&          aSpatialDirection,
+                fem::FDScheme_Type&  aUsedFDScheme,
+                mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
         /**
@@ -1034,7 +1122,20 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > remap_nonconformal_rays( Field_Interpolator* aLeaderFieldInterpolator, Field_Interpolator* aFollowerFieldInterpolator ) const;
+        Matrix< DDRMat > remap_nonconformal_rays(
+                Field_Interpolator* aLeaderFieldInterpolator,
+                Field_Interpolator* aFollowerFieldInterpolator );
+
+        Matrix< DDRMat > remap_nonconformal_rays_deformed_geometry(
+                Field_Interpolator* aLeaderFieldInterpolator,
+                Field_Interpolator* aFollowerFieldInterpolator );
+
+        Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry() const;
+
+        const std::unique_ptr< GapData >& get_gap_data()
+        {
+            return mGapData;
+        }
     };
     //------------------------------------------------------------------------------
 
