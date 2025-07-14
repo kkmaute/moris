@@ -146,12 +146,27 @@ namespace moris::opt
                 }
             }
 
-            // Change lower bounds for sweep based on parameter and initialize ADvs
-            if ( !mIncludeBounds )
+            // Determine spacing and set starting point for sweep
+            Vector< real > tDeltaADVs( tNumADVs, 0.0 );
+
+            if ( mIncludeBounds )
             {
                 for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
                 {
-                    tLowerBounds( tADVIndex ) += ( tUpperBounds( tADVIndex ) - tLowerBounds( tADVIndex ) ) / ( mNumEvaluations( tADVIndex ) + 1 );
+                    if ( mNumEvaluations( tADVIndex ) > 1 )
+                    {
+                        tDeltaADVs( tADVIndex ) = ( tUpperBounds( tADVIndex ) - tLowerBounds( tADVIndex ) ) / ( mNumEvaluations( tADVIndex ) - 1 );
+                    }
+                }
+            }
+            else
+            {
+                // Change lower bounds for sweep based on parameter and initialize ADvs
+
+                for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
+                {
+                    tDeltaADVs( tADVIndex )   = ( tUpperBounds( tADVIndex ) - tLowerBounds( tADVIndex ) ) / ( mNumEvaluations( tADVIndex ) );
+                    tLowerBounds( tADVIndex ) = +tDeltaADVs( tADVIndex ) / 2.0;
                 }
             }
 
@@ -171,24 +186,24 @@ namespace moris::opt
             mEvaluationPoints.set_size( tNumADVs, tTotalEvaluations );
 
             tADVs = tLowerBounds;
-            Matrix< DDUMat > tCurrentEvaluations( tNumADVs, 1, 0 );
+            Vector< uint > tCurrentEvaluations( tNumADVs, 0 );
 
             // Construct evaluation points
             for ( uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++ )
             {
                 if ( tNumADVs > 0 )
                 {
-                    // Assign ADVs
+                    // Assign ADVs to evaluation points
                     for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
                     {
                         mEvaluationPoints( tADVIndex, tEvaluationIndex ) = tADVs( tADVIndex );
                     }
 
-                    // Update ADVs
-                    tADVs( 0 ) += ( tUpperBounds( 0 ) - tLowerBounds( 0 ) ) / ( mNumEvaluations( 0 ) + 1 - ( 2 * mIncludeBounds ) );
+                    // Increment ADV(0)
+                    tADVs( 0 ) += tDeltaADVs( 0 );
+                    tCurrentEvaluations( 0 )++;
 
-                    tCurrentEvaluations( 0 ) += 1;
-
+                    // Determine which ADVs to increment and update these ADVs
                     for ( uint tADVIndex = 0; tADVIndex < tNumADVs - 1; tADVIndex++ )
                     {
                         if ( tCurrentEvaluations( tADVIndex ) == mNumEvaluations( tADVIndex ) )
@@ -197,9 +212,8 @@ namespace moris::opt
                             tADVs( tADVIndex )               = tLowerBounds( tADVIndex );
                             tCurrentEvaluations( tADVIndex ) = 0;
 
-                            tADVs( tADVIndex + 1 ) +=    //
-                                    ( tUpperBounds( tADVIndex ) - tLowerBounds( tADVIndex ) ) / ( mNumEvaluations( tADVIndex ) + 1 - ( 2 * mIncludeBounds ) );
-                            tCurrentEvaluations( tADVIndex + 1 ) += 1;
+                            tADVs( tADVIndex + 1 ) += tDeltaADVs( tADVIndex + 1 );
+                            tCurrentEvaluations( tADVIndex + 1 )++;
                         }
                     }
                 }
@@ -250,6 +264,11 @@ namespace moris::opt
         // Loop through evaluation points
         for ( uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++ )
         {
+            // set optimization iterations
+            gLogger.set_opt_iteration( tEvaluationIndex );
+
+            MORIS_LOG_INFO( "Sweep evaluation %d of %d", tEvaluationIndex + 1, tTotalEvaluations );
+
             // get the evaluation point
             Vector< real > tEvaluationPoint( mEvaluationPoints.n_rows() );
             for ( uint iADVIndex = 0; iADVIndex < tEvaluationPoint.size(); iADVIndex++ )
