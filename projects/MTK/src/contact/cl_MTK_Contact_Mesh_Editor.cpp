@@ -38,7 +38,7 @@ namespace moris::mtk
         // Map from every cluster on the leader side to every cluster on which a mapping was successful on the follower side.
         // The second map stores all indices in the aMappingResult that belong to this cluster pair.
         // This stage does not yet group the indices by the cell pairs.
-        // Note: Even if a cluster has not been succesfully mapped, we need to store an empty map for this cluster!
+        // Note: Even if a cluster has not been successfully mapped, we need to store an empty map for this cluster!
         // This is necessary to add "no-op" nonconformal side sets to the IGMesh to get the displacement values at those nodes as well.
         uint const tNumClusters = mSideSets( aMappingResult.mSourceMeshIndex )->get_num_clusters_on_set();
 
@@ -353,7 +353,7 @@ namespace moris::mtk
 
         // std::cout << "Number of nonconformal side clusters: " << tNumNonconformalSideClusters << std::endl;
 
-        // every possible nonconformal set has to be (at leas) created (even if it does not contain any clusters)
+        // every possible nonconformal set has to be (at least) created (even if it does not contain any clusters)
         // We therefore take all candidate pairs and remove the ones that will be created based on the mapping.
         // the remaining set pairs will be used to create empty nonconformal side sets.
         std::set< SetPair > tAllPossibleSetPairs;
