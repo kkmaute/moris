@@ -62,6 +62,9 @@ namespace moris::fem
 
         // populate the stabilization map
         mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
+
+        // set flag to use displacement for gap
+        mUseDeformedGeometryForGap = true;
     }
 
     //------------------------------------------------------------------------------
@@ -80,95 +83,315 @@ namespace moris::fem
         this->check_field_interpolators( mtk::Leader_Follower::LEADER );
         this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
+        // check if the gap data is set
+        // MORIS_ERROR( mGapData != nullptr, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - Gap data is not set!" );
 
         // get leader index for residual dof type, indices for assembly
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
 
-        uint const tDofIndex      = mSet->get_dof_index_for_type( tDisplDofTypes( 0 ), mtk::Leader_Follower::LEADER );
-        uint const tResStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-        uint const tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-        auto const tResRange      = std::make_pair( tResStartIndex, tResStopIndex );
+        // get leader index for residual dof type, indices for assembly
+        uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-        // get field interpolator for the residual dof type
-        Field_Interpolator*    tLeaderDofs     = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
-        Geometry_Interpolator* tLeaderGeometry = mLeaderFIManager->get_IG_geometry_interpolator();
+        // get follower index for residual dof type, indices for assembly
+        uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+        uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+        uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-        // get follower field interpolator for the residual dof type
-        Field_Interpolator*    tFollowerDofs     = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) );
-        Geometry_Interpolator* tFollowerGeometry = mFollowerFIManager->get_IG_geometry_interpolator();
+        // build gap data and remap follower coordinates
+        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays_deformed_geometry(
+                mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
+                mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
 
-        // get user defined constitutive model, stabilization parameter and thickness property
-        const std::shared_ptr< Constitutive_Model >&      tConstitutiveModel      = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
-        const std::shared_ptr< Stabilization_Parameter >& tStabilizationParameter = mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
-        const std::shared_ptr< Property >&                tThicknessProperty      = mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+        // check whether the remapping is successful
+        if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
+        {
+            return;    // exit if remapping was not successful
+        }
+
+        // set integration point for follower side
+        mFollowerFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+
+        // get the elasticity constitutive models
+        const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
+                mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+        // get the Nitsche stabilization parameter
+        const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
+                mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+
+        // get thickness property
+        const std::shared_ptr< Property >& tPropThickness =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
         // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-        aWStar *= ( tThicknessProperty != nullptr ) ? tThicknessProperty->val()( 0 ) : 1;
+        aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
-        ///// MLIKA
-        const real tNitscheParam = tStabilizationParameter->val()( 0 );    // stabilization parameter gamma
+        // Nitsche parameter gamma
+        const real tNitscheParam = tSPNitsche->val()( 0 );
 
-        // utility variables
-        const uint             tDim      = mNormal.numel();
-        const Matrix< DDRMat > tIdentity = eye( tDim, tDim );
+        // get Piola traction
+        const Matrix< DDRMat >& tTraction =
+                tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, CM_Function_Type::PK1 );
 
-        // displacement of leader (L) and follower (F)
-        const Matrix< DDRMat > tUL = tLeaderDofs->val();      // ( 2 x 1 )
-        const Matrix< DDRMat > tUF = tFollowerDofs->val();    // ( 2 x 1 )
+        // get test traction
+        const Matrix< DDRMat >& tTestTraction =
+                tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, CM_Function_Type::PK1 );
 
-        // test functions of leader (L) and follower (F)
-        const Matrix< DDRMat > tNL = tLeaderDofs->N();      // ( 2 x 8 )
-        const Matrix< DDRMat > tNF = tFollowerDofs->N();    // ( 2 x 8 )
+        // compute contact pressure using current normal
+        real tContactPressure = dot( tTraction, mGapData->mLeaderNormal );
 
-        // coordinates of leader (L) and follower (F) in the reference configuration
-        const Matrix< DDRMat > tXL = trans( tLeaderGeometry->valx() );      // ( 2 x 1 )
-        const Matrix< DDRMat > tXF = trans( tFollowerGeometry->valx() );    // ( 2 x 1 )
+        // compute variation of contact pressure
+        auto tTestContactPressuredUleader =
+                tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction;
 
-        Matrix< DDRMat > const txL = tLeaderGeometry->valx_current( tLeaderDofs );
-        Matrix< DDRMat > const txF = tFollowerGeometry->valx_current( tFollowerDofs );
+        // compute augmented Lagrangian term
+        const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
 
-        // compute the deformation gradients at the leader and follower side (all 2x1)
-        const Matrix< DDRMat > tNormalCurrent   = tLeaderGeometry->get_normal_current( tLeaderDofs );
-        const Matrix< DDRMat > tNormalReference = tLeaderGeometry->get_normal();
-        const Matrix< DDRMat > tNormalProjector = tNormalCurrent * trans( tNormalCurrent );
-
-        // gap between points in current configuration
-        const Matrix< DDRMat > tJump = tUL - tUF - tXF + tXL;
-
-        // evaluate traction and their pressure equivalent (normal component)
-        const Matrix< DDRMat > tTraction = tConstitutiveModel->traction( tNormalReference, CM_Function_Type::PK1 );    // ( 2 x 1 )
-        const real             tPressure = dot( tTraction, tNormalCurrent );
-
-        // evaluate test traction and the corresponding pressure equivalent (normal component) by computing the dot product between
-        // each column of tTestTraction and tNormalCurrent. This is done by element-wise multiplication and then summing the columns.
-        const Matrix< DDRMat > tTestTraction = tConstitutiveModel->testTraction( tNormalReference, tDisplDofTypes, CM_Function_Type::PK1 );    // ( 2 x 8 )
-
-        // Compute the contact term C_gamma(sigma, g, n), see Mlika (2018) Eq. (4.2.1). If the contact term is negative, the second term of the residual is not zero.
-        const real tContactTerm = tPressure - tNitscheParam * dot( tJump, tNormalCurrent );
-        if ( tContactTerm < 0 )
+        if ( tAugLagrTerm > 0 )
         {
-            mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * (                                                        //
-                                                              -trans( tNL ) * tNormalProjector * tTraction                    //
-                                                              - mTheta * trans( tTestTraction ) * tNormalProjector * tJump    //
-                                                              + tNitscheParam * trans( tNL ) * tNormalProjector * tJump       //
-                                                      );
+            mSet->get_residual()( 0 )(
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
+                    -0.5 * aWStar / tNitscheParam * tTestContactPressuredUleader * tContactPressure;
         }
         else
         {
-            // first integral in Mlika (2018) Eq. (4.25) (ensures 0 pressure when not in contact)
-            mSet->get_residual()( 0 )( tResRange ) += aWStar * 0.5 * ( ( -mTheta / tNitscheParam ) * trans( tTestTraction ) * tNormalProjector * tTraction );
+            mSet->get_residual()( 0 )(
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
+                    0.5 * aWStar * (                                                    //
+                            +trans( mGapData->mdGapdu ) * tContactPressure              //
+                            + mTheta * tTestContactPressuredUleader * mGapData->mGap    //
+                            + tNitscheParam * trans( mGapData->mdGapdu ) * mGapData->mGap );
+
+            mSet->get_residual()( 0 )(
+                    { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
+                    0.5 * aWStar * (                                          //
+                            +trans( mGapData->mdGapdv ) * tContactPressure    //
+                            + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
         }
 
         // check for nan, infinity
         MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                "IWG_Isotropic_Struc_Linear_Contact_Gap::compute_residual - Residual contains NAN or INF, exiting!" );
+                "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - Residual contains NAN or INF, exiting!" );
     }
 
     //------------------------------------------------------------------------------
 
     void IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_jacobian( real aWStar )
     {
-        MORIS_ERROR( false, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_jacobian - Jacobians for Nonconformal Contact can onl." );
+#ifdef MORIS_HAVE_DEBUG
+        // check leader and follower field interpolators
+        this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+        this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
+#endif
+        // check if the gap data is set
+        // MORIS_ERROR( mGapData != nullptr, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - Gap data is not set!" );
+
+        // get leader index for residual dof type, indices for assembly
+        Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
+
+        // get leader index for residual dof type, indices for assembly
+        uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+
+        // get follower index for residual dof type, indices for assembly
+        uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+        uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+        uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
+
+        // build gap data and remap follower coordinates
+        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays_deformed_geometry(
+                mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
+                mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
+
+        // check whether the remapping is successful
+        if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
+        {
+            return;    // exit if remapping was not successful
+        }
+
+        // set integration point for follower side
+        mFollowerFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+
+        // get the elasticity constitutive models
+        const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
+                mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+        // get the Nitsche stabilization parameter
+        const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
+                mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+
+        // get thickness property
+        const std::shared_ptr< Property >& tPropThickness =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+        // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+        aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
+
+        // Nitsche parameter gamma
+        const real tNitscheParam = tSPNitsche->val()( 0 );
+
+        // get Piola traction
+        const Matrix< DDRMat >& tTraction =
+                tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, CM_Function_Type::PK1 );
+
+        // get test traction
+        const Matrix< DDRMat >& tTestTraction =
+                tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, CM_Function_Type::PK1 );
+
+        // compute contact pressure using current normal
+        real tContactPressure = dot( tTraction, mGapData->mLeaderNormal );
+
+        // compute variation of contact pressure
+        auto tTestContactPressuredUleader =
+                tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction;
+
+        // compute augmented Lagrangian term
+        const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
+
+        // get number of leader dof dependencies
+        const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+
+        // compute the Jacobian for indirect dof dependencies through leader constitutive models
+        for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
+        {
+            // get the dof type
+            const Vector< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
+
+            // get the index for the dof type
+            const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+            const uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+            const uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
+
+            // extract sub-matrices
+            auto tJacMM = mSet->get_jacobian()(
+                    { tLeaderResStartIndex, tLeaderResStopIndex },
+                    { tLeaderDepStartIndex, tLeaderDepStopIndex } );
+
+            auto tJacSM = mSet->get_jacobian()(
+                    { tFollowerResStartIndex, tFollowerResStopIndex },
+                    { tLeaderDepStartIndex, tLeaderDepStopIndex } );
+
+            // compute Jacobian direct dependencies
+            if ( tDofType( 0 ) == tDisplDofTypes( 0 ) )
+            {
+                if ( tAugLagrTerm > 0 )
+                {
+                    tJacMM += -0.5 * aWStar / tNitscheParam * (                                                  //
+                                      tContactPressure * tTestTraction * mGapData->mLeaderdNormaldu              //
+                                      + tContactPressure * mGapData->multiply_leader_dnormal2du2( tTraction )    //
+                                      + tTestContactPressuredUleader * trans( tTraction ) * mGapData->mLeaderdNormaldu );
+                }
+                else
+                {
+                    tJacMM +=
+                            0.5 * aWStar * (                                                                          //
+                                    tContactPressure * mGapData->mdGap2du2                                            //
+                                    + trans( mGapData->mdGapdu ) * trans( tTraction ) * mGapData->mLeaderdNormaldu    //
+                                    + mTheta * mGapData->mGap * mGapData->multiply_leader_dnormal2du2( tTraction )    //
+                                    + mTheta * mGapData->mGap * tTestTraction * mGapData->mLeaderdNormaldu            //
+                                    + mTheta * tTestContactPressuredUleader * mGapData->mdGapdu                       //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdu ) * mGapData->mdGapdu                //
+                                                        + mGapData->mGap * mGapData->mdGap2du2 ) );
+
+                    tJacSM +=
+                            0.5 * aWStar * (                                                                          //
+                                    tContactPressure * trans( mGapData->mdGap2duv )                                   //
+                                    + trans( mGapData->mdGapdv ) * trans( tTraction ) * mGapData->mLeaderdNormaldu    //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdu                //
+                                                        + mGapData->mGap * trans( mGapData->mdGap2duv ) ) );
+                }
+            }
+
+            // if dependency on the dof type
+            if ( tConstitutiveModelLeader->check_dof_dependency( tDofType ) )
+            {
+                if ( tAugLagrTerm > 0 )
+                {
+                    tJacMM += -0.5 * aWStar / tNitscheParam * (                                                                                                                                                 //
+                                      tConstitutiveModelLeader->dTestTractiondDOF( tDofType, mGapData->mLeaderRefNormal, tContactPressure * mGapData->mLeaderNormal, tDisplDofTypes, CM_Function_Type::PK1 )    //
+                                      + tContactPressure * trans( mGapData->mLeaderdNormaldu ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, CM_Function_Type::PK1 )         //
+                                      + tTestContactPressuredUleader * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, CM_Function_Type::PK1 ) );
+                }
+                else
+                {
+                    tJacMM +=
+                            0.5 * aWStar * (                                                                                                                                                                           //
+                                    trans( mGapData->mdGapdu ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, CM_Function_Type::PK1 )             //
+                                    + mTheta * tConstitutiveModelLeader->dTestTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mGapData->mGap * mGapData->mLeaderNormal, tDisplDofTypes, CM_Function_Type::PK1 )    //
+                                    + mTheta * mGapData->mGap * trans( mGapData->mLeaderdNormaldu ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, CM_Function_Type::PK1 ) );
+
+                    tJacSM +=
+                            0.5 * aWStar * (    //
+                                    trans( mGapData->mdGapdv ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, CM_Function_Type::PK1 ) );
+                }
+            }
+
+            // if dependency of stabilization parameters on the dof type
+            if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::LEADER ) )
+            {
+                MORIS_ERROR( false, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_jacobian - state dependent stabilization not implemented." );
+            }
+        }
+
+        // compute the Jacobian for indirect dof dependencies through follower constitutive models
+        uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+        for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
+        {
+            // get dof type
+            const Vector< MSI::Dof_Type >& tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
+
+            // get the index for the dof type
+            const sint tDofDepIndex           = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+            const uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
+            const uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
+
+            // extract sub-matrices
+            auto tJacMS = mSet->get_jacobian()(
+                    { tLeaderResStartIndex, tLeaderResStopIndex },
+                    { tFollowerDepStartIndex, tFollowerDepStopIndex } );
+
+            auto tJacSS = mSet->get_jacobian()(
+                    { tFollowerResStartIndex, tFollowerResStopIndex },
+                    { tFollowerDepStartIndex, tFollowerDepStopIndex } );
+
+            // if dof type is residual dof type
+            if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+            {
+                if ( tAugLagrTerm > 0 )
+                {
+                    // nothing here
+                }
+                else
+                {
+                    tJacMS +=
+                            0.5 * aWStar * (                                                              //
+                                    tContactPressure * mGapData->mdGap2duv                                //
+                                    + mTheta * tTestContactPressuredUleader * mGapData->mdGapdv           //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdu ) * mGapData->mdGapdv    //
+                                                        + mGapData->mGap * mGapData->mdGap2duv ) );
+                    tJacSS +=
+                            0.5 * aWStar * (                                                              //
+                                    tContactPressure * mGapData->mdGap2dv2                                //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdv    //
+                                                        + mGapData->mGap * trans( mGapData->mdGap2dv2 ) ) );
+                }
+            }
+
+            // if dependency on the dof type: even if so, nothing here
+
+            // if dependency of stabilization parameters on the dof type
+            if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::FOLLOWER ) )
+            {
+                MORIS_ERROR( false, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_jacobian - state dependent stabilization not implemented." );
+            }
+        }
+
+        // check for nan, infinity
+        MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
     }
 
     //------------------------------------------------------------------------------
