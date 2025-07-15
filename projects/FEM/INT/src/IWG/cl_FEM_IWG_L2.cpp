@@ -97,7 +97,7 @@ namespace moris::fem
             {
                 if ( tPropSource != nullptr )
                 {
-                    tRes += aWStar * tPropH1Term->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tPropSource->dnPropdxn( 1 ) );
+                    tRes += aWStar * tPropH1Term->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tPropSource->dPropdx( 1 ) );
                 }
                 else
                 {
