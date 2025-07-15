@@ -113,7 +113,14 @@ namespace moris::gen
     {
         if ( mUniqueIgPDVTypes.size() > 0 )    // FIXME
         {
-            aPDVTypes = mUniqueIgPDVTypes( aIGMeshSetIndex );
+            if ( aIGMeshSetIndex >= (moris_index)mUniqueIgPDVTypes.size() )
+            {
+                aPDVTypes = mUniqueIgPDVTypes( mUniqueIgPDVTypes.size() - 1 );    // Hack - need to handle this better
+            }
+            else
+            {
+                aPDVTypes = mUniqueIgPDVTypes( aIGMeshSetIndex );
+            }
         }
     }
 
