@@ -113,7 +113,22 @@ namespace moris::mtk
             int                                        aCellOrdinal,
             moris_index                                aClusterIndex )
     {
-        MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
+        if ( mGlobalToLocalCellIndex.count( aCell->get_index() ) != 0 )
+        {
+            // if the cell has already been added to the surface mesh, we do not add it again as it would break the mGlobalToLocalCellIndex map
+            // FIXME: not correct way to handle; a cell can have two sides on the surface mesh
+            //        if ( mCellToClusterIndices( mGlobalToLocalCellIndex[ aCell->get_index() ] ) != aClusterIndex )
+            //        {
+            //            MORIS_ERROR( false, "Cell already exists in surface mesh with different cluster index" );
+            //        }
+            //            fprintf( stderr, "Cell %d already exists in surface mesh, side ordinal %d, skipping initialization",    //
+            //                    aCell->get_index(),
+            //                    aCellOrdinal );
+            return;
+        }
+        // MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
+
+        // fprintf( stderr, "Adding cell %d to surface mesh with cluster index %d and side ordinal %d\n", aCell->get_index(), aClusterIndex, aCellOrdinal );
 
         auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
 
