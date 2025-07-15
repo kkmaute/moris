@@ -30,9 +30,8 @@
 #include "cl_FEM_IQI_H1_Error.hpp"
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
 #include "cl_FEM_IQI_Max_Stress.hpp"
-#include "cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp"
-#include "cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp"
-#include "cl_FEM_IQI_Effective_Conductivity.hpp"
+#include "cl_FEM_IQI_Turbulence_Fluid_Coefficient.hpp"
+#include "cl_FEM_IQI_Turbulence_Heat_Coefficient.hpp"
 #include "cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp"
 #include "cl_FEM_IQI_Power_Dissipation.hpp"
 #include "cl_FEM_IQI_Power_Dissipation_Bulk.hpp"
@@ -146,12 +145,10 @@ namespace moris::fem
             case IQI_Type::LIFT_COEFF:
                 return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
 
-            case IQI_Type::TURBULENT_DYNAMIC_VISCOSITY:
-                return std::make_shared< IQI_Turbulent_Dynamic_Viscosity >();
-            case IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY:
-                return std::make_shared< IQI_Effective_Dynamic_Viscosity >();
-            case IQI_Type::EFFECTIVE_CONDUCTIVITY:
-                return std::make_shared< IQI_Effective_Conductivity >();
+            case IQI_Type::TURBULENCE_FLUID_COEFFICIENT:
+                return std::make_shared< IQI_Turbulence_Fluid_Coefficient >();
+            case IQI_Type::TURBULENCE_HEAT_COEFFICIENT:
+                return std::make_shared< IQI_Turbulence_Heat_Coefficient >();
             case IQI_Type::SPALART_ALLMARAS_COEFFICIENT:
                 return std::make_shared< IQI_Spalart_Allmaras_Coefficient >();
 
