@@ -15,46 +15,7 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    Property::Property()
-    {
-        // FIXME for now only 1st order allowed
-        uint tOrder = 1;
-
-        // init storage for evaluation
-        mdPropdx.resize( tOrder );
-
-        // init flag for evaluation
-        mdPropdxEval.set_size( tOrder, 1, true );
-
-        // init flag for set
-        mSetSpaceDerFunctions.set_size( tOrder, 1, false );
-    }
-
-    //------------------------------------------------------------------------------
-
-    void
-    Property::set_space_der_functions(
-            const Vector< PropertyFunc >& aSpaceDerFunctions )
-    {
-        // get the max order of space derivatives
-        uint tMaxOrder = aSpaceDerFunctions.size();
-
-        // FIXME For now max order is 1
-        MORIS_ASSERT( tMaxOrder <= 1, "Property - set_space_der_functions(): Higher order property space derivatives not supported yet." );
-
-        // init size of space derivative storage
-        mSpaceDerFunctions.resize( tMaxOrder );
-
-        // loop over order and set function
-        for ( uint iOrder = 0; iOrder < tMaxOrder; iOrder++ )
-        {
-            // set the value function
-            mSpaceDerFunctions( iOrder ) = aSpaceDerFunctions( iOrder );
-
-            // set setting flag
-            mSetSpaceDerFunctions( iOrder ) = true;
-        }
-    }
+    Property::Property() {}
 
     //------------------------------------------------------------------------------
 
@@ -65,12 +26,15 @@ namespace moris::fem
         mPropEval = true;
 
         // reset the property derivatives wrt x
-        mdPropdxEval.fill( true );
+        mPropSpaceDerEval.fill( true );
 
-        // reset the property derivatives wrt dof type
+        // reset the property derivatives wrt dof
         mPropDofDerEval.fill( true );
 
-        // reset the property derivatives wrt dv type
+        // reset the property derivatives wrt x and dof
+        mPropSpaceDofDerEval.fill( true );
+
+        // reset the property derivatives wrt dv
         mPropDvDerEval.fill( true );
     }
 
@@ -389,6 +353,121 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    void
+    Property::set_val_function( PropertyFunc aValFunction )
+    {
+        // set the value function
+        mValFunction = std::move( aValFunction );
+
+        // set setting flag
+        mSetValFunction = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Property::set_space_derivative_functions(
+            const Vector< PropertyFunc >& aSpaceDerFunctions )
+    {
+        // get the max order of space derivatives
+        uint tMaxOrder = aSpaceDerFunctions.size();
+
+        // for now allowed max order is 1
+        MORIS_ASSERT( tMaxOrder <= mMaxSpaceDerOrder,           //
+                "Property::set_space_derivative_functions()"    //
+                " Higher order property space derivatives not supported." );
+
+        // if there is a space dependency
+        if ( tMaxOrder > 0 )
+        {
+            // set space dependency to true
+            mSpaceDependency = true;
+        }
+
+        // set functions for derivatives wrt space
+        mSpaceDerFunctions = aSpaceDerFunctions;
+
+        // set storage
+        mPropSpaceDer.resize( tMaxOrder );
+
+        // set evaluation flag
+        mPropSpaceDerEval.set_size( tMaxOrder, 1, true );
+
+        // set setting flag
+        mSetSpaceDerFunctions = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Property::set_dof_derivative_functions(
+            const Vector< PropertyFunc >& aDofDerFunctions )
+    {
+        // set functions for derivatives wrt dof
+        mDofDerFunctions = aDofDerFunctions;
+
+        // set setting flag
+        mSetDofDerFunctions = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Property::set_space_dof_derivative_functions(
+            const Vector< PropertyFunc >& aSpaceDofDerFunctions )
+    {
+        // get the max order of space derivatives
+        // FIXME aSpaceDofDerFunctions should be a vector of vector
+        // with space order as row and dof as column
+        // right now limited to order 1
+        uint tMaxOrder = 0;
+        if ( aSpaceDofDerFunctions.size() > 0 )
+        {
+            tMaxOrder = 1;
+        }
+
+        // for now allowed max order is 1
+        MORIS_ASSERT( tMaxOrder <= mMaxSpaceDerOrder,             //
+                "Property - set_space_derivative_functions():"    //
+                " Higher order property space derivatives not supported." );
+
+        // number of dof types
+        uint tNumDofTypes = mDofTypes.size();
+
+        // set mDofDerFunctions size
+        mSpaceDofDerFunctions.assign( tNumDofTypes, nullptr );
+
+        // set functions for derivatives wrt space and wrt dof
+        mSpaceDofDerFunctions = aSpaceDofDerFunctions;
+        
+        // set mPropSpaceDofDerEval size
+        mPropSpaceDofDerEval.set_size( tMaxOrder, tNumDofTypes, true );
+
+        // set mPropSpaceDofDer size
+        mPropSpaceDofDer.resize( tMaxOrder );
+        for ( uint iOrder = 0; iOrder < tMaxOrder; iOrder++ )
+        {
+            for ( uint iDof = 0; iDof < tNumDofTypes; iDof++ )
+            {
+                mPropSpaceDofDer( iOrder ).resize( tNumDofTypes );
+            }
+        }
+
+        // set setting flag
+        mSetSpaceDofDerFunctions = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    bool
+    Property::check_space_dependency()
+    {
+        // return bool for dependency on space
+        return mSpaceDependency;
+    }
+
+    //------------------------------------------------------------------------------
+
     const Matrix< DDRMat >&
     Property::val()
     {
@@ -411,10 +490,6 @@ namespace moris::fem
     void
     Property::eval_Prop()
     {
-        //            // check that mValFunc was assigned
-        //            MORIS_ASSERT( mSetValFunction == true,
-        //                    "Property::eval_Prop - mValFunction not assigned. " );
-
         // check that mFIManager was assigned
         MORIS_ASSERT( mFIManager != nullptr,
                 "Property::eval_Prop - mFIManager not assigned. " );
@@ -425,47 +500,40 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    bool
-    Property::check_space_dependency( const uint& aOrder )
-    {
-        // return bool for set space derivative function
-        return mSetSpaceDerFunctions( aOrder - 1 );
-    }
-
-    //------------------------------------------------------------------------------
-
     const Matrix< DDRMat >&
-    Property::dnPropdxn( const uint& aOrder )
+    Property::dPropdx( const uint& aOrder )
     {
         // if the property was not evaluated
-        if ( mdPropdxEval( aOrder - 1 ) )
+        if ( mPropSpaceDerEval( aOrder - 1 ) )
         {
             // evaluate the property
-            this->eval_dnPropdxn( aOrder );
+            this->eval_dPropdx( aOrder );
 
             // set bool for evaluation
-            mdPropdxEval( aOrder - 1 ) = false;
+            mPropSpaceDerEval( aOrder - 1 ) = false;
         }
 
         // return the property value
-        return mdPropdx( aOrder - 1 );
+        return mPropSpaceDer( aOrder - 1 );
     }
 
     //------------------------------------------------------------------------------
 
     void
-    Property::eval_dnPropdxn( const uint& aOrder )
+    Property::eval_dPropdx( const uint& aOrder )
     {
         // check that mSetSpaceDerFunc was assigned
-        MORIS_ASSERT( mSetSpaceDerFunctions( aOrder - 1 ) == true,
-                "Property::eval_dnPropdxn - mSpaceDerFunction not assigned for order. " );
+        MORIS_ASSERT( mSetSpaceDerFunctions == true,
+                "Property::eval_dPropdx - mSpaceDerFunction not assigned for order. " );
+        MORIS_ASSERT( mSpaceDerFunctions( aOrder - 1 ) != nullptr,
+                "Property::eval_dPropdx - mSpaceDerFunctions not assigned for order. " );
 
         // check that mFIManager was assigned
         MORIS_ASSERT( mFIManager != nullptr,
-                "Property::eval_dnPropdxn - mFIManager not assigned. " );
+                "Property::eval_dPropdx - mFIManager not assigned. " );
 
         // use mSpaceDerFunctions to evaluate the property
-        mSpaceDerFunctions( aOrder - 1 )( mdPropdx( aOrder - 1 ), mParameters, mFIManager );
+        mSpaceDerFunctions( aOrder - 1 )( mPropSpaceDer( aOrder - 1 ), mParameters, mFIManager );
     }
 
     //------------------------------------------------------------------------------
@@ -516,6 +584,75 @@ namespace moris::fem
 
         // if so use mDerivativeFunction to compute the derivative
         mDofDerFunctions( tDofIndex )( mPropDofDer( tDofIndex ), mParameters, mFIManager );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    Property::dPropdxdDOF(
+            const Vector< MSI::Dof_Type >& aDofType,
+            const uint&                    aOrder )
+    {
+        // check space dependency
+        MORIS_ERROR( this->check_space_dependency(),
+                "Property::dPropdxdDOF - No dependency on space." );
+
+        // check dof dependency
+        MORIS_ERROR( this->check_dof_dependency( aDofType ),
+                "Property::dPropdxdDOF - No dependency on dof." );
+
+        // get the dof index
+        uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+        // if the derivative of the property wrt space and dof was not evaluated
+        if ( mPropSpaceDofDerEval( aOrder - 1, tDofIndex ) )
+        {
+            // evaluate the derivative
+            this->eval_dPropdxdDOF( aDofType, aOrder );
+
+            // set bool for evaluation
+            mPropSpaceDofDerEval( aOrder - 1, tDofIndex ) = false;
+        }
+
+        // return the value
+        return mPropSpaceDofDer( aOrder - 1 )( tDofIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Property::eval_dPropdxdDOF(
+            const Vector< MSI::Dof_Type >& aDofType,
+            const uint&                    aOrder )
+    {
+        // get the dof index
+        uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+        // check that mSpaceDofDerFunctions was assigned
+        MORIS_ASSERT( mSetSpaceDofDerFunctions == true,
+                "Property::eval_dPropdxdDOF - mSetSpaceDofDerFunctions not assigned. " );
+        MORIS_ASSERT( mSpaceDofDerFunctions( tDofIndex ) != nullptr,
+                "Property::eval_dPropdxdDOF - mSpaceDofDerFunctions not assigned. " );
+
+        // check that mFIManager was assigned
+        MORIS_ASSERT( mFIManager != nullptr,
+                "Property::eval_dPropdxdDOF - mFIManager not assigned. " );
+
+        // if so use mSpaceDofDerFunctions to compute the derivative
+        mSpaceDofDerFunctions( tDofIndex )( mPropSpaceDofDer( aOrder - 1 )( tDofIndex ), mParameters, mFIManager );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Property::set_dv_derivative_functions(
+            const Vector< PropertyFunc >& aDvDerFunctions )
+    {
+        // set functions for derivatives wrt dv
+        mDvDerFunctions = aDvDerFunctions;
+
+        // set setting flag
+        mSetDvDerFunctions = true;
     }
 
     //------------------------------------------------------------------------------
