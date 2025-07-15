@@ -20,16 +20,11 @@ namespace moris::fem
 
     Constitutive_Model::Constitutive_Model()
     {
-        // FIXME for now only 1st order allowed
-        uint tOrder = 1;
-
         // set storage for evaluation
-        mdFluxdx.resize( tOrder );
-        mdStraindx.resize( tOrder );
+        mdStraindx.resize( mMaxSpaceDerOrder );
 
         // set flag for evaluation
-        mdFluxdxEval.set_size( tOrder, 1, true );
-        mdStraindxEval.set_size( tOrder, 1, true );
+        mdStraindxEval.set_size( mMaxSpaceDerOrder, 1, true );
     }
 
     //------------------------------------------------------------------------------
@@ -82,6 +77,7 @@ namespace moris::fem
         // reset the strain value and derivative flags
         mStrainEval = true;
         mdStraindDofEval.fill( true );
+        mdStraindxEval.fill( true );
 
         // reset the divergence of the strain value and derivative flags
         mDivStrainEval = true;
@@ -944,7 +940,7 @@ namespace moris::fem
                 // loop over property dof types
                 for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                 {
-                    // populate te dof type list
+                    // populate dof type list
                     aDofTypes.append( tActiveDofType( iDOF ) );
                 }
             }
@@ -962,7 +958,7 @@ namespace moris::fem
                 // loop over MM dof types
                 for ( uint iDOF = 0; iDOF < tActiveDofType.size(); iDOF++ )
                 {
-                    // populate te dof type list
+                    // populate dof type list
                     aDofTypes.append( tActiveDofType( iDOF ) );
                 }
             }
@@ -1148,7 +1144,7 @@ namespace moris::fem
         aDerivativeFD.set_size( tUnperturbed.n_rows(), tDerNumDof, 0.0 );
 
         // coefficients for dof type wrt which derivative is computed
-        Matrix< DDRMat > tCoeff = tFI->get_coeff();
+        const Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
         // initialize dof counter
         uint tDofCounter = 0;
@@ -1197,7 +1193,7 @@ namespace moris::fem
                     // reset properties
                     this->reset_eval_flags();
 
-                    // assemble the jacobian
+                    // assemble the derivative
                     aDerivativeFD.get_column( tDofCounter ) +=
                             tFDScheme( 1 )( iPoint ) * this->select_derivative_FD( aCMRequestType, aTestDofTypes, aNormal, aJump, aCMFunctionType ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                 }
@@ -1205,6 +1201,7 @@ namespace moris::fem
                 tDofCounter++;
             }
         }
+
         // reset the coefficients values
         tFI->set_coeff( tCoeff );
 
@@ -2931,6 +2928,7 @@ namespace moris::fem
     }
 
     //------------------------------------------------------------------------------
+
     const Matrix< DDRMat >& Constitutive_Model::stress( enum CM_Function_Type aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
@@ -2952,6 +2950,7 @@ namespace moris::fem
     }
 
     //------------------------------------------------------------------------------
+
     const Matrix< DDRMat >& Constitutive_Model::strain( enum CM_Function_Type aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
@@ -3090,34 +3089,6 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Constitutive_Model::dfluxdx(
-            uint                  aOrder,
-            enum CM_Function_Type aCMFunctionType )
-    {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "Constitutive_Model::dfluxdx - Only DEFAULT CM function type known in base class." );
-
-        MORIS_ERROR(
-                aOrder == 1,
-                "Constitutive_Model::dfluxdx - Works only for 1st order derivative for now." );
-
-        // if the derivative has not been evaluated yet
-        if ( mdFluxdxEval( aOrder - 1 ) )
-        {
-            // evaluate the derivative
-            this->eval_dfluxdx( aOrder );
-
-            // set bool for evaluation
-            mdFluxdxEval( aOrder - 1 ) = false;
-        }
-
-        // return the derivative
-        return mdFluxdx( aOrder - 1 );
-    }
-
-    //------------------------------------------------------------------------------
-
     const Matrix< DDRMat >& Constitutive_Model::dFluxdDOF(
             const Vector< MSI::Dof_Type >& aDofType,
             enum CM_Function_Type          aCMFunctionType )
@@ -3128,8 +3099,9 @@ namespace moris::fem
 
         // if aDofType is not an active dof type for the CM
         MORIS_ERROR(
-                this->check_dof_dependency( aDofType ),
-                "Constitutive_Model::dFluxdDOF - no dependency in this dof type." );
+                this->check_dof_dependency( aDofType ),    //
+                "Constitutive_Model::dFluxdDOF - "         //
+                "No dependency on this dof type." );
 
         // get the dof index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );

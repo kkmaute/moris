@@ -908,7 +908,7 @@ namespace moris
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMFluid" );
         aParameterLists.set( "phase_name", "PhaseFluid" );
-        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::FLUID_TURBULENCE );
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P;VISCOSITY", "Velocity,Pressure,Viscosity" ) );
         aParameterLists.set( "properties",
                 "PropFluidDynViscosity,Viscosity;"
@@ -930,7 +930,7 @@ namespace moris
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMFluidDiffusion" );
         aParameterLists.set( "phase_name", "PhaseFluid" );
-        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO_TURBULENCE );
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::DIFF_LIN_ISO_TURBULENCE_SPALART_ALLMARAS );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
         aParameterLists.set( "properties",
                 "PropFluidConductivity,Conductivity;"
@@ -1730,22 +1730,25 @@ namespace moris
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkTurbDynVisc" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
-        aParameterLists.set( "IQI_type", fem::IQI_Type::TURBULENT_DYNAMIC_VISCOSITY );
-        aParameterLists.set( "leader_constitutive_models", "CMFluid,Fluid_Turbulence" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::TURBULENCE_FLUID_COEFFICIENT );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,FluidTurbulence" );
+        aParameterLists.set( "vectorial_field_index", 1 );
 
         // effective dynamic viscosity
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkEffDynVisc" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
-        aParameterLists.set( "IQI_type", fem::IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY );
-        aParameterLists.set( "leader_constitutive_models", "CMFluid,Fluid_Turbulence" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::TURBULENCE_FLUID_COEFFICIENT );
+        aParameterLists.set( "leader_constitutive_models", "CMFluid,FluidTurbulence" );
+        aParameterLists.set( "vectorial_field_index", 2 );
 
         // effective conductivity
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkEffCond" );
         aParameterLists.set( "leader_phase_name", "PhaseFluid" );
-        aParameterLists.set( "IQI_type", fem::IQI_Type::EFFECTIVE_CONDUCTIVITY );
-        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion_Turbulence" );
+        aParameterLists.set( "IQI_type", fem::IQI_Type::TURBULENCE_HEAT_COEFFICIENT );
+        aParameterLists.set( "leader_constitutive_models", "CMFluidDiffusion,DiffusionTurbulence" );
+        aParameterLists.set( "vectorial_field_index", 1 );
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list

@@ -44,7 +44,11 @@ set(TEST_SOURCES
     UT_FEM_CM_Diff_Lin_Iso.cpp
     UT_FEM_CM_Diff_PC.cpp
     UT_FEM_CM_Diff_Lin_Iso_Turbulence.cpp
-    UT_FEM_CM_Fluid.cpp
+    UT_FEM_CM_Diff_Lin_Iso_Turbulence_Smagorinsky.cpp
+    UT_FEM_CM_Diff_Lin_Iso_Turbulence_Spallart_Allmaras.cpp
+    UT_FEM_CM_Fluid_Incompressible.cpp
+    UT_FEM_CM_Fluid_Incompressible_Turbulence.cpp
+    UT_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.cpp
     UT_FEM_CM_Compressible_Fluid_Ideal.cpp
     UT_FEM_CM_Compressible_Newtonian_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_VdW.cpp

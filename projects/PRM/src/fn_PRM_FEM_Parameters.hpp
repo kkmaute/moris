@@ -35,6 +35,7 @@ namespace moris::prm
         tParameterList.insert( "dof_derivative_functions", "" );
         tParameterList.insert( "dv_derivative_functions", "" );
         tParameterList.insert( "space_derivative_functions", "" );
+        tParameterList.insert( "space_dof_derivative_functions", "" );
         tParameterList.insert( "dof_dependencies", "" );
         tParameterList.insert( "dv_dependencies", "" );
         tParameterList.insert( "field_dependencies", "" );

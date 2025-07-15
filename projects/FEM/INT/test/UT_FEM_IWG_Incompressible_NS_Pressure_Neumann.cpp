@@ -89,8 +89,8 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
     // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_parameters( { { { 0.3 / 0.6 } } } );
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { { { 0.6 } } } );
@@ -183,9 +183,6 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -205,10 +202,6 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
-
                 break;
             }
             default:
