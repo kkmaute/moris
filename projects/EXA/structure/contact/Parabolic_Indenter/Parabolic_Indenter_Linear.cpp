@@ -677,7 +677,7 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceTop,NitscheInterface" );
-        pl.set( "analytical_jacobian", false );
+        pl.set( "analytical_jacobian", true );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         pl = prm::create_IWG_parameter_list();
@@ -693,7 +693,7 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceBottom,NitscheInterface" );
-        pl.set( "analytical_jacobian", false );
+        pl.set( "analytical_jacobian", true );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         if ( tUseGhost )
@@ -799,7 +799,6 @@ namespace moris
      */
     void SOLParameterList( Module_Parameter_Lists &aParameterLists )
     {
-
         /* --------------------------------------------------------------------------------------------
          */
         /*                                        Linear Algorithm */
