@@ -90,7 +90,7 @@ TEST_CASE( "IQI_Max_Damage","[moris],[fem],[IQI_Max_Damage]" )
     // Damage law - 2 - smooth exponential
     // Smoothing law - 2 - ks smoothing
     moris::Vector< Matrix< DDRMat > > tDamageParameters = { //
-        { { 1.0, 0.818 } },                                 //
+        { { 2.0, 0.818 } },                                 //
         { { 1.0, 1.0e-4, 0.95, 100.0 } },                   //
         { { 2.0, 5.0 } }
     };
@@ -103,10 +103,10 @@ TEST_CASE( "IQI_Max_Damage","[moris],[fem],[IQI_Max_Damage]" )
     tPropNu->set_parameters( { { { 0.3 } } } );
 
     std::shared_ptr< fem::Property > tPropReferenceValue = std::make_shared< fem::Property >();
-    tPropReferenceValue->set_parameters( { { { 5.0 } } } );
+    tPropReferenceValue->set_parameters( { { { 0.5 } } } );
 
     std::shared_ptr< fem::Property > tPropExponent = std::make_shared< fem::Property >();
-    tPropExponent->set_parameters( { { { 10.0 } } } );
+    tPropExponent->set_parameters( { { { 2.0 } } } );
 
     std::shared_ptr< fem::Property > tPropShift = std::make_shared< fem::Property >();
     tPropShift->set_parameters( { { { 1.0 } } } );
@@ -369,6 +369,9 @@ TEST_CASE( "IQI_Max_Damage","[moris],[fem],[IQI_Max_Damage]" )
                         tdQIdu,
                         tdQIduFD,
                         true);
+
+                // print( tdQIdu, "tdQIdu" );
+                // print( tdQIduFD, "tdQIduFD" );
 
                 // print for debug
                 if( !tCheckdQIdu )

@@ -286,10 +286,10 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    CM_Struc_Linear_Isotropic_Damage::reset_eval_flags()
+    CM_Struc_Linear_Isotropic_Damage::reset_specific_eval_flags()
     {
         // call parent implementation
-        Constitutive_Model::reset_eval_flags();
+        CM_Struc_Linear_Isotropic::reset_specific_eval_flags();
 
         // reset child specific eval flags for equivalent strain
         mEqStrainEval = true;
@@ -315,10 +315,10 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    CM_Struc_Linear_Isotropic_Damage::build_global_dof_type_list()
+    CM_Struc_Linear_Isotropic_Damage::initialize_spec_storage_vars_and_eval_flags()
     {
         // call parent implementation
-        Constitutive_Model::build_global_dof_type_list();
+        CM_Struc_Linear_Isotropic::initialize_spec_storage_vars_and_eval_flags();
 
         // get number of dof types
         uint tNumGlobalDofTypes = mGlobalDofTypes.size();

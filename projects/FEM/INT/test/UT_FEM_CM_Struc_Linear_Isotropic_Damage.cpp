@@ -3390,7 +3390,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_DruckerPrager", "[CM_Struc_Lin_Iso_
             // fill coefficients for master FI
             Matrix< DDRMat > tLeaderDOFHatDispl;
             fill_uhat_Elast( tLeaderDOFHatDispl, iSpaceDim, iInterpOrder );
-            print( tLeaderDOFHatDispl, "tLeaderDOFHatDispl" );
+            // print( tLeaderDOFHatDispl, "tLeaderDOFHatDispl" );
             tLeaderDOFHatDispl = tLeaderDOFHatDispl;
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDispl );
 

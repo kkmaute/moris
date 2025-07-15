@@ -106,7 +106,6 @@ namespace moris::fem
         }
 
         //------------------------------------------------------------------------------
-        //--------------------------------------------------------------------------------------------------------------
         /**
          * evaluate geometric jacobian
          * @param[ in ] aDofTypes a dof type wrt which the jacobian is evaluated
@@ -117,16 +116,18 @@ namespace moris::fem
                 enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
-        /**
-         * reset local evaluation flags
+        /*
+         * reset specific evaluation flag
+         * (child implementation)
          */
-        void reset_eval_flags() override;
+        void reset_specific_eval_flags() override;
 
         //------------------------------------------------------------------------------
-        /**
-         * create a global dof type list including local constitutive dependencies
+        /*
+         * initialize specific storage and evaluation flag
+         * (child implementation)
          */
-        void build_global_dof_type_list() override;
+        void initialize_spec_storage_vars_and_eval_flags() override;
 
         //------------------------------------------------------------------------------
         /**
@@ -232,12 +233,6 @@ namespace moris::fem
          * evaluate the constitutive model flux
          */
         void eval_flux() override;
-
-        //--------------------------------------------------------------------------------------------------------------
-        /**
-         * evaluate the constitutive model test flux
-         */
-        void eval_testFlux();
 
         //--------------------------------------------------------------------------------------------------------------
         /**

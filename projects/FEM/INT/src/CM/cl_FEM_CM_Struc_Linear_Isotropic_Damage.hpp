@@ -160,17 +160,17 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /*
-         * reset evaluation flag
-         * Rem: child implementation
+         * reset specific evaluation flag
+         * (child implementation)
          */
-        void reset_eval_flags() override;
+        void reset_specific_eval_flags() override;
 
         //------------------------------------------------------------------------------
         /*
-         * build global dof type list
-         * Rem: child implementation
+         * initialize specific storage and evaluation flag
+         * (child implementation)
          */
-        void build_global_dof_type_list() override;
+        void initialize_spec_storage_vars_and_eval_flags() override;
 
         //--------------------------------------------------------------------------------------------------------------
         /**
