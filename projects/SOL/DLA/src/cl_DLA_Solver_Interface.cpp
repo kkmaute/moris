@@ -323,6 +323,26 @@ void Solver_Interface::fill_matrix_and_RHS(
     uint const tNumSets = this->get_num_sets();
     uint const tNumRHS  = this->get_num_rhs();
 
+    bool        tWriteElementalResJac = false;
+    std::string tJACFileName;
+    std::string tRESFileName;
+    FILE*       tJACFile = nullptr;
+    FILE*       tRESFile = nullptr;
+
+    if ( tWriteElementalResJac )
+    {
+        MORIS_LOG_INFO( "writing data to JAC and RES data\n" );
+
+        tJACFileName = "JACdata_" + std::to_string( par_rank() ) + ".txt";
+        tRESFileName = "RESdata_" + std::to_string( par_rank() ) + ".txt";
+
+        tJACFile = fopen( tJACFileName.c_str(), "w" );
+        tRESFile = fopen( tRESFileName.c_str(), "w" );
+
+        fprintf( tJACFile, "Jac{%2d}=[\n", par_rank() + 1 );
+        fprintf( tRESFile, "Rhs{%2d}=[\n", par_rank() + 1 );
+    }
+
     // Loop over all local elements to build matrix graph
     for ( uint iSet = 0; iSet < tNumSets; iSet++ )
     {
@@ -346,6 +366,17 @@ void Solver_Interface::fill_matrix_and_RHS(
                         tElementTopology.length(),
                         tElementMatrix,
                         tElementTopology );
+
+                if ( tWriteElementalResJac )
+                {
+                    for ( moris::uint i = 0; i < tElementTopology.length(); i++ )
+                    {
+                        for ( moris::uint j = 0; j < tElementTopology.length(); j++ )
+                        {
+                            fprintf( tJACFile, "%d %d %24.20e\n", tElementTopology( i ) + 1, tElementTopology( j ) + 1, tElementMatrix( i, j ) );
+                        }
+                    }
+                }
             }
 
             // Loop over all RHS vectors
@@ -363,12 +394,28 @@ void Solver_Interface::fill_matrix_and_RHS(
                                 tElementTopology,
                                 tElementRHS( Ia ),
                                 Ia );
+
+                        if ( tWriteElementalResJac )
+                        {
+                            for ( moris::uint i = 0; i < tElementTopology.length(); i++ )
+                            {
+                                fprintf( tRESFile, "%d %24.20e\n", tElementTopology( i ) + 1, tElementRHS( Ia )( i ) );
+                            }
+                        }
                     }
                 }
             }
         }
 
         this->free_block_memory( iSet );
+    }
+    if ( tWriteElementalResJac )
+    {
+        fprintf( tJACFile, "];\n" );
+        fprintf( tRESFile, "];\n" );
+
+        fclose( tJACFile );
+        fclose( tRESFile );
     }
 
     // global assembly to switch entries to the right processor

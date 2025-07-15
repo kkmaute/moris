@@ -561,6 +561,11 @@ namespace moris::fem
         void eval_gradxt();
 
         //------------------------------------------------------------------------------
+
+        Geometry_Interpolator* get_IG_geometry_interpolator()
+        {
+            return mGeometryInterpolator;
+        }
     };
 
     //------------------------------------------------------------------------------
