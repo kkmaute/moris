@@ -207,7 +207,7 @@ namespace moris::fem
 
                     if ( tPropH1Term != nullptr )
                     {
-                        if ( tPropH1Term->check_space_dependency( 1 ) )
+                        if ( tPropH1Term->check_space_dependency() )
                         {
                             MORIS_ERROR( false, "IWG_L2::compute_jacobian - H1 contribution for spatially varying properties not implemented." );
                             // tJac -= aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * !! missing functionality of property !!;
