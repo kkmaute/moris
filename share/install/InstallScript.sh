@@ -3,7 +3,7 @@
 
 # Installation script for MORIS 
 
-# tested on: ubuntu; OpenSUSE 15.5 
+# tested on: Ubuntu; OpenSUSE 15.5; Fedora 41
 
 # For special cases, such as building openmpi with scheduler, 
 # see moris/share/install/Install_Step_By_Step.txt
