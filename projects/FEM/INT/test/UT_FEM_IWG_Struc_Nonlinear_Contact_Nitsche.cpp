@@ -605,20 +605,50 @@ TEST_CASE( "IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM", "[moris],[fem],[IWG_
             false );
 }
 
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true );
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            0.01,
+            true );
+}
+
 TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM]" )
 {
     // check with contact
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
-            // fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             10.0,
             true );
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
-            // fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            0.01,
+            true );
+}
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_LIN_ISO,
+            10.0,
+            true );
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
             true );
 }
