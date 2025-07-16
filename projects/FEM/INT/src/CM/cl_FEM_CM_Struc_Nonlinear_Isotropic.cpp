@@ -188,6 +188,10 @@ namespace moris::fem
             {
                 mDofDispl = tDofType;
             }
+            else if ( tDofString == "Temperature" )
+            {
+                mDofTemp = tDofType;
+            }
             else
             {
                 // error unknown dof string
