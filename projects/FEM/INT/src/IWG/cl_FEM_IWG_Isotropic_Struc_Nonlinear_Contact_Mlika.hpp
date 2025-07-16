@@ -36,7 +36,11 @@ namespace moris::fem
         //      symmetric: mBeta = -1, mTheta =  1
         //    unsymmetric: mBeta =  0, mTheta =  0
         // skew-symmetric: mBeta =  1, mTheta = -1
+
         sint mTheta = 1;
+
+        // default for traction
+        CM_Function_Type mCMFunctionType = CM_Function_Type::PK1;
 
       public:
         enum class IWG_Property_Type
@@ -63,13 +67,15 @@ namespace moris::fem
         /*
          * constructor
          */
-        IWG_Isotropic_Struc_Nonlinear_Contact_Mlika( sint aBeta );
+        IWG_Isotropic_Struc_Nonlinear_Contact_Mlika(
+                sint             aBeta,
+                CM_Function_Type aCMFunctionType = CM_Function_Type::PK1 );
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IWG_Isotropic_Struc_Nonlinear_Contact_Mlika() override{};
+        ~IWG_Isotropic_Struc_Nonlinear_Contact_Mlika() override {};
 
         //------------------------------------------------------------------------------
         /**

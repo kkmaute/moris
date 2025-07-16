@@ -327,6 +327,15 @@ namespace moris::fem
             case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 0 );
 
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1, CM_Function_Type::DEFAULT );
+
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_UNSYMMETRIC:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 1, CM_Function_Type::DEFAULT );
+
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_NEUTRAL:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 0, CM_Function_Type::DEFAULT );
+
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
 
