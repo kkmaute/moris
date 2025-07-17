@@ -148,12 +148,12 @@ namespace moris
     real tComsolParameter1 = 20.0;
     real tComsolParameter2 = 30.0;
 
-    // Newton paramters when using NLBGS
+    // Newton parameters when using NLBGS
     real tNewton_rel_res  = 2.5e-1;
     real tNewton_relax    = 1.0;
     sint tNewton_max_iter = 15;
 
-    // Newton paramters without NLBGS
+    // Newton parameters without NLBGS
     moris::real tNLA_rel_res_norm_drop    = 1.0e-9;
     moris::real tNLA_relaxation_parameter = 1.0;
     int         tNLA_max_iter             = 100;
