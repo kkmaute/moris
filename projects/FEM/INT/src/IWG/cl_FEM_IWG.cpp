@@ -2722,7 +2722,7 @@ namespace moris::fem
             // check for stagnation - stagnation is not considered convergence
             if ( norm( tSolRay - tSolRayPrev ) < tStagnationNormTol )
             {
-                fprintf( stdout, "inew = %i, gap = %e, eta = %e, Resnorm = %e\n", inew, tSolRay( 0 ), tSolRay( 1 ), norm( tResRay ) );
+                // fprintf( stdout, "inew = %i, gap = %e, eta = %e, Resnorm = %e\n", inew, tSolRay( 0 ), tSolRay( 1 ), norm( tResRay ) );
                 break;
             }
             tSolRayPrev = tSolRay;
