@@ -12,8 +12,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
 
-#include "fn_norm.hpp"
-
 namespace moris::fem
 {
 

@@ -12,7 +12,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_H1_Error_Analytic.hpp"
 
-#include "fn_norm.hpp"
+#include "fn_vectorize.hpp"
 
 namespace moris::fem
 {

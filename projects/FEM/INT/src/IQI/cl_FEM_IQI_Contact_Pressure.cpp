@@ -15,9 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "moris_typedefs.hpp"
 #include "fn_assert.hpp"
-#include "fn_norm.hpp"
 #include "fn_dot.hpp"
-#include <iostream>
 #include <memory>
 
 namespace moris::fem

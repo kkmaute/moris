@@ -11,7 +11,6 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Normal_Vector.hpp"
-#include "fn_norm.hpp"
 
 namespace moris::fem
 {

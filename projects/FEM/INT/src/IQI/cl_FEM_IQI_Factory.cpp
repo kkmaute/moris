@@ -9,7 +9,6 @@
  */
 
 #include <memory>
-#include "assert.hpp"
 // FEM/INT/src
 #include "cl_FEM_IQI_Factory.hpp"
 #include "cl_FEM_IQI_Volume.hpp"

@@ -11,7 +11,6 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Power_Dissipation_Bulk.hpp"
-#include "cl_FEM_CM_Fluid_Incompressible_Turbulence.hpp"
 
 namespace moris::fem
 {

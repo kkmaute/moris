@@ -15,9 +15,6 @@
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
-#include "fn_norm.hpp"
-#include "fn_min.hpp"
-#include "fn_max.hpp"
 #include "fn_isfinite.hpp"
 
 namespace moris::fem

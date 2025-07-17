@@ -11,8 +11,6 @@
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_FACTORY_HPP_
 #define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_FACTORY_HPP_
 
-#include "assert.hpp"
-#include "cl_Matrix.hpp"
 #include "cl_FEM_IQI.hpp" //FEM/INT/src
 
     //------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 #include "cl_FEM_Field_Interpolator.hpp"            //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"                    //MTK/src
+#include "cl_VIS_Output_Enums.hpp"
 
 #include "cl_FEM_Set.hpp"        //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"    //FEM/INT/src
