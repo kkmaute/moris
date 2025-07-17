@@ -11,7 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_ENUMS_HPP_
 #define SRC_FEM_CL_FEM_ENUMS_HPP_
 
-#include "assert.hpp"
 #include "cl_Map.hpp"
 #include "fn_enum_macros.hpp"
 

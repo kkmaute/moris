@@ -13,8 +13,6 @@
 #include "cl_Bitset.hpp"
 #include "cl_Map.hpp"
 #include "fn_enum_macros.hpp"
-#include "assert.hpp"
-#include "cl_Vector.hpp"
 
 // Constants
 #define MAX_GEOMETRIES 500

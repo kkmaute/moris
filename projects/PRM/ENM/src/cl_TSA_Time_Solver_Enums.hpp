@@ -11,10 +11,7 @@
 #ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_ENUMS_HPP_
 
-#include "assert.hpp"
-#include "cl_Map.hpp"
 #include "fn_enum_macros.hpp"
-#include "cl_Vector.hpp"
 
 namespace moris::tsa
 {

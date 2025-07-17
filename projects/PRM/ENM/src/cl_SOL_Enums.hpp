@@ -10,11 +10,7 @@
 #ifndef SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 
-#include "cl_Bitset.hpp"
-#include "cl_Map.hpp"
 #include "fn_enum_macros.hpp"
-#include "assert.hpp"
-#include "cl_Vector.hpp"
 
 namespace moris::sol
 {

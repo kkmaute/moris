@@ -11,7 +11,6 @@
 #ifndef SRC_MESH_CL_MTK_ENUMS_HPP_
 #define SRC_MESH_CL_MTK_ENUMS_HPP_
 
-#include "assert.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Vector.hpp"
