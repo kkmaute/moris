@@ -45,7 +45,7 @@ namespace moris::NLA
       public:
         Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver );
 
-        ~Solver_Load_Control(){};
+        ~Solver_Load_Control() {};
 
         /*
          *  evaluates the relaxation parameter

@@ -131,7 +131,7 @@ namespace moris::NLA
         real tResNorm = 1.0;
 
         // use static residual if available
-        if ( aNonLinSolverManager->get_compute_static_residual_flag() )
+        if ( aNonLinSolverManager->get_use_static_residual_flag() )
         {
             tRefNorm = aNonLinSolverManager->get_static_ref_norm();
             tResNorm = aNonLinSolverManager->get_static_residual_norm();

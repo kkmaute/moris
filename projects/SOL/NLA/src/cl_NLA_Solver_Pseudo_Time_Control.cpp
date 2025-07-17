@@ -242,7 +242,7 @@ namespace moris::NLA
         mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tMapPrevious, tNumRHMS, false, true );
 
         // set flag to compute static residual
-        aNonLinSolverManager->set_compute_static_residual_flag( true );
+        aNonLinSolverManager->set_compute_static_residual_flag( true, true );
 
         // save time frames set by time solver
         mTimeFrameCurrent  = mSolverInterface->get_time();
