@@ -16,13 +16,10 @@
 // #include "linalg_typedefs.hpp"
 //  MRS/CNT/src
 #include "cl_Vector.hpp"
-// LNA/src
-#include "cl_Matrix.hpp"
 // FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Enums.hpp"
-#include "fn_FEM_FD_Scheme.hpp"
 #include "cl_FEM_Material_Model.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"

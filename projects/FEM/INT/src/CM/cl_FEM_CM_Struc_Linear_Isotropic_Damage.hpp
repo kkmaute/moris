@@ -11,16 +11,12 @@
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_DAMAGE_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_DAMAGE_HPP_
 
-#include <map>
-
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CON/src
 
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 
 namespace moris::fem

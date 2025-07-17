@@ -11,9 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_TURBULENCE_SPALART_ALLMARAS_HPP_
 #define SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_TURBULENCE_SPALART_ALLMARAS_HPP_
 
-#include <iostream>
-#include <map>
-
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
 
@@ -23,7 +20,6 @@
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp"
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"    //FEM/INT/src
 
 namespace moris::fem
 {

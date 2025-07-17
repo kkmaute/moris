@@ -11,8 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_CM_SPALART_ALLMARAS_TURBULENCE_HPP_
 #define SRC_FEM_CL_FEM_CM_SPALART_ALLMARAS_TURBULENCE_HPP_
 
-#include <map>
-
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
 
@@ -21,7 +19,6 @@
 
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris::fem
 {

@@ -11,7 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_CM_FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS_HPP_
 #define SRC_FEM_CL_FEM_CM_FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS_HPP_
 
-#include <map>
 // MRS/COR/src
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
@@ -20,10 +19,7 @@
 #include "linalg_typedefs.hpp"
 // FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
-#include "cl_FEM_Constitutive_Model.hpp"
-#include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible_Turbulence.hpp"
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris::fem
 {

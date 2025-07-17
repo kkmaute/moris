@@ -13,9 +13,6 @@
 #include "cl_FEM_Set.hpp"
 // LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "op_minus.hpp"
 #include "fn_dot.hpp"
 
 namespace moris::fem

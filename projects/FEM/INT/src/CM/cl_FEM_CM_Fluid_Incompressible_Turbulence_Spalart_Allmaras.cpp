@@ -11,11 +11,10 @@
 #include "cl_FEM_CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
+#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
+
 // LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "op_minus.hpp"
 
 namespace moris::fem
 {

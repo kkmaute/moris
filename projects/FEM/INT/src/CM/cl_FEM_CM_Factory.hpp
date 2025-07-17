@@ -11,9 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_CM_FACTORY_HPP_
 #define SRC_FEM_CL_FEM_CM_FACTORY_HPP_
 
-#include "assert.hpp"
-
-#include "cl_Matrix.hpp"
 #include "cl_FEM_Constitutive_Model.hpp" //FEM/INT/src
 
 //------------------------------------------------------------------------------

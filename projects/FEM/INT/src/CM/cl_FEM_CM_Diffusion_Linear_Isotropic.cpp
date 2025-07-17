@@ -14,8 +14,6 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
-#include "fn_dot.hpp"
-#include "fn_sum.hpp"
 
 namespace moris::fem
 {

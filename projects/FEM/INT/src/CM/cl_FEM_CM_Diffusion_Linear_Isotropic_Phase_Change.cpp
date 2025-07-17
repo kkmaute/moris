@@ -9,16 +9,8 @@
  */
 
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
-#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
-#include <iostream>
-
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
-#include "fn_sum.hpp"
 #include "fn_FEM_CM_Phase_State_Functions.hpp"
 
 namespace moris::fem

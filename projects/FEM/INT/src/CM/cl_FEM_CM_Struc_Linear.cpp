@@ -11,9 +11,6 @@
 #include "cl_FEM_CM_Struc_Linear.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
 #include "fn_dot.hpp"
 #include "fn_isfinite.hpp"
 

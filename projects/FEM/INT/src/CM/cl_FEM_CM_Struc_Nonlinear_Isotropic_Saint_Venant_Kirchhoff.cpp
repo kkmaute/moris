@@ -12,11 +12,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
-
-#include "fn_clip_value.hpp"
 
 namespace moris::fem
 {
