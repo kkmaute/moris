@@ -30,8 +30,6 @@
 #include "moris_typedefs.hpp"
 #include "fn_dot.hpp"
 #include "fn_eye.hpp"
-#include <iomanip>
-#include <iostream>
 #include <string>
 #include <memory>
 #include <utility>

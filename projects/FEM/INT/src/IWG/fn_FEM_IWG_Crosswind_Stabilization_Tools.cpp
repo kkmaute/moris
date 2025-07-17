@@ -9,11 +9,9 @@
  */
 
 #include "fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp"
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
 #include "fn_dot.hpp"
 #include "fn_eye.hpp"
-#include "fn_clip_value.hpp"
+#include "fn_vectorize.hpp"
 
 namespace moris::fem
 {

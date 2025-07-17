@@ -10,10 +10,6 @@
 
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-
 namespace moris::fem
 {
 

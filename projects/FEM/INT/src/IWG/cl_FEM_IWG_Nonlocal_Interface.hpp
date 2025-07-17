@@ -11,15 +11,12 @@
 #ifndef SRC_FEM_CL_FEM_IWG_NONLOCAL_INTERFACE_HPP_
 #define SRC_FEM_CL_FEM_IWG_NONLOCAL_INTERFACE_HPP_
 
-#include <map>
-
 #include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Vector.hpp"                          //MRS/CON/src
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris::fem

@@ -12,11 +12,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
 
-#include "op_times.hpp"    //LINALG/src
-#include "fn_norm.hpp"     //LINALG/src
-#include "fn_trans.hpp"    //LINALG/src
-#include "fn_dot.hpp"      //LINALG/src
-
 namespace moris::fem
 {
     //------------------------------------------------------------------------------

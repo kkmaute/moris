@@ -14,8 +14,7 @@
 #include "fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

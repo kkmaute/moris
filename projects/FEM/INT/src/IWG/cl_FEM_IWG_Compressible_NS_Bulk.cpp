@@ -13,17 +13,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Bulk.hpp"
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-
-// debug - output to hdf5
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
-#include "fn_FEM_Check.hpp"
-
-#include "fn_sqrtmat.hpp"
-//#include "../test/FEM_Test_Proxy/fn_FEM_Convert_Dimensions.cpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

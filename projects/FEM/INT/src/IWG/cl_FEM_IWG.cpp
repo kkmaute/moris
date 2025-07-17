@@ -15,12 +15,8 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Model.hpp"
 #include "cl_Vector.hpp"
-#include "fn_max.hpp"
-#include "fn_min.hpp"
 #include "fn_trans.hpp"
-#include "fn_eye.hpp"
-#include "fn_norm.hpp"
-#include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 #include <cl_MTK_Ray_Line_Intersection.hpp>
 #include <iomanip>

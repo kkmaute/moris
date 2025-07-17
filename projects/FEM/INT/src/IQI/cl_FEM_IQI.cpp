@@ -18,6 +18,7 @@
 #include "fn_norm.hpp"
 #include "fn_min.hpp"
 #include "fn_max.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

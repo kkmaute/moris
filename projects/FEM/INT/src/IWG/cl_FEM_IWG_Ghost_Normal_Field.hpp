@@ -11,15 +11,12 @@
 #ifndef SRC_FEM_CL_FEM_IWG_Ghost_Normal_Field_HPP_
 #define SRC_FEM_CL_FEM_IWG_Ghost_Normal_Field_HPP_
 
-#include <map>
 //MRS/COR/src
 #include "moris_typedefs.hpp"
-#include "cl_Vector.hpp"
 //LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
-#include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_IWG.hpp"
 
 namespace moris::fem

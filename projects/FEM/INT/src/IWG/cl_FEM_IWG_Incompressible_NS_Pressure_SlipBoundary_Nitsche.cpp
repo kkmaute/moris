@@ -13,8 +13,7 @@
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_SlipBoundary_Nitsche.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

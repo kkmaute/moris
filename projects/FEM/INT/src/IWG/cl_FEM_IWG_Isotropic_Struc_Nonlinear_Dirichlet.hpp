@@ -11,13 +11,7 @@
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_DIRICHLET_HPP_
 #define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_DIRICHLET_HPP_
 
-#include <map>
-
 #include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                          //MRS/CNT/src
-
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
 
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 

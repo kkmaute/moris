@@ -12,8 +12,7 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp"
 #include "cl_FEM_Set.hpp"
 
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

@@ -11,7 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DIRICHLET_NITSCHE_HPP_
 #define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DIRICHLET_NITSCHE_HPP_
 
-#include <map>
 //MRS/COR/src
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"

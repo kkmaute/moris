@@ -13,8 +13,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

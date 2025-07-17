@@ -13,9 +13,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-#include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

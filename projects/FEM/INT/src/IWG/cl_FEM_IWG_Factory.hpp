@@ -11,9 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_IWG_FACTORY_HPP_
 #define SRC_FEM_CL_FEM_IWG_FACTORY_HPP_
 
-#include "assert.hpp"
-
-#include "cl_Matrix.hpp"
 #include "cl_FEM_IWG.hpp"    //FEM/INT/src
 
     //------------------------------------------------------------------------------

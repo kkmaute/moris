@@ -13,6 +13,7 @@
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

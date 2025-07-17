@@ -17,6 +17,7 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 #include "op_div.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

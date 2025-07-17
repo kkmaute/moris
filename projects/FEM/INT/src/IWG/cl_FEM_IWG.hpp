@@ -17,8 +17,6 @@
 // LNA/src
 #include "cl_Matrix.hpp"
 #include "moris_typedefs.hpp"
-#include "fn_vectorize.hpp"
-#include "fn_isfinite.hpp"
 // MRS/COR/src // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
 // FEM/INT/src
@@ -27,7 +25,6 @@
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Enums.hpp"
-#include "fn_FEM_FD_Scheme.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 // GEN/src

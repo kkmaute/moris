@@ -11,6 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_ALM_Dof.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

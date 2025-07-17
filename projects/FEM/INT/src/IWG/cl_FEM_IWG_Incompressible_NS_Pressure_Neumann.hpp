@@ -11,12 +11,7 @@
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_NEUMANN_HPP_
 #define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_NEUMANN_HPP_
 
-#include <map>
 #include "moris_typedefs.hpp"    //MRS/COR/src
-#include "cl_Vector.hpp"         //MRS/CNT/src
-
-#include "cl_Matrix.hpp"          //LINALG/src
-#include "linalg_typedefs.hpp"    //LINALG/src
 
 #include "cl_FEM_IWG.hpp"    //FEM/INT/src
 

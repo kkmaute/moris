@@ -12,8 +12,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 //LINALG/src
-#include "fn_trans.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

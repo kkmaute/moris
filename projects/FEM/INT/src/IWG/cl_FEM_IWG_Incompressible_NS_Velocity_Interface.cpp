@@ -13,6 +13,7 @@
 #include "cl_FEM_Set.hpp"
 
 #include "fn_trans.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

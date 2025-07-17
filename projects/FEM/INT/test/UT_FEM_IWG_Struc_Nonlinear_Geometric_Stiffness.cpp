@@ -33,6 +33,8 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
 
+#include "fn_isfinite.hpp"
+
 using namespace moris;
 using namespace fem;
 

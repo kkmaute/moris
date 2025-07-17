@@ -14,6 +14,7 @@
 // LINALG/src
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 #include "fn_FEM_CM_Phase_State_Functions.hpp"
 

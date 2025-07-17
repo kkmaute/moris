@@ -11,13 +11,8 @@
 #ifndef SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE_HPP_
 #define SRC_FEM_CL_FEM_IWG_INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE_HPP_
 
-#include <map>
 //MRS/COR/src
 #include "moris_typedefs.hpp"
-#include "cl_Vector.hpp"
-//LINALG/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
 //FEM/INT/src
 #include "cl_FEM_IWG.hpp"
 

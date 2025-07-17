@@ -11,7 +11,6 @@
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_BULK_HPP_
 #define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_BULK_HPP_
 
-#include <map>
 #include "moris_typedefs.hpp"                     //MRS/COR/src
 #include "cl_Vector.hpp"                          //MRS/CNT/src
 

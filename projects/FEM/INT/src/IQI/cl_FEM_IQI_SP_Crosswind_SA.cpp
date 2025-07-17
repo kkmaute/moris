@@ -15,6 +15,7 @@
 #include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 
 #include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

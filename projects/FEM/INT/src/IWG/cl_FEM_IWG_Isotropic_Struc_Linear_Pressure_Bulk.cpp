@@ -14,8 +14,7 @@
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

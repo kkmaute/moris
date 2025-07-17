@@ -11,12 +11,7 @@
 #ifndef SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_DIRICHLET_HPP_
 #define SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_DIRICHLET_HPP_
 //MRS/COR/src
-#include <map>
 #include "moris_typedefs.hpp"
-#include "cl_Vector.hpp"
-//LINALG/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
 //FEM/INT/src
 #include "cl_FEM_IWG.hpp"
 

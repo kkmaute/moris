@@ -11,7 +11,6 @@
 #ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DENSITY_BULK_HPP_
 #define SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DENSITY_BULK_HPP_
 
-#include <map>
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
 

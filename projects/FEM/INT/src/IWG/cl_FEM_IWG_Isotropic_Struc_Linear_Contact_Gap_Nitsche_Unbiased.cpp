@@ -19,8 +19,8 @@
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "fn_assert.hpp"
 #include "fn_trans.hpp"
-#include "fn_eye.hpp"
 #include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 #include <memory>
 
 namespace moris::fem

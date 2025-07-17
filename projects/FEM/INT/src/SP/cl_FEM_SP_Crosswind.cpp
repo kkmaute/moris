@@ -15,6 +15,7 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 #include "fn_eye.hpp"
+#include "fn_vectorize.hpp"
 
 namespace moris::fem
 {

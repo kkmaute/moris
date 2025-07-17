@@ -18,6 +18,7 @@
 #include "fn_eye.hpp"
 #include "fn_clip_value.hpp"
 #include "op_minus.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

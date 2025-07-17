@@ -13,9 +13,8 @@
 #include "cl_FEM_Set.hpp"
 
 #include "op_times.hpp"    //LINALG/src
-#include "fn_norm.hpp"     //LINALG/src
 #include "fn_trans.hpp"    //LINALG/src
-#include "fn_dot.hpp"      //LINALG/src
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

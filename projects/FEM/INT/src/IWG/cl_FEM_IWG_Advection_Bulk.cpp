@@ -13,8 +13,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_dot.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 #include "fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp"
 
 namespace moris::fem

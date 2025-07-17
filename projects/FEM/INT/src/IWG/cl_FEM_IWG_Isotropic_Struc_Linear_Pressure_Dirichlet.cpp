@@ -11,11 +11,9 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 
-#include "fn_trans.hpp"
 #include "fn_eye.hpp"
-#include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

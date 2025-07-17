@@ -22,6 +22,7 @@
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
+#include "fn_isfinite.hpp"
 #include <memory>
 #include <utility>
 

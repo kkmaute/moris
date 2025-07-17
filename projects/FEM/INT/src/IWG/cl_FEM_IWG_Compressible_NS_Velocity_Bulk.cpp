@@ -13,8 +13,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

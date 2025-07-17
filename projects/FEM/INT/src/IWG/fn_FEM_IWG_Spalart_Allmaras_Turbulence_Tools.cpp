@@ -9,9 +9,6 @@
  */
 
 #include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
-#include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
 #include "fn_clip_value.hpp"
 
 namespace moris::fem

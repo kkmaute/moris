@@ -16,6 +16,7 @@
 
 // LINALG/src
 #include "fn_trans.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {

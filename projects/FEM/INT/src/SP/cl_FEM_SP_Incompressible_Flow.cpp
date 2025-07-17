@@ -19,6 +19,7 @@
 #include "fn_inv.hpp"
 #include "op_div.hpp"
 #include "fn_diag_vec.hpp"
+#include "fn_vectorize.hpp"
 
 namespace moris::fem
 {

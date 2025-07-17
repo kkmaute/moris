@@ -14,12 +14,6 @@
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
-#include "fn_eye.hpp"
-
-// debug - output to hdf5
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
 
 namespace moris::fem
 {

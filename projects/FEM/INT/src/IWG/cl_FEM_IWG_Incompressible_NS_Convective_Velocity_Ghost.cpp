@@ -13,7 +13,8 @@
 #include "cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp"
 //LINALG/src
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
+#include "fn_vectorize.hpp"
+#include "fn_isfinite.hpp"
 
 namespace moris::fem
 {
