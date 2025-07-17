@@ -16,7 +16,6 @@
 #include "cl_FEM_Node_Base.hpp"    //MTK/src
 
 #include "cl_Communication_Tools.hpp"
-#include "cl_Communication_Manager.hpp"
 
 namespace moris::fem
 {

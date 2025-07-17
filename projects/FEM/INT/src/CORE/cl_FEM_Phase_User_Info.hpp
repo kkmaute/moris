@@ -17,10 +17,8 @@
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 //FEM/INT/src
-#include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Material_Model.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
-#include "cl_FEM_Stabilization_Parameter.hpp"
 
 namespace moris::fem
 {

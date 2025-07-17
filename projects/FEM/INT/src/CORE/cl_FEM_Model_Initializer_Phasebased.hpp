@@ -15,7 +15,7 @@
 #include "cl_FEM_Phase_User_Info.hpp"
 #include <map>
 #include <utility>
-#include "cl_FEM_Set_User_Info.hpp"
+
 namespace moris::fem
 {
     class Model_Initializer_Phasebased : public Model_Initializer

@@ -13,7 +13,6 @@
 
 #include <utility>
 
-#include "cl_Vector.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Model_Initializer.hpp"
 namespace moris::fem

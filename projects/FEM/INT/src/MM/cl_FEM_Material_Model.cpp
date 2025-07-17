@@ -13,6 +13,7 @@
 #include <utility>
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "fn_equal_to.hpp"
 
 namespace moris::fem
 {

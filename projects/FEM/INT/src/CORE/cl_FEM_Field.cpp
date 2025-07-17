@@ -8,12 +8,10 @@
  *
  */
 
-#include <iostream>
 #include <cstdio>
 
 #include "cl_FEM_Field.hpp"
 #include "cl_Matrix.hpp"
-// HD5 c-interface
 
 namespace moris::fem
 {

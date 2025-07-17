@@ -14,13 +14,9 @@
 #include <set>
 
 #include "assert.h"
-#include "cl_Communication_Tools.hpp"
 
 // MTK
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Cell_Cluster.hpp"
-#include "cl_MTK_Side_Cluster.hpp"
-#include "cl_MTK_Double_Side_Cluster.hpp"
 // FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Node_Base.hpp"
@@ -32,9 +28,6 @@
 #include "cl_FEM_IQI.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"
-#include "cl_MSI_Design_Variable_Interface.hpp"
-// FEM/VIS/src
-#include "cl_VIS_Output_Enums.hpp"
 
 namespace moris
 {

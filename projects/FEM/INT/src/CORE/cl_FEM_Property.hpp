@@ -16,8 +16,6 @@
 #include "cl_Vector.hpp"                    //MRS/CNT/src
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MSI_Dof_Type_Enums.hpp"        //FEM/MSI/src
-#include "cl_FEM_Enums.hpp"                 //FEM/MSI/src
-#include "fn_equal_to.hpp"
 
 #include "GEN_Data_Types.hpp"
 

@@ -7,13 +7,12 @@
  * cl_FEM_Set.cpp
  *
  */
-#include <iostream>
 #include <set>
 #include <algorithm>
 
 #include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"        //FEM/MSI/src
-#include "cl_MSI_Solver_Interface.hpp"              //FEM/MSI/src
+#include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_FEM_Model.hpp"                         //FEM/INT/src
 #include "cl_FEM_Set.hpp"                           //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
@@ -25,7 +24,6 @@
 #include "cl_MTK_Set.hpp"                           //FEM/INT/src
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "fn_equal_to.hpp"
 #include "fn_trans.hpp"
 
 namespace moris::fem
