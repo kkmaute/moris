@@ -369,9 +369,10 @@ Nonlinear_Solver::get_my_nonlin_problem()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
+void Nonlinear_Solver::set_compute_static_residual_flag( bool aComputeFlag, bool mUseStaticResidual )
 {
-    mComputeStaticResidual = aFlag;
+    mComputeStaticResidual = aComputeFlag;
+    mUseStaticResidual     = mUseStaticResidual;
 
     // set flag for all sub-solvers
     for ( uint Ik = 0; Ik < mNonLinearSubSolverList.size(); ++Ik )
@@ -385,7 +386,7 @@ void Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
                 Ik );
 
         // set compute static residual flag
-        tSubSolver->set_compute_static_residual_flag( aFlag );
+        tSubSolver->set_compute_static_residual_flag( mComputeStaticResidual, mUseStaticResidual );
     }
 }
 
@@ -394,4 +395,11 @@ void Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
 bool Nonlinear_Solver::get_compute_static_residual_flag()
 {
     return mComputeStaticResidual;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+bool Nonlinear_Solver::get_use_static_residual_flag()
+{
+    return mUseStaticResidual;
 }

@@ -77,6 +77,7 @@ namespace moris
 
             //! Flag for computing static residual
             bool mComputeStaticResidual = false;
+            bool mUseStaticResidual     = false;
 
             //! Number of iterations of algorithm needed to converge / stop relative to maximum
             real mRelNumIterations = 0;
@@ -444,11 +445,14 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------
 
-            void set_compute_static_residual_flag( bool aFlag );
+            void set_compute_static_residual_flag(
+                    bool aComputeFlag,
+                    bool aUseFlag );
 
             //--------------------------------------------------------------------------------------------------
 
             bool get_compute_static_residual_flag();
+            bool get_use_static_residual_flag();
 
             //--------------------------------------------------------------------------------------------------
 
