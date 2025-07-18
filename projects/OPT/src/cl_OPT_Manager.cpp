@@ -15,6 +15,10 @@
 #include "fn_OPT_create_interface.hpp"
 #include "fn_OPT_create_algorithm.hpp"
 
+#include "cl_Module_Parameter_Lists.hpp"
+#include "cl_OPT_Algorithm.hpp"
+#include "cl_OPT_Problem.hpp"
+
 // Logger package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"

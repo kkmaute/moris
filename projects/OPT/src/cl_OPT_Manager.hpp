@@ -11,10 +11,21 @@
 #pragma once
 
 #include "cl_Vector.hpp"
-#include "cl_Module_Parameter_Lists.hpp"
-#include "cl_OPT_Algorithm.hpp"
-#include "cl_OPT_Problem.hpp"
-#include "cl_OPT_Criteria_Interface.hpp"
+#include "cl_Matrix.hpp"
+
+// forward declarations
+namespace moris
+{
+    class Module_Parameter_Lists;
+    class Submodule_Parameter_Lists;
+
+    namespace opt
+    {
+      class Algorithm;
+      class Problem;
+      class Criteria_Interface;
+    }
+}
 
 namespace moris::opt
 {

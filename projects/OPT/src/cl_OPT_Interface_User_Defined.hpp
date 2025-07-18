@@ -11,8 +11,14 @@
 #pragma once
 
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Parameter_List.hpp"
-#include "cl_Library_IO.hpp"
+
+// Forward declarations
+namespace moris
+{
+    class Parameter_List;
+    class Library_IO;
+}
+
 
 namespace moris::opt
 {

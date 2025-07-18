@@ -11,7 +11,11 @@
 #pragma once
 
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Parameter_List.hpp"
+
+namespace moris
+{
+    class Parameter_List;
+}
 
 namespace moris::opt
 {

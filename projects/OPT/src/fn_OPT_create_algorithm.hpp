@@ -11,8 +11,18 @@
 #ifndef MORIS_FN_OPT_CREATE_ALGORITHM_HPP
 #define MORIS_FN_OPT_CREATE_ALGORITHM_HPP
 
-#include "cl_OPT_Algorithm.hpp"
-#include "cl_Parameter_List.hpp"
+#include <memory>
+
+// forward declarations
+namespace moris
+{
+    class Parameter_List;
+
+    namespace opt
+    {
+        class Algorithm;
+    }
+}
 
 namespace moris::opt
 {

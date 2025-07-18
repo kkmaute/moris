@@ -11,9 +11,19 @@
 #ifndef MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
 #define MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
 
-#include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
 #include "HDF5_Tools.hpp"
+
+// forward declarations
+namespace moris
+{
+    class Parameter_List;
+
+    namespace opt
+    {
+        class Problem;
+    }
+}
 
 namespace moris::opt
 {

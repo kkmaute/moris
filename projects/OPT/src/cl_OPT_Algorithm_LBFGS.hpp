@@ -11,8 +11,18 @@
 #ifndef MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_
 #define MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_
 
-#include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
+
+// forward declarations
+namespace moris
+{
+    class Parameter_List;
+
+    namespace opt
+    {
+        class Problem;
+    }
+}
 
 namespace moris::opt
 {

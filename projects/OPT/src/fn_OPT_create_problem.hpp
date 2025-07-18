@@ -11,8 +11,19 @@
 #ifndef MORIS_FN_OPT_CREATE_PROBLEM_HPP
 #define MORIS_FN_OPT_CREATE_PROBLEM_HPP
 
-#include "cl_OPT_Problem.hpp"
-#include "cl_Parameter_List.hpp"
+#include <memory>
+
+// forward declarations
+namespace moris
+{
+    class Parameter_List;
+
+    namespace opt
+    {
+        class Problem;
+        class Criteria_Interface;
+    }
+}
 
 namespace moris::opt
 {
@@ -24,7 +35,7 @@ namespace moris::opt
      * @return Problem class
      */
     std::shared_ptr< Problem > create_problem( Parameter_List aProblemParameterList, std::shared_ptr< Criteria_Interface > aInterface );
-    }
+}
 
 #endif //MORIS_FN_OPT_CREATE_PROBLEM_HPP
 

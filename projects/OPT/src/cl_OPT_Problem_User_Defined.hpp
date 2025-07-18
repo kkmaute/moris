@@ -12,8 +12,12 @@
 
 #include "cl_OPT_Problem.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Parameter_List.hpp"
-#include "cl_Library_IO.hpp"
+
+// forward declaration
+namespace moris
+{
+    class Parameter_List;
+}
 
 namespace moris::opt
 {

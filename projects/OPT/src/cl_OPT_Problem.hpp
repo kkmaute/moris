@@ -10,11 +10,15 @@
 
 #pragma once
 
-#include "core.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Parameter_List.hpp"
+
+// forward declaration
+namespace moris
+{
+    class Parameter_List;
+}
 
 namespace moris::opt
 {

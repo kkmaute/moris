@@ -13,6 +13,7 @@
 #include "cl_OPT_Algorithm_SQP.hpp"
 #include "cl_OPT_Algorithm_LBFGS.hpp"
 #include "cl_OPT_Algorithm_Sweep.hpp"
+#include "cl_Parameter_List.hpp"
 
 namespace moris::opt
 {

@@ -9,7 +9,9 @@
  */
 
 #include "cl_OPT_Algorithm_SQP.hpp"
+#include "cl_OPT_Problem.hpp"
 #include "cl_Communication_Tools.hpp"
+#include "cl_Parameter_List.hpp"
 
 // Logger package
 #include "cl_Logger.hpp"

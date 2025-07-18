@@ -12,7 +12,13 @@
 #define MORIS_FN_OPT_CREATE_INTERFACE_HPP
 
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "cl_Submodule_Parameter_Lists.hpp"
+
+// forward declarations
+namespace moris
+{
+    class Parameter_List;
+    class Submodule_Parameter_Lists;
+}
 
 namespace moris::opt
 {

@@ -9,6 +9,7 @@
  */
 
 #include "cl_OPT_Algorithm.hpp"
+#include "cl_OPT_Problem.hpp"
 #include "HDF5_Tools.hpp"
 
 #include "fn_linspace.hpp"

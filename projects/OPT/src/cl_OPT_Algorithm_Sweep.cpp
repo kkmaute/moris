@@ -9,8 +9,9 @@
  */
 
 #include "cl_OPT_Algorithm_Sweep.hpp"
+#include "cl_OPT_Problem.hpp"
+#include "cl_Parameter_List.hpp"
 #include "fn_Parsing_Tools.hpp"
-#include "fn_sum.hpp"
 #include "HDF5_Tools.hpp"
 
 // Logger package

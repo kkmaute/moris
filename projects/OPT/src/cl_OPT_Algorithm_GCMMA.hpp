@@ -11,10 +11,18 @@
 #ifndef MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
 #define MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
 
-#include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
-#include "cl_Parameter_List.hpp"
-#include "cl_OPT_Problem.hpp"
+
+// forward declarations
+namespace moris
+{
+    class Parameter_List;
+
+    namespace opt
+    {
+        class Problem;
+    }
+}
 
 using namespace moris;
 

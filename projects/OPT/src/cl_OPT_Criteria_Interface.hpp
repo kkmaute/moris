@@ -11,7 +11,6 @@
 #pragma once
 
 #include "cl_Matrix.hpp"
-#include "cl_Parameter_List.hpp"
 
 namespace moris::opt
 {

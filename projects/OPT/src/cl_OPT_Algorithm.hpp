@@ -11,11 +11,19 @@
 #ifndef MORIS_CL_OPT_ALGORITHM_HPP_
 #define MORIS_CL_OPT_ALGORITHM_HPP_
 
-#include "cl_Parameter_List.hpp"
-#include "cl_OPT_Problem.hpp"
+// c++ header files.
+#include <cstring>
+
+// MORIS library header files.
+#include "moris_typedefs.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::opt
 {
+    // forward declaration
+    class Problem;
+
     /**
      * basic tasks for coordinating evaluation of design criteria and their gradients
      * in parallel
