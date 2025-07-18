@@ -47,10 +47,11 @@ namespace moris::fem
     {
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
         // populate the property map
         mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
-        mPropertyMap[ "Gap" ]       = static_cast< uint >( IWG_Property_Type::GAP );
+        mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
 
         // set size for the constitutive model pointer cell
         // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
@@ -86,8 +87,20 @@ namespace moris::fem
         this->check_field_interpolators( mtk::Leader_Follower::LEADER );
         this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
-        // check if the gap data is set
-        // MORIS_ERROR( mGapData != nullptr, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - Gap data is not set!" );
+        // check whether contact should be enforced
+        const std::shared_ptr< Property >& tSelectLeader =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+        const std::shared_ptr< Property >& tSelectFollower =
+                mFollowerProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+        real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
+        real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
+
+        if ( tImposeContactLeader < MORIS_REAL_EPS || tImposeContactFollower < MORIS_REAL_EPS )
+        {
+            return;
+        }
 
         // get leader index for residual dof type, indices for assembly
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
@@ -106,6 +119,51 @@ namespace moris::fem
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays_deformed_geometry(
                 mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
                 mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
+
+        // xxxxxxxxxxxxxx
+        if ( false )
+        {
+            Matrix< DDRMat > tCheckPoint =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx();
+
+            if ( std::abs( tCheckPoint( 1 ) - 1.0 ) < 0.005 && tCheckPoint( 0 ) > 2.253 && tCheckPoint( 0 ) < 2.374 )
+            {
+                real tvalueLeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
+                real tvalueFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
+
+                fprintf( stdout, "valueLeader = %f  valueFollower = %f  tImposeContactLeader = %f  tImposeContactFollower = %f\n",    //
+                        tvalueLeader,
+                        tvalueFollower,
+                        tImposeContactLeader,
+                        tImposeContactFollower );
+            }
+
+            //            const Matrix< DDRMat >& tRefPoint = { { 0.000012, -0.004000 } };
+            //
+            //            const real tDelta = 1.0e-3;    // tolerance for checking the IG geometry interpolator
+            //
+            //            if ( std::abs( tCheckPoint( 0 ) - tRefPoint( 0 ) ) < tDelta && std::abs( tCheckPoint( 1 ) - tRefPoint( 1 ) ) < tDelta )
+            //            {
+            //                real tTimeWeightFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
+            //
+            //                Matrix< DDRMat > tLeaderDisp   = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
+            //                Matrix< DDRMat > tFollowerDisp = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
+            //
+            //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tLeaderDisp: %e  %e\n",    //
+            //                        tCheckPoint( 0 ),
+            //                        tCheckPoint( 1 ),
+            //                        tTimeWeightFactor,
+            //                        tLeaderDisp( 0 ),
+            //                        tLeaderDisp( 1 ) );
+            //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tFollowerDisp: %e  %e\n",    //
+            //                        tCheckPoint( 0 ),
+            //                        tCheckPoint( 1 ),
+            //                        tTimeWeightFactor,
+            //                        tFollowerDisp( 0 ),
+            //                        tFollowerDisp( 1 ) );
+            //            }
+        }
+        // xxxxxxxxxxxxxx
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -188,8 +246,20 @@ namespace moris::fem
         this->check_field_interpolators( mtk::Leader_Follower::LEADER );
         this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
-        // check if the gap data is set
-        // MORIS_ERROR( mGapData != nullptr, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - Gap data is not set!" );
+        // check whether contact should be enforced
+        const std::shared_ptr< Property >& tSelectLeader =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+        const std::shared_ptr< Property >& tSelectFollower =
+                mFollowerProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+        real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
+        real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
+
+        if ( tImposeContactLeader < MORIS_REAL_EPS || tImposeContactFollower < MORIS_REAL_EPS )
+        {
+            return;
+        }
 
         // get leader index for residual dof type, indices for assembly
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
