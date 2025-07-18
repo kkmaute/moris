@@ -47,7 +47,7 @@ namespace moris::fem
         {
             MATERIAL,
             THICKNESS,
-            GAP,
+            SELECT,
             MAX_ENUM
         };
 
