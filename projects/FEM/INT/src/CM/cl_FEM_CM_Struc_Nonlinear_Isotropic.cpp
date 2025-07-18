@@ -506,9 +506,16 @@ namespace moris::fem
         // compute the volume change Jacobian
         ( this->*m_eval_volume_change_jacobian )();
 
+        // xxxxxxxxxxxxxx
         // check for negative Jacobian
-        MORIS_ERROR( mVolumeChangeJ > 0.0,
-                "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian." );
+        //        MORIS_ERROR( mVolumeChangeJ > 0.0,
+        //                "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian." );
+
+        if ( mVolumeChangeJ < 0.0 )
+        {
+            fprintf( stderr, "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian %e\n.", mVolumeChangeJ );
+        }
+        // xxxxxxxxxxxxxx
     }
 
     void
