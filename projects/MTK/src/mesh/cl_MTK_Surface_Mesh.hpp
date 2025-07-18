@@ -113,6 +113,12 @@ namespace moris::mtk
         [[nodiscard]] virtual const Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
 
         /**
+         * @brief Gets the original coordinates (no displacement added) of all vertices in the surface mesh
+         * Size: < spatial dim x number of vertices >
+         */
+        [[nodiscard]] virtual const Matrix< DDRMat > get_all_original_vertex_coordinates() const;
+
+        /**
          * Gets the original coordinates of a single vertex from the local index aVertexIndex
          */
         [[nodiscard]] virtual const Matrix< DDRMat > get_original_vertex_coordinates( const uint aVertexIndex ) const;
@@ -120,7 +126,7 @@ namespace moris::mtk
         /**
          * @brief gets the displacements of all vertices in the surface mesh
          */
-        [[nodiscard]] const Matrix< DDRMat >& get_vertex_displacements() const;
+        [[nodiscard]] virtual const Matrix< DDRMat >& get_vertex_displacements() const;
 
         /**
          * @brief gets the entire vertex connectivity of the surface mesh

@@ -178,6 +178,13 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Matrix< DDRMat > Surface_Mesh::get_all_original_vertex_coordinates() const
+    {
+        return mVertexCoordinates;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     const Matrix< DDRMat > Surface_Mesh::get_original_vertex_coordinates( const uint aVertexIndex ) const
     {
         return mVertexCoordinates.get_column( aVertexIndex );
@@ -299,14 +306,30 @@ namespace moris::mtk
 
         // Initialize vector to hold raycast result
         Intersection_Vector tIntersections;
-        while ( tWarning )
+        if ( tWarning )
         {
-            tIntersections = this->cast_single_ray( aPoint, tDirection, tWarning, false );
+            // Initialize attempt counter
+            uint tAttemptCounter = 0;
 
-            if ( tWarning )
+            // Cast the ray until it does not hit a warning or we reach a maximum number of attempts
+            do
             {
+                // Get a new random direction
                 tDirection = this->random_direction();
-            }
+
+                // Cast the ray
+                tIntersections = this->cast_single_ray( aPoint, tDirection, tWarning, true );
+
+                // Increment attempt counter
+                tAttemptCounter++;
+
+                // Check if we have exceeded the maximum number of attempts
+                if ( tAttemptCounter > 100 )
+                {
+                    MORIS_LOG_WARNING( "Exceeded maximum number of attempts to resolve raycast warning. Setting to inferface" );
+                    return Mesh_Region::INTERFACE;
+                }
+            } while ( tWarning );
         }
 
         // Determine the region based on the number of intersections or if any intersection is close to zero
@@ -364,55 +387,76 @@ namespace moris::mtk
         }
 
         // Recast all the errored rays until there are no more warnings
-        while ( tNumWarnings > 0 )
+        if ( tNumWarnings > 0 )
         {
-            MORIS_LOG_INFO( "%d rays failed to resolve", tNumWarnings );
+            // Initialize attempt counter
+            uint tAttemptCounter = 0;
 
-            // Get a new random direction
-            tDirection = this->random_direction();
-
-            // Resize preallocated structures to match the actual number of errors
-            tErroredOrigins.resize( tDim, tNumWarnings );
-
-            // Create a temporary warnings vector for this batch of errored rays
-            Vector< Vector< bool > > tNewWarnings;
-
-            // Cast the errored rays
-            Vector< Vector< Intersection_Vector > > tErroredIntersections = this->cast_batch_of_rays( tErroredOrigins, tDirection, tNewWarnings, false );
-
-            // Update intersections for resolved rays and rebuild error list
-            uint tNumNewWarnings = 0;
-            for ( uint iWarning = 0; iWarning < tNumWarnings; ++iWarning )
+            do
             {
-                uint tRayIndex = tErroredIndices( iWarning );
+                MORIS_LOG_INFO( "%d rays failed to resolve", tNumWarnings );
 
-                if ( !tNewWarnings( iWarning )( 0 ) )    // No warning, means the ray was resolved
-                {
-                    // Update intersection for resolved rays
-                    tIntersections( tRayIndex )( 0 ) = tErroredIntersections( iWarning )( 0 );
-                }
-                else
-                {
-                    // Keep unresolved rays in the error list
-                    tErroredIndices( tNumNewWarnings ) = tRayIndex;
-                    tErroredOrigins.set_column( tNumNewWarnings++, aPoint.get_column( tRayIndex ) );
-                }
-            }
+                // Get a new random direction
+                tDirection = this->random_direction();
 
-            // Update the number of warnings
-            tNumWarnings = tNumNewWarnings;
+                // Resize preallocated structures to match the actual number of errors
+                tErroredOrigins.resize( tDim, tNumWarnings );
+
+                // Create a temporary warnings vector for this batch of errored rays
+                Vector< Vector< bool > > tNewWarnings;
+
+                // Cast the errored rays
+                Vector< Vector< Intersection_Vector > > tErroredIntersections = this->cast_batch_of_rays( tErroredOrigins, tDirection, tNewWarnings, false );
+
+                // Update intersections for resolved rays and rebuild error list
+                uint tNumNewWarnings = 0;
+                for ( uint iWarning = 0; iWarning < tNumWarnings; ++iWarning )
+                {
+                    uint tRayIndex = tErroredIndices( iWarning );
+
+                    if ( !tNewWarnings( iWarning )( 0 ) )    // No warning, means the ray was resolved
+                    {
+                        // Update intersection for resolved rays
+                        tIntersections( tRayIndex )( 0 ) = tErroredIntersections( iWarning )( 0 );
+                    }
+                    else
+                    {
+                        // Keep unresolved rays in the error list
+                        tErroredIndices( tNumNewWarnings ) = tRayIndex;
+                        tErroredOrigins.set_column( tNumNewWarnings++, aPoint.get_column( tRayIndex ) );
+                    }
+                }
+
+                // Update the number of warnings
+                tNumWarnings = tNumNewWarnings;
+
+                // Check if we have exceeded the maximum number of attempts
+                if ( ++tAttemptCounter > 10 )
+                {
+                    MORIS_LOG_WARNING( "Exceeded maximum number of attempts to resolve raycast warnings. Setting these points to interface" );
+                    for ( uint i = 0; i < tNumWarnings; ++i )
+                    {
+                        tRegions( tErroredIndices( i ) ) = Mesh_Region::INTERFACE;
+                    }
+                    break;
+                }
+            } while ( tNumWarnings > 0 );
         }
 
         // Loop through the intersections and determine the region for each point
         for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
         {
-            // Get the intersections for this point FIXME: write a function that returns the distances only to avoid the std::pair overhead
-            Intersection_Vector tIntersectionsForPoint = tIntersections( iPoint )( 0 );
+            // Check if this ray has already been classified
+            if ( tRegions( iPoint ) == UNDEFINED )
+            {
+                // Get the intersections for this point FIXME: write a function that returns the distances only to avoid the std::pair overhead
+                Intersection_Vector tIntersectionsForPoint = tIntersections( iPoint )( 0 );
 
-            // Store the region for this point
-            tRegions( iPoint ) = std::any_of( tIntersectionsForPoint.begin(), tIntersectionsForPoint.end(), [ this ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) < mIntersectionTolerance; } )
-                                       ? Mesh_Region::INTERFACE
-                                       : static_cast< Mesh_Region >( tIntersectionsForPoint.size() % 2 );
+                // Store the region for this point
+                tRegions( iPoint ) = std::any_of( tIntersectionsForPoint.begin(), tIntersectionsForPoint.end(), [ this ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) < mIntersectionTolerance; } )
+                                           ? Mesh_Region::INTERFACE
+                                           : static_cast< Mesh_Region >( tIntersectionsForPoint.size() % 2 );
+            }
         }
 
         return tRegions;
