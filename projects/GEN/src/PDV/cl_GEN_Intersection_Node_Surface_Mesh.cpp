@@ -231,14 +231,9 @@ namespace moris::gen
                 Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector *    //
                                                        ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex ) );
 
-                // Add sensitivities from regularization
-                Matrix< DDRMat > tRegularizationSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector *    //
-                                                                     ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * mInterfaceGeometry.get_regularization_sensitivity( iParentFacetVertexIndex ) );
-
                 // Resize sensitivities
                 uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
-                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() + tRegularizationSensitivitiesToAdd.n_cols() );
+                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(), tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
 
                 // Join sensitivities
                 for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
@@ -247,16 +242,6 @@ namespace moris::gen
                     {
                         aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + iAddedSensitivity ) =
                                 tSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
-                    }
-                }
-
-                // Join regularization sensitivities
-                for ( uint iCoordinateIndex = 0; iCoordinateIndex < tRegularizationSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
-                {
-                    for ( uint iAddedSensitivity = 0; iAddedSensitivity < tRegularizationSensitivitiesToAdd.n_cols(); iAddedSensitivity++ )
-                    {
-                        aCoordinateSensitivities( iCoordinateIndex, tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() + iAddedSensitivity ) =
-                                tRegularizationSensitivitiesToAdd( iCoordinateIndex, iAddedSensitivity );
                     }
                 }
             }
@@ -296,12 +281,8 @@ namespace moris::gen
             {    // Get the IDs for this vertex
                 Vector< sint > tVertexADVIds = mInterfaceGeometry.get_vertex_adv_ids( tParentFacetVertex );
 
-                // Get the IDs for this vertex as a result of regualrization
-                Vector< moris_index > tRegularizationADVIds = mInterfaceGeometry.get_regularization_adv_ids( tParentFacetVertex );
-
                 // Join IDs
                 Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tVertexADVIds );
-                Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tRegularizationADVIds );
             }
         }
 
@@ -368,8 +349,6 @@ namespace moris::gen
 
             // Compute signed area of parallipiped formed by edges
             real tArea = dot( tNormal, trans( tFirstParentNodeCoords ) - tFacetVertex1 );
-
-            PRINT( 2.0 * tDet * ( 1.0 - tArea / tDet ) * tNormal );
 
             // Compute sensitivities
             return 2.0 / tDet * ( 1.0 - tArea / tDet ) * tNormal;

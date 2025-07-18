@@ -291,7 +291,9 @@ namespace moris::prm
         tSurfaceMeshParameterList.insert_enum( "regularization_type", gen::Regularization_Type_String::values );    // Regularization type (if any) for shape updates. Options are NONE, ISOTROPIC_LAPLACIAN, ANISOTROPIC_LAPLACIAN, TAUBIN, or USER_DEFINED
         tSurfaceMeshParameterList.insert( "regularization_function_name", "" );                                     // User defined function name for regularization of surface mesh vertices
         tSurfaceMeshParameterList.insert( "regularization_sensitivity_function_name", "" );                         // User defined function name for evaluating the sensitivity of the regularization
-        tSurfaceMeshParameterList.insert( "regularization_adv_id_function_name", "" );                              // User defined function name that returns which ADV IDs a given surface mesh vertex depends on
+        tSurfaceMeshParameterList.insert( "regularization_vertex_inds_function_name", "" );                         // User defined function name that returns which ADV IDs a given surface mesh vertex depends on
+        tSurfaceMeshParameterList.insert( "regularization_factors", Vector< real >( 1, 1.0 ) );                     // Factors for scaling regularization functions, applied in order
+        tSurfaceMeshParameterList.insert( "regularization_iterations", 0, 0, 100 );                                 // Number of times the regularization function is applied to the surface mesh vertices per optimization iteration
 
         return tSurfaceMeshParameterList;
     }

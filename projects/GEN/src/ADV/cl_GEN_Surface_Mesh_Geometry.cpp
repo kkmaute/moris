@@ -57,11 +57,13 @@ namespace moris::gen
             , mRegularizationSensitivityFunctionName( aParameterList.get< std::string >( "regularization_sensitivity_function_name" ) )
             , mRegularizationVertexIndsFunctionName( aParameterList.get< std::string >( "regularization_vertex_inds_function_name" ) )
             , mRegularizationFactors( aParameterList.get< Vector< real > >( "regularization_factors" ) )
+            , mRegularizationIterations( aParameterList.get< moris_index >( "regularization_iterations" ) )
     {
         MORIS_ASSERT( (uint)( mDiscretizationIndex < -1 + not mAnalyticADVFunctionName.empty() ) < 2, "Both a discretization index and an analytical function are provided. Pick at most 1!" );
         MORIS_ASSERT( mRegularizationType != Regularization_Type::USER_DEFINED or ( mRegularizationType == Regularization_Type::USER_DEFINED and not mRegularizationFunctionName.empty() ),
                 "Regularization type likely set to user defined but a regularization function name was not provided. Please set the \"regularization_function_name\" parameter under the surface mesh geometry." );
         MORIS_ASSERT( mRegularizationType == Regularization_Type::NONE or mRegularizationFactors.size() > 0, "If a regularization type is set, you must specify regularization factors corresponding to the regularization type." );
+        MORIS_ASSERT( mRegularizationType == Regularization_Type::NONE or mRegularizationIterations > 0, "If a regularization type is set, you must specify the number of regularization iterations." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -91,12 +93,10 @@ namespace moris::gen
                                                                 mParameters.mFilePath.find_last_of( "." ) - mParameters.mFilePath.find_last_of( "/" ) - 1 )
                                                       : mParameters.mName;
 
-        // Get the regularization functions
-        this->load_regularization_function( aLibrary );
-
-        // Build vertex connectivity if we are doing regularization
+        // Get the regularization functions, build vertex connectivity for regularization if needed
         if ( this->do_regularization() )
         {
+            this->load_regularization_function( aLibrary );
             this->build_vertex_connectivity();
         }
 
@@ -424,6 +424,122 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    // std::pair< uint, real > Surface_Mesh_Geometry::compute_intersection_local_coordinate(
+    //         const Vector< Background_Node* >& aBackgroundNodes,
+    //         const Parent_Node&                aFirstParentNode,
+    //         const Parent_Node&                aSecondParentNode )
+    // {
+    //     // Get the parent node global coordinates. The origin of the ray will be the first parent node
+    //     Matrix< DDRMat > tFirstParentNodeCoordinates  = aFirstParentNode.get_global_coordinates();
+    //     Matrix< DDRMat > tSecondParentNodeCoordinates = aSecondParentNode.get_global_coordinates();
+
+    //     // Need to cast along the edge to determine where the edge is intersected
+    //     Matrix< DDRMat > tRayDirection = tSecondParentNodeCoordinates - tFirstParentNodeCoordinates;
+
+    //     // Do a raycast to get the locations of the ray/facet intersections
+    //     bool                     tWarning;
+    //     mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
+
+    //     if( tLocalCoordinate.empty() ) // BRENDAN DELETE
+    //     {
+    //         if( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+    //         {
+    //             // If the first parent node is on the interface, return it as the intersection
+    //             return std::make_pair( 0, -1.0 );
+    //         }
+    //         else if ( this->get_geometric_region( aSecondParentNode.get_index(), tSecondParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+    //         {
+    //             // If the second parent node is on the interface, return it as the intersection
+    //             return std::make_pair( 0, 1.0 );
+    //         }
+    //     }
+
+    //     // Process the raycast output and if no valid intersection was found, recast ray with looser tolerance
+    //     return this->process_raycast_for_local_coordinate( aFirstParentNode, aSecondParentNode, tRayDirection, Surface_Mesh::mIntersectionTolerance, tLocalCoordinate );
+    // }
+
+    // //--------------------------------------------------------------------------------------------------------------
+
+    // std::pair< uint, real >
+    // Surface_Mesh_Geometry::process_raycast_for_local_coordinate(
+    //         const Parent_Node&        aFirstParentNode,
+    //         const Parent_Node&        aSecondParentNode,
+    //         Matrix< DDRMat >&         aDirection,
+    //         real                      aOriginalTolerance,
+    //         mtk::Intersection_Vector& aRaycastResult )
+    // {
+    //     // Put the intersections in the local coordinate frame
+    //     for ( uint iIntersection = 0; iIntersection < aRaycastResult.size(); iIntersection++ )
+    //     {
+    //         aRaycastResult( iIntersection ).second = 2.0 * aRaycastResult( iIntersection ).second - 1.0;
+    //     }
+
+    //     // Iterate through the intersections to find the first value that is within the exclusive range (-1, 1)
+    //     for ( auto& tIntersection : aRaycastResult )
+    //     {
+    //         if ( std::abs( tIntersection.second ) < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) ) // BRENDAN CHANGE THIS TO - Surface_Mesh::
+    //         {
+    //             // reset intersection tolerance
+    //             Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+
+    //             // Found a valid intersection that will NOT snap to either parent node
+    //             return tIntersection;
+    //         }
+    //     }
+
+    //     // If no middle intersection was found, check for intersections that are very close to the parent nodes
+    //     for ( auto& tIntersection : aRaycastResult )
+    //     {
+    //         if ( std::abs( tIntersection.second - 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+    //         {
+    //             // reset intersection tolerance
+    //             Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+
+    //             // Found an intersection that is very close to the second parent node
+    //             // This will be ignored in the intersection node creation
+    //             tIntersection.second = 1.0;
+    //             return tIntersection;
+    //         }
+    //         else if ( std::abs( tIntersection.second + 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+    //         {
+    //             // reset intersection tolerance
+    //             Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+
+    //             // Found an intersection that is very close to the first parent node
+    //             // This will be ignored in the intersection node creation
+    //             tIntersection.second = -1.0;
+    //             return tIntersection;
+    //         }
+    //     }
+
+    //     // ---------------------------------------------------------
+    //     // No intersection found, check for pathological cases
+    //     // ---------------------------------------------------------
+
+    //     // Check to see if either parent node is on the interface. Needed if node will snap or raycast tolerancing is off
+    //     if ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
+    //     {
+    //         return std::make_pair( 0, -1.0 );    // FIXME: XTK will ignore this node, but ideally this should identify the intersecting facet
+    //     }
+    //     else if ( this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
+    //     {
+    //         return std::make_pair( 0, 1.0 );    // FIXME: XTK will ignore this node, but ideally this should identify the intersecting facet
+    //     }
+
+    //     // If no intersection was found (but there should be one), loosen the intersection tolerance and try again
+    //     Surface_Mesh::mIntersectionTolerance *= 10.0;
+
+    //     MORIS_ASSERT( Surface_Mesh::mIntersectionTolerance < 0.1, "Surface mesh intersection tolerance is too large. No valid intersection found." );
+
+    //     // Recast the ray
+    //     bool                     tWarning;
+    //     mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aFirstParentNode.get_global_coordinates(), aDirection, tWarning );
+
+    //     // Recursively call this function to process new intersections
+    //     return this->process_raycast_for_local_coordinate( aFirstParentNode, aSecondParentNode, aDirection, aOriginalTolerance, tNewIntersections );
+    // }
+
+    // BRENDAN these are old methods that don't give correct intersections, but works with the existing XTK code. Remove after conference
     std::pair< uint, real > Surface_Mesh_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
@@ -433,6 +549,15 @@ namespace moris::gen
         Matrix< DDRMat > tFirstParentNodeCoordinates  = aFirstParentNode.get_global_coordinates();
         Matrix< DDRMat > tSecondParentNodeCoordinates = aSecondParentNode.get_global_coordinates();
 
+        if ( this->get_geometric_region( aFirstParentNode.get_index(), tFirstParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, -1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
+        }
+        else if ( this->get_geometric_region( aSecondParentNode.get_index(), tSecondParentNodeCoordinates ) == Geometric_Region::INTERFACE )
+        {
+            return std::make_pair( 0, 1.0 );    // FIXME: since we don't know the facet that it intersects, we cant return it. This should get ignored by XTK though
+        }
+
         // Need to cast along the edge to determine where the edge is intersected
         Matrix< DDRMat > tRayDirection = tSecondParentNodeCoordinates - tFirstParentNodeCoordinates;
 
@@ -441,19 +566,24 @@ namespace moris::gen
         mtk::Intersection_Vector tLocalCoordinate = this->cast_single_ray( tFirstParentNodeCoordinates, tRayDirection, tWarning );
 
         // Process the raycast output and if no valid intersection was found, recast ray with looser tolerance
-        return this->process_raycast_for_local_coordinate( aFirstParentNode, aSecondParentNode, tRayDirection, Surface_Mesh::mIntersectionTolerance, tLocalCoordinate );
+        return this->process_raycast_for_local_coordinate( Surface_Mesh::mIntersectionTolerance, tFirstParentNodeCoordinates, tRayDirection, tLocalCoordinate );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     std::pair< uint, real >
     Surface_Mesh_Geometry::process_raycast_for_local_coordinate(
-            const Parent_Node&        aFirstParentNode,
-            const Parent_Node&        aSecondParentNode,
-            Matrix< DDRMat >&         aDirection,
             real                      aOriginalTolerance,
+            Matrix< DDRMat >&         aOrigin,
+            Matrix< DDRMat >&         aDirection,
             mtk::Intersection_Vector& aRaycastResult )
     {
+        if ( Surface_Mesh::mIntersectionTolerance > 0.1 )
+        {
+            Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
+            return std::make_pair( 0, 1.0 );    // No valid intersection found, return invalid pair
+        }
+
         // Put the intersections in the local coordinate frame
         for ( uint iIntersection = 0; iIntersection < aRaycastResult.size(); iIntersection++ )
         {
@@ -463,66 +593,33 @@ namespace moris::gen
         // Iterate through the intersections to find the first value that is within the exclusive range (-1, 1)
         for ( auto& tIntersection : aRaycastResult )
         {
-            if ( std::abs( tIntersection.second ) < ( 1.0 - Surface_Mesh::mIntersectionTolerance ) )
+            if ( std::abs( tIntersection.second ) < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) )
             {
                 // reset intersection tolerance
                 Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
 
-                // Found a valid intersection that will NOT snap to either parent node
+                // snap if needed
+                if ( std::abs( tIntersection.second - 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+                {
+                    tIntersection.second = 1.0;
+                }
+                else if ( std::abs( tIntersection.second + 1.0 ) < Surface_Mesh::mIntersectionTolerance )
+                {
+                    tIntersection.second = -1.0;
+                }
                 return tIntersection;
             }
         }
 
-        // If no middle intersection was found, check for intersections that are very close to the parent nodes
-        for ( auto& tIntersection : aRaycastResult )
-        {
-            if ( std::abs( tIntersection.second - 1.0 ) < Surface_Mesh::mIntersectionTolerance )
-            {
-                // reset intersection tolerance
-                Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
-
-                // Found an intersection that is very close to the second parent node
-                // This will be ignored in the intersection node creation
-                tIntersection.second = 1.0;
-                return tIntersection;
-            }
-            else if ( std::abs( tIntersection.second + 1.0 ) < Surface_Mesh::mIntersectionTolerance )
-            {
-                // reset intersection tolerance
-                Surface_Mesh::mIntersectionTolerance = aOriginalTolerance;
-
-                // Found an intersection that is very close to the first parent node
-                // This will be ignored in the intersection node creation
-                tIntersection.second = -1.0;
-                return tIntersection;
-            }
-        }
-
-        // ---------------------------------------------------------
-        // No intersection found, check for pathological cases
-        // ---------------------------------------------------------
-
-        // Check to see if either parent node is on the interface. Needed if node will snap or raycast tolerancing is off
-        if ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
-        {
-            return std::make_pair( 0, -1.0 );    // FIXME: XTK will ignore this node, but ideally this should identify the intersecting facet
-        }
-        else if ( this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE )
-        {
-            return std::make_pair( 0, 1.0 );    // FIXME: XTK will ignore this node, but ideally this should identify the intersecting facet
-        }
-
-        // If no intersection was found (but there should be one), loosen the intersection tolerance and try again
+        // If no intersection was found, loosen the intersection tolerance and try again
         Surface_Mesh::mIntersectionTolerance *= 10.0;
-
-        MORIS_ASSERT( Surface_Mesh::mIntersectionTolerance < 0.1, "Surface mesh intersection tolerance is too large. No valid intersection found." );
 
         // Recast the ray
         bool                     tWarning;
-        mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aFirstParentNode.get_global_coordinates(), aDirection, tWarning );
+        mtk::Intersection_Vector tNewIntersections = this->cast_single_ray( aOrigin, aDirection, tWarning );
 
-        // Recursively call this function to process new intersections
-        return this->process_raycast_for_local_coordinate( aFirstParentNode, aSecondParentNode, aDirection, aOriginalTolerance, tNewIntersections );
+        // Process new intersections
+        return this->process_raycast_for_local_coordinate( aOriginalTolerance, aOrigin, aDirection, tNewIntersections );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -731,7 +828,6 @@ namespace moris::gen
         }
     }
 
-
 #endif
 
     //--------------------------------------------------------------------------------------------------------------
@@ -772,7 +868,6 @@ namespace moris::gen
             mNodeMeshRegions[ tUnknownNodes( iNode ) ] = tUnknownNodeRegions( iNode );
         }
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -820,8 +915,8 @@ namespace moris::gen
 
                 for ( uint iFieldIndex = 0; iFieldIndex < mPerturbationFields.size(); iFieldIndex++ )
                 {
-                    // update the facet vertex if it can move and is owned by this processor
-                    if ( this->facet_vertex_depends_on_advs( iVertexIndex ) and mOriginalVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
+                    // update the facet vertex if it moves explicitly via advs and is owned by this processor
+                    if ( mOriginalVertexBackgroundElements( iVertexIndex ) != nullptr and mOriginalVertexBackgroundElements( iVertexIndex )->get_owner() == par_rank() )
                     {
                         // Interpolate the bspline field value at the facet vertex location
                         real tInterpolatedPerturbation = this->interpolate_perturbation_from_background_element(
@@ -830,7 +925,7 @@ namespace moris::gen
                                 iVertexIndex );
 
                         // build the matrix for new coordinates
-                        tOwnedVertexDisplacements( tDims, iVertexIndex )       = 1.0;    // says that this vertex is owned bwwy this proc
+                        tOwnedVertexDisplacements( tDims, iVertexIndex )       = 1.0;    // says that this vertex is owned by this proc
                         tOwnedVertexDisplacements( iFieldIndex, iVertexIndex ) = tFactor( iFieldIndex ) * tInterpolatedPerturbation;
                     }
                 }
@@ -922,7 +1017,7 @@ namespace moris::gen
         // Determine new region information for the nodes
 #if MORIS_HAVE_ARBORX
         Surface_Mesh::construct_bvh();
-        this->flood_fill_mesh_regions();
+        // this->flood_fill_mesh_regions();
 #endif
         this->raycast_remaining_unknown_nodes();
     }
@@ -934,20 +1029,20 @@ namespace moris::gen
         if ( this->do_regularization() )
         {
             uint tDims = this->get_spatial_dimension();
+            uint tNumV = this->get_number_of_vertices();
 
             // Get the regularization from whatever function was loaded
-            Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors );
+            Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_all_original_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
 
             MORIS_ASSERT( tRegularizationDisp.n_rows() == this->get_spatial_dimension(), "Regularization function for surface mesh %s does not return the correct number of rows. Expected %d, got %lu", mParameters.mName.c_str(), this->get_spatial_dimension(), tRegularizationDisp.n_rows() );
             MORIS_ASSERT( tRegularizationDisp.n_cols() == this->get_number_of_vertices(), "Regularization function for surface mesh %s does not return the correct number of cols. Expected %d, got %lu", mParameters.mName.c_str(), this->get_number_of_vertices(), tRegularizationDisp.n_cols() );
 
-            // Add any discretization scaling to the regularization displacement
+            // Scale the regularization displacement for all vertices
             for ( uint iVertexIndex = 0; iVertexIndex < this->get_number_of_vertices(); iVertexIndex++ )
             {
                 // Get the factor that scales this vertex's movement
                 Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( this->get_spatial_dimension(), 1.0 ) : get_discretization_scaling_user_defined( Surface_Mesh::get_original_vertex_coordinates( iVertexIndex ) );
 
-                // Scale the regularization displacement for this vertex
                 for ( uint iDim = 0; iDim < tDims; iDim++ )
                 {
                     tRegularizationDisp( iDim, iVertexIndex ) *= tFactor( iDim );
@@ -956,6 +1051,231 @@ namespace moris::gen
 
             // Apply the regularization to the vertex displacements
             this->set_all_displacements( this->get_vertex_displacements() + tRegularizationDisp );
+
+            // Compute regularization sensitivities for the first iteration
+            this->initialize_regularization_sensitivities();
+
+            std::map< uint, uint > tADVIdMap;    // Map to store the full sensitivities for this iteration, cleared for each vertex
+
+            // See if we need to apply regularization again
+            for ( moris_index iRegIter = 1; iRegIter < mParameters.mRegularizationIterations; iRegIter++ )
+            {
+                // Get the regularization from whatever function was loaded
+                Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_all_original_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
+
+                MORIS_ASSERT( tRegularizationDisp.n_rows() == this->get_spatial_dimension(), "Regularization function for surface mesh %s does not return the correct number of rows. Expected %d, got %lu", mParameters.mName.c_str(), this->get_spatial_dimension(), tRegularizationDisp.n_rows() );
+                MORIS_ASSERT( tRegularizationDisp.n_cols() == tNumV, "Regularization function for surface mesh %s does not return the correct number of cols. Expected %d, got %lu", mParameters.mName.c_str(), tNumV, tRegularizationDisp.n_cols() );
+
+                // Compute sensitivities and scale the regularization displacement by the user defined scaling factor
+                for ( uint iV = 0; iV < tNumV; iV++ )
+                {
+                    // Get the factor that scales this vertex's movement
+                    Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( this->get_spatial_dimension(), 1.0 ) : get_discretization_scaling_user_defined( Surface_Mesh::get_original_vertex_coordinates( iV ) );
+
+                    // Scale the regularization displacement for this vertex
+                    for ( uint iDim = 0; iDim < tDims; iDim++ )
+                    {
+                        tRegularizationDisp( iDim, iV ) *= tFactor( iDim );
+                    }
+
+                    // Initialize new sensitivities
+                    tADVIdMap.clear();
+
+                    // Populate the ADV ID map for existing sensitivities for my vertex
+                    uint tColumn = 0;
+                    for ( const auto iADV : mRegularizationSensitivities( iV ).first )
+                    {
+                        tADVIdMap[ iADV ] = tColumn++;
+                    }
+
+                    // Initialize matrix for new sensitivities
+                    Matrix< DDRMat > tVertexSensitivity( tDims, tColumn );
+
+                    // Get surface mesh vertex dependencies
+                    Vector< moris_index > tVertexDependencies = regularization_vertex_inds(
+                            this->get_all_vertex_coordinates(),
+                            this->get_facet_connectivity(),
+                            mVertexConnectivity,
+                            mParameters.mRegularizationFactors,
+                            iV );
+
+                    // Loop over all vertex dependencies and compute dv_i/dADV
+                    for ( auto iDependency : tVertexDependencies )
+                    {
+                        // Check if this vertex depends on any ADVs
+                        if ( this->facet_vertex_depends_on_advs( iDependency ) )
+                        {
+                            // Get dx_i/dx_k for this vertex
+                            Matrix< DDRMat > tDviDvk = regularization_sensitivity(
+                                    this->get_all_vertex_coordinates(),
+                                    this->get_all_original_vertex_coordinates(),
+                                    this->get_facet_connectivity(),
+                                    mVertexConnectivity,
+                                    mParameters.mRegularizationFactors,
+                                    iV,
+                                    iDependency,
+                                    get_discretization_scaling_user_defined );
+
+                            // Get the sensitivity and ADV IDs for this vertex
+                            Vector< moris_index > tDependencyADVIds      = this->get_vertex_adv_ids( iDependency );
+                            Matrix< DDRMat >      tDependencySensitivity = tDviDvk * this->get_dvertex_dadv( iDependency );
+                            
+                            MORIS_ASSERT( tDependencyADVIds.size() == tDependencySensitivity.n_cols(),
+                                    "Surface mesh %s has %lu ADV IDs for vertex %d, but regularization sensitivities have %lu columns.",
+                                    mParameters.mName.c_str(),
+                                    tDependencyADVIds.size(),
+                                    iDependency,
+                                    tDependencySensitivity.n_cols() );
+
+                            // Loop through all the ADV IDs for this new sensitivity and update the sensitivities
+                            for ( uint iADV = 0; iADV < tDependencyADVIds.size(); iADV++ )
+                            {
+                                // Get the ADV ID for this sensitivity
+                                moris_index tADVID = tDependencyADVIds( iADV );
+
+                                // Check if this ADV ID is already in the sensitivities map for this iteration
+                                if ( tADVIdMap.find( tADVID ) == tADVIdMap.end() )
+                                {
+                                    // If not, add it to the map with a new column index
+                                    moris_index tColumnIndex = tADVIdMap.size();
+                                    tADVIdMap[ tADVID ]      = tColumnIndex;
+
+                                    // Resize the sensitivity matrix to accommodate the new column
+                                    tVertexSensitivity.resize( tDims, tColumnIndex + 1 );
+                                    tVertexSensitivity.set_column( tColumnIndex, tDependencySensitivity.get_column( iADV ) );
+                                }
+                                else
+                                {    // Get the column index for this ADV ID
+                                    moris_index tColumnIndex = tADVIdMap[ tADVID ];
+
+                                    // Update the sensitivity for this ADV ID
+                                    tVertexSensitivity.set_column( tColumnIndex, tVertexSensitivity.get_column( tColumnIndex ) + tDependencySensitivity.get_column( iADV ) );
+                                }
+                            }
+                        }
+                    }
+
+                    // Convert ADV ID map to vector
+                    Vector< moris_index > tKeys( tADVIdMap.size() );
+                    for ( const auto& tPair : tADVIdMap )
+                    {
+                        // Store the ADV ID in the vector
+                        tKeys( tPair.second ) = tPair.first;
+                    }
+
+                    // Set the sensitivities for this vertex
+                    mRegularizationSensitivities( iV ) = std::make_pair( tKeys, tVertexSensitivity );
+
+                    MORIS_ASSERT( mRegularizationSensitivities( iV ).first.size() == mRegularizationSensitivities( iV ).second.n_cols(),
+                            "Surface mesh %s has %lu ADV IDs for vertex %d, but regularization sensitivities have %lu columns.",
+                            mParameters.mName.c_str(),
+                            mRegularizationSensitivities( iV ).first.size(),
+                            iV,
+                            mRegularizationSensitivities( iV ).second.n_cols() );
+                }
+
+                // Apply the regularization to the vertex displacements
+                this->set_all_displacements( this->get_vertex_displacements() + tRegularizationDisp );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::initialize_regularization_sensitivities()
+    {
+        uint tDims = this->get_spatial_dimension();
+        uint tNumV = this->get_number_of_vertices();
+
+        mRegularizationSensitivities.resize( tNumV );
+
+        // Initialize map for this vertex to keep track of unique ADV IDs
+        std::map< uint, uint > tADVIdMap;
+
+        // Loop through all vertices
+        for ( uint iV = 0; iV < tNumV; iV++ )
+        {
+            tADVIdMap.clear();    // Clear the ADV ID map for this vertex
+
+            // Initialize sensitivity matrix for this vertex
+            Matrix< DDRMat > tVertexSensitivity;
+
+            // Get the factor that scales this vertex's movement
+            Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 ) : get_discretization_scaling_user_defined( Surface_Mesh::get_original_vertex_coordinates( iV ) );
+
+            // Get the regularization dependencies for this vertex
+            Vector< moris_index > tVertexDependencies = regularization_vertex_inds( this->get_all_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, iV );
+
+            // Loop through all the vertex dependencies and set the initial sensitivity to be identity
+            for ( auto iDependency : tVertexDependencies )
+            {
+                // Check if this vertex depends on any ADVs explicitly
+                if ( this->facet_vertex_explicitly_depends_on_advs( iDependency ) )
+                {
+                    // Get dx_i/dx_k regularization sensitivity for this dependency vertex
+                    Matrix< DDRMat > tDviDvk = regularization_sensitivity(
+                            this->get_all_vertex_coordinates(),
+                            this->get_all_original_vertex_coordinates(),
+                            this->get_facet_connectivity(),
+                            mVertexConnectivity,
+                            mParameters.mRegularizationFactors,
+                            iV,
+                            iDependency,
+                            get_discretization_scaling_user_defined );
+
+                    // Get the sensitivity and ADV IDs for this vertex
+                    Vector< moris_index > tDependencyADVIds      = this->get_vertex_adv_ids_explicit( iDependency );
+                    Matrix< DDRMat >      tDependencySensitivity = tDviDvk * this->get_dvertex_dadv_explicit( iDependency );
+
+                    // Loop through all ADV IDs and update the sensitivity matrix
+                    for ( uint iADV = 0; iADV < tDependencyADVIds.size(); iADV++ )
+                    {
+                        // Get the ADV ID for this sensitivity
+                        moris_index tADVID = tDependencyADVIds( iADV );
+
+                        // // Scale the sensitivity by the user defined scaling factor
+                        // for ( uint iDim = 0; iDim < tDims; iDim++ )
+                        // {
+                        //     tDependencySensitivity( iDim, iADV ) *= tFactor( iDim );
+                        // }
+
+                        // Check if this ADV ID is already in the sensitivities map
+                        if ( tADVIdMap.find( tADVID ) == tADVIdMap.end() )
+                        {
+                            // If not, add it to the map with a new column index
+                            moris_index tColumnIndex = tADVIdMap.size();
+                            tADVIdMap[ tADVID ]      = tColumnIndex;
+
+                            // Resize the sensitivity matrix to accommodate the new column
+                            tVertexSensitivity.resize( tDims, tColumnIndex + 1 );
+                            tVertexSensitivity.set_column( tColumnIndex, tDependencySensitivity.get_column( iADV ) );
+                        }
+                        else
+                        {    // Get the column index for this ADV ID
+                            moris_index tColumnIndex = tADVIdMap[ tADVID ];
+
+                            // Update the sensitivity for this ADV ID
+                            tVertexSensitivity.set_column( tColumnIndex, tVertexSensitivity.get_column( tColumnIndex ) + tDependencySensitivity.get_column( iADV ) );
+                        }
+                    }
+                }
+            }
+
+            // Store the sensitivities for this vertex
+            Vector< moris_index > tKeys( tADVIdMap.size() );
+            for ( const auto& tPair : tADVIdMap )
+            {
+                // Fill the vector with the keys from the map
+                tKeys( tPair.second ) = tPair.first;
+            }
+            mRegularizationSensitivities( iV ) = std::make_pair( tKeys, tVertexSensitivity );
+
+            MORIS_ASSERT( mRegularizationSensitivities( iV ).first.size() == mRegularizationSensitivities( iV ).second.n_cols(),
+                    "Surface mesh %s has %lu ADV IDs for vertex %d, but regularization sensitivities have %lu columns.",
+                    mParameters.mName.c_str(),
+                    mRegularizationSensitivities( iV ).first.size(),
+                    iV,
+                    mRegularizationSensitivities( iV ).second.n_cols() );
         }
     }
 
@@ -1113,49 +1433,26 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Surface_Mesh_Geometry::facet_vertex_explicitly_depends_on_advs( const uint aFacetVertexIndex ) const
+    {
+        // Get the factor that scales this vertex's movement
+        Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( Surface_Mesh::get_spatial_dimension(), 1.0 )
+                                                                                    : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
+
+        // Return true if this surface mesh can move, its movement was either defined by the user or is discretized
+        // and not fixed in all directions by the user, and it lies in the Lagrange mesh domain
+        return this->depends_on_advs()
+           and ( get_vertex_adv_dependency_user_defined != nullptr
+                   or ( mOriginalVertexBackgroundElements( aFacetVertexIndex ) != nullptr
+                           and std::any_of( tFactor.cbegin(), tFactor.cend(),    //
+                                   []( const real tDirectionFactor ) { return tDirectionFactor != 0.0; } ) ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool Surface_Mesh_Geometry::facet_vertex_depends_on_advs( const uint aFacetVertexIndex ) const
     {
-        Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr
-                                       ? Vector< real >( Surface_Mesh::get_spatial_dimension(), 1.0 )
-                                       : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
-
-        // Check that the surface mesh depends on ADVs and it hasnt been totally fixed by the user
-        if ( not this->depends_on_advs() or std::none_of( tFactor.cbegin(), tFactor.cend(), []( real aDirectionFactor ) { return aDirectionFactor != 0.0; } ) )
-        {
-            return false;
-        }
-
-        // If the surface mesh DOES depend on ADVs and is controlled via analytic functions, it is always dependent on ADVs
-        if ( not this->intended_discretization() )
-        {
-            return true;
-        }
-
-        // Otherwise the geometry is discretized, check if the vertex lies anywhere inside the background mesh
-        if ( mOriginalVertexBackgroundElements( aFacetVertexIndex ) != nullptr )
-        {
-            return true;
-        }
-
-        // My vertex does not explicitly depend on ADVs, but still may depend on ADVs through regularization, so check its vertex dependencies and see if any of them depend on ADVs
-        Vector< moris_index > tVertexDependencies = regularization_vertex_inds(
-                Surface_Mesh::get_all_vertex_coordinates(),
-                Surface_Mesh::get_facet_connectivity(),
-                mVertexConnectivity,
-                mParameters.mRegularizationFactors,
-                aFacetVertexIndex );
-
-        for ( const uint tDependencyIndex : tVertexDependencies )
-        {
-            if ( tDependencyIndex != aFacetVertexIndex and this->facet_vertex_depends_on_advs( tDependencyIndex ) )
-            {
-                return true;
-            }
-        }
-
-        // The surface mesh depends on ADVs and is discretized,
-        // but this vertex lies outside of the background mesh and all of its dependencies also lie outside of the background mesh
-        return false;
+        return this->do_regularization() ? mRegularizationSensitivities( aFacetVertexIndex ).first.size() > 0 : this->facet_vertex_explicitly_depends_on_advs( aFacetVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1179,13 +1476,21 @@ namespace moris::gen
     Matrix< DDRMat >
     Surface_Mesh_Geometry::get_dvertex_dadv( const uint aFacetVertexIndex ) const
     {
-        // Initialize sensitivity matrix
-        Matrix< DDRMat > tVertexSensitivity;
-        if ( this->intended_discretization() )
-        {
-            // Get the spatial dimension
-            const uint tDims = Surface_Mesh::get_spatial_dimension();
+        return this->do_regularization() ? mRegularizationSensitivities( aFacetVertexIndex ).second : this->get_dvertex_dadv_explicit( aFacetVertexIndex );
+    }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat >
+    Surface_Mesh_Geometry::get_dvertex_dadv_explicit( const uint aFacetVertexIndex ) const
+    {
+        // Get the spatial dimension
+        const uint tDims = Surface_Mesh::get_spatial_dimension();
+
+        // Initialize sensitivity matrix
+        Matrix< DDRMat > tVertexSensitivity( tDims, 0 );
+        if ( this->intended_discretization() and this->facet_vertex_explicitly_depends_on_advs( aFacetVertexIndex ) )
+        {
             // Determine which directions the vertex can move in by quering the scaling function
             Vector< real > tFactor              = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
                                                                                                      : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aFacetVertexIndex ) );
@@ -1246,6 +1551,14 @@ namespace moris::gen
 
     Vector< sint >
     Surface_Mesh_Geometry::get_vertex_adv_ids( const uint aFacetVertexIndex ) const
+    {
+        return this->do_regularization() ? mRegularizationSensitivities( aFacetVertexIndex ).first : this->get_vertex_adv_ids_explicit( aFacetVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Surface_Mesh_Geometry::get_vertex_adv_ids_explicit( const uint aFacetVertexIndex ) const
     {
         // Get spatial dimension of the problem
         const uint tDims = Surface_Mesh::get_spatial_dimension();
@@ -1338,100 +1651,7 @@ namespace moris::gen
             }
         }
 
-
         return tADVIDs;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat > Surface_Mesh_Geometry::get_regularization_sensitivity( uint aVertexIndex ) const
-    {
-        uint tDims = this->get_spatial_dimension();
-
-        Matrix< DDRMat > tSensitivity = Matrix< DDRMat >( tDims, 0 );
-
-        if ( regularization_sensitivity != nullptr and this->facet_vertex_depends_on_advs( aVertexIndex ) )
-        {
-            // Get scaling for my vertex
-            Vector< real > tMyFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
-                                                                                          : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( aVertexIndex ) );
-
-            // Get the sensitivity from the regularization function
-            Vector< Matrix< DDRMat > > tRegularizationSens = regularization_sensitivity(
-                    Surface_Mesh::get_all_vertex_coordinates(),
-                    Surface_Mesh::get_facet_connectivity(),
-                    mVertexConnectivity,
-                    mParameters.mRegularizationFactors,
-                    aVertexIndex );
-
-            // Get the vertex indices that these sensitivities correspond to
-            Vector< moris_index > tRegularizationVertexIndices = regularization_vertex_inds(
-                    Surface_Mesh::get_all_vertex_coordinates(),
-                    Surface_Mesh::get_facet_connectivity(),
-                    mVertexConnectivity,
-                    mParameters.mRegularizationFactors,
-                    aVertexIndex );
-
-            // Loop over all sensitivities and build the output matrix
-            for ( uint iV = 0; iV < tRegularizationVertexIndices.size(); iV++ )
-            {
-                // Get the vertex index
-                moris_index tVertexIndex = tRegularizationVertexIndices( iV );
-
-                // Check if this vertex depends on ADVs
-                if ( this->facet_vertex_depends_on_advs( tVertexIndex ) )
-                {
-                    // Get the discretization scaling for this neighbor vertex
-                    Vector< real > tOtherFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( this->get_spatial_dimension(), 1.0 )
-                                                                                                     : get_discretization_scaling_user_defined( this->get_original_vertex_coordinates( tVertexIndex ) );
-
-                    // Get the ADV sensitivity for this vertex and multiply it by sensitivity of my vertex wrt to this vertex
-                    Matrix< DDRMat > tVertexSens = tRegularizationSens( iV ) * this->get_dvertex_dadv( tVertexIndex );
-
-                    // Scale the sensitivity by both my and the other vertex's scaling factors
-                    for ( uint iDim = 0; iDim < tDims; iDim++ )
-                    {
-                        tVertexSens( iDim, 0 ) *= tMyFactor( iDim ) * tOtherFactor( iDim );
-                    }
-
-                    // Add this to the output matrix
-                    tSensitivity = join_horiz( tSensitivity, tVertexSens );
-                }
-            }
-        }
-
-        return tSensitivity;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    Vector< moris_index > Surface_Mesh_Geometry::get_regularization_adv_ids( uint aVertexIndex ) const
-    {
-        // Initialize output vector
-        Vector< moris_index > tRegularizationAdvIds;
-
-        if ( regularization_vertex_inds != nullptr and this->facet_vertex_depends_on_advs( aVertexIndex ) )
-        {
-            // Get all the surface mesh vertices that this vertex depends on
-            Vector< moris_index > tVertexDependencies = regularization_vertex_inds(
-                    Surface_Mesh::get_all_vertex_coordinates(),
-                    Surface_Mesh::get_facet_connectivity(),
-                    mVertexConnectivity,
-                    mParameters.mRegularizationFactors,
-                    aVertexIndex );
-
-            // Loop over vertex dependencies and get the ADV IDs that these vertices depend on
-            for ( auto iV : tVertexDependencies )
-            {
-                if ( this->facet_vertex_depends_on_advs( iV ) )
-                {
-                    // Append the ADV IDs for this vertex
-                    tRegularizationAdvIds.append( this->get_vertex_adv_ids( iV ) );
-                }
-            }
-        }
-
-        return tRegularizationAdvIds;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1538,53 +1758,56 @@ namespace moris::gen
 
     void Surface_Mesh_Geometry::update_vertex_basis_data()
     {
-        Tracer tTracer( "GEN", "Surface Mesh Geometry", "Find background element brute force" );
-
-        // Get the spatial dimension
-        uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
-
-        if ( mCurrentVertexBackgroundElements.size() != Surface_Mesh::get_number_of_vertices() )
+        if ( mParameters.mDelaunay or this->intended_discretization() )
         {
-            mCurrentVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
-            mCurrentVertexBackgroundElements.resize( Surface_Mesh::get_number_of_vertices() );
-        }
+            Tracer tTracer( "GEN", "Surface Mesh Geometry", "Find background element brute force" );
 
-        // Compute the bases for all facet vertices FIXME boilerplate
-        for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
-        {
-            // Get this vertex's coordinates
-            Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
+            // Get the spatial dimension
+            uint tSpatialDimension = Surface_Mesh::get_spatial_dimension();
 
-            // Determine which element this vertex lies in, will be the same for every field
-            mCurrentVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( tVertexCoordinates );
-
-            // check if the vertex is inside the mesh domain
-            if ( mCurrentVertexBackgroundElements( iVertexIndex ) != nullptr )
+            if ( mCurrentVertexBackgroundElements.size() != Surface_Mesh::get_number_of_vertices() )
             {
-                // Get the bounding box for this element
-                Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mCurrentVertexBackgroundElements( iVertexIndex ) );
-
-                // determine the local coordinates of the vertex inside the mtk::Cell
-                for ( uint iDimensionIndex = 0; iDimensionIndex < tSpatialDimension; iDimensionIndex++ )
-                {
-                    mVertexParametricCoordinates( iDimensionIndex, iVertexIndex ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                                          / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
-                                                                                  - 1.0;
-                }
-
-                // Get the basis function values at the vertex location
-                Matrix< DDRMat > tBasis = this->compute_vertex_basis( mCurrentVertexBackgroundElements( iVertexIndex ), mVertexParametricCoordinates.get_column( iVertexIndex ) );
-                mCurrentVertexBases.set_column( iVertexIndex, trans( tBasis ) );
+                mCurrentVertexBases.resize( mMesh->get_mtk_cell( 0 ).get_number_of_vertices(), Surface_Mesh::get_number_of_vertices() );
+                mCurrentVertexBackgroundElements.resize( Surface_Mesh::get_number_of_vertices() );
             }
-        }
 
-        // Store the first iteration of the bases and the background elements as they are needed for optimization
-        if ( not mBasesComputed and this->depends_on_advs() )
-        {
-            mOriginalVertexBases              = mCurrentVertexBases;
-            mOriginalVertexBackgroundElements = mCurrentVertexBackgroundElements;
+            // Compute the bases for all facet vertices FIXME brute force is so slow
+            for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
+            {
+                // Get this vertex's coordinates
+                Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
 
-            mBasesComputed = true;
+                // Determine which element this vertex lies in, will be the same for every field
+                mCurrentVertexBackgroundElements( iVertexIndex ) = this->find_background_element_from_global_coordinates( tVertexCoordinates );
+
+                // check if the vertex is inside the mesh domain
+                if ( mCurrentVertexBackgroundElements( iVertexIndex ) != nullptr )
+                {
+                    // Get the bounding box for this element
+                    Vector< Vector< real > > tElementBoundingBox = this->determine_mtk_cell_bounding_box( mCurrentVertexBackgroundElements( iVertexIndex ) );
+
+                    // determine the local coordinates of the vertex inside the mtk::Cell
+                    for ( uint iDimensionIndex = 0; iDimensionIndex < tSpatialDimension; iDimensionIndex++ )
+                    {
+                        mVertexParametricCoordinates( iDimensionIndex, iVertexIndex ) = 2.0 * ( tVertexCoordinates( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                                              / ( tElementBoundingBox( 1 )( iDimensionIndex ) - tElementBoundingBox( 0 )( iDimensionIndex ) )
+                                                                                      - 1.0;
+                    }
+
+                    // Get the basis function values at the vertex location
+                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( mCurrentVertexBackgroundElements( iVertexIndex ), mVertexParametricCoordinates.get_column( iVertexIndex ) );
+                    mCurrentVertexBases.set_column( iVertexIndex, trans( tBasis ) );
+                }
+            }
+
+            // Store the first iteration of the bases and the background elements as they are needed for optimization
+            if ( not mBasesComputed and this->intended_discretization() )
+            {
+                mOriginalVertexBases              = mCurrentVertexBases;
+                mOriginalVertexBackgroundElements = mCurrentVertexBackgroundElements;
+
+                mBasesComputed = true;
+            }
         }
     }
 
@@ -1616,9 +1839,11 @@ namespace moris::gen
 
     Matrix< DDRMat > Surface_Mesh_Geometry::isotropic_laplacian_regularization(
             const Matrix< DDRMat >&                aVertexCoordinates,
+            const Matrix< DDRMat >&                aOriginalVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
             const Vector< Vector< moris_index > >& aVertexConnectivity,
-            const Vector< real >&                  aFactor )
+            const Vector< real >&                  aFactor,
+            const Discretization_Factor_Function&  get_discretization_scaling_user_defined )
     {
         if ( aFactor.size() > 1 )
         {
@@ -1635,14 +1860,25 @@ namespace moris::gen
         {
             Matrix< DDRMat > tVertexRegularization( tDims, 1, 0.0 );
 
+            Vector< real > tVertexFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
+                                                                                              : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( iV ) );
+
             // Loop over all edges associated with this vertex
             for ( uint iE = 0; iE < aVertexConnectivity( iV ).size(); iE++ )
             {
                 // Get the vertex index of the edge
-                moris_index tVertexIndex = aVertexConnectivity( iV )( iE );
+                moris_index tDependencyIndex = aVertexConnectivity( iV )( iE );
+
+                // Compute the edge vector scaled by the factor
+                Matrix< DDRMat > tEdge( tDims, 1, 0.0 );
+                for ( uint iDimension = 0; iDimension < tDims; iDimension++ )
+                {
+                    // Scale the edge vector by the factor
+                    tEdge( iDimension ) = tVertexFactor( iDimension ) * ( aVertexCoordinates( iDimension, tDependencyIndex ) - aVertexCoordinates( iDimension, iV ) );
+                }
 
                 // Add the edge vector to the regularization for this vertex
-                tVertexRegularization += aVertexCoordinates.get_column( tVertexIndex ) - aVertexCoordinates.get_column( iV );
+                tVertexRegularization += tEdge;
             }
 
             // Divide by the number of edges to get the average, set into output matrix
@@ -1654,24 +1890,50 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< Matrix< DDRMat > > Surface_Mesh_Geometry::isotropic_laplacian_regularization_sensitivity(
+    Matrix< DDRMat > Surface_Mesh_Geometry::isotropic_laplacian_regularization_sensitivity(
             const Matrix< DDRMat >&                aVertexCoordinates,
+            const Matrix< DDRMat >&                aOriginalVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
             const Vector< Vector< moris_index > >& aVertexConnectivity,
             const Vector< real >&                  aFactor,
-            const uint                             aVertexIndex )
+            const uint                             aQueryVertexIndex,
+            const uint                             aDependencyVertexIndex,
+            const Discretization_Factor_Function&  get_discretization_scaling_user_defined )
     {
-        // Get the connectivity for this vertex
-        real tNumConnectedVertices = static_cast< real >( aVertexConnectivity.size() );
-        uint tDim                  = aVertexCoordinates.n_rows();
+        uint tDim = aVertexCoordinates.n_rows();
 
-        // Set output matrix size
-        Vector< Matrix< DDRMat > > tSensitivity( aVertexConnectivity.size() + 1, aFactor( 0 ) / tNumConnectedVertices * eye( tDim, tDim ) );
+        // Get the factor that scales this vertex's movement
+        Vector< real > tVertexFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( aQueryVertexIndex ) );
 
-        // Sensitivity for the vertex itself
-        tSensitivity( aVertexConnectivity.size() ) = ( 1.0 - aFactor( 0 ) ) * eye( tDim, tDim );
+        // Regularization sensitivity for the vertex itself
+        if ( aQueryVertexIndex == aDependencyVertexIndex )
+        {
+            Matrix< DDRMat > tI = eye( tDim, tDim );
 
-        return tSensitivity;
+            // Multiply by the factor
+            for ( uint iDim = 0; iDim < tDim; iDim++ )
+            {
+                tI( iDim, iDim ) *= ( 1.0 - aFactor( 0 ) * tVertexFactor( iDim ) );
+            }
+
+            return tI;
+        }
+        // Regularization sensitivity for all other vertices in the dependencies
+        else
+        {
+            Matrix< DDRMat > tI = eye( tDim, tDim );
+
+            // Multiply by the factor
+            for ( uint iDim = 0; iDim < tDim; iDim++ )
+            {
+                tI( iDim, iDim ) *= tVertexFactor( iDim );
+            }
+
+            // Get the connectivity for this vertex
+            real tNumConnectedVertices = static_cast< real >( aVertexConnectivity( aQueryVertexIndex ).size() );
+
+            return ( aFactor( 0 ) / tNumConnectedVertices ) * tI;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1695,9 +1957,11 @@ namespace moris::gen
 
     Matrix< DDRMat > Surface_Mesh_Geometry::anisotropic_laplacian_regularization(
             const Matrix< DDRMat >&                aVertexCoordinates,
+            const Matrix< DDRMat >&                aOriginalVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
             const Vector< Vector< moris_index > >& aVertexConnectivity,
-            const Vector< real >&                  aFactor )
+            const Vector< real >&                  aFactor,
+            const Discretization_Factor_Function&  get_discretization_scaling_user_defined )
     {
         MORIS_ERROR( false, "Surface_Mesh_Geometry::anisotropic_laplacian_regularization: implement me" );
         return { {} };
@@ -1705,12 +1969,15 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< Matrix< DDRMat > > Surface_Mesh_Geometry::anisotropic_laplacian_regularization_sensitivity(
+    Matrix< DDRMat > Surface_Mesh_Geometry::anisotropic_laplacian_regularization_sensitivity(
             const Matrix< DDRMat >&                aVertexCoordinates,
+            const Matrix< DDRMat >&                aOriginalVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
             const Vector< Vector< moris_index > >& aVertexConnectivity,
             const Vector< real >&                  aFactor,
-            const uint                             aVertexIndex )
+            const uint                             aQueryVertexIndex,
+            const uint                             aDependencyVertexIndex,
+            const Discretization_Factor_Function&  get_discretization_scaling_user_defined )
     {
         MORIS_ERROR( false, "Surface_Mesh_Geometry::isotropic_laplacian_regularization_sensitivity: implement me" );
 
@@ -1726,34 +1993,174 @@ namespace moris::gen
             const Vector< real >&                  aFactor,
             const uint                             aVertexIndex )
     {
-        return aVertexConnectivity( aVertexIndex );
+        Vector< moris_index > tDependencies = aVertexConnectivity( aVertexIndex );
+
+        // Add the requested vertex index to the dependencies
+        tDependencies.push_back( aVertexIndex );
+
+        return tDependencies;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat > Surface_Mesh_Geometry::taubin_regularization(
             const Matrix< DDRMat >&                aVertexCoordinates,
+            const Matrix< DDRMat >&                aOriginalVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
             const Vector< Vector< moris_index > >& aVertexConnectivity,
-            const Vector< real >&                  aFactor )
+            const Vector< real >&                  aFactor,
+            const Discretization_Factor_Function&  get_discretization_scaling_user_defined )
     {
-        MORIS_ERROR( false, "Surface_Mesh_Geometry::taubin_regularization: implement me" );
-        return { {} };
+        if ( aFactor.size() > 2 )
+        {
+            MORIS_LOG_WARNING( "Taubin regularization only supports using two factors, using the first two." );
+        }
+        MORIS_ASSERT( aFactor( 0 ) > 0.0 and aFactor( 1 ) < 0.0, "Taubin regularization uses two factors, the first must be positive and the second negative." );
+        MORIS_ASSERT( std::abs( aFactor( 1 ) ) > aFactor( 0 ), "Taubin regularization uses a negative factor that is larger than the positive factor." );
+
+        uint tNumVertices = aVertexCoordinates.n_cols();
+        uint tDims        = aVertexCoordinates.n_rows();
+
+        Matrix< DDRMat > tRegularizationDisp( tDims, tNumVertices, 0.0 );
+
+        // Loop over all vertices - shrink
+        for ( uint iV = 0; iV < tNumVertices; iV++ )
+        {
+            Matrix< DDRMat > tVertexRegularization( tDims, 1, 0.0 );
+
+            // Get the user defined scaling factor for this vertex
+            Vector< real > tVertexFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
+                                                                                              : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( iV ) );
+
+            // Loop over all edges associated with this vertex
+            for ( uint iE = 0; iE < aVertexConnectivity( iV ).size(); iE++ )
+            {
+                uint tDependencyIndex = aVertexConnectivity( iV )( iE );
+
+                // Compute the edge vector scaled by the factor
+                Matrix< DDRMat > tEdge( tDims, 1, 0.0 );
+                for ( uint iDimension = 0; iDimension < tDims; iDimension++ )
+                {
+                    // Scale the edge vector by the factor
+                    tEdge( iDimension ) = tVertexFactor( iDimension ) * ( aVertexCoordinates( iDimension, tDependencyIndex ) - aVertexCoordinates( iDimension, iV ) );
+                }
+
+                // Add the edge vector to the regularization for this vertex
+                tVertexRegularization += tEdge;
+            }
+
+            // Divide by the number of edges to get the average, set into output matrix
+            tRegularizationDisp.set_column( iV, aFactor( 0 ) / static_cast< real >( aVertexConnectivity( iV ).size() ) * tVertexRegularization );
+        }
+
+        // Store the first iteration displacements
+        Matrix< DDRMat > tFirstIterationDisplacements = tRegularizationDisp;
+
+        // Loop over all vertices
+        for ( uint iV = 0; iV < tNumVertices; iV++ )
+        {
+            Matrix< DDRMat > tVertexRegularization( tDims, 1, 0.0 );
+
+            // Get the user defined scaling factor for this vertex
+            Vector< real > tVertexFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 )
+                                                                                              : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( iV ) );
+
+            // Loop over all edges associated with this vertex
+            for ( uint iE = 0; iE < aVertexConnectivity( iV ).size(); iE++ )
+            {
+                uint tDependencyIndex = aVertexConnectivity( iV )( iE );
+
+                // Compute the edge vector scaled by the factor
+                Matrix< DDRMat > tEdge( tDims, 1, 0.0 );
+                for ( uint iDimension = 0; iDimension < tDims; iDimension++ )
+                {
+                    // Scale the edge vector by the factor
+                    tEdge( iDimension ) = tVertexFactor( iDimension ) * ( aVertexCoordinates( iDimension, tDependencyIndex ) + tFirstIterationDisplacements( iDimension, tDependencyIndex ) - aVertexCoordinates( iDimension, iV ) - tFirstIterationDisplacements( iDimension, iV ) );
+                }
+
+                // Add the edge vector to the regularization for this vertex
+                tVertexRegularization += tEdge;
+            }
+
+            // Divide by the number of edges to get the average, set into output matrix
+            tRegularizationDisp.set_column( iV, aFactor( 1 ) / static_cast< real >( aVertexConnectivity( iV ).size() ) * tVertexRegularization );
+        }
+
+        return tRegularizationDisp + tFirstIterationDisplacements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< Matrix< DDRMat > > Surface_Mesh_Geometry::taubin_regularization_sensitivity(
+    Matrix< DDRMat > Surface_Mesh_Geometry::taubin_regularization_sensitivity(
             const Matrix< DDRMat >&                aVertexCoordinates,
+            const Matrix< DDRMat >&                aOriginalVertexCoordinates,
             const Vector< Vector< moris_index > >& aFacetConnectivity,
             const Vector< Vector< moris_index > >& aVertexConnectivity,
             const Vector< real >&                  aFactor,
-            const uint                             aVertexIndex )
+            const uint                             aQueryVertexIndex,
+            const uint                             aDependencyVertexIndex,
+            const Discretization_Factor_Function&  get_discretization_scaling_user_defined )
     {
-        MORIS_ERROR( false, "Surface_Mesh_Geometry::isotropic_laplacian_regularization_sensitivity: implement me" );
+        // FIXME BRENDAN Add discretization scaling factor
+        uint tDim = aVertexCoordinates.n_rows();
 
-        // No sensitivity for isotropic laplacian regularization
-        return { { {} } };
+        // Get the user defined scaling factor for this vertex
+        Vector< real > tVertexFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDim, 1.0 ) : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( aQueryVertexIndex ) );
+
+        // Get connectivity for this vertex
+        const Vector< moris_index >& tVertexConnectivity = aVertexConnectivity( aQueryVertexIndex );
+
+        Matrix< DDRMat > tSens( tDim, tDim );
+
+        // Sensitivity for the vertex itself
+        if ( aQueryVertexIndex == aDependencyVertexIndex )
+        {
+            // Loop over dimensions
+            for ( uint iDim = 0; iDim < tDim; iDim++ )
+            {
+                tSens( iDim, iDim ) = ( 1.0 - tVertexFactor( iDim ) * aFactor( 0 ) ) * ( 1.0 - tVertexFactor( iDim ) * aFactor( 1 ) );
+            }
+        }
+        // Vertex is a direct dependency of the query vertex
+        else if ( std::any_of( tVertexConnectivity.cbegin(), tVertexConnectivity.cend(), [ aDependencyVertexIndex ]( moris_index aIndex ) { return (uint)aIndex == aDependencyVertexIndex; } ) )
+        {
+            // Get the connectivity for this vertex
+            real tNumConnectedVertices = static_cast< real >( tVertexConnectivity.size() );
+
+            // Get the user defined scaling factor for this vertex
+            Vector< real > tDependencyFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDim, 1.0 )
+                                                                                                  : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( aDependencyVertexIndex ) );
+
+            // Loop over dimensions
+            for ( uint iDim = 0; iDim < tDim; iDim++ )
+            {
+                tSens( iDim, iDim ) = ( 1.0 - tVertexFactor( iDim ) * aFactor( 1 ) ) * tVertexFactor( iDim ) * aFactor( 0 ) / tNumConnectedVertices
+                                    + ( 1.0 - tDependencyFactor( iDim ) * aFactor( 0 ) ) * tVertexFactor( iDim ) * aFactor( 1 ) / tNumConnectedVertices;
+            }
+        }
+
+        // Loop over the connected vertices and check if the dependency vertex is in the connectivity of the connected vertex (check for second order dependencies)
+        for ( auto iDependency : tVertexConnectivity )
+        {
+            if ( std::find( aVertexConnectivity( iDependency ).cbegin(), aVertexConnectivity( iDependency ).cend(), aDependencyVertexIndex ) != aVertexConnectivity( iDependency ).cend() )
+            {
+                // Get the user defined scaling factor for this vertex
+                Vector< real > tDependencyFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDim, 1.0 )
+                                                                                                      : get_discretization_scaling_user_defined( aOriginalVertexCoordinates.get_column( iDependency ) );
+
+                // Get the connectivity for this vertex
+                real tNumDependencyConnectedVertices = static_cast< real >( aVertexConnectivity( iDependency ).size() );
+                real tNumConnectedVertices           = static_cast< real >( tVertexConnectivity.size() );
+
+                // Loop over dimensions
+                for ( uint iDim = 0; iDim < tDim; iDim++ )
+                {
+                    tSens( iDim, iDim ) += tVertexFactor( iDim ) * tDependencyFactor( iDim ) * aFactor( 0 ) * aFactor( 1 ) / tNumConnectedVertices / tNumDependencyConnectedVertices;
+                }
+            }
+        }
+
+        return tSens;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1765,7 +2172,51 @@ namespace moris::gen
             const Vector< real >&                  aFactor,
             const uint                             aVertexIndex )
     {
-        return aVertexConnectivity( aVertexIndex );
+        // brendan delete
+        // if ( aVertexIndex == 3 )
+        // {
+        //     std::cout << "brendan debug" << std::endl;
+        // }
+
+        // Output size: number of connected vertices + number of connections for each connected vertex + 1 for the vertex itself
+        uint tNumFirstConnections = aVertexConnectivity( aVertexIndex ).size();
+
+        // Loop through each connection and determine the number of connected vertices to determine total output size
+        uint tNumSecondConnections = 0;
+        for ( auto iV : aVertexConnectivity( aVertexIndex ) )
+        {
+            tNumSecondConnections += aVertexConnectivity( iV ).size();
+        }
+        uint tNumSensitivities = tNumFirstConnections + tNumSecondConnections + 1;    // + 1 for the vertex itself
+
+        // Initialize output vector
+        Vector< moris_index > tDependencies( tNumSensitivities );
+
+        // Loop through each connection and get that vertex's connection indices
+        uint iDependency = 0;
+        for ( uint iV = 0; iV < aVertexConnectivity( aVertexIndex ).size(); iV++ )
+        {
+            // Set this vertex index as a dependency
+            tDependencies( iDependency++ ) = aVertexConnectivity( aVertexIndex )( iV );
+
+            // Loop through connections to this other vertex
+            for ( uint iSecondV = 0; iSecondV < aVertexConnectivity( aVertexConnectivity( aVertexIndex )( iV ) ).size(); iSecondV++ )
+            {
+                // Get the vertex index of this connection
+                tDependencies( iDependency++ ) = aVertexConnectivity( aVertexConnectivity( aVertexIndex )( iV ) )( iSecondV );
+            }
+        }
+
+        // Add the vertex index itself to the dependencies
+        tDependencies( iDependency++ ) = aVertexIndex;
+
+        // Make unique
+        unique( tDependencies );
+
+        MORIS_ASSERT( std::find( tDependencies.cbegin(), tDependencies.cend(), aVertexIndex ) != tDependencies.cend(),
+                "Surface_Mesh_Geometry::get_determining_vertex_inds_taubin: The vertex index should be in the dependencies." );
+
+        return tDependencies;
     }
 
     //--------------------------------------------------------------------------------------------------------------
