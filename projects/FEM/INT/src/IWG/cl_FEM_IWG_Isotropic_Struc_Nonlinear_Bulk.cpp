@@ -17,6 +17,10 @@
 #include "fn_eye.hpp"
 #include "fn_cond.hpp"
 
+// xxxxxxxxxxxxxxxx
+#include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
+// xxxxxxxxxxxxxxxx
+
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
@@ -73,6 +77,25 @@ namespace moris::fem
         // get elasticity CM
         const std::shared_ptr< Constitutive_Model >& tCMElasticity =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+        // xxxxxxxxxxxxxxxxxxxxxxxxxx
+        real tVolChangeDet = std::dynamic_pointer_cast< CM_Struc_Nonlinear_Isotropic >( tCMElasticity )->volume_change_jacobian();
+
+        if ( tVolChangeDet < 0 )
+        {
+            Matrix< DDRMat > tCheckPoint =
+                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx();
+
+            Matrix< DDRMat > tLeaderDisp = tDisplacementFI->val();
+
+            fprintf( stdout, "tVolChangeDet = %e at tCheckPoint: %f  %f - tLeaderDisp: %e  %e\n",    //
+                    tVolChangeDet,
+                    tCheckPoint( 0 ),
+                    tCheckPoint( 1 ),
+                    tLeaderDisp( 0 ),
+                    tLeaderDisp( 1 ) );
+            return;
+        }    // xxxxxxxxxxxxxxxxxxxxxxxxx
 
         // get thickness property
         const std::shared_ptr< Property >& tPropThickness =
@@ -140,6 +163,14 @@ namespace moris::fem
         // get elasticity CM
         const std::shared_ptr< Constitutive_Model >& tCMElasticity =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+        // xxxxxxxxxxxxxxxxxxxxxxxxxx
+        real tVolChangeDet = std::dynamic_pointer_cast< CM_Struc_Nonlinear_Isotropic >( tCMElasticity )->volume_change_jacobian();
+
+        if ( tVolChangeDet < 0 )
+        {
+            return;
+        }    // xxxxxxxxxxxxxxxxxxxxxxxxx
 
         // get thickness property
         const std::shared_ptr< Property >& tPropThickness =
