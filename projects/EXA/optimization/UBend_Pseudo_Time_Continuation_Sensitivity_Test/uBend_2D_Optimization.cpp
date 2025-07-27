@@ -1309,7 +1309,7 @@ namespace moris
             std::cout << "tPhiGamma                " << tPhiGamma << "\n";
         }
 
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseVoid" );
@@ -1813,7 +1813,7 @@ namespace moris
                     "PropWeightUV,             WeightPrevious;"
                     "PropInitialConditionU,    InitialCondition;"
                     "PropWeightResUV,          WeightResidual" );
-            }
+        }
 
         // inlet viscosity
         aParameterLists( FEM::IWG ).add_parameter_list();
@@ -1850,7 +1850,7 @@ namespace moris
                     "PropWeightUV,             WeightPrevious;"
                     "PropInitialConditionV,    InitialCondition;"
                     "PropWeightResUV,          WeightResidual" );
-            }
+        }
 
         if ( tUseGhost )
         {
@@ -2577,7 +2577,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void
