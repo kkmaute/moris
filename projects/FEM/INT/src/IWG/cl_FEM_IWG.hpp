@@ -84,6 +84,7 @@ namespace moris::fem
             mdEta2duv = tGapData->mdEta2duv;
 
             mLeaderNormal      = tGapData->mLeaderNormal;
+            mLeaderRefNormal   = tGapData->mLeaderRefNormal;
             mLeaderdNormaldu   = tGapData->mLeaderdNormaldu;
             mLeaderdNormal2du2 = tGapData->mLeaderdNormal2du2;
 
@@ -274,7 +275,8 @@ namespace moris::fem
                 const real& aTolerance ) = nullptr;
 
         // for non-conformal IWGs - gap data
-        bool mUseDeformedGeometryForGap = false;
+        bool mUseDeformedGeometryForGap           = false;
+        bool mUseConsistentDeformedGeometryForGap = false;
 
         std::unique_ptr< GapData > mGapData = nullptr;
 
@@ -1126,7 +1128,11 @@ namespace moris::fem
                 Field_Interpolator* aLeaderFieldInterpolator,
                 Field_Interpolator* aFollowerFieldInterpolator );
 
-        Matrix< DDRMat > remap_nonconformal_rays_deformed_geometry(
+        Matrix< DDRMat > remap_nonconformal_rays_consistent_deformed_geometry(
+                Field_Interpolator* aLeaderFieldInterpolator,
+                Field_Interpolator* aFollowerFieldInterpolator );
+
+        Matrix< DDRMat > remap_nonconformal_rays_linear_deformed_geometry(
                 Field_Interpolator* aLeaderFieldInterpolator,
                 Field_Interpolator* aFollowerFieldInterpolator );
 
