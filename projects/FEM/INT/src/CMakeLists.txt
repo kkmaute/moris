@@ -166,6 +166,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp
 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
@@ -414,6 +415,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.cpp
 
     IWG/cl_FEM_IWG_Struc_Stress.cpp
