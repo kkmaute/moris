@@ -36,6 +36,9 @@ endforeach()
 # Additonal (optional) includes
 include_directories(../STK/src/Hierarchical)
 
+#list(APPEND CMAKE_PREFIX_PATH "/home/maute/codes/libtorch")
+#find_package(Torch REQUIRED)
+
 # List executable dependencies
 set(MAIN_DEPENDENCIES
     ${HMR}-lib
@@ -59,6 +62,7 @@ string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
 add_executable(moris ${MAIN})
 target_link_libraries(moris ${MAIN_DEPENDENCIES})
 target_link_libraries(moris ${MORIS}::trilinos)
+target_link_libraries(moris ${TORCH_LIBRARIES})
 list(APPEND MAIN_EXECUTABLES moris)
 
 # Install executables
@@ -120,6 +124,7 @@ foreach(MTK_INCLUDES ${MTK_INCLUDES})
 endforeach()
 
 SET(SO_INCLUDES
+    ${TORCH_INCLUDE_DIRS}
     ${MORIS_BOOST_INCLUDE_DIRS}
     ${MORIS_TRILINOS_INCLUDE_DIRS}
     ${MORIS_PACKAGE_DIR}/ALG/src
@@ -152,5 +157,3 @@ foreach(TPL ${SO_TPLS})
 endforeach()
 
 dynamic_link_input("shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp  ${SO_INCLUDES})
-
-
