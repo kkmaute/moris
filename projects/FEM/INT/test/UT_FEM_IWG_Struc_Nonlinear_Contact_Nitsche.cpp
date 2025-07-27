@@ -40,7 +40,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         const IWG_Type               aIWGType,
         const fem::Constitutive_Type aConstitutiveModel,
         const real&                  aNitscheParameter,
-        bool                         aUpdateGapData )
+        bool                         aUseDeformedGeometryForGap,
+        bool                         aUseConsistentDeformedGeometryForGap )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -159,6 +160,10 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
     tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
+    // set parameter for gap computation
+    tIWG->mUseDeformedGeometryForGap           = aUseDeformedGeometryForGap;
+    tIWG->mUseConsistentDeformedGeometryForGap = aUseConsistentDeformedGeometryForGap;
+
     // set error flag
     bool tPassedCheck = true;
 
@@ -210,8 +215,11 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         for ( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
             // create an interpolation order
-            mtk::Interpolation_Order tGIInterpolationOrder   = tInterpolationOrders( iInterpOrder - 1 );
-            mtk::Interpolation_Order tSideInterpolationOrder = tGIInterpolationOrder;
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+
+            // set side interpolation order to linear if inconsistent deformed geometry is used
+            mtk::Interpolation_Order tSideInterpolationOrder =
+                    aUseConsistentDeformedGeometryForGap ? tGIInterpolationOrder : tInterpolationOrders( 0 );
 
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
@@ -289,8 +297,16 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                             tFollowerXHat = tLeaderXHat;
 
-                            tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
-                            tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
+                            if ( aUseConsistentDeformedGeometryForGap )
+                            {
+                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
+                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
+                            }
+                            else
+                            {
+                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
+                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
+                            }
 
                             tLeaderDOFHatDisp = {
                                 { -0.2, 0.1 },
@@ -489,12 +505,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                         tLeaderDOFHatDisp( in, idir ) += tPerturbation;
                         tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
-                        if ( aUpdateGapData )
-                        {
-                            tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
-                            tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
-                        }
-
                         tIWG->reset_eval_flags();
                         tIWG->mSet->mResidual( 0 ).fill( 0.0 );
                         tIWG->compute_residual( 1.0 );
@@ -503,12 +513,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                         tLeaderDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                         tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
-
-                        if ( aUpdateGapData )
-                        {
-                            tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
-                            tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
-                        }
 
                         tIWG->reset_eval_flags();
                         tIWG->mSet->mResidual( 0 ).fill( 0.0 );
@@ -525,19 +529,12 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
                 // FD wrt displacements on leader side
-
                 for ( uint idir = 0; idir < tFollowerDOFHatDisp.n_cols(); idir++ )
                 {
                     for ( uint in = 0; in < tFollowerDOFHatDisp.n_rows(); in++ )
                     {
                         tFollowerDOFHatDisp( in, idir ) += tPerturbation;
                         tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
-
-                        if ( aUpdateGapData )
-                        {
-                            tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
-                            tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
-                        }
 
                         tIWG->reset_eval_flags();
                         tIWG->mSet->mResidual( 0 ).fill( 0.0 );
@@ -547,12 +544,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                         tFollowerDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                         tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
-
-                        if ( aUpdateGapData )
-                        {
-                            tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
-                            tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
-                        }
 
                         tIWG->reset_eval_flags();
                         tIWG->mSet->mResidual( 0 ).fill( 0.0 );
@@ -565,11 +556,34 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     }
                 }
 
+                // reset the follower dof hat displacement
+                tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
+                tIWG->reset_eval_flags();
+
                 real errorNorm = norm( tJacobian - tJacobianFD ) / norm( tJacobianFD );
 
                 if ( errorNorm > tEpsilon )
                 {
                     tPassedCheck = false;
+                    fprintf( stdout, "Jacobian relative error norm = %e\n", errorNorm );
+                    print( tJacobian, "AnalyticalJacobian" );
+                    print( tJacobianFD, "FDJacobian" );
+                    print( tJacobian - tJacobianFD, "Jacobian error" );
+                }
+
+                // check jacobian by FD with standard method
+
+                bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
+                        tEpsilon,
+                        1.0,
+                        tJacobian,
+                        tJacobianFD,
+                        true,
+                        true );
+
+                if ( !tCheckJacobian )
+                {
+                    errorNorm = norm( tJacobian - tJacobianFD ) / norm( tJacobianFD );
                     fprintf( stdout, "Jacobian relative error norm = %e\n", errorNorm );
                     print( tJacobian, "AnalyticalJacobian" );
                     print( tJacobianFD, "FDJacobian" );
@@ -582,10 +596,13 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                 // check if the test passed
                 REQUIRE( tPassedCheck );
+                REQUIRE( tCheckJacobian );
             }
         }
     }
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 TEST_CASE( "IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM", "[moris],[fem],[IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM]" )
 {
@@ -595,15 +612,19 @@ TEST_CASE( "IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM", "[moris],[fem],[IWG_
             // fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             10.0,
-            false );
+            false,     // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_SYMMETRIC_NITSCHE_UNBIASED,
             // fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
-            false );
+            false,     // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM]" )
 {
@@ -612,14 +633,58 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM", "[moris],[fe
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
-            true );
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
-            true );
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            0.01,
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_NEUTRAL", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_NEUTRAL]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            0.01,
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM]" )
 {
@@ -628,14 +693,18 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM", "[moris],[fem],[
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             10.0,
-            true );
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             0.01,
-            true );
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM]" )
 {
@@ -644,13 +713,38 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[mori
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             10.0,
-            true );
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
-            true );
+            true,      // compute gap on undeformed configuration
+            true );    // compute gap consistent with displacement interpolation
 }
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM_LinDisp", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM_LinDisp]" )
+{
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            0.01,
+            true,       // compute gap on undeformed configuration
+            false );    // compute gap using linear displacement along contact interface
+
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,       // compute gap on undeformed configuration
+            false );    // compute gap using linear displacement along contact interface
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 /* END_TEST_CASE */

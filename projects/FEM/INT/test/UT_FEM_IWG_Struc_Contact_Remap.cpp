@@ -39,6 +39,7 @@ using namespace fem;
 void Test_IWG_Struc_Contact_Remap(
         const IWG_Type aIWGType,
         bool           aUseDeformedConfig,
+        bool           aUseConsistentDeformedConfig,
         const real&    aDisplacementScaling )
 {
     // define an epsilon environment
@@ -155,6 +156,10 @@ void Test_IWG_Struc_Contact_Remap(
     tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
+    // set gap computing parameters
+    tIWG->mUseDeformedGeometryForGap           = aUseDeformedConfig;
+    tIWG->mUseConsistentDeformedGeometryForGap = aUseConsistentDeformedConfig;
+
     // set error flag
     bool tPassedCheck = true;
 
@@ -205,7 +210,7 @@ void Test_IWG_Struc_Contact_Remap(
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder   = tInterpolationOrders( iInterpOrder - 1 );
-            mtk::Interpolation_Order tSideInterpolationOrder = tGIInterpolationOrder;
+            mtk::Interpolation_Order tSideInterpolationOrder = aUseConsistentDeformedConfig ? tGIInterpolationOrder : tInterpolationOrders( 0 );
 
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
@@ -283,8 +288,16 @@ void Test_IWG_Struc_Contact_Remap(
 
                             tFollowerXHat = tLeaderXHat;
 
-                            tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
-                            tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
+                            if ( aUseConsistentDeformedConfig )
+                            {
+                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
+                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
+                            }
+                            else
+                            {
+                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
+                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
+                            }
 
                             tLeaderDOFHatDisp = {
                                 { -0.2, 0.1 },
@@ -445,7 +458,7 @@ void Test_IWG_Struc_Contact_Remap(
                 // set integration point on follower side
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
 
-                Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays_deformed_geometry( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
 
                 // get reference to current gap data
                 const std::unique_ptr< GapData >& tCurrentGapData = tIWG->get_gap_data();
@@ -467,13 +480,13 @@ void Test_IWG_Struc_Contact_Remap(
                         tLeaderDOFHatDisp( in, idir ) += tPerturbation;
                         tLeaderFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays_deformed_geometry( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
                         tPertGapData->copy( tCurrentGapData );
 
                         tLeaderDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                         tLeaderFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays_deformed_geometry( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
 
                         real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2du2 = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
@@ -508,18 +521,26 @@ void Test_IWG_Struc_Contact_Remap(
                         }
 
                         Matrix< DDRMat > tFdLeaderNormaldu    = ( tPertGapData->mLeaderNormal - tCurrentGapData->mLeaderNormal ) / 2 / tPerturbation;
-                        Matrix< DDRMat > mFdLeaderdNormal2du2 = ( tPertGapData->mLeaderdNormaldu - tCurrentGapData->mLeaderdNormaldu ) / 2 / tPerturbation;
+                        Matrix< DDRMat > tFdLeaderdNormal2du2 = ( tPertGapData->mLeaderdNormaldu - tCurrentGapData->mLeaderdNormaldu ) / 2 / tPerturbation;
 
                         std::pair< moris::size_t, moris::size_t > tRowBlk = { 0, iSpaceDim - 1 };
                         std::pair< moris::size_t, moris::size_t > tColBlk = { tCounter * tNumDofs, ( tCounter + 1 ) * tNumDofs - 1 };
 
                         real tErrordLeaderNormaldu    = 100.0 * norm( tFdLeaderNormaldu - tNominalGapData->mLeaderdNormaldu.get_column( tCounter ) ) / norm( tFdLeaderNormaldu );
-                        real tErrordLeaderdNormal2du2 = 100.0 * norm( mFdLeaderdNormal2du2 - tNominalGapData->mLeaderdNormal2du2( tRowBlk, tColBlk ) ) / norm( mFdLeaderdNormal2du2 );
+                        real tErrordLeaderdNormal2du2 = 100.0 * norm( tFdLeaderdNormal2du2 - tNominalGapData->mLeaderdNormal2du2( tRowBlk, tColBlk ) ) / norm( tFdLeaderdNormal2du2 );
 
                         if ( tErrordLeaderNormaldu + tErrordLeaderdNormal2du2 > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dLeaderNormaldu:   %e\n", tErrordLeaderNormaldu );
                             fprintf( stdout, "percent error dLeaderdNormal2du2: %e\n", tErrordLeaderdNormal2du2 );
+                            tPassedCheck = false;
+                        }
+
+                        Matrix< DDRMat > tFdLeaderRefNormaldu = ( tPertGapData->mLeaderRefNormal - tCurrentGapData->mLeaderRefNormal ) / 2 / tPerturbation;
+
+                        if ( norm( tFdLeaderRefNormaldu ) > MORIS_REAL_EPS )
+                        {
+                            fprintf( stdout, "Error - Reference normal changes with leader displacement\n" );
                             tPassedCheck = false;
                         }
 
@@ -557,13 +578,13 @@ void Test_IWG_Struc_Contact_Remap(
                         tFollowerDOFHatDisp( in, idir ) += tPerturbation;
                         tFollowerFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays_deformed_geometry( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
                         tPertGapData->copy( tCurrentGapData );
 
                         tFollowerDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                         tFollowerFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays_deformed_geometry( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
 
                         real             tFdGapdv   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2dv2 = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
@@ -594,6 +615,15 @@ void Test_IWG_Struc_Contact_Remap(
                             fprintf( stdout, "percent error dEtadv:   %e\n", tErrordEtadv );
                             fprintf( stdout, "percent error dEta2dv2: %e\n", tErrordEta2dv2 );
                             fprintf( stdout, "percent error dEta2duv: %e\n", tErrordEta2duv );
+                            tPassedCheck = false;
+                        }
+                        Matrix< DDRMat > tFdLeaderNormaldu    = ( tPertGapData->mLeaderNormal - tCurrentGapData->mLeaderNormal ) / 2 / tPerturbation;
+                        Matrix< DDRMat > tFdLeaderdNormal2du2 = ( tPertGapData->mLeaderdNormaldu - tCurrentGapData->mLeaderdNormaldu ) / 2 / tPerturbation;
+                        Matrix< DDRMat > tFdLeaderRefNormaldu = ( tPertGapData->mLeaderRefNormal - tCurrentGapData->mLeaderRefNormal ) / 2 / tPerturbation;
+
+                        if ( norm( tFdLeaderNormaldu ) + norm( tFdLeaderdNormal2du2 ) + norm( tFdLeaderRefNormaldu ) > MORIS_REAL_EPS )
+                        {
+                            fprintf( stdout, "Error - Deformed normal, its derivative, and/or reference normal changes with follower displacement\n" );
                             tPassedCheck = false;
                         }
 
@@ -639,12 +669,23 @@ void Test_IWG_Struc_Contact_Remap(
     }
 }
 
-TEST_CASE( "IWG_Struc_Contact_Remap", "[moris],[fem],[IWG_Struc_Contact_Remap_Symmteric_Nitsche_Deformed_1.0]" )
+TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Linear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Linear]" )
 {
     // check with contact
     Test_IWG_Struc_Contact_Remap(
             fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
-            true,
+            true,     // use deformed geometry
+            false,    // use linear displacement assumption
+            1.0 );
+}
+
+TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Nonlinear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Nonlinear]" )
+{
+    // check with contact
+    Test_IWG_Struc_Contact_Remap(
+            fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
+            true,    // use deformed geometry
+            true,    // use consistent deformed geometry
             1.0 );
 }
 
