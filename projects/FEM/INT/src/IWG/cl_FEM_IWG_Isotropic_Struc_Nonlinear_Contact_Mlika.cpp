@@ -39,10 +39,9 @@
 namespace moris::fem
 {
     IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika(
-            sint             aBeta,
+            sint             aTheta,
             CM_Function_Type aCMFunctionType )
-            : mBeta( aBeta )    // sign for symmetric/unsymmetric Nitsche
-            , mTheta( -mBeta )
+            : mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
             , mCMFunctionType( aCMFunctionType )
     {
         // set size for the property pointer cell
@@ -68,7 +67,26 @@ namespace moris::fem
         mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
         // set flag to use displacement for gap
-        mUseDeformedGeometryForGap = true;
+        mUseDeformedGeometryForGap           = true;
+        mUseConsistentDeformedGeometryForGap = true;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
+    {
+        // set parameters
+        mParameters = aParameters;
+
+        // Read consistency flag from input parameters
+        if ( mParameters.size() > 0 )
+        {
+            MORIS_ERROR( mParameters.size() == 1 && mParameters( 0 ).numel() == 1,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only one parameter possible." );
+
+            mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -116,7 +134,7 @@ namespace moris::fem
         uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
-        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays_deformed_geometry(
+        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
                 mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
 
@@ -275,7 +293,7 @@ namespace moris::fem
         uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
-        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays_deformed_geometry(
+        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
                 mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
 

@@ -27,16 +27,10 @@ namespace moris::fem
     class IWG_Isotropic_Struc_Nonlinear_Contact_Mlika : public IWG
     {
       private:
-        // sign for symmetric/unsymmetric Nitsche
-        sint mBeta = 1;
-
-        // the literature used for this implementation uses a different parameter to switch between symmetric and unsymmetric Nitsche.
-        // to avoid confusion with other IWGs, mBeta will be used to switch between symmetric and unsymmetric Nitsche in the factory, and
-        // mTheta will be used to switch between the two different Nitsche formulations in the implementation.
-        //      symmetric: mBeta = -1, mTheta =  1
-        //    unsymmetric: mBeta =  0, mTheta =  0
-        // skew-symmetric: mBeta =  1, mTheta = -1
-
+        // mTheta is used to switch between the following formulations of the Nitsche term:
+        //      symmetric :mTheta =  1
+        //        neutral: mTheta =  0
+        //    unsymmetric: mTheta = -1
         sint mTheta = 1;
 
         // default for traction
@@ -105,6 +99,12 @@ namespace moris::fem
          * @param[ in ] aWStar weight associated to the evaluation point
          */
         void compute_dRdp( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * set parameters
+         */
+        void set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
 
         //------------------------------------------------------------------------------
     };
