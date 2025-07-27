@@ -1,0 +1,2100 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Param
+   writev(vector[1])
+   fun:writev
+   fun:pmix_ptl_base_send_handler
+   fun:event_persist_closure
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc__topology_init
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:mca_common_monitoring_register
+   fun:mca_base_framework_components_register
+   fun:mca_base_framework_register
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__cpukind_add_infos
+   fun:hwloc_internal_cpukinds_register
+   fun:hwloc__xml_import_cpukind
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:opal_pointer_array_init
+   fun:ompi_mpi_instance_retain
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_topology_setup_defaults
+   fun:hwloc__topology_init
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_children
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:opal_bitmap_init
+   fun:attr_subsys_construct
+   fun:ompi_attr_get_ref
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:mca_part_base_open
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:grow_table
+   fun:opal_pointer_array_add
+   fun:mca_part_base_open
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:strdup
+   fun:pmix_bfrops_base_value_load
+   fun:PMIx_Value_load
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:strdup
+   fun:PMIx_Value_xfer
+   fun:fetch_nodeinfo
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:strdup
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc_xml_component_instantiate
+   fun:hwloc_disc_component_force_enable
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:event_config_avoid_method
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:evmap_io_add_
+   fun:event_add_nolock_
+   fun:evthread_make_base_notifiable_nolock_
+   fun:evthread_make_base_notifiable
+   fun:event_base_new_with_config
+   fun:opal_event_base_create
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:pmix_bfrops_base_copy_value
+   fun:_value_cbfunc
+   fun:_getnb_cbfunc
+   fun:pmix_ptl_base_process_msg
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:do_open
+   fun:ompi_hook_comm_method_component_register
+   fun:mca_base_framework_components_register
+   fun:mca_base_framework_register
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:epoll_init
+   fun:event_base_new_with_config
+   fun:opal_event_base_create
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc_bitmap_alloc_full
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_cpukind
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:do_open
+   fun:ompi_pml_v_output_open
+   fun:mca_pml_v_component_open
+   fun:mca_base_framework_components_open
+   fun:mca_pml_base_open
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:opal_finalize_domain_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:pmix_bfrops_base_value_unload
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:strdup
+   fun:PMIx_Value_xfer
+   fun:fetch_sessioninfo
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:event_get_supported_methods
+   fun:opal_event_register_params
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_attr_get_ref
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:attr_subsys_construct
+   fun:ompi_attr_get_ref
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:pmix_hash_fetch
+   fun:pmix_gds_hash_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:evthread_posix_lock_alloc
+   fun:event_global_setup_locks_
+   fun:evthread_use_pthreads
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:evthread_posix_lock_alloc
+   fun:evsig_global_setup_locks_
+   fun:event_global_setup_locks_
+   fun:evthread_use_pthreads
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:evthread_posix_lock_alloc
+   fun:evutil_secure_rng_global_setup_locks_
+   fun:event_global_setup_locks_
+   fun:evthread_use_pthreads
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:evthread_posix_lock_alloc
+   fun:event_base_new_with_config
+   fun:opal_event_base_create
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc_topology_setup_defaults
+   fun:hwloc__topology_init
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:PMIx_Value_create
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:mca_base_component_find
+   fun:mca_base_framework_components_register
+   fun:mca_base_framework_register
+   fun:mca_base_framework_open
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:evthread_posix_cond_alloc
+   fun:event_base_new_with_config
+   fun:opal_event_base_create
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__xml_import_pagetype.isra.0
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:mca_base_component_find
+   fun:mca_base_framework_components_register
+   fun:mca_base_framework_register
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:event_config_avoid_method
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:event_config_new
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:hwloc_components_init
+   fun:hwloc__topology_init
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_tma_calloc
+   fun:hwloc__topology_init
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_attr_create_keyval_impl
+   fun:ompi_attr_create_keyval
+   fun:ompi_attr_create_predefined_keyvals
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_attr_create_keyval_impl
+   fun:ompi_attr_create_keyval
+   fun:create_comm
+   fun:ompi_attr_create_predefined_keyvals
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_attr_create_keyval_impl
+   fun:ompi_attr_create_keyval
+   fun:create_win
+   fun:ompi_attr_create_predefined_keyvals
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:ompi_attr_create_keyval_impl
+   fun:ompi_attr_create_keyval
+   fun:create_comm
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:mca_part_persist_component_open
+   fun:mca_base_framework_components_open
+   fun:mca_part_base_open
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_exception
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_exception
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:MKLLoadLibrary
+   fun:MKL_Load_Lib_Ex
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:ompi_comm_init_mpi3
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_backend_alloc
+   fun:hwloc_xml_component_instantiate
+   fun:hwloc_disc_component_force_enable
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:fetch_sessioninfo
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:opal_datatype_commit
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:opal_datatype_create_desc
+   fun:ompi_datatype_create
+   fun:ompi_datatype_create_struct
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:fetch_nodeinfo
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:PMIx_Value_xfer
+   fun:pmix_hash_fetch
+   fun:pmix_gds_hash_fetch
+   fun:_getnb_cbfunc
+   fun:pmix_ptl_base_process_msg
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_build_level_from_list
+   fun:hwloc_connect_special_levels
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:event_base_priority_init
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_tma_calloc
+   fun:hwloc__topology_init
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__cpukind_add_infos
+   fun:hwloc_internal_cpukinds_register
+   fun:hwloc__xml_import_cpukind
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:opal_datatype_create_desc
+   fun:ompi_datatype_create
+   fun:ompi_datatype_create_contiguous
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_xml_component_instantiate
+   fun:hwloc_disc_component_force_enable
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pmix_mca_base_component_find
+   fun:pmix_mca_base_framework_components_register
+   fun:pmix_mca_base_framework_register
+   fun:pmix_mca_base_framework_open
+   fun:pmix_rte_init
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:strdup
+   fun:PMIx_Value_xfer
+   fun:pmix_hash_fetch
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pmix_pstrg_base_select
+   fun:pmix_rte_init
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:pmix_hash_fetch
+   fun:pmix_gds_hash_fetch
+   fun:_getnb_cbfunc
+   fun:pmix_ptl_base_process_msg
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN6Kokkos4Impl14SerialInternal9singletonEv
+   fun:_ZN6Kokkos6Serial15impl_initializeERKNS_22InitializationSettingsE
+   fun:_ZN6Kokkos4Impl16ExecSpaceManager17initialize_spacesERKNS_22InitializationSettingsE
+   fun:_ZN6Kokkos10initializeERKNS_22InitializationSettingsE
+   fun:_ZN6Kokkos10ScopeGuardC1IJEEEDpOT_
+   fun:_ZSt11make_uniqueIN6Kokkos10ScopeGuardEJEENSt8__detail9_MakeUniqIT_E15__single_objectEDpOT0_
+   fun:_Z30fn_WRK_Workflow_Main_InterfaceiPPc
+   fun:_ZL19C_A_T_C_H_T_E_S_T_0v
+   fun:_ZNK5Catch21TestInvokerAsFunction6invokeEv
+   fun:_ZNK5Catch8TestCase6invokeEv
+   fun:_ZN5Catch10RunContext20invokeActiveTestCaseEv
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:strdup
+   fun:PMIx_Value_xfer
+   fun:fetch_appinfo
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:evmap_make_space.constprop.0
+   fun:evmap_io_add_
+   fun:event_add_nolock_
+   fun:evthread_make_base_notifiable_nolock_
+   fun:evthread_make_base_notifiable
+   fun:event_base_new_with_config
+   fun:opal_event_base_create
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_internal_memattrs_prepare
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_connect_children
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:fetch_appinfo
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:hwloc_internal_cpukinds_register
+   fun:hwloc__xml_import_cpukind
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_exception
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_exception
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:strdup
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_exception
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_exception
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:MKLLoadLibrary
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:mca_coll_han_init_algorithms
+   fun:han_register
+   fun:mca_base_framework_components_register
+   fun:mca_base_framework_register
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:if_posix_open
+   fun:mca_base_framework_components_open
+   fun:mca_base_framework_open
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:pmix_hash_fetch
+   fun:pmix_gds_shmem2_fetch
+   fun:get_data
+   fun:event_process_active_single_queue
+   fun:event_process_active
+   fun:event_base_loop
+   fun:progress_engine
+   fun:start_thread
+   fun:clone
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:event_base_new_with_config
+   fun:opal_event_base_create
+   fun:opal_event_init
+   fun:opal_init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_connect_levels
+   fun:hwloc_topology_reconnect
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:ompi_op_base_op_select
+   fun:ompi_op_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:avx_component_op_query
+   fun:ompi_op_base_op_select
+   fun:ompi_op_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_bitmap_alloc
+   fun:hwloc__xml_import_object_attr
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+   fun:ompi_mpi_instance_init_common
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+   fun:ompi_rte_init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:opal_hash_table_init2
+   fun:attr_subsys_construct
+   fun:ompi_attr_get_ref
+   fun:ompi_datatype_init
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:hwloc_tma_malloc
+   fun:hwloc_alloc_setup_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+   fun:PMIx_Init
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:realloc
+   fun:hwloc__add_info
+   fun:hwloc__xml_import_obj_info
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc__xml_import_object
+   fun:hwloc_look_xml
+   fun:hwloc_discover
+   fun:hwloc_topology_load
+   fun:load_xml
+   fun:pmix_hwloc_setup_topology
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_exception
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_exception
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:opal_free_list_grow_st
+   fun:mca_part_persist_component_open
+   fun:mca_base_framework_components_open
+   fun:mca_part_base_open
+   fun:mca_base_framework_open
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   fun:_ZN5moris12Comm_ManagerC1EPiPPPc
+   fun:main
+}
