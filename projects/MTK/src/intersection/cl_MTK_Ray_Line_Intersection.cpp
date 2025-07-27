@@ -22,6 +22,7 @@ namespace moris::mtk
 
         // distance between origins r and s
         // dOrigins = s - r
+
         Matrix< DDRMat > dOrigins = mTargetOrigin - mOrigin;
 
         // determinant of the matrix D = [dr, ds]
@@ -41,6 +42,7 @@ namespace moris::mtk
             u = ( dOrigins( 1 ) * mTargetSpan( 0 ) - dOrigins( 0 ) * mTargetSpan( 1 ) ) / detD;
 
             // v = (dOrigins_y * dr_x - dOrigins_x * dr_y) / detD
+            // note: this is negative of matrix solution as positive of target span vector is used while is should be negative
             v = ( dOrigins( 1 ) * mDirection( 0 ) - dOrigins( 0 ) * mDirection( 1 ) ) / detD;
 
             // if v is between 0 and 1, the intersection point is on the line segment
@@ -58,6 +60,23 @@ namespace moris::mtk
 
                 // the parametric coordinate goes from -1 to 1 and has the center in the middle of the line segment
                 mParametricCoordinate = 2.0 * ( v - 0.5 );
+
+                // xxxxxxxxxxxxxxxxxxxxx
+                //                Matrix< DDRMat > tRefPoint = { { -2.457207927533254e-01 }, { -5.363658433292784e-04 } };
+                //                if ( norm( mOrigin - tRefPoint ) < 1e-6 )
+                //                {
+                //                    Matrix< DDRMat > tJac =    //
+                //                            { { mTargetSpan( 0 ), mDirection( 0 ) },
+                //                                { mTargetSpan( 1 ), mDirection( 1 ) } };
+                //                    print( mOrigin, "mOrigin" );
+                //                    print( mTargetOrigin, "mTargetOrigin" );
+                //                    print( mDirection, "mDirection" );
+                //                    print( mTargetSpan, "mTargetSpan" );
+                //                    print( tJac, "tJac" );
+                //                    fprintf( stdout, "u = %e, v = %e, mSignedRayLength = %e\n", u, v, mSignedRayLength );
+                //                }
+                // xxxxxxxxxxxxxxxxxxxxx
+
                 return;    // early exit
             }
         }
