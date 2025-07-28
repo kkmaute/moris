@@ -165,8 +165,8 @@ namespace moris::opt
 
                 for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
                 {
-                    tDeltaADVs( tADVIndex )   = ( tUpperBounds( tADVIndex ) - tLowerBounds( tADVIndex ) ) / ( mNumEvaluations( tADVIndex ) );
-                    tLowerBounds( tADVIndex ) = +tDeltaADVs( tADVIndex ) / 2.0;
+                    tDeltaADVs( tADVIndex ) = ( tUpperBounds( tADVIndex ) - tLowerBounds( tADVIndex ) ) / ( mNumEvaluations( tADVIndex ) );
+                    tLowerBounds( tADVIndex ) += tDeltaADVs( tADVIndex ) / 2.0;
                 }
             }
 
