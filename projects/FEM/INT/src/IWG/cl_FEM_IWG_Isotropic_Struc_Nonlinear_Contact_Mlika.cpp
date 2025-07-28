@@ -228,6 +228,25 @@ namespace moris::fem
         // compute augmented Lagrangian term
         const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
 
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        if ( true )
+        {
+            sint tNiter = (sint)gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
+
+            Matrix< DDRMat > tRayCastPoint = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
+                                           + trans( mLeaderFIManager->get_IP_geometry_interpolator()->valx() );
+            Matrix< DDRMat > tTgtPoint = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
+                                       + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
+
+            fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e\n",    //
+                    tNiter,
+                    tRayCastPoint( 0 ),
+                    tRayCastPoint( 1 ),
+                    tTgtPoint( 0 ),
+                    tTgtPoint( 1 ),
+                    tContactPressure );
+        }
+
         if ( tAugLagrTerm > 0 )
         {
             mSet->get_residual()( 0 )(
