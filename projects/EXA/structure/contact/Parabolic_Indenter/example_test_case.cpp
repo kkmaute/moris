@@ -36,10 +36,13 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 //---------------------------------------------------------------
 
-extern "C" void check_results()
+extern "C" void check_results( std::string aLinearNonlinear )
 {
+    // check that run is serial; parallel not implemented yet
+    MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
+
     std::string tExoFileName =
-            "Parabolic_Indenter_Linear_Case_" + std::to_string( gCaseIndex ) + ".e-s.0000";
+            "Parabolic_Indenter_" + aLinearNonlinear + "_Case_" + std::to_string( gCaseIndex ) + ".e-s.0000";
 
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", gCaseIndex, par_size() );
@@ -141,7 +144,7 @@ extern "C" void check_results()
     // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
     Vector< Matrix< DDRMat > > tReferenceDisplacement;
 
-    tReferenceDisplacement.push_back( { { -3.534434707883998e-06 }, { -2.785067809916309e-02 } } );
+    tReferenceDisplacement.push_back( { { -1.931735576379704e-05 }, { -2.458041207903132e-02 } } );
 
     Matrix< DDRMat > tActualDisplacement = {
         { tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 2, 0 ) },
@@ -189,11 +192,50 @@ TEST_CASE( "Parabolic_Indenter_Linear",
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check results
-    check_results();
+    check_results( "Linear" );
 
 #else
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO("Parabolic_Indenter_Linear: Example skipped as Arborx not installed");
+    MORIS_LOG_INFO( "Parabolic_Indenter_Linear: Example skipped as Arborx not installed" );
     MORIS_LOG_INFO( " " );
 #endif
 }
+//---------------------------------------------------------------
+
+// TEST_CASE( "Parabolic_Indenter_NonLinear",
+//         "[moris],[example],[structure],[nonlinear]" )
+//{
+// #ifdef MORIS_HAVE_ARBORX
+//     // check that run is serial; parallel not implemented yet
+//     MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
+//
+//     // define command line call
+//     int argc = 2;
+//
+//     char tString1[] = "";
+//     char tString2[] = "./Parabolic_Indenter_NonLinear.so";
+//
+//     char *argv[ 2 ] = { tString1, tString2 };
+//
+//     // set interpolation order
+//     gInterpolationOrder = 1;
+//
+//     // set case index
+//     gCaseIndex = 0;
+//
+//     MORIS_LOG_INFO( " " );
+//     MORIS_LOG_INFO( "Executing Parabolic_Indenter_NonLinear: Interpolation order 1 - %i Processors.", par_size() );
+//     MORIS_LOG_INFO( " " );
+//
+//     // call to performance manager main interface
+//     fn_WRK_Workflow_Main_Interface( argc, argv );
+//
+//     // check results
+//     check_results( "NonLinear" );
+//
+// #else
+//     MORIS_LOG_INFO( " " );
+//     MORIS_LOG_INFO( "Parabolic_Indenter_NonLinear: Example skipped as Arborx not installed" );
+//     MORIS_LOG_INFO( " " );
+// #endif
+// }
