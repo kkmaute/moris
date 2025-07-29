@@ -1125,7 +1125,7 @@ namespace moris::xtk
             // Get individual facet normal coordinates
             real tNx  = tFacetNormal( 0 , 0 );
             real tNy  = tFacetNormal( 1 , 0 );
-            real tNz;
+            real tNz  = 0.0;
             if ( aDim == 3 )
             {
                 tNz = tFacetNormal( 2 , 0 );
@@ -1166,7 +1166,7 @@ namespace moris::xtk
             tIntDataLine.get_weights( tIntWeightsLine );
 
             // Get geometric jacobian
-            real tD ;
+            real tD = 0.0;
             
             if ( aDim == 2 )
             {
@@ -1191,9 +1191,9 @@ namespace moris::xtk
                     // Get quad weight
                     real tQuadWeight = tIntWeightsLine( iQuadPtIndex );
 
-                    real tXm;
-                    real tYm;
-                    real tZm;
+                    real tXm = 0.0;
+                    real tYm = 0.0;
+                    real tZm = 0.0;
 
                     Matrix< DDRMat > tXvector ; 
                     Matrix< DDRMat > tYvector ;

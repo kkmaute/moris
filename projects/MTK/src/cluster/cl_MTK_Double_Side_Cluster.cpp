@@ -345,6 +345,96 @@ namespace moris::mtk
 
     //----------------------------------------------------------------------------------
 
+    void
+    Double_Side_Cluster::compute_mapped_quadrature_points_and_weights_leader( const Matrix< DDRMat > aIntegrationPointsLeader, const Matrix< DDRMat > aIntegrationWeightsLeader )
+    {
+        // // Get IP element 
+        // moris::mtk::Cell const & tInterpolationCell = this->get_leader_interpolation_cell();
+
+        // // Create IP cell interpolation rule
+        // mtk::Interpolation_Rule tIPInterpolationRule( tInterpolationCell.get_geometry_type() , mtk::Interpolation_Type::LAGRANGE 
+        //         ,tInterpolationCell.get_interpolation_order() , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+        
+        // // Get IG elements
+        // Vector< moris::mtk::Cell const * > const& tIGCells =  this->get_leader_integration_cells();
+
+        // // Set the size of the quadrature points and weights matrices
+        // mQuadraturePointsLeader.reshape( aIntegrationPointsLeader.n_rows() , tIGCells.size() * aIntegrationPointsLeader.n_cols() );
+
+        // mQuadratureWeightsLeader.reshape( aIntegrationWeightsLeader.n_rows() , tIGCells.size() * aIntegrationWeightsLeader.n_cols() );
+
+        // // Loop over IG Elements
+        // for( uint iPrimaryCell = 0; iPrimaryCell < tIGCells.size() ; iPrimaryCell++ )
+        // {          
+        //     // Get cell info from tIGCell (required by space interpolator)
+        //     const mtk::Cell_Info* tCellInfo = tIGCells( iPrimaryCell )->get_cell_info();
+            
+        //     // Create Interpolation Rule
+        //     mtk::Interpolation_Rule tIGInterpolationRule( tIGCells( iPrimaryCell )->get_geometry_type() , mtk::Interpolation_Type::LAGRANGE 
+        //         ,tIGCells( iPrimaryCell )->get_interpolation_order() , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+
+        //     // Create space interpolator
+        //     mtk::Space_Interpolator tIGSpaceInterpolator =  mtk::Space_Interpolator(
+        //         tIGInterpolationRule,
+        //         tIPInterpolationRule,
+        //         tCellInfo->compute_cell_shape( tIGCells( iPrimaryCell ) ),
+        //         true ); // since the cell cluster is a sideset this is true
+
+        //     // Get ordinal of side cluster w.r.t. IG cell
+        //     moris_index tOrdinal = this->get_leader_cell_side_ordinal( iPrimaryCell );
+            
+        //     // Get vertices attached to that ordinal
+        //     Vector< const mtk::Vertex *> tClusterVertices = tIGCells( iPrimaryCell )->get_geometric_vertices_on_side_ordinal( tOrdinal )
+
+        //     // Declare the local coord matrix
+        //     Matrix< DDRMat > tLocalCoords;
+        //     tLocalCoords.reshape( tClusterVertices.size(), 2 ) 
+
+        //     // Now get the coordinates of the vertex w.r.t. IP cell
+        //     for( uint iVertices = 0 ; iVertices < tClusterVertices.size(); iVertices++ )
+        //     {
+        //         // get local vertex coordinates
+        //         Matrix< DDRMat > tLocalCoord = this->get_leader_vertex_local_coordinate_wrt_interp_cell( tClusterVertices( iVertices ) );
+
+        //         // add them to the total list
+        //         tLocalCoords.set_row( iVertices , tLocalCoord );
+
+        //     }
+        //     tIGSpaceInterpolator.set_space_param_coeff( tCellLocalCoords );
+
+        //     // Set coeffs for the jacobian
+        //     tIGSpaceInterpolator.set_space_coeff( tCellLocalCoords );
+
+        //     // Loop over all quadrature points in local IG element space to IP element local space
+        //     for( uint iQuadPoint = 0 ; iQuadPoint < aIntegrationWeights.numel(); iQuadPoint++ )
+        //     {
+        //         // Set local coord point
+        //         tIGSpaceInterpolator.set_space_time( aIntegrationPoints.get_column( iQuadPoint ) );
+                
+        //         // get mapped quadrature point (from IG element parent element space to IP element parent element space)
+        //         Matrix< DDRMat > tMappedQuadraturePoint = tIGSpaceInterpolator.map_integration_point();
+
+        //         // Place in quadrature point vector
+        //         mQuadraturePoints.set_column( iPrimaryCell * aIntegrationWeights.numel() + iQuadPoint , ( tMappedQuadraturePoint ) );
+
+        //         // Get determinant
+        //         real tDetJ = tIGSpaceInterpolator.space_det_J();
+
+        //         // Get modified weight
+        //         real tWStar = aIntegrationWeights( iQuadPoint ) * tDetJ ;
+
+        //         // Set quadrature point as multiplied with det_J
+        //         mQuadratureWeights( iPrimaryCell * aIntegrationWeights.numel() + iQuadPoint ) = tWStar ;
+                
+        //     }
+
+        // }
+
+    }
+
+
+    //----------------------------------------------------------------------------------
+
     moris_index
     Double_Side_Cluster::get_follower_vertex_ord_on_facet(
             moris_index               aCellClusterIndex,

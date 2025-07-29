@@ -33,6 +33,18 @@ namespace moris::mtk
         // Follower side cluster
         moris::mtk::Cluster const *mFollowerSideCluster;
 
+        // Leader quadrature points
+        Matrix< DDRMat > mLeaderQuadraturePoints;
+
+        // follower quadrature points
+        Matrix< DDRMat > mFollowerQuadraturePoints;
+
+        // Leader quadrature weights
+        Matrix< DDRMat > mLeaderQuadratureWeights;
+
+        // follower quadrature weights
+        Matrix< DDRMat > mFollowerQuadratureWeights;
+
         /*!
          * A one way pairing from leader vertices to follower vertices
          */
@@ -253,6 +265,71 @@ namespace moris::mtk
          */
         moris::Matrix< moris::IndexMat >
         get_follower_integration_cell_side_ordinals() const;
+
+        //----------------------------------------------------------------
+
+        
+        /*!
+         * @return Quadrature points associated with leader
+         * 
+         */
+
+        // Matrix< DDRMat >
+        // get_leader_quadrature_points(  ) const 
+        // {
+        //     return mQuadraturePointsLeader;
+        // }
+
+        //----------------------------------------------------------------
+
+         /*!
+         * @return Quadrature points associated with follower
+         * 
+         */
+        
+
+        // Matrix< DDRMat >
+        // get_follower_quadrature_points(  ) const 
+        // {
+        //     return mQuadraturePointsFollower;
+        // }
+
+        // //----------------------------------------------------------------
+
+        //  /*!
+        //  * @return Quadrature weights associated with leader
+        //  * 
+        //  */
+
+        //  Matrix< DDRMat >
+        //  get_leader_quadrature_weights(  ) const 
+        //  {
+        //      return mQuadratureWeightsLeader;
+        //  }
+ 
+        //  //----------------------------------------------------------------
+ 
+        //   /*!
+        //   * @return Quadrature weights associated with follower
+        //   * 
+        //   */
+         
+ 
+        //  Matrix< DDRMat >
+        //  get_follower_quadrature_weights(  ) const 
+        //  {
+        //      return mQuadratureWeightsFollower;
+        //  }
+ 
+        //----------------------------------------------------------------
+
+        void
+        compute_mapped_quadrature_points_and_weights_leader( const Matrix< DDRMat > aIntegrationPointsLeader, const Matrix< DDRMat > aIntegrationWeightsLeader );
+
+        //----------------------------------------------------------------
+
+        void
+        compute_mapped_quadrature_points_and_weights_follower( const Matrix< DDRMat > aIntegrationPointsFollower, const Matrix< DDRMat > aIntegrationWeightsFollower );
 
         //----------------------------------------------------------------
 
