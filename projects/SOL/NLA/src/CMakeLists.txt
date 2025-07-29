@@ -25,6 +25,7 @@ set(HEADERS
 	cl_NLA_Nonlinear_Problem.hpp
 	cl_NLA_Nonlinear_Solver_Factory.hpp
 	cl_NLA_Nonlinear_Solver.hpp
+    cl_NLA_Trust_Region_Solver.hpp
 	)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -43,7 +44,8 @@ set(LIB_SOURCES
     cl_NLA_Solver_Pseudo_Time_Control.cpp
     cl_NLA_Solver_Load_Control.cpp
     cl_NLA_Solver_Nonconformal_Remapping.cpp
-    cl_NLA_NLBGS.cpp )
+    cl_NLA_NLBGS.cpp
+    cl_NLA_Trust_Region_Solver.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES
