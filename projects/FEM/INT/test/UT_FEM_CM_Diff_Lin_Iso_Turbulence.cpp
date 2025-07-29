@@ -12,7 +12,7 @@
 
 #define protected public
 #define private   public
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Set.hpp"
@@ -29,6 +29,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "fn_FEM_Check.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Incompressible_UT.cpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -39,7 +40,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
     real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 5.0E-6;
+    real tPerturbation = 1.0E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -70,58 +71,58 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
 
     // create the properties
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_parameters( { { { 1.0 } } } );
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropTurbPrandtl = std::make_shared< fem::Property >();
+    tPropTurbPrandtl->set_parameters( { { { 0.7 } } } );
     tPropTurbPrandtl->set_val_function( tConstValFunc );
-    tPropTurbPrandtl->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
     tPropDensity->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
+    tPropConductivity->set_parameters( { { { 2.0 } } } );
     tPropConductivity->set_val_function( tConstValFunc );
-    tPropConductivity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
+    tPropHeatCapacity->set_parameters( { { { 3.0 } } } );
     tPropHeatCapacity->set_val_function( tConstValFunc );
-    tPropHeatCapacity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbDiff =
-            tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO_TURBULENCE );
-    tCMLeaderTurbDiff->set_dof_type_list( { tTempDofTypes, tVisDofTypes } );
-    tCMLeaderTurbDiff->set_property( tPropKinViscosity, "KinematicViscosity" );
-    tCMLeaderTurbDiff->set_property( tPropTurbPrandtl,  "TurbulentPrandtl" );
-    tCMLeaderTurbDiff->set_property( tPropDensity,      "Density" );
-    tCMLeaderTurbDiff->set_property( tPropConductivity, "Conductivity" );
-    tCMLeaderTurbDiff->set_property( tPropHeatCapacity, "HeatCapacity" );
+    std::shared_ptr< fem::Constitutive_Model > tCMLeader =
+            tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO_TURBULENCE_SPALART_ALLMARAS );
+    tCMLeader->set_dof_type_list( { tTempDofTypes, tVisDofTypes } );
+    tCMLeader->set_property( tPropKinViscosity, "KinematicViscosity" );
+    tCMLeader->set_property( tPropTurbPrandtl, "TurbulentPrandtl" );
+    tCMLeader->set_property( tPropDensity, "Density" );
+    tCMLeader->set_property( tPropConductivity, "Conductivity" );
+    tCMLeader->set_property( tPropHeatCapacity, "HeatCapacity" );
 
-    tCMLeaderTurbDiff->set_local_properties();
+    tCMLeader->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    tCMLeaderTurbDiff->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeader->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMLeaderTurbDiff->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeader->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMLeaderTurbDiff->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMLeaderTurbDiff->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 0;
-    tCMLeaderTurbDiff->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tCMLeader->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeader->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 0;
+    tCMLeader->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
     // set size and populate the set leader dof type map
-    tCMLeaderTurbDiff->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMLeaderTurbDiff->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )        = 0;
-    tCMLeaderTurbDiff->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) )         = 1;
+    tCMLeader->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeader->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 0;
+    tCMLeader->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
     // build global dof type list
-    tCMLeaderTurbDiff->get_global_dof_type_list();
+    tCMLeader->get_global_dof_type_list();
 
     // standard diffusion for comparison
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiff =
@@ -174,13 +175,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
                         { 1.0, 0.0 },
                         { 1.0, 1.0 },
                         { 0.0, 1.0 }};
-
-                // set viscosity space derivative parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{ 1.0 },{2.0}} } );
-                tPropConductivity->set_parameters( { {{ 2.0 }}, {{ 3.0 },{4.0}} } );
-                tPropTurbPrandtl->set_parameters( {  {{ 0.7 }}, {{ 5.0 },{6.0}} } );
-                tPropHeatCapacity->set_parameters( { {{ 3.0 }}, {{ 7.0 },{8.0}} } );
-
                 break;
             }
             case 3 :
@@ -197,13 +191,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
                         { 1.0, 0.0, 1.0 },
                         { 1.0, 1.0, 1.0 },
                         { 0.0, 1.0, 1.0 }};
-
-                // set viscosity space derivative parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{1.0},{2.0},{3.0}} } );
-                tPropConductivity->set_parameters( { {{ 2.0 }}, {{4.0},{5.0},{6.0}} } );
-                tPropTurbPrandtl->set_parameters(  { {{ 0.7 }}, {{7.0},{8.0},{9.0}} } );
-                tPropHeatCapacity->set_parameters( { {{ 3.0 }}, {{10.0},{11.0},{12.0}} } );
-
                 break;
             }
             default:
@@ -233,7 +220,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMLeaderTurbDiff->set_space_dim( iSpaceDim );
+        tCMLeader->set_space_dim( iSpaceDim );
         tCMLeaderDiff->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -301,36 +288,36 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMLeaderTurbDiff->mSet->mLeaderFIManager = &tFIManager;
+            tCMLeader->mSet->mLeaderFIManager     = &tFIManager;
             tCMLeaderDiff->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            tCMLeaderTurbDiff->set_field_interpolator_manager( &tFIManager );
+            tCMLeader->set_field_interpolator_manager( &tFIManager );
             tCMLeaderDiff->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
-                tCMLeaderTurbDiff->reset_eval_flags();
+                tCMLeader->reset_eval_flags();
                 tCMLeaderDiff->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMLeaderTurbDiff->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tCMLeader->mSet->mLeaderFIManager->set_space_time( tParamPoint );
                 tCMLeaderDiff->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // populate the requested leader dof type for CM
                 Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
-                        tCMLeaderTurbDiff->get_global_dof_type_list();
+                        tCMLeader->get_global_dof_type_list();
                 Vector< Vector< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes2 =
                                        tCMLeaderDiff->get_global_dof_type_list();
 
                 // populate the test leader dof type for CM
                 Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes =
-                        tCMLeaderTurbDiff->get_dof_type_list();
+                        tCMLeader->get_dof_type_list();
                 Vector< Vector< MSI::Dof_Type > > tLeaderDofTypes2 =
                                        tCMLeaderDiff->get_dof_type_list();
 
@@ -340,55 +327,125 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
                     // derivative dof type
                     const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
+                    // get turbulence specific CM
+                    CM_Diffusion_Linear_Isotropic_Turbulence* tCMLeaderPtr =
+                            dynamic_cast< CM_Diffusion_Linear_Isotropic_Turbulence* >( tCMLeader.get() );
+
+                    // effective conductivity
+                    //------------------------------------------------------------------------------
+                    // evaluate analytical derivative
+                    Matrix< DDRMat > tdeffconddu = tCMLeaderPtr->deffconddu( tDofDerivative );
+
+                    // evaluate derivative by FD
+                    Matrix< DDRMat > tdeffcondduFD;
+                    tCMLeader->eval_derivative_FD(
+                            CM_Request_Type::EFF_COND,
+                            tdeffcondduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump );           // dummy
+
+                    // check that analytical and FD match
+                    // std::cout << "check deffconddu analytical and FD match " << std::endl;
+                    // print( tdeffconddu, "tdeffconddu" );
+                    // print( tdeffcondduFD, "tdeffcondduFD" );
+                    bool tCheckEffCond = fem::check( tdeffconddu, tdeffcondduFD, tEpsilon );
+                    REQUIRE( tCheckEffCond );
+
+                    // effective conductivity space der
+                    //------------------------------------------------------------------------------
+                    // evaluate analytical derivative
+                    Matrix< DDRMat > tdeffconddxdu = tCMLeaderPtr->deffconddxdu( tDofDerivative, 1 );
+
+                    // evaluate derivative by FD
+                    Matrix< DDRMat > tdeffconddxduFD;
+                    tCMLeader->eval_derivative_FD(
+                            CM_Request_Type::EFF_COND_SPACE_DER,
+                            tdeffconddxduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump );           // dummy
+
+                    // check that analytical and FD match
+                    // std::cout << "check tdeffconddxdu analytical and FD match " << std::endl;
+                    // print( tdeffconddxdu, "tdeffconddxdu" );
+                    // print( tdeffconddxduFD, "tdeffconddxduFD" );
+                    bool tCheckEffCondSpaceDer = fem::check( tdeffconddxdu, tdeffconddxduFD, tEpsilon );
+                    REQUIRE( tCheckEffCondSpaceDer );
+
+                    // test effective conductivity
+                    //------------------------------------------------------------------------------
+                    // loop over test dof type
+                    Vector< Vector< MSI::Dof_Type > > tTestDofTypes = { tTempDofTypes };
+                    for ( uint iTestDof = 0; iTestDof < tTestDofTypes.size(); iTestDof++ )
+                    {
+                        // get the test dof type
+                        const Vector< MSI::Dof_Type >& tDofTest = tTestDofTypes( iTestDof );
+                        // std::cout << "tDofTest " << static_cast< uint >( tDofTest( 0 ) ) << std::endl;
+
+                        // evaluate analytical derivative
+                        Matrix< DDRMat > tdtesteffconddu = tCMLeaderPtr->dtesteffconddu(
+                                tDofDerivative,
+                                tDofTest );
+
+                        // evaluate derivative by FD
+                        Matrix< DDRMat > tdtesteffcondduFD;
+                        tCMLeader->eval_derivative_FD(
+                                CM_Request_Type::TEST_EFF_COND,
+                                tdtesteffcondduFD,
+                                tDofDerivative,
+                                tPerturbation,
+                                tDofTest,
+                                tNormal,
+                                tJump );
+
+                        // check that analytical and FD match
+                        // std::cout << "check tdtesteffconddu analytical and FD match " << std::endl;
+                        // print( tdtesteffconddu, "tdtesteffconddu" );
+                        // print( tdtesteffcondduFD, "tdtesteffcondduFD" );
+                        bool tCheckTestEffCond = fem::check( tdtesteffconddu, tdtesteffcondduFD, tEpsilon );
+                        REQUIRE( tCheckTestEffCond );
+                    }
+
                     // flux
                     //------------------------------------------------------------------------------
-                    Matrix< DDRMat > tflux  = tCMLeaderTurbDiff->flux();
-                    Matrix< DDRMat > tflux2 = tCMLeaderDiff->flux();
-                    //print(tflux,"tflux");
-                    //print(tflux2,"tflux2");
-
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMLeaderTurbDiff->dFluxdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdfluxdu = tCMLeader->dFluxdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdfluxduFD;
-                    tCMLeaderTurbDiff->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
+                    tCMLeader->eval_derivative_FD(
+                            CM_Request_Type::FLUX,
+                            tdfluxduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump );           // dummy
 
                     // check that analytical and FD match
                     bool tCheckFluxFluid = fem::check( tdfluxdu, tdfluxduFD, tEpsilon );
                     REQUIRE( tCheckFluxFluid );
 
-                    // strain
-                    //------------------------------------------------------------------------------
-                    Matrix< DDRMat > tstrain  = tCMLeaderTurbDiff->strain();
-                    Matrix< DDRMat > tstrain2 = tCMLeaderDiff->strain();
-                    //print(tstrain,"tstrain");
-                    //print(tstrain2,"tstrain2");
-
-                    // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMLeaderTurbDiff->dStraindDOF( tDofDerivative );
-
-                    // evaluate dstraindu by FD
-                    Matrix< DDRMat > tdstrainduFD;
-                    tCMLeaderTurbDiff->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
-
-                    // check that analytical and FD match
-                    bool tCheckStrain = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
-                    REQUIRE( tCheckStrain );
-
                     // traction
                     //------------------------------------------------------------------------------
-                    Matrix< DDRMat > ttraction  = tCMLeaderTurbDiff->traction( tNormal );
-                    Matrix< DDRMat > ttraction2 = tCMLeaderDiff->traction( tNormal );
-                    //print(ttraction,"ttraction");
-                    //print(ttraction2,"ttraction2");
-
                     // evaluate dtractiondu
-                    Matrix< DDRMat > tdtractiondu = tCMLeaderTurbDiff->dTractiondDOF( tDofDerivative, tNormal );
+                    Matrix< DDRMat > tdtractiondu = tCMLeader->dTractiondDOF( tDofDerivative, tNormal );
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMLeaderTurbDiff->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
+                    tCMLeader->eval_derivative_FD(
+                            CM_Request_Type::TRACTION,
+                            tdtractionduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,
+                            tJump );
 
                     // check that analytical and FD match
                     bool tCheckTraction = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
@@ -397,104 +454,50 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
                     // test traction
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
+                    for ( uint iTestDof = 0; iTestDof < tTestDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
-
-                        if( tDofTest( 0 ) == MSI::Dof_Type::TEMP )
-                        {
-                            Matrix< DDRMat > ttesttraction  = tCMLeaderTurbDiff->testTraction( tNormal, tDofTest );
-                            Matrix< DDRMat > ttesttraction2 = tCMLeaderDiff->testTraction( tNormal, tDofTest );
-                            //print(ttesttraction,"ttesttraction");
-                            //print(ttesttraction2,"ttesttraction2");
-                        }
-
-//                        // evaluate dtesttractiondu
-//                        Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbDiff->dTestTractiondDOF(
-//                                tDofDerivative,
-//                                tNormal,
-//                                tJump,
-//                                tDofTest );
-//
-//                        // evaluate dtractiondu by FD
-//                        Matrix< DDRMat > tdtesttractionduFD;
-//                        tCMLeaderTurbDiff->eval_dtesttractiondu_FD(
-//                                tDofDerivative,
-//                                tDofTest,
-//                                tdtesttractionduFD,
-//                                tPerturbation,
-//                                tNormal,
-//                                tJump );
-//
-//                        // check that analytical and FD match
-//                        bool tCheckTestTraction = fem::check( tdtesttractiondu, tdtesttractionduFD, tEpsilon );
-//                        REQUIRE( tCheckTestTraction );
-                    }
-
-                    // test traction 2
-                    //------------------------------------------------------------------------------
-                    // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
-                    {
-                        // get the test dof type
-                        const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( iTestDof );
+                        const Vector< MSI::Dof_Type >& tDofTest = tTestDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
-                        Matrix< DDRMat > tdtesttractiondu2 = tCMLeaderTurbDiff->dTestTractiondDOF(
+                        Matrix< DDRMat > tdtesttractiondu = tCMLeader->dTestTractiondDOF(
                                 tDofDerivative,
                                 tNormal,
                                 tDofTest );
 
                         // evaluate dtractiondu by FD
-                        Matrix< DDRMat > tdtesttractionduFD2;
-                        tCMLeaderTurbDiff->eval_dtesttractiondu_FD(
+                        Matrix< DDRMat > tdtesttractionduFD;
+                        tCMLeader->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
-                                tdtesttractionduFD2,
+                                tdtesttractionduFD,
                                 tPerturbation,
-                                tNormal);
+                                tNormal );
 
                         // check that analytical and FD match
-                        bool tCheckTestTraction2 = fem::check( tdtesttractiondu2, tdtesttractionduFD2, tEpsilon );
-                        REQUIRE( tCheckTestTraction2 );
+                        bool tCheckTestTraction = fem::check( tdtesttractiondu, tdtesttractionduFD, tEpsilon );
+                        REQUIRE( tCheckTestTraction );
                     }
 
                     // div flux
                     //------------------------------------------------------------------------------
-                    Matrix< DDRMat > tdivflux  = tCMLeaderTurbDiff->divflux();
-                    Matrix< DDRMat > tdivflux2 = tCMLeaderDiff->divflux();
-                    //print(tdivflux,"tdivflux");
-                    //print(tdivflux2,"tdivflux2");
-
                     // evaluate ddivfluxdu
-                    Matrix< DDRMat > tddivfluxdu = tCMLeaderTurbDiff->ddivfluxdu( tDofDerivative );
+                    Matrix< DDRMat > tddivfluxdu = tCMLeader->ddivfluxdu( tDofDerivative );
 
                     // evaluate ddivfluxdu by FD
                     Matrix< DDRMat > tddivfluxduFD;
-                    tCMLeaderTurbDiff->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
+                    tCMLeader->eval_derivative_FD(
+                            CM_Request_Type::DIV_FLUX,
+                            tddivfluxduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump );           // dummy
 
                     // check that analytical and FD match
                     bool tCheckDivFlux = fem::check( tddivfluxdu, tddivfluxduFD, tEpsilon );
                     REQUIRE( tCheckDivFlux );
-
-                    // div strain
-                    //------------------------------------------------------------------------------
-                    Matrix< DDRMat > tdivstrain  = tCMLeaderTurbDiff->divstrain();
-                    Matrix< DDRMat > tdivstrain2 = tCMLeaderDiff->divstrain();
-                    //print(tdivstrain,"tdivstrain");
-                    //print(tdivstrain2,"tdivstrain2");
-
-                    // evaluate ddivstraindu
-                    Matrix< DDRMat > tddivstraindu = tCMLeaderTurbDiff->ddivstraindu( tDofDerivative );
-
-                    // evaluate ddivstraindu by FD
-                    Matrix< DDRMat > tddivstrainduFD;
-                    tCMLeaderTurbDiff->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
-
-                    // check that analytical and FD match
-                    bool tCheckDivStrain = fem::check( tddivstraindu, tddivstrainduFD, tEpsilon );
-                    REQUIRE( tCheckDivStrain );
                 }
             }
             // clean up

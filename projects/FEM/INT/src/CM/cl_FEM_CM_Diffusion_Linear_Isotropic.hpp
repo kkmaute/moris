@@ -32,6 +32,10 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
       protected:
+        // Default dof type for CM
+        MSI::Dof_Type mTempDof  = MSI::Dof_Type::TEMP;
+        MSI::Dof_Type mThetaDof = MSI::Dof_Type::UNDEFINED;
+
         // default local properties
         std::shared_ptr< Property > mPropConductivity = nullptr;
         std::shared_ptr< Property > mPropHeatCapacity = nullptr;
@@ -39,10 +43,6 @@ namespace moris::fem
         std::shared_ptr< Property > mPropEigenStrain  = nullptr;
 
       private:
-        // Default dof type for CM
-        MSI::Dof_Type mTempDof  = MSI::Dof_Type::TEMP;
-        MSI::Dof_Type mThetaDof = MSI::Dof_Type::UNDEFINED;
-
         // property type for CM
         enum class CM_Property_Type
         {
@@ -141,12 +141,6 @@ namespace moris::fem
          * evaluates the gradient of the divergence of the flux (needed for GGLS-stabilization)
          */
         void eval_graddivflux() override;
-        //------------------------------------------------------------------------------
-        /**
-         * evaluate the constitutive model test flux
-         * flux ( mSpaceDim x 1)
-         */
-        void eval_testFlux();
 
         //--------------------------------------------------------------------------------------------------------------
         /**
@@ -188,7 +182,7 @@ namespace moris::fem
         //------------------------------------------------------------------------------
         /**
          * evaluate the constitutive model test strain
-         * test strain ( mSpaceDim x numDof  )
+         * test strain ( mSpaceDim x numDof )
          */
         void eval_testStrain() override;
 

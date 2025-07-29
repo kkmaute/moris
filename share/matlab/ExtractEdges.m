@@ -31,8 +31,21 @@ phase=1;
 % tolerance for merging nodes
 deps=1e-6;
 
+% target length for resampleing segments 
+newseg=6e-1;
+
+% smoothing
+smonum=25;
+smostep=[0.33,-0.34];
+
+% flag for computing inscribed circle diameter
+iscflg=1;
+
 % flag for ploting structure
-pltflg=1;
+pltflg=0;
+
+% flag for ploting inscribed circles
+pltcirc=0;
 
 % file of output obj file
 objfilename='extracted.obj';
@@ -75,6 +88,7 @@ end
 % extract edges
 maxedg=4*numquads+3*numtris;
 edgcon=zeros(maxedg,3);
+edgconorg=zeros(maxedg,2);
 ic=0;
 for i=1:numquads
     nids=[quads(i,:) quads(i,1)];
@@ -83,6 +97,7 @@ for i=1:numquads
         nj=nids(j+1);
         ic=ic+1;
         edgcon(ic,:)=[sort([ni nj],'ascend') i];
+        edgconorg(ic,:)=[ni nj];
     end
 end
 for i=1:numtris
@@ -92,6 +107,7 @@ for i=1:numtris
         nj=nids(j+1);
         ic=ic+1;
         edgcon(ic,:)=[sort([ni nj],'ascend') i+numquads];
+        edgconorg(ic,:)=[ni nj];
     end
 end
 
@@ -114,6 +130,8 @@ for i=1:size(edgcon,1)
     end
     if single==1
         iec=iec+1;
+        ni=edgconorg(i,1);
+        nj=edgconorg(i,2);
         unodes([ni nj])=1;
         exedge=[exedge; ni nj];
     end
@@ -146,6 +164,51 @@ if pltflg>0
         plot(xp,yp,'k-'); hold on;
     end
     axis equal
+end
+
+% resample segments
+if newseg>0
+     [excrd,exedge]=removesegements(excrd,exedge,newseg,pltflg);
+end
+
+% smooth shape
+if smonum>0
+     excrdorg=excrd;
+     [excrd,dexcrd,freezenodes]=smoothing(excrd,exedge,smostep,smonum,pltflg);
+     
+     numnod=size(excrd,1);
+     fderror=zeros(numnod,2);
+     deps=1e-5;
+     maxerror=0;
+     for i=1:numnod
+         if freezenodes(i);continue,end
+         for j=1:2
+             nper=i;
+             cper=j;
+
+             excrdp=excrdorg;
+             excrdp(nper,cper)=excrdp(nper,cper)+deps;
+             [excrdp]=smoothing(excrdp,exedge,smostep,smonum,0);
+
+             excrdm=excrdorg;
+             excrdm(nper,cper)=excrdm(nper,cper)-deps;
+             [excrdm]=smoothing(excrdm,exedge,smostep,smonum,0);
+             fd=(excrdp-excrdm)/2/deps;
+             fderror(i,j)=norm(dexcrd(:,nper)-fd(:,cper))/norm(fd(:,cper))*100.0;
+             if maxerror<fderror(i,j)
+                 maxerror=fderror(i,j);
+                 nodmax=i;
+                 crdmax=j;
+             end
+         end
+     end
+     fprintf('\n ... max smoothing sensitivity error in percent: %e (node %d dir %d)\n',...
+         maxerror,nodmax,crdmax);
+end
+
+% compute inscribed circle diameter
+if iscflg>0
+    [iscdiameter]=computeInscribedCircleDiameter(excrd,exedge,pltflg,pltcirc);
 end
 
 % write extracted edges to file
@@ -620,4 +683,401 @@ Data.NodeMap   = node_map;
 if nargin == 3
     save(savefile,'Data')
 end
+end
+
+%==========================================================================
+
+function [iscdiameter]=computeInscribedCircleDiameter(points,connect,pltflg,pltcirc)
+
+numnod=size(points,1);
+numseg=size(connect,1);
+
+if pltflg>0
+    figure(5)
+    for i=1:numseg
+        ni=connect(i,1);
+        nj=connect(i,2);
+        xp=points([ni nj],1);
+        yp=points([ni nj],2);
+        plot(xp,yp,'k-'); hold on;
+    end
+    axis equal
+end
+
+% get bounding box
+xmin=min(points(:,1));
+xmax=max(points(:,1));
+ymin=min(points(:,2));
+ymax=max(points(:,2));
+
+maxradius=sqrt((xmax-xmin)^2+(ymin-ymax)^2);
+
+% compute nodal connectivity
+nodconnect=zeros(numnod,2);
+for i=1:numseg
+    nodeA = connect(i, 1);
+    nodeB = connect(i, 2);
+    if nodconnect(nodeA,1)==0; k=1; else; k=2; end
+    nodconnect(nodeA,k) = i;
+    if nodconnect(nodeB,1)==0; k=1; else; k=2; end
+    nodconnect(nodeB,k) = i;
+end
+
+% compute normal on segments
+segnormal=zeros(numseg,2);
+seglength=zeros(numseg,1);
+for i=1:numseg
+    nodeA=connect(i,1);
+    nodeB=connect(i,2);
+
+    vABx=points(nodeB,1)-points(nodeA,1);
+    vABy=points(nodeB,2)-points(nodeA,2);
+
+    % Calculate the length of the segment
+    seglength(i) = sqrt(vABx^2 + vABy^2);
+
+    % Compute the normal vector
+    segnormal(i,:) = [-vABy, vABx] / seglength(i);
+end
+
+% compute nodal normal
+nodnormal=zeros(numnod,2);
+for i=1:numnod
+    segA=nodconnect(i,1);
+    segB=nodconnect(i,2);
+    nodnormal(i,1)=(segnormal(segA,1)*seglength(segA)+segnormal(segB,1)*seglength(segB))/ ...
+        (seglength(segA)+seglength(segB));
+    nodnormal(i,2)=(segnormal(segA,2)*seglength(segA)+segnormal(segB,2)*seglength(segB))/ ...
+        (seglength(segA)+seglength(segB));
+
+    nodnormal(i,:)=1/norm(nodnormal(i,:))*nodnormal(i,:);
+end
+
+% compute inscribed circel
+fprintf('\n ... start computing inscribed circles\n')
+tic
+mrad=zeros(numnod,1);
+for i=1:numnod
+    minradius=maxradius;
+    for j=1:numnod
+
+        % skip node
+        if i==j; continue; end
+
+        % compute delta x and y
+        deltax=points(i,1)-points(j,1);
+        deltay=points(i,2)-points(j,2);
+
+        radius=-(deltax^2+deltay^2)/ ...
+            (2*(nodnormal(i,1)*deltax+nodnormal(i,2)*deltay));
+
+        if radius<minradius && radius>0
+            minradius = radius;
+        end
+    end
+
+    if minradius>0.9*maxradius || pltcirc
+        plotcircle(points(i,:),nodnormal(i,:),minradius);
+    end
+    
+    mrad(i)=minradius;
+end
+toc
+
+iscdiameter=2*mrad;
+
+if pltflg
+    figure(6)
+    scatter(points(:,1), points(:,2), 50, iscdiameter, 'filled');
+    colorbar;
+    xlabel('X');
+    ylabel('Y');
+    title('Points Colored by diameter of inscribed circle');
+    axis equal
+end
+
+end
+
+%=========================================================================
+function plotcircle(point,normal,radius)
+
+figure(5)
+
+centerX=point(1)+radius*normal(1);
+centerY=point(2)+radius*normal(2);
+
+theta = linspace(0, 2*pi, 100); % Parameter for circle
+circleX = radius * cos(theta) + centerX; % X coordinates of the circle
+circleY = radius * sin(theta) + centerY; % Y coordinates of the circle
+plot(circleX, circleY, 'r-'); hold on;% Plot the inscribed circle
+axis equal
+
+end
+
+%==========================================================================
+
+function [excrd,exedge]=removesegements(excrd,exedge,newseg,pltflg)
+
+numnod=size(excrd,1);
+numseg=size(exedge,1);
+
+% compute nodal connectivity
+nodconnect=zeros(numnod,2);
+for i=1:numseg
+    nodeA = exedge(i, 1);
+    nodeB = exedge(i, 2);
+    if nodconnect(nodeA,1)==0; k=1; else; k=2; end
+    nodconnect(nodeA,k) = i;
+    if nodconnect(nodeB,1)==0; k=1; else; k=2; end
+    nodconnect(nodeB,k) = i;
+end
+
+% identify closed polygon
+segcounter=0;
+segid=zeros(numseg,1);
+
+nonassigned=find(segid==0);
+
+% loop over all closed polygons
+maxpoly=100;
+segcon=cell(maxpoly,1);
+
+while length(nonassigned)>0
+
+    segcounter=segcounter+1;
+    polycounter=1;
+
+    segcon(segcounter)=[];
+    
+    % food fill
+    currentseg=nonassigned(1);
+    
+    while currentseg>0
+        segid(currentseg)=segcounter;
+        
+        segcon{segcounter}(polycounter)=currentseg;
+        polycounter=polycounter+1;
+
+        node2=exedge(currentseg,2);
+        segs=nodconnect(node2,:);
+
+        currentseg=0;
+        if segid(segs(1))==0; currentseg=segs(1);end
+        if segid(segs(2))==0; currentseg=segs(2);end
+    end
+
+    nonassigned=find(segid==0);
+end
+
+if pltflg>0
+    figure(3)
+    for i=1:numseg
+        ni=exedge(i,1);
+        nj=exedge(i,2);
+        xp=excrd([ni nj],1);
+        yp=excrd([ni nj],2);
+
+        surface([xp xp], [yp yp],zeros(2,2),segid(i)*ones(2,2), ...
+            'FaceColor', 'none', 'EdgeColor', 'interp', 'LineWidth', 2); hold on
+    end
+    axis equal
+    colorbar;
+end
+
+% resample segment
+edgcounter=0;
+nodcounter=0;
+
+newcrd=[];
+newedge=[];
+newsegid=[];
+
+for ipoly=1:segcounter
+
+    numseg=length(segcon{ipoly});
+
+    % compute total segment length
+    tlen=0;
+    for iseg=1:numseg
+        sid=segcon{ipoly}(iseg);
+        ni=exedge(sid,1);
+        nj=exedge(sid,2);
+        xp=excrd([ni nj],1);
+        yp=excrd([ni nj],2);
+        tlen=tlen+sqrt((xp(2)-xp(1))^2+(yp(2)-yp(1))^2);
+    end
+
+    % skip polygon if too short
+    if floor(tlen/newseg)<2; continue; end
+
+    % compute adjusted new segment length
+    adjseg=tlen/floor(tlen/newseg);
+
+    % first point on polygon
+    cursid=segcon{ipoly}(1);
+    curnid=exedge(cursid,1);
+
+    nodcounter=nodcounter+1;
+    newcrd(nodcounter,:)=excrd(curnid,:);
+
+    startnode=nodcounter;
+
+    % serach for new node
+    iseg=1;
+    sold=0;
+    while iseg<=numseg
+
+        found=0;
+
+        % find intersction point on current segment
+        sid=segcon{ipoly}(iseg);
+        ni=exedge(sid,1);
+        nj=exedge(sid,2);
+        dxab=excrd(nj,:)-excrd(ni,:);
+        dxrt=excrd(ni,:)-newcrd(nodcounter,:);
+
+        % solve quadratic equation
+        c=dxrt*dxrt'-adjseg^2;
+        b=2*dxab*dxrt';
+        a=dxab*dxab';
+        s=(-b+sqrt(b^2-4*a*c))/2/a;
+        if s>=0 && s<=1 && s>sold
+            sold=s;
+            found=1;
+        else
+            s=(-b-sqrt(b^2-4*a*c))/2/a;
+            if s>=0 && s<=1 && s>sold
+                found=1;
+                sold=s;
+            end
+        end
+
+        % register new point and create new segment
+        if found==1
+            nodcounter=nodcounter+1;
+            newcrd(nodcounter,:)=excrd(ni,:)+s*dxab;
+
+            edgcounter=edgcounter+1;
+            newedge(edgcounter,:)=[nodcounter-1 nodcounter];
+            newsegid(edgcounter)=ipoly;
+        else
+            iseg=iseg+1;
+            sold=0;
+        end
+    end
+
+    % check if polygon is close
+    if norm(newcrd(startnode,:)-newcrd(nodcounter,:)) < 1e-6*adjseg
+        nodcounter=nodcounter-1;
+        newedge(edgcounter,:)=[nodcounter startnode];
+    else
+        edgcounter=edgcounter+1;
+        newedge(edgcounter,:)=[nodcounter startnode];
+        newsegid(edgcounter)=ipoly;
+    end
+end
+
+exedge=newedge(1:edgcounter,:);
+segid=newsegid(1:edgcounter);
+excrd=newcrd(1:nodcounter,:);
+
+fprintf('\n ... number of edges after resampling: %d\n',size(exedge,1));
+
+if pltflg>0
+    figure(4)
+    for i=1:size(exedge,1)
+        ni=exedge(i,1);
+        nj=exedge(i,2);
+        xp=excrd([ni nj],1);
+        yp=excrd([ni nj],2);
+
+        surface([xp xp], [yp yp],zeros(2,2),segid(i)*ones(2,2), ...
+            'FaceColor', 'none', 'EdgeColor', 'interp', 'LineWidth', 2); hold on
+    end
+    axis equal
+    colorbar;
+end
+end
+
+%==========================================================================
+
+function [excrd,dexcrd,freezenodes]=smoothing(excrd,exedge,smostep,smonum,pltflg)
+
+numnod=size(excrd,1);
+numseg=size(exedge,1);
+
+% get bounding box
+xmin=min(excrd(:,1));
+xmax=max(excrd(:,1));
+ymin=min(excrd(:,2));
+ymax=max(excrd(:,2));
+
+tolerance=1e-5*max(xmax-xmin,ymax-ymin);
+
+freezenodes=abs(excrd(:,1)-xmin)<tolerance;
+freezenodes=freezenodes | abs(excrd(:,1)-xmax)<tolerance;
+freezenodes=freezenodes | abs(excrd(:,2)-ymin)<tolerance;
+freezenodes=freezenodes | abs(excrd(:,2)-ymax)<tolerance;
+
+% compute nodal connectivity
+nodconnect=zeros(numnod,2);
+for i=1:numseg
+    nodeA = exedge(i, 1);
+    nodeB = exedge(i, 2);
+    if nodconnect(nodeA,1)==0; k=1; else; k=2; end
+    nodconnect(nodeA,k) = i;
+    if nodconnect(nodeB,1)==0; k=1; else; k=2; end
+    nodconnect(nodeB,k) = i;
+end
+
+if pltflg>0
+    figure(8)
+    for i=1:numseg
+        ni=exedge(i,1);
+        nj=exedge(i,2);
+        xp=excrd([ni nj],1);
+        yp=excrd([ni nj],2);
+        plot(xp,yp,'k.'); hold on;
+    end
+    for i=1:numnod
+        if freezenodes(i)
+            plot(excrd(i,1),excrd(i,2),'ro');hold on
+        end
+    end
+    axis equal
+end
+
+inivec=ones(numnod,1);
+inivec(freezenodes)=0;
+dexcrd=diag(inivec);
+newexcrd=excrd;
+dnewexcrd=dexcrd;
+for is=1:smonum
+    for ip=1:2
+        for in=1:numnod
+            if freezenodes(in); continue; end
+
+            n1=nodconnect(in,1);
+            n2=nodconnect(in,2);
+
+            newexcrd(in,:)=(1-smostep(ip))*excrd(in,:)+smostep(ip)/2*(excrd(n1,:)+excrd(n2,:));
+            dnewexcrd(in,:)=(1-smostep(ip))*dexcrd(in,:)+smostep(ip)/2*(dexcrd(n1,:)+dexcrd(n2,:));
+        end
+        excrd=newexcrd;
+        dexcrd=dnewexcrd;
+    end
+end
+
+if pltflg>0
+    figure(8)
+    for i=1:numseg
+        ni=exedge(i,1);
+        nj=exedge(i,2);
+        xp=excrd([ni nj],1);
+        yp=excrd([ni nj],2);
+        plot(xp,yp,'k-'); hold on;
+    end
+    axis equal
+end
+    
 end

@@ -325,9 +325,6 @@ namespace moris::wrk
         // Set performer to HMR
         aHMRPerformers( 0 )->set_performer( aMTKPerformer( 0 ) );
 
-        // Set HMR performer to MTK performer
-        aMTKPerformer( 0 )->set_performer( aHMRPerformers( 0 ) );
-
         //------------------------------------------------------------------------------
 
         // create mesh for this pattern

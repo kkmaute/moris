@@ -120,6 +120,42 @@ tVISCOSITYFIDerFunc(
 }
 
 inline void
+tWDValFunc(
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
+{
+    aPropMatrix = aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::PHID )->val();
+}
+
+inline void
+tWDSpaceDerFunc(
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
+{
+    aPropMatrix = aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::PHID )->gradx( 1 );
+}
+
+inline void
+tWDSpaceDerFIDerFunc(
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
+{
+    aPropMatrix = aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::PHID )->dnNdxn( 1 );
+}
+
+inline void
+tWDFIDerFunc(
+        moris::Matrix< moris::DDRMat >&           aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*   aFIManager )
+{
+    aPropMatrix = aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::PHID )->N();
+}
+
+inline void
 fill_xhat(
         moris::Matrix< moris::DDRMat >& tXHat,
         moris::uint                     aSpaceDim,

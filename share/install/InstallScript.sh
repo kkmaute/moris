@@ -43,6 +43,10 @@ export COMPILER='gcc@11.3.0'
 # use lower number than available processors if build process runs out of memory
 export NUMPROC=0
 
+# set built target architecture (e.g. x86_64,x86_64, zen3, zen4, etc)
+# use "auto" for automatic selection
+export ARCH='auto'
+
 # set directory for temporary files during built
 export TMPDIR=/tmp
 
@@ -181,6 +185,8 @@ fi
 
 #------------------------------------------------------------
 
+spack repo set --destination $WORKSPACE/spack_repos builtin
+
 spack create --name moris --skip-editor 
 spack create --name gcmma --skip-editor 
 spack create --name lbfgs --skip-editor 
@@ -188,12 +194,12 @@ spack create --name snopt --skip-editor
 
 #------------------------------------------------------------
 
-cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/trilinos/package.py
 
-cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
-cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
-cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
-cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/snopt/package.py
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/moris/package.py
+cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/gcmma/package.py
+cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/lbfgs/package.py
+cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack_repos/repos/spack_repo/builtin/packages/snopt/package.py
 
 #------------------------------------------------------------
 
@@ -205,7 +211,7 @@ spack env activate .
 
 spack compiler find
 
-spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER '{ if ( match($0,compiler) == 0) {cmd="spack compiler rm "$0; system(cmd)}}'
+spack compiler list | grep gcc | grep '@' | awk -v compiler=$COMPILER -F ']' '{ if ( match($NF,compiler) == 0) {cmd="spack compiler remove "$NF; print cmd; system(cmd)}}'
 
 spack compiler list 
 
@@ -215,11 +221,13 @@ if [ ! $ret = "1" ];then
     echo "Error - $COMPILER not available"
     exit
 fi
-    
+
 #------------------------------------------------------------
 
-echo "  packages:"                      >> spack.yaml
 echo "    all:"                         >> spack.yaml
+if [ ! $ARCH = "auto" ];then
+   echo "      target: ['$ARCH']"       >> spack.yaml
+fi
 echo "      providers:"                 >> spack.yaml
 echo "        blas: [$blaspro]"         >> spack.yaml
 echo "        lapack: [$lapackpro]"     >> spack.yaml
@@ -228,18 +236,18 @@ echo "        mkl: [$mklpro]"           >> spack.yaml
 
 #------------------------------------------------------------
 
-spack add moris$petopt$paropt$mumopt$optopt %"$COMPILER"
+spack add moris $petopt$paropt$mumopt$optopt 
 
 spack develop --path $WORKSPACE/moris moris@main
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack add doxygen %"$COMPILER"
-    spack add llvm@main~gold~libomptarget %"$COMPILER"
+    spack add doxygen 
+    spack add llvm@main~gold~libomptarget~llvm_dylib~lua~polly 
 fi
 
-spack add openmpi %"$COMPILER" fabrics=auto 
+spack add openmpi fabrics=auto 
 
-spack add python %"$COMPILER"
+spack add python 
 
 #------------------------------------------------------------
 
@@ -262,7 +270,7 @@ fi
 
 #------------------------------------------------------------
 
-spack install $SOPTION python %"$COMPILER"
+spack install $SOPTION python 
 
 #------------------------------------------------------------
 
@@ -281,18 +289,19 @@ fi
 
 #------------------------------------------------------------
 
-spack install $SOPTION openmpi %"$COMPILER"
+spack install $SOPTION openmpi 
 
 #------------------------------------------------------------
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    spack install $SOPTION --only dependencies moris %"$COMPILER"
+    spack install $SOPTION --only dependencies moris 
+    spack install $SOPTION --only dependencies moris 
     
-    spack install $SOPTION doxygen %"$COMPILER"
+    spack install $SOPTION doxygen 
 
-    spack install $SOPTION llvm %"$COMPILER"
+    spack install $SOPTION llvm 
 else
-    spack install $SOPTION moris %"$COMPILER"
+    spack install $SOPTION moris 
 fi
 
 #------------------------------------------------------------

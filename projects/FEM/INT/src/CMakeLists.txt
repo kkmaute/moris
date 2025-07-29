@@ -86,6 +86,8 @@ set(HEADERS
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     CM/fn_FEM_CM_Phase_State_Functions.hpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Smagorinsky.hpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Spalart_Allmaras.hpp
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
@@ -97,7 +99,9 @@ set(HEADERS
     CM/cl_FEM_CM_Struc_Linear.hpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
-    CM/cl_FEM_CM_Fluid_Turbulence.hpp
+    CM/cl_FEM_CM_Fluid_Incompressible_Turbulence.hpp
+    CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.hpp
+    CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras.hpp
     CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
 
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
@@ -240,6 +244,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_ALM_Dof.hpp
     IQI/cl_FEM_IQI_Max_Dof.hpp
     IQI/cl_FEM_IQI_Max_Stress.hpp
+    IQI/cl_FEM_IQI_Max_Damage.hpp
     IQI/cl_FEM_IQI_Property.hpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
@@ -248,9 +253,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     IQI/cl_FEM_IQI_Latent_Heat_Absorption.hpp
-    IQI/cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp
-    IQI/cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp
-    IQI/cl_FEM_IQI_Effective_Conductivity.hpp
+    IQI/cl_FEM_IQI_Turbulence_Fluid_Coefficient.hpp
+    IQI/cl_FEM_IQI_Turbulence_Heat_Coefficient.hpp
     IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp
     IQI/cl_FEM_IQI_Power_Dissipation.hpp
     IQI/cl_FEM_IQI_Power_Dissipation_Bulk.hpp
@@ -325,6 +329,8 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.cpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Smagorinsky.cpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Spalart_Allmaras.cpp
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.cpp
@@ -336,7 +342,9 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Struc_Linear.cpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
-    CM/cl_FEM_CM_Fluid_Turbulence.cpp
+    CM/cl_FEM_CM_Fluid_Incompressible_Turbulence.cpp
+    CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.cpp
+    CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras.cpp
     CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.cpp
 
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.cpp
@@ -490,6 +498,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_ALM_Dof.cpp
     IQI/cl_FEM_IQI_Max_Dof.cpp
     IQI/cl_FEM_IQI_Max_Stress.cpp
+    IQI/cl_FEM_IQI_Max_Damage.cpp
     IQI/cl_FEM_IQI_Property.cpp
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
@@ -499,9 +508,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Volume_Fraction.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Latent_Heat_Absorption.cpp
-    IQI/cl_FEM_IQI_Turbulent_Dynamic_Viscosity.cpp
-    IQI/cl_FEM_IQI_Effective_Dynamic_Viscosity.cpp
-    IQI/cl_FEM_IQI_Effective_Conductivity.cpp
+    IQI/cl_FEM_IQI_Turbulence_Fluid_Coefficient.cpp
+    IQI/cl_FEM_IQI_Turbulence_Heat_Coefficient.cpp
     IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.cpp
     IQI/cl_FEM_IQI_Power_Dissipation.cpp
     IQI/cl_FEM_IQI_Power_Dissipation_Bulk.cpp

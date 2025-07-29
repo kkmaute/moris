@@ -20,6 +20,8 @@
 # See the Spack documentation for more information on packaging.
 # ----------------------------------------------------------------------------
 
+from spack_repo.builtin.build_systems.generic import Package
+
 from spack.package import *
 
 
@@ -32,7 +34,8 @@ class Lbfgs(Package):
     version('main', branch='main', submodules=True, preferred=True)
 
     depends_on("gmake", type="build")
-
+    depends_on("fortran", type="build")
+    
     # FIXME: Add a list of GitHub accounts to
     # notify when the package is updated.
     # maintainers = ["github_user1", "github_user2"]

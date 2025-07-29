@@ -45,7 +45,7 @@ extern "C" {
 namespace moris
 {
     // define the discretization
-    std::string tNumRefinements = "i-0002";
+    uint tNumLagRefinements = i-0002;
     bool tIsEnriched = i-0000;
     bool tUseGhost = false;
     
@@ -63,9 +63,6 @@ namespace moris
     std::string tGhostSet     = "ghost_p0";
     std::string tNeumannSet   = "SideSet_3_n_p0,SideSet_3_c_p0";
     std::string tDirichletSet = "SideSet_1_n_p0,SideSet_1_c_p0";
-
-    // polynomial of the background interpolation
-    std::string tPolyOrder = "2";
     
     // intersection computation mode
     bool tUseMultiLinear = false;
@@ -175,22 +172,21 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "8,12" );
-        aParameterLists.set( "domain_dimensions", "8.0,12.0" );
-        aParameterLists.set( "domain_offset", "0.0, 0.0" );
+        aParameterLists.set( "number_of_elements_per_dimension", 8, 12 );
+        aParameterLists.set( "domain_dimensions", 8.0, 12.0 );
+        aParameterLists.set( "domain_offset", 0.0, 0.0 );
 
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
-        aParameterLists.set( "lagrange_orders", tPolyOrder );
+        aParameterLists.set( "lagrange_orders", "2" );
         aParameterLists.set( "lagrange_pattern", "1" );
 
-        aParameterLists.set( "bspline_orders", tPolyOrder );
+        aParameterLists.set( "bspline_orders", "2" );
         aParameterLists.set( "bspline_pattern", "0" );
         aParameterLists.set( "lagrange_to_bspline", "0" );
         
-        aParameterLists.set( "initial_refinement", tNumRefinements + "," + tNumRefinements );
-        aParameterLists.set( "initial_refinement_pattern", "0,1" );
+        aParameterLists.set( "pattern_initial_refinement", tNumLagRefinements, tNumLagRefinements );
+                                                      // pattern 0: B-spline // pattern 1: Lagrange
     }
 
     //------------------------------------------------------------------------------
@@ -389,6 +385,10 @@ namespace moris
         aParameterLists( FEM::PROPERTIES ).add_parameter_list();
 
         aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropLoad" );
+        aParameterLists.set( "function_parameters", "1.0;0.0;0.0" );
+
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropUnit" );
         aParameterLists.set( "function_parameters", "1.0" );
         
@@ -466,7 +466,7 @@ namespace moris
         aParameterLists.set( "dof_residual", "UX,UY" );
         aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        aParameterLists.set( "leader_properties", "PropUnit,Thickness" );
+        aParameterLists.set( "leader_properties", "PropUnit,Thickness;PropLoad,Load" );
         aParameterLists.set( "mesh_set_names", tBulkSet );
 
         aParameterLists( FEM::IWG ).add_parameter_list();
@@ -479,14 +479,14 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         aParameterLists.set( "mesh_set_names", tDirichletSet );
 
-        aParameterLists( FEM::IWG ).add_parameter_list();
-        aParameterLists.set( "IWG_name", "IWG_Traction" );
-        aParameterLists.set( "IWG_type", (uint) fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-        aParameterLists.set( "dof_residual", "UX,UY" );
-        aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
-        aParameterLists.set( "leader_properties", "PropNeumann,Traction;PropUnit,Thickness" );
-        aParameterLists.set( "mesh_set_names", tNeumannSet );
-        
+        // aParameterLists( FEM::IWG ).add_parameter_list();
+        // aParameterLists.set( "IWG_name", "IWG_Traction" );
+        // aParameterLists.set( "IWG_type", (uint) fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        // aParameterLists.set( "dof_residual", "UX,UY" );
+        // aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
+        // aParameterLists.set( "leader_properties", "PropNeumann,Traction;PropUnit,Thickness" );
+        // aParameterLists.set( "mesh_set_names", tNeumannSet );
+
         if ( tUseGhost )
         {
             // create IWG for outer material - ghost
@@ -660,7 +660,7 @@ namespace moris
         aParameterLists.set( "NLA_rel_res_norm_drop", 1e-09 );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
         aParameterLists.set( "NLA_max_iter", 5 );
-        aParameterLists.set( "NLA_combined_res_jac_assembly", false );
+        aParameterLists.set( "NLA_combined_res_jac_assembly", true );
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "UX,UY" );

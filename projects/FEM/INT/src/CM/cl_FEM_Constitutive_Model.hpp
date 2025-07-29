@@ -107,11 +107,13 @@ namespace moris::fem
         // spatial dimensions
         uint mSpaceDim = 0;
 
+        // max order for space derivative
+        uint mMaxSpaceDerOrder = 1;
+
         // storage for flux evaluation
         Matrix< DDRMat >           mFlux;
         Vector< Matrix< DDRMat > > mdFluxdDof;
         Vector< Matrix< DDRMat > > mdFluxdDv;
-        Vector< Matrix< DDRMat > > mdFluxdx;
 
         // storage for divergence of flux evaluation
         Matrix< DDRMat >           mDivFlux;
@@ -187,7 +189,6 @@ namespace moris::fem
         bool                    mFluxEval = true;
         moris::Matrix< DDBMat > mdFluxdDofEval;
         moris::Matrix< DDBMat > mdFluxdDvEval;
-        moris::Matrix< DDBMat > mdFluxdxEval;
 
         // flag for div flux related evaluation
         bool                    mDivFluxEval = true;
@@ -418,13 +419,14 @@ namespace moris::fem
         /**
          * reset evaluation flags
          */
-        virtual void reset_eval_flags();
+        void reset_eval_flags();
 
         //------------------------------------------------------------------------------
         /**
          * reset evaluation flags specific to certain constitutive models
+         * Unless direct child of the Constitutive_Model, call the parent implementation!
          */
-        virtual void reset_specific_eval_flags() {};
+        virtual void reset_specific_eval_flags(){};
 
         //------------------------------------------------------------------------------
         /**
@@ -438,6 +440,8 @@ namespace moris::fem
          * set constitutive model dof types
          * @param[ in ] aDofTypes a list of group of dof types
          * @param[ in ] aDofStrings a list of strings to describe the dof types
+         * REM: Child implementation need to include the following call
+         * Constitutive_Model::set_dof_type_list( aDofTypes );
          */
         virtual void
         set_dof_type_list(
@@ -612,14 +616,15 @@ namespace moris::fem
         /**
          * create a global dof type list including constitutive and property dependencies
          */
-        virtual void build_global_dof_type_list();
+        void build_global_dof_type_list();
 
         //------------------------------------------------------------------------------
         /**
          * initialize storage variables and evaluation flags specific to some child CMs
          * function is called in the build_global_dof_type_list()
+         * Unless direct child of the Constitutive_Model, call the parent implementation!
          */
-        virtual void initialize_spec_storage_vars_and_eval_flags() {};
+        virtual void initialize_spec_storage_vars_and_eval_flags(){};
 
         //------------------------------------------------------------------------------
         /**
@@ -986,25 +991,6 @@ namespace moris::fem
          * @param[ out ] mConst constitutive matrix
          */
         virtual const Matrix< DDRMat >& constitutive(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
-
-        //------------------------------------------------------------------------------
-        /**
-         * evaluate the derivative of the flux wrt space
-         * @param[ in ] aOrder order of the derivative
-         */
-        virtual void
-        eval_dfluxdx( uint aOrder )
-        {
-            MORIS_ERROR( false, " Constitutive_Model::eval_dfluxdx - This function does nothing. " );
-        }
-
-        /**
-         * get the derivative of the flux wrt space
-         * @param[ in ] aOrder order of the derivative
-         */
-        virtual const Matrix< DDRMat >& dfluxdx(
-                uint                  aOrder,
                 enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
@@ -1712,51 +1698,6 @@ namespace moris::fem
         {
             MORIS_ERROR( false, " Constitutive_Model::get_e_prime - This function does nothing. " );
             return 0;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        // FIXME to be removed
-        /**
-         * get the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
-         * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-         *               if there are several
-         * @param[ out ] mTurbDynVisc effective conductivity
-         */
-        virtual const Matrix< DDRMat >&
-        turbulent_dynamic_viscosity(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
-        {
-            MORIS_ERROR( false, " Constitutive_Model::turbulent_dynamic_viscosity - This function does nothing. " );
-            return mFlux;
-        }
-
-        /**
-         * get the effective dynamic viscosity mu_eff = mu + mu_t
-         * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-         *               if there are several
-         * @param[ out ] mEffDynVisc effective conductivity
-         */
-        virtual const Matrix< DDRMat >&
-        effective_dynamic_viscosity(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
-        {
-            MORIS_ERROR( false, " Constitutive_Model::effective_dynamic_viscosity - This function does nothing. " );
-            return mFlux;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-        /**
-         * get the effective conductivity k_eff = k + k_t
-         * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-         *               if there are several
-         * @param[ out ] mEffCond effective conductivity
-         */
-        virtual const Matrix< DDRMat >&
-        effective_conductivity(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
-        {
-            MORIS_ERROR( false, " Constitutive_Model::effective_conductivity - This function does nothing. " );
-            return mFlux;
         }
 
         //--------------------------------------------------------------------------------------------------------------

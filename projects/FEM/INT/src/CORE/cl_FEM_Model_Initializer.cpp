@@ -83,7 +83,11 @@ namespace moris::fem
 
             // set space derivative function for property
             Vector< fem::PropertyFunc > tSpaceDerFunctions = load_library_property_functions( tPropParameter, "space_derivative_functions" );
-            tProperty->set_space_der_functions( tSpaceDerFunctions );
+            tProperty->set_space_derivative_functions( tSpaceDerFunctions );
+
+            // set space dof derivative function for property
+            Vector< fem::PropertyFunc > tSpaceDofDerFunctions = load_library_property_functions( tPropParameter, "space_dof_derivative_functions" );
+            tProperty->set_space_dof_derivative_functions( tSpaceDofDerFunctions );
 
             mProperties( iProp ) = tProperty;
         }

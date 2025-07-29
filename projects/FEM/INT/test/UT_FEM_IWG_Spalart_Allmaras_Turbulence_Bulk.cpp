@@ -111,12 +111,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    // tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
-    // tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -191,9 +187,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -213,9 +206,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -473,8 +463,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     tPropWallDistance->set_dof_derivative_functions( { tWallDistanceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    // tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -551,9 +541,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -573,9 +560,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -1306,8 +1290,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -1382,9 +1366,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -1404,9 +1385,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -1654,12 +1632,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    // tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
-    // tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -1740,9 +1714,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -1762,9 +1733,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Crosswind", "[IWG_Spalart_Allma
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -2017,12 +1985,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    // tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
-    // tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -2103,9 +2067,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -2125,9 +2086,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Isotropic_Diffusion",
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
-
-                // set viscosity property parameters
-                tPropViscosity->set_parameters( { { { 2.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:

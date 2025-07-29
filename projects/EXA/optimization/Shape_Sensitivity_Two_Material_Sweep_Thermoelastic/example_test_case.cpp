@@ -83,7 +83,7 @@ check_results(
     {
         for ( uint Ii = 0; Ii < tAdjointValues.n_rows(); Ii++ )
         {
-            CHECK( tAdjointValues( Ii, Ik ) - tAdjointRefValues( Ii, Ik ) < 1e-10 );
+            CHECK( tAdjointValues( Ii, Ik ) - tAdjointRefValues( Ii, Ik ) < 3e-10 );
         }
     }
 

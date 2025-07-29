@@ -14,6 +14,8 @@
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Smagorinsky.hpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Spalart_Allmaras.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
@@ -21,7 +23,9 @@
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
-#include "cl_FEM_CM_Fluid_Turbulence.hpp"
+#include "cl_FEM_CM_Fluid_Incompressible_Turbulence.hpp"
+#include "cl_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.hpp"
+#include "cl_FEM_CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras.hpp"
 #include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
 #include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
@@ -42,8 +46,15 @@ namespace moris::fem
             case Constitutive_Type::DIFF_LIN_ISO_PC:
                 return std::make_shared< CM_Diffusion_Linear_Isotropic_Phase_Change >();
 
-            case Constitutive_Type::DIFF_LIN_ISO_TURBULENCE:
-                return std::make_shared< CM_Diffusion_Linear_Isotropic_Turbulence >();
+                //            // FIXME This CM cannot be called alone, it is just a parent class
+                //            case Constitutive_Type::DIFF_LIN_ISO_TURBULENCE:
+                //                return std::make_shared< CM_Diffusion_Linear_Isotropic_Turbulence >();
+
+            case Constitutive_Type::DIFF_LIN_ISO_TURBULENCE_SMAGORINSKY:
+                return std::make_shared< CM_Diffusion_Linear_Isotropic_Turbulence_Smagorinsky >();
+
+            case Constitutive_Type::DIFF_LIN_ISO_TURBULENCE_SPALART_ALLMARAS:
+                return std::make_shared< CM_Diffusion_Linear_Isotropic_Turbulence_Spalart_Allmaras >();
 
             case Constitutive_Type::STRUC_LIN_ISO:
                 return std::make_shared< CM_Struc_Linear_Isotropic >();
@@ -66,8 +77,15 @@ namespace moris::fem
             case Constitutive_Type::FLUID_INCOMPRESSIBLE:
                 return std::make_shared< CM_Fluid_Incompressible >();
 
-            case Constitutive_Type::FLUID_TURBULENCE:
-                return std::make_shared< CM_Fluid_Turbulence >();
+                //            // FIXME This CM cannot be called alone, it is just a parent class
+                //            case Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE:
+                //                return std::make_shared< CM_Fluid_Incompressible_Turbulence >();
+
+            case Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SMAGORINSKY:
+                return std::make_shared< CM_Fluid_Incompressible_Turbulence_Smagorinsky >();
+
+            case Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS:
+                return std::make_shared< CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras >();
 
             case Constitutive_Type::SPALART_ALLMARAS_TURBULENCE:
                 return std::make_shared< CM_Spalart_Allmaras_Turbulence >();

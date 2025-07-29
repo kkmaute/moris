@@ -3,7 +3,7 @@ close all;
 clear;
 clc;
 
-%% Read values from .csv's
+%% Read values from .csvs
 
 NoEnrich = readmatrix('Enrichment_false/errors.csv');
 WithEnrich = readmatrix('Enrichment_true/errors.csv');
@@ -33,7 +33,7 @@ hold on;
 loglog(nDofWithEnrich,RelL2WithEnrich,'-o');
 grid on;
 legend('No Enrich.','With Enrich.');
-xlabel('n_DOF');
+xlabel('n_{DOF}');
 ylabel('Rel. L2');
 
 % plot H1s-convergence
@@ -43,10 +43,10 @@ hold on;
 loglog(nDofWithEnrich,RelH1sWithEnrich,'-o');
 grid on;
 legend('No Enrich.','With Enrich.');
-xlabel('n_DOF');
+xlabel('n_{DOF}');
 ylabel('Rel. H1s');
 
-%% Write to CSV for use with Gnuplot
+%% Write to CSV for later use
 
 NoEnrichWriteMat = zeros(nVals:3);
 NoEnrichWriteMat(:,1) = nDofNoEnrich;

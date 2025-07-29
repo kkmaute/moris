@@ -4,12 +4,12 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp
+ * cl_FEM_IQI_Fluid_Turbulence_Coefficient.hpp
  *
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_EFFECTIVE_DYNAMIC_VISCOSITY_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_EFFECTIVE_DYNAMIC_VISCOSITY_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_TURBULENCE_FLUID_COEFFICIENT_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_TURBULENCE_FLUID_COEFFICIENT_HPP_
 
 #include <map>
 
@@ -24,8 +24,13 @@
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
-
-    class IQI_Effective_Dynamic_Viscosity : public IQI
+    /*
+     * Output the coefficient from fluid turbulence model
+     * 0 - dynamic viscosity
+     * 1 - turbulent dynamic viscosity
+     * 2 - effective dynamic viscosity
+     */
+    class IQI_Turbulence_Fluid_Coefficient : public IQI
     {
       private:
         enum class IQI_Constitutive_Type
@@ -41,18 +46,18 @@ namespace moris::fem
         /*
          * constructor
          */
-        IQI_Effective_Dynamic_Viscosity();
+        IQI_Turbulence_Fluid_Coefficient();
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IQI_Effective_Dynamic_Viscosity() override{};
+        ~IQI_Turbulence_Fluid_Coefficient() override{};
 
       private:
         //------------------------------------------------------------------------------
         /**
-         * compute the quantity of interest
+         * compute the quantity of interest,
          * @param[ in ] aWStar weight associated to the evaluation point
          */
         void compute_QI( real aWStar ) override;
@@ -71,7 +76,9 @@ namespace moris::fem
          */
         void compute_dQIdu( real aWStar ) override
         {
-            MORIS_ERROR( false, "IQI_Effective_Dynamic_Viscosity::compute_dQIdu - not implemented." );
+            MORIS_ERROR( false,                                             //
+                    "IQI_Turbulence_Fluid_Coefficient::compute_dQIdu - "    //
+                    "Not implemented, just visualization with compute_QI." );
         }
 
         //------------------------------------------------------------------------------
@@ -84,10 +91,11 @@ namespace moris::fem
                 Vector< MSI::Dof_Type > &aDofType,
                 Matrix< DDRMat >        &adQIdu ) override
         {
-            MORIS_ERROR( false, "IQI_Effective_Dynamic_Viscosity::compute_dQIdu() - not implemented for a drag/lift coefficient IQI." );
+            MORIS_ERROR( false,                                             //
+                    "IQI_Turbulence_Fluid_Coefficient::compute_dQIdu - "    //
+                    "Not implemented, just visualization with compute_QI." );
         }
     };
 }    // namespace moris::fem
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_EFFECTIVE_DYNAMIC_VISCOSITY_HPP_ */
-
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_TURBULENCE_FLUID_COEFFICIENT_HPP_ */
