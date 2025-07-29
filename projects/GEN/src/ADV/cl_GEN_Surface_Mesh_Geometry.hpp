@@ -309,19 +309,12 @@ namespace moris::gen
          * @param aRaycastResult Raycast result, containing the intersections and associated facet indices
          * @return Pair of facet index and local coordinate of the intersection
          */
-        // std::pair< uint, real >
-        // process_raycast_for_local_coordinate(
-        //         const Parent_Node&        aFirstParentNode,
-        //         const Parent_Node&        aSecondParentNode,
-        //         Matrix< DDRMat >&         aDirection,
-        //         real                      aOriginalTolerance,
-        //         mtk::Intersection_Vector& aRaycastResult );
-
         std::pair< uint, real >
         process_raycast_for_local_coordinate(
-                real                      aOriginalTolerance,
-                Matrix< DDRMat >&         aOrigin,
+                const Parent_Node&        aFirstParentNode,
+                const Parent_Node&        aSecondParentNode,
                 Matrix< DDRMat >&         aDirection,
+                real                      aOriginalTolerance,
                 mtk::Intersection_Vector& aRaycastResult );
 
         // ----------------------------------------------------------------------------------------------------------------
@@ -369,7 +362,7 @@ namespace moris::gen
         void regularize();
 
         /**
-         * BRENDAN documentation
+         * Computes the vertex sensitivities with respect to the ADVs due to regularization for the first regualrization iteration.
          */
         void initialize_regularization_sensitivities();
 
@@ -600,18 +593,6 @@ namespace moris::gen
          * @return Vector< moris_index > All vertices connected by an edge to this vertex
          */
         const Vector< moris_index >& get_vertex_connectivity( uint aVertexIndex ) const;
-
-        // [[nodiscard]] const Matrix< DDRMat > get_all_vertex_coordinates() const override; brendan delete maybe
-
-        // /**
-        //  * @brief Gets the coordinates of a single vertex from the local index aVertexIndex
-        //  */
-        // [[nodiscard]] const Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const override;
-
-        // /**
-        //  * @brief gets the displacements of all vertices in the surface mesh
-        //  */
-        // [[nodiscard]] const Matrix< DDRMat >& get_regularization_displacements() const;
 
         //-----------------------------------------------
         // PRIVATE FUNCTIONS
