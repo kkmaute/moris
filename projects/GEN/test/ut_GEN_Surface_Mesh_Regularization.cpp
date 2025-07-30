@@ -79,7 +79,7 @@ namespace moris::gen
             tFieldParameterLists.set( "intersection_tolerance", 1e-9 );
             tFieldParameterLists.set( "regularization_type", gen::Regularization_Type::TAUBIN );
             tFieldParameterLists.set( "regularization_factors", 0.1, -.2 );
-            tFieldParameterLists.set( "regularization_iterations", 1 );
+            tFieldParameterLists.set( "regularization_iterations", 2 );
 
             // Create surface mesh parameters struct from parameter list
             Surface_Mesh_Parameters tParameters( tFieldParameterLists( 0 ) );
@@ -96,7 +96,7 @@ namespace moris::gen
             // Create surface mesh geometry
             Surface_Mesh_Geometry tGeom( tParameters, tNodeManager, tADVs, tADVManager, tLibrary );
 
-            Matrix< DDRMat > tVertexCoordinatesExpected = { { 2.3083, 0.1372, 1.0008, 1.2384 }, { 1.3100, 0.4982, -0.3184, 0.4985 } };
+            Matrix< DDRMat > tVertexCoordinatesExpected = { { 2.46530, 0.05550, 1.00730, 1.22190 }, { 1.37480, 0.50, -0.37480, 0.50 } };
 
             // Regularize the surface mesh
             tGeom.regularize();
