@@ -294,6 +294,7 @@ namespace moris
             {
                 aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
                 aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/test_trapezoid.obj" );
+                aParameterLists.set( "intersection_tolerance", 1.0e-9 );
 
                 // Set the ADV dependency
                 if ( tADV == "A" )
@@ -306,7 +307,6 @@ namespace moris
                 {
                     aParameterLists.set( "discretization_mesh_index", 0 );
                     aParameterLists.set( "discretization_factor_function_name", "Facet_Vertex_Factor" );
-                    aParameterLists.set( "regularization_type", gen::Regularization_Type::ISOTROPIC_LAPLACIAN );
                 }
             }
             else if ( tName == "SM2" )    // make surface mesh geometry

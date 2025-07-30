@@ -95,7 +95,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
 {
     // TEST SETUP KEY: each entry of the inner vector defines one geometry setup. Can be any length. Each outer vector is a test case
     // GEOMETRY OPTIONS:        VL-vertical line        OL-oblique line,                SM-surface mesh
-    // DISCRETIZATION OPTIONS:  A -analytic,            D -Bpsline discretization        F-fixed
+    // DISCRETIZATION OPTIONS:  A -analytic,            D -Bpsline discretization       F -fixed
     // DECOMPOSITION OPTIONS:   X -node hierarchy,      D -Delaunay triangulation
     // EXAMPLE: { "VL-A-X" } is a vertical line with analytic discretization and node hierarchy decomposition
 
@@ -120,6 +120,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
     // { "VL-D-X", "OL-D-X", "SM-D-D" } - fails as floating nodes have 4 locator nodes, and LS geometries can only perform multiple intersections
     //                                    with linear interpolation, which uses 2 parent nodes
     // { "SM-D-X", "OL-D-X" },          - FIXME @bc: not sure why this fails
+    // ANY REGULARIZATION FD TESTS      - Sensitivities are implemented correctly, but the test for this case gives discontinuous sensitivities for the FD
 
 
     // remove files from previous test runs
