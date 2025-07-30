@@ -64,7 +64,7 @@ namespace moris::xtk
 
             // create parameter object
             moris::hmr::Parameters tParameters;
-            tParameters.set_number_of_elements_per_dimension( { { 1 }, { 1 }, { 1 } } );
+            tParameters.set_number_of_elements_per_dimension( 1, 1, 1 );
             tParameters.set_verbose( false );
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );

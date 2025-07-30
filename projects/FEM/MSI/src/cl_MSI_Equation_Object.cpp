@@ -220,8 +220,13 @@ namespace moris::MSI
             // Loop over all pdofs to get their adofs and put them into a unique list
             for ( uint Ij = 0; Ij < tNumMyPdofs; Ij++ )
             {
-                tNonUniqueAdofIds( { tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() - 1 }, { 0, 0 } ) =
-                        mFreePdofs( Ij )->mAdofIds.matrix_data();
+                if ( ( mFreePdofs( Ij )->mAdofIds ).numel() > 0 )
+                {
+                    tNonUniqueAdofIds(
+                            { tAdofPosCounter, tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel() - 1 },
+                            { 0, 0 } ) =
+                            mFreePdofs( Ij )->mAdofIds.matrix_data();
+                }
 
                 // Add number if these adofs to number of assembled adofs
                 tAdofPosCounter = tAdofPosCounter + ( mFreePdofs( Ij )->mAdofIds ).numel();
@@ -264,13 +269,16 @@ namespace moris::MSI
                 // Loop over all pdofs to get their adofs and put them into a unique list
                 for ( uint Ij = 0; Ij < tNumMyPdofs; Ij++ )
                 {
-                    uint tEndAddress = tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() - 1;
+                    if ( ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() > 0 )
+                    {
+                        uint tEndAddress = tAdofPosCounter + ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel() - 1;
 
-                    tNonUniqueAdofIds( { tAdofPosCounter, tEndAddress } ) =
-                            mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
+                        tNonUniqueAdofIds( { tAdofPosCounter, tEndAddress } ) =
+                                mFreePdofList( Ia )( Ik )( Ij )->mAdofIds.matrix_data();
 
-                    // Add number if these adofs to number of assembled adofs
-                    tAdofPosCounter += ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel();
+                        // Add number if these adofs to number of assembled adofs
+                        tAdofPosCounter += ( mFreePdofList( Ia )( Ik )( Ij )->mAdofIds ).numel();
+                    }
                 }
 
                 // make list of unique Ids

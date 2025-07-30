@@ -45,7 +45,7 @@ extern "C" {
 namespace moris
 {
     // define the discretization
-    std::string tNumRefinements = "0";
+    uint tNumRefinements = 0;
     bool tIsEnriched = true;
     
     // Ghost
@@ -110,11 +110,10 @@ namespace moris
     void
     HMRParameterList( Module_Parameter_Lists& aParameterLists )
     {
-        aParameterLists.set( "number_of_elements_per_dimension", "8,12" );
-        aParameterLists.set( "domain_dimensions", "8.0,12.0" );
-        aParameterLists.set( "domain_offset", "0.0, 0.0" );
+        aParameterLists.set( "number_of_elements_per_dimension", 8, 12 );
+        aParameterLists.set( "domain_dimensions", 8.0, 12.0 );
+        aParameterLists.set( "domain_offset", 0.0, 0.0 );
 
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tPolyOrder );
@@ -124,8 +123,7 @@ namespace moris
         aParameterLists.set( "bspline_pattern", "0" );
         aParameterLists.set( "lagrange_to_bspline", "0" );
         
-        aParameterLists.set( "initial_refinement", tNumRefinements );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
+        aParameterLists.set( "pattern_initial_refinement", tNumRefinements );
     }
 
     //------------------------------------------------------------------------------
@@ -160,33 +158,33 @@ namespace moris
     GENParameterList( Module_Parameter_Lists& aParameterLists )
     {
         // 3-beam version phase table
-        // Matrix< DDUMat > tPhaseMap( 128, 1, 1 );
-        // tPhaseMap(   0 ) = 0;
-        // tPhaseMap(  32 ) = 0;
-        // tPhaseMap(  48 ) = 0;
-        // tPhaseMap(  56 ) = 0;
-        // tPhaseMap(  60 ) = 0;
-        // tPhaseMap(  62 ) = 0;
-        // tPhaseMap(  63 ) = 0;
-        // tPhaseMap(  96 ) = 0;
-        // tPhaseMap( 120 ) = 0;
-        // tPhaseMap( 126 ) = 0;
-
-        // old (4-beam version) phase table
-        Matrix< DDUMat > tPhaseMap( 512, 1, 1 );
+        Matrix< DDUMat > tPhaseMap( 128, 1, 1 );
         tPhaseMap(   0 ) = 0;
-        tPhaseMap( 128 ) = 0;
-        tPhaseMap( 192 ) = 0;
-        tPhaseMap( 224 ) = 0;
-        tPhaseMap( 240 ) = 0;
-        tPhaseMap( 248 ) = 0;
-        tPhaseMap( 252 ) = 0;
-        tPhaseMap( 254 ) = 0;
-        tPhaseMap( 255 ) = 0;
-        tPhaseMap( 384 ) = 0;
-        tPhaseMap( 480 ) = 0;
-        tPhaseMap( 504 ) = 0;
-        tPhaseMap( 510 ) = 0;
+        tPhaseMap(  32 ) = 0;
+        tPhaseMap(  48 ) = 0;
+        tPhaseMap(  56 ) = 0;
+        tPhaseMap(  60 ) = 0;
+        tPhaseMap(  62 ) = 0;
+        tPhaseMap(  63 ) = 0;
+        tPhaseMap(  96 ) = 0;
+        tPhaseMap( 120 ) = 0;
+        tPhaseMap( 126 ) = 0;
+
+        // // old (4-beam version) phase table
+        // Matrix< DDUMat > tPhaseMap( 512, 1, 1 );
+        // tPhaseMap(   0 ) = 0;
+        // tPhaseMap( 128 ) = 0;
+        // tPhaseMap( 192 ) = 0;
+        // tPhaseMap( 224 ) = 0;
+        // tPhaseMap( 240 ) = 0;
+        // tPhaseMap( 248 ) = 0;
+        // tPhaseMap( 252 ) = 0;
+        // tPhaseMap( 254 ) = 0;
+        // tPhaseMap( 255 ) = 0;
+        // tPhaseMap( 384 ) = 0;
+        // tPhaseMap( 480 ) = 0;
+        // tPhaseMap( 504 ) = 0;
+        // tPhaseMap( 510 ) = 0;
 
         // // new (5-beam version) phase table
         // Matrix< DDUMat > tPhaseMap( 2048, 1, 1 );
@@ -281,20 +279,20 @@ namespace moris
         aParameterLists.set( "normal_y", 0.0 );
         aParameterLists.set( "use_multilinear_interpolation", tUseMultiLinear );
         
-        // Beam 4
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        aParameterLists.set( "center_x", tXMin4 );
-        aParameterLists.set( "center_y", 0.0 );
-        aParameterLists.set( "normal_x", 1.0 );
-        aParameterLists.set( "normal_y", 0.0 );
-        aParameterLists.set( "use_multilinear_interpolation", tUseMultiLinear );
-        
-        aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-        aParameterLists.set( "center_x", tXMax4 );
-        aParameterLists.set( "center_y", 0.0 );
-        aParameterLists.set( "normal_x", 1.0 );
-        aParameterLists.set( "normal_y", 0.0 );
-        aParameterLists.set( "use_multilinear_interpolation", tUseMultiLinear );
+        // // Beam 4
+        // aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        // aParameterLists.set( "center_x", tXMin4 );
+        // aParameterLists.set( "center_y", 0.0 );
+        // aParameterLists.set( "normal_x", 1.0 );
+        // aParameterLists.set( "normal_y", 0.0 );
+        // aParameterLists.set( "use_multilinear_interpolation", tUseMultiLinear );
+        // 
+        // aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
+        // aParameterLists.set( "center_x", tXMax4 );
+        // aParameterLists.set( "center_y", 0.0 );
+        // aParameterLists.set( "normal_x", 1.0 );
+        // aParameterLists.set( "normal_y", 0.0 );
+        // aParameterLists.set( "use_multilinear_interpolation", tUseMultiLinear );
     }
 
     //------------------------------------------------------------------------------
@@ -306,6 +304,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // Properties
+
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists.set( "property_name", "PropLoad" );
+        aParameterLists.set( "function_parameters", "1.0;0.0" );
 
         aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropUnit" );
@@ -364,7 +366,7 @@ namespace moris
         aParameterLists.set( "dof_residual", "UX,UY" );
         aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        aParameterLists.set( "leader_properties", "PropUnit,Thickness" );
+        aParameterLists.set( "leader_properties", "PropUnit,Thickness;PropLoad,Load" );
         aParameterLists.set( "mesh_set_names", tBulkSet );
 
         aParameterLists( FEM::IWG ).add_parameter_list();
@@ -377,13 +379,13 @@ namespace moris
         aParameterLists.set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         aParameterLists.set( "mesh_set_names", tDirichletSet );
 
-        aParameterLists( FEM::IWG ).add_parameter_list();
-        aParameterLists.set( "IWG_name", "IWG_Traction" );
-        aParameterLists.set( "IWG_type", (uint) fem::IWG_Type::STRUC_LINEAR_NEUMANN );
-        aParameterLists.set( "dof_residual", "UX,UY" );
-        aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
-        aParameterLists.set( "leader_properties", "PropNeumann,Traction;PropUnit,Thickness" );
-        aParameterLists.set( "mesh_set_names", tNeumannSet );
+        // aParameterLists( FEM::IWG ).add_parameter_list();
+        // aParameterLists.set( "IWG_name", "IWG_Traction" );
+        // aParameterLists.set( "IWG_type", (uint) fem::IWG_Type::STRUC_LINEAR_NEUMANN );
+        // aParameterLists.set( "dof_residual", "UX,UY" );
+        // aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
+        // aParameterLists.set( "leader_properties", "PropNeumann,Traction;PropUnit,Thickness" );
+        // aParameterLists.set( "mesh_set_names", tNeumannSet );
         
         if ( tUseGhost )
         {

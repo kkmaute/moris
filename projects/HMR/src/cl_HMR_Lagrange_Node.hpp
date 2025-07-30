@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
+#pragma once
 #include "cl_HMR_Basis.hpp"
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 #include "moris_typedefs.hpp"    //COR/src
@@ -353,4 +352,3 @@ namespace moris::hmr
     // ----------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_ */

@@ -16,7 +16,7 @@ namespace moris::mtk
 {
     enum class Geometry_Type;
     enum class Interpolation_Order;
-}
+}    // namespace moris::mtk
 
 namespace moris::gen
 {
@@ -29,9 +29,9 @@ namespace moris::gen
     {
       private:
         Vector< Basis_Node > mBackgroundNodes;
-        Matrix< DDRMat > mGlobalCoordinates;
-        Matrix< DDRMat > mParametricCoordinates;
-        static inline bool gOverrideLinearInterpolation = false;
+        Matrix< DDRMat >     mGlobalCoordinates;
+        Matrix< DDRMat >     mParametricCoordinates;
+        static inline bool   gOverrideLinearInterpolation = false;
 
       public:
         /**
@@ -44,11 +44,11 @@ namespace moris::gen
          * @param aInterpolationOrder Interpolation order of the background element
          */
         Derived_Node(
-                uint                     aIndex,
+                uint                              aIndex,
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&  aParametricCoordinates,
-                mtk::Geometry_Type       aGeometryType,
-                mtk::Interpolation_Order aInterpolationOrder );
+                const Matrix< DDRMat >&           aParametricCoordinates,
+                mtk::Geometry_Type                aGeometryType,
+                mtk::Interpolation_Order          aInterpolationOrder );
 
         /**
          * Gets the global coordinates of this node
@@ -150,4 +150,4 @@ namespace moris::gen
          */
         static void set_override_linear_interpolation();
     };
-}
+}    // namespace moris::gen

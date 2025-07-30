@@ -43,9 +43,17 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Node_Hierarchy_Interface::has_geometric_independent_vertices() const
+    Node_Hierarchy_Interface::has_geometric_dependent_vertices() const
     {
-        return false;
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Node_Hierarchy_Interface::get_decomposed_cell_indices()
+    {
+        return mMeshGenerationData->mAllIntersectedBgCellInds;
     }
 
     // ----------------------------------------------------------------------------------
@@ -117,9 +125,7 @@ namespace moris::xtk
             // create associations between child meshes and the vertices we need this to commit the data to the integration mesh
             this->associate_new_vertices_with_cell_groups(
                     tIgCellGroupEdgeConnectivity,
-                    tIgEdgeAncestry,
                     &tBackgroundCellForEdge,
-                    &tVertexGroups,
                     &tIntersectedEdgeIndices,
                     &tIntersectedEdgeLocCoords );
 
@@ -191,7 +197,7 @@ namespace moris::xtk
         tGeometricQuery.set_associated_vertex_group( aVertexGroups );
 
         mDecompositionData->mHasSecondaryIdentifier = true;
-        
+
         // iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
         for ( uint iEdge = 0; iEdge < tNumEdges; iEdge++ )
         {
@@ -225,25 +231,27 @@ namespace moris::xtk
             if ( tIsIntersected )
             {
                 // Queue intersection node
-                mGeometryEngine->queue_intersection( 
-                    tEdgeToVertex( 0 ),
-                    tEdgeToVertex( 1 ),
-                    tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
-                    tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                    tParentEntityIndicesUINT,
-                    tGeometricQuery.get_geometry_type(),
-                    tGeometricQuery.get_interpolation_order() );
+                mGeometryEngine->queue_intersection(
+                        tEdgeToVertex( 0 ),
+                        tEdgeToVertex( 1 ),
+                        tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
+                        tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
+                        tParentEntityIndicesUINT,
+                        tGeometricQuery.get_geometry_type(),
+                        tGeometricQuery.get_interpolation_order() );
 
-                bool tBothVerticesNotOnInterface =
-                        !mGeometryEngine->queued_intersection_first_parent_on_interface()
-                        && !mGeometryEngine->queued_intersection_second_parent_on_interface();
+                real tIntersectionLocalCoordinate = mGeometryEngine->get_queued_intersection_local_coordinate();
 
-                // if one of the end vertices is on the interface, skip this general intersection procedure and use specific one instead
-                if ( tBothVerticesNotOnInterface )
+                // Check if both parents are on the interface and if the intersection is somewhere in the middle of the edge
+                bool tBothParentsOnInterface = mGeometryEngine->queued_intersection_first_parent_on_interface() and mGeometryEngine->queued_intersection_second_parent_on_interface();
+                bool tValidIntersection      = std::abs( tIntersectionLocalCoordinate ) < ( 1.0 - MORIS_REAL_EPS );
+
+                // only add the intersection node if the intersection does not lie on either end and both parent nodes are not on the interface
+                if ( tValidIntersection and not tBothParentsOnInterface )
                 {
                     // add index and intersection position to list of intersected edges
                     aIntersectedEdges.push_back( (moris_index)iEdge );
-                    aEdgeLocalCoordinate.push_back( mGeometryEngine->get_queued_intersection_local_coordinate() );
+                    aEdgeLocalCoordinate.push_back( tIntersectionLocalCoordinate );
 
                     // get edge parent entity index and rank
                     moris_index tParentIndex = aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge );
@@ -295,9 +303,7 @@ namespace moris::xtk
     bool
     Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
             const std::shared_ptr< Edge_Based_Connectivity >& aEdgeConnectivity,
-            const std::shared_ptr< Edge_Based_Ancestry >&     aIgEdgeAncestry,
             Vector< mtk::Cell* >*                             aBackgroundCellForEdge,
-            Vector< std::shared_ptr< IG_Vertex_Group > >*     aVertexGroups,
             Vector< moris_index >*                            aIntersectedEdges,
             Vector< real >*                                   aEdgeLocalCoordinate )
     {
@@ -776,9 +782,8 @@ namespace moris::xtk
             ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
             ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
         }
-
         // intersection goes through one of the vertices
-        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 )
+        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 and aCellIndexIntersectedEdgeOrdinals->size() == 1 )
         {
             moris_index tVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
             aPermutation                 = tVertexIdEdgeOrd + 10;
@@ -788,6 +793,29 @@ namespace moris::xtk
             ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
             ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
             ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        }
+        // intersection goes through all three vertices (double intersection somewhere that is not resolved)
+        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 3 )
+        {
+            aPermutation = 100;
+
+            aSortedNodeInds->resize( 6 );
+            ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+            ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+            ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
+            ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+            ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
+            ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 2 ) );
+        }
+        // Intersection goes through only one vertex, or the entire element is on the interface. In either case, load trivial template
+        else
+        {
+            aPermutation = 0;
+
+            aSortedNodeInds->resize( 3 );
+            ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+            ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+            ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
         }
     }
 

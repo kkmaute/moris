@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_
-#define SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Element_Base.hpp"    //HMR/src
 #include "cl_HMR_Background_Mesh_Base.hpp"       //HMR/src
@@ -395,10 +394,10 @@ namespace moris::hmr
             MORIS_LOG_INFO( "B-Spline Mesh #%i: Computing basis function coordinates", this->get_index() );
 
             // get domain dimensions from settings
-            Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
+            const Vector< real >& tDomainDimensions = mParameters->get_domain_dimensions();
 
             // get number of elements on coarsest level from settings
-            Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+            const Vector< uint >& tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate step width
             real tDeltaX[ gMaxNumberOfLevels ][ N ];
@@ -419,7 +418,7 @@ namespace moris::hmr
             }
 
             // get domain offset
-            Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+            Vector< real > tParametersOffset = mParameters->get_domain_offset();
 
             // domain offset
             real tOffset[ N ];
@@ -1223,5 +1222,3 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
     };
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_ */

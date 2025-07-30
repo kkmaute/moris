@@ -33,7 +33,6 @@ namespace moris
             , mXmlParserIsInitialized( false )
             , mLibraryIsFinalized( false )
             , mXmlWriter( std::make_unique< XML_Parser >() )
-            , mSupportedParamListTypes()
     {
         for ( uint iTypeIndex = 0; iTypeIndex < static_cast< uint >( Module_Type::END_ENUM ); iTypeIndex++ )
         {
@@ -260,9 +259,6 @@ namespace moris
                 "Library_IO_Standard::finalize() - Neither an .xml nor a .so input file has been specified. "
                 "At least one input file is required." );
 
-        // load the standard parameters into the member variables
-        this->load_all_standard_parameters();
-
         // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
         if ( mSoLibIsInitialized )
         {
@@ -312,14 +308,14 @@ namespace moris
                 // log that the parameter list has been recognized
                 MORIS_LOG( "Parameters for %s provided in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
 
-                // throw out a warning if unknown parameter list types are used
-                if ( mSupportedParamListTypes.find( tParamListType ) == mSupportedParamListTypes.end() )
-                {
-                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
-                }
-                else    // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
+                // if parameter list is supported, overwrite and add parameters to standard parameters
+                if ( is_module_supported( tParamListType ) )
                 {
                     tUserDefinedParamListFunc( mParameterLists( iParamListType ) );
+                }
+                else    // otherwise, throw out a warning if unknown parameter list types are used
+                {
+                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
                 }
             }
             else
@@ -803,16 +799,17 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------------------------------------------
-
     // FREE FUNCTIONS
 
-    /**
-     * @brief get_subchild_index_from_xml_list - Get the index of the sub-module type from the XML file
-     * @param tInnerSubParamListName - The name of the inner sub-parameter list
-     * @param tKeys - The keys of the XML file parameter list
-     * @param tValues - The values of the XML file parameter list
-     * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
-     */
+    bool string_ends_with(
+            const std::string& aString,
+            const std::string& aEnding )
+    {
+        return aString.substr( aString.length() - aEnding.length() ) == aEnding;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
     uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& tKeys, Vector< std::string >& tValues )
     {
         uint tIndex = 0;

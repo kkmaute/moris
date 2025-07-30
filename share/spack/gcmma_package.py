@@ -20,8 +20,9 @@
 # See the Spack documentation for more information on packaging.
 # ----------------------------------------------------------------------------
 
-from spack.package import *
+from spack_repo.builtin.build_systems.generic import Package
 
+from spack.package import *
 
 class Gcmma(Package):
     """FIXME: Put a proper description of your package here."""
@@ -30,6 +31,10 @@ class Gcmma(Package):
     git = "ssh://git@github.com/kkmaute/gcmma"
 
     version('main', branch='main', submodules=True, preferred=True)
+
+    depends_on("gmake", type="build")
+    depends_on("fortran", type="build") 
+    depends_on("cxx", type="build") 
 
     # FIXME: Add a list of GitHub accounts to
     # notify when the package is updated.

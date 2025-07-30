@@ -25,6 +25,7 @@ namespace moris::gen
             , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
             , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
             , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
+            , mDelaunay( aParameterList.get< bool >( "delaunay" ) )
     {
     }
 

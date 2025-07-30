@@ -33,143 +33,90 @@ namespace moris::fem
         mPropertyMap[ "HeatCapacity" ] = static_cast< uint >( CM_Property_Type::HEAT_CAPACITY );
         mPropertyMap[ "EigenStrain" ]  = static_cast< uint >( CM_Property_Type::EIGEN_STRAIN );
 
-        mPropertyMap[ "KinematicViscosity" ] = static_cast< uint >( CM_Property_Type::KIN_VISCOSITY );
         mPropertyMap[ "TurbulentPrandtl" ]   = static_cast< uint >( CM_Property_Type::TURBULENT_PRANDTL );
 
-        // FIXME for now only 1st order allowed
-        uint tOrder = 1;
-
         // init storage for evaluation
-        mdChidx.resize( tOrder );
-        mdFv1dx.resize( tOrder );
-        mdTurbDynViscdx.resize( tOrder );
-        mdEffConddx.resize( tOrder );
+        mdTurbDynViscdx.resize( mMaxSpaceDerOrder );
+        mdEffConddx.resize( mMaxSpaceDerOrder );
 
         // init flag for evaluation
-        mdChidxEval.set_size( tOrder, 1, true );
-        mdFv1dxEval.set_size( tOrder, 1, true );
-        mdTurbDynViscdxEval.set_size( tOrder, 1, true );
-        mdEffConddxEval.set_size( tOrder, 1, true );
+        mdTurbDynViscdxEval.set_size( mMaxSpaceDerOrder, 1, true );
+        mdEffConddxEval.set_size( mMaxSpaceDerOrder, 1, true );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::reset_eval_flags()
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::reset_specific_eval_flags()
     {
         // call parent implementation
-        Constitutive_Model::reset_eval_flags();
-
-        // reset child specific eval flags for chi
-        mChiEval = true;
-        mdChiduEval.fill( true );
-        mdChidxEval.fill( true );
-        mdChidxduEval.fill( true );
-
-        // reset child specific eval flags for fv1
-        mFv1Eval = true;
-        mdFv1duEval.fill( true );
-        mdFv1dxEval.fill( true );
-        mdFv1dxduEval.fill( true );
+        CM_Diffusion_Linear_Isotropic::reset_specific_eval_flags();
 
         // reset child specific eval flags for turbulence dynamic viscosity
         mTurbDynViscEval = true;
         mdTurbDynViscduEval.fill( true );
         mdTurbDynViscdxEval.fill( true );
         mdTurbDynViscdxduEval.fill( true );
+        mTestTurbDynViscEval.fill( true );
+        mdTestTurbDynViscduEval.fill( true );
 
         // reset child specific eval flags for effective conductivity
         mEffCondEval = true;
         mdEffCondduEval.fill( true );
         mdEffConddxEval.fill( true );
         mdEffConddxduEval.fill( true );
+        mTestEffCondEval.fill( true );
+        mdTestEffCondduEval.fill( true );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::build_global_dof_type_list()
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::initialize_spec_storage_vars_and_eval_flags()
     {
         // call parent implementation
-        Constitutive_Model::build_global_dof_type_list();
+        CM_Diffusion_Linear_Isotropic::initialize_spec_storage_vars_and_eval_flags();
 
         // get number of dof types
         uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+        uint tNumDirectDofTypes = mDofTypes.size();
 
         // init child specific eval flags
-        mdChiduEval.set_size( tNumGlobalDofTypes, 1, true );
-        mdFv1duEval.set_size( tNumGlobalDofTypes, 1, true );
         mdTurbDynViscduEval.set_size( tNumGlobalDofTypes, 1, true );
+        mdTurbDynViscdxduEval.set_size( mMaxSpaceDerOrder, tNumGlobalDofTypes, true );
+        mdTestTurbDynViscduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+        mTestTurbDynViscEval.set_size( tNumDirectDofTypes, 1, true );
         mdEffCondduEval.set_size( tNumGlobalDofTypes, 1, true );
-
-        // FIXME for now only 1st order allowed
-        uint tOrder = 1;
-        mdChidxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
-        mdFv1dxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
-        mdEffConddxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
-        mdTurbDynViscdxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
+        mdEffConddxduEval.set_size( mMaxSpaceDerOrder, tNumGlobalDofTypes, true );
+        mdTestEffCondduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+        mTestEffCondEval.set_size( tNumDirectDofTypes, 1, true );
 
         // init child specific storage
-        mdChidu.resize( tNumGlobalDofTypes );
-        mdFv1du.resize( tNumGlobalDofTypes );
-        mdTurbDynViscdu.resize( tNumGlobalDofTypes );
         mdEffConddu.resize( tNumGlobalDofTypes );
-
-        mdChidxdu.resize( tOrder );
-        mdFv1dxdu.resize( tOrder );
-        mdTurbDynViscdxdu.resize( tOrder );
-        mdEffConddxdu.resize( tOrder );
-        for ( uint iOrder = 0; iOrder < tOrder; iOrder++ )
+        mTestEffCond.resize( tNumDirectDofTypes );
+        mdTestEffConddu.resize( tNumDirectDofTypes );
+        mdTurbDynViscdu.resize( tNumGlobalDofTypes );
+        mTestTurbDynVisc.resize( tNumDirectDofTypes );
+        mdTestTurbDynViscdu.resize( tNumDirectDofTypes );
+        for ( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
         {
-            mdChidxdu( iOrder ).resize( tNumGlobalDofTypes );
-            mdFv1dxdu( iOrder ).resize( tNumGlobalDofTypes );
-            mdEffConddxdu( iOrder ).resize( tNumGlobalDofTypes );
+            mdTestTurbDynViscdu( iDirectDof ).resize( tNumGlobalDofTypes );
+            mdTestEffConddu( iDirectDof ).resize( tNumGlobalDofTypes );
+        }
+
+        mdTurbDynViscdxdu.resize( mMaxSpaceDerOrder );
+        mdEffConddxdu.resize( mMaxSpaceDerOrder );
+        for ( uint iOrder = 0; iOrder < mMaxSpaceDerOrder; iOrder++ )
+        {
             mdTurbDynViscdxdu( iOrder ).resize( tNumGlobalDofTypes );
+            mdEffConddxdu( iOrder ).resize( tNumGlobalDofTypes );
         }
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::set_dof_type_list(
-            const Vector< Vector< MSI::Dof_Type > > &aDofTypes,
-            const Vector< std::string >             &aDofStrings )
-    {
-        // set dof type list
-        Constitutive_Model::set_dof_type_list( aDofTypes );
-
-        // loop over the provided dof types
-        for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
-        {
-            // get dof type string
-            const std::string &tDofString = aDofStrings( iDof );
-
-            // get dof type
-            MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
-
-            // if temperature dof type string
-            if ( tDofString == "Temperature" )
-            {
-                mTempDof = tDofType;
-            }
-            else if ( tDofString == "Viscosity" )
-            {
-                mDofViscosity = tDofType;
-            }
-            else if ( tDofString == "Theta" )
-            {
-                mThetaDof = tDofType;
-            }
-            else
-            {
-                // error unknown dof string
-                MORIS_ERROR( false,
-                        "CM_Diffusion_Linear_Isotropic_Turbulence::set_dof_type_list - Unknown aDofString : %s \n",
-                        tDofString.c_str() );
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
-    void CM_Diffusion_Linear_Isotropic_Turbulence::set_local_properties()
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::set_local_properties()
     {
         // set the conductivity property
         mPropConductivity = get_property( "Conductivity" );
@@ -183,16 +130,14 @@ namespace moris::fem
         // set the eigenstrain property
         mPropEigenStrain = get_property( "EigenStrain" );
 
-        // set the kinematic viscosity
-        mPropKinViscosity = get_property( "KinematicViscosity" );
-
         // set the Prandtl turbulence property
         mPropPrandtlT = get_property( "TurbulentPrandtl" );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_flux()
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_flux()
     {
         // compute flux
         // Note: this is a numerical flux and not a physical flux which is the negative
@@ -222,7 +167,8 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dFluxdDOF(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dFluxdDOF(
             const Vector< MSI::Dof_Type > &aDofTypes )
     {
         // get the dof type as a uint
@@ -284,15 +230,18 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_divflux()
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_divflux()
     {
         // compute the divergence of the flux
-        mDivFlux = this->effective_conductivity() * this->divstrain() + trans( this->deffconddx( 1 ) ) * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
+        mDivFlux = this->effective_conductivity() * this->divstrain()    //
+                 + trans( this->deffconddx( 1 ) ) * mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_ddivfluxdu(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_ddivfluxdu(
             const Vector< MSI::Dof_Type > &aDofTypes )
     {
         // get the dof type index
@@ -308,7 +257,9 @@ namespace moris::fem
 
         // add contributions of the derivatives of the effective conductivity and grad effective conductivity
         mddivfluxdu( tDofIndex ) =
-                this->effective_conductivity() * this->ddivstraindu( aDofTypes ) + trans( mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 ) ) * this->deffconddxdu( aDofTypes, 1 ) + this->divstrain() * this->deffconddu( aDofTypes );
+                this->effective_conductivity() * this->ddivstraindu( aDofTypes )                                                        //
+                + trans( mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 ) ) * this->deffconddxdu( aDofTypes, 1 )    //
+                + this->divstrain() * this->deffconddu( aDofTypes );
 
         // if temperature dof
         if ( aDofTypes( 0 ) == mTempDof )
@@ -321,7 +272,9 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_traction( const Matrix< DDRMat > &aNormal )
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_traction(
+            const Matrix< DDRMat > &aNormal )
     {
         // compute traction
         mTraction = trans( this->flux() ) * aNormal;
@@ -329,7 +282,8 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTractiondDOF(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTractiondDOF(
             const Vector< MSI::Dof_Type > &aDofTypes,
             const Matrix< DDRMat >        &aNormal )
     {
@@ -345,21 +299,29 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_testTraction(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_testTraction(
             const Matrix< DDRMat >        &aNormal,
             const Vector< MSI::Dof_Type > &aTestDofTypes )
     {
+        // check for acceptable test dof
+        MORIS_ERROR( aTestDofTypes( 0 ) == mTempDof,                                  //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF"    //
+                " - Only admissible test dof is temperature" );
+
         // get test dof type index
         uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
         // add contribution from derivative of effective conductivity wrt test dof
-        mTestTraction( tTestDofIndex ) =
-                trans( aNormal * this->deffconddu( aTestDofTypes ) ) * this->strain() + this->effective_conductivity()( 0 ) * trans( this->dStraindDOF( aTestDofTypes ) ) * aNormal;
+        mTestTraction( tTestDofIndex ) =                                                 //
+                trans( aNormal * this->deffconddu( aTestDofTypes ) ) * this->strain()    //
+                + this->effective_conductivity()( 0 ) * trans( this->dStraindDOF( aTestDofTypes ) ) * aNormal;
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF(
             const Vector< MSI::Dof_Type > &aDofTypes,
             const Matrix< DDRMat >        &aNormal,
             const Vector< MSI::Dof_Type > &aTestDofTypes )
@@ -373,41 +335,17 @@ namespace moris::fem
         // get the dof type index
         uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
-        // get the test dof FI
-        Field_Interpolator *tFITest =
-                mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
-
-        // get the derivative dof FI
-        Field_Interpolator *tFIDer =
-                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-        // initialize the dTestTractiondDof
-        mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tFITest->get_number_of_space_time_coefficients(), tFIDer->get_number_of_space_time_coefficients() );
-
-        // if viscosity is the test dof
-        if ( aTestDofTypes( 0 ) == mDofViscosity && aDofTypes( 0 ) == mDofViscosity )
-        {
-            // FIXME: Missing second order derivative of effective dynamic viscosity - FD for now
-
-            Constitutive_Model::eval_dtesttractiondu_FD(
-                    aDofTypes,
-                    aTestDofTypes,
-                    mdTestTractiondDof( tTestDofIndex )( tDofIndex ),
-                    1e-6,
-                    aNormal,
-                    fem::FDScheme_Type::POINT_3_CENTRAL );
-        }
-        else
-        {
-            // if effective dynamic viscosity depends on test or derivative dof type
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
-                    trans( this->dStraindDOF( aTestDofTypes ) ) * aNormal * this->deffconddu( aDofTypes ) + trans( this->deffconddu( aTestDofTypes ) ) * trans( aNormal ) * this->dStraindDOF( aDofTypes );
-        }
+        // if effective dynamic viscosity depends on test or derivative dof type
+        mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =                                                   //
+                trans( this->dStraindDOF( aTestDofTypes ) ) * aNormal * this->deffconddu( aDofTypes )        //
+                + 2.0 * dot( aNormal, this->strain() ) * this->dtesteffconddu( aDofTypes, aTestDofTypes )    //
+                + trans( this->deffconddu( aTestDofTypes ) ) * trans( aNormal ) * this->dStraindDOF( aDofTypes );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dTestTractiondDOF(
             const Vector< MSI::Dof_Type > &aDofTypes,
             const Matrix< DDRMat >        &aNormal,
             const Matrix< DDRMat >        &aJump,
@@ -422,42 +360,17 @@ namespace moris::fem
         // get the dof type index
         uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
-        // get the test dof FI
-        Field_Interpolator *tFITest =
-                mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
-
-        // get the derivative dof FI
-        Field_Interpolator *tFIDer =
-                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-        // initialize the dTestTractiondDof
-        mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( tFITest->get_number_of_space_time_coefficients(), tFIDer->get_number_of_space_time_coefficients() );
-
-        // if viscosity is the test dof
-        if ( aTestDofTypes( 0 ) == mDofViscosity && aDofTypes( 0 ) == mDofViscosity )
-        {
-            // FIXME: Missing second order derivative of effective dynamic viscosity - FD for now
-
-            Constitutive_Model::eval_dtesttractiondu_FD(
-                    aDofTypes,
-                    aTestDofTypes,
-                    mdTestTractiondDof( tTestDofIndex )( tDofIndex ),
-                    1e-6,
-                    aNormal,
-                    aJump,
-                    fem::FDScheme_Type::POINT_1_FORWARD );
-        }
-        else
-        {
-            // if effective dynamic viscosity depends on test or derivative dof type
-            mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
-                    trans( this->dStraindDOF( aTestDofTypes ) ) * aNormal * aJump * this->deffconddu( aDofTypes ) + trans( this->deffconddu( aTestDofTypes ) ) * aJump * trans( aNormal ) * this->dStraindDOF( aDofTypes );
-        }
+        // if effective dynamic viscosity depends on test or derivative dof type
+        mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =                                                   //
+                trans( this->testStrain() ) * aNormal * aJump * this->deffconddu( aDofTypes )                //
+                + 2.0 * dot( aNormal, this->strain() ) * this->dtesteffconddu( aDofTypes, aTestDofTypes )    //
+                + trans( this->testeffcond( aTestDofTypes ) ) * aJump * trans( aNormal ) * this->dStraindDOF( aDofTypes );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_const()
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_const()
     {
         // build an identity matrix
         Matrix< DDRMat > I;
@@ -469,7 +382,8 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dConstdDOF(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dConstdDOF(
             const Vector< MSI::Dof_Type > &aDofTypes )
     {
         // get the dof type as a uint
@@ -491,18 +405,14 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_effective_conductivity()
-    {
-        // compute the effective conductivity
-        mEffCond = mPropConductivity->val()( 0 ) + mPropHeatCapacity->val()( 0 ) * this->turbulent_dynamic_viscosity()( 0 ) / mPropPrandtlT->val()( 0 );
-    }
-
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::effective_conductivity(
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::effective_conductivity(
             enum CM_Function_Type aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::effective_conductivity - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,                      //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::effective_conductivity - "    //
+                "Only DEFAULT CM function type known in base class." );
 
         // if the effective conductivity was not evaluated
         if ( mEffCondEval )
@@ -519,7 +429,53 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu( const Vector< MSI::Dof_Type > &aDofTypes )
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_effective_conductivity()
+    {
+        // compute the effective conductivity
+        mEffCond = mPropConductivity->val()( 0 )    //
+                 + mPropHeatCapacity->val()( 0 ) * this->turbulent_dynamic_viscosity()( 0 ) / mPropPrandtlT->val()( 0 );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu(
+            const Vector< MSI::Dof_Type > &aDofType,
+            enum CM_Function_Type          aCMFunctionType )
+    {
+        // check CM function type, base class only supports "DEFAULT"
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,          //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu - "    //
+                "Only DEFAULT CM function type known in base class." );
+
+        // if aDofType is not an active dof type for the CM
+        MORIS_ERROR( this->check_dof_dependency( aDofType ),                 //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu - "    //
+                "No dependency on this dof type." );
+
+        // get the dof index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+        // if the derivative has not been evaluated yet
+        if ( mdEffCondduEval( tDofIndex ) )
+        {
+            // evaluate the derivative
+            this->eval_deffconddu( aDofType );
+
+            // set bool for evaluation
+            mdEffCondduEval( tDofIndex ) = false;
+        }
+
+        // return the derivative
+        return mdEffConddu( tDofIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu(
+            const Vector< MSI::Dof_Type > &aDofTypes )
     {
         // get the dof type as a uint
         uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -541,100 +497,87 @@ namespace moris::fem
         // if conductivity depends on the dof type
         if ( mPropConductivity->check_dof_dependency( aDofTypes ) )
         {
-            mdEffConddu( tDofIndex ) += mPropConductivity->dPropdDOF( aDofTypes );
+            // assume that conductivity prop does not depend on dof
+            MORIS_ERROR( false,                                                      //
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu -"    //
+                    "Dependence of conductivity on dof not accounted for." );
         }
 
         // if heat capacity depends on the dof type
         if ( mPropHeatCapacity->check_dof_dependency( aDofTypes ) )
         {
-            mdEffConddu( tDofIndex ) +=
-                    mPropHeatCapacity->dPropdDOF( aDofTypes ) * this->turbulent_dynamic_viscosity()( 0 ) / mPropPrandtlT->val()( 0 );
+            // assume that heat capacity prop does not depend on dof
+            MORIS_ERROR( false,                                                      //
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu -"    //
+                    "Dependence of heat capacity on dof not accounted for." );
         }
 
         // if turbulent Prandtl number depends on the dof type
         if ( mPropPrandtlT->check_dof_dependency( aDofTypes ) )
         {
-            mdEffConddu( tDofIndex ) -=
-                    mPropHeatCapacity->val()( 0 ) * this->turbulent_dynamic_viscosity()( 0 ) * mPropPrandtlT->dPropdDOF( aDofTypes ) / std::pow( mPropPrandtlT->val()( 0 ), 2.0 );
+            // assume that urbulent Prandtl  prop does not depend on dof
+            MORIS_ERROR( false,                                                      //
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddu -"    //
+                    "Dependence of turbulent Prandtl on dof not accounted for." );
         }
-    }
-
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu(
-            const Vector< MSI::Dof_Type > &aDofType,
-            enum CM_Function_Type          aCMFunctionType )
-    {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu - Only DEFAULT CM function type known in base class." );
-
-        // if aDofType is not an active dof type for the CM
-        MORIS_ERROR(
-                this->check_dof_dependency( aDofType ),
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddu - no dependency in this dof type." );
-
-        // get the dof index
-        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-        // if the derivative has not been evaluated yet
-        if ( mdEffCondduEval( tDofIndex ) )
-        {
-            // evaluate the derivative
-            this->eval_deffconddu( aDofType );
-
-            // set bool for evaluation
-            mdEffCondduEval( tDofIndex ) = false;
-        }
-
-        // return the derivative
-        return mdEffConddu( tDofIndex );
     }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddx( uint aOrder )
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddx( uint aOrder )
     {
-        // FIXME work only for 1st order
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx - Works only for 1st order derivative for now." );
-
         // set matrix size
         mdEffConddx( aOrder - 1 ).set_size( mSpaceDim, 1 );
 
         // add contribution from the derivative of the turbulent dynamic viscosity wrt x
         mdEffConddx( aOrder - 1 ) =
-                mPropHeatCapacity->val()( 0 ) * this->dturbdynviscdx( 1 ) / mPropPrandtlT->val()( 0 );
+                mPropHeatCapacity->val()( 0 ) * this->dturbdynviscdx( aOrder ) / mPropPrandtlT->val()( 0 );
 
         // if conductivity depends on space
-        if ( mPropConductivity->check_space_dependency( 1 ) )
+        if ( mPropConductivity->check_space_dependency() )
         {
-            mdEffConddx( aOrder - 1 ) += mPropConductivity->dnPropdxn( 1 );
+            // assume that conductivity prop does not depend on x
+            MORIS_ERROR( false,                                                       //
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddx - "    //
+                    "Dependence of conductivity on space not accounted for." );
         }
 
         // if heat capacity depends on space
-        if ( mPropHeatCapacity->check_space_dependency( 1 ) )
+        if ( mPropHeatCapacity->check_space_dependency() )
         {
-            mdEffConddx( aOrder - 1 ) +=
-                    mPropHeatCapacity->dnPropdxn( 1 ) * this->turbulent_dynamic_viscosity()( 0 ) / mPropPrandtlT->val()( 0 );
+            // assume that heat capacity prop does not depend on x
+            MORIS_ERROR( false,                                                       //
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddx - "    //
+                    "Dependence of heat capacity on space not accounted for." );
         }
 
         // if turbulent Prandtl depends on space
-        if ( mPropPrandtlT->check_space_dependency( 1 ) )
+        if ( mPropPrandtlT->check_space_dependency() )
         {
-            mdEffConddx( aOrder - 1 ) -=
-                    mPropHeatCapacity->val()( 0 ) * this->turbulent_dynamic_viscosity()( 0 ) * mPropPrandtlT->dnPropdxn( 1 ) / std::pow( mPropPrandtlT->val()( 0 ), 2.0 );
+            // assume that turbulent Prandtl prop does not depend on x
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddx - "    //
+                    "Dependence of turbulent Prandtl on space not accounted for." );
         }
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx(
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx(
             uint                  aOrder,
             enum CM_Function_Type aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,          //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx - "    //
+                " Only DEFAULT CM function type known in base class." );
 
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx - Works only for 1st order derivative for now." );
+        // check only first order is asked
+        MORIS_ERROR( aOrder == 1,                                            //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddx - "    //
+                " Supported only for 1st order space derivative." );
 
         // if the derivative has not been evaluated yet
         if ( mdEffConddxEval( aOrder - 1 ) )
@@ -652,7 +595,8 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu(
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu(
             const Vector< MSI::Dof_Type > &aDofTypes,
             uint                           aOrder )
     {
@@ -674,89 +618,73 @@ namespace moris::fem
                 mPropHeatCapacity->val()( 0 ) * this->dturbdynviscdxdu( aDofTypes, 1 ) / mPropPrandtlT->val()( 0 );
 
         // if conductivity depends on space
-        if ( mPropConductivity->check_space_dependency( 1 ) )
+        if ( mPropConductivity->check_space_dependency() )
         {
-            // if conductivity depends on the dof type
-            if ( mPropConductivity->check_dof_dependency( aDofTypes ) )
-            {
-                // FIXME dPropdxdu
-                // mdEffConddxdu( aOrder - 1 )( tDofIndex ) += mPropConductivity->dPropdxdDOF( aDofTypes );
-            }
-        }
-
-        // if heat capacity depends on space
-        if ( mPropHeatCapacity->check_space_dependency( 1 ) )
-        {
-            mdEffConddxdu( aOrder - 1 )( tDofIndex ) +=
-                    mPropHeatCapacity->dnPropdxn( 1 ) * this->dturbdynviscdu( aDofTypes ) / mPropPrandtlT->val()( 0 );
-
-            // if turbulent Prandtl number depends on the dof type
-            if ( mPropPrandtlT->check_dof_dependency( aDofTypes ) )
-            {
-                mdEffConddxdu( aOrder - 1 )( tDofIndex ) -=
-                        mPropHeatCapacity->dnPropdxn( 1 ) * this->turbulent_dynamic_viscosity()( 0 ) * mPropPrandtlT->dPropdDOF( aDofTypes ) / std::pow( mPropPrandtlT->val()( 0 ), 2.0 );
-            }
-
-            // FIXME dPropdxdu
-            // if heat capacity depends on the dof type
-            // if ( mPropHeatCapacity->check_dof_dependency( aDofTypes ) )
-            //{
-            // mdEffConddxdu( aOrder - 1 )( tDofIndex ) +=
-            // mPropHeatCapacity->dPropdxdDOF( aDofTypes ) * this->turbulent_dynamic_viscosity()( 0 ) / mPropPrandtlT->val()( 0 )
-            //}
-        }
-
-        // if turbulent Prandtl number depends on space
-        if ( mPropPrandtlT->check_space_dependency( 1 ) )
-        {
-            mdEffConddxdu( aOrder - 1 )( tDofIndex ) -=
-                    mPropHeatCapacity->val()( 0 ) * mPropPrandtlT->dnPropdxn( 1 ) * this->dturbdynviscdu( aDofTypes ) / std::pow( mPropPrandtlT->val()( 0 ), 2.0 );
-
-            // if heat capacity depends on the dof type
-            if ( mPropHeatCapacity->check_dof_dependency( aDofTypes ) )
-            {
-                mdEffConddxdu( aOrder - 1 )( tDofIndex ) -=
-                        mPropHeatCapacity->dPropdDOF( aDofTypes ) * this->turbulent_dynamic_viscosity()( 0 ) * mPropPrandtlT->dnPropdxn( 1 ) / std::pow( mPropPrandtlT->val()( 0 ), 2.0 );
-            }
-
-            // if turbulent Prandtl number depends on the dof type
-            if ( mPropPrandtlT->check_dof_dependency( aDofTypes ) )
-            {
-                // FIXME dPropdxdu
-                // mdEffConddxdu( aOrder - 1 )( tDofIndex ) -=
-                //        mPropHeatCapacity->val()( 0 ) * tTurbDynVisc * mPropPrandtlT->dPropdxdDOF( aDofTypes ) / std::pow(mPropPrandtlT->val()( 0 ),2.0);
-
-                mdEffConddxdu( aOrder - 1 )( tDofIndex ) +=
-                        2.0 * mPropHeatCapacity->val()( 0 ) * this->turbulent_dynamic_viscosity()( 0 ) * mPropPrandtlT->dnPropdxn( 1 ) * mPropPrandtlT->dPropdDOF( aDofTypes ) / std::pow( mPropPrandtlT->val()( 0 ), 3.0 );
-            }
+            // assume that conductivity prop does not depend on x
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu -"    //
+                    "Dependence of conductivity on space not accounted for." );
         }
 
         // if heat capacity depends on the dof type
         if ( mPropHeatCapacity->check_dof_dependency( aDofTypes ) )
         {
-            mdEffConddxdu( aOrder - 1 )( tDofIndex ) +=
-                    mPropHeatCapacity->dPropdDOF( aDofTypes ) * this->dturbdynviscdx( 1 ) / mPropPrandtlT->val()( 0 );
+            // assume that heat capacity prop does not depend on dof
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu -"    //
+                    "Dependence of heat capacity on dof not accounted for." );
         }
 
         // if turbulent Prandtl number depends on the dof type
         if ( mPropPrandtlT->check_dof_dependency( aDofTypes ) )
         {
-            mdEffConddxdu( aOrder - 1 )( tDofIndex ) -=
-                    mPropHeatCapacity->val()( 0 ) * this->dturbdynviscdx( 1 ) * mPropPrandtlT->dPropdDOF( aDofTypes ) / std::pow( mPropPrandtlT->val()( 0 ), 2.0 );
+            // assume that turbulent Prandtl prop does not depend on dof
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu -"    //
+                    "Dependence of turbulent Prandtl on dof not accounted for." );
+        }
+
+        // if heat capacity depends on space
+        if ( mPropHeatCapacity->check_space_dependency() )
+        {
+            // assume that heat capacity prop does not depend on x
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu -"    //
+                    "Dependence of heat capacity on space not accounted for." );
+        }
+
+        // if turbulent Prandtl number depends on space
+        if ( mPropPrandtlT->check_space_dependency() )
+        {
+            // assume that turbulent Prandtl prop does not depend on x
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_deffconddxdu -"    //
+                    "Dependence of turbulent Prandtl on space not accounted for." );
         }
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu(
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu(
             const Vector< MSI::Dof_Type > &aDofType,
             uint                           aOrder,
             enum CM_Function_Type          aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,            //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu - "    //
+                "Only DEFAULT CM function type known in base class." );
 
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu - Works only for 1st order derivative for now." );
+        // if aDofType is not an active dof type for the CM
+        MORIS_ERROR( this->check_dof_dependency( aDofType ),                   //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu - "    //
+                "No dependency on this dof type." );
+
+        // check only first order is asked
+        MORIS_ERROR( aOrder == 1,                                              //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::deffconddxdu - "    //
+                "Supported only for 1st order space derivative." );
 
         // get the dof index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -777,32 +705,149 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_turbulent_dynamic_viscosity()
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::testeffcond(
+            const Vector< MSI::Dof_Type > &aTestDofTypes,
+            enum CM_Function_Type          aCMFunctionType )
     {
-        // init mTurbDynVisc
-        mTurbDynVisc = 0.0;
+        // check CM function type, base class only supports "DEFAULT"
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,           //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::testeffcond - "    //
+                "Only DEFAULT CM function type known in base class." );
 
-        // get the viscosity dof type FI
-        Field_Interpolator *tFIModViscosity =
-                mFIManager->get_field_interpolators_for_type( mDofViscosity );
+        // check for valid test dof type
+        MORIS_ERROR( aTestDofTypes( 0 ) == mTempDof,                          //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::testeffcond - "    //
+                "Only temperature is a valid test dof type." );
 
-        // get the modified viscosity value
-        real tModViscosity = tFIModViscosity->val()( 0 );
+        // get test dof type index
+        uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
-        // if modified viscosity is positive
-        if ( tModViscosity >= 0.0 )
+        // if not evaluated
+        if ( mTestEffCondEval( tTestDofIndex ) )
         {
-            // compute turbulent viscosity
-            mTurbDynVisc = mPropDensity->val()( 0 ) * tModViscosity * this->fv1();
+            // evaluate
+            this->eval_testeffcond( aTestDofTypes );
+
+            // set bool for evaluation
+            mTestEffCondEval( tTestDofIndex ) = false;
+        }
+
+        // return value
+        return mTestEffCond( tTestDofIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_testeffcond(
+            const Vector< MSI::Dof_Type > &aTestDofTypes )
+    {
+        // get the test dof index
+        uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+        // test of effective conductivity evaluated from derivative wrt to dof
+        mTestEffCond( tTestDofIndex ) = this->deffconddu( aTestDofTypes );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::dtesteffconddu(
+            const Vector< MSI::Dof_Type > &aDofTypes,
+            const Vector< MSI::Dof_Type > &aTestDofTypes,
+            enum CM_Function_Type          aCMFunctionType )
+    {
+        // check CM function type, base class only supports "DEFAULT"
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,        //
+                "CM_Fluid_Incompressible_Turbulence::dtesteffconddu - "    //
+                "Only DEFAULT CM function type known in base class." );
+
+        // check for valid test dof type
+        MORIS_ERROR( aTestDofTypes( 0 ) == mTempDof,                             //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dtesteffconddu - "    //
+                "Only temperature is a valid test dof type." );
+
+        // if aDofType is not an active dof type for the CM
+        MORIS_ERROR( this->check_dof_dependency( aDofTypes ),                    //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dtesteffconddu - "    //
+                "No dependency on this dof type." );
+
+        // get the test dof index
+        uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+        // get the dof index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        // if the derivative has not been evaluated yet
+        if ( mdTestEffCondduEval( tTestDofIndex, tDofIndex ) )
+        {
+            // evaluate the derivative
+            this->eval_dtesteffconddu( aDofTypes, aTestDofTypes );
+
+            // set bool for evaluation
+            mdTestEffCondduEval( tTestDofIndex, tDofIndex ) = false;
+        }
+
+        // return the derivative
+        return mdTestEffConddu( tTestDofIndex )( tDofIndex );
+    }
+
+        //------------------------------------------------------------------------------
+
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dtesteffconddu(
+            const Vector< MSI::Dof_Type > &aDofTypes,
+            const Vector< MSI::Dof_Type > &aTestDofTypes )
+    {
+        // get the test dof index
+        uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+        // get the dof index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        // add contribution from the derivative of the test turbulent dyn. viscosity wrt dof type
+        mdTestEffConddu( tTestDofIndex )( tDofIndex ) =    //
+                mPropHeatCapacity->val()( 0 ) * this->dtestturbdynviscdu( aDofTypes, aTestDofTypes ) / mPropPrandtlT->val()( 0 );
+
+        // if conductivity depends on the dof type
+        if ( mPropConductivity->check_dof_dependency( aTestDofTypes ) )
+        {
+            // assume that conductivity prop does not depend on dof
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dtesteffconddu -"    //
+                    "Dependence of conductivity on dof not accounted for." );
+        }
+
+        // if heat capacity depends on the dof type
+        if ( mPropHeatCapacity->check_dof_dependency( aTestDofTypes ) )
+        {
+            // assume that heat capacity prop does not depend on dof
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dtesteffconddu -"    //
+                    "Dependence of heat capacity on dof not accounted for." );
+        }
+
+        // if turbulent Prandtl number depends on the dof type
+        if ( mPropPrandtlT->check_dof_dependency( aTestDofTypes ) )
+        {
+            // assume that urbulent Prandtl  prop does not depend on dof
+            MORIS_ERROR( false,
+                    "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dtesteffconddu -"    //
+                    "Dependence of turbulent Prandtl on dof not accounted for." );
         }
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::turbulent_dynamic_viscosity(
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::turbulent_dynamic_viscosity(
             enum CM_Function_Type aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Fluid_Turbulence::turbulent_dynamic_viscosity - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,                           //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::turbulent_dynamic_viscosity - "    //
+                "Only DEFAULT CM function type known in base class." );
 
         // if the turbulent dynamic viscosity was not evaluated
         if ( mTurbDynViscEval )
@@ -819,70 +864,30 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdu(
-            const Vector< MSI::Dof_Type > &aDofTypes )
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_turbulent_dynamic_viscosity()
     {
-        // get the dof type as a uint
-        uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-        // get the dof type index
-        uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-        // get derivative dof type FI
-        Field_Interpolator *tFIDer =
-                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-        // set matrix size
-        mdTurbDynViscdu( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
-
-        // get the viscosity dof type FI
-        Field_Interpolator *tFIModViscosity =
-                mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-        // get the modified viscosity value
-        real tModViscosity = tFIModViscosity->val()( 0 );
-
-        // if modified viscosity is positive
-        if ( tModViscosity >= 0.0 )
-        {
-            // add contribution from dfv1du
-            mdTurbDynViscdu( tDofIndex ) =
-                    mPropDensity->val()( 0 ) * tFIModViscosity->val() * this->dfv1du( aDofTypes );
-
-            // if dof type is viscosity
-            if ( aDofTypes( 0 ) == mDofViscosity )
-            {
-                // add contribution to dSPdu
-                mdTurbDynViscdu( tDofIndex ) +=
-                        mPropDensity->val()( 0 ) * this->fv1() * tFIModViscosity->N();
-            }
-
-            // if density depends on dof
-            if ( mPropDensity->check_dof_dependency( aDofTypes ) )
-            {
-                // add contribution from drhodu
-                mdTurbDynViscdu( tDofIndex ) +=
-                        tFIModViscosity->val() * this->fv1() * mPropDensity->dPropdDOF( aDofTypes );
-            }
-        }
-        else
-        {
-            mdTurbDynViscdu( tDofIndex ).fill( 0.0 );
-        }
+        MORIS_ERROR( false,                                                                        //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::eval_turbulent_dynamic_viscosity - "    //
+                "Not implemented in parent class." );
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdu(
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdu(
             const Vector< MSI::Dof_Type > &aDofType,
             enum CM_Function_Type          aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Fluid_Turbulence::dturbdynviscdu - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,              //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdu - "    //
+                "Only DEFAULT CM function type known in base class." );
 
         // if aDofType is not an active dof type for the CM
-        MORIS_ERROR(
-                this->check_dof_dependency( aDofType ),
-                "CM_Fluid_Turbulence::dturbdynviscdu - no dependency in this dof type." );
+        MORIS_ERROR( this->check_dof_dependency( aDofType ),                     //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdu - "    //
+                "No dependency on this dof type." );
 
         // get the dof index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -903,48 +908,31 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdx( uint aOrder )
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdu(
+            const Vector< MSI::Dof_Type > &aDofTypes )
     {
-        // set matrix size
-        mdTurbDynViscdx( aOrder - 1 ).set_size( mSpaceDim, 1 );
-
-        // get the viscosity dof type FI
-        Field_Interpolator *tFIModViscosity =
-                mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-        // get the modified viscosity value
-        real tModViscosity = tFIModViscosity->val()( 0 );
-
-        // if modified viscosity is positive
-        if ( tModViscosity >= 0.0 )
-        {
-            // compute dTurbDynViscdx
-            mdTurbDynViscdx( aOrder - 1 ) =
-                    mPropDensity->val()( 0 ) * tFIModViscosity->gradx( 1 ) * this->fv1() + mPropDensity->val()( 0 ) * this->dfv1dx( 1 ) * tModViscosity;
-
-            // if density depends on space
-            if ( mPropDensity->check_space_dependency( 1 ) )
-            {
-                // add contribution from density space derivative
-                mdTurbDynViscdx( aOrder - 1 ) += this->fv1() * tModViscosity * mPropDensity->dnPropdxn( 1 );
-            }
-        }
-        else
-        {
-            mdTurbDynViscdx( aOrder - 1 ).fill( 0.0 );
-        }
+        MORIS_ERROR( false,                                                           //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdu - "    //
+                "Not implemented in parent class." );
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdx(
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdx(
             uint                  aOrder,
             enum CM_Function_Type aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Fluid_Turbulence::dturbdynviscdx - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,              //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdx - "    //
+                "Only DEFAULT CM function type known in base class." );
 
-        MORIS_ERROR( aOrder == 1,
-                "CM_Fluid_Turbulence::dturbdynviscdx - Works only for 1st order derivative for now." );
+        // check only first order is asked
+        MORIS_ERROR( aOrder == 1,                                                 //
+                "CM_Diffusion_Linear_Isotropic_Turbulenceh::dturbdynviscdx - "    //
+                "Supported only for 1st order space derivative." );
 
         // if the derivative has not been evaluated yet
         if ( mdTurbDynViscdxEval( aOrder - 1 ) )
@@ -959,96 +947,40 @@ namespace moris::fem
         // return the derivative
         return mdTurbDynViscdx( aOrder - 1 );
     }
+    
+    //------------------------------------------------------------------------------
+
+       void
+       CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdx(
+               uint aOrder )
+       {
+           MORIS_ERROR( false,                                                           //
+                   "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdx - "    //
+                   "Not implemented in parent class." );
+       }
 
     //------------------------------------------------------------------------------
 
-    void CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdxdu(
-            const Vector< MSI::Dof_Type > &aDofTypes,
-            uint                           aOrder )
-    {
-        // get the dof type as a uint
-        uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
-
-        // get the dof type index
-        uint tDofIndex = mGlobalDofTypeMap( tDofType );
-
-        // get derivative dof type FI
-        Field_Interpolator *tFIDer =
-                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-        // set matrix size
-        mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ).set_size( mSpaceDim, tFIDer->get_number_of_space_time_coefficients() );
-
-        // get the viscosity dof type FI
-        Field_Interpolator *tFIModViscosity =
-                mFIManager->get_field_interpolators_for_type( mDofViscosity );
-
-        // get the modified viscosity value
-        real tModViscosity = tFIModViscosity->val()( 0 );
-
-        // if modified viscosity is positive
-        if ( tModViscosity >= 0.0 )
-        {
-            // add contribution from dfv1du
-            mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) =
-                    mPropDensity->val()( 0 ) * tFIModViscosity->gradx( 1 ) * this->dfv1du( aDofTypes ) + mPropDensity->val()( 0 ) * tFIModViscosity->val()( 0 ) * this->dfv1dxdu( aDofTypes, 1 );
-
-            // if density depends on space
-            if ( mPropDensity->check_space_dependency( 1 ) )
-            {
-                // add contribution from density space derivative
-                mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                        mPropDensity->dnPropdxn( 1 ) * tFIModViscosity->val()( 0 ) * this->dfv1du( aDofTypes );
-            }
-
-            // if dof type is viscosity
-            if ( aDofTypes( 0 ) == mDofViscosity )
-            {
-                // add contribution to dviscositytdxdu
-                mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                        mPropDensity->val()( 0 ) * this->fv1() * tFIModViscosity->dnNdxn( 1 ) + mPropDensity->val()( 0 ) * this->dfv1dx( 1 ) * tFIModViscosity->N();
-
-                // if density depends on space
-                if ( mPropDensity->check_space_dependency( 1 ) )
-                {
-                    // add contribution from density space derivative
-                    mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                            this->fv1() * mPropDensity->dnPropdxn( 1 ) * tFIModViscosity->N();
-                }
-            }
-
-            // if density depends on dof
-            if ( mPropDensity->check_dof_dependency( aDofTypes ) )
-            {
-                mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                        tFIModViscosity->gradx( 1 ) * this->fv1() * mPropDensity->dPropdDOF( aDofTypes ) + this->dfv1dx( 1 ) * tFIModViscosity->val()( 0 ) * mPropDensity->dPropdDOF( aDofTypes );
-
-                // if density depends on space
-                if ( mPropDensity->check_space_dependency( 1 ) )
-                {
-                    // FIXME dPropdxdu
-                    // mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                    // tFIModViscosity->val()( 0 ) * tFv1 * mPropDensity->dPropdxdDOF( aDofTypes )
-                }
-            }
-        }
-        else
-        {
-            mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ).fill( 0.0 );
-        }
-    }
-
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu(
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu(
             const Vector< MSI::Dof_Type > &aDofType,
             uint                           aOrder,
             enum CM_Function_Type          aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,                //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu - "    //
+                "Only DEFAULT CM function type known in base class." );
 
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu - Works only for 1st order derivative for now." );
+        // check only first order is asked
+        MORIS_ERROR( aOrder == 1,                                                  //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu - "    //
+                "Supported only for 1st order space derivative." );
+
+        // if aDofType is not an active dof type for the CM
+        MORIS_ERROR( this->check_dof_dependency( aDofType ),                       //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dturbdynviscdxdu - "    //
+                "No dependency on this dof type." );
 
         // get the dof index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1067,250 +999,116 @@ namespace moris::fem
         return mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex );
     }
 
-    //--------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    real CM_Diffusion_Linear_Isotropic_Turbulence::chi(
-            enum CM_Function_Type aCMFunctionType )
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdxdu(
+            const Vector< MSI::Dof_Type > &aDofTypes,
+            uint                           aOrder )
     {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::chi - Only DEFAULT CM function type known in base class." );
-
-        // if the diffusion coefficient was not evaluated
-        if ( mChiEval )
-        {
-            // evaluate chi
-            mChi = compute_chi(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity );
-
-            // set bool for evaluation
-            mChiEval = false;
-        }
-        // return the diffusion coefficient
-        return mChi;
+        MORIS_ERROR( false,                                                             //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dturbdynviscdxdu - "    //
+                "Not implemented in parent class." );
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dchidu(
-            const Vector< MSI::Dof_Type > &aDofType,
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::testturbdynvisc(
+            const Vector< MSI::Dof_Type > &aTestDofTypes,
             enum CM_Function_Type          aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dchidu - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,               //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::testturbdynvisc - "    //
+                "Only DEFAULT CM function type known in base class." );
 
-        // if aDofType is not an active dof type for the CM
-        MORIS_ERROR(
-                this->check_dof_dependency( aDofType ),
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dchidu - no dependency in this dof type." );
+        // check for valid test dof type
+        MORIS_ERROR( aTestDofTypes( 0 ) == mTempDof,                              //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::testturbdynvisc - "    //
+                "Only temperature is a valid test dof type." );
 
-        // get the dof index
-        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-        // if the derivative has not been evaluated yet
-        if ( mdChiduEval( tDofIndex ) )
-        {
-            // evaluate the derivative
-            compute_dchidu(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity,
-                    aDofType,
-                    mdChidu( tDofIndex ) );
-
-            // set bool for evaluation
-            mdChiduEval( tDofIndex ) = false;
-        }
-
-        // return the derivative
-        return mdChidu( tDofIndex );
-    }
-
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dchidx(
-            uint                  aOrder,
-            enum CM_Function_Type aCMFunctionType )
-    {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dchidx - Only DEFAULT CM function type known in base class." );
-
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dchidx - Works only for 1st order derivative for now." );
-
-        // if the derivative has not been evaluated yet
-        if ( mdChidxEval( aOrder - 1 ) )
-        {
-            // evaluate the derivative
-            compute_dchidx(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity,
-                    mdChidx( aOrder - 1 ) );
-
-            // set bool for evaluation
-            mdChidxEval( aOrder - 1 ) = false;
-        }
-
-        // return the derivative
-        return mdChidx( aOrder - 1 );
-    }
-
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dchidxdu(
-            const Vector< MSI::Dof_Type > &aDofType,
-            uint                           aOrder,
-            enum CM_Function_Type          aCMFunctionType )
-    {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dchidxdu - Only DEFAULT CM function type known in base class." );
-
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dchidxdu - Works only for 1st order derivative for now." );
-
-        // get the dof index
-        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-        // if the derivative has not been evaluated yet
-        if ( mdChidxduEval( aOrder - 1, tDofIndex ) )
-        {
-            // evaluate the derivative
-            compute_dchidxdu(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity,
-                    aDofType,
-                    mdChidxdu( aOrder - 1 )( tDofIndex ) );
-
-            // set bool for evaluation
-            mdChidxduEval( aOrder - 1, tDofIndex ) = false;
-        }
-
-        // return the derivative
-        return mdChidxdu( aOrder - 1 )( tDofIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real CM_Diffusion_Linear_Isotropic_Turbulence::fv1(
-            enum CM_Function_Type aCMFunctionType )
-    {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::fv1 - Only DEFAULT CM function type known in base class." );
+        // get test dof type index
+        uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
         // if not evaluated
-        if ( mFv1Eval )
+        if ( mTestTurbDynViscEval( tTestDofIndex ) )
         {
             // evaluate
-            mFv1 = compute_fv1(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity );
+            this->eval_testturbdynvisc( aTestDofTypes );
 
             // set bool for evaluation
-            mFv1Eval = false;
+            mTestTurbDynViscEval( tTestDofIndex ) = false;
         }
-        // return
-        return mFv1;
+
+        // return value
+        return mTestTurbDynVisc( tTestDofIndex );
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dfv1du(
-            const Vector< MSI::Dof_Type > &aDofType,
+    //------------------------------------------------------------------------------
+
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_testturbdynvisc(
+            const Vector< MSI::Dof_Type > &aTestDofTypes )
+    {
+        MORIS_ERROR( false,                                                            //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::eval_testturbdynvisc - "    //
+                "Not implemented in parent class." );
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > &
+    CM_Diffusion_Linear_Isotropic_Turbulence::dtestturbdynviscdu(
+            const Vector< MSI::Dof_Type > &aDofTypes,
+            const Vector< MSI::Dof_Type > &aTestDofTypes,
             enum CM_Function_Type          aCMFunctionType )
     {
         // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dfv1du - Only DEFAULT CM function type known in base class." );
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,                  //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dtestturbdynviscdu - "    //
+                "Only DEFAULT CM function type known in base class." );
 
+        // check for valid test dof type
+        MORIS_ERROR( aTestDofTypes( 0 ) == mTempDof,                             //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dtestturbdynviscdu - "    //
+                "Only temperature is a valid test dof type." );
+        
         // if aDofType is not an active dof type for the CM
-        MORIS_ERROR(
-                this->check_dof_dependency( aDofType ),
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dfv1du - no dependency in this dof type." );
+        MORIS_ERROR( this->check_dof_dependency( aDofTypes ),                        //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::dtestturbdynviscdu - "    //
+                "No dependency on this dof type." );
+
+        // get the test dof index
+        uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
         // get the dof index
-        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
         // if the derivative has not been evaluated yet
-        if ( mdFv1duEval( tDofIndex ) )
+        if ( mdTestTurbDynViscduEval( tTestDofIndex, tDofIndex ) )
         {
             // evaluate the derivative
-            compute_dfv1du(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity,
-                    aDofType,
-                    mdFv1du( tDofIndex ) );
+            this->eval_dtestturbdynviscdu( aDofTypes, aTestDofTypes );
 
             // set bool for evaluation
-            mdFv1duEval( tDofIndex ) = false;
+            mdTestTurbDynViscduEval( tTestDofIndex, tDofIndex ) = false;
         }
 
         // return the derivative
-        return mdFv1du( tDofIndex );
+        return mdTestTurbDynViscdu( tTestDofIndex )( tDofIndex );
     }
 
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dx(
-            uint                  aOrder,
-            enum CM_Function_Type aCMFunctionType )
+    //------------------------------------------------------------------------------
+
+    void
+    CM_Diffusion_Linear_Isotropic_Turbulence::eval_dtestturbdynviscdu(
+            const Vector< MSI::Dof_Type > &aDofTypes,
+            const Vector< MSI::Dof_Type > &aTestDofTypes )
     {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dx - Only DEFAULT CM function type known in base class." );
-
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dx - Works only for 1st order derivative for now." );
-
-        // if the derivative has not been evaluated yet
-        if ( mdFv1dxEval( aOrder - 1 ) )
-        {
-            // evaluate the derivative
-            compute_dfv1dx(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity,
-                    mdFv1dx( aOrder - 1 ) );
-
-            // set bool for evaluation
-            mdFv1dxEval( aOrder - 1 ) = false;
-        }
-
-        // return the derivative
-        return mdFv1dx( aOrder - 1 );
-    }
-
-    const Matrix< DDRMat > &CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dxdu(
-            const Vector< MSI::Dof_Type > &aDofType,
-            uint                           aOrder,
-            enum CM_Function_Type          aCMFunctionType )
-    {
-        // check CM function type, base class only supports "DEFAULT"
-        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dxdu - Only DEFAULT CM function type known in base class." );
-
-        MORIS_ERROR( aOrder == 1,
-                "CM_Diffusion_Linear_Isotropic_Turbulence::dfv1dxdu - Works only for 1st order derivative for now." );
-
-        // get the dof index
-        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
-
-        // if the derivative has not been evaluated yet
-        if ( mdFv1dxduEval( aOrder - 1, tDofIndex ) )
-        {
-            // evaluate the derivative
-            compute_dfv1dxdu(
-                    { mDofViscosity },
-                    mFIManager,
-                    mPropKinViscosity,
-                    aDofType,
-                    mdFv1dxdu( aOrder - 1 )( tDofIndex ) );
-
-            // set bool for evaluation
-            mdFv1dxduEval( aOrder - 1, tDofIndex ) = false;
-        }
-
-        // return the derivative
-        return mdFv1dxdu( aOrder - 1 )( tDofIndex );
+        MORIS_ERROR( false,                                                               //
+                "CM_Diffusion_Linear_Isotropic_Turbulence::eval_dtestturbdynviscdu - "    //
+                "Not implemented in parent class." );
     }
 
     //------------------------------------------------------------------------------

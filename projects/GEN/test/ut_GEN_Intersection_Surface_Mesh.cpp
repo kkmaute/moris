@@ -86,12 +86,11 @@ namespace moris::gen
             std::string tMorisRoot = moris::get_base_moris_dir();
 
             // Create mesh
-            Parameter_List tHMRParameters = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tHMRParameters( Module_Type::HMR );
 
-            tHMRParameters.set( "number_of_elements_per_dimension", "2,1" );
-            tHMRParameters.set( "domain_dimensions", "2, 1" );
-            tHMRParameters.set( "domain_offset", "0.0, 0.0" );
-            tHMRParameters.set( "domain_sidesets", "1,2,3,4" );
+            tHMRParameters.set( "number_of_elements_per_dimension", 2, 1 );
+            tHMRParameters.set( "domain_dimensions", 2.0, 1.0 );
+            tHMRParameters.set( "domain_offset", 0.0, 0.0 );
             tHMRParameters.set( "lagrange_output_meshes", "0" );
 
             tHMRParameters.set( "lagrange_orders", "1" );
@@ -100,8 +99,8 @@ namespace moris::gen
             tHMRParameters.set( "bspline_pattern", "0" );
             tHMRParameters.set( "lagrange_to_bspline", "0" );
 
-            tHMRParameters.set( "initial_refinement", "0" );
-            tHMRParameters.set( "truncate_bsplines", 1 );
+            tHMRParameters.set( "pattern_initial_refinement", 0 );
+            tHMRParameters.set( "truncate_bsplines", true );
             tHMRParameters.set( "refinement_buffer", 1 );
             tHMRParameters.set( "staircase_buffer", 1 );
 
@@ -213,12 +212,11 @@ namespace moris::gen
         std::string tMorisRoot = moris::get_base_moris_dir();
 
         // HMR parameters
-        Parameter_List tHMRParameters = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tHMRParameters( Module_Type::HMR );
 
-        tHMRParameters.set( "number_of_elements_per_dimension", "2,2,2" );
-        tHMRParameters.set( "domain_dimensions", "2,2,2" );
-        tHMRParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
-        tHMRParameters.set( "domain_offset", "0.0,0.0,0.0" );
+        tHMRParameters.set( "number_of_elements_per_dimension", 2, 2, 2 );
+        tHMRParameters.set( "domain_dimensions", 2.0, 2.0, 2.0 );
+        tHMRParameters.set( "domain_offset", 0.0, 0.0, 0.0 );
         tHMRParameters.set( "lagrange_output_meshes", "0" );
 
         tHMRParameters.set( "lagrange_orders", "1" );
@@ -228,11 +226,10 @@ namespace moris::gen
 
         tHMRParameters.set( "lagrange_to_bspline", "0" );
 
-        tHMRParameters.set( "truncate_bsplines", 1 );
+        tHMRParameters.set( "truncate_bsplines", true );
         tHMRParameters.set( "refinement_buffer", 1 );
         tHMRParameters.set( "staircase_buffer", 1 );
-        tHMRParameters.set( "initial_refinement", "0" );
-        tHMRParameters.set( "initial_refinement_pattern", "0" );
+        tHMRParameters.set( "pattern_initial_refinement", 0 );
 
         tHMRParameters.set( "severity_level", 2 );
 

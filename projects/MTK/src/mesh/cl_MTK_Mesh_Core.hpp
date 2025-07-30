@@ -1272,7 +1272,7 @@ namespace moris
              * @return Number of basis functions
              */
             virtual uint
-            get_num_basis_functions( const uint aMeshIndex = 0 );
+            get_num_basis_functions( uint aMeshIndex = 0 );
 
             // ----------------------------------------------------------------------------
 
@@ -1284,8 +1284,8 @@ namespace moris
              * @param aBSplineIndex discretization index
              * @param aAdofMap Adof map
              */
-            void virtual get_adof_map(
-                    const uint                    aBSplineIndex,
+            virtual void get_adof_map(
+                    uint                          aBSplineIndex,
                     map< moris_id, moris_index >& aAdofMap ) const;
 
             // ----------------------------------------------------------------------------

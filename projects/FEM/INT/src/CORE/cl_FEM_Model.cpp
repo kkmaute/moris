@@ -322,7 +322,9 @@ namespace moris::fem
                                               tVertexCoordsFromGen( iSpaceDim )( 0 ),
                                               tVertexCoordsFromMesh( iSpaceDim ),
                                               1.0 ),
-                                "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ\n" );
+                                "FEM_Model::create_integration_nodes - GE coordinate and MTK coordinate differ (%f vs. %f)\n",
+                                tVertexCoordsFromGen( iSpaceDim )( 0 ),
+                                tVertexCoordsFromMesh( iSpaceDim ) );
                     }
                 }
 

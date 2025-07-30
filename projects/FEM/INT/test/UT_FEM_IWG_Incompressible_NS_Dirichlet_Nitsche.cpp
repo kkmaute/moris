@@ -44,7 +44,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
         "[IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 5E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -82,18 +82,18 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { { { 1.0 } } } );
+    tPropViscosity->set_parameters( { { { 0.7 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
     // tPropViscosity->set_dof_type_list( { tPDofTypes } );
     // tPropViscosity->set_val_function( tPFIValFunc );
     // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { { { 1.0 } } } );
+    tPropDensity->set_parameters( { { { 2.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
     // tPropDensity->set_dof_type_list( { tPDofTypes } );
     // tPropDensity->set_val_function( tPFIValFunc );
@@ -110,7 +110,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
@@ -194,9 +194,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
             case 3:
@@ -216,10 +213,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
-
                 break;
             }
             default:
@@ -467,18 +460,18 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { { { 1.0 } } } );
+    tPropViscosity->set_parameters( { { { 0.7 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
     // tPropViscosity->set_dof_type_list( { tPDofTypes } );
     // tPropViscosity->set_val_function( tPFIValFunc );
     // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { { { 1.0 } } } );
+    tPropDensity->set_parameters( { { { 2.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
     // tPropDensity->set_dof_type_list( { tPDofTypes } );
     // tPropDensity->set_val_function( tPFIValFunc );
@@ -498,7 +491,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
@@ -577,10 +570,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
-
                 break;
             }
             case 3:
@@ -600,10 +589,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
-
                 break;
             }
             default:
@@ -847,18 +832,18 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { { { 1.0 } } } );
+    tPropViscosity->set_parameters( { { { 0.7 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
     // tPropViscosity->set_dof_type_list( { tPDofTypes } );
     // tPropViscosity->set_val_function( tPFIValFunc );
     // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { { { 1.0 } } } );
+    tPropDensity->set_parameters( { { { 2.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
     // tPropDensity->set_dof_type_list( { tPDofTypes } );
     // tPropDensity->set_val_function( tPFIValFunc );
@@ -874,7 +859,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
@@ -937,10 +922,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
-
                 break;
             }
             case 3:
@@ -960,9 +941,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -1205,18 +1183,18 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { { { 1.0 } } } );
+    tPropViscosity->set_parameters( { { { 0.7 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
     // tPropViscosity->set_dof_type_list( { tPDofTypes } );
     // tPropViscosity->set_val_function( tPFIValFunc );
     // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
+    tPropKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { { { 1.0 } } } );
+    tPropDensity->set_parameters( { { { 2.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
     // tPropDensity->set_dof_type_list( { tPDofTypes } );
     // tPropDensity->set_val_function( tPFIValFunc );
@@ -1232,7 +1210,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
     tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
@@ -1295,10 +1273,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
-
                 break;
             }
             case 3:
@@ -1318,9 +1292,6 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:

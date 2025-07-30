@@ -66,11 +66,11 @@ namespace moris::hmr
             for ( uint iNumberOfDimensions = 2; iNumberOfDimensions <= 3; iNumberOfDimensions++ )
             {
                 // Create one element
-                tParameters->set_number_of_elements_per_dimension( Matrix< DDLUMat >( iNumberOfDimensions, 1, 1 ) );
+                tParameters->set_number_of_elements_per_dimension( Vector< uint >( iNumberOfDimensions, 1 ) );
 
                 // Domain from -1 to 1 in each dimension
-                tParameters->set_domain_dimensions( Matrix< DDRMat >( iNumberOfDimensions, 1, 2 ) );
-                tParameters->set_domain_offset( Matrix< DDRMat >( iNumberOfDimensions, 1, -1 ) );
+                tParameters->set_domain_dimensions( Vector< real >( iNumberOfDimensions, 2 ) );
+                tParameters->set_domain_offset( Vector< real >( iNumberOfDimensions, -1 ) );
 
                 // Loop over orders
                 for ( uint iOrder = 1; iOrder <= 3; iOrder++ )
@@ -89,11 +89,10 @@ namespace moris::hmr
                         Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
                         // create B-Spline Mesh
-                        BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                        BSpline_Mesh_Base* tBSplineMesh = tFactory.create_dummy_bspline_mesh(
                                 tBackgroundMesh,
                                 0,
-                                iOrder,
-                                MORIS_UINT_MAX );
+                                iOrder );
 
                         // create container of B-Spline meshes
                         Vector< BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );

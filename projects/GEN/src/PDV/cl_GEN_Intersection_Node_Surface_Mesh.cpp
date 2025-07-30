@@ -16,6 +16,7 @@
 #include "fn_eye.hpp"
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"
+#include "fn_cross.hpp"
 
 namespace moris::gen
 {
@@ -232,8 +233,7 @@ namespace moris::gen
 
                 // Resize sensitivities
                 uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
-                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(), tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
 
                 // Join sensitivities
                 for ( uint iCoordinateIndex = 0; iCoordinateIndex < tSensitivitiesToAdd.n_rows(); iCoordinateIndex++ )
@@ -253,7 +253,7 @@ namespace moris::gen
         if ( tFirstParentNode.depends_on_advs() )
         {
             Matrix< DDRMat > tLocCoord          = ( 1.0 - this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
-            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_first_parent() );
             tFirstParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
 
@@ -261,7 +261,7 @@ namespace moris::gen
         if ( tSecondParentNode.depends_on_advs() )
         {
             Matrix< DDRMat > tLocCoord          = ( 1.0 + this->get_local_coordinate() ) * eye( tParentVector.n_rows(), tParentVector.n_rows() );
-            Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
+            Matrix< DDRMat > tSensitivityFactor = 0.5 * aSensitivityFactor * ( tLocCoord + tParentVector * this->get_dxi_dcoordinate_second_parent() );
             tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
         }
     }
@@ -309,8 +309,50 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_first_parent() const
     {
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh does not yet support intersections on intersections." );
-        return { { 0 } };
+        Matrix< DDRMat > tFacetVertex1           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 0 );
+        Matrix< DDRMat > tFacetVertex2           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 1 );
+        Matrix< DDRMat > tFirstParentNodeCoords  = this->get_first_parent_node().get_global_coordinates();
+        Matrix< DDRMat > tSecondParentNodeCoords = this->get_second_parent_node().get_global_coordinates();
+
+        if ( mInterfaceGeometry.get_spatial_dimension() == 2 )
+        {
+            real tM = mtk::cross_2d( tFacetVertex1, tFirstParentNodeCoords );
+            real tN = mtk::cross_2d( tFirstParentNodeCoords, tFacetVertex2 );
+            real tP = mtk::cross_2d( tSecondParentNodeCoords, tFacetVertex1 );
+            real tQ = mtk::cross_2d( tFacetVertex2, tSecondParentNodeCoords );
+            real tS = mtk::cross_2d( tFacetVertex2, tFacetVertex1 );
+
+            real tFacetDiffX = tFacetVertex1( 0 ) - tFacetVertex2( 0 );
+            real tFacetDiffY = tFacetVertex1( 1 ) - tFacetVertex2( 1 );
+
+            real tG = tM + tN + tS;
+            real tH = tM + tN + tP + tQ;
+
+            return { { 2.0 * tFacetDiffY / tH * ( tG / tH - 1.0 ), 2.0 * tFacetDiffX / tH * ( 1.0 - tG / tH ) } };
+        }
+        else
+        {
+            Matrix< DDRMat > tFacetVertex3 = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 2 );
+
+            // Compute edge vectors
+            Matrix< DDRMat > tEdge1 = tFacetVertex2 - tFacetVertex1;
+            Matrix< DDRMat > tEdge2 = tFacetVertex3 - tFacetVertex1;
+
+            // Compute the normal vector
+            Matrix< DDRMat > tNormal = trans( cross( tEdge1, tEdge2 ) );
+
+            // Compute barycentric coordinate p
+            Matrix< DDRMat > tP = cross( tSecondParentNodeCoords - tFirstParentNodeCoords, tEdge2 );
+
+            // Compute determinant
+            real tDet = dot( tEdge1, tP );
+
+            // Compute signed area of parallipiped formed by edges
+            real tArea = dot( tNormal, trans( tFirstParentNodeCoords ) - tFacetVertex1 );
+
+            // Compute sensitivities
+            return 2.0 / tDet * ( 1.0 - tArea / tDet ) * tNormal;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -319,8 +361,54 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::get_dxi_dcoordinate_second_parent() const
     {
-        MORIS_ERROR( false, "Intersection_Node_Surface_Mesh does not yet support intersections on intersections." );
-        return { { 0 } };
+        Matrix< DDRMat > tFacetVertex1           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 0 );
+        Matrix< DDRMat > tFacetVertex2           = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 1 );
+        Matrix< DDRMat > tFirstParentNodeCoords  = this->get_first_parent_node().get_global_coordinates();
+        Matrix< DDRMat > tSecondParentNodeCoords = this->get_second_parent_node().get_global_coordinates();
+
+        if ( mInterfaceGeometry.get_spatial_dimension() == 2 )
+        {
+            real tM = mtk::cross_2d( tFacetVertex1, tFirstParentNodeCoords );
+            real tN = mtk::cross_2d( tFirstParentNodeCoords, tFacetVertex2 );
+            real tP = mtk::cross_2d( tSecondParentNodeCoords, tFacetVertex1 );
+            real tQ = mtk::cross_2d( tFacetVertex2, tSecondParentNodeCoords );
+            real tS = mtk::cross_2d( tFacetVertex2, tFacetVertex1 );
+
+            real tFacetDiffX = tFacetVertex1( 0 ) - tFacetVertex2( 0 );
+            real tFacetDiffY = tFacetVertex1( 1 ) - tFacetVertex2( 1 );
+
+            real tG = tM + tN + tS;
+            real tH = tM + tN + tP + tQ;
+
+            return { { -2.0 * tFacetDiffY * tG / std::pow( tH, 2 ), 2.0 * tFacetDiffX * tG / std::pow( tH, 2 ) } };
+        }
+        else
+        {
+            tFacetVertex1                  = trans( tFacetVertex1 );
+            tFacetVertex2                  = trans( tFacetVertex2 );
+            Matrix< DDRMat > tFacetVertex3 = trans( mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet ).get_column( 2 ) );
+
+            // Compute edge vectors
+            Matrix< DDRMat > tEdge1 = tFacetVertex2 - tFacetVertex1;
+            Matrix< DDRMat > tEdge2 = tFacetVertex3 - tFacetVertex1;
+
+            // Compute the normal vector
+            Matrix< DDRMat > tNormal = cross( tEdge1, tEdge2 );
+
+            // Compute barycentric coordinate p
+            Matrix< DDRMat > tP = cross( tSecondParentNodeCoords - tFirstParentNodeCoords, tEdge2 );
+
+            // Compute determinant
+            real tDet = dot( tEdge1, tP );
+
+            // Compute signed area of parallipiped formed by edges
+            real tArea = dot( tNormal, tFirstParentNodeCoords - tFacetVertex1 );
+
+            PRINT( 2.0 * tArea / tDet / tDet * tNormal );
+
+            // Compute sensitivities
+            return 2.0 * tArea / tDet / tDet * tNormal;
+        }
     }
 
 }    // namespace moris::gen

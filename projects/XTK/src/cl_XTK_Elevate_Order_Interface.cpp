@@ -65,9 +65,17 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Elevate_Order_Interface::has_geometric_independent_vertices() const
+    Elevate_Order_Interface::has_geometric_dependent_vertices() const
     {
-        return false;
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Elevate_Order_Interface::get_decomposed_cell_indices()
+    {
+        return mMeshGenerationData->mRegularSubdivisionBgCellInds;
     }
 
     // ----------------------------------------------------------------------------------
@@ -250,8 +258,8 @@ namespace moris::xtk
                         // tNewNodeIndex++;
                     }
                 }    // end: loop over new vertices inside each cell
-            }        // end: new vertices inside element
-        }            // end: loop inside element
+            }    // end: new vertices inside element
+        }    // end: loop inside element
 
         // --------------------------------
 
@@ -351,8 +359,8 @@ namespace moris::xtk
                         }
                     }
                 }    // end: check for new request
-            }        // end: loop over all edges
-        }            // end: new vertices on edges
+            }    // end: loop over all edges
+        }    // end: new vertices on edges
 
         // --------------------------------
 
@@ -411,7 +419,7 @@ namespace moris::xtk
                     // tNewNodeIndex++;
                 }
             }    // end: loop over faces
-        }        // end: new vertices on faces
+        }    // end: new vertices on faces
 
         // --------------------------------
 

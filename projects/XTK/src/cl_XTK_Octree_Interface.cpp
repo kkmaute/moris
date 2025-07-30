@@ -334,11 +334,21 @@ namespace moris::xtk
     }
     // ----------------------------------------------------------------------------------
     bool
-    Octree_Interface::has_geometric_independent_vertices() const
+    Octree_Interface::has_geometric_dependent_vertices() const
     {
-        return true;
+        return false;
     }
+
     // ----------------------------------------------------------------------------------
+
+    Vector< moris_index >
+    Octree_Interface::get_decomposed_cell_indices()
+    {
+        return mIgMeshGenData->mRegularSubdivisionBgCellInds;
+    }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Octree_Interface::perform_impl_vertex_requests(
             Integration_Mesh_Generation_Data *aMeshGenerationData,

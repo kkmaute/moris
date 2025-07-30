@@ -75,12 +75,11 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
 
         //----- HRM parameter list --------
 
-        Parameter_List tParameters = prm::create_hmr_parameter_list();
+        Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-        tParameters.set( "number_of_elements_per_dimension", "4,   4" );
-        tParameters.set( "domain_dimensions", "4.0,   4.0" );
-        tParameters.set( "domain_offset", "-2.0,  -2.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "number_of_elements_per_dimension", 4, 4 );
+        tParameters.set( "domain_dimensions", 4.0, 4.0 );
+        tParameters.set( "domain_offset", -2.0, -2.0 );
         tParameters.set( "lagrange_output_meshes", "0" );
 
         tParameters.set( "lagrange_orders", "1" );
@@ -90,16 +89,9 @@ TEST_CASE( "WRK L2 test", "[WRK_L2_test]" )
 
         tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 0 );
         tParameters.set( "staircase_buffer", 1 );
-        tParameters.set( "initial_refinement", "1" );
-        tParameters.set( "initial_refinement_pattern", "0" );
-
-        tParameters.set( "use_number_aura", 1 );
-
-        tParameters.set( "use_multigrid", 0 );
-        tParameters.set( "severity_level", 0 );
+        tParameters.set( "pattern_initial_refinement", 1 );
 
         Parameter_List tRefinementParameters( "Refinement" );
         prm::create_refinement_parameterlist( tRefinementParameters );

@@ -68,6 +68,14 @@ namespace moris::mtk
                 const Vector< Vector< moris_index > >& aFacetConnectivity,
                 real                                   aIntersectionTolerance = 1e-8 );
 
+        /**
+         * Removes vertices that are not part of any facet and updates the facet connectivity accordingly
+         *
+         * @param aVertexCoordinates <dimension> x <number of vertices> matrix containing vertex coordinates with potential extraneous vertices
+         * @param aFacetConnectivity Vector of vectors containing the local indices of the vertices that form each facet
+         */
+        void clean_extraneous_vertices();
+
         // -------------------------------------------------------------------------------
         // Mesh deformation methods
         // -------------------------------------------------------------------------------
@@ -97,18 +105,33 @@ namespace moris::mtk
         // Accessor methods
         // -------------------------------------------------------------------------------
 
-        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates() const;
+        [[nodiscard]] virtual const Matrix< DDRMat > get_all_vertex_coordinates() const;
 
         /**
          * @brief Gets the coordinates of a single vertex from the local index aVertexIndex
          */
-        [[nodiscard]] virtual Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
+        [[nodiscard]] virtual const Matrix< DDRMat > get_vertex_coordinates( const uint aVertexIndex ) const;
+
+        /**
+         * @brief Gets the original coordinates (no displacement added) of all vertices in the surface mesh
+         * Size: < spatial dim x number of vertices >
+         */
+        [[nodiscard]] virtual const Matrix< DDRMat > get_all_original_vertex_coordinates() const;
 
         /**
          * Gets the original coordinates of a single vertex from the local index aVertexIndex
-         *
          */
-        [[nodiscard]] virtual Matrix< DDRMat > get_original_vertex_coordinates( const uint aVertexIndex ) const;
+        [[nodiscard]] virtual const Matrix< DDRMat > get_original_vertex_coordinates( const uint aVertexIndex ) const;
+
+        /**
+         * @brief gets the displacements of all vertices in the surface mesh
+         */
+        [[nodiscard]] virtual const Matrix< DDRMat >& get_vertex_displacements() const;
+
+        /**
+         * @brief gets the entire vertex connectivity of the surface mesh
+         */
+        [[nodiscard]] const Vector< Vector< moris_index > >& get_facet_connectivity() const;
 
         /**
          * @brief Gets the indices to the vertices that form the facet with the local index aFacetIndex
@@ -191,18 +214,6 @@ namespace moris::mtk
                 const Matrix< DDRMat >& aDirection,
                 bool&                   aWarning,
                 bool                    aIgnoreWarnings = true ) const;
-
-        // /**
-        //  * @brief Determines if a point is inside or outside the surface mesh via raycasting
-        //  * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
-        //  * The method will only cast a single ray. Note that if a pathological casee is detected, the method will cast a new ray in a random direction.
-        //  * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
-        //  *
-        //  * @param aPoint Ray origin point. Passed by value as it may be altered
-        //  * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
-        //  */
-        // Vector< real >
-        // cast_single_ray_for_region( const Matrix< DDRMat >& aPoint ) const;
 
 
         /**

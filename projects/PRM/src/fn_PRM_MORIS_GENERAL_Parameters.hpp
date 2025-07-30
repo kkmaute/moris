@@ -45,7 +45,7 @@ namespace moris::prm
     inline void
     create_remeshing_parameterlist( Parameter_List& aParameterlist )
     {
-        // Remeshing mode. Options are "ab_initio", "former"
+        // Remeshing mode. Options are "ab_initio", "based_on_previous", "advanced"
         aParameterlist.insert( "mode", "" );
         aParameterlist.insert( "remeshing_refinement_pattern", "" );
         aParameterlist.insert( "refinement_function_name", "" );

@@ -18,6 +18,7 @@
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
+#include "fn_MTK_Integration_Surface_Mesh_Factory.hpp"
 #include "cl_MTK_Integration_Surface_Mesh.hpp"
 #include "cl_MTK_QuadraturePointMapper.hpp"
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
@@ -57,7 +58,8 @@ namespace moris::mtk
         {
             // initialize one surface mesh per side set
             Vector< mtk::Side_Set const * > tSideSetCast{ tSideSet };
-            Integration_Surface_Mesh                    tSurfaceMesh( aIGMesh, tSideSetCast );
+            Integration_Surface_Mesh_Data   tData( aIGMesh, tSideSetCast );
+            Integration_Surface_Mesh        tSurfaceMesh( tData );
             tSurfaceMeshes.push_back( tSurfaceMesh );
         }
         return tSurfaceMeshes;
@@ -69,7 +71,7 @@ namespace moris::mtk
         MORIS_ASSERT( aSourceMeshIndex < static_cast< moris_index >( get_surface_meshes().size() ), "QuadraturePointMapper_Ray::initialize_source_points: Source mesh index %d out of range.", aSourceMeshIndex );
         Integration_Surface_Mesh const &tSurfaceMesh          = get_surface_meshes()( aSourceMeshIndex );
         Integration_Surface_Mesh const &tReferenceSurfaceMesh = get_reference_surface_meshes()( aSourceMeshIndex );
-        Side_Set const     *tSideSet              = get_side_sets()( aSourceMeshIndex );
+        Side_Set const                 *tSideSet              = get_side_sets()( aSourceMeshIndex );
 
         Interpolation_Rule const tInterpolationRule(
                 tSideSet->get_integration_cell_geometry_type(),

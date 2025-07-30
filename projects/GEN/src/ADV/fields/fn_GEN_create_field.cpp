@@ -152,7 +152,7 @@ namespace moris::gen
             case Field_Type::SIGNED_DISTANCE_OBJECT:
             {
                 auto tObjectPath   = aFieldParameterList.get< std::string >( "sdf_object_path" );
-                auto tObjectOffset = aFieldParameterList.get< Vector< real > >( "sdf_object_offset" );
+                auto tObjectOffset = aFieldParameterList.get_vector< real >( "sdf_object_offset" );
                 auto tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
                 tField = std::make_shared< gen::Signed_Distance_Field >(
@@ -165,8 +165,8 @@ namespace moris::gen
             {
                 // Get SDF-specific info
                 auto tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
-                auto tDomainDimensions = aFieldParameterList.get< Vector< real > >( "image_dimensions" );
-                auto tDomainOffset     = aFieldParameterList.get< Vector< real > >( "image_offset" );
+                auto tDomainDimensions = aFieldParameterList.get_vector< real >( "image_dimensions" );
+                auto tDomainOffset     = aFieldParameterList.get_vector< real >( "image_offset" );
                 real tSDFScaling = aFieldParameterList.get< real >( "image_sdf_scaling" );
                 real tSDFShift   = aFieldParameterList.get< real >( "image_sdf_shift" );
                 real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );

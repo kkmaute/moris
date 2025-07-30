@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_SIDE_CLUSTER_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_SIDE_CLUSTER_HPP_
+#pragma once
 
 #include <unordered_map>
 
@@ -135,5 +134,3 @@ namespace moris::hmr
                 const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
     };
 }    // namespace moris::hmr
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_SIDE_CLUSTER_HPP_ */

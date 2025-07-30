@@ -69,6 +69,7 @@ namespace moris::gen
         mInterfaceGeometry.get_dfield_dcoordinates(
                 this->get_first_parent_node(),
                 tCoordinateSensitivities );
+                
         return this->get_dxi_dfield_from_ancestor( 0 ) * tCoordinateSensitivities;
     }
 

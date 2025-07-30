@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD4_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD4_HPP_
+#pragma once
 
 #include "cl_HMR_Lagrange_Element.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
@@ -429,6 +428,3 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD4_HPP_ */
-

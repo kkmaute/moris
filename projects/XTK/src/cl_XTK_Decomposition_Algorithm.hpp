@@ -22,6 +22,7 @@ namespace moris::xtk
         NODE_HEIRARCHY,
         OCTREE,
         ELEVATE_ORDER,
+        DELAUNAY,
         MAX_ENUM
     };
 
@@ -45,6 +46,11 @@ namespace moris::xtk
         Decomposition_Algorithm() {}
         virtual ~Decomposition_Algorithm() {}
 
+        /**
+         * Gets the indices of the cells in the background mesh that were decomposed by this algorithm
+         */
+        virtual Vector< moris_index > get_decomposed_cell_indices() = 0;
+
         // set of
         virtual void perform(
                 Integration_Mesh_Generation_Data* aMeshGenerationData,
@@ -57,7 +63,7 @@ namespace moris::xtk
 
         virtual moris_index get_signature() const = 0;
 
-        virtual bool has_geometric_independent_vertices() const = 0;
+        virtual bool has_geometric_dependent_vertices() const = 0;
 
         virtual void
         perform_impl_vertex_requests(

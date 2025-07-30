@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
-#define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
+#pragma once
 
 #include "moris_typedefs.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -879,6 +878,3 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_ */
-

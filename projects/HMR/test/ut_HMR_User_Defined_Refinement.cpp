@@ -196,38 +196,32 @@ namespace moris::hmr
                     uint tLagrangeMeshIndex = 0;
 
                     // Dummy parameter list
-                    Parameter_List tParam = prm::create_hmr_parameter_list();
+                    Module_Parameter_Lists tParam( Module_Type::HMR );
 
                     // The parameter object controls the behavior of HMR.
                     Parameters tParameters;
 
                     // set values to parameters
-                    Matrix< DDLUMat > tNumberOfElements;
+                    Vector< uint > tNumberOfElements( tDimension, 8 );
 
-                    // set element size
-                    tNumberOfElements.set_size( tDimension, 1, 8 );
+                    tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
-
-                    tParameters.set_domain_dimensions( { { 2 }, { 2 } } );
-                    tParameters.set_domain_offset( { { 0.0 }, { 0.0 } } );
+                    tParameters.set_domain_dimensions( 2, 2 );
+                    tParameters.set_domain_offset( 0, 0 );
 
                     // B-Spline truncation is turned on by default.
                     // It is recommended to leave this setting as is.
                     tParameters.set_bspline_truncation( true );
 
-                    tParameters.set_lagrange_orders( { { 1 } } );
-                    tParameters.set_lagrange_patterns( { { 0 } } );
+                    tParameters.set_lagrange_orders( { 1 } );
+                    tParameters.set_lagrange_patterns( { 0 } );
 
-                    tParameters.set_bspline_orders( { { 1 } } );
-                    tParameters.set_bspline_patterns( { { 0 } } );
+                    tParameters.set_bspline_orders( { 1 } );
+                    tParameters.set_bspline_patterns( { 0 } );
 
                     tParameters.set_staircase_buffer( 2 );
 
-                    tParameters.set_lagrange_input_mesh( { { 0 } } );
-
-                    tParameters.set_initial_refinement( { { 1 } } );
-                    tParameters.set_initial_refinement_patterns( { { 0 } } );
+                    tParameters.set_initial_refinement( { 1 } );
 
                     tParameters.set_refinement_functions( { &user_defined_refinement } );
 
@@ -296,38 +290,31 @@ namespace moris::hmr
             uint tLagrangeMeshIndex = 0;
 
             // Dummy parameter list
-            Parameter_List tParam = prm::create_hmr_parameter_list();
+            Module_Parameter_Lists tParam( Module_Type::HMR );
 
             // The parameter object controls the behavior of HMR.
             Parameters tParameters;
 
             // set values to parameters
-            Matrix< DDLUMat > tNumberOfElements;
+            Vector< uint > tNumberOfElements( tDimension, 20 );
+            tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-            // set element size
-            tNumberOfElements.set_size( tDimension, 1, 20 );
-
-            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
-
-            tParameters.set_domain_dimensions( { { 4 }, { 4 } } );
-            tParameters.set_domain_offset( { { -2.0 }, { -2.0 } } );
+            tParameters.set_domain_dimensions( 4, 4 );
+            tParameters.set_domain_offset( -2, -2 );
 
             // B-Spline truncation is turned on by default.
             // It is recommended to leave this setting as is.
             tParameters.set_bspline_truncation( true );
 
-            tParameters.set_lagrange_orders( { { 1 } } );
-            tParameters.set_lagrange_patterns( { { 0 } } );
+            tParameters.set_lagrange_orders( { 1 } );
+            tParameters.set_lagrange_patterns( { 0 } );
 
-            tParameters.set_bspline_orders( { { 1 } } );
-            tParameters.set_bspline_patterns( { { 0 } } );
+            tParameters.set_bspline_orders( { 1 } );
+            tParameters.set_bspline_patterns( { 0 } );
 
             tParameters.set_staircase_buffer( 1 );
 
-            tParameters.set_lagrange_input_mesh( { { 0 } } );
-
-            tParameters.set_initial_refinement( { { 1 } } );
-            tParameters.set_initial_refinement_patterns( { { 0 } } );
+            tParameters.set_initial_refinement( { 1 } );
 
             tParameters.set_refinement_functions( { &user_defined_refinement_color } );
 

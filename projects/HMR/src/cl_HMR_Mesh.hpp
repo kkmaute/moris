@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_INTERFACE_HPP_
-#define SRC_HMR_CL_HMR_INTERFACE_HPP_
+#pragma once
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "cl_Vector.hpp"    //CNT/src
@@ -36,7 +35,7 @@ namespace moris::hmr
         std::string mLabel;
 
         // Dummy B-spline meshes
-        Vector< BSpline_Mesh_Base* > mDummyBSplineMeshes;
+        BSpline_Mesh_Base* mDummyBSplineMesh = nullptr;
 
         // Stored Lagrange mesh
         Lagrange_Mesh_Base* mMesh = nullptr;
@@ -70,7 +69,7 @@ namespace moris::hmr
                 std::shared_ptr< Database > aDatabase,
                 uint                        aOrder,
                 uint                        aLagrangePattern,
-                uint                        aBsplinePattern );
+                BSpline_Mesh_Base*          aDummyBSplineMesh );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
@@ -108,14 +107,6 @@ namespace moris::hmr
          * to communicate with
          */
         Matrix< IdMat > get_communication_table() const override;
-
-        // -----------------------------------------------------------------------------
-
-        /**
-         * returns the proc neighbors for this proc. This function return 9 entries for 2D and 27 for 3D.
-         * Some of them can be gNoId if this proc does not exist.
-         */
-        Matrix< IdMat > get_proc_neighbors() const;
 
         //-------------------------------------------------------------------------------
 
@@ -189,8 +180,9 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        uint get_num_entities( const mtk::EntityRank aEntityRank,
-                const moris_index                    aIndex = 0 ) const override;
+        uint get_num_entities(
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
@@ -230,7 +222,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        uint get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const override;
+        uint get_max_num_coeffs_on_proc( uint aBSplineMeshIndex ) const override;
 
         /**
          * Gets the indices of the B-splines which form the basis of the given node.
@@ -265,18 +257,18 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(
-                moris_index       aEntityIndex,
-                mtk::EntityRank   aInputEntityRank,
-                mtk::EntityRank   aOutputEntityRank,
-                const moris_index aIndex = 0 ) const override;
+                moris_index     aEntityIndex,
+                mtk::EntityRank aInputEntityRank,
+                mtk::EntityRank aOutputEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
         Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
-                moris_index       aEntityId,
-                mtk::EntityRank   aInputEntityRank,
-                mtk::EntityRank   aOutputEntityRank,
-                const moris_index aIndex = 0 ) const override;
+                moris_index     aEntityId,
+                mtk::EntityRank aInputEntityRank,
+                mtk::EntityRank aOutputEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
@@ -321,8 +313,8 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void get_elements_in_support_of_basis(
-                const uint          aMeshIndex,
-                const uint          aBasisIndex,
+                uint                aMeshIndex,
+                uint                aBasisIndex,
                 Matrix< IndexMat >& aElementIndices ) override;
 
         //-------------------------------------------------------------------------------
@@ -353,15 +345,15 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void get_elements_in_bspline_element(
-                moris_index const     aBspElementIndex,
-                moris_index const     aDiscretizationMeshIndex,
+                moris_index           aBspElementIndex,
+                moris_index           aDiscretizationMeshIndex,
                 Vector< mtk::Cell* >& aCells ) override;
 
         // ----------------------------------------------------------------------------
 
         void
         get_lagrange_elements_in_bspline_elements(
-                moris_index const                aDiscretizationMeshIndex,
+                moris_index                      aDiscretizationMeshIndex,
                 Vector< Vector< mtk::Cell* > >&  aCells,
                 Vector< Vector< moris_index > >& aCellIndices,
                 Vector< moris_index >&           aLagToBspCellIndices,
@@ -408,22 +400,22 @@ namespace moris::hmr
 
         void
         get_elements_in_bspline_element_and_side_ordinal(
-                moris_index const     aBsplineElementIndex,
-                moris_index const     aDiscretizationMeshIndex,
-                moris_index const     aSideOrdinal,
+                moris_index           aBsplineElementIndex,
+                moris_index           aDiscretizationMeshIndex,
+                moris_index           aSideOrdinal,
                 Vector< mtk::Cell* >& aCells ) override;
 
         //-------------------------------------------------------------------------------
 
         void get_elements_in_interpolation_cluster_and_side_ordinal(
-                moris_index const     aElementIndex,
-                moris_index const     aDiscretizationMeshIndex,
-                moris_index const     aSideOrdinal,
+                moris_index           aElementIndex,
+                moris_index           aDiscretizationMeshIndex,
+                moris_index           aSideOrdinal,
                 Vector< mtk::Cell* >& aCells ) override;
 
         //-------------------------------------------------------------------------------
 
-        uint get_num_basis_functions( const uint aMeshIndex ) override;
+        uint get_num_basis_functions( uint aMeshIndex ) override;
 
         //-------------------------------------------------------------------------------
 
@@ -452,22 +444,22 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         moris_id get_glb_entity_id_from_entity_loc_index(
-                moris_index       aEntityIndex,
-                mtk::EntityRank   aEntityRank,
-                const moris_index aIndex = 0 ) const override;
-
-        moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
+                moris_index     aEntityIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
+
         moris_index get_loc_entity_ind_from_entity_glb_id(
-                moris_id          aEntityId,
-                mtk::EntityRank   aEntityRank,
-                const moris_index aIndex = 0 ) const override;
+                moris_id        aEntityId,
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
-        moris_id get_max_entity_id( mtk::EntityRank aEntityRank,
-                const moris_index                   aIndex ) const override;
+        moris_id get_max_entity_id(
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex ) const override;
 
         //-------------------------------------------------------------------------------
         //          Coordinate Field Functions
@@ -496,9 +488,9 @@ namespace moris::hmr
         uint get_element_owner( moris_index aElementIndex ) const override;
 
         uint get_entity_owner(
-                moris_index       aEntityIndex,
-                mtk::EntityRank   aEntityRank,
-                const moris_index aIndex = 0 ) const override;
+                moris_index     aEntityIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         // FIXME Needs parallel implementation
         void
@@ -549,20 +541,6 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        //            mtk::Vertex & get_mtk_vertex_including_aura( moris_index aVertexIndex )
-        //            {
-        //                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
-        //            }
-
-        //-------------------------------------------------------------------------------
-
-        //            mtk::Vertex const & get_mtk_vertex_including_aura( moris_index aVertexIndex ) const
-        //            {
-        //                return *mMesh->get_node_by_index_including_aura( aVertexIndex );
-        //            }
-
-        //-------------------------------------------------------------------------------
-
         mtk::Cell& get_mtk_cell( moris_index aElementIndex ) override;
 
         //-------------------------------------------------------------------------------
@@ -594,43 +572,43 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void get_adof_map(
-                const uint                    aBSplineIndex,
+                uint                          aBSplineIndex,
                 map< moris_id, moris_index >& aAdofMap ) const override;
 
         //-------------------------------------------------------------------------------
 
         moris_index get_field_ind(
-                const std::string&    aFieldLabel,
-                const mtk::EntityRank aEntityRank ) const override;
+                const std::string& aFieldLabel,
+                mtk::EntityRank    aEntityRank ) const override;
 
         //-------------------------------------------------------------------------------
 
         uint get_num_fields(
-                const mtk::EntityRank aEntityRank,
-                const moris_index     aIndex = 0 ) const override;
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
         real& get_value_of_scalar_field(
-                const moris_index     aFieldIndex,
-                const mtk::EntityRank aEntityRank,
-                const uint            aEntityIndex,
-                const moris_index     aIndex = 0 ) override;
+                moris_index     aFieldIndex,
+                mtk::EntityRank aEntityRank,
+                uint            aEntityIndex,
+                moris_index     aIndex = 0 ) override;
 
         //-------------------------------------------------------------------------------
 
         const real& get_value_of_scalar_field(
-                const moris_index     aFieldIndex,
-                const mtk::EntityRank aEntityRank,
-                const uint            aEntityIndex,
-                const moris_index     aIndex = 0 ) const override;
+                moris_index     aFieldIndex,
+                mtk::EntityRank aEntityRank,
+                uint            aEntityIndex,
+                moris_index     aIndex = 0 ) const override;
 
         //-------------------------------------------------------------------------------
 
         Matrix< DDRMat >& get_field(
-                const moris_index     aFieldIndex,
-                const mtk::EntityRank aEntityRank,
-                const moris_index     aIndex = 0 ) override;
+                moris_index     aFieldIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) override;
 
         //-------------------------------------------------------------------------------
 
@@ -644,7 +622,11 @@ namespace moris::hmr
 
         mtk::CellShape get_IP_blockset_shape( const std::string& aSetName ) override;
 
-        //-------------------------------------------------------------------------------
+        /**
+         * Outputs this mesh to an Exodus or VTK file, based on the file extension provided as a parameter to HMR for an output mesh.
+         * If no name is given, no file will be output.
+         */
+        void save_to_file();
 
       private:
         //-------------------------------------------------------------------------------
@@ -658,7 +640,7 @@ namespace moris::hmr
          * subroutine for get_elements_connected_to_element_loc_inds(
          */
         void collect_memory_indices_of_active_element_neighbors(
-                const moris_index  aElementIndex,
+                moris_index        aElementIndex,
                 Matrix< DDLUMat >& aMemoryIndices,
                 Matrix< DDLUMat >& aThisCellFacetOrds,
                 Matrix< DDLUMat >& aNeighborCellFacetOrds,
@@ -671,7 +653,7 @@ namespace moris::hmr
          * subroutine for get_elements_connected_to_node_loc_inds
          */
         void collect_memory_indices_of_active_elements_connected_to_node(
-                const moris_index  aNodeIndex,
+                moris_index        aNodeIndex,
                 Matrix< DDLUMat >& aMemoryIndices ) const;
 
       public:
@@ -690,13 +672,15 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         uint get_level_of_entity_loc_ind(
-                const mtk::EntityRank aEntityRank,
-                const uint            aEntityIndex,
-                const moris_index     aIndex = 0 ) override;
+                mtk::EntityRank aEntityRank,
+                uint            aEntityIndex,
+                moris_index     aIndex = 0 ) override;
 
         //-------------------------------------------------------------------------------
 
-        uint get_max_level_of_entity( const mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) override;
+        uint get_max_level_of_entity(
+                mtk::EntityRank aEntityRank,
+                moris_index     aIndex = 0 ) override;
 
         //-------------------------------------------------------------------------------
 
@@ -709,9 +693,9 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void setup_entity_global_to_local_map(
-                mtk::EntityRank   aEntityRank,
-                uint&             aCounter,
-                const moris_index aIndex = 0 );
+                mtk::EntityRank aEntityRank,
+                uint&           aCounter,
+                moris_index     aIndex = 0 );
 
         //------------------------------------------------------------------------------
         // ##############################################
@@ -745,8 +729,8 @@ namespace moris::hmr
 
         uint
         get_basis_level(
-                const moris_index aInterpolationIndex,
-                const moris_index aBasisIndex ) override
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex ) override
         {
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_basis_by_index( aBasisIndex )
@@ -757,8 +741,8 @@ namespace moris::hmr
 
         uint
         get_num_coarse_basis_of_basis(
-                const moris_index aInterpolationIndex,
-                const moris_index aBasisIndex ) override
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex ) override
         {
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_basis_by_index( aBasisIndex )
@@ -769,9 +753,9 @@ namespace moris::hmr
 
         uint
         get_coarse_basis_index_of_basis(
-                const moris_index aInterpolationIndex,
-                const moris_index aBasisIndex,
-                const moris_index aCoarseParentIndexForBasis ) override
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex,
+                moris_index aCoarseParentIndexForBasis ) override
         {
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_basis_by_index( aBasisIndex )
@@ -783,8 +767,8 @@ namespace moris::hmr
 
         moris::Matrix< DDSMat >
         get_fine_basis_inds_of_basis(
-                const moris_index aInterpolationIndex,
-                const moris_index aBasisIndex ) override
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex ) override
         {
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_children_ind_for_basis( aBasisIndex );
@@ -794,19 +778,18 @@ namespace moris::hmr
 
         moris::Matrix< DDRMat >
         get_fine_basis_weights_of_basis(
-                const moris_index aInterpolationIndex,
-                const moris_index aBasisIndex ) override
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex ) override
         {
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_children_weights_for_parent( aBasisIndex );
         }
 
-        //-------------------------------------------------------------------------------
-
 #ifdef MORIS_HAVE_DEBUG
         Matrix< DDRMat >
-        get_basis_coords( const moris_index aInterpolationIndex,
-                const moris_index           aBasisIndex ) override
+        get_basis_coords(
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex ) override
         {
             return mMesh->get_bspline_mesh( aInterpolationIndex )
                     ->get_basis_by_index( aBasisIndex )
@@ -817,8 +800,8 @@ namespace moris::hmr
 
         sint
         get_basis_status(
-                const moris_index aInterpolationIndex,
-                const moris_index aBasisIndex ) override
+                moris_index aInterpolationIndex,
+                moris_index aBasisIndex ) override
         {
             sint tStatus = -1;
 
@@ -845,5 +828,3 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_INTERFACE_HPP_ */

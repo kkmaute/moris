@@ -36,7 +36,7 @@ namespace moris::gen
          * @param aParameters Additional parameters
          */
         ADV_Handler(
-                Vector< real >&         aADVs,
+                Vector< real >&       aADVs,
                 const Vector< uint >& aVariableIndices,
                 const Vector< uint >& aADVIndices,
                 const Vector< real >& aConstants );
@@ -66,7 +66,7 @@ namespace moris::gen
         ADV_Handler(
                 const ADV_Handler&    aCopyADVManager,
                 const Vector< uint >& aReplaceVariables = {},
-                const Vector< real >& aNewConstants = {{}} );
+                const Vector< real >& aNewConstants     = { {} } );
 
         /**
          * Destructor
@@ -81,10 +81,10 @@ namespace moris::gen
          */
         template< typename Vector_Type >
         void set_advs( Vector_Type& aADVs );
-        
+
         /**
          * Gets the value of a specific design variable so it can be used as a part of a design discretization.
-         * 
+         *
          * @param aVariableIndex Index of the variable in this manager to reference
          * @return Design variable value
          */
@@ -92,9 +92,9 @@ namespace moris::gen
 
         /**
          * Gets the values of all design variables in this manager.
-         * 
+         *
          */
-        Vector < real > get_values();
+        Vector< real > get_values() const;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
@@ -108,7 +108,7 @@ namespace moris::gen
          *
          * @return Determining ADV IDs at this node
          */
-        Vector< sint > get_determining_adv_ids();
+        Vector< sint > get_determining_adv_ids() const;
 
         /**
          * Gets if this manager has ADVs (at least one non-constant parameter)
@@ -118,7 +118,6 @@ namespace moris::gen
         bool has_advs();
 
       private:
-
         /**
          * Creates the ADVs managed by this object.
          *
@@ -129,4 +128,4 @@ namespace moris::gen
                 Vector< real >&       aADVs,
                 const Vector< real >& aConstants );
     };
-}
+}    // namespace moris::gen

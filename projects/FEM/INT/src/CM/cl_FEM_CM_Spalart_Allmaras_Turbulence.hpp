@@ -245,10 +245,18 @@ namespace moris::fem
                 const Vector< std::string >&             aDofStrings ) override;
 
         //------------------------------------------------------------------------------
-        /**
-         * create a global dof type list including constitutive and property dependencies
+        /*
+         * reset specific evaluation flag
+         * (child implementation)
          */
-        void build_global_dof_type_list() override;
+        void reset_specific_eval_flags() override;
+
+        //------------------------------------------------------------------------------
+        /*
+         * initialize specific storage and evaluation flag
+         * (child implementation)
+         */
+        void initialize_spec_storage_vars_and_eval_flags() override;
 
         //------------------------------------------------------------------------------
         /**
@@ -269,12 +277,6 @@ namespace moris::fem
          * set local properties
          */
         void set_local_properties() override;
-
-        //------------------------------------------------------------------------------
-        /**
-         * reset evaluation flags
-         */
-        void reset_eval_flags() override;
 
         //--------------------------------------------------------------------------------------------------------------
         /**

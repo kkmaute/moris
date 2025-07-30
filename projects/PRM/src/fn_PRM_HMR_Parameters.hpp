@@ -18,40 +18,42 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
+    /**
+     * Creates an HMR general parameter list with default inputs.
+     *
+     * @return HMR general parameter list
+     */
     inline Parameter_List
     create_hmr_parameter_list()
     {
         Parameter_List tParameterList( "General" );
 
+        // width, height and depth of domain (without aura)
+        tParameterList.insert( "domain_dimensions", Vector< real >{ 1.0, 1.0 } );
+
+        // offset from the origin
+        tParameterList.insert( "domain_offset", Vector< real >() );
+
         // number of elements per direction in overall mesh, without aura
         // 2D or 3D is determined by length of this vector
-        tParameterList.insert( "number_of_elements_per_dimension", "2, 2" );
+        tParameterList.insert( "number_of_elements_per_dimension", Vector< uint >() );
 
         // Processor Decomposition Method (0=user defined; 1=min proc interface; 2=min mesh interface)
         tParameterList.insert( "processor_decomposition_method", 1 );
 
         // User defined processor grid.  Decomp method must = 0.  Product of array must match number of processors used
-        tParameterList.insert( "processor_dimensions", "2, 2" );
-
-        // width, height and depth of domain (without aura)
-        tParameterList.insert( "domain_dimensions", "1, 1" );
-        // offset from the origin
-        tParameterList.insert( "domain_offset", "0, 0 " );
-        // sidesets which should be built
-        tParameterList.insert( "domain_sidesets", "" );
+        tParameterList.insert( "processor_dimensions", Vector< uint >() );
 
         // Lagrange Meshes that are used as output meshes
         tParameterList.insert( "lagrange_output_meshes", "" );
 
         // Lagrange Mesh Names of output meshes
         tParameterList.insert( "lagrange_output_mesh_names", "" );
-        // Lagrange Meshes that are used as input meshes
-        tParameterList.insert( "lagrange_input_meshes", "" );
 
         // size of refinement buffer
-        tParameterList.insert( "refinement_buffer", 0 );
+        tParameterList.insert( "refinement_buffer", 0u );
         // size of staircase buffer
-        tParameterList.insert( "staircase_buffer", 0 );
+        tParameterList.insert( "staircase_buffer", 0u );
 
         // Lagrange orders
         tParameterList.insert( "lagrange_orders", "1" );
@@ -69,32 +71,26 @@ namespace moris::prm
         // defines which B-Spline mesh is associated with which lagrange mesh
         tParameterList.insert( "lagrange_to_bspline", "0" );
 
-        // output severity level for moris
+        // output severity level for moris TODO this should not be a part of HMR
         tParameterList.insert( "severity_level", 0 );
 
         // boolean for truncated B-Splines
-        tParameterList.insert( "truncate_bsplines", 1 );
+        tParameterList.insert( "truncate_bsplines", true );
 
         // boolean for multigrid
-        tParameterList.insert( "use_multigrid", 0 );
+        tParameterList.insert( "use_multigrid", false );
 
         // boolean for numbering of aura
-        tParameterList.insert( "use_number_aura", 1 );
+        tParameterList.insert( "use_number_aura", true );
 
-        // initial refinement level
-        tParameterList.insert( "initial_refinement", "0" );
-
-        // initial refinement level
-        tParameterList.insert( "initial_refinement_pattern", "0" );
+        // initial refinement level per pattern. Each entry creates a new pattern
+        tParameterList.insert( "pattern_initial_refinement", Vector< uint >{ 0 } );
 
         // label of background mesh output file
         tParameterList.insert( "write_background_mesh", "" );
 
-        // label of lagrange mesh output file (VTK)
-        tParameterList.insert( "write_lagrange_output_mesh", "" );
-
-        // label of lagrange mesh output file (Exodus)
-        tParameterList.insert( "write_lagrange_output_mesh_to_exodus", "" );
+        // label of lagrange mesh output file (VTK/Exodus)
+        tParameterList.insert( "lagrange_mesh_output_file_name", "" );
 
         // name of restart file - write
         tParameterList.insert( "write_refinement_pattern_file", false );
@@ -104,9 +100,6 @@ namespace moris::prm
 
         // name of vtk file for writing basis function locations
         tParameterList.insert( "basis_function_vtk_file", "" );
-
-        // add comment by the person who implemented this
-        tParameterList.insert( "max_refinement_level", -1 );
 
         // legacy functions
         tParameterList.insert( "additional_lagrange_refinement", 0 );
@@ -124,6 +117,39 @@ namespace moris::prm
         return tParameterList;
     }
 
-    //------------------------------------------------------------------------------
+    /**
+     * Creates an HMR Lagrange mesh parameter list.
+     *
+     * @return B-spline mesh parameter list
+     */
+    inline Parameter_List
+    create_lagrange_mesh_parameter_list()
+    {
+        Parameter_List tParameterList( "Lagrange Mesh" );
+
+        tParameterList.insert( "pattern_index", 0u ); // Pattern to use for this Lagrange mesh
+        tParameterList.insert( "order", 1u ); // Lagrange order
+        tParameterList.insert( "is_output_mesh", true ); // If this is an output mesh or not
+        tParameterList.insert( "output_mesh_name", "" ); // Custom name for this output mesh
+
+        return tParameterList;
+    }
+
+    /**
+     * Creates an HMR B-spline mesh parameter list.
+     *
+     * @return B-spline mesh parameter list
+     */
+    inline Parameter_List
+    create_bspline_mesh_parameter_list()
+    {
+        Parameter_List tParameterList( "B-spline Mesh" );
+
+        tParameterList.insert( "pattern_index", 0u ); // Pattern to use for this B-spline mesh
+        tParameterList.insert( "orders", Vector< uint >{ 1 } ); // B-spline orders (single order, or order per dimension)
+        tParameterList.insert( "paired_lagrange_mesh_index", 0u ); // Lagrange mesh index to assign this B-spline mesh to
+
+        return tParameterList;
+    }
 
 }    // namespace moris::prm

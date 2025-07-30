@@ -19,233 +19,109 @@
 namespace moris::mtk
 {
     Integration_Surface_Mesh::Integration_Surface_Mesh(
-            Integration_Mesh const      *aIGMesh,
-            const Vector< std::string > &aSideSetNames )
-            : Integration_Surface_Mesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ), aSideSetNames )
+            Integration_Surface_Mesh_Data const &aData )
+            : Surface_Mesh(
+                      aData.get_vertex_coordinates(),
+                      aData.get_cell_to_vertex_indices(),
+                      1e-9 )
+            , mData( aData )
     {
-    }
-
-    Integration_Surface_Mesh::Integration_Surface_Mesh(
-            Integration_Mesh const     *aIGMesh,
-            Vector< Side_Set const * > &aSideSets )
-            : Surface_Mesh( Matrix< DDRMat >{}, Vector< Vector< moris_index > >{}, 0.0 )    // Dhyey update
-            , mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ) )
-    {
-        this->initialize_from_side_sets( aSideSets );
-    }
-
-    Integration_Surface_Mesh::Integration_Surface_Mesh(
-            Integration_Mesh_DataBase_IG const *aIGMesh,
-            const Vector< std::string >        &aSideSetNames )
-            : Surface_Mesh( Matrix< DDRMat >{}, Vector< Vector< moris_index > >{}, 0.0 )    // Dhyey update
-    {
-        Vector< Side_Set const * > tSideSets;
-
-        auto tSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) {
-            return dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) );
-        };
-
-        std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( tSideSets ), tSideSetFromName );
-
-        initialize_from_side_sets( tSideSets );
-    }
-
-    void Integration_Surface_Mesh::initialize_from_side_sets( Vector< Side_Set const * > const &aSideSets )
-    {
-        mSideSets = aSideSets;
-
-        // temporary map to store the neighbors of each vertex since we do not necessarily know the index of the
-        // vertex that we want to add as a neighbor at the time of creation.
-        map< moris_index, Vector< moris_index > > tTmpNeighborMap;
-
-        // loop over all side sets by name
-        for ( auto const &tSideSet : aSideSets )
-        {
-            this->initialize_side_set( tTmpNeighborMap, dynamic_cast< Set const * >( tSideSet ) );
-        }
-
-        // in a last step, the neighbors can actually be correctly assigned since all local indices are known
-        this->initialize_neighbors( tTmpNeighborMap );
         this->initialize_facet_measure();
         this->initialize_vertex_normals();
     }
 
-    void Integration_Surface_Mesh::initialize_side_set(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            Set const                                 *aSideSet )
+    Matrix< DDRMat > Integration_Surface_Mesh::initialize_vertex_coordinates( Integration_Mesh const *aIGMesh )
     {
-        // loop over all clusters that the side set consists of
+        // uint tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
+        uint tNumVertices = aIGMesh->get_num_nodes();
+        uint tDim         = aIGMesh->get_spatial_dim();
 
-        moris_index const tNumClustersOnSet = aSideSet->get_clusters_on_set().size();
-        mClusterToCellIndices.resize( tNumClustersOnSet, Vector< moris_index >() );
-        for ( moris_index tClusterIndex = 0; tClusterIndex < tNumClustersOnSet; tClusterIndex++ )
-        {
-            Cluster const *tCluster = aSideSet->get_clusters_by_index( tClusterIndex );
-            this->initialize_cluster( aTmpNeighborMap, tCluster, tClusterIndex );
-        }    // end loop over clusters
-    }
+        // Resize the matrix to hold the coordinates
+        Matrix< DDRMat > tVertexCoordinates;
+        tVertexCoordinates.set_size( tDim, tNumVertices );
 
-    void Integration_Surface_Mesh::initialize_cluster(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            Cluster const *const                      &aCluster,
-            moris_index                                aClusterIndex )
-    {
-        Vector< const Cell * > tCells    = aCluster->get_primary_cells_in_cluster();
-        Matrix< IdMat >        tCellOrds = aCluster->get_cell_side_ordinals();
-
-        // Cell ordinals define, which side of the cell is actually on the side of the cluster.
-        // Each cell should have exactly one edge/facet on the side.
-        MORIS_ASSERT( tCells.size() == tCellOrds.size( 1 ), "Number of cells and cell ordinals do not match" );
-
-        // loop over all cells to extract the vertex indices of the ordinals that are actually on the side
-        for ( uint i = 0; i < tCells.size(); i++ )
-        {
-            Cell const *tCurrentCell        = tCells( i );
-            int const   tCurrentCellOrdinal = tCellOrds( i );
-
-            this->initialize_cell( aTmpNeighborMap, tCurrentCell, tCurrentCellOrdinal, aClusterIndex );
-        }    // end loop over cells
-    }
-
-    void Integration_Surface_Mesh::initialize_cell(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            const Cell                                *aCell,
-            int                                        aCellOrdinal,
-            moris_index                                aClusterIndex )
-    {
-        MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
-
-        auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
-
-        // local index (on the surface mesh, from 0 to n_surfacemesh), global index (in the integration mesh, arbitrary numbers between 0 and n_igmesh)
-        mLocalToGlobalCellIndex.push_back( aCell->get_index() );
-        mGlobalToLocalCellIndex[ aCell->get_index() ] = tCurrentLocalCellIndex;
-
-        // one cluster per cell but one cluster can have multiple cells
-        mCellToClusterIndices.push_back( aClusterIndex );
-        mClusterToCellIndices( aClusterIndex ).push_back( tCurrentLocalCellIndex );
-
-        // prepare the cell to vertex map
-        mCellToVertexIndices.push_back( Vector< moris_index >() );
-
-        // side ordinal holds the index of the side of the cell that is actually on the surface
-        mCellSideOrdinals.push_back( aCellOrdinal );
-
-        Vector< Vertex const * > tSideVertices = aCell->get_geometric_vertices_on_side_ordinal( aCellOrdinal );
-
-        for ( unsigned int j = 0; j < tSideVertices.size(); j++ )
-        {
-            Vertex const *tVertex = tSideVertices( j );
-            this->initialize_vertex( aTmpNeighborMap, tCurrentLocalCellIndex, tSideVertices, tVertex );
-        }
-    }
-
-    void Integration_Surface_Mesh::initialize_vertex(
-            map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
-            moris_index                                aCurrentLocalCellIndex,
-            Vector< Vertex const * >                  &aSideVertices,
-            Vertex const                              *aVertex )
-    {
-        moris_index const tVertexIndex             = aVertex->get_index();
-        moris_index       tCurrentLocalVertexIndex = 0;
-        if ( this->mGlobalToLocalVertexIndex.key_exists( tVertexIndex ) )
-        {    // check if the vertex has already been added to the list of vertices. If so, use the local index of the vertex based on the global index.
-            tCurrentLocalVertexIndex = this->mGlobalToLocalVertexIndex[ tVertexIndex ];
-        }
-        else
-        {    // if the vertex has not been added to the list of vertices, add it and use the local index based on the current size of the list of vertices
-            tCurrentLocalVertexIndex = static_cast< moris_index >( this->mLocalToGlobalVertexIndex.size() );
-        }
-
-        if ( this->mGlobalToLocalVertexIndex.count( tVertexIndex ) == 0 )
-        {    // check that the vertex has not already been added to the surface mesh
-            this->mGlobalToLocalVertexIndex[ tVertexIndex ] = tCurrentLocalVertexIndex;
-            this->mLocalToGlobalVertexIndex.push_back( tVertexIndex );
-            this->mVertexToCellIndices.push_back( Vector< moris_index >() );
-        }
-
-        // update the vertex to cell and cell to vertex map for this vertex
-        this->mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aCurrentLocalCellIndex );
-        this->mCellToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
-
-        for ( auto const &tNeighbor : aSideVertices )
-        {    // update neighbors for this vertex for this cell
-            if ( tNeighbor != aVertex )
-            {
-                aTmpNeighborMap[ tVertexIndex ].push_back( tNeighbor->get_index() );
-            }
-        }
-    }
-
-    void Integration_Surface_Mesh::initialize_neighbors( map< moris_index, Vector< moris_index > > &aTmpNeighborMap )
-    {
-        // for each key (vertex in global indices) in the map, the neighbors are assigned.
-        mVertexNeighbors.resize( mLocalToGlobalVertexIndex.size() );
-        for ( auto const &[ tVertex, tNeighbor ] : aTmpNeighborMap )
-        {
-            auto const tLocalVertexIndex = mGlobalToLocalVertexIndex[ tVertex ];
-            for ( auto const &tNeighborIndex : tNeighbor )
-            {
-                this->mVertexNeighbors( tLocalVertexIndex ).push_back( mGlobalToLocalVertexIndex[ tNeighborIndex ] );
-            }
-        }
-    }
-
-    void Integration_Surface_Mesh::initialize_vertex_coordinates()
-    {
-        auto const tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        // uint const tDim         = this->get_spatial_dimension();
-        // mVertexCoordinates.resize( tDim, tNumVertices );   // Dhyey update
         for ( moris::size_t i = 0; i < tNumVertices; i++ )
         {
-            Surface_Mesh::set_vertex_coordinates( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
+            // Retrieve the coordinates from mIGMesh and store them in tVertexCoordinates
+            tVertexCoordinates.set_column( i, aIGMesh->get_node_coordinate( i ) );
         }
+
+        // Return the coordinates matrix
+        return tVertexCoordinates;
     }
 
-    // void Integration_Surface_Mesh::initialize_facet_normals()
-    // {
-    //     auto const tNumCells = static_cast< moris::size_t >( mLocalToGlobalCellIndex.size() );
-    //     uint const tDim      = this->get_spatial_dimension();
+    //--------------------------------------------------------------------------------------------------------------
 
-    //     MORIS_ASSERT( tDim == 2, "Surface Mesh facet normals only implemented for 2D meshes (Lines)" );
+    Vector< Vector< moris_index > > Integration_Surface_Mesh::get_cell_to_vertex_indices(
+            Integration_Mesh const           *aIGMesh,
+            const Vector< Side_Set const * > &aSideSets ) const
+    {
+        Vector< Vector< moris_index > > tFacetConnectivity;
 
-    //     mFacetNormals.resize( tDim, tNumCells );
+        map< moris_index, Vector< moris_index > > tTmpNeighborMap;
 
-    //     Matrix< DDRMat > tVertexCoordinates = this->get_vertex_coordinates();
+        for ( auto const &tSideSet : aSideSets )
+        {
+            moris_index const tNumClustersOnSet = tSideSet->get_clusters_on_set().size();
 
-    //     for ( moris::size_t i = 0; i < tNumCells; i++ )
-    //     {
-    //         auto const tGlobalCellIndex = mLocalToGlobalCellIndex( i );
+            for ( moris_index tClusterIndex = 0; tClusterIndex < tNumClustersOnSet; tClusterIndex++ )
+            {
+                Cluster const         *tCluster  = tSideSet->get_clusters_by_index( tClusterIndex );
+                Vector< const Cell * > tCells    = tCluster->get_primary_cells_in_cluster();
+                Matrix< IdMat >        tCellOrds = tCluster->get_cell_side_ordinals();
 
-    //         auto tCell =
-    //                 dynamic_cast< mtk::Cell_DataBase const & >( mIGMesh->get_mtk_cell( tGlobalCellIndex ) );
+                for ( uint i = 0; i < tCells.size(); i++ )
+                {
+                    Cell const *tCurrentCell        = tCells( i );
+                    int const   tCurrentCellOrdinal = tCellOrds( i );
 
-    //         Matrix< DDRMat > tNormal( tDim, 1 );
+                    Vector< moris_index > tCellVertexIndices;
 
-    //         Vector< moris_index > tVertices = mCellToVertexIndices( i );
-    //         Matrix< DDRMat >      tCoords( 2, 2 );
-    //         tCoords.set_column( 0, tVertexCoordinates.get_column( tVertices( 0 ) ) );
-    //         tCoords.set_column( 1, tVertexCoordinates.get_column( tVertices( 1 ) ) );
+                    Vector< Vertex const * > tSideVertices = tCurrentCell->get_geometric_vertices_on_side_ordinal( tCurrentCellOrdinal );
 
-    //         // { { tY2 - tY1  }, { tX1 - tX2 } }
-    //         tNormal( 0 ) = tCoords( 1, 1 ) - tCoords( 1, 0 );
-    //         tNormal( 1 ) = tCoords( 0, 0 ) - tCoords( 0, 1 );
-    //         tNormal      = tNormal / norm( tNormal );
+                    for ( uint j = 0; j < tSideVertices.size(); j++ )
+                    {
+                        Vertex const *tVertex = tSideVertices( j );
+                        tCellVertexIndices.push_back( tVertex->get_index() );
+                    }
 
-    //         mFacetNormals.set_column( i, tNormal );
-    //     }
-    // }
+                    tFacetConnectivity.push_back( tCellVertexIndices );
+                }
+            }
+        }
+
+
+        return tFacetConnectivity;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< Side_Set const * >
+    Integration_Surface_Mesh::obtain_sidesets_from_names( Integration_Mesh_DataBase_IG const *aIGMesh, const Vector< std::string > &aSideSetNames )
+    {
+        Vector< Side_Set const * > aSideSets;
+
+        auto aSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) -> Side_Set const * {
+            return const_cast< Side_Set const * >( dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) ) );
+        };
+
+        std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( aSideSets ), aSideSetFromName );
+
+        return aSideSets;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     void Integration_Surface_Mesh::initialize_facet_measure()
     {
-        auto const       tNumCells          = static_cast< moris::size_t >( mLocalToGlobalCellIndex.size() );
+        auto const       tNumCells          = static_cast< moris::size_t >( mData.mLocalToGlobalCellIndex.size() );
         Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates();
         mFacetMeasure.resize( tNumCells, 1 );
 
         for ( moris::size_t i = 0; i < tNumCells; i++ )
         {
             MORIS_ASSERT( get_spatial_dimension() == 2, "Surface Mesh facet measure only implemented for 2D meshes (Lines)" );
-            Vector< moris_index > tVertices = mCellToVertexIndices( i );
+            Vector< moris_index > tVertices = mData.mCellToVertexIndices( i );
             Matrix< DDRMat >      tCoords( 2, 2 );
             // int const   tGlobalCellIndex = mLocalToGlobalCellIndex( i );
             // int         tSideOrdinal     = mCellSideOrdinals( i );
@@ -257,7 +133,7 @@ namespace moris::mtk
 
     void Integration_Surface_Mesh::initialize_vertex_normals()
     {
-        auto const             tNumVertices  = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
+        auto const             tNumVertices  = static_cast< moris::size_t >( mData.mLocalToGlobalVertexIndex.size() );
         uint const             tDim          = this->get_spatial_dimension();
         const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
         const Matrix< DDRMat > tFacetMeasure = this->get_facet_measure();
@@ -266,7 +142,7 @@ namespace moris::mtk
         auto tNormal = Matrix< DDRMat >( tDim, 1 );
         for ( moris::size_t i = 0; i < tNumVertices; i++ )
         {
-            Vector< moris_index > tVertexCellNeighbors = mVertexToCellIndices( i );
+            Vector< moris_index > tVertexCellNeighbors = mData.mVertexToCellIndices( i );
             auto const            tNumNeighbors        = static_cast< moris::size_t >( tVertexCellNeighbors.size() );
             tNormal.fill( 0.0 );    // reset the current normal to zero for each vertex normal calculation
 
@@ -282,16 +158,16 @@ namespace moris::mtk
 
     Vector< Vector< moris_index > > Integration_Surface_Mesh::get_vertex_neighbors() const
     {
-        return mVertexNeighbors;
+        return mData.mVertexNeighbors;
     }
 
     Vector< moris_index > Integration_Surface_Mesh::get_vertex_neighbors( moris_index aLocalVertexIndex ) const
     {
-        MORIS_ASSERT( aLocalVertexIndex < static_cast< moris_index >( mVertexNeighbors.size() ), "Vertex index out of bounds" );
-        return mVertexNeighbors( aLocalVertexIndex );
+        MORIS_ASSERT( aLocalVertexIndex < static_cast< moris_index >( mData.mVertexNeighbors.size() ), "Vertex index out of bounds" );
+        return mData.mVertexNeighbors( aLocalVertexIndex );
     }
 
-    const Matrix< DDRMat >& Integration_Surface_Mesh::get_facet_measure() const
+    const Matrix< DDRMat > &Integration_Surface_Mesh::get_facet_measure() const
     {
         return mFacetMeasure;
     }
@@ -303,22 +179,22 @@ namespace moris::mtk
 
     moris_index Integration_Surface_Mesh::get_global_vertex_index( moris_index aLocalVertexIndex ) const
     {
-        return mLocalToGlobalVertexIndex( aLocalVertexIndex );
+        return mData.mLocalToGlobalVertexIndex( aLocalVertexIndex );
     }
 
     moris_index Integration_Surface_Mesh::get_global_cell_index( moris_index aLocalCellIndex ) const
     {
-        return mLocalToGlobalCellIndex( aLocalCellIndex );
+        return mData.mLocalToGlobalCellIndex( aLocalCellIndex );
     }
 
     moris_index Integration_Surface_Mesh::get_local_vertex_index( moris_index aGlobalVertexIndex ) const
     {
-        return mGlobalToLocalVertexIndex.at( aGlobalVertexIndex );
+        return mData.mGlobalToLocalVertexIndex.at( aGlobalVertexIndex );
     }
 
     moris_index Integration_Surface_Mesh::get_local_cell_index( moris_index aGlobalCellIndex ) const
     {
-        return mGlobalToLocalCellIndex.at( aGlobalCellIndex );
+        return mData.mGlobalToLocalCellIndex.at( aGlobalCellIndex );
     }
 
     void Integration_Surface_Mesh::set_all_displacements( Matrix< DDRMat > const &aDisplacements )
@@ -333,22 +209,22 @@ namespace moris::mtk
 
     moris_index Integration_Surface_Mesh::get_cluster_of_cell( moris_index aLocalCellIndex ) const
     {
-        return mCellToClusterIndices( aLocalCellIndex );
+        return mData.mCellToClusterIndices( aLocalCellIndex );
     }
 
     Vector< moris_index > Integration_Surface_Mesh::get_vertices_of_cell( moris_index aLocalCellIndex ) const
     {
-        return mCellToVertexIndices( aLocalCellIndex );
+        return mData.mCellToVertexIndices( aLocalCellIndex );
     }
 
     Vector< moris_index > Integration_Surface_Mesh::get_cells_of_vertex( moris_index aLocalVertexIndex ) const
     {
-        return mVertexToCellIndices( aLocalVertexIndex );
+        return mData.mVertexToCellIndices( aLocalVertexIndex );
     }
 
     uint Integration_Surface_Mesh::get_spatial_dimension() const
     {
-        return mIGMesh->get_spatial_dim();
+        return mData.mIGMesh->get_spatial_dim();
     }
 
     Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals_of_cell( moris_index aLocalCellIndex ) const
@@ -370,10 +246,10 @@ namespace moris::mtk
         Json tMesh;
 
         Json tVertexMap;
-        for ( moris::size_t i = 0; i < mLocalToGlobalVertexIndex.size(); i++ )
+        for ( moris::size_t i = 0; i < mData.mLocalToGlobalVertexIndex.size(); i++ )
         {
-            moris_index const tGlobalIndex = mLocalToGlobalVertexIndex( i );
-            moris_id const    tGlobalID    = mIGMesh->get_mtk_vertex( tGlobalIndex ).get_id();
+            moris_index const tGlobalIndex = mData.mLocalToGlobalVertexIndex( i );
+            moris_id const    tGlobalID    = mData.mIGMesh->get_mtk_vertex( tGlobalIndex ).get_id();
             tVertexMap.add( std::to_string( tGlobalID ), i );
         }
         tMesh.put_child( "vertex_map", tVertexMap );
@@ -394,16 +270,16 @@ namespace moris::mtk
         tMesh.put_child( "coordinates", tCoordinatesJson );
 
         Json tCellMap;
-        for ( moris::size_t i = 0; i < mLocalToGlobalCellIndex.size(); i++ )
+        for ( moris::size_t i = 0; i < mData.mLocalToGlobalCellIndex.size(); i++ )
         {
-            moris_index const tGlobalIndex = mLocalToGlobalCellIndex( i );
-            moris_id const    tGlobalID    = mIGMesh->get_mtk_cell( tGlobalIndex ).get_id();
+            moris_index const tGlobalIndex = mData.mLocalToGlobalCellIndex( i );
+            moris_id const    tGlobalID    = mData.mIGMesh->get_mtk_cell( tGlobalIndex ).get_id();
             tCellMap.add( std::to_string( tGlobalID ), i );
         }
         tMesh.put_child( "cell_map", tCellMap );
 
         Json tSideSetMap;
-        for ( auto const &tSideSet : mSideSets )
+        for ( auto const &tSideSet : mData.mSideSets )
         {
             Json tObj;
             tObj.put( "", tSideSet->get_set_name() );

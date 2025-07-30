@@ -171,12 +171,12 @@ int main( int argc,
     tParameters.set_domain_dimensions( tDimensons );
     tParameters.set_domain_offset( tOffset );
     tParameters.set_bspline_truncation( true );
-    tParameters.set_output_meshes( { { 0 } } );
-    tParameters.set_lagrange_orders( { { tLagrangeOrder } } );
-    tParameters.set_lagrange_patterns( { { 0 } } );
-    tParameters.set_bspline_orders( { { tBsplineOrder } } );
-    tParameters.set_bspline_patterns( { { 0 } } );
-    tParameters.set_side_sets( tSideSets );
+    tParameters.set_output_meshes( { { { 0 } } } );
+    tParameters.set_lagrange_orders( { tLagrangeOrder } );
+    tParameters.set_lagrange_patterns( { 0 } );
+    tParameters.set_bspline_orders( { tBsplineOrder } );
+    tParameters.set_bspline_patterns( { 0 } );
+    tParameters.set_create_side_sets( true );
     tParameters.set_refinement_buffer( 2 );
     tParameters.set_staircase_buffer( 2 );
     tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );

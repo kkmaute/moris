@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 
+#include "cl_Git_info.hpp"               // IOS/src
 #include "cl_Communication_Tools.hpp"    // COM/src
 
 namespace moris
@@ -170,6 +171,11 @@ namespace moris
             // Where?
             std::fprintf( stdout, "     Run Dir      : %s\n", std::getenv( "PWD" ) );
             std::fprintf( stdout, "\n" );
+
+            git_info tGitInfo;
+
+            std::fprintf( stdout, "     GIT branch   : %s\n", tGitInfo.get_git_branch().c_str() );
+            std::fprintf( stdout, "     GIT revision : %s\n\n", tGitInfo.get_git_hash().c_str() );
         }
     }
 

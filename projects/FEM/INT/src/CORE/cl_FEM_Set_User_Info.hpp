@@ -46,6 +46,9 @@ namespace moris::fem
         // bool for time sideset
         bool mTimeContinuity = false;
 
+        // time for final sideset
+        real mTimeFinal = -1.0;
+
         // bool for time boundary
         bool mTimeBoundary = false;
 
@@ -173,6 +176,26 @@ namespace moris::fem
         const bool &get_time_continuity() const
         {
             return mTimeContinuity;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * set the final time
+         * @param[ in ] aTimeFinal real for final time sideset
+         */
+        void set_time_final( real aTimeFinal )
+        {
+            mTimeFinal = aTimeFinal;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the final time
+         * @param[ out ] mTimeFinal real for final time
+         */
+        const real &get_time_final() const
+        {
+            return mTimeFinal;
         }
 
         //------------------------------------------------------------------------------

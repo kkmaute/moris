@@ -2351,7 +2351,7 @@ namespace moris::xtk
             bool               aCollectSets )
     {
         Vector< moris_index > tSideSetIndices = this->register_side_set_names( { aSideSetName } );
-        moris_index tSideSetIndex = tSideSetIndices( 0 );
+        moris_index           tSideSetIndex   = tSideSetIndices( 0 );
 
         uint tNumDblSideClusters = mDoubleSideSets( aDblSideSetIndex ).size();
 
@@ -2391,7 +2391,7 @@ namespace moris::xtk
         Vector< std::shared_ptr< xtk::Side_Cluster > > &tSideClusters = mSideSets( aSideSetIndex );
 
         Vector< moris_index > tBlockSetIndices = this->register_block_set_names_with_cell_topo( { aBlockSetName }, aCellTopo );
-        moris_index tBlockSetIndex = tBlockSetIndices( 0 );
+        moris_index           tBlockSetIndex   = tBlockSetIndices( 0 );
 
         std::unordered_map< moris_index, moris_index > tIpCellInSet;
 
@@ -4300,8 +4300,8 @@ namespace moris::xtk
                         moris_index tLeaderUIPCIndex   = tSubphaseIndexToEnrIpCellIndex( tLeaderSubphaseIndex );
                         moris_index tFollowerUIPCIndex = tSubphaseIndexToEnrIpCellIndex( tFollowerSubphaseIndex );
 
-                        Interpolation_Cell_Unzipped * tLeaderUIPC = tEnrIpCells( tLeaderUIPCIndex );
-                        Interpolation_Cell_Unzipped * tFollowerUIPC = tEnrIpCells( tFollowerUIPCIndex );
+                        Interpolation_Cell_Unzipped *tLeaderUIPC   = tEnrIpCells( tLeaderUIPCIndex );
+                        Interpolation_Cell_Unzipped *tFollowerUIPC = tEnrIpCells( tFollowerUIPCIndex );
 
                         moris_index tLeaderCellSideOrdinal   = tDblSideGroup->mLeaderIgCellSideOrdinals( iDblFacet );
                         moris_index tFollowerCellSideOrdinal = tDblSideGroup->mFollowerIgCellSideOrdinals( iDblFacet );
@@ -4309,12 +4309,12 @@ namespace moris::xtk
                         moris_index tLeaderBulkPhase   = mCutIgMesh->get_subphase_bulk_phase( tLeaderSubphaseIndex );
                         moris_index tFollowerBulkPhase = mCutIgMesh->get_subphase_bulk_phase( tFollowerSubphaseIndex );
 
-                        moris_index tLeaderOwner = tLeaderUIPC->get_owner();
+                        moris_index tLeaderOwner   = tLeaderUIPC->get_owner();
                         moris_index tFollowerOwner = tFollowerUIPC->get_owner();
 
-                        // if exactly one UIPC is not owned, list it for later communication 
+                        // if exactly one UIPC is not owned, list it for later communication
                         // (This is the case for dbl. side clusters aligning with proc boundaries. If both are non-owned the side cluster is irrelevant to the current proc)
-                        if ( tLeaderOwner != tFollowerOwner)
+                        if ( tLeaderOwner != tFollowerOwner )
                         {
                             if ( tLeaderOwner != par_rank() )
                             {
@@ -4465,7 +4465,7 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::communicate_T_matrices_for_UIPCs( const Vector<moris_index> & aNonOwnedUipcIndices )
+    Enriched_Integration_Mesh::communicate_T_matrices_for_UIPCs( const Vector< moris_index > &aNonOwnedUipcIndices )
     {
         // log this function when verbose output is requested
         Tracer tTracer( "XTK", "Enriched IG Mesh", "Communicate T-matrices for dbl.-SS.", mModel->mVerboseLevel, 1 );
@@ -4480,7 +4480,7 @@ namespace moris::xtk
         }
 
         // access the enriched ip mesh
-        Enriched_Interpolation_Mesh * tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
+        Enriched_Interpolation_Mesh *tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
 
         // get the communication table
         Matrix< IdMat > tCommTable = mModel->get_communication_table();
@@ -4497,7 +4497,7 @@ namespace moris::xtk
             /* Figure out which T-matrices need to be communicated with whom */
 
             // initialize list of UIPCs which do not have an interpolation
-            Vector< mtk::Vertex* > tVerticesWithoutInterpolation;
+            Vector< mtk::Vertex * > tVerticesWithoutInterpolation;
 
             // Pointer to the UIPC the vertices without interpolation are connected to
             Vector< mtk::Cell const * > tUIPCsConnectedToVertices;
@@ -4610,25 +4610,25 @@ namespace moris::xtk
                 bool tPerformUnenrichment = tUnenrichedBsplineMeshIndices.numel() > 0;
                 if ( tPerformUnenrichment )
                 {
-                    MORIS_LOG_WARNING("Using un-enrichment and detected dbl.-SS. coinciding with processor boundaries. Make sure to NOT assemble on dbl. side sets with un-enriched basis.");
+                    MORIS_LOG_WARNING( "Using un-enrichment and detected dbl.-SS. coinciding with processor boundaries. Make sure to NOT assemble on dbl. side sets with un-enriched basis." );
                 }
             }
 
-        } // end for: every B-spline mesh index
+        }    // end for: every B-spline mesh index
 
-    } // end function: Enriched_Integration_Mesh::communicate_T_matrices_for_UIPCs()
+    }    // end function: Enriched_Integration_Mesh::communicate_T_matrices_for_UIPCs()
 
     //------------------------------------------------------------------------------
 
     void
     Enriched_Integration_Mesh::collect_UIPVs_without_interpolation(
-            const Vector<moris_index> &   aNonOwnedUipcIndices,
-            Vector< mtk::Vertex * > &     aVerticesWithoutInterpolation,
-            Vector< mtk::Cell const * > & aUIPCsConnectedToVertices,
-            const moris_index             aMeshIndex )
+            const Vector< moris_index > &aNonOwnedUipcIndices,
+            Vector< mtk::Vertex * >     &aVerticesWithoutInterpolation,
+            Vector< mtk::Cell const * > &aUIPCsConnectedToVertices,
+            const moris_index            aMeshIndex )
     {
         // access the enriched ip mesh
-        Enriched_Interpolation_Mesh * tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
+        Enriched_Interpolation_Mesh *tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
 
         // number of UIPCs without an interpolation
         uint tNumNonOwnedUIPCs = aNonOwnedUipcIndices.size();
@@ -4640,8 +4640,8 @@ namespace moris::xtk
         for ( uint iUIPC = 0; iUIPC < tNumNonOwnedUIPCs; iUIPC++ )
         {
             // get the current UIPC
-            moris_index tUIPCIndex = aNonOwnedUipcIndices( iUIPC );
-            Interpolation_Cell_Unzipped * tUIPC = tEnrIpMesh->get_enriched_interpolation_cells()( tUIPCIndex );
+            moris_index                  tUIPCIndex = aNonOwnedUipcIndices( iUIPC );
+            Interpolation_Cell_Unzipped *tUIPC      = tEnrIpMesh->get_enriched_interpolation_cells()( tUIPCIndex );
 
             // get the vertices of the UIPC
             const Vector< mtk::Vertex * > tUIPCVertices = tUIPC->get_vertex_pointers();
@@ -4650,12 +4650,12 @@ namespace moris::xtk
             for ( uint iVertex = 0; iVertex < tUIPCVertices.size(); iVertex++ )
             {
                 // get the current vertex
-                mtk::Vertex * tVertex = tUIPCVertices( iVertex );
-                moris_id tVertexId = tVertex->get_id();
+                mtk::Vertex *tVertex   = tUIPCVertices( iVertex );
+                moris_id     tVertexId = tVertex->get_id();
 
                 // find out whether a T-matrix exists wrt. the current B-spline mesh
                 bool tHasInterpolation = tVertex->has_interpolation( aMeshIndex );
-            
+
                 // add to list of vertices without interpolation if there is no T-matrix and it hasn't been added already
                 if ( !tHasInterpolation )
                 {
@@ -4663,30 +4663,30 @@ namespace moris::xtk
                     {
                         // add the vertex to the list of vertices without interpolation
                         aVerticesWithoutInterpolation.push_back( tVertex );
-                
+
                         // add the UIPC to the list of UIPCs connected to the vertex
                         aUIPCsConnectedToVertices.push_back( tUIPC );
-                
+
                         // mark the vertex as already marked for communication
                         tVertexIndicesWithoutInterpolationMap[ tVertexId ] = true;
                     }
                 }
-            } // end for: each vertex on the current UIPC
+            }    // end for: each vertex on the current UIPC
 
-        } // end for: each UIPC without interpolation
+        }    // end for: each UIPC without interpolation
 
-    } // end function: Enriched_Integration_Mesh::collect_UIPVs_without_interpolation()
+    }    // end function: Enriched_Integration_Mesh::collect_UIPVs_without_interpolation()
 
     //------------------------------------------------------------------------------
 
     void
     Enriched_Integration_Mesh::prepare_requests_for_T_matrices(
-            Vector< mtk::Vertex * > const &     aVerticesWithoutInterpolation,
-            Vector< mtk::Cell const * > const & aUIPCsConnectedToVertices,
-            Vector< Vector< moris_index > > &   aNotOwnedIPVertIndsInNotOwnedList,
-            Vector< Vector< moris_index > > &   aIPVertIndsToProcs,
-            Vector< Matrix< IdMat > > &         aBaseVertexIds,
-            Vector< Matrix< IdMat > > &         aUnzippedIpCellIds )
+            Vector< mtk::Vertex * > const     &aVerticesWithoutInterpolation,
+            Vector< mtk::Cell const * > const &aUIPCsConnectedToVertices,
+            Vector< Vector< moris_index > >   &aNotOwnedIPVertIndsInNotOwnedList,
+            Vector< Vector< moris_index > >   &aIPVertIndsToProcs,
+            Vector< Matrix< IdMat > >         &aBaseVertexIds,
+            Vector< Matrix< IdMat > >         &aUnzippedIpCellIds )
     {
         // get the communication table and map
         Matrix< IdMat >                   tCommTable              = mModel->get_communication_table();
@@ -4750,34 +4750,34 @@ namespace moris::xtk
                 moris_index tPosInNotOwnedArray = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
 
                 // get the UIPV on the executing proc and its base vertex ID
-                mtk::Vertex const * tUIPV       = aVerticesWithoutInterpolation( tPosInNotOwnedArray );
-                moris_id            tBaseVertId = tUIPV->get_base_vertex()->get_id();
+                mtk::Vertex const *tUIPV       = aVerticesWithoutInterpolation( tPosInNotOwnedArray );
+                moris_id           tBaseVertId = tUIPV->get_base_vertex()->get_id();
 
                 // get the index and ID of the UIPC the current UIPV is attached to
-                mtk::Cell const * tUIPC   = aUIPCsConnectedToVertices( tPosInNotOwnedArray );
-                moris_id          tUipcId = tUIPC->get_id();
+                mtk::Cell const *tUIPC   = aUIPCsConnectedToVertices( tPosInNotOwnedArray );
+                moris_id         tUipcId = tUIPC->get_id();
 
                 // store the identifying information in the output arrays
                 aBaseVertexIds( iProc )( iVert )     = tBaseVertId;
                 aUnzippedIpCellIds( iProc )( iVert ) = tUipcId;
             }
         }    // end for: processors in comm-table
-    } // end function: Enriched_Integration_Mesh::prepare_requests_for_T_matrices()
+    }    // end function: Enriched_Integration_Mesh::prepare_requests_for_T_matrices()
 
     //------------------------------------------------------------------------------
 
     void
     Enriched_Integration_Mesh::prepare_answers_for_T_matrices(
-            Vector< Matrix< IdMat > > const & aReceivedBaseVertexIds,
-            Vector< Matrix< IdMat > > const & aReceivedUnzippedIpCellIds,
-            Vector< Matrix< DDRMat > >&       aTMatrixWeights,
-            Vector< Matrix< IdMat > >&        aTMatrixIds,
-            Vector< Matrix< IdMat > >&        aTMatrixOwners,
-            Vector< Matrix< IndexMat > >&     aTMatrixOffsets,
-            const moris_index                 aMeshIndex )
+            Vector< Matrix< IdMat > > const &aReceivedBaseVertexIds,
+            Vector< Matrix< IdMat > > const &aReceivedUnzippedIpCellIds,
+            Vector< Matrix< DDRMat > >      &aTMatrixWeights,
+            Vector< Matrix< IdMat > >       &aTMatrixIds,
+            Vector< Matrix< IdMat > >       &aTMatrixOwners,
+            Vector< Matrix< IndexMat > >    &aTMatrixOffsets,
+            const moris_index                aMeshIndex )
     {
         // access the enriched ip mesh
-        Enriched_Interpolation_Mesh * tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
+        Enriched_Interpolation_Mesh *tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
 
         // get size of the communication table
         uint tCommTableSize = mModel->get_communication_table().numel();
@@ -4820,11 +4820,11 @@ namespace moris::xtk
                 moris_id tUipcId       = aReceivedUnzippedIpCellIds( iProc )( iVert );
 
                 // get the UIPV
-                moris_index tVertexIndex = tEnrIpMesh->get_enriched_interpolation_vertex( tBaseVertexId, tUipcId );
-                Interpolation_Vertex_Unzipped const * tUIPV = tEnrIpMesh->get_unzipped_vertex_pointer( tVertexIndex );
+                moris_index                          tVertexIndex = tEnrIpMesh->get_enriched_interpolation_vertex( tBaseVertexId, tUipcId );
+                Interpolation_Vertex_Unzipped const *tUIPV        = tEnrIpMesh->get_unzipped_vertex_pointer( tVertexIndex );
 
                 // get the enriched T-matrix
-                Vertex_Enrichment const * tTMatrix = tUIPV->get_xtk_interpolation( aMeshIndex );
+                Vertex_Enrichment const *tTMatrix = tUIPV->get_xtk_interpolation( aMeshIndex );
 
                 // check that the enriched T-matrix is actually known
                 MORIS_ASSERT( tTMatrix->get_base_vertex_interpolation() != nullptr,
@@ -4870,7 +4870,7 @@ namespace moris::xtk
             for ( uint iVert = 0; iVert < tNumReceivedReqs; iVert++ )
             {
                 // access the enriched T-matrix
-                Vertex_Enrichment const * tEnrTMat = tVertexInterpolations( iProc )( iVert );
+                Vertex_Enrichment const *tEnrTMat = tVertexInterpolations( iProc )( iVert );
 
                 // get the range of where the T-matrix information sits in the linear array
                 moris_index tStart = aTMatrixOffsets( iProc )( iVert );
@@ -4889,23 +4889,23 @@ namespace moris::xtk
         aTMatrixOwners.shrink_to_fit();
         aTMatrixOffsets.shrink_to_fit();
 
-    } // end function: Enriched_Integration_Mesh::prepare_answers_for_T_matrices()
+    }    // end function: Enriched_Integration_Mesh::prepare_answers_for_T_matrices()
 
     //------------------------------------------------------------------------------
 
     void
     Enriched_Integration_Mesh::handle_requested_T_matrix_answers(
-            Vector< mtk::Cell const * > const &     aUIPCsConnectedToVertices,
-            Vector< Vector< moris_index > > const & aNotOwnedIPVertIndsInNotOwnedList,
-            Vector< Vector< moris_index > > const & aIPVertIndsToProcs,
-            Vector< Matrix< DDRMat > > const &      aReceivedTMatrixWeights,
-            Vector< Matrix< IdMat > > const &       aReceivedTMatrixIds,
-            Vector< Matrix< IdMat > > const &       aReceivedTMatrixOwners,
-            Vector< Matrix< IndexMat > > const &    aReceivedTMatrixOffsets,
-            const moris_index                       aMeshIndex )
+            Vector< mtk::Cell const * > const     &aUIPCsConnectedToVertices,
+            Vector< Vector< moris_index > > const &aNotOwnedIPVertIndsInNotOwnedList,
+            Vector< Vector< moris_index > > const &aIPVertIndsToProcs,
+            Vector< Matrix< DDRMat > > const      &aReceivedTMatrixWeights,
+            Vector< Matrix< IdMat > > const       &aReceivedTMatrixIds,
+            Vector< Matrix< IdMat > > const       &aReceivedTMatrixOwners,
+            Vector< Matrix< IndexMat > > const    &aReceivedTMatrixOffsets,
+            const moris_index                      aMeshIndex )
     {
         // access the enriched ip mesh
-        Enriched_Interpolation_Mesh * tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
+        Enriched_Interpolation_Mesh *tEnrIpMesh = mModel->mEnrichedInterpMesh( 0 );
 
         // get the communication map
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = mModel->mCutIntegrationMesh->get_communication_map();
@@ -4961,7 +4961,7 @@ namespace moris::xtk
                         // get the bulk-phase the basis interpolates into
                         moris_index                  tUipcIndexInNotOwnedData = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
                         moris_index                  tUipcIndex               = aUIPCsConnectedToVertices( tUipcIndexInNotOwnedData )->get_index();
-                        Interpolation_Cell_Unzipped* tEnrIpCell               = tEnrIpMesh->get_enriched_interpolation_cells()( tUipcIndex );
+                        Interpolation_Cell_Unzipped *tEnrIpCell               = tEnrIpMesh->get_enriched_interpolation_cells()( tUipcIndex );
                         moris_index                  tBulkPhase               = tEnrIpCell->get_bulkphase_index();
 
                         // store the basis IDs
@@ -4992,10 +4992,10 @@ namespace moris::xtk
             {
                 // get the vertex
                 moris_index                    tVertexIndex = aIPVertIndsToProcs( iProc )( iVert );
-                Interpolation_Vertex_Unzipped& tVertex      = tEnrIpMesh->get_xtk_interp_vertex( tVertexIndex );
+                Interpolation_Vertex_Unzipped &tVertex      = tEnrIpMesh->get_xtk_interp_vertex( tVertexIndex );
 
                 // get access to the enriched T-matrix
-                Vertex_Enrichment* tEnrTMat = tVertex.get_xtk_interpolation( aMeshIndex );
+                Vertex_Enrichment *tEnrTMat = tVertex.get_xtk_interpolation( aMeshIndex );
 
                 // get the index ranges and size of the T-matrices to received
                 moris_index tStart = aReceivedTMatrixOffsets( iProc )( iVert );
@@ -5019,7 +5019,7 @@ namespace moris::xtk
                 }
 
                 // Setup the basis index to ID map for the T-matrix
-                IndexMap& tVertEnrichMap = tEnrTMat->get_basis_map();
+                IndexMap &tVertEnrichMap = tEnrTMat->get_basis_map();
                 for ( uint iBF = 0; iBF < tSize; iBF++ )
                 {
                     moris_index tBasisIndex       = tBasisIndices( iBF );

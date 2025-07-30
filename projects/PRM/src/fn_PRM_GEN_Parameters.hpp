@@ -207,6 +207,7 @@ namespace moris::prm
         aDesignParameterList.insert( "discretization_lower_bound", -1.0 );        // Lower bound of level set field (if bspline_mesh_index >= 0)
         aDesignParameterList.insert( "discretization_upper_bound", 1.0 );         // Upper bound of level set field (if bspline_mesh_index >= 0)
         aDesignParameterList.insert( "use_multilinear_interpolation", false );    // Whether to use multilinear interpolation for derived node field values
+        aDesignParameterList.insert( "delaunay", false );                         // Whether to use Delaunay triangulation for geometry
     }
 
     /**
@@ -276,17 +277,23 @@ namespace moris::prm
     inline Parameter_List
     create_surface_mesh_geometry_parameter_list()
     {
-        Parameter_List tSurfaceMeshParameterList = create_geometry_parameter_list();           // Inserts all geometry parameters
-        insert_design_field_parameters( tSurfaceMeshParameterList, gen::Field_Type::NONE );    // Inserts all design parameters
-        tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                // offset all points in the geometry by this much
-        tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                 // scaling factor for all points in the geometry
-        tSurfaceMeshParameterList.insert( "file_path", "" );                                   // path to .obj file
-        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );         // function name that determines which nodes are fixed
-        tSurfaceMeshParameterList.insert( "field_function_name", "" );                         // Function for perturbation of surface mesh vertices
-        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );                   // Function name for evaluating the sensitivity of the perturbation
-        tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                      // set the geometry type to surface mesh
-        tSurfaceMeshParameterList.insert( "intersection_tolerance", 1e-8 );                    // Interface tolerance based on intersection distance
-        tSurfaceMeshParameterList.insert( "output_file_name", "" );                            // Output file name for the surface mesh, to be output every optimization iteration
+        Parameter_List tSurfaceMeshParameterList = create_geometry_parameter_list();                                // Inserts all geometry parameters
+        insert_design_field_parameters( tSurfaceMeshParameterList, gen::Field_Type::NONE );                         // Inserts all design parameters
+        tSurfaceMeshParameterList.insert( "offset", Vector< real >( 3, 0.0 ) );                                     // offset all points in the geometry by this much
+        tSurfaceMeshParameterList.insert( "scale", Vector< real >( 3, 1.0 ) );                                      // scaling factor for all points in the geometry
+        tSurfaceMeshParameterList.insert( "file_path", "" );                                                        // path to .obj file
+        tSurfaceMeshParameterList.insert( "discretization_factor_function_name", "" );                              // function name that determines which nodes are fixed
+        tSurfaceMeshParameterList.insert( "field_function_name", "" );                                              // Function for perturbation of surface mesh vertices
+        tSurfaceMeshParameterList.insert( "sensitivity_function_name", "" );                                        // Function name for evaluating the sensitivity of the perturbation
+        tSurfaceMeshParameterList.set( "geometry_type", "surface_mesh" );                                           // set the geometry type to surface mesh
+        tSurfaceMeshParameterList.insert( "output_file_name", "" );                                                 // Output file name for the surface mesh, to be output every optimization iteration
+        tSurfaceMeshParameterList.insert( "name", "" );                                                             // geometry name
+        tSurfaceMeshParameterList.insert_enum( "regularization_type", gen::Regularization_Type_String::values );    // Regularization type (if any) for shape updates. Options are NONE, ISOTROPIC_LAPLACIAN, ANISOTROPIC_LAPLACIAN, TAUBIN, or USER_DEFINED
+        tSurfaceMeshParameterList.insert( "regularization_function_name", "" );                                     // User defined function name for regularization of surface mesh vertices
+        tSurfaceMeshParameterList.insert( "regularization_sensitivity_function_name", "" );                         // User defined function name for evaluating the sensitivity of the regularization
+        tSurfaceMeshParameterList.insert( "regularization_vertex_inds_function_name", "" );                         // User defined function name that returns which ADV IDs a given surface mesh vertex depends on
+        tSurfaceMeshParameterList.insert( "regularization_factors", Vector< real >( 1, 1.0 ) );                     // Factors for scaling regularization functions, applied in order
+        tSurfaceMeshParameterList.insert( "regularization_iterations", 0, 0, 100 );                                 // Number of times the regularization function is applied to the surface mesh vertices per optimization iteration
 
         return tSurfaceMeshParameterList;
     }
@@ -365,13 +372,13 @@ namespace moris::prm
     inline Parameter_List
     create_gen_property_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tPropertyParameterList = create_design_parameter_list();    // Create a design parameter list
-        tPropertyParameterList.set( "design_type", "property" );                   // Set the design type to a property
-        insert_design_field_parameters( tPropertyParameterList, aFieldType );      // Inserts all design field parameters
-        tPropertyParameterList.insert( "pdv_type", "" );                           // The type of PDV that this property will be assigned to
-        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );         // Mesh type for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_names", "" );                 // Mesh set names for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_indices", "" );               // Mesh set indices for assigning PDVs
+        Parameter_List tPropertyParameterList = create_design_parameter_list();            // Create a design parameter list
+        tPropertyParameterList.set( "design_type", "property" );                           // Set the design type to a property
+        insert_design_field_parameters( tPropertyParameterList, aFieldType );              // Inserts all design field parameters
+        tPropertyParameterList.insert( "pdv_type", "" );                                   // The type of PDV that this property will be assigned to
+        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );                 // Mesh type for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_names", Vector< std::string >() );    // Mesh set names for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_indices", Vector< uint >() );         // Mesh set indices for assigning PDVs
 
         return tPropertyParameterList;
     }

@@ -45,6 +45,7 @@ namespace moris::fem
                 m_eval_divstrain    = &CM_Fluid_Incompressible::eval_divstrain_2d;
                 m_eval_teststrain   = &CM_Fluid_Incompressible::eval_teststrain_2d;
                 m_eval_dstraindx    = &CM_Fluid_Incompressible::eval_dstraindx_2d;
+                m_eval_dstraindxdu  = &CM_Fluid_Incompressible::eval_dstraindxdu_2d;
                 m_eval_ddivstraindu = &CM_Fluid_Incompressible::eval_ddivstraindu_2d;
                 m_flatten_normal    = &CM_Fluid_Incompressible::flatten_normal_2d;
                 break;
@@ -55,6 +56,7 @@ namespace moris::fem
                 m_eval_divstrain    = &CM_Fluid_Incompressible::eval_divstrain_3d;
                 m_eval_teststrain   = &CM_Fluid_Incompressible::eval_teststrain_3d;
                 m_eval_dstraindx    = &CM_Fluid_Incompressible::eval_dstraindx_3d;
+                m_eval_dstraindxdu  = &CM_Fluid_Incompressible::eval_dstraindxdu_3d;
                 m_eval_ddivstraindu = &CM_Fluid_Incompressible::eval_ddivstraindu_3d;
                 m_flatten_normal    = &CM_Fluid_Incompressible::flatten_normal_3d;
                 break;
@@ -119,6 +121,34 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
+    CM_Fluid_Incompressible::reset_specific_eval_flags()
+    {
+        // reset child specific eval flags
+        mdStraindxduEval.fill( true );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    CM_Fluid_Incompressible::initialize_spec_storage_vars_and_eval_flags()
+    {
+        // get number of dof types
+        uint tNumGlobalDofTypes = mGlobalDofTypes.size();
+
+        // init child specific flags
+        mdStraindxduEval.set_size( mMaxSpaceDerOrder, tNumGlobalDofTypes, true );
+
+        // init child specific storage
+        mdStraindxdu.resize( mMaxSpaceDerOrder );
+        for ( uint iOrder = 0; iOrder < mMaxSpaceDerOrder; iOrder++ )
+        {
+            mdStraindxdu( iOrder ).resize( tNumGlobalDofTypes );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
     CM_Fluid_Incompressible::eval_flux()
     {
         // get the pressure FI
@@ -149,13 +179,21 @@ namespace moris::fem
         // compute flux
         mDivFlux = -1.0 * tPressureFI->gradx( 1 ) + 2.0 * mPropViscosity->val()( 0 ) * this->divstrain();
 
-        // FIXME assume that viscosity prop does not depend on x
+        // check for dependence of dyn. viscosity on space
+        if ( mPropViscosity->check_space_dependency() )
+        {
+            // assume that viscosity prop does not depend on x
+            MORIS_ERROR( false,
+                    "CM_Fluid_Incompressible::eval_divflux -"    //
+                    "Dependence of dynamic viscosity on space not accounted for." );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    CM_Fluid_Incompressible::eval_ddivfluxdu( const Vector< MSI::Dof_Type >& aDofTypes )
+    CM_Fluid_Incompressible::eval_ddivfluxdu(
+            const Vector< MSI::Dof_Type >& aDofTypes )
     {
         // get the dof type index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -193,36 +231,22 @@ namespace moris::fem
             mddivfluxdu( tDofIndex ) +=
                     2.0 * this->divstrain() * mPropViscosity->dPropdDOF( aDofTypes );
         }
+
+        // check for dependence of dyn. viscosity on space
+        if ( mPropViscosity->check_space_dependency() )
+        {
+            // assume that viscosity prop does not depend on x
+            MORIS_ERROR( false,
+                    "CM_Fluid_Incompressible::eval_ddivfluxdu - "    //
+                    "Dependence of dynamic viscosity on space not accounted for." );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    CM_Fluid_Incompressible::eval_dfluxdx( uint aOrder )
-    {
-        // only 1st order supported
-        MORIS_ERROR( aOrder == 1, "CM_Fluid_Incompressible::eval_dfluxdx - only 1st order supported." );
-
-        // get the pressure FI
-        Field_Interpolator* tPressureFI =
-                mFIManager->get_field_interpolators_for_type( mDofPressure );
-
-        // create identity matrix
-        Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-        Matrix< DDRMat > tP( ( mSpaceDim - 1 ) * 3, 1, 0.0 );
-
-        tP( { 0, mSpaceDim - 1 }, { 0, 0 } ) = tI.matrix_data();
-
-        // evaluate dfluxdx
-        mdFluxdx( aOrder - 1 ) =
-                trans( tPressureFI->gradx( aOrder ) * tP ) -    //
-                2.0 * mPropViscosity->val() * this->dstraindx( aOrder );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    CM_Fluid_Incompressible::eval_traction( const Matrix< DDRMat >& aNormal )
+    CM_Fluid_Incompressible::eval_traction(
+            const Matrix< DDRMat >& aNormal )
     {
         // flatten the normal
         Matrix< DDRMat > tFlatNormal;
@@ -458,7 +482,6 @@ namespace moris::fem
                 mdStraindx( aOrder - 1 )( 1, 1 ) = tVelocityGrad( 1, 1 );
                 mdStraindx( aOrder - 1 )( 2, 0 ) = 0.5 * ( tVelocityGrad( 2, 0 ) + tVelocityGrad( 0, 1 ) );
                 mdStraindx( aOrder - 1 )( 2, 1 ) = 0.5 * ( tVelocityGrad( 1, 0 ) + tVelocityGrad( 2, 1 ) );
-
                 break;
             }
             default:
@@ -508,6 +531,140 @@ namespace moris::fem
             {
                 MORIS_ERROR( false, "CM_Fluid_Incompressible::eval_dstraindx_3d - order not supported." );
             }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    CM_Fluid_Incompressible::dstraindxdu(
+            const Vector< MSI::Dof_Type >& aDofTypes,
+            uint                           aOrder,
+            const Matrix< DDRMat >&        aJump,
+            enum CM_Function_Type          aCMFunctionType )
+    {
+        // check CM function type, base class only supports "DEFAULT"
+        MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                "CM_Fluid_Incompressible::dstraindxdu - Only DEFAULT CM function type known in base class." );
+
+        MORIS_ERROR( aOrder == 1,
+                "CM_Fluid_Incompressible::dstraindxdu - Works only for 1st order derivative for now." );
+
+        // get the dof index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        // if the derivative has not been evaluated yet
+        if ( mdStraindxduEval( aOrder - 1, tDofIndex ) )
+        {
+            // evaluate the derivative
+            this->eval_dstraindxdu( aDofTypes, aOrder, aJump );
+
+            // set bool for evaluation
+            mdStraindxduEval( aOrder - 1, tDofIndex ) = false;
+        }
+
+        // return the derivative
+        return mdStraindxdu( aOrder - 1 )( tDofIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void CM_Fluid_Incompressible::eval_dstraindxdu_2d(
+            const Vector< MSI::Dof_Type >& aDofTypes,
+            uint                           aOrder,
+            const Matrix< DDRMat >&        aJump )
+    {
+        // get the dof type index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        // get the dof FI
+        Field_Interpolator* tFI =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // init storage
+        mdStraindxdu( aOrder - 1 )( tDofIndex ).set_size(    //
+                mSpaceDim,                                   //
+                tFI->get_number_of_space_time_coefficients() );
+
+        // if dof is velocity
+        if ( aDofTypes( 0 ) == mDofVelocity )
+        {
+            // get number of bases for velocity
+            uint tNumBases = tFI->get_number_of_space_time_bases();
+
+            // get the velocity gradient
+            const Matrix< DDRMat >& tdnNdxn = tFI->dnNdxn( 2 );
+
+            // fill dstraindxdu
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) =    //
+                    aJump( 0 ) * tdnNdxn.get_row( 0 ) + 0.5 * aJump( 2 ) * tdnNdxn.get_row( 2 );
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) =    //
+                    aJump( 1 ) * tdnNdxn.get_row( 2 ) + 0.5 * aJump( 2 ) * tdnNdxn.get_row( 0 );
+
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) =    //
+                    aJump( 0 ) * tdnNdxn.get_row( 2 ) + 0.5 * aJump( 2 ) * tdnNdxn.get_row( 1 );
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) =    //
+                    aJump( 1 ) * tdnNdxn.get_row( 1 ) + 0.5 * aJump( 2 ) * tdnNdxn.get_row( 2 );
+        }
+        else
+        {
+            mdStraindxdu( aOrder - 1 )( tDofIndex ).fill( 0.0 );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void CM_Fluid_Incompressible::eval_dstraindxdu_3d(
+            const Vector< MSI::Dof_Type >& aDofTypes,
+            uint                           aOrder,
+            const Matrix< DDRMat >&        aJump )
+    {
+        // get the dof type index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        // get the dof FI
+        Field_Interpolator* tFI =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+        // init storage
+        mdStraindxdu( aOrder - 1 )( tDofIndex ).set_size(    //
+                mSpaceDim,                                   //
+                tFI->get_number_of_space_time_coefficients() );
+
+        // if dof is velocity
+        if ( aDofTypes( 0 ) == mDofVelocity )
+        {
+            // get number of bases for velocity
+            uint tNumBases = tFI->get_number_of_space_time_bases();
+
+            // get the velocity gradient
+            const Matrix< DDRMat >& tdnNdxn = tFI->dnNdxn( 2 );
+
+            // fill dstraindxdu
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) =                                                       //
+                    aJump( 0 ) * tdnNdxn.get_row( 0 ) + 0.5 * aJump( 4 ) * tdnNdxn.get_row( 4 ) + 0.5 * aJump( 5 ) * tdnNdxn.get_row( 2 );    //
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) =                                           //
+                    aJump( 1 ) * tdnNdxn.get_row( 5 ) + 0.5 * aJump( 3 ) * tdnNdxn.get_row( 4 ) + 0.5 * aJump( 5 ) * tdnNdxn.get_row( 0 );    //
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) =                                       //
+                    aJump( 2 ) * tdnNdxn.get_row( 4 ) + 0.5 * aJump( 3 ) * tdnNdxn.get_row( 5 ) + 0.5 * aJump( 4 ) * tdnNdxn.get_row( 0 );
+
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) =                                                       //
+                    aJump( 0 ) * tdnNdxn.get_row( 5 ) + 0.5 * aJump( 4 ) * tdnNdxn.get_row( 3 ) + 0.5 * aJump( 5 ) * tdnNdxn.get_row( 1 );    //
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) =                                           //
+                    aJump( 1 ) * tdnNdxn.get_row( 1 ) + 0.5 * aJump( 3 ) * tdnNdxn.get_row( 3 ) + 0.5 * aJump( 5 ) * tdnNdxn.get_row( 5 );    //
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) =                                       //
+                    aJump( 2 ) * tdnNdxn.get_row( 3 ) + 0.5 * aJump( 3 ) * tdnNdxn.get_row( 1 ) + 0.5 * aJump( 4 ) * tdnNdxn.get_row( 5 );
+
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) =                                                       //
+                    aJump( 0 ) * tdnNdxn.get_row( 4 ) + 0.5 * aJump( 4 ) * tdnNdxn.get_row( 2 ) + 0.5 * aJump( 5 ) * tdnNdxn.get_row( 3 );    //
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) =                                           //
+                    aJump( 1 ) * tdnNdxn.get_row( 3 ) + 0.5 * aJump( 3 ) * tdnNdxn.get_row( 2 ) + 0.5 * aJump( 5 ) * tdnNdxn.get_row( 4 );    //
+            mdStraindxdu( aOrder - 1 )( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) =                                       //
+                    aJump( 2 ) * tdnNdxn.get_row( 2 ) + 0.5 * aJump( 3 ) * tdnNdxn.get_row( 3 ) + 0.5 * aJump( 4 ) * tdnNdxn.get_row( 4 );
+        }
+        else
+        {
+            mdStraindxdu( aOrder - 1 )( tDofIndex ).fill( 0.0 );
         }
     }
 
@@ -696,16 +853,15 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    CM_Fluid_Incompressible::eval_dStraindDOF( const Vector< MSI::Dof_Type >& aDofTypes )
+    CM_Fluid_Incompressible::eval_dStraindDOF(
+            const Vector< MSI::Dof_Type >& aDofTypes )
     {
-        // get the dof type as a uint
-        const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+        // get the dof type index
+        const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
         // get the dof FI
-        Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-
-        // get the dof type index
-        const uint tDofIndex = mGlobalDofTypeMap( tDofType );
+        Field_Interpolator* tFI =    //
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
         // init mdStraindDof
         mdStraindDof( tDofIndex ).set_size(    //
@@ -755,6 +911,114 @@ namespace moris::fem
         aFlatNormal( 1, 5 ) = aNormal( 0, 0 );
         aFlatNormal( 2, 3 ) = aNormal( 1, 0 );
         aFlatNormal( 2, 4 ) = aNormal( 0, 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >&
+    CM_Fluid_Incompressible::select_derivative_FD(
+            enum CM_Request_Type           aCMRequestType,
+            const Vector< MSI::Dof_Type >& aTestDofTypes,
+            const Matrix< DDRMat >&        aNormal,
+            const Matrix< DDRMat >&        aJump,
+            enum CM_Function_Type          aCMFunctionType )
+    {
+        switch ( aCMRequestType )
+        {
+            case CM_Request_Type::STRAIN:
+            {
+                return this->strain( aCMFunctionType );
+                break;
+            }
+            case CM_Request_Type::FLUX:
+            {
+                return this->flux( aCMFunctionType );
+                break;
+            }
+            case CM_Request_Type::TRACTION:
+            {
+                return this->traction( aNormal, aCMFunctionType );
+                break;
+            }
+            case CM_Request_Type::TEST_TRACTION:
+            {
+                mTraction = this->testTraction_trans( aNormal, aTestDofTypes, aCMFunctionType ) * aJump;
+                return mTraction;
+                break;
+            }
+            case CM_Request_Type::DIV_FLUX:
+            {
+                return this->divflux();
+                break;
+            }
+            case CM_Request_Type::DIV_STRAIN:
+            {
+                return this->divstrain();
+                break;
+            }
+            default:
+                MORIS_ERROR( false, "CM_Fluid_Incompressible::select_derivative_FD: aCMRequestType undefined" );
+                return this->strain( aCMFunctionType );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    CM_Fluid_Incompressible::set_derivative_FD(
+            enum CM_Request_Type           aCMRequestType,
+            Matrix< DDRMat >&              aDerivativeFD,
+            const Vector< MSI::Dof_Type >& aDofTypes,
+            const Vector< MSI::Dof_Type >& aTestDofTypes,
+            enum CM_Function_Type          aCMFunctionType )
+    {
+        // get the dof index
+        uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+        switch ( aCMRequestType )
+        {
+            case CM_Request_Type::STRAIN:
+            {
+                // set value to storage
+                mdStraindDof( tDofIndex ) = aDerivativeFD;
+                break;
+            }
+            case CM_Request_Type::FLUX:
+            {
+                // set value to storage
+                mdFluxdDof( tDofIndex ) = aDerivativeFD;
+                break;
+            }
+            case CM_Request_Type::TRACTION:
+            {
+                // set value to storage
+                mdTractiondDof( tDofIndex ) = aDerivativeFD;
+                break;
+            }
+            case CM_Request_Type::TEST_TRACTION:
+            {
+                // get the test dof index
+                uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+                // set value to storage
+                mdTestTractiondDof( tTestDofIndex )( tDofIndex ) = aDerivativeFD;
+                break;
+            }
+            case CM_Request_Type::DIV_FLUX:
+            {
+                // set value to storage
+                mddivfluxdu( tDofIndex ) = aDerivativeFD;
+                break;
+            }
+            case CM_Request_Type::DIV_STRAIN:
+            {
+                // set value to storage
+                mddivstraindu( tDofIndex ) = aDerivativeFD;
+                break;
+            }
+            default:
+                MORIS_ERROR( false, "CM_Fluid_Incompressible::set_derivative_FD: aCMRequestType undefined" );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

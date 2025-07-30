@@ -119,10 +119,9 @@ TEST_CASE( "Sensitivity test", "[Sensitivity test]" )
 
         ParameterList tParameters = prm::create_hmr_parameter_list();
 
-        tParameters.set( "number_of_elements_per_dimension", "5,2" );
-        tParameters.set( "domain_dimensions", "6,2" );
-        tParameters.set( "domain_offset", "-3.0,-1.0" );
-        tParameters.set( "domain_sidesets", "1,2,3,4" );
+        tParameters.set( "number_of_elements_per_dimension", 5, 2 );
+        tParameters.set( "domain_dimensions", 6.0, 2.0 );
+        tParameters.set( "domain_offset", -3.0, -1.0 );
         tParameters.set( "lagrange_output_meshes", "0" );
 
         tParameters.set( "lagrange_orders", "1" );
@@ -132,15 +131,10 @@ TEST_CASE( "Sensitivity test", "[Sensitivity test]" )
 
         tParameters.set( "lagrange_to_bspline", "0" );
 
-        tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "refinement_buffer", 1 );
         tParameters.set( "staircase_buffer", 1 );
-        tParameters.set( "initial_refinement", "0" );
-        tParameters.set( "initial_refinement_pattern", "0" );
-
-        tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
-        tParameters.set( "use_number_aura", 0 );
+        tParameters.set( "use_number_aura", false );
 
         hmr::HMR tHMR( tParameters );
 

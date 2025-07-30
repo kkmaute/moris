@@ -115,16 +115,6 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /**
-         * set constitutive model dof types
-         * @param[ in ] aDofTypes   a list of group of dof types
-         * @param[ in ] aDofStrings a list of strings to describe the dof types
-         */
-        void set_dof_type_list(
-                const Vector< Vector< MSI::Dof_Type > > &aDofTypes,
-                const Vector< std::string >             &aDofStrings ) override;
-
-        //------------------------------------------------------------------------------
-        /**
          * set constitutive model dv types
          * @param[ in ] aDvTypes   a list of group of dv types
          * @param[ in ] aDvStrings a list of strings to describe the dv types

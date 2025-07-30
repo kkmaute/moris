@@ -38,7 +38,7 @@ if [ ! $MORISROOT ];then
 fi 
 
 if [ ! -d $MORISROOT ];then
-    echo " Error: $MORISROOT does not exist"
+    echo " Error: MORIS root path $MORISROOT does not exist"
     echo ""
     exit
 fi 
@@ -47,7 +47,7 @@ if [ "$1" ];then
     workdir=$1
     
     if [ ! -d "$workdir" ];then
-       echo " Error: $workdir does not exist"
+       echo " Error: build directory $workdir does not exist"
        echo ""
        exit
     fi
@@ -61,7 +61,7 @@ if [ "$2" ];then
     builddir=$2
 
     if [ ! -d "$MORISROOT/$builddir" ];then
-       echo " Error: $workdir does not exist"
+       echo " Error: build directory $workdir does not exist"
        echo ""
        exit
     fi
@@ -75,7 +75,7 @@ if [ "$3" ];then
     cppfile=$3
 
     if [ ! -f "$cppfile.cpp" ];then
-       echo " Error: $cppfile.cpp does not exist"
+       echo " Error: Input file $cppfile.cpp does not exist"
        echo ""
        exit
     fi

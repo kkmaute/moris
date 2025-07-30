@@ -129,7 +129,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< real > ADV_Handler::get_values()
+    Vector< real > ADV_Handler::get_values() const
     {
         Vector< real > tValues( mADVs.size() );
         for ( uint iADV = 0; iADV < mADVs.size(); iADV++ )
@@ -152,7 +152,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Vector< sint > ADV_Handler::get_determining_adv_ids()
+    Vector< sint > ADV_Handler::get_determining_adv_ids() const
     {
         return mDeterminingADVIds;
     }

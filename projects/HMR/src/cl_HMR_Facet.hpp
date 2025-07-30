@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_FACE_BASE_HPP_
-#define SRC_HMR_CL_HMR_FACE_BASE_HPP_
+#pragma once
 
 #include "cl_HMR_Background_Facet.hpp"
 #include "moris_typedefs.hpp"
@@ -244,5 +243,3 @@ namespace moris::hmr
     // ----------------------------------------------------------------------------
 
 }    // namespace moris::hmr
-
-#endif /* SRC_HMR_CL_HMR_FACE_BASE_HPP_ */

@@ -99,7 +99,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -109,7 +108,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6106,7 +6105,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -6116,7 +6114,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6166,7 +6164,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -6176,7 +6173,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6226,7 +6223,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -6236,7 +6232,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6286,7 +6282,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -6296,7 +6291,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6345,7 +6340,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -6355,7 +6349,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );
@@ -6404,7 +6398,6 @@
 //     tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
 //     tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
 //     tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
-//     tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
 //     tHMRParameterlist.set( "lagrange_output_meshes", "0" );
 //     tHMRParameterlist.set( "lagrange_orders", "1" );
 //     tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
@@ -6414,7 +6407,7 @@
 //     tHMRParameterlist.set( "truncate_bsplines", 1 );
 //     tHMRParameterlist.set( "refinement_buffer", 1 );
 //     tHMRParameterlist.set( "staircase_buffer", 1 );
-//     tHMRParameterlist.set( "initial_refinement", "0" );
+//     tHMRParameterlist.set( "pattern_initial_refinement", 0 );
 //     tHMRParameterlist.set( "initial_refinement_pattern", "0" );
 //     tHMRParameterlist.set( "use_number_aura", 1 );
 //     tHMRParameterlist.set( "use_multigrid", 0 );

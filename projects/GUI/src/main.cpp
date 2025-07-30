@@ -20,7 +20,7 @@ int main( int argc, char *argv[] )
     QApplication app( argc, argv );
 
     // Create a Parameter List and populate it with initial test values
-    moris::Parameter_List parameterList;
+    moris::Parameter_List parameterList( "test" );
     parameterList.insert( "lineEdit", "Initial text", {} );
     parameterList.insert_enum( "comboBox", { "Option 1", "Option 2", "Option 3" } );
     parameterList.insert( "doubleSpinBox", 0.5, {} );

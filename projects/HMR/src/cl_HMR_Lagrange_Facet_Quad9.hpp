@@ -8,9 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_LAGRANGE_FACET_QUAD9_HPP_
-#define SRC_HMR_CL_HMR_LAGRANGE_FACET_QUAD9_HPP_
-
+#pragma once
 #include "cl_HMR_Lagrange_Facet.hpp"
 
 namespace moris::hmr
@@ -129,6 +127,3 @@ namespace moris::hmr
 
 // ----------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* SRC_HMR_CL_HMR_LAGRANGE_FACET_QUAD9_HPP_ */
-

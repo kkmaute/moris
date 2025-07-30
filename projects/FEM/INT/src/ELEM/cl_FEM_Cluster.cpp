@@ -63,6 +63,7 @@ namespace moris::fem
         {
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             {
                 // loop over the IG cells
                 for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
@@ -341,7 +342,9 @@ namespace moris::fem
             moris::moris_index aPrimaryCellIndexInCluster )
     {
         // check that bulk cluster
-        MORIS_ASSERT( mElementType == fem::Element_Type::BULK || mElementType == fem::Element_Type::TIME_SIDESET,
+        MORIS_ASSERT( mElementType == fem::Element_Type::BULK                              //
+                              || mElementType == fem::Element_Type::TIME_SIDESET           //
+                              || mElementType == fem::Element_Type::TIME_FINAL_SIDESET,    //
                 "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster." );
 
         // check that the mesh cluster was set
@@ -956,6 +959,7 @@ namespace moris::fem
         {
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             case fem::Element_Type::TIME_BOUNDARY:
             {
                 tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
@@ -1025,6 +1029,7 @@ namespace moris::fem
         {
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             case fem::Element_Type::TIME_BOUNDARY:
             {
                 tVolume      = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
@@ -1131,6 +1136,7 @@ namespace moris::fem
         {
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             case fem::Element_Type::TIME_BOUNDARY:
             {
                 tClusterVolume = mMeshCluster->compute_cluster_cell_measure( tPrimaryOrVoid, tIsLeader );
@@ -1172,6 +1178,7 @@ namespace moris::fem
         {
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
             case fem::Element_Type::TIME_BOUNDARY:
             {
                 return mMeshCluster->compute_cluster_ig_cell_measures( tPrimaryOrVoid, tIsLeader );

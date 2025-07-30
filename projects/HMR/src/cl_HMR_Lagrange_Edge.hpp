@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_EDGE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_EDGE_HPP_
+#pragma once
 
 #include "cl_HMR_Edge.hpp"
 namespace moris::hmr
@@ -102,5 +101,3 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_EDGE_HPP_ */

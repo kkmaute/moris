@@ -79,7 +79,9 @@ namespace moris::xtk
         Node_Hierarchy_Interface( Parameter_List &aParameterList ) {}
         ~Node_Hierarchy_Interface() override {}
 
-        bool has_geometric_independent_vertices() const override;
+        Vector< moris_index > get_decomposed_cell_indices() override;
+
+        bool has_geometric_dependent_vertices() const override;
 
         /**
          * @brief perform the node hierarchy decomposition. We overwrite the existing default implementation because
@@ -152,9 +154,7 @@ namespace moris::xtk
         bool
         associate_new_vertices_with_cell_groups(
                 const std::shared_ptr< Edge_Based_Connectivity > &aEdgeConnectivity,
-                const std::shared_ptr< Edge_Based_Ancestry >     &aIgEdgeAncestry,
                 Vector< moris::mtk::Cell * >                     *aBackgroundCellForEdge,
-                Vector< std::shared_ptr< IG_Vertex_Group > >     *aVertexGroups,
                 Vector< moris_index >                            *aIntersectedEdges,
                 Vector< moris::real >                            *aEdgeLocalCoordinate );
 
@@ -185,6 +185,16 @@ namespace moris::xtk
                 Vector< std::shared_ptr< Vector< moris::mtk::Vertex * > > > *aNodesForTemplates,
                 Vector< std::shared_ptr< Node_Hierarchy_Template > >        *aNHTemplate );
 
+        /**
+         * Sorts nodes based on how the IG cell is intersected. 
+         * 
+         * @param aIgCell IG cell to sort nodes for. New IG cells are not yet formed in this cell
+         * @param aEdgeToVertexOrdinalMap FIXME Documentation
+         * @param aCellIndexIntersectedEdgeOrdinals FIXME Documentation
+         * @param aCellIndexIntersectedEdgeVertex FIXME Documentation
+         * @param[out] aPermutation Template ID to create new IG cells
+         * @param[out] aSortedNodeInds
+         */
         void
         sort_nodes_2d(
                 moris::mtk::Cell const                                  *aIgCell,

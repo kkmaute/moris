@@ -45,7 +45,7 @@ namespace moris::gen
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )
     {
-        return this->get_field_value( aNodeIndex );
+        return aNodeIndex == MORIS_INDEX_MAX ? std::numeric_limits< real >::quiet_NaN() : this->get_field_value( aNodeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -62,9 +62,9 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>& Field_Discrete_Integration::get_dfield_dadvs(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+    const Matrix< DDRMat >& Field_Discrete_Integration::get_dfield_dadvs(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
     {
         return this->get_dfield_dadvs( aNodeIndex );
     }
@@ -85,8 +85,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< sint > Field_Discrete_Integration::get_determining_adv_ids(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
     {
         return this->get_determining_adv_ids( aNodeIndex );
     }
@@ -94,7 +94,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Field_Discrete_Integration::get_determining_adv_ids(
-            Vector< sint >&   aDeterminingADVIDs,
+            Vector< sint >&     aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
@@ -107,9 +107,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Field_Discrete_Integration::get_dfield_dcoordinates(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates,
-            Matrix<DDRMat>&       aSensitivities)
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates,
+            Matrix< DDRMat >&       aSensitivities )
     {
         MORIS_ERROR( false, "Discrete dfield_dcoordinates is right now only handled by the level set geometry." );
     }
@@ -118,7 +118,7 @@ namespace moris::gen
 
     Vector< sint > Field_Discrete_Integration::get_determining_adv_ids( uint aNodeIndex )
     {
-        return Field::get_determining_adv_ids( aNodeIndex, {{}} );
+        return Field::get_determining_adv_ids( aNodeIndex, { {} } );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -130,4 +130,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

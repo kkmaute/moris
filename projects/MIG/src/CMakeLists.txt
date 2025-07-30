@@ -18,6 +18,7 @@ cl_MIG_Periodic_2D.hpp
 cl_MIG_Periodic_3D.hpp
 cl_MIG_Mesh_Editor.hpp
 cl_MIG.cpp
+fn_MIG_Triangle_Intersect.hpp
 )
 
 include_directories(${MORIS_PACKAGE_DIR}/include)
@@ -43,6 +44,7 @@ cl_MIG_Periodic_2D.cpp
 cl_MIG_Periodic_3D.cpp
 cl_MIG_Mesh_Editor.cpp
 cl_MIG.cpp
+fn_MIG_Triangle_Intersect.cpp
 )
 
 

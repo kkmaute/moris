@@ -33,11 +33,8 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
-    CM_Struc_Nonlinear_Isotropic::reset_eval_flags()
+    CM_Struc_Nonlinear_Isotropic::reset_specific_eval_flags()
     {
-        // reset flag from parent class
-        Constitutive_Model::reset_eval_flags();
-
         // reset the deformation related flags
         mDefGradEval      = true;
         mRCGStrainEval    = true;
@@ -97,11 +94,8 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
-    CM_Struc_Nonlinear_Isotropic::build_global_dof_type_list()
+    CM_Struc_Nonlinear_Isotropic::initialize_spec_storage_vars_and_eval_flags()
     {
-        // build list from parent class
-        Constitutive_Model::build_global_dof_type_list();
-
         // number of dof types
         uint tNumGlobalDofTypes = mGlobalDofTypes.size();
         uint tNumDirectDofTypes = mDofTypes.size();

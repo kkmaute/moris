@@ -57,6 +57,9 @@ namespace moris::mtk
             , mFacetConnectivity( aFacetConnnectivity )
             , mIntersectionTolerance( aIntersectionTolerance )
     {
+        // Remove the unused vertices, update the facet connectivity
+        this->clean_extraneous_vertices();
+
         // Initialize distortion vectors/matrices
         this->reset_coordinates();
 
@@ -69,6 +72,61 @@ namespace moris::mtk
 #else
         MORIS_LOG_WARNING( "You are using an mtk::Surface_Mesh without ArborX turned on. While all functionality is available, raycasting will be MUCH slower than you'd like." );
 #endif
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::clean_extraneous_vertices()
+    {
+        // STEP 1: Check if all vertices are used in the mesh
+        // Initialize vector to store the indices of all the vertices that are connected to facets
+        Vector< moris_index > tUsedVertexIndices( mFacetConnectivity.size() * mFacetConnectivity( 0 ).size(), MORIS_INDEX_MAX );
+
+        // Loop through all the facets and store the vertices they use
+        uint tIndex = 0;
+        for ( auto tFacet : mFacetConnectivity )
+        {
+            for ( moris_index tVertexIndex : tFacet )
+            {
+                tUsedVertexIndices( tIndex++ ) = tVertexIndex;
+            }
+        }
+
+        // Remove duplicates, sort in ascending order
+        std::sort( tUsedVertexIndices.begin(), tUsedVertexIndices.end() );
+        auto tLast = std::unique( tUsedVertexIndices.begin(), tUsedVertexIndices.end() );
+        tUsedVertexIndices.resize( std::distance( tUsedVertexIndices.begin(), tLast ) );
+
+        // STEP 2: Update the vertex coordinates and facet connectivity
+        if ( tUsedVertexIndices.size() < mVertexCoordinates.n_cols() )
+        {
+            // Create map to track the original vertex index to the cleaned vertex index
+            std::map< moris_index, moris_index > tVertexIndexMap;
+
+            // Get the number of used vertices
+            uint tNumUsedVertices = tUsedVertexIndices.size();
+
+            // Loop through the used vertices update the vertex coordinates
+            for ( uint iVertex = 0; iVertex < tNumUsedVertices; ++iVertex )
+            {
+                mVertexCoordinates.set_column( iVertex, mVertexCoordinates.get_column( tUsedVertexIndices( iVertex ) ) );
+
+                // Update the vertex index map
+                tVertexIndexMap[ tUsedVertexIndices( iVertex ) ] = iVertex;
+            }
+
+            // Trim the vertex coordinates matrix
+            mVertexCoordinates.resize( mVertexCoordinates.n_rows(), tNumUsedVertices );
+
+            // Loop through the facets and replace the vertex indices with the cleaned indices
+            for ( auto& tFacet : mFacetConnectivity )
+            {
+                for ( moris_index& tVertexIndex : tFacet )
+                {
+                    tVertexIndex = tVertexIndexMap[ tVertexIndex ];
+                }
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -106,23 +164,44 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
+    const Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
     {
         return mVertexCoordinates + mDisplacements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates( uint aVertexIndex ) const
+    const Matrix< DDRMat > Surface_Mesh::get_vertex_coordinates( uint aVertexIndex ) const
     {
         return mVertexCoordinates.get_column( aVertexIndex ) + mDisplacements.get_column( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::get_original_vertex_coordinates( const uint aVertexIndex ) const
+    const Matrix< DDRMat > Surface_Mesh::get_all_original_vertex_coordinates() const
+    {
+        return mVertexCoordinates;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > Surface_Mesh::get_original_vertex_coordinates( const uint aVertexIndex ) const
     {
         return mVertexCoordinates.get_column( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Matrix< DDRMat >& Surface_Mesh::get_vertex_displacements() const
+    {
+        return mDisplacements;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< Vector< moris_index > >& Surface_Mesh::get_facet_connectivity() const
+    {
+        return mFacetConnectivity;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -227,14 +306,30 @@ namespace moris::mtk
 
         // Initialize vector to hold raycast result
         Intersection_Vector tIntersections;
-        while ( tWarning )
+        if ( tWarning )
         {
-            tIntersections = this->cast_single_ray( aPoint, tDirection, tWarning, false );
+            // Initialize attempt counter
+            uint tAttemptCounter = 0;
 
-            if ( tWarning )
+            // Cast the ray until it does not hit a warning or we reach a maximum number of attempts
+            do
             {
+                // Get a new random direction
                 tDirection = this->random_direction();
-            }
+
+                // Cast the ray
+                tIntersections = this->cast_single_ray( aPoint, tDirection, tWarning, true );
+
+                // Increment attempt counter
+                tAttemptCounter++;
+
+                // Check if we have exceeded the maximum number of attempts
+                if ( tAttemptCounter > 100 )
+                {
+                    MORIS_LOG_WARNING( "Exceeded maximum number of attempts to resolve raycast warning. Setting to inferface" );
+                    return Mesh_Region::INTERFACE;
+                }
+            } while ( tWarning );
         }
 
         // Determine the region based on the number of intersections or if any intersection is close to zero
@@ -292,55 +387,76 @@ namespace moris::mtk
         }
 
         // Recast all the errored rays until there are no more warnings
-        while ( tNumWarnings > 0 )
+        if ( tNumWarnings > 0 )
         {
-            MORIS_LOG_INFO( "%d rays failed to resolve", tNumWarnings );
+            // Initialize attempt counter
+            uint tAttemptCounter = 0;
 
-            // Get a new random direction
-            tDirection = this->random_direction();
-
-            // Resize preallocated structures to match the actual number of errors
-            tErroredOrigins.resize( tDim, tNumWarnings );
-
-            // Create a temporary warnings vector for this batch of errored rays
-            Vector< Vector< bool > > tNewWarnings;
-
-            // Cast the errored rays
-            Vector< Vector< Intersection_Vector > > tErroredIntersections = this->cast_batch_of_rays( tErroredOrigins, tDirection, tNewWarnings, false );
-
-            // Update intersections for resolved rays and rebuild error list
-            uint tNumNewWarnings = 0;
-            for ( uint iWarning = 0; iWarning < tNumWarnings; ++iWarning )
+            do
             {
-                uint tRayIndex = tErroredIndices( iWarning );
+                MORIS_LOG_INFO( "%d rays failed to resolve", tNumWarnings );
 
-                if ( !tNewWarnings( iWarning )( 0 ) )    // No warning, means the ray was resolved
-                {
-                    // Update intersection for resolved rays
-                    tIntersections( tRayIndex )( 0 ) = tErroredIntersections( iWarning )( 0 );
-                }
-                else
-                {
-                    // Keep unresolved rays in the error list
-                    tErroredIndices( tNumNewWarnings ) = tRayIndex;
-                    tErroredOrigins.set_column( tNumNewWarnings++, aPoint.get_column( tRayIndex ) );
-                }
-            }
+                // Get a new random direction
+                tDirection = this->random_direction();
 
-            // Update the number of warnings
-            tNumWarnings = tNumNewWarnings;
+                // Resize preallocated structures to match the actual number of errors
+                tErroredOrigins.resize( tDim, tNumWarnings );
+
+                // Create a temporary warnings vector for this batch of errored rays
+                Vector< Vector< bool > > tNewWarnings;
+
+                // Cast the errored rays
+                Vector< Vector< Intersection_Vector > > tErroredIntersections = this->cast_batch_of_rays( tErroredOrigins, tDirection, tNewWarnings, false );
+
+                // Update intersections for resolved rays and rebuild error list
+                uint tNumNewWarnings = 0;
+                for ( uint iWarning = 0; iWarning < tNumWarnings; ++iWarning )
+                {
+                    uint tRayIndex = tErroredIndices( iWarning );
+
+                    if ( !tNewWarnings( iWarning )( 0 ) )    // No warning, means the ray was resolved
+                    {
+                        // Update intersection for resolved rays
+                        tIntersections( tRayIndex )( 0 ) = tErroredIntersections( iWarning )( 0 );
+                    }
+                    else
+                    {
+                        // Keep unresolved rays in the error list
+                        tErroredIndices( tNumNewWarnings ) = tRayIndex;
+                        tErroredOrigins.set_column( tNumNewWarnings++, aPoint.get_column( tRayIndex ) );
+                    }
+                }
+
+                // Update the number of warnings
+                tNumWarnings = tNumNewWarnings;
+
+                // Check if we have exceeded the maximum number of attempts
+                if ( ++tAttemptCounter > 10 )
+                {
+                    MORIS_LOG_WARNING( "Exceeded maximum number of attempts to resolve raycast warnings. Setting these points to interface" );
+                    for ( uint i = 0; i < tNumWarnings; ++i )
+                    {
+                        tRegions( tErroredIndices( i ) ) = Mesh_Region::INTERFACE;
+                    }
+                    break;
+                }
+            } while ( tNumWarnings > 0 );
         }
 
         // Loop through the intersections and determine the region for each point
         for ( uint iPoint = 0; iPoint < tNumPoints; iPoint++ )
         {
-            // Get the intersections for this point FIXME: write a function that returns the distances only to avoid the std::pair overhead
-            Intersection_Vector tIntersectionsForPoint = tIntersections( iPoint )( 0 );
+            // Check if this ray has already been classified
+            if ( tRegions( iPoint ) == UNDEFINED )
+            {
+                // Get the intersections for this point FIXME: write a function that returns the distances only to avoid the std::pair overhead
+                Intersection_Vector tIntersectionsForPoint = tIntersections( iPoint )( 0 );
 
-            // Store the region for this point
-            tRegions( iPoint ) = std::any_of( tIntersectionsForPoint.begin(), tIntersectionsForPoint.end(), [ this ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) < mIntersectionTolerance; } )
-                                       ? Mesh_Region::INTERFACE
-                                       : static_cast< Mesh_Region >( tIntersectionsForPoint.size() % 2 );
+                // Store the region for this point
+                tRegions( iPoint ) = std::any_of( tIntersectionsForPoint.begin(), tIntersectionsForPoint.end(), [ this ]( std::pair< uint, real > aIntersection ) { return std::abs( aIntersection.second ) < mIntersectionTolerance; } )
+                                           ? Mesh_Region::INTERFACE
+                                           : static_cast< Mesh_Region >( tIntersectionsForPoint.size() % 2 );
+            }
         }
 
         return tRegions;
@@ -742,18 +858,18 @@ namespace moris::mtk
         real tInverseDeterminant = 1.0 / tDet;
 
         // Compute the vector from the origin to the first vertex
-        Matrix< DDRMat > tT;
+        Matrix< DDRMat > tRayToVertex;
         if ( aPoint.n_cols() == 1 )
         {
-            tT = aPoint - tVertexCoordinates.get_column( 0 );
+            tRayToVertex = aPoint - tVertexCoordinates.get_column( 0 );
         }
         else
         {
-            tT = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
+            tRayToVertex = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
         }
 
         // Compute the u parameter
-        real tU = dot( tT, tP ) * tInverseDeterminant;
+        real tU = dot( tRayToVertex, tP ) * tInverseDeterminant;
 
         // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
         if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance )
@@ -762,7 +878,7 @@ namespace moris::mtk
         }
 
         // Compute the vector from the origin to the second vertex
-        Matrix< DDRMat > tQ = cross( tT, tEdge1 );
+        Matrix< DDRMat > tQ = cross( tRayToVertex, tEdge1 );
 
         // Compute the v parameter
         real tV = dot( aDirection, tQ ) * tInverseDeterminant;

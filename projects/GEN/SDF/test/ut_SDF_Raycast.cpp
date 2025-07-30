@@ -76,7 +76,6 @@ namespace moris::sdf
                 // Vector< uint > tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateTriangles.size() == 3 );
-                // // REQUIRE( tPreselection == Preselection_Result::SUCCESS );
                 // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 // CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
                 // CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
@@ -87,7 +86,6 @@ namespace moris::sdf
                 // tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateTriangles.size() == 2 );
-                // // REQUIRE( tPreselection == Preselection_Result::SUCCESS );
                 // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
                 // CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
 
@@ -371,6 +369,6 @@ namespace moris::sdf
             }
         }
     }
-}    // namespace moris::sdf
-
 #endif    // MORIS_HAVE_ARBORX
+
+}    // namespace moris::sdf

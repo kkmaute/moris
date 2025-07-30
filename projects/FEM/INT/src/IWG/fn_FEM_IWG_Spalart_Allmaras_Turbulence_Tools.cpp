@@ -89,20 +89,16 @@ namespace moris::fem
         Field_Interpolator* tFIViscosity =
                 aLeaderFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
-        // compute chi
-        real tChi = compute_chi(
-                aViscosityDofGroup,
-                aLeaderFIManager,
-                aPropKinViscosity );
-
         // compute dchidx
         adchidx = tFIViscosity->gradx( 1 ) / aPropKinViscosity->val()( 0 );
 
         // if kinematic viscosity depends on space
-        if ( aPropKinViscosity->check_space_dependency( 1 ) )
+        if ( aPropKinViscosity->check_space_dependency() )
         {
-            // add contribution of kinematic viscosity space derivative
-            adchidx -= tChi * aPropKinViscosity->dnPropdxn( 1 ) / aPropKinViscosity->val()( 0 );
+            // assume that kinematic viscosity prop does not depend on x
+            MORIS_ERROR( false,           //
+                    "compute_dchidx -"    //
+                    "Dependence of kinematic viscosity on space not accounted for." );
         }
     }
 
@@ -126,19 +122,12 @@ namespace moris::fem
                 tDerFI->get_number_of_space_time_coefficients() );
 
         // if kinematic viscosity depends on space
-        if ( aPropKinViscosity->check_space_dependency( 1 ) )
+        if ( aPropKinViscosity->check_space_dependency() )
         {
-            // compute dchidu
-            Matrix< DDRMat > tdChidu;
-            compute_dchidu(
-                    aViscosityDofGroup,
-                    aLeaderFIManager,
-                    aPropKinViscosity,
-                    aDofTypes,
-                    tdChidu );
-
-            // add contribution of kinematic viscosity space derivative
-            adchidxdu = -1.0 * aPropKinViscosity->dnPropdxn( 1 ) * tdChidu / aPropKinViscosity->val()( 0 );
+            // assume that kinematic viscosity prop does not depend on x
+            MORIS_ERROR( false,             //
+                    "compute_dchidxdu -"    //
+                    "Dependence of kinematic viscosity on space not accounted for." );
         }
         else
         {
@@ -158,24 +147,17 @@ namespace moris::fem
         // if viscosity property depends on dof type
         if ( aPropKinViscosity->check_dof_dependency( aDofTypes ) )
         {
-            // compute chi
-            real tChi = compute_chi(
-                    aViscosityDofGroup,
-                    aLeaderFIManager,
-                    aPropKinViscosity );
-
             adchidxdu -=
                     tFIViscosity->gradx( 1 ) * aPropKinViscosity->dPropdDOF( aDofTypes )
                     / std::pow( aPropKinViscosity->val()( 0 ), 2 );
 
             // if kinematic viscosity depends on space
-            if ( aPropKinViscosity->check_space_dependency( 1 ) )
+            if ( aPropKinViscosity->check_space_dependency() )
             {
-                adchidxdu +=
-                        tChi * aPropKinViscosity->dnPropdxn( 1 ) * aPropKinViscosity->dPropdDOF( aDofTypes )
-                        / std::pow( aPropKinViscosity->val()( 0 ), 2 );
-                // FIXME dPropddxdu
-                // - tChi * aPropKinViscosity->dPropdxdu() / aPropKinViscosity->val()
+                // assume that kinematic viscosity prop does not depend on x
+                MORIS_ERROR( false,              //
+                        "compute_dchidxdu - "    //
+                        "Dependence of kinematic viscosity on space not accounted for." );
             }
         }
     }

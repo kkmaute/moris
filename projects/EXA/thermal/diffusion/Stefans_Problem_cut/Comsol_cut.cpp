@@ -40,10 +40,8 @@ namespace moris
     real tEps     = 1.0e-4;
 
     // mesh
-    // std::string tNumElemsPerDim = "520,6";
-    // std::string tHMRDomainDimensions = "0.2912,0.0030";
-    std::string tNumElemsPerDim      = "26,3";
-    std::string tHMRDomainDimensions = "0.030,0.0030";
+    Vector< uint > tNumElemsPerDim      = { 26, 3 };
+    Vector< real > tHMRDomainDimensions = { 0.030,0.0030 };
 
     // time solver parameters
     sint tStep = 15;
@@ -137,8 +135,7 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsPerDim );
         aParameterLists.set( "domain_dimensions", tHMRDomainDimensions );
-        aParameterLists.set( "domain_offset", "-0.0015,-0.0008" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "domain_offset", -0.0015, -0.0008 );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         switch ( gInterpolationOrder )
@@ -166,16 +163,8 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", 3 );
         aParameterLists.set( "staircase_buffer", 3 );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-
-        aParameterLists.set( "adaptive_refinement_level", 1 );
     }
 
     void
@@ -189,8 +178,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", true );
         aParameterLists.set( "multigrid", false );

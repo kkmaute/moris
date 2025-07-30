@@ -16,7 +16,7 @@
 namespace moris::mtk
 {
     class Mesh;
-    }
+}
 
 namespace moris::xtk
 {
@@ -717,7 +717,9 @@ namespace moris::xtk
 
         enum Decomposition_Algorithm_Type get_algorithm_type() const override;
 
-        bool has_geometric_independent_vertices() const override;
+        bool has_geometric_dependent_vertices() const override;
+
+        Vector< moris_index > get_decomposed_cell_indices() override;
 
         void perform(
                 Integration_Mesh_Generation_Data* aMeshGenerationData,

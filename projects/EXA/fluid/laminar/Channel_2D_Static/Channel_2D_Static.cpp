@@ -113,16 +113,14 @@ namespace moris
         aParameterLists.set( "is_optimization_problem", false );
     }
 
-    void HMRParameterList( Module_Parameter_Lists &aParameterLists )
-    {
-
-        aParameterLists.set( "number_of_elements_per_dimension", "200,200" );
-        aParameterLists.set( "processor_decomposition_method", 1 );
-        aParameterLists.set( "processor_dimensions", "2,1" );
-        aParameterLists.set( "domain_dimensions", "10.0,10.0" );
-        aParameterLists.set( "domain_offset", "-4.63,-4.74" );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
-        aParameterLists.set( "lagrange_output_meshes", "0" );
+        void HMRParameterList( Module_Parameter_Lists & aParameterLists )
+        {
+            aParameterLists.set( "number_of_elements_per_dimension", 200, 200 );
+            aParameterLists.set( "processor_decomposition_method",   1 );
+            aParameterLists.set( "processor_dimensions",             2, 1 );
+            aParameterLists.set( "domain_dimensions",                10.0, 10.0 );
+            aParameterLists.set( "domain_offset",                    -4.63, -4.74 );
+            aParameterLists.set( "lagrange_output_meshes",           "0");
 
         aParameterLists.set( "lagrange_orders", "1" );
         aParameterLists.set( "lagrange_pattern", "0" );
@@ -131,32 +129,22 @@ namespace moris
 
         aParameterLists.set( "lagrange_to_bspline", "0" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
-        aParameterLists.set( "refinement_buffer", 3 );
-        aParameterLists.set( "staircase_buffer", 3 );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
+            aParameterLists.set( "refinement_buffer",  3 );
+            aParameterLists.set( "staircase_buffer",   3 );
+            aParameterLists.set( "pattern_initial_refinement", 0 );
+            aParameterLists.set( "adaptive_refinement_level", 0 );
+        }
 
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
-
-        aParameterLists.set( "adaptive_refinement_level", 0 );
-    }
-
-    void XTKParameterList( Module_Parameter_Lists &aParameterLists )
-    {
-        aParameterLists.set( "decompose", true );
-        aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
-        aParameterLists.set( "enrich_mesh_indices", "0" );
-        aParameterLists.set( "ghost_stab", true );
-        aParameterLists.set( "multigrid", false );
-        aParameterLists.set( "print_enriched_ig_mesh", false );
-        aParameterLists.set( "exodus_output_XTK_ig_mesh", false );
-    }
+        void XTKParameterList( Module_Parameter_Lists & aParameterLists )
+        {
+            aParameterLists.set( "decompose",                 true );
+            aParameterLists.set( "decomposition_type",        "conformal") ;
+            aParameterLists.set( "enrich_mesh_indices",       "0") ;
+            aParameterLists.set( "ghost_stab",                true );
+            aParameterLists.set( "multigrid",                 false );
+            aParameterLists.set( "print_enriched_ig_mesh",    false );
+            aParameterLists.set( "exodus_output_XTK_ig_mesh", false );
+        }
 
     void GENParameterList( Module_Parameter_Lists &aParameterLists )
     {

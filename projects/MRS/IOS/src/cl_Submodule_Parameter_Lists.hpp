@@ -106,6 +106,13 @@ namespace moris
         void append( const Submodule_Parameter_Lists& aSubmoduleToAppend );
 
         /**
+         * Erases the stored parameter list at the given index.
+         *
+         * @param aParameterListIndex Parameter list index
+         */
+        void erase( uint aParameterListIndex );
+
+        /**
          * Gets if no parameter lists are currently being stored.
          *
          * @return If the vector of parameter lists is empty

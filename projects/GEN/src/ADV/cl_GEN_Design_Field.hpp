@@ -27,6 +27,7 @@ namespace moris::gen
         real mDiscretizationLowerBound;       // Lower bound for the B-spline coefficients in this field
         real mDiscretizationUpperBound;       // Upper bound for the B-spline coefficients in this field
         bool mUseMultilinearInterpolation;    // Whether to use multilinear interpolation for all derived node field values
+        bool mDelaunay;                       // If the field is to be delaunay triangulated
 
         /**
          * Constructor with a given parameter list

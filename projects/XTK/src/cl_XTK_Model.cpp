@@ -174,7 +174,7 @@ namespace moris::xtk
         mEnrichment         = nullptr;
         mGhostStabilization = nullptr;
         mEnrichedInterpMesh = Vector< Enriched_Interpolation_Mesh * >( 0, nullptr );
-        mEnrichedIntegMesh  = Vector< Enriched_Integration_Mesh  *>( 0, nullptr );
+        mEnrichedIntegMesh  = Vector< Enriched_Integration_Mesh * >( 0, nullptr );
         mConvertedToTet10s  = false;
     }
 
@@ -341,7 +341,7 @@ namespace moris::xtk
 
             this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
 
-        } // end: enrichment
+        }    // end: enrichment
 
         if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
         {
@@ -647,7 +647,7 @@ namespace moris::xtk
         {
             if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
             {
-                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_DELAUNAY_QUAD4, Subdivision_Method::C_TRI3 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )
@@ -660,7 +660,7 @@ namespace moris::xtk
         {
             if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
             {
-                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+                Vector< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_DELAUNAY_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
                 tSubdivisionMethods.append( tMethods );
             }
             else if ( tBGCellTopo == mtk::Geometry_Type::HEX && !tConformal )
@@ -1410,7 +1410,7 @@ namespace moris::xtk
         // if there is any elements in the matrix
         if ( aUnenrichedBsplineMeshIndices.numel() )
         {
-            Tracer tTracer( "XTK",  "Unenrichment" );
+            Tracer tTracer( "XTK", "Unenrichment" );
 
             // set the mesh indices
             mEnrichedInterpMesh( 0 )->set_unenriched_mesh_indices( aUnenrichedBsplineMeshIndices );

@@ -86,6 +86,17 @@ namespace moris::gen
                 const Matrix< DDRMat >& aNodeCoordinates ) override;
 
         /**
+         * Gets the geometric region of an arbitrary point in space
+         * NOTE: Only to be used when get_geometric_region() cannot be used to get the region of an element
+         * WARNING: For some geometries (discretized level sets), the region may still not be resolved
+         *
+         * @param aNodeCoordinates Global coordinates
+         * @return Region for this geometry at the query location
+         */
+        Geometric_Region disambiguate_geometric_region(
+                const Matrix< DDRMat >& aNodeCoordinates ) override;
+
+        /**
          * Creates an intersection node based on the given information. The intersection node may or may not represent an intersection;
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.
@@ -103,6 +114,23 @@ namespace moris::gen
                 const Vector< Background_Node* >& aBackgroundNodes,
                 const Parent_Node&                aFirstParentNode,
                 const Parent_Node&                aSecondParentNode,
+                mtk::Geometry_Type                aBackgroundGeometryType,
+                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+
+        /**
+         * Creates a floating node based on the given information.
+         *
+         * @param aNodeIndex Node index to be assigned to the new floating node
+         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aParametricCoordinates Parametric coordinates inside the background element
+         * @param aBackgroundGeometryType Geometry type of the background element
+         * @param aBackgroundInterpolationOrder Interpolation order of the background element
+         * @return New floating node
+         */
+        Floating_Node* create_floating_node(
+                uint                              aNodeIndex,
+                const Vector< Background_Node* >& aBackgroundNodes,
+                const Matrix< DDRMat >&           aParametricCoordinates,
                 mtk::Geometry_Type                aBackgroundGeometryType,
                 mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
 

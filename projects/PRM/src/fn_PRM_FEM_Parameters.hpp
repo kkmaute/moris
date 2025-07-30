@@ -35,6 +35,7 @@ namespace moris::prm
         tParameterList.insert( "dof_derivative_functions", "" );
         tParameterList.insert( "dv_derivative_functions", "" );
         tParameterList.insert( "space_derivative_functions", "" );
+        tParameterList.insert( "space_dof_derivative_functions", "" );
         tParameterList.insert( "dof_dependencies", "" );
         tParameterList.insert( "dv_dependencies", "" );
         tParameterList.insert( "field_dependencies", "" );
@@ -193,6 +194,7 @@ namespace moris::prm
 
         tParameterList.insert( "time_continuity", false );
         tParameterList.insert( "time_boundary", false );
+        tParameterList.insert( "time_final", -1.0 );
 
         return tParameterList;
     }
@@ -243,6 +245,7 @@ namespace moris::prm
 
         tParameterList.insert( "time_continuity", false );
         tParameterList.insert( "time_boundary", false );
+        tParameterList.insert( "time_final", -1.0 );
 
         tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
 

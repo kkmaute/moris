@@ -31,4 +31,19 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace moris::ge
+    bool
+    Geometry::has_surface_points( mtk::Cell* aCell )
+    {
+        // By default, assume geometries do not have surface points
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Geometry::get_surface_points( mtk::Cell* aCell )
+    {
+        // By default, assume geometries do not have surface points
+        return { {} };
+    }
+
+}    // namespace moris::gen

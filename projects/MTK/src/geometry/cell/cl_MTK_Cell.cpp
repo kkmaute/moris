@@ -177,7 +177,7 @@ namespace moris::mtk
     Cell::check_unique_vertex_inds() const
     {
         uint                      tNumVertices = this->get_number_of_vertices();
-        moris::Matrix< IndexMat > tVertexInds  = this->get_vertex_inds();
+        Matrix< IndexMat > tVertexInds  = this->get_vertex_inds();
         for ( uint i = 0; i < tNumVertices; i++ )
         {
             for ( uint j = 0; j < i; j++ )
@@ -231,7 +231,7 @@ namespace moris::mtk
     {
         Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
-        moris::Matrix< moris::IndexMat > tNodeOrdsOnSide = this->get_cell_info()->get_node_to_facet_map( aSideOrdinal );
+        Matrix< IndexMat > tNodeOrdsOnSide = this->get_cell_info()->get_node_to_facet_map( aSideOrdinal );
 
         Vector< moris::mtk::Vertex const * > tVerticesOnSide( tNodeOrdsOnSide.numel() );
         for ( moris::uint i = 0; i < tNodeOrdsOnSide.numel(); i++ )
@@ -251,7 +251,7 @@ namespace moris::mtk
         Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
         // get vertex ordinals
-        moris::Matrix< moris::IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
+        Matrix< IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
 
         // allocate cell of vertices
         Vector< moris::mtk::Vertex const * > tVerticesOnSide( tGeometricVertOrdsOnFacet.numel() );
@@ -266,7 +266,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Cell::get_cell_physical_coords_on_side_ordinal( moris::moris_index aSideOrdinal ) const
     {
         // FIXME: Add assert to check side ordinal
@@ -275,12 +275,12 @@ namespace moris::mtk
         Vector< moris::mtk::Vertex const * > tVerticesOnSide = this->get_vertices_on_side_ordinal( aSideOrdinal );
 
         // allocate output coords (note we do not know the spatial dimension at this time)
-        moris::Matrix< moris::DDRMat > tVertexPhysCoords( 0, 0 );
+        Matrix< DDRMat > tVertexPhysCoords( 0, 0 );
 
         // iterate through vertices and collect local coordinates
         for ( moris::uint i = 0; i < tVerticesOnSide.size(); i++ )
         {
-            moris::Matrix< moris::DDRMat > tVertexCoord = tVerticesOnSide( i )->get_coords();
+            Matrix< DDRMat > tVertexCoord = tVerticesOnSide( i )->get_coords();
 
             if ( i == 0 )
             {
@@ -296,7 +296,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< IndexMat >
+    Matrix< IndexMat >
     Cell::get_vertices_ind_on_side_ordinal( moris::moris_index aSideOrdinal ) const
     {
         Vector< moris::mtk::Vertex const * > tVertices = this->get_vertices_on_side_ordinal( aSideOrdinal );
@@ -344,14 +344,14 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Cell::compute_outward_side_normal( moris::moris_index aSideOrdinal ) const
     {
         // get the vertex coordinates
-        moris::Matrix< moris::DDRMat > tVertexCoords = this->get_vertex_coords();
+        Matrix< DDRMat > tVertexCoords = this->get_vertex_coords();
 
         // Get the nodes which need to be used to compute normal
-        moris::Matrix< moris::IndexMat > tEdgeNodesForNormal = this->get_cell_info()->get_node_map_outward_normal( aSideOrdinal );
+        Matrix< IndexMat > tEdgeNodesForNormal = this->get_cell_info()->get_node_map_outward_normal( aSideOrdinal );
 
         // initialize the output normal
         Matrix< DDRMat > tOutwardNormal;
@@ -372,8 +372,8 @@ namespace moris::mtk
         else
         {
             // Get vector along these edges
-            moris::Matrix< moris::DDRMat > tEdge0Vector( tVertexCoords.numel(), 1 );
-            moris::Matrix< moris::DDRMat > tEdge1Vector( tVertexCoords.numel(), 1 );
+            Matrix< DDRMat > tEdge0Vector( tVertexCoords.numel(), 1 );
+            Matrix< DDRMat > tEdge1Vector( tVertexCoords.numel(), 1 );
 
             // Get vector along these edges
             tEdge0Vector = moris::linalg_internal::trans( tVertexCoords.get_row( tEdgeNodesForNormal( 1, 0 ) ) - tVertexCoords.get_row( tEdgeNodesForNormal( 0, 0 ) ) );
@@ -444,7 +444,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Cell::get_cell_geometric_coords_on_side_ordinal( moris::moris_index aSideOrdinal ) const
     {
         MORIS_ASSERT( mCellInfo != nullptr, "Cell info null ptr" );
@@ -453,14 +453,14 @@ namespace moris::mtk
         Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
         // Get vertex ordinals on the facet
-        moris::Matrix< moris::IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
+        Matrix< IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
 
         // Allocate output coords (note we do not know the spatial dimension at this time)
-        moris::Matrix< moris::DDRMat > tVertexPhysCoords( 0, 0 );
+        Matrix< DDRMat > tVertexPhysCoords( 0, 0 );
 
         for ( moris::uint i = 0; i < tGeometricVertOrdsOnFacet.numel(); i++ )
         {
-            moris::Matrix< moris::DDRMat > tVertexCoord = tVertices( tGeometricVertOrdsOnFacet( i ) )->get_coords();
+            Matrix< DDRMat > tVertexCoord = tVertices( tGeometricVertOrdsOnFacet( i ) )->get_coords();
 
             if ( i == 0 )
             {
@@ -476,7 +476,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    moris::Matrix< moris::DDRMat >
+    Matrix< DDRMat >
     Cell::compute_cell_centroid() const
     {
         // get all vertices of cell

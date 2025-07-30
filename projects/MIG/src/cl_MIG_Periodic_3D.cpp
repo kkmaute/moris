@@ -9,6 +9,7 @@
  */
 
 #include "cl_MIG_Periodic_3D.hpp"
+#include "fn_MIG_Triangle_Intersect.hpp"
 
 #include "cl_MTK_Set.hpp"
 #include "cl_MTK_Cluster.hpp"
@@ -23,9 +24,7 @@
 
 #include "fn_norm.hpp"
 #include "fn_sum.hpp"
-#include "fn_inv.hpp"
 #include "fn_dot.hpp"
-#include "fn_sort.hpp"
 #include "fn_rank.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "op_equal_equal.hpp"
@@ -43,7 +42,7 @@
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_Tracer.hpp"
 
-#include "cl_Stopwatch.hpp"//CHR/src
+#include "cl_Stopwatch.hpp"    //CHR/src
 
 namespace moris::mig
 {
@@ -101,7 +100,7 @@ namespace moris::mig
             moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
             // prerequisite offset vector and sets on each periodic surface
-            moris::Matrix< DDRMat >    tOffsetVector;
+            Matrix< DDRMat >      tOffsetVector;
             Vector< std::string > tFirstSideSetNames;
             Vector< std::string > tSecondSideSetNames;
 
@@ -159,7 +158,7 @@ namespace moris::mig
             {
                 // Find all the side clusters that lie in the left and right pair
                 Vector< moris_index > const &tSideClustersIndices1 = tIter.second;
-                Vector< moris_index > const &tSideClustersIndices2 = mBackgroundCellToSideClusterMap2( tPairCount )[tIter.first];
+                Vector< moris_index > const &tSideClustersIndices2 = mBackgroundCellToSideClusterMap2( tPairCount )[ tIter.first ];
 
                 // Consider different cases to minmize the effort of polygon clipping
                 // case 1 where both sides just have one cluster ( they can be trivial or non trivial)
@@ -196,22 +195,22 @@ namespace moris::mig
                         uint tPrimaryCellInClusterNum = tSideClusters2( tSideClustersIndices2( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
-                        Vector< moris::Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, moris::Matrix< DDRMat >( 2, 3 ) );
+                        Vector< Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, Matrix< DDRMat >( 2, 3 ) );
 
                         // Iterate through each surface to get the coordinates on the side ordinal
                         for ( uint iCell = 0; iCell < tPrimaryCellInClusterNum; iCell++ )
                         {
                             // get the coordinates on the side ordinal and transpose
-                            moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
+                            Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
                             // convert 3D coordinates to surface coordinates
-                            moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
+                            Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
 
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
                             // sort them counter clock wise in order to be treated the same as other coordinates
-                            this->SortAndRemove( tSurfaceCoordMatrix );
+                            sort_and_remove( tSurfaceCoordMatrix );
 
                             // add the facet to the list of coordinates
                             tParamCoordsCell( iCell ) = tSurfaceCoordMatrix;
@@ -248,21 +247,21 @@ namespace moris::mig
                         uint tPrimaryCellInClusterNum = tSideClusters1( tSideClustersIndices1( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
-                        Vector< moris::Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, moris::Matrix< DDRMat >( 2, 3 ) );
+                        Vector< Matrix< DDRMat > > tParamCoordsCell( tPrimaryCellInClusterNum, Matrix< DDRMat >( 2, 3 ) );
 
                         // Iterate through each surface to get the coordinates on the side ordinal
                         for ( uint iCell = 0; iCell < tPrimaryCellInClusterNum; iCell++ )
                         {
                             // get the coordinates on the side ordinal and transpose
-                            moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
+                            Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
                             // convert 3D coordinates to surface coordinates
-                            moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
+                            Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
                             // sort them counter clock wise in order to be treated the same as other coordinates
-                            this->SortAndRemove( tSurfaceCoordMatrix );
+                            sort_and_remove( tSurfaceCoordMatrix );
 
                             // add the surface triangle to the list of coordinates
                             tParamCoordsCell( iCell ) = tSurfaceCoordMatrix;
@@ -286,11 +285,11 @@ namespace moris::mig
 
                         // iterate through the clusters on the right in order to create dbl sided cluster separately
                         this->create_dbl_sided_cluster( tParamCoordsCell,
-                            tDummyCell,
-                            tSideClusters1( tSideClustersIndices1( iCluster ) )->get_interpolation_cell(),
-                            tSideClusters2( tSideClustersIndices2( 0 ) )->get_interpolation_cell(),
-                            tPairCount,
-                            tPhaseToPhaseIndex );
+                                tDummyCell,
+                                tSideClusters1( tSideClustersIndices1( iCluster ) )->get_interpolation_cell(),
+                                tSideClusters2( tSideClustersIndices2( 0 ) )->get_interpolation_cell(),
+                                tPairCount,
+                                tPhaseToPhaseIndex );
                     }
                 }
 
@@ -305,10 +304,10 @@ namespace moris::mig
                     }
 
                     // Initialize the cut cell surfaces
-                    Vector< moris::Matrix< DDRMat > > tParamCoordsCell1( tIGCellNum, moris::Matrix< DDRMat >( 1, 2 ) );
+                    Vector< Matrix< DDRMat > > tParamCoordsCell1( tIGCellNum, Matrix< DDRMat >( 1, 2 ) );
 
                     // A local map determining that each IG cell/surfaces belongs to which local cluster
-                    moris::Matrix< moris::IndexMat > tIGCellToSideClusterMap1( tIGCellNum, 1 );
+                    Vector< moris_index > tIGCellToSideClusterMap1( tIGCellNum );
 
                     // iterative counter to assign the cut cell surfaces and IG cell to local cluster index map
                     uint iCounter = 0;
@@ -323,10 +322,10 @@ namespace moris::mig
                         for ( uint iCell = 0; iCell < tPrimaryCellInClusterNum; iCell++ )
                         {
                             // get the coordinates on the side ordinal and transpose
-                            moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
+                            Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
                             // convert 3D coordinates to surface coordinates
-                            moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
+                            Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
@@ -351,10 +350,10 @@ namespace moris::mig
                     }
 
                     // Initialize the cell of surfaces that will be intersected
-                    Vector< moris::Matrix< DDRMat > > tParamCoordsCell2( tIGCellNum, moris::Matrix< DDRMat >( 1, 2 ) );
+                    Vector< Matrix< DDRMat > > tParamCoordsCell2( tIGCellNum, Matrix< DDRMat >( 1, 2 ) );
 
                     // A local map determining that each IG cell/surfaces belongs to which local cluster
-                    moris::Matrix< moris::IndexMat > tIGCellToSideClusterMap2( tIGCellNum, 1 );
+                    Vector< moris_index > tIGCellToSideClusterMap2( tIGCellNum );
 
                     // iterative counter to assign the cut cell surfaces and IG cell to local cluster index map
                     iCounter = 0;
@@ -369,10 +368,10 @@ namespace moris::mig
                         for ( uint iCell = 0; iCell < tPrimaryCellInClusterNum; iCell++ )
                         {
                             // get the coordinates on the side ordinal and transpose
-                            moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
+                            Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
                             // convert 3D coordinates to surface coordinates
-                            moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
+                            Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
@@ -388,12 +387,12 @@ namespace moris::mig
                     }
 
                     // initialize the cut polygons and their respective indices that come from their parent element
-                    Vector< moris::Matrix< DDRMat > > tCutPolygons;
-                    moris::Matrix< moris::IndexMat >       tCutPolygonIdentifier;
+                    Vector< Matrix< DDRMat > > tCutPolygons;
+                    Vector< moris_index >      tCutPolygonIdentifier;
 
                     // Polygon clipping algorithm
                     this->elementwise_bruteforce_search(
-                        tParamCoordsCell1, tIGCellToSideClusterMap1, tParamCoordsCell2, tIGCellToSideClusterMap2, tCutPolygons, tCutPolygonIdentifier );
+                            tParamCoordsCell1, tIGCellToSideClusterMap1, tParamCoordsCell2, tIGCellToSideClusterMap2, tCutPolygons, tCutPolygonIdentifier );
 
                     // a map from the identifier of each cut cell to all cut cells with the same identifier
                     std::unordered_map< moris_index, Vector< moris_index > > tCutCellIdentifierToCutCell;
@@ -426,11 +425,11 @@ namespace moris::mig
 
                         // create the dbl sided cluster
                         this->create_dbl_sided_cluster( tCutPolygons,
-                            tIndicesinCutCell,
-                            tSideClusters1( tSideClustersIndices1( i ) )->get_interpolation_cell(),
-                            tSideClusters2( tSideClustersIndices2( j ) )->get_interpolation_cell(),
-                            tPairCount,
-                            tPhaseToPhaseIndex );
+                                tIndicesinCutCell,
+                                tSideClusters1( tSideClustersIndices1( i ) )->get_interpolation_cell(),
+                                tSideClusters2( tSideClustersIndices2( j ) )->get_interpolation_cell(),
+                                tPairCount,
+                                tPhaseToPhaseIndex );
                     }
                     // Find the intersection of two surfaces along with the relative IP cells
                 }
@@ -445,11 +444,11 @@ namespace moris::mig
 
     void
     Periodic_3D::create_dbl_sided_cluster( Vector< Matrix< DDRMat > > tP,
-        Vector< moris_index >                                        &aIndicesinCutCell,
-        moris::mtk::Cell const                                            &aInterpCell1,
-        moris::mtk::Cell const                                            &aInterpCell2,
-        uint                                                               aPairCount,
-        moris_index                                                        aPhaseToPhase )
+            Vector< moris_index >                                    &aIndicesinCutCell,
+            moris::mtk::Cell const                                   &aInterpCell1,
+            moris::mtk::Cell const                                   &aInterpCell2,
+            uint                                                      aPairCount,
+            moris_index                                               aPhaseToPhase )
     {
         // requires that we give a unique coordinates and associated index to each of them
         Matrix< DDRMat > tUniqueIntersectedPoints;
@@ -507,7 +506,7 @@ namespace moris::mig
             }
         }
 
-        moris::Matrix< moris::DDRMat > tIPCellCoordinates = aInterpCell1.get_vertex_coords();
+        Matrix< moris::DDRMat > tIPCellCoordinates = aInterpCell1.get_vertex_coords();
 
         // number of nodes at the surface
         uint tNumSurfaceNodes = tUniqueIntersectedPoints.n_cols();
@@ -584,12 +583,12 @@ namespace moris::mig
         mSideClusterToCells( mNumSideClusters + 1 ).resize( tNumCellsOnOneSide );
 
         std::iota( mSideClusterToCells( mNumSideClusters ).begin(),
-            mSideClusterToCells( mNumSideClusters ).end(),
-            mNumCells );
+                mSideClusterToCells( mNumSideClusters ).end(),
+                mNumCells );
 
         std::iota( mSideClusterToCells( mNumSideClusters + 1 ).begin(),
-            mSideClusterToCells( mNumSideClusters + 1 ).end(),
-            mNumCells + tNumCellsOnOneSide );
+                mSideClusterToCells( mNumSideClusters + 1 ).end(),
+                mNumCells + tNumCellsOnOneSide );
 
         mCellToVertexIndices( mNumSideClusters ).reserve( tNumCellsOnOneSide * 4 );
         mCellToVertexIndices( mNumSideClusters + 1 ).reserve( tNumCellsOnOneSide * 4 );
@@ -720,7 +719,7 @@ namespace moris::mig
     //------------------------------------------------------------------------------------------------------------
     // name the cluster set
     void
-    Periodic_3D::construct_add_dbl_sided_set( const moris::Matrix< IndexMat > &tPhaseInteractionTable )
+    Periodic_3D::construct_add_dbl_sided_set( const Matrix< IndexMat > &tPhaseInteractionTable )
     {
         // resize the coordinate matrix
         mVertexParametricCoords.resize( mNumParamCoords, 3 );
@@ -737,7 +736,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_3D::offset_vector( moris::Matrix< DDRMat > &tOffsetVector, Vector< std::string > &tFirstSideSetNames, Vector< std::string > &tSecondSideSetNames, uint aPairCount )
+    Periodic_3D::offset_vector( Matrix< DDRMat > &tOffsetVector, Vector< std::string > &tFirstSideSetNames, Vector< std::string > &tSecondSideSetNames, uint aPairCount )
     {
         // Integration mesh
         moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
@@ -748,9 +747,9 @@ namespace moris::mig
         Vector< std::string > tSetNames( tListOfSideSets.size() );
 
         std::transform( tListOfSideSets.cbegin(),
-            tListOfSideSets.cend(),
-            tSetNames.begin(),
-            []( moris::mtk::Set *aSet ) -> std::string { return aSet->get_set_name(); } );
+                tListOfSideSets.cend(),
+                tSetNames.begin(),
+                []( moris::mtk::Set *aSet ) -> std::string { return aSet->get_set_name(); } );
 
         // loop through all the set names and finds sets attached to input side numbers
         std::string tPairFirstName = "SideSet_";
@@ -815,25 +814,25 @@ namespace moris::mig
         Vector< moris::mtk::Cell const * > const &tSecondCells = tSecondSideClusters( 0 )->get_primary_cells_in_cluster();
 
         // get the side ordinals of the integration cells in the cluster
-        moris::Matrix< moris::IndexMat > tSecondCellOrds = tSecondSideClusters( 0 )->get_cell_side_ordinals();
+        Matrix< IndexMat > tSecondCellOrds = tSecondSideClusters( 0 )->get_cell_side_ordinals();
 
         // vertices on the second one
         Vector< moris::mtk::Vertex const * > tSecondVertices = tSecondCells( 0 )->get_vertices_on_side_ordinal( tSecondCellOrds( 0 ) );
 
-        moris::Matrix< moris::DDRMat > tSecondVertexCoords = tSecondVertices( 0 )->get_coords();
+        Matrix< moris::DDRMat > tSecondVertexCoords = tSecondVertices( 0 )->get_coords();
 
-        moris::Matrix< moris::DDRMat > tSecondSideNormal = tSecondCells( 0 )->compute_outward_side_normal( tSecondCellOrds( 0 ) );
+        Matrix< moris::DDRMat > tSecondSideNormal = tSecondCells( 0 )->compute_outward_side_normal( tSecondCellOrds( 0 ) );
 
         // get the Integration cell cluster for the side cluster
         Vector< moris::mtk::Cell const * > const &tFirstCells = tFirstSideClusters( 0 )->get_primary_cells_in_cluster();
 
         // get the side ordinals of the integration cells in the cluster
-        moris::Matrix< moris::IndexMat > tFirstCellOrds = tFirstSideClusters( 0 )->get_cell_side_ordinals();
+        Matrix< IndexMat > tFirstCellOrds = tFirstSideClusters( 0 )->get_cell_side_ordinals();
 
         // get the vertex information
         Vector< moris::mtk::Vertex const * > tFirstVertices = tFirstCells( 0 )->get_vertices_on_side_ordinal( tFirstCellOrds( 0 ) );
 
-        moris::Matrix< moris::DDRMat > tFirstVertexCoords = tFirstVertices( 0 )->get_coords();
+        Matrix< moris::DDRMat > tFirstVertexCoords = tFirstVertices( 0 )->get_coords();
 
         // form the output
         tOffsetVector = dot( tSecondVertexCoords - tFirstVertexCoords, tSecondSideNormal ) * trans( tSecondSideNormal );
@@ -852,8 +851,8 @@ namespace moris::mig
 
         // generate consecutive vertices for te vertices
         std::iota( mSideClusterToVertexIndices( mNumSideClusters ).begin(),
-            mSideClusterToVertexIndices( mNumSideClusters ).end(),
-            mNumVertices );
+                mSideClusterToVertexIndices( mNumSideClusters ).end(),
+                mNumVertices );
 
         // loop over surface nodes
         for ( uint i = 0; i < tNumSurfaceNodes; i++ )
@@ -892,8 +891,8 @@ namespace moris::mig
 
         // generate consecutive vertices for te vertices
         std::iota( mSideClusterToVertexIndices( mNumSideClusters + 1 ).begin(),
-            mSideClusterToVertexIndices( mNumSideClusters + 1 ).end(),
-            mNumVertices );
+                mSideClusterToVertexIndices( mNumSideClusters + 1 ).end(),
+                mNumVertices );
 
         for ( uint i = 0; i < tNumSurfaceNodes; i++ )
         {
@@ -921,7 +920,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_3D::rotation_matrix( moris::Matrix< DDRMat > &aRotation, moris::Matrix< DDRMat > &aInverseRotation, uint aPairCount )
+    Periodic_3D::rotation_matrix( Matrix< DDRMat > &aRotation, Matrix< DDRMat > &aInverseRotation, uint aPairCount )
     {
         if ( mMeshSideSetPairs( aPairCount )( 0 ) == "4" )
         {
@@ -960,9 +959,9 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_3D::generate_identifier( Vector< mtk::Cluster const * >    &aSideClusters,
-        uint                                                                 &aPairCount,
-        std::unordered_map< moris::moris_index, Vector< moris_index > > &aBackgroundCellToSideClusterMap ) const
+    Periodic_3D::generate_identifier( Vector< mtk::Cluster const * >        &aSideClusters,
+            uint                                                            &aPairCount,
+            std::unordered_map< moris::moris_index, Vector< moris_index > > &aBackgroundCellToSideClusterMap ) const
     {
         // reserve memory for output matrix
         uint tOutputSize = aSideClusters.size();
@@ -1001,10 +1000,10 @@ namespace moris::mig
             const luint *tIJK = aSideClusters( iI )->get_interpolation_cell().get_ijk();
 
             // calculate the identifier
-            moris_index tIdentifier = tIJK[tFirst] * tMultiplier + tIJK[tSecond];
+            moris_index tIdentifier = tIJK[ tFirst ] * tMultiplier + tIJK[ tSecond ];
 
             // add the cluster index to the relevant bg cell
-            aBackgroundCellToSideClusterMap[tIdentifier].push_back( iI );
+            aBackgroundCellToSideClusterMap[ tIdentifier ].push_back( iI );
         }
     }
 
@@ -1012,27 +1011,24 @@ namespace moris::mig
 
     void
     Periodic_3D::elementwise_bruteforce_search(
-        Vector< Matrix< moris::DDRMat > > const &aParamCoordsCell1,
-        moris::Matrix< IndexMat > const              &aIGCellToSideClusterMap1,
-        Vector< Matrix< moris::DDRMat > > const &aParamCoordsCell2,
-        moris::Matrix< IndexMat > const              &aIGCellToSideClusterMap2,
-        Vector< Matrix< moris::DDRMat > >       &aIntersectedAreas,
-        moris::Matrix< IndexMat >                    &aIntersectedAreasIdentifier ) const
+            Vector< Matrix< DDRMat > > const &aParamCoordsCell1,
+            Vector< moris_index > const      &aIGCellToSideClusterMap1,
+            Vector< Matrix< DDRMat > > const &aParamCoordsCell2,
+            Vector< moris_index > const      &aIGCellToSideClusterMap2,
+            Vector< Matrix< DDRMat > >       &aIntersectedAreas,
+            Vector< moris_index >            &aIntersectedAreasIdentifier ) const
     {
         // multiplier used to assign an id to each cut surfaces based on the parent cells
         uint tMultiplier = std::max( aParamCoordsCell1.size(), aParamCoordsCell2.size() );
 
-        // max size of the cut  polygons
+        // max size of the cut polygons
         uint tMaxSize = aParamCoordsCell1.size() * aParamCoordsCell2.size();
 
         // reserve the space for max
         aIntersectedAreas.reserve( tMaxSize );
 
         // set the max size in order to avoid resizing at each step
-        aIntersectedAreasIdentifier.set_size( tMaxSize, 1 );
-
-        // Initialize the output
-        moris::Matrix< moris::DDUMat > tnc;
+        aIntersectedAreasIdentifier.reserve( tMaxSize );
 
         // counter to assign for cut polygon and their identifier
         uint iCounter = 0;
@@ -1044,10 +1040,10 @@ namespace moris::mig
             for ( uint iJ = 0; iJ < aParamCoordsCell2.size(); iJ++ )
             {
                 // initialize matrix as it needs to be refilled
-                moris::Matrix< moris::DDRMat > tP;
+                Matrix< moris::DDRMat > tP;
 
                 // find the intersection of 2 element triangulation
-                this->Intersect( aParamCoordsCell1( iI ), aParamCoordsCell2( iJ ), tP, tnc );
+                Intersect( aParamCoordsCell1( iI ), aParamCoordsCell2( iJ ), tP );
 
                 // If it is a polygon add to the output
                 if ( tP.n_cols() > 2 )
@@ -1070,13 +1066,13 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_3D::group_cut_cells( moris::Matrix< IndexMat > const     &aCutTrianglesIdentifier,
-        std::unordered_map< moris_index, Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const
+    Periodic_3D::group_cut_cells( Vector< moris_index > const        &aCutTrianglesIdentifier,
+            std::unordered_map< moris_index, Vector< moris_index > > &aCutCellIdentifierToCutCellIndex ) const
     {
         // loop over all the cut cells
-        for ( uint iI = 0; iI < aCutTrianglesIdentifier.n_rows(); iI++ )
+        for ( uint iI = 0; iI < aCutTrianglesIdentifier.size(); iI++ )
         {
-            aCutCellIdentifierToCutCellIndex[aCutTrianglesIdentifier( iI )].push_back( iI );
+            aCutCellIdentifierToCutCellIndex[ aCutTrianglesIdentifier( iI ) ].push_back( iI );
         }
     }
 
@@ -1100,7 +1096,7 @@ namespace moris::mig
             moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
             // prerequisite offset vector and sets on each periodic surface
-            moris::Matrix< DDRMat >    tOffsetVector;
+            Matrix< DDRMat >      tOffsetVector;
             Vector< std::string > tFirstSideSetNames;
             Vector< std::string > tSecondSideSetNames;
 
@@ -1148,246 +1144,45 @@ namespace moris::mig
             this->generate_identifier( tSideClusters1, tPairCount, mBackgroundCellToSideClusterMap1( tPairCount ) );
             this->generate_identifier( tSideClusters2, tPairCount, mBackgroundCellToSideClusterMap2( tPairCount ) );
 
-            for ( const auto & tKeyValue : mBackgroundCellToSideClusterMap1( tPairCount ) )
+            for ( const auto &tKeyValue : mBackgroundCellToSideClusterMap1( tPairCount ) )
             {
-                auto iIJK = tKeyValue.first;
+                auto iIJK            = tKeyValue.first;
                 auto iClusterIndices = tKeyValue.second;
 
-                tNumDoubleSidedClusters += iClusterIndices.size() * mBackgroundCellToSideClusterMap2( tPairCount )[iIJK].size();
+                tNumDoubleSidedClusters += iClusterIndices.size() * mBackgroundCellToSideClusterMap2( tPairCount )[ iIJK ].size();
             }
 
-            //number of vertices on the left side
+            // number of vertices on the left side
             uint tNumVertices1 = 0;
             for ( const auto &iCluster : tSideClusters1 )
             {
                 tNumVertices1 += iCluster->get_num_vertices_in_cluster() + 1;
             }
 
-            //number of vertices on the left side
+            // number of vertices on the left side
             uint tNumVertices2 = 0;
             for ( const auto &iCluster : tSideClusters2 )
             {
                 tNumVertices2 += iCluster->get_num_vertices_in_cluster() + 1;
             }
 
-            //accumulate the vertices size
+            // accumulate the vertices size
             tNumVertices += ( 2 * std::max( tNumVertices2, tNumVertices1 ) );
         }
 
-        //resize side cluster and dbl side cluster data
+        // resize side cluster and dbl side cluster data
         mSideClusterToVertexIndices.resize( 2 * tNumDoubleSidedClusters );
         mSideClusterToCells.resize( 2 * tNumDoubleSidedClusters );
         mSideClusterToIPCell.resize( 2 * tNumDoubleSidedClusters );
         mCellToVertexIndices.resize( 2 * tNumDoubleSidedClusters );
         mDoubleSidedClustersIndex.resize( tNumDoubleSidedClusters );
 
-        //conservatively multiply number of vertices by 5
+        // conservatively multiply number of vertices by 5
         tNumVertices *= 5;
 
-        //set size for coordinate matrix
+        // set size for coordinate matrix
         mVerticesCoords.set_size( 3, tNumVertices );
         mVertexParametricCoords.set_size( tNumVertices, 3 );
     }
 
-    void
-    Periodic_3D::EdgeIntersect(
-        moris::Matrix< DDRMat > const &aFirstTRICoords,
-        moris::Matrix< DDRMat > const &aSecondTRICoords,
-        moris::Matrix< DDRMat >       &aIntersectedPoints,
-        moris::Matrix< DDUMat >       &aIntersectVec ) const
-    {
-        uint tNumIntersections = 0;
-
-        aIntersectVec.set_size( 1, 3, 0 );
-
-        for ( uint i = 0; i < 3; i++ )
-        {
-            for ( uint j = 0; j < 3; j++ )
-            {
-                // form the matrix on RHS
-                moris::Matrix< DDRMat > b = aSecondTRICoords.get_column( j ) - aFirstTRICoords.get_column( i );
-
-                // matrix on the LHS
-                moris::Matrix< DDRMat > A( 2, 2 );
-                A.set_column( 0, aFirstTRICoords.get_column( ( i + 1 ) % 3 ) - aFirstTRICoords.get_column( i ) );
-                A.set_column( 1, -aSecondTRICoords.get_column( ( j + 1 ) % 3 ) + aSecondTRICoords.get_column( j ) );
-
-                // solve the system
-                if ( std::abs( A( 0, 0 ) * A( 1, 1 ) - A( 0, 1 ) * A( 1, 0 ) ) > 0.0000001 )
-                {
-                    moris::Matrix< DDRMat > R = inv( A ) * b;
-
-                    moris::real eps = 0.01;
-
-                    // Intersection Condition
-                    if ( R( 0 ) >= 0 and ( R( 0 ) - 1 ) <= eps and R( 1 ) >= 0 and ( R( 1 ) - 1 ) <= eps )
-                    {
-                        // grow the matrix to insert the new intersection
-                        aIntersectedPoints.resize( 2, tNumIntersections + 1 );
-
-                        aIntersectedPoints.get_column( tNumIntersections ) = aFirstTRICoords.get_column( i ) + R( 0 ) * A.get_column( 0 );
-
-                        aIntersectVec( i ) = 1;
-
-                        // increase number of intersection by 1
-                        tNumIntersections++;
-                    }
-                }
-            }
-        }
-    }
-
-    //-----------------------------------------------------------------------------------------
-
-    void
-    Periodic_3D::PointsXInY(
-        moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
-        moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
-        moris::Matrix< moris::DDRMat >       &aIntersectedPoints ) const
-    {
-        uint tNumIntersections = 0;
-
-        // Interior points
-        moris::Matrix< moris::DDRMat > v0 = aSecondTRICoords.get_column( 1 ) - aSecondTRICoords.get_column( 0 );
-        moris::Matrix< moris::DDRMat > v1 = aSecondTRICoords.get_column( 2 ) - aSecondTRICoords.get_column( 0 );
-
-        // Baricenteric Coordinates
-        real d00 = dot( v0, v0 );
-        real d01 = dot( v0, v1 );
-        real d11 = dot( v1, v1 );
-
-        real id = 1.0 / ( d00 * d11 - d01 * d01 );
-
-        for ( uint i = 0; i < 3; i++ )
-        {
-            moris::Matrix< moris::DDRMat > v2 = aFirstTRICoords.get_column( i ) - aSecondTRICoords.get_column( 0 );
-
-            real d02 = dot( v0, v2 );
-            real d12 = dot( v1, v2 );
-
-            real u = ( d11 * d02 - d01 * d12 ) * id;
-            real v = ( d00 * d12 - d01 * d02 ) * id;
-
-            real eps = 0.001;
-
-            if ( u >= -eps and v >= -eps and ( u + v <= 1 + eps ) )
-            {
-                aIntersectedPoints.resize( 2, tNumIntersections + 1 );
-
-                aIntersectedPoints.get_column( tNumIntersections ) = aFirstTRICoords.get_column( i );
-
-                tNumIntersections++;
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------
-
-    void
-    Periodic_3D::SortAndRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const
-    {
-        real eps = 0.0001;
-
-        uint tNumColumn = aIntersectedPoints.n_cols();
-
-        if ( tNumColumn > 0 )
-        {
-            // C
-            moris::Matrix< moris::DDRMat > C( 2, 1 );
-            C.get_row( 0 ) = sum( aIntersectedPoints.get_row( 0 ) ) / tNumColumn;
-            C.get_row( 1 ) = sum( aIntersectedPoints.get_row( 1 ) ) / tNumColumn;
-
-            moris::Matrix< moris::DDRMat > ao( 1, tNumColumn );
-
-            // order polygon corners counter
-            for ( uint i = 0; i < tNumColumn; i++ )
-            {
-                moris::Matrix< moris::DDRMat > d = aIntersectedPoints.get_column( i ) - C;
-
-                ao( i ) = std::atan2( d( 1 ), d( 0 ) );
-            }
-
-            moris::Matrix< moris::DDRMat > aoSorted;
-
-            moris::Matrix< moris::DDUMat > IdMatrix( 1, tNumColumn );
-
-            moris::sort( ao, aoSorted, "ascend", 1 );
-
-            // find the index matrix
-            for ( uint i = 0; i < tNumColumn; i++ )
-            {
-                for ( uint j = 0; j < tNumColumn; j++ )
-                {
-                    if ( ao( j ) == aoSorted( i ) )
-                    {
-                        IdMatrix( i ) = j;
-                        break;
-                    }
-                }
-            }
-
-            // sort the points based on IdMatrix
-            moris::Matrix< moris::DDRMat > tSortedIntersectedPoints( 2, tNumColumn );
-
-            for ( uint i = 0; i < tNumColumn; i++ )
-            {
-                tSortedIntersectedPoints.get_column( i ) = aIntersectedPoints.get_column( IdMatrix( i ) );
-            }
-
-            // remove duplicates of the point
-            uint i = 0;
-            uint j = 1;
-
-            while ( j < tNumColumn )
-            {
-                if ( norm( tSortedIntersectedPoints.get_column( i ) - tSortedIntersectedPoints.get_column( j ) ) > eps )
-                {
-                    i++;
-
-                    tSortedIntersectedPoints.get_column( i ) = tSortedIntersectedPoints.get_column( j );
-
-                    j++;
-                }
-                else
-                {
-                    j++;
-                }
-            }
-
-            tSortedIntersectedPoints.resize( 2, i + 1 );
-
-            aIntersectedPoints = tSortedIntersectedPoints;
-        }
-    }
-
-    //------------------------------------------------------------------------
-
-    void
-    Periodic_3D::Intersect(
-        moris::Matrix< moris::DDRMat > const &aFirstTRICoords,
-        moris::Matrix< moris::DDRMat > const &aSecondTRICoords,
-        moris::Matrix< moris::DDRMat >       &aIntersectedPoints,
-        moris::Matrix< moris::DDUMat >       &aIntersectVec ) const
-    {
-        this->EdgeIntersect( aFirstTRICoords, aSecondTRICoords, aIntersectedPoints, aIntersectVec );
-
-        Matrix< DDRMat > P1;
-
-        this->PointsXInY( aFirstTRICoords, aSecondTRICoords, P1 );
-
-        if ( P1.n_cols() > 1 )
-        {
-            aIntersectVec.set_size( 1, 3, 1 );
-        }
-
-        aIntersectedPoints = join_horiz( aIntersectedPoints, P1 );
-
-        this->PointsXInY( aSecondTRICoords, aFirstTRICoords, P1 );
-
-        aIntersectedPoints = join_horiz( aIntersectedPoints, P1 );
-
-        this->SortAndRemove( aIntersectedPoints );
-    }
-
-}// namespace moris::mig
-
+}    // namespace moris::mig

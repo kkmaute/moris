@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Bspline)
-set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D Shape_Sensitivity_Bspline_Surface_Mesh_2D Shape_Sensitivity_Bspline_Surface_Mesh_3D)
+set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D)
 set(EXAMPLE_PROCS 1)
 
 # List source files

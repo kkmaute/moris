@@ -31,6 +31,7 @@ namespace moris::gen
             , Design_Parameters( aParameterList )
             , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
             , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
+            , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
     {
     }
 
@@ -125,6 +126,18 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Geometric_Region
+    Level_Set_Geometry::disambiguate_geometric_region( const Matrix< DDRMat >& aNodeCoordinates )
+    {
+        // Try to directly determine the geometric region based on the field value alone
+        // return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
+
+        // FIXME @bc: Let analytic level set fields determine the geometric region directly
+        return Geometric_Region::UNDEFINED;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
             uint                              aNodeIndex,
             const Vector< Background_Node* >& aBackgroundNodes,
@@ -161,11 +174,44 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Floating_Node* Level_Set_Geometry::create_floating_node(
+            uint                              aNodeIndex,
+            const Vector< Background_Node* >& aBackgroundNodes,
+            const Matrix< DDRMat >&           aParametricCoordinates,
+            mtk::Geometry_Type                aBackgroundGeometryType,
+            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+    {
+        MORIS_ERROR( false, "Level_Set_Geometry::create_floating_node - Floating nodes not yet implemented for level set geometry." );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Level_Set_Geometry::compute_intersection_local_coordinate(
             const Vector< Background_Node* >& aBackgroundNodes,
             const Parent_Node&                aFirstParentNode,
             const Parent_Node&                aSecondParentNode )
     {
+        // If either parent node is on the interface, we can skip the entire intersection procedure and return the local coordinates of the parent nodes
+        bool tFirstParentOnInterface  = ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
+        bool tSecondParentOnInterface = ( this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
+        if ( tFirstParentOnInterface and tSecondParentOnInterface )
+        {
+            return 0.0;
+        }
+        else if ( tFirstParentOnInterface )
+        {
+            return -1.0;
+        }
+        else if ( tSecondParentOnInterface )
+        {
+            return 1.0;
+        }
+
+        // Get the field value of the parent nodes
+        real tFirstParentFieldValue  = this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+        real tSecondParentFieldValue = this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+
         if ( this->use_multilinear_interpolation() )
         {
             // get isocontour threshold from geometry
@@ -228,8 +274,8 @@ namespace moris::gen
             tIsocontourThreshold *= tPhiScaling;
 
             // Get scaled parent level set values
-            real tFirstParentPhi  = tPhiScaling * this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
-            real tSecondParentPhi = tPhiScaling * this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+            real tFirstParentPhi  = tPhiScaling * tFirstParentFieldValue;
+            real tSecondParentPhi = tPhiScaling * tSecondParentFieldValue;
 
             // check that line is intersected
             if ( ( tFirstParentPhi - tIsocontourThreshold ) * ( tSecondParentPhi - tIsocontourThreshold ) > 0 )
@@ -436,8 +482,7 @@ namespace moris::gen
         else
         {
             // Interface geometry values
-            Matrix< DDRMat > tInterfaceGeometryValues = { { this->get_field_value( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) },
-                { this->get_field_value( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() ) } };
+            Matrix< DDRMat > tInterfaceGeometryValues = { { tFirstParentFieldValue }, { tSecondParentFieldValue } };
 
             // Get isocontour threshold
             real tIsocontourThreshold = this->get_isocontour_threshold();
@@ -464,6 +509,10 @@ namespace moris::gen
         {
             // Get parents
             const Vector< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
+
+            MORIS_ASSERT( tParentNodes.size() == 2,
+                    "Level_Set_Geometry::get_dfield_dcoordinates - Linear interpolation expects 2 parent nodes, but got %ld.",
+                    tParentNodes.size() );
 
             // Geometry values
             real tDeltaPhi = this->get_field_value( tParentNodes( 1 ).get_index(), tParentNodes( 1 ).get_global_coordinates() )
@@ -518,6 +567,10 @@ namespace moris::gen
         else if ( aLevelSetValue - mParameters.mIsocontourThreshold < 0 )
         {
             return Geometric_Region::NEGATIVE;
+        }
+        else if ( std::isnan( aLevelSetValue ) )
+        {
+            return Geometric_Region::UNDEFINED;
         }
         else
         {

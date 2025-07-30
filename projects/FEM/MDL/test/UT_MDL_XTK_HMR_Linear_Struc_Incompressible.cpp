@@ -189,12 +189,11 @@ namespace moris
             uint        tLagrangeMeshIndex = 0;
             std::string tFieldName         = "Cylinder";
 
-            moris::Parameter_List tParameters = prm::create_hmr_parameter_list();
+            moris::Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-            tParameters.set( "number_of_elements_per_dimension", "10, 10" );
-            tParameters.set( "domain_dimensions", "2, 2" );
-            tParameters.set( "domain_offset", "-1.0, -1.0" );
-            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "number_of_elements_per_dimension", 10, 10 );
+            tParameters.set( "domain_dimensions", 2.0, 2.0 );
+            tParameters.set( "domain_offset", -1.0, -1.0 );
             tParameters.set( "lagrange_output_meshes", "0" );
 
             tParameters.set( "lagrange_orders", "1" );
@@ -204,13 +203,8 @@ namespace moris
 
             tParameters.set( "lagrange_to_bspline", "0" );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
             tParameters.set( "staircase_buffer", 3 );
-            tParameters.set( "initial_refinement", "0" );
-            tParameters.set( "initial_refinement_pattern", "0" );
-
-            tParameters.set( "use_multigrid", 0 );
             tParameters.set( "severity_level", 2 );
 
             hmr::HMR tHMR( tParameters );

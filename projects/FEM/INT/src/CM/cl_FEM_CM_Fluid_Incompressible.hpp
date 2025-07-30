@@ -34,29 +34,39 @@ namespace moris::fem
         std::shared_ptr< Property > mPropViscosity = nullptr;
         std::shared_ptr< Property > mPropDensity   = nullptr;
 
-      private:
         // default dof type
         MSI::Dof_Type mDofVelocity = MSI::Dof_Type::VX;
         MSI::Dof_Type mDofPressure = MSI::Dof_Type::P;
 
+        // flags for additional strain related evaluation
+        moris::Matrix< DDBMat > mdStraindxduEval;
+
+        // storage for additional strain related evaluation
+        Vector< Vector< Matrix< DDRMat > > > mdStraindxdu;
+
+      private:
         // property type for CM
         enum class CM_Property_Type
         {
             DENSITY,      // fluid density
-            VISCOSITY,    // fluid viscosity
+            VISCOSITY,    // fluid dynamic viscosity
             MAX_ENUM
         };
 
         // function pointers
-        void ( CM_Fluid_Incompressible:: *m_eval_strain )()                 = nullptr;
-        void ( CM_Fluid_Incompressible:: *m_eval_divstrain )()              = nullptr;
-        void ( CM_Fluid_Incompressible:: *m_eval_teststrain )()             = nullptr;
-        void ( CM_Fluid_Incompressible:: *m_eval_dstraindx )( uint aOrder ) = nullptr;
-        void ( CM_Fluid_Incompressible:: *m_eval_ddivstraindu )(
+        void ( CM_Fluid_Incompressible::*m_eval_strain )()                 = nullptr;
+        void ( CM_Fluid_Incompressible::*m_eval_divstrain )()              = nullptr;
+        void ( CM_Fluid_Incompressible::*m_eval_teststrain )()             = nullptr;
+        void ( CM_Fluid_Incompressible::*m_eval_dstraindx )( uint aOrder ) = nullptr;
+        void ( CM_Fluid_Incompressible::*m_eval_ddivstraindu )(
                 const Vector< MSI::Dof_Type > &aDofTypes ) = nullptr;
-        void ( CM_Fluid_Incompressible:: *m_flatten_normal )(
+        void ( CM_Fluid_Incompressible::*m_flatten_normal )(
                 const Matrix< DDRMat > &aNormal,
                 Matrix< DDRMat >       &aFlatNormal ) = nullptr;
+        void ( CM_Fluid_Incompressible::*m_eval_dstraindxdu )(
+                const Vector< MSI::Dof_Type > &aDofTypes,
+                uint                           aOrder,
+                const Matrix< DDRMat >        &aJump ) = nullptr;
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -128,6 +138,20 @@ namespace moris::fem
          */
         void set_local_properties() override;
 
+        //------------------------------------------------------------------------------
+        /*
+         * reset specific evaluation flag
+         * (child implementation)
+         */
+        void reset_specific_eval_flags() override;
+
+        //------------------------------------------------------------------------------
+        /*
+         * initialize specific storage and evaluation flag
+         * (child implementation)
+         */
+        void initialize_spec_storage_vars_and_eval_flags() override;
+
         //--------------------------------------------------------------------------------------------------------------
         /**
          * evaluate the constitutive model flux
@@ -145,13 +169,6 @@ namespace moris::fem
          * evaluate the derivative of the divergence of the flux wrt dof type
          */
         void eval_ddivfluxdu( const Vector< MSI::Dof_Type > &aDofTypes ) override;
-
-        //--------------------------------------------------------------------------------------------------------------
-        /**
-         * evaluate the derivative of the flux wrt space
-         * @param[ in ] aOrder order of the derivative
-         */
-        void eval_dfluxdx( uint aOrder ) override;
 
         //--------------------------------------------------------------------------------------------------------------
         /**
@@ -213,6 +230,35 @@ namespace moris::fem
         }
         void eval_dstraindx_2d( uint aOrder );
         void eval_dstraindx_3d( uint aOrder );
+
+        //--------------------------------------------------------------------------------------------------------------
+        /**
+         * get the derivative of the strain wrt space and dof type
+         * @param[ in ] aOrder order of the derivative
+         * @param[ in ] aDofTypes vector of dof type for derivative
+         *
+         */
+        const Matrix< DDRMat > &dstraindxdu(
+                const Vector< MSI::Dof_Type > &aDofTypes,
+                uint                           aOrder,
+                const Matrix< DDRMat >        &aJump,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //--------------------------------------------------------------------------------------------------------------
+        /**
+         * evaluate the derivative of the strain wrt space and dof type
+         * @param[ in ] aOrder    order of the derivative
+         * @param[ in ] aDofTypes vector of dof type for derivative
+         */
+        void eval_dstraindxdu(
+                const Vector< MSI::Dof_Type > &aDofTypes,
+                uint                           aOrder,
+                const Matrix< DDRMat >        &aJump )
+        {
+            ( this->*m_eval_dstraindxdu )( aDofTypes, aOrder, aJump );
+        }
+        void eval_dstraindxdu_2d( const Vector< MSI::Dof_Type > &aDofTypes, uint aOrder, const Matrix< DDRMat > &aJump );
+        void eval_dstraindxdu_3d( const Vector< MSI::Dof_Type > &aDofTypes, uint aOrder, const Matrix< DDRMat > &aJump );
 
         //--------------------------------------------------------------------------------------------------------------
         /**
@@ -281,8 +327,38 @@ namespace moris::fem
                 Matrix< DDRMat >       &aFlatNormal );
 
         //--------------------------------------------------------------------------------------------------------------
+        /**
+         * select derivative wrt to a dof type
+         * @param[ in ] aCMRequestType  a type for required derivative
+         * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+         * @param[ in ] aNormal         a normal
+         * @param[ in ] aJump           a jump
+         * @param[ in ] aCMFunctionType
+         * Rem: child implementation
+         */
+        const Matrix< DDRMat > &select_derivative_FD(
+                enum CM_Request_Type           aCMRequestType,
+                const Vector< MSI::Dof_Type > &aTestDofTypes,
+                const Matrix< DDRMat >        &aNormal,
+                const Matrix< DDRMat >        &aJump,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
 
-      private:
+        //--------------------------------------------------------------------------------------------------------------
+        /**
+         * select derivative wrt to a dof type
+         * @param[ in ] aCMRequestType  a type for required derivative
+         * @param[ in ] aDerivativeFD   a derivative value to set to storage
+         * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+         * @param[ in ] aCMFunctionType
+         * Rem: child implementation
+         */
+        void set_derivative_FD(
+                enum CM_Request_Type           aCMRequestType,
+                Matrix< DDRMat >              &aDerivativeFD,
+                const Vector< MSI::Dof_Type > &aDofTypes,
+                const Vector< MSI::Dof_Type > &aTestDofTypes,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
+
         //--------------------------------------------------------------------------------------------------------------
     };
 

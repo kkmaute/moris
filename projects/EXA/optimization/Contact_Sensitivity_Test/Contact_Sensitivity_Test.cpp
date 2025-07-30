@@ -95,10 +95,8 @@ namespace moris
     uint tNumConstraints = 4;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "1,1,1" : "1,1";
-    std::string tDimensions        = tIs3D ? "1,1,1" : "1,1";
-    std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
-    std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
+    Vector< uint > tNumElementsPerDir( 2 + tIs3D, 1 );
+    Vector< real > tDimensions( 2 + tIs3D, 1.0 );
 
     bool tUseBsplineForLevelset = gUseBspline;    // use simple plane to define intersection
     real tPlaneTilde            = 75;             // tilde of plane in degree; 90 being straight up
@@ -116,7 +114,6 @@ namespace moris
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = std::to_string( tLagMeshOrder );
     std::string tBsplineOrder    = std::to_string( tLevelsetOrder ) + "," + std::to_string( tDispOrder );
-    std::string tInitialRef      = std::to_string( tLevelsetInitialRef ) + "," + std::to_string( tDispInitialRef );
     std::string tLagrangePattern = tLevelsetInitialRef > tDispInitialRef ? "0" : "1";
 
     //------------------------------------------------------------------------------
@@ -342,8 +339,6 @@ namespace moris
     {
         aParameterLists.set( "number_of_elements_per_dimension", tNumElementsPerDir );
         aParameterLists.set( "domain_dimensions", tDimensions );
-        aParameterLists.set( "domain_offset", tOffSet );
-        aParameterLists.set( "domain_sidesets", tSideSets );
         aParameterLists.set( "lagrange_output_meshes", "0" );
 
         aParameterLists.set( "lagrange_orders", tLagrangeOrder );
@@ -352,20 +347,13 @@ namespace moris
         aParameterLists.set( "bspline_orders", tBsplineOrder );
         aParameterLists.set( "bspline_pattern", "0,1" );
 
-        aParameterLists.set( "initial_refinement", tInitialRef );
-        aParameterLists.set( "initial_refinement_pattern", "0,1" );
+        aParameterLists.set( "pattern_initial_refinement", tLevelsetInitialRef, tDispInitialRef );
         aParameterLists.set( "use_advanced_T_matrix_scheme", 1 );
 
         aParameterLists.set( "lagrange_to_bspline", "0,1" );
 
-        aParameterLists.set( "truncate_bsplines", 1 );
         aParameterLists.set( "refinement_buffer", tRefineBuffer );
         aParameterLists.set( "staircase_buffer", tRefineBuffer );
-
-        aParameterLists.set( "use_number_aura", 1 );
-
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -375,8 +363,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0,1" );
         aParameterLists.set( "multigrid", false );
         aParameterLists.set( "verbose", true );
@@ -455,7 +441,7 @@ namespace moris
             aParameterLists.set( "dependencies", "ADVfield" );
             aParameterLists.set( "scaling_factor", 1.0 );
             aParameterLists.set( "pdv_type", "LS1" );
-            aParameterLists.set( "pdv_mesh_set_names", tTotalDomainSets );
+            aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p2", "HMR_dummy_c_p2", "HMR_dummy_n_p1", "HMR_dummy_c_p1" );
         }
         else
         {
@@ -471,7 +457,7 @@ namespace moris
             aParameterLists.set( "name", "LevelsetField" );
             aParameterLists.set( "constant", 1.0 );
             aParameterLists.set( "pdv_type", "LS1" );
-            aParameterLists.set( "pdv_mesh_set_names", tTotalDomainSets );
+            aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p2", "HMR_dummy_c_p2", "HMR_dummy_n_p1", "HMR_dummy_c_p1" );
 
             if ( tIsOpt )
             {

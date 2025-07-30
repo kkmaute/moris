@@ -179,7 +179,4 @@ namespace moris
         void add_project( uint aRoot, uint aChild, uint aSubChild );
     };
 
-
-
-
 }    // namespace moris

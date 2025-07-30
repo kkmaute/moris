@@ -24,7 +24,6 @@ B-Splines of first and second order
             <number_of_elements_per_dimension>8, 4, 5</number_of_elements_per_dimension>
             <domain_dimensions>6.4, 3.2, 3.4</domain_dimensions>
             <domain_offset> -5.3, 3.05, -1.7</domain_offset>
-            <domain_sidesets>1, 2, 3, 4, 5, 6</domain_sidesets>
             <buffer_size>1</buffer_size>
             <bspline_orders>1</bspline_orders>
             <lagrange_orders>1</lagrange_orders>
