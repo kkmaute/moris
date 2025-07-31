@@ -41,7 +41,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         const fem::Constitutive_Type aConstitutiveModel,
         const real&                  aNitscheParameter,
         bool                         aUseDeformedGeometryForGap,
-        bool                         aUseConsistentDeformedGeometryForGap )
+        bool                         aUseConsistentDeformedGeometryForGap,
+        bool                         aPurePenaltyFormulation )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -161,8 +162,11 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
     tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set parameter for gap computation
-    tIWG->mUseDeformedGeometryForGap           = aUseDeformedGeometryForGap;
-    tIWG->mUseConsistentDeformedGeometryForGap = aUseConsistentDeformedGeometryForGap;
+    tIWG->mUseDeformedGeometryForGap = aUseDeformedGeometryForGap;
+
+    Matrix< DDRMat > tConstDefGap = { { aUseConsistentDeformedGeometryForGap ? 1.0 : 0.0 } };
+    Matrix< DDRMat > tPenaltyOnly = { { aPurePenaltyFormulation ? 1.0 : 0.0 } };
+    tIWG->set_parameters( { tConstDefGap, tPenaltyOnly } );
 
     // set error flag
     bool tPassedCheck = true;
@@ -572,7 +576,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 }
 
                 // check jacobian by FD with standard method
-
                 bool tCheckJacobian = tIWG->check_jacobian( tPerturbation,
                         tEpsilon,
                         1.0,
@@ -612,16 +615,18 @@ TEST_CASE( "IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM", "[moris],[fem],[IWG_
             // fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             10.0,
-            false,     // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            false,      // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_SYMMETRIC_NITSCHE_UNBIASED,
             // fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
-            false,     // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            false,      // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -633,17 +638,18 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM", "[moris],[fe
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 }
-
 //----------------------------------------------------------------------------------------------------------------------------
 
 TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM]" )
@@ -653,15 +659,17 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM", "[moris],[
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -673,15 +681,39 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_NEUTRAL", "[moris]
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_PenOnly", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_PenOnly]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
             true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,      // compute gap consistent with displacement interpolation
+            true );    // pure penalty formulation
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,     // negative penalty used to trigger non-contact condition
+            true,      // compute gap on undeformed configuration
+            true,      // compute gap consistent with displacement interpolation
+            true );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -693,15 +725,17 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM", "[moris],[fem],[
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             10.0,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             0.01,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -713,15 +747,17 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[mori
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             10.0,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
-            true,      // compute gap on undeformed configuration
-            true );    // compute gap consistent with displacement interpolation
+            true,       // compute gap on undeformed configuration
+            true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -734,7 +770,8 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM_LinDisp", "[mo
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
             true,       // compute gap on undeformed configuration
-            false );    // compute gap using linear displacement along contact interface
+            false,      // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 
     // check with contact
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -742,7 +779,8 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM_LinDisp", "[mo
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
             true,       // compute gap on undeformed configuration
-            false );    // compute gap using linear displacement along contact interface
+            false,      // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------

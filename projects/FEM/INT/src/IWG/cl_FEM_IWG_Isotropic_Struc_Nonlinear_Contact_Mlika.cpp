@@ -69,6 +69,9 @@ namespace moris::fem
         // set flag to use displacement for gap
         mUseDeformedGeometryForGap           = true;
         mUseConsistentDeformedGeometryForGap = true;
+
+        // scaling factor to enable pure penalty formulation
+        mTractionScaling = 1.0;
     }
 
     //------------------------------------------------------------------------------
@@ -82,10 +85,17 @@ namespace moris::fem
         // Read consistency flag from input parameters
         if ( mParameters.size() > 0 )
         {
-            MORIS_ERROR( mParameters.size() == 1 && mParameters( 0 ).numel() == 1,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only one parameter possible." );
+            MORIS_ERROR( mParameters.size() == 2 && mParameters( 0 ).numel() == 1 && mParameters( 1 ).numel() == 1,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only two parameters possible." );
 
             mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
+
+            // create penalty only formulation
+            if ( mParameters( 1 )( 0 ) > 0.5 )
+            {
+                mTractionScaling = 0.0;    // set scaling of all traction related terms to zero
+                mTheta           = 0.0;    // theta overwritten to eliminate adjoint term for pure penalty formulation
+            }
         }
     }
 
@@ -211,19 +221,19 @@ namespace moris::fem
         const real tNitscheParam = tSPNitsche->val()( 0 );
 
         // get Piola traction
-        const Matrix< DDRMat >& tTraction =
-                tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
+        const Matrix< DDRMat > tTraction =
+                mTractionScaling * tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
 
         // get test traction
         const Matrix< DDRMat >& tTestTraction =
                 tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, mCMFunctionType );
 
         // compute contact pressure using current normal
-        real tContactPressure = dot( tTraction, mGapData->mLeaderNormal );
+        real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
 
         // compute variation of contact pressure
-        auto tTestContactPressuredUleader =
-                tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction;
+        Matrix< DDRMat > tTestContactPressuredUleader =
+                mTractionScaling * ( tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction );
 
         // compute augmented Lagrangian term
         const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
@@ -238,20 +248,41 @@ namespace moris::fem
             Matrix< DDRMat > tTgtPoint = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
                                        + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
 
-            fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e\n",    //
+            fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e  %e\n",    //
                     tNiter,
                     tRayCastPoint( 0 ),
                     tRayCastPoint( 1 ),
                     tTgtPoint( 0 ),
                     tTgtPoint( 1 ),
-                    tContactPressure );
+                    tContactPressure,
+                    tAugLagrTerm );
+            fprintf( stdout, "Niter = %d NormalMlika %e  %e  %e  %e  %e  %e\n",    //
+                    tNiter,
+                    tRayCastPoint( 0 ),
+                    tRayCastPoint( 1 ),
+                    mGapData->mLeaderNormal( 0 ),
+                    mGapData->mLeaderNormal( 1 ),
+                    mGapData->mLeaderRefNormal( 0 ),
+                    mGapData->mLeaderRefNormal( 1 ) );
+
+            const Matrix< DDRMat >& tCauchyTraction =
+                    tConstitutiveModelLeader->traction( mGapData->mLeaderNormal, CM_Function_Type::CAUCHY );
+
+            fprintf( stdout, "Niter = %d TractionMlika %e  %e  %e  %e  %e  %e\n",    //
+                    tNiter,
+                    tRayCastPoint( 0 ),
+                    tRayCastPoint( 1 ),
+                    tTraction( 0 ),
+                    tTraction( 1 ),
+                    tCauchyTraction( 0 ),
+                    tCauchyTraction( 1 ) );
         }
 
         if ( tAugLagrTerm > 0 )
         {
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
-                    -0.5 * aWStar / tNitscheParam * tTestContactPressuredUleader * tContactPressure;
+                    -0.5 * aWStar * mTheta / tNitscheParam * tTestContactPressuredUleader * tContactPressure;
         }
         else
         {
@@ -344,19 +375,19 @@ namespace moris::fem
         const real tNitscheParam = tSPNitsche->val()( 0 );
 
         // get Piola traction
-        const Matrix< DDRMat >& tTraction =
-                tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
+        const Matrix< DDRMat > tTraction =
+                mTractionScaling * tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
 
         // get test traction
         const Matrix< DDRMat >& tTestTraction =
                 tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, mCMFunctionType );
 
         // compute contact pressure using current normal
-        real tContactPressure = dot( tTraction, mGapData->mLeaderNormal );
+        real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
 
         // compute variation of contact pressure
-        auto tTestContactPressuredUleader =
-                tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction;
+        Matrix< DDRMat > tTestContactPressuredUleader =
+                mTractionScaling * ( tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction );
 
         // compute augmented Lagrangian term
         const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
@@ -389,7 +420,7 @@ namespace moris::fem
             {
                 if ( tAugLagrTerm > 0 )
                 {
-                    tJacMM += -0.5 * aWStar / tNitscheParam * (                                                  //
+                    tJacMM += -0.5 * aWStar * mTheta / tNitscheParam * (                                         //
                                       tContactPressure * tTestTraction * mGapData->mLeaderdNormaldu              //
                                       + tContactPressure * mGapData->multiply_leader_dnormal2du2( tTraction )    //
                                       + tTestContactPressuredUleader * trans( tTraction ) * mGapData->mLeaderdNormaldu );
@@ -420,7 +451,7 @@ namespace moris::fem
             {
                 if ( tAugLagrTerm > 0 )
                 {
-                    tJacMM += -0.5 * aWStar / tNitscheParam * (                                                                                                                                           //
+                    tJacMM += -0.5 * aWStar * mTheta / tNitscheParam * (                                                                                                                                  //
                                       tConstitutiveModelLeader->dTestTractiondDOF( tDofType, mGapData->mLeaderRefNormal, tContactPressure * mGapData->mLeaderNormal, tDisplDofTypes, mCMFunctionType )    //
                                       + tContactPressure * trans( mGapData->mLeaderdNormaldu ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType )         //
                                       + tTestContactPressuredUleader * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType ) );
@@ -428,14 +459,14 @@ namespace moris::fem
                 else
                 {
                     tJacMM +=
-                            0.5 * aWStar * (                                                                                                                                                                     //
-                                    trans( mGapData->mdGapdu ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType )             //
-                                    + mTheta * tConstitutiveModelLeader->dTestTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mGapData->mGap * mGapData->mLeaderNormal, tDisplDofTypes, mCMFunctionType )    //
+                            0.5 * aWStar * (                                                                                                                                                                               //
+                                    mTractionScaling * trans( mGapData->mdGapdu ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType )    //
+                                    + mTheta * tConstitutiveModelLeader->dTestTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mGapData->mGap * mGapData->mLeaderNormal, tDisplDofTypes, mCMFunctionType )              //
                                     + mTheta * mGapData->mGap * trans( mGapData->mLeaderdNormaldu ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType ) );
 
                     tJacSM +=
                             0.5 * aWStar * (    //
-                                    trans( mGapData->mdGapdv ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType ) );
+                                    mTractionScaling * trans( mGapData->mdGapdv ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType ) );
                 }
             }
 
