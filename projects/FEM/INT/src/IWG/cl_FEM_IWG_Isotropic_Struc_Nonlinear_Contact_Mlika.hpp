@@ -36,6 +36,9 @@ namespace moris::fem
         // default for traction
         CM_Function_Type mCMFunctionType = CM_Function_Type::PK1;
 
+        // scaling factor for the traction; set to zero for pure penalty formulation
+        real mTractionScaling = 1.0;
+
       public:
         enum class IWG_Property_Type
         {
