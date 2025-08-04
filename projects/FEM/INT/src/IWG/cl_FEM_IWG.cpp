@@ -2780,6 +2780,13 @@ namespace moris::fem
             tJacRay( { 0, tSpaceDim - 1 }, { 0, 0 } )             = tLeaderNormal.matrix_data();
             tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tFollowerdVgpdeta - tFollowerdYgpdeta;
 
+            // check determination of jacobian
+            if ( det( tJacRay ) < MORIS_REAL_EPS )
+            {
+                break;
+            }
+
+            // compute inverse of jacobian
             tJacRayInv = inv( tJacRay );
 
             // check for convergence
@@ -3309,6 +3316,13 @@ namespace moris::fem
             tJacRay( { 0, tSpaceDim - 1 }, { 0, 0 } )             = tLeaderNormal.matrix_data();
             tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tFollowerdVgpdeta - tFollowerdYgpdeta;
 
+            // check determination of jacobian
+            if ( det( tJacRay ) < MORIS_REAL_EPS )
+            {
+                break;
+            }
+
+            // compute inverse of jacobian
             tJacRayInv = inv( tJacRay );
 
             // check for convergence
