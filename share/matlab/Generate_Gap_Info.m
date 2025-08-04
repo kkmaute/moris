@@ -1,31 +1,52 @@
-function Generate_Gap_Info
+function Generate_Gap_Info_new
 
 clear all
 close all
 
+global nlbgsiter newiter lastemptydata lclast
+
+newiter=0;          % newton iteration count for nlbgs
+nlbgsiter=1;        % nlbgs iteration count for nlbgs
+lastemptydata=100;  % last time empty data was written
+lclast=1;           % last line number that as processed
+
+%read logfile
+logfile = readlines('log');
+
 keywordlist={'Mlika','Converged','NotConverged','NormalMlika','TractionMlika'}';
 
-keyid=5;  
-maxiter=310;
+nlbgs=1;          % flag for nlbgs: 1 nlbgs used, 0 only newton used
+keyid=1;          % keyword id
+maxiter=669;      % maximum number of iterations
 delp=50;          % range of pressure values (for scaling)
 delaug=50;        % range of aug term values (for scaling)
 deltract=50;      % range of traction magnitude (for scaling)
 
-for iter=241:maxiter
-    read_newton_iteration(iter-1,keywordlist,keyid,delp,delaug,deltract);
+for iter=1:maxiter
+    stopflag=read_newton_iteration(logfile,nlbgs,iter-1,keywordlist,keyid,delp,delaug,deltract);
+    if stopflag
+        break;
+    end
 end
 end
 
 %============================================
-function read_newton_iteration(iter,keywordlist,keyid,delp,delaug,deltract)
+function stopflag=read_newton_iteration(logfile,nlbgs,iter,keywordlist,keyid,delp,delaug,deltract)
+
+global lastemptydata
 
 keyword=keywordlist{keyid};
 
-system('rm -f contact_tmp.txt');
-cmd=sprintf('grep ''Niter = %d %s'' log| awk -F ''%s'' ''{print $2}'' > contact_tmp.txt',iter,keyword,keyword);
-system(cmd);
+data=process_log_file(logfile,nlbgs,iter,keyword);
 
-data = readmatrix('contact_tmp.txt');  
+stopflag=0;
+if isempty(data)
+    if lastemptydata<iter-1
+        stopflag=1;
+        return;
+    end
+    lastemptydata=iter;
+end
 
 if keyid<4
     read_gap(iter,data,keyword,delp,delaug);
@@ -33,10 +54,98 @@ else
     read_normal_traction(iter,data,keyword,deltract);
 end
 
-system('rm -f contact_tmp.txt');
 end
 
 %============================================
+
+function data=process_log_file(logfile,nlbgs,iter,keyword)
+
+global nlbgsiter newiter lclast
+
+tmpdata={};
+data=[];
+
+lcmax=size(logfile,1);
+
+if nlbgs 
+    % read until we find: NLBGS - Iteration: nlbgsiter
+    lc=lclast;
+    keystr=sprintf('NLBGS - Iteration: %d',nlbgsiter);
+    while lc<lcmax && contains(logfile(lc),keystr) == 0 
+        lc=lc+1;
+    end
+    if lc==lcmax
+        return;
+    end
+    
+    % read until we find: NLBGS - Iteration: nlbgsiter + 1 and find maximum
+    % Newton iteration
+    kc=lc+1;
+    maxnewiter=-1;
+    keystr=sprintf('NLBGS - Iteration: %d',nlbgsiter+1);
+    while  kc<lcmax && contains(logfile(kc),keystr) == 0
+        if contains(logfile(kc),'Newton - Iteration:') == 1
+            parts=split(logfile(kc),'Newton - Iteration:');
+            maxnewiter=max(maxnewiter,str2double(parts(end)));
+        end
+        kc=kc+1;
+    end
+    if maxnewiter<0
+        return;
+    end
+    
+    % update iteration counters
+    newiter=newiter+1;
+    if newiter>maxnewiter
+        nlbgsiter=nlbgsiter+1;
+        newiter=1;
+        lc=kc; 
+        kc=lc+1;
+        keystr=sprintf('NLBGS - Iteration: %d',nlbgsiter+1);
+        while kc<lcmax && contains(logfile(kc),keystr) == 0
+            kc=kc+1;
+        end
+        kc=min(kc,lcmax);
+    end
+    lclast=lc;
+
+    % scan log file between lines lc and kc for Niter = newiter keyword"
+    keystr=sprintf('Niter = %d %s',newiter,keyword);
+    for i=lc:kc
+        if contains(logfile(i),keystr) == 1
+            parts=split(logfile(i),keyword);
+            tmpdata{end+1}=str2num(parts(end));
+        end
+    end
+else
+    keystr=sprintf('Niter = %d %s',iter,keyword);
+    keystrnext=sprintf('Niter = %d %s',iter+1,keyword);
+    for i=lclast:lcmax
+        if contains(logfile(i),keystr) == 1
+            parts=split(logfile(i),keyword);
+            tmpdata{end+1}=str2num(parts(end));
+        end
+        % check if we reached next iteration
+        % if yes, store line number and exit
+        if contains(logfile(i),keystrnext) == 1
+            lclast=i;
+            break;
+        end
+    end
+end
+
+%convert to matrix
+if ~isempty(tmpdata)
+    numcols=size(tmpdata{1},2);
+    data=zeros(length(tmpdata),numcols);
+    for i=1:size(data,1)
+        data(i,:)=tmpdata{i};
+    end
+end
+end
+
+%============================================
+
 function read_gap(iter,data,keyword,delp,delaug)
 
 % number of normals
@@ -63,6 +172,7 @@ pscale=0.0;
 if size(data,2) > 4
     pressure=data(:,5);
     augterm=data(:,6);
+    gap=data(:,7);
     if delp<0
         delp=max(data(:,5))-min(data(:,5));
     end
@@ -80,6 +190,7 @@ if size(data,2) > 4
 else
     pressure=zeros(numNormals,1);
     augterm=zeros(numNormals,1);
+    gap=zeros(numNormals,1);
 end
 
 points=zeros(numPoints,3);
@@ -137,11 +248,17 @@ fprintf(fid, 'LOOKUP_TABLE default\n');
 fprintf(fid, '%e\n', augterm);
 fprintf(fid, '%e\n', augterm);
 
+fprintf(fid, 'SCALARS gap float\n');
+fprintf(fid, 'LOOKUP_TABLE default\n');
+fprintf(fid, '%e\n', gap);
+fprintf(fid, '%e\n', gap);
+
 % Close file
 fclose(fid);
 end
 
 %============================================
+
 function read_normal_traction(iter,data,keyword,deltract)
 
 % number of normals
