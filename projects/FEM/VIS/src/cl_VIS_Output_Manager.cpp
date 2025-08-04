@@ -336,12 +336,20 @@ namespace moris::vis
             std::string tOptIterStr = std::to_string( tOptIter );
             tMeshFileName += ".e-s." + std::string( 4 - tOptIterStr.length(), '0' ) + tOptIterStr;
 
-            // determine time shift
-            mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            // determine time shift;
+            if ( mTimeShift > tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset )
+            {
+                MORIS_LOG_INFO( "Time stap issue: current time larger than (Vis time offset)*optimization iteration index" );
+                mTimeShift += tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            }
+            else
+            {
+                mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            }
         }
 
         // Log mesh writing message
-        MORIS_LOG( "Writing %s to %s.", tMeshFileName.c_str(), tMeshFilePath.c_str() );
+        MORIS_LOG( "Writing %s to %s at time: %e", tMeshFileName.c_str(), tMeshFilePath.c_str(), mTimeShift );
 
         // writes the exodus mesh to file (only the mesh as a geometric entity without any output data)
         mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
@@ -675,8 +683,12 @@ namespace moris::vis
         // increment field write counter (signal that another output has been performed)
         mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
 
+        // update time shift
+        mTimeShift += aTime;
+
         // write time to file
-        mWriter( aVisMeshIndex )->set_time( aTime + mTimeShift );
+        MORIS_LOG_INFO( "Writing fields at time %e", mTimeShift );
+        mWriter( aVisMeshIndex )->set_time( mTimeShift );
 
         // get mesh set to fem set index map
         map< std::tuple< moris_index, bool, bool >, moris_index >& tMeshSetToFemSetMap =
