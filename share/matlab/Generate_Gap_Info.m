@@ -1,4 +1,4 @@
-function Generate_Gap_Info_new
+function Generate_Gap_Info
 
 clear all
 close all
@@ -18,9 +18,9 @@ keywordlist={'Mlika','Converged','NotConverged','NormalMlika','TractionMlika'}';
 nlbgs=1;          % flag for nlbgs: 1 nlbgs used, 0 only newton used
 keyid=1;          % keyword id
 maxiter=669;      % maximum number of iterations
-delp=50;          % range of pressure values (for scaling)
-delaug=50;        % range of aug term values (for scaling)
-deltract=50;      % range of traction magnitude (for scaling)
+delp=-50;          % range of pressure values (for scaling)
+delaug=-50;        % range of aug term values (for scaling)
+deltract=-50;      % range of traction magnitude (for scaling)
 
 for iter=1:maxiter
     stopflag=read_newton_iteration(logfile,nlbgs,iter-1,keywordlist,keyid,delp,delaug,deltract);
@@ -168,25 +168,34 @@ dely2=max(data(:,4))-min(data(:,4));
 maxx=max([delx1,delx2,dely1,dely2]);
 
 pscale=0.0;
+augscale=0.0;
 
 if size(data,2) > 4
     pressure=data(:,5);
     augterm=data(:,6);
     gap=data(:,7);
+    pmax=max(data(:,5));
+    pmin=min(data(:,5));
     if delp<0
-        delp=max(data(:,5))-min(data(:,5));
+        delp=pmax-pmin;
     end
     if delp>1e-9
         pscale=0.1*maxx/delp;
     end
+    augmax=max(data(:,6));
+    augmin=min(data(:,6));
     if delaug<0
-        delaug=max(data(:,6))-min(data(:,6));
+        delaug=augmax-augmin;
     end
     if delaug>1e-9
         augscale=0.1*maxx/delaug;
     end
-    fprintf('pressure range: %f  pscale:   %f\n',delp,pscale);
-    fprintf('Aug term range: %f  augscale: %f\n',delaug,augscale);
+    gmax=max(data(:,7));
+    gmin=min(data(:,7));
+
+    fprintf('pressure range: min = %e max = %e  delta = %e  pscale   = %e\n',pmin,pmax,delp,pscale);
+    fprintf('Aug term range: min = %e max = %e  delta = %e  augscale = %e\n',augmin,augmax,delaug,augscale);
+    fprintf('gap range:      min = %e max = %e  delta = %e  \n',gmin,gmax,gmax-gmin);
 else
     pressure=zeros(numNormals,1);
     augterm=zeros(numNormals,1);
