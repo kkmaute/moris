@@ -136,11 +136,8 @@ namespace moris::NLA
 
         if ( tUpdateLoadFactor && mTimeOffSet > 0.0 )
         {
-            // increment pseudo time for output
-            mOutputTime += mTimeOffSet;
-
             // write current solution to output 0
-            aNonLinSolverManager->get_solver_interface()->initiate_output( 0, mOutputTime, false );
+            aNonLinSolverManager->get_solver_interface()->initiate_output( 0, mTimeOffSet, false );
         }
     }
 
