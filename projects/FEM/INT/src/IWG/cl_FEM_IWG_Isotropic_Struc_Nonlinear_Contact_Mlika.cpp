@@ -248,14 +248,15 @@ namespace moris::fem
             Matrix< DDRMat > tTgtPoint = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
                                        + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
 
-            fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e  %e\n",    //
+            fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e  %e  %e\n",    //
                     tNiter,
                     tRayCastPoint( 0 ),
                     tRayCastPoint( 1 ),
                     tTgtPoint( 0 ),
                     tTgtPoint( 1 ),
                     tContactPressure,
-                    tAugLagrTerm );
+                    tAugLagrTerm,
+                    mGapData->mGap );
             fprintf( stdout, "Niter = %d NormalMlika %e  %e  %e  %e  %e  %e\n",    //
                     tNiter,
                     tRayCastPoint( 0 ),
