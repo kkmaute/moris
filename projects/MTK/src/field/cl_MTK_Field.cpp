@@ -574,7 +574,9 @@ namespace moris::mtk
 
         // check that number of nodes match with the field nodes
         MORIS_ERROR( tNumNodes == mValues.n_rows(),
-                "Field::load_field_from_exodus - number of nodes in exodus file incorrect.\n" );
+                "Field::load_field_from_exodus - number of nodes in exodus file incorrect (Got %u, Expected %lu).\n",
+                tNumNodes,
+                mValues.n_rows() );
 
         // allocate temporary memory to store nodal values
         Matrix< DDRMat > tNodalValues( tNumNodes, mNumberOfFields );
