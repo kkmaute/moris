@@ -16,7 +16,7 @@
 
 #include "AztecOO.h"
 #include "BelosConfigDefs.hpp"
-#include "BelosLinearProblem.hpp"
+//#include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
 #include <cmath>
