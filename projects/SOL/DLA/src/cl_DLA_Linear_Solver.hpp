@@ -33,6 +33,8 @@ namespace moris::dla
 
         std::string mLhsOutputFileName;
 
+        real mTrSize = 0.0;    // Size of the trust region, used in trust region solvers
+
       protected:
         moris::Parameter_List mParameterListLinearSolver;
 
@@ -92,6 +94,20 @@ namespace moris::dla
             return mLhsOutputFileName;
         }
 
+        //--------------------------------------------------------------------------------------------------
+
+        void
+        set_trust_region_size( moris::real aTrSize )
+        {
+            mTrSize = aTrSize;
+        }
+
+        moris::real
+        get_trust_region_size()
+        {
+            return mTrSize;
+        }
+       
         //--------------------------------------------------------------------------------------------------
     };
 }    // namespace moris::dla

@@ -23,6 +23,7 @@ namespace moris::NLA
             NEWTON_SOLVER,
             NLBGS_SOLVER,
             ARC_LENGTH_SOLVER,
+            TRUST_REGION_SOLVER,
             END_ENUM )
 }
 

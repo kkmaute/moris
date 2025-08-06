@@ -15,6 +15,7 @@
 set(TEST_SOURCES
     test_main.cpp
     cl_NLA_Newton_Solver_Test.cpp
+    cl_NLA_Trust_Region_Solver_test.cpp
     cl_NLA_NonlinearDatabase.cpp
     NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy.cpp
     NLA_Test_Proxy/cl_NLA_Solver_Interface_Proxy2.cpp

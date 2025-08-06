@@ -13,7 +13,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_FEM_Enums.hpp"
-
+#include "cl_MSI_Equation_Model.hpp"
 extern moris::Comm_Manager gMorisComm;
 
 namespace moris
@@ -160,6 +160,12 @@ namespace moris
 
             void compute_IQI() override;
 
+            Vector< moris::Matrix< DDRMat > >& get_IQI() override
+            {
+                return mMSI->mEquationModel->get_IQI_values();
+
+            }
+        
             //------------------------------------------------------------------------------
 
             void get_exact_solution_from_hdf5_and_calculate_error( const char* aFilename );

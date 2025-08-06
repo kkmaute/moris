@@ -46,10 +46,17 @@ namespace moris
 
             Matrix< DDRMat > ( *mFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd );
             Matrix< DDRMat > ( *mFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd );
+            Vector< Matrix< DDRMat > > ( *mFunctionObj )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd );
             Matrix< DDSMat > ( *mFunctionTopology )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd );
+
+            Vector< Matrix< DDRMat >> mIQIVal;
+            
 
             moris::sint mNX;
             moris::sint mNY;
+            Matrix < DDRMat > mMyValues;
+
+            moris::uint mMyElementInd = 0;
 
             Matrix< DDRMat > mTime = { { 1.0 }, { 1.0 } };
 
@@ -75,6 +82,21 @@ namespace moris
                     Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd ),
                     Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd ),
                     Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) );
+
+            // ----------------------------------------------------------------------------
+
+            NLA_Solver_Interface_Proxy(
+                    const moris::uint aNumMyDofs,
+                    const moris::uint aNumElements,
+                    const moris::sint aNX,
+                    const moris::sint aNY,
+                    const moris::uint aEquationObjectInd,
+                    Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd ),
+                    Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd ),
+                    Vector< Matrix< DDRMat > > ( *aFunctionObj )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd ),
+                    Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd )
+            );
+
 
             // ----------------------------------------------------------------------------
 
@@ -133,6 +155,18 @@ namespace moris
             {
                 return mNumMyDofs;
             };
+
+            // ----------------------------------------------------------------------------
+
+            void compute_IQI() override;
+
+            // ----------------------------------------------------------------------------
+
+            Vector< moris::Matrix< DDRMat > >& get_IQI() override
+            {
+                return mIQIVal;
+
+            }
 
             // ----------------------------------------------------------------------------
 

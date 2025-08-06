@@ -46,6 +46,8 @@ namespace NLA
          */
         Trust_Region_Solver();
 
+        Trust_Region_Solver( const Parameter_List& aParameterlist );
+
         Trust_Region_Solver( dla::Linear_Solver * aLinSolver );
 
         ~Trust_Region_Solver();
@@ -62,10 +64,11 @@ namespace NLA
 
         void get_solution( moris::Matrix< DDRMat > & LHSValues );
 
-        void extract_my_values( const moris::uint             & aNumIndices,
-                                const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                                const moris::uint             & aBlockRowOffsets,
-                                      moris::Matrix< DDRMat > & LHSValues );
+        void extract_my_values(
+                    const moris::uint&                      aNumIndices,
+                    const moris::Matrix< DDSMat >&          aGlobalBlockRows,
+                    const moris::uint&                      aBlockRowOffsets,
+                    Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
 
         void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
 
@@ -114,7 +117,8 @@ namespace NLA
 
         moris::real mDelLambdaNum;
         moris::real mDelLambdaDen;
-        moris::real mdeltaLambda;
+        moris::real mTrSize;
+
 
         //------------------------------------------------------------------------------
         //--------------------------- vectors and matrices -----------------------------

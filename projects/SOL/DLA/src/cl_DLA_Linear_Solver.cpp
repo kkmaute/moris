@@ -40,6 +40,9 @@ Linear_Solver::Linear_Solver(
 //--------------------------------------------------------------------------------------------------
 void Linear_Solver::set_linear_algorithm( const std::shared_ptr< Linear_Solver_Algorithm >& aLinSolverAlgorithm )
 {
+    // Assign trust region value to the linear solver algorithm
+    aLinSolverAlgorithm->set_trust_region_size( mTrSize );
+    
     if ( mCallCounter == 0 )
     {
         // removes all elements from the Cell and destroy them
@@ -65,6 +68,9 @@ void Linear_Solver::set_linear_algorithm(
         const moris::uint                          aListEntry,
         std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
+    // Assign trust region value to the linear solver algorithm
+    aLinSolverAlgorithm->set_trust_region_size( mTrSize );
+
     // Check if list is smaller than given entry
     if ( mLinearSolverList.size() >= aListEntry )
     {

@@ -689,6 +689,55 @@ namespace moris::prm
 
     //------------------------------------------------------------------------------
 
+    // creates a parameter list with default inputs
+    inline Parameter_List
+    create_linear_algorithm_parameter_list_trust_region_petsc()
+    {
+        Parameter_List tLinAlgorithmParameterList = create_algorithm_parameter_list();
+
+        tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::PETSC );
+
+        // Set KSP type
+        tLinAlgorithmParameterList.insert( "KSPType", std::string( "stcg" ) );    //  "gmres" , "fgmres", "preonly"
+
+        // Set default preconditioner
+        tLinAlgorithmParameterList.insert( "PCType", std::string( "ilu" ) );
+
+        // Sets maximal iters for KSP
+        tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
+
+        // Sets tolerance for KSP
+        tLinAlgorithmParameterList.insert( "KSPTol", 1e-10 );
+
+        // Sets the number of levels of fill to use for ILU
+        tLinAlgorithmParameterList.insert( "ILUFill", 0 );
+
+        // Sets drop tolerance for ilu
+        tLinAlgorithmParameterList.insert( "ILUTol", 1e-6 );
+
+        // Set multigrid levels
+        tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
+
+        // Schwarz preconditioner volume fraction threshold
+        tLinAlgorithmParameterList.insert( "MG_use_schwarz_smoother", false );
+
+        // Schwarz smoothing iterations
+        tLinAlgorithmParameterList.insert( "MG_schwarz_smoothing_iters", 1 );
+
+        // Schwarz preconditioner volume fraction threshold
+        tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
+
+        // number of eigen values to be outputted
+        tLinAlgorithmParameterList.insert( "ouput_eigenspectrum", (uint)0 );
+
+        // blocks in addtive Schwartz algorthim
+        tLinAlgorithmParameterList.insert( "ASM_blocks_output_filename", "" );
+
+        return tLinAlgorithmParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
     inline Parameter_List
     create_linear_solver_parameter_list()
     {
@@ -857,6 +906,22 @@ namespace moris::prm
 
         // Determines Newton maxits multiplier
         tNonLinAlgorithmParameterList.insert( "NLA_is_eigen_problem", false );
+
+        // Initial trust region size for tr solver
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_size", 2.00 );
+
+        // Max trust region iters
+        tNonLinAlgorithmParameterList.insert( "NLA_max_trust_region_iter", 100 );
+
+        // Trust region solver params
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_eta1", 1.0*1e-10 );
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_eta2", 0.1  );
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_eta3", 0.5  );
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_t1",   0.25 );
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_t2",   1.75 );
+
+        // Minimum trust region size
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_min_size", 1.0*1e-09 );
 
         // Determine with which strategy remapping of nonconformal meshes (raytracing) should be performed
         tNonLinAlgorithmParameterList.insert( "NLA_remap_strategy", (uint)sol::SolverRaytracingStrategy::None );

@@ -187,6 +187,38 @@ void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *a
             mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
         }
     }
+    else if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "stcg" ) )
+    {
+        // write solver to log file
+        MORIS_LOG_INFO( "KSP Solver: stcg - for use in trust region solver only" );
+
+        // set solver type
+        KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
+
+        // use initial guess
+        // KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
+
+        // Set maxits and tolerance for ksp
+        KSPSetTolerances(
+                mPetscKSPProblem,
+                mParameterList.get< moris::real >( "KSPTol" ),
+                PETSC_DEFAULT,
+                PETSC_DEFAULT,
+                mParameterList.get< moris::sint >( "KSPMaxits" ) );
+
+        // Set the trust region size
+        KSPCGSetRadius( mPetscKSPProblem, mTrSize );
+
+        // initialize preconditioner
+        if ( mPreconditioner != nullptr )
+        {
+            mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
+        }
+    }
+    else
+    {
+        MORIS_ERROR( false, "Linear_Solver_PETSc::construct_solver_and_preconditioner - unsupported KSP type." );
+    }
 
     // set convergence options
     this->set_solver_analysis_options();

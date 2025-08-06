@@ -64,6 +64,53 @@ NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy(
 
 // ----------------------------------------------------------------------------------------------
 
+NLA_Solver_Interface_Proxy::NLA_Solver_Interface_Proxy(
+        const moris::uint aNumMyDofs,
+        const moris::uint aNumElements,
+        const moris::sint aNX,
+        const moris::sint aNY,
+        moris::uint aEquationObjectInd,
+        Matrix< DDRMat > ( *aFunctionRes )( const moris::sint aNX, const moris::sint aNY, const moris::real aLambda, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+        Matrix< DDRMat > ( *aFunctionJac )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat > & tMyValues, const moris::uint aEquationObjectInd ),
+        Vector< Matrix< DDRMat > > ( *aFunctionObj )( const moris::sint aNX, const moris::sint aNY, const Matrix< DDRMat >& tMyValues, const moris::uint aEquationObjectInd ),
+        Matrix< DDSMat > ( *aFunctionTopo )( const moris::sint aNX, const moris::sint aNY, const moris::uint aEquationObjectInd ) )
+{
+    mUseMatrixMarketFiles = false;
+
+    Matrix< DDRMat > tDummy( 1 , 1 , 0.0 );
+
+    mFunctionRes = aFunctionRes;
+    mFunctionJac = aFunctionJac;
+    mFunctionTopology = aFunctionTopo;
+    mFunctionObj = aFunctionObj;
+
+    mNX = aNX;
+    mNY = aNY;
+    mMyElementInd = aEquationObjectInd;
+
+    mNumMyDofs = aNumMyDofs/par_size();
+    mNumElements = aNumElements;
+
+    //mMyGlobalElements.resize( mNumMyDofs, 1 );
+    mMyGlobalElements.resize( mNumMyDofs, 1 );
+
+    moris::sint tRank = par_rank();
+
+    for ( moris::uint Ik = ( mNumMyDofs * tRank ); Ik < mNumMyDofs * (tRank+1); Ik++ )
+    {
+        mMyGlobalElements( Ik-( mNumMyDofs*tRank ), 0 ) = Ik;
+    }
+
+    mMyGlobalElementsOverlapping.resize( aNumMyDofs, 1 );
+
+    for ( moris::uint Ik = 0; Ik < aNumMyDofs; Ik++ )
+    {
+        mMyGlobalElementsOverlapping( Ik, 0 ) = Ik;
+    }
+}
+
+// ----------------------------------------------------------------------------------------------
+
 void NLA_Solver_Interface_Proxy::set_solution_vector( sol::Dist_Vector * aSolutionVector )
 {
     mSolutionVector = aSolutionVector;
@@ -166,3 +213,14 @@ void NLA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
     aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
 }
 
+// ----------------------------------------------------------------------------------------------
+
+void NLA_Solver_Interface_Proxy::compute_IQI()
+{
+    // Extract solution copy
+    mSolutionVector->extract_copy( mMySolVec );
+
+    // Compute IQI 
+    mIQIVal = { mFunctionObj( mNX, mNY, mMySolVec, mMyElementInd ) }; 
+
+}

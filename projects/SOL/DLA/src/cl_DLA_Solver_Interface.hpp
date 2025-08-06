@@ -105,6 +105,14 @@ namespace moris
             MORIS_ERROR( false, "Solver_Interface::compute_IQI: not set." );
         };
 
+        virtual Vector< moris::Matrix< DDRMat > >&
+        get_IQI()
+        {
+            static Vector< moris::Matrix< DDRMat > > tDummy;
+               
+            return ( tDummy  );   
+        };
+
         //------------------------------------------------------------------------------
 
         virtual void

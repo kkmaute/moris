@@ -12,6 +12,7 @@
 #include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Newton_Solver.hpp"
+#include "cl_NLA_Trust_Region_Solver.hpp"
 #include "cl_NLA_NLBGS.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 //#include "cl_NLA_Arc_Length.hpp"
@@ -29,6 +30,9 @@ namespace moris::NLA
                 break;
             case ( NonlinearSolverType::NLBGS_SOLVER ):
                 tNonLinSys = std::make_shared< NonLinBlockGaussSeidel >( aParameterList );
+                break;
+            case ( NonlinearSolverType::TRUST_REGION_SOLVER ):
+                tNonLinSys = std::make_shared< Trust_Region_Solver >( aParameterList );
                 break;
         //        case ( NonlinearSolverType::ARC_LENGTH_SOLVER ):
         //            tNonLinSys = std::make_shared< Arc_Length_Solver >();
