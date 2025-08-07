@@ -104,13 +104,22 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     // Declare step type variable
     std::string tStepType;
 
-    // Declare Cuachy point, newton point and cauchy point norm variables
+    // Declare Cauchy point, newton point and cauchy point norm variables
     Matrix< DDRMat > tX;
     Matrix< DDRMat > tQ;
     Matrix< DDRMat > tZ;
     Matrix< DDRMat > tCauchyPointNormSquared;
 
-    
+    // Declare dist vectors for Cauchy point and Newton point
+    sol::Dist_Vector* tXd = mNonlinearProblem->get_full_vector();
+    tXd->vec_put_scalar(0.0);
+
+    sol::Dist_Vector* tQd = mNonlinearProblem->get_full_vector();
+    tQd->vec_put_scalar(0.0);
+
+    sol::Dist_Vector* tZd = mNonlinearProblem->get_full_vector();
+    tZd->vec_put_scalar(0.0);
+
 
     // Start trust region iterations
     for ( moris::sint iTrustRegionIter = 0; iTrustRegionIter < tMaxTrustRegionIts; iTrustRegionIter++ )
@@ -131,12 +140,11 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
         // Get product of g with Kg
         Matrix< DDRMat > tG;
+        Matrix< DDRMat > tH;
         mGlobalRHS->extract_copy(tG);
+
         Matrix< DDRMat > tGKG = trans(tG) * tKG;
-        std::cout << " Armadillo norm of res, \n" << norm(tG);
-        std::cout << " Armadillo grad comp 1, \n" << tG(0,0);
-        std::cout << " Armadillo grad comp 2, \n" << tG(1,0);
-        std::cout << " Armadillo grad comp 3, \n" << tG(2,0);
+        
         bool tHardBreak = false;
 
         // conditional check for computing newton point and cauchy point
@@ -146,7 +154,11 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             Matrix< DDRMat > tAlpha = -trans(tG) * tG / ( tGKG(0) );
             
             // Define Cauchy Point
-            tQ = tAlpha( 0 ) * tG;
+            //tQ = tAlpha( 0 ) * tG;
+            tQd = mGlobalRHS;
+            tQd->scale_vector( tAlpha( 0 ) );
+            // Copy into matrix
+            tQd->extract_copy( tQ );
 
             // Define norm of Cauchy Point
             tCauchyPointNormSquared = trans( tQ ) * tQ;
@@ -158,7 +170,11 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             Matrix< DDRMat >tGNorm = trans(tG)*tG;
             
             // Define Cauchy Point
-            tQ = -( tTrSize / std::sqrt( tGNorm(0) ) )*tG;
+            //tQ = -( tTrSize / std::sqrt( tGNorm(0) ) )*tG;
+            tQd = mGlobalRHS;
+            tQd->scale_vector( -tTrSize / std::sqrt( tGNorm(0) ) );
+            // Copy into matrix
+            tQd->extract_copy( tQ );
 
             // Define norm of Cauchy Point
             tCauchyPointNormSquared( 0 ) = tTrSize * tTrSize;
@@ -172,14 +188,19 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         {
             // Project Cauchy Point back to boundary
             MORIS_LOG_INFO( "unpreconditioned gradient cauchy point outside trust region at dist = %f", std::sqrt( tCauchyPointNormSquared( 0 )  ) );
-            Matrix< DDRMat > tQ;
-            tQ = ( tTrSize / std::sqrt( tCauchyPointNormSquared( 0 )  ) ) * tQ;
+            //Matrix< DDRMat > tQ;
+            //tQ = ( tTrSize / std::sqrt( tCauchyPointNormSquared( 0 )  ) ) * tQ;
+
+            tQd->scale_vector( tTrSize / std::sqrt( tCauchyPointNormSquared( 0 )  ) );
 
             // Define norm of Cauchy Point
             tCauchyPointNormSquared( 0 )  = tTrSize * tTrSize;
 
             // Define newton point
-            tZ = tQ;
+            tZd = tQd;
+
+            // Copy into matrix
+            tZd->extract_copy(tZ);
 
             // Define Step type 
             tStepType = "Boundary";
@@ -194,7 +215,9 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
             // Get the Newton vector
             dla::Linear_Problem* tLinProb = mNonlinearProblem->get_linearized_problem();
-            tLinProb->get_solution( tZ );
+            tZd = tLinProb->get_free_solver_LHS();
+            // Extract Copy 
+            tZd->extract_copy(tZ);
             
         }
         
@@ -203,46 +226,61 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         
         while ( tTrustRegionSizeUpdateFlag == false )
         {
-            Matrix< DDRMat > tD = this->dogleg_step( tZ, tQ, tTrSize );
-            sol::Dist_Vector* tDd = mNonlinearProblem->get_full_vector();
-            Matrix< DDSMat > tIndex = linspace( 0 , tDd->vec_global_length()-1 , tDd->vec_global_length() );
-            std::cout<< tIndex.n_rows();
-            tDd->vec_put_scalar( 0.0 );
-            tDd->sum_into_global_values( tIndex , tD );
+            sol::Dist_Vector* tDd = this->dogleg_step( tZd, tQd, tTrSize );
 
             sol::Dist_Vector* tJd = mNonlinearProblem->get_full_vector();
+            tJd->vec_put_scalar( 0.0 );
             Matrix< DDRMat > tJdd;
             Matrix< DDRMat > tDdd;
+            
             mJac->mat_vec_product(*tDd , *tJd , false);
             tJd->extract_copy( tJdd );
             tDd->extract_copy( tDdd );
-            Matrix< DDRMat > tDJd = trans( tD ) * tJdd;
+            Matrix< DDRMat > tDJd = trans( tDdd ) * tJdd;
             Matrix< DDRMat > tGradUpProd = trans( tG )*( tDdd );
             moris::real tModelObjective = tGradUpProd(0) + 0.5*tDJd(0);
 
-            real tModelNorm = norm( tG + tDJd );
+            real tModelNorm = norm( tG + tJdd );
+
+            // Store old solution
+            sol::Dist_Vector* tOldSol = mNonlinearProblem->get_full_vector();
 
             // Update solution
-            sol::Dist_Vector* tY = aNonlinearProblem->get_full_vector();
-            tY->vec_plus_vec( 1.0 , *tDd , 0 );
+            //sol::Dist_Vector* tY = mNonlinearProblem->get_full_vector();
+            //tY->vec_plus_vec( 1.0 , *tDd , 1.0 );
 
             // Compute new residual and tangent stiffness matrix       
             // Make a copy of the aNonlinearProblem
-            Nonlinear_Problem* tNonlinearProblem = aNonlinearProblem;
+            // Nonlinear_Problem* tNonlinearProblem = aNonlinearProblem;
 
-            tNonlinearProblem->get_solver_interface()->set_solution_vector( tY );
-            tNonlinearProblem->build_linearized_problem( tRebuildJacobian, false, iTrustRegionIter ); 
+            // tNonlinearProblem->get_solver_interface()->set_solution_vector( tY );
+            // tNonlinearProblem->build_linearized_problem( tRebuildJacobian, false, iTrustRegionIter ); 
      
-            sol::Dist_Vector* tGy = tNonlinearProblem->get_linearized_problem()->get_solver_RHS();
+            // sol::Dist_Vector* tGy = tNonlinearProblem->get_linearized_problem()->get_solver_RHS();
 
-            // Get the new residual norm
-            Vector< moris::real > tResNormy = tGy->vec_norm2();
+            // // Get the new residual norm
+            // Vector< moris::real > tResNormy = tGy->vec_norm2();
 
             // If residual converged then exit
             Convergence tConvergence;
 
             (mNonlinearProblem->get_full_vector())->vec_plus_vec( 1.0 , *tDd , 1.0 );
             mNonlinearProblem->build_linearized_problem( tRebuildJacobian, false, iTrustRegionIter );
+
+            // Get new residual and its norm
+            sol::Dist_Vector* tGy = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();
+
+            Vector< real > tResNormUpdate = tGy->vec_norm2();
+
+            // Compute update in the IQI value
+            mNonlinearProblem->get_solver_interface()->compute_IQI();
+
+            // Obtain the IQI values
+            Vector< moris::Matrix< DDRMat > > tIQIs = mNonlinearProblem->get_solver_interface()->get_IQI();
+
+            // Based on convergence criteria decide whether to update the preconditioner and other things.
+            real tRealImprove = -(tIQIs( 0 )( 0 ) - tInitialObjective( 0 )( 0 ));
+            
 
             bool tHardBreak = false;
 
@@ -258,17 +296,6 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
                break;
             }
 
-            (mNonlinearProblem->get_full_vector())->vec_plus_vec( -1.0 , *tDd , 1.0 );
-            mNonlinearProblem->build_linearized_problem( tRebuildJacobian, false, iTrustRegionIter );
-
-            // Compute IQI values
-            mNonlinearProblem->get_solver_interface()->compute_IQI();
-
-            // Obtain the IQI values
-            Vector< moris::Matrix< DDRMat > > tIQIs = mNonlinearProblem->get_solver_interface()->get_IQI();
-
-            // Based on convergence criteria decide whether to update the preconditioner and other things.
-            real tRealImprove = -(tIQIs( 0 )( 0 ) - tInitialObjective( 0 )( 0 ));
 
             real tRho = tRealImprove/(-tModelObjective);
 
@@ -283,23 +310,16 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
             bool tWillAccept = false;
 
-            if ( (tRho >= mParameterListNonlinearSolver.get< moris::real >( "NLA_trust_region_eta1" )) || ( (tRho >= -0.0) & (tModelNorm <= tResNormy( 1 )) ) )
+            if ( (tRho >= mParameterListNonlinearSolver.get< moris::real >( "NLA_trust_region_eta1" )) || ( (tRho >= -0.0) & (tModelNorm <= tResNormUpdate( 0 )) ) )
             {
                  tWillAccept = true;
+                 MORIS_LOG("Iteration accepted");
             }
 
             if ( tWillAccept )
             {
-                 // Update solution value
-                 (mNonlinearProblem->get_full_vector())->vec_plus_vec( 1.0 , *tDd , 1.0 );
-
-                 mNonlinearProblem->get_solver_interface()->set_solution_vector( mNonlinearProblem->get_full_vector() );
-
-                 // Update linearized problem
-                 mNonlinearProblem->build_linearized_problem( tRebuildJacobian, false, iTrustRegionIter );
-
                  // Update gradient value
-                 mGlobalRHS = tGy;
+                 mGlobalRHS = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();
 
                  // Now happy with trust region size
                  tTrustRegionSizeUpdateFlag = true;
@@ -310,6 +330,15 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             else
             {
                  tStepType = "Boundary";
+                 MORIS_LOG("Trust region iteration not accepted \n");
+
+                // Go back to the old solution - iteration is not accepted
+                mNonlinearProblem->get_full_vector()->vec_plus_vec(1.0 , *tOldSol, 0.0);
+
+                // Rebuild Linear problem
+                //mNonlinearProblem->build_linearized_problem( true, iTrustRegionIter, 0 );
+
+
             }
             
             // Throw error if tr size falls below threshold
@@ -508,22 +537,28 @@ void Trust_Region_Solver::extract_my_values(
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-Matrix< DDRMat > Trust_Region_Solver::preconditioned_project_to_boundary( Matrix< DDRMat > &aZ,
-                                                              Matrix< DDRMat > &aD,
+sol::Dist_Vector* Trust_Region_Solver::preconditioned_project_to_boundary( sol::Dist_Vector* aZ,
+                                                              sol::Dist_Vector* aD,
                                                               real          &aTrSize,
                                                               real          &aZz)
                                                 
 {
     // find tau s.t. (z + tau*d)^2 = trSize^2
 
-    Matrix< DDRMat > tPd = (aD);
+    //Matrix< DDRMat > tPd = (aD);
+    Matrix< DDRMat > tD;
+    Matrix< DDRMat > tZ;
+    aD->extract_copy(tD);
+    aZ->extract_copy(tZ);
 
-    Matrix< DDRMat > tDd = trans( aD ) * aD;
-    Matrix< DDRMat > tZd = trans( aZ ) * aD;
+    Matrix< DDRMat > tDd = trans( tD ) * tD;
+    Matrix< DDRMat > tZd = trans( tZ ) * tD;
 
     moris::real tTau = ( std::pow( (aTrSize * aTrSize - aZz ) * tDd(0) + tZd(0) * tZd(0), 0.5 ) - tZd(0) ) / tDd(0);
 
-    return aZ + tTau * aD;
+    //return aZ + tTau * aD;
+    aZ->vec_plus_vec( tTau, *aD, 1.0 );
+    return aZ;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -579,37 +614,42 @@ std::tuple< real, real > Trust_Region_Solver::cg_inner_products_preconditioned( 
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-Matrix< DDRMat > Trust_Region_Solver::dogleg_step(Matrix< DDRMat > &aZ,
-                                                  Matrix< DDRMat > &aQ,
+sol::Dist_Vector* Trust_Region_Solver::dogleg_step(sol:: Dist_Vector* aZ,
+                                                  sol:: Dist_Vector*  aQ,
                                                   real          &aTrSize)
                                                                                    
                                                 
 {
-    Matrix< DDRMat > tCc = trans( aQ ) * aQ;
-    Matrix< DDRMat > tNn = trans( aZ ) * aZ;
+    //Matrix< DDRMat > tCc = trans( aQ ) * aQ;
+    //Matrix< DDRMat > tNn = trans( aZ ) * aZ;
+
+    Vector< real > tCc = aQ->vec_norm2();
+    Vector< real > tNn = aZ->vec_norm2();
     real tTrustRegionSizeSq = aTrSize * aTrSize;
 
 
     // If cauchy point is outside trust region, we need to project it back
-    if ( tCc(0) > tTrustRegionSizeSq )
+    if ( std::pow(tCc(0),2) > tTrustRegionSizeSq )
     {
         // Project cauchy point back to boundary
         MORIS_LOG_INFO( "Cauchy point outside trust region at dist = %f", std::sqrt( tCc(0) ) );
-        aQ = ( aTrSize / std::sqrt( tCc(0) ) ) * aQ;
+        //aQ = ( aTrSize / std::sqrt( tCc(0) ) ) * aQ;
+        aQ->scale_vector(aTrSize / tCc(0));
 
         return aQ;
     }
-    if ( tCc(0) > tNn(0) )
+    if ( std::pow(tCc(0),2) > std::pow(tNn(0),2) )
     {
         // Likely due to inaccurate preconditioner
         MORIS_LOG_INFO( "Cauchy point outside newton, check preconditioner" );
         return aQ;
     }
     
-    if ( tNn(0) > tTrustRegionSizeSq )
+    if ( std::pow(tNn(0),2) > tTrustRegionSizeSq )
     {
-        Matrix< DDRMat > tDiff = aZ - aQ;
-        Matrix< DDRMat > aZRev = this->preconditioned_project_to_boundary( aQ, tDiff, aTrSize, tCc(0) );
+        real tCCrev = std::pow( tCc(0), 2);
+        aZ->vec_plus_vec(-1.0, *aQ, 1.0);
+        sol::Dist_Vector* aZRev = this->preconditioned_project_to_boundary( aQ, aZ, aTrSize, tCCrev );
 
         return aZRev;
     }

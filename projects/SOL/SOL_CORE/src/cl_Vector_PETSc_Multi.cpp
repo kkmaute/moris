@@ -120,6 +120,7 @@ MultiVector_PETSc::sum_into_global_values(
     // loop over elemental dofs
     for ( uint Ij = 0; Ij < tNumMyDofs; Ij++ )
     {
+        
         // set constrDof to neg value
         if ( mDirichletBCVec( tTempElemDofs( Ij, 0 ), 0 ) == 1 )
         {

@@ -153,8 +153,8 @@ namespace NLA
                                                                 real &aTrSize,
                                                                 Nonlinear_Problem *aNonlinearProblem )   ;
 
-        Matrix< DDRMat > preconditioned_project_to_boundary( Matrix< DDRMat > &aZ,
-                                                              Matrix< DDRMat > &aD,
+        sol::Dist_Vector* preconditioned_project_to_boundary( sol::Dist_Vector* aZ,
+                                                              sol::Dist_Vector* aD,
                                                               real          &aTrSize,
                                                               real          &aZz     );
 
@@ -177,8 +177,8 @@ namespace NLA
                                                                                   real         &aRPr,
                                                                                   Matrix< DDRMat > &aZ,
                                                                                   Matrix< DDRMat > &aD );
-        Matrix< DDRMat >              dogleg_step(Matrix< DDRMat > &aZ,
-                                                  Matrix< DDRMat > &aQ,
+        sol::Dist_Vector*             dogleg_step(sol::Dist_Vector* aZ,
+                                                  sol::Dist_Vector* aQ,
                                                   real          &aTrSize);
                                                   
         void initialize_variables( Nonlinear_Problem *aNonlinearProblem );     

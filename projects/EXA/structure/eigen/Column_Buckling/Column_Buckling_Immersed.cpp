@@ -604,7 +604,7 @@ namespace moris
 
         // precondioerr
         aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
-        aParameterLists.set( "PCType", "mumps" );
+        aParameterLists.set( "PCType", "cholesky" );
 
         //---------------------------------------------------------------------------------------------------------------------------------------
 

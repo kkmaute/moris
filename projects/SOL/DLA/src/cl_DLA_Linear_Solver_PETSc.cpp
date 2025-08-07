@@ -212,7 +212,7 @@ void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *a
         // initialize preconditioner
         if ( mPreconditioner != nullptr )
         {
-            mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
+           mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
         }
     }
     else

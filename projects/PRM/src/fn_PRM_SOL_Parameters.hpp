@@ -190,13 +190,19 @@ namespace moris::prm
         aParameterlist.set( "Preconditioner_Implementation", sol::PreconditionerType::PETSC );
 
         // Set default preconditioner
-        aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "gamg", "none"
+        aParameterlist.insert( "PCType", std::string( "cholesky" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "gamg", "none"
 
         // Sets the number of levels of fill to use for ILU
         aParameterlist.insert( "ILUFill", 0 );
 
         // Sets drop tolerance for ilu
         aParameterlist.insert( "ILUTol", 1e-6 );
+
+        // Sets the number of levels of fill to use for ILU
+        aParameterlist.insert( "CholeskyFill", 0 );
+
+        // Sets drop tolerance for ilu
+        aParameterlist.insert( "CholeskyTol", 1e-6 );
 
         // Set multigrid levels
         aParameterlist.insert( "MultigridLevels", 3 );
@@ -646,7 +652,7 @@ namespace moris::prm
         tLinAlgorithmParameterList.insert( "KSPType", std::string( "gmres" ) );    //  "gmres" , "fgmres", "preonly"
 
         // Set default preconditioner
-        tLinAlgorithmParameterList.insert( "PCType", std::string( "none" ) );
+        tLinAlgorithmParameterList.insert( "PCType", std::string( "cholesky" ) );
 
         // Sets maximal iters for KSP
         tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
@@ -665,6 +671,12 @@ namespace moris::prm
 
         // Sets drop tolerance for ilu
         tLinAlgorithmParameterList.insert( "ILUTol", 1e-6 );
+
+        // Sets the number of levels of fill to use for ILU
+        tLinAlgorithmParameterList.insert( "CholeskyFill", 0 );
+
+        // Sets drop tolerance for ilu
+        tLinAlgorithmParameterList.insert( "CholeskyTol", 1e-6 );
 
         // Set multigrid levels
         tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
@@ -701,7 +713,7 @@ namespace moris::prm
         tLinAlgorithmParameterList.insert( "KSPType", std::string( "stcg" ) );    //  "gmres" , "fgmres", "preonly"
 
         // Set default preconditioner
-        tLinAlgorithmParameterList.insert( "PCType", std::string( "ilu" ) );
+        tLinAlgorithmParameterList.insert( "PCType", std::string( "cholesky" ) );
 
         // Sets maximal iters for KSP
         tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
