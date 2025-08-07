@@ -143,8 +143,8 @@ namespace moris
                 tNonlinearSolverParameterList.set( "NLA_hard_break", false );
                 tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
                 tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
-                tNonlinearSolverParameterList.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NEWTON_SOLVER );
-                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 10);
+                tNonlinearSolverParameterList.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::TRUST_REGION_SOLVER );
+                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 1);
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
                         tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );

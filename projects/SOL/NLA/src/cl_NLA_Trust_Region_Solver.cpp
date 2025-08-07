@@ -77,26 +77,12 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 {
     // Set nonlinear problem object
     mNonlinearProblem = aNonlinearProblem;
-    
-    // Initialize tangent matrix and residual
-    this->initialize_variables( aNonlinearProblem );
 
     // Compute initial objective value
     mNonlinearProblem->get_solver_interface()->compute_IQI();
 
-    // Get the initial objective value
-    Vector< moris::Matrix< DDRMat > > tInitialObjective = mNonlinearProblem->get_solver_interface()->get_IQI();
-
-    std::cout<<" Initial Objective value "<< tInitialObjective( 0 )( 0 );
-
     // get trust region size
     moris::real tTrSize = mParameterListNonlinearSolver.get< moris::real >( "NLA_trust_region_size" );
-
-    // Get the residual vector norm
-    Vector< moris::real > tResNorm = mGlobalRHS->vec_norm2();
-
-    // print the current residual
-    std::cout<< " Initial Residual "<< tResNorm( 0 );
 
     // Get max trust region iterations
     moris::sint tMaxTrustRegionIts = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_trust_region_iter" );
@@ -125,6 +111,16 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     for ( moris::sint iTrustRegionIter = 0; iTrustRegionIter < tMaxTrustRegionIts; iTrustRegionIter++ )
     {
         bool tRebuildJacobian = true;
+
+        mNonlinearProblem->build_linearized_problem( tRebuildJacobian, true, iTrustRegionIter );
+        mGlobalRHS = mNonlinearProblem->get_linearized_problem()->get_solver_RHS();
+        mJac = mNonlinearProblem->get_linearized_problem()->get_matrix();
+
+        // Compute update in the IQI value
+        mNonlinearProblem->get_solver_interface()->compute_IQI();
+
+        // Obtain the IQI values
+        Vector< moris::Matrix< DDRMat > > tInitialObjective = mNonlinearProblem->get_solver_interface()->get_IQI();
         
         sol::Dist_Vector* tKg =  mNonlinearProblem->get_full_vector();
         mJac->mat_vec_product( *mGlobalRHS, *tKg, false );
