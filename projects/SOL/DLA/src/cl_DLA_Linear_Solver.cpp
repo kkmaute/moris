@@ -97,6 +97,8 @@ void Linear_Solver::solver_linear_system(
     std::string tRHSMatrixType = mParameterListLinearSolver.get< std::string >( "RHS_Matrix_Type" );
     aLinearProblem->set_rhs_matrix_type( tRHSMatrixType );
 
+    mLinearSolverList( 0 )->set_trust_region_size( mTrSize );
+
     // if printing of LHS requested through input file, initialize hdf5 files here
     // and save LHS before and after solve
     if ( !this->get_LHS_output_filename().empty() )
@@ -131,6 +133,7 @@ void Linear_Solver::solver_linear_system(
     {
         // solve system
         tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
+        mConvReason = mLinearSolverList( 0 )->get_convergence_reason();
     }
 
     // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed

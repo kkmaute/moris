@@ -99,6 +99,9 @@ Linear_Solver_PETSc::solve_linear_system(
     Mat tRHSVecs = static_cast< MultiVector_PETSc* >( aLinearSystem->get_solver_RHS() )->get_petsc_vector();
     Mat tLHSVecs = static_cast< MultiVector_PETSc* >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector();
 
+    KSPConvergedReason tDefReason = KSP_CONVERGED_ITERATING;
+    KSPConvergedReason* tReason = &tDefReason;
+
     for ( uint iNumRHS = 0; iNumRHS < mSolverInterface->get_num_rhs(); iNumRHS++ )
     {
         Vec tRHSVec, tLHSVec;
@@ -111,6 +114,15 @@ Linear_Solver_PETSc::solve_linear_system(
         VecAssemblyEnd( tLHSVec );
 
         KSPSolve( mPetscKSPProblem,tRHSVec,tLHSVec );
+        
+        // Get reason for convergence
+        KSPGetConvergedReason( mPetscKSPProblem, tReason );
+        if (*tReason == KSP_CONVERGED_STEP_LENGTH)
+        {
+            this->set_convergence_reason( true );
+        }
+
+
         MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
         MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
     }

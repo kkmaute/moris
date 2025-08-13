@@ -55,7 +55,7 @@ namespace moris::sol
          *
          * @param aMapClass Distributed vector map
          */
-        Dist_Vector( bool aManageMap );
+        Dist_Vector( bool aManageMap );    
 
         /**
          * Destructor (deletes map if desired)

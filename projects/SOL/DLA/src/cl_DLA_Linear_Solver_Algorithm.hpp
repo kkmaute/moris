@@ -44,6 +44,7 @@ namespace moris
             moris::real mNumFactTime;
             moris::real mPreCondTime;
             moris::real mTrSize;
+            bool mConvergenceReasonIsTrSz;
 
             Solver_Interface* mSolverInterface = nullptr;
 
@@ -131,6 +132,27 @@ namespace moris
             virtual moris::real get_trust_region_size() const
             {
                 return mTrSize; 
+            };
+
+            //-----------------------------------------------------------------------------------
+            /**
+             * @brief assign trust region size variable
+             * @param aTrSize Size of the trust region
+             *
+             */
+            virtual void set_convergence_reason( const bool aConvReason )
+            {
+                mConvergenceReasonIsTrSz = aConvReason;
+            };
+
+            //-----------------------------------------------------------------------------------
+            /**             
+             * @brief get trust region size variable
+             * @return Size of the trust region
+             */
+            virtual moris::real get_convergence_reason() const
+            {
+                return mConvergenceReasonIsTrSz; 
             };
 
 

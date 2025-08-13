@@ -33,7 +33,9 @@ namespace moris::dla
 
         std::string mLhsOutputFileName;
 
-        real mTrSize = 0.0;    // Size of the trust region, used in trust region solvers
+        real mTrSize = 2.0;    // Size of the trust region, used in trust region solvers
+
+        bool mConvReason; // If it is converging because of boundary stuff
 
       protected:
         moris::Parameter_List mParameterListLinearSolver;
@@ -102,6 +104,8 @@ namespace moris::dla
             mTrSize = aTrSize;
         }
 
+        //--------------------------------------------------------------------------------------------------
+
         moris::real
         get_trust_region_size()
         {
@@ -109,6 +113,12 @@ namespace moris::dla
         }
        
         //--------------------------------------------------------------------------------------------------
+
+        bool
+        get_conv_reason()
+        {
+            return mConvReason;
+        }
     };
 }    // namespace moris::dla
 

@@ -144,7 +144,7 @@ namespace moris
                 tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
                 tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
                 tNonlinearSolverParameterList.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::TRUST_REGION_SOLVER );
-                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 1);
+                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 10);
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
                         tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
@@ -175,7 +175,7 @@ namespace moris
                 dla::Solver_Factory tSolFactory;
                 Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
                 Parameter_List tPreconditionerParameterList = prm::create_preconditioner_parameter_list(sol::PreconditionerType::PETSC);
-                tLinearSolverParameterList.set( "KSPType", std::string( "gmres" ) );
+                tLinearSolverParameterList.set( "KSPType", std::string( "stcg" ) );
                 tLinearSolverParameterList.set( "PCType", std::string( "cholesky" ));
                 dla::Preconditioner* tPrec1 = tSolFactory.create_preconditioner( tPreconditionerParameterList );
                 std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
@@ -183,6 +183,7 @@ namespace moris
                 tLinSolver1->set_preconditioner( tPrec1 );
 
                 tLinSolManager.set_linear_algorithm( 0, tLinSolver1 );
+                
                 //tLinSolManager.set_linear_algorithm( 1, tLinSolver2 );
 
                 tNonLinSolManager.solve( &tNonlinearProblem );
@@ -194,9 +195,12 @@ namespace moris
 
                 tNonlLinSolverAlgorithm->extract_my_values( 3, tGlobalIndExtract, 0, tMyValues );
 
-                CHECK( equal_to( tMyValues( 0 )( 0, 0 ), -6.300000000000002, 1.0e+08 ) );
-                CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 10.600000000000000, 1.0e+08 ) );
-                CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.25, 1.0e+08 ) );
+                std::cout<< "Val 1" << tMyValues( 0 )<<"\n";
+
+
+                CHECK( equal_to( tMyValues( 0 )( 0, 0 ), -0.87264434, 1.0e+08 ) );
+                CHECK( equal_to( tMyValues( 0 )( 1, 0 ), 0.43930155, 1.0e+08 ) );
+                CHECK( equal_to( tMyValues( 0 )( 2, 0 ), 0.25, 1.0e+08 ) );
 
                 //        delete( tNonlinearProblem );
                 delete ( tSolverInput );
