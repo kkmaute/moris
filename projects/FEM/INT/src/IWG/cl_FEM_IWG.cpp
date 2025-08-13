@@ -2818,7 +2818,7 @@ namespace moris::fem
             // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
         }
 
-        bool tPlotRays = false;
+        bool tPlotRays = true;
 
         // check if Newton converged
         if ( !tNewtonConverged )
@@ -3347,7 +3347,7 @@ namespace moris::fem
             tSolRay -= tJacRayInv * tResRay;
         }
 
-        bool tPlotRays = false;
+        bool tPlotRays = true;
 
         // check if Newton converged
         if ( !tNewtonConverged )
