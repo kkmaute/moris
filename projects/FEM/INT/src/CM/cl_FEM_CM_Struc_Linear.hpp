@@ -52,18 +52,18 @@ namespace moris::fem
         };
 
         // function pointers
-        void ( CM_Struc_Linear::*m_eval_strain )() = nullptr;
+        void ( CM_Struc_Linear::* m_eval_strain )() = nullptr;
 
-        void ( CM_Struc_Linear::*m_eval_teststrain )() = nullptr;
+        void ( CM_Struc_Linear::* m_eval_teststrain )() = nullptr;
 
-        void ( CM_Struc_Linear::*m_flatten_normal )(
+        void ( CM_Struc_Linear::* m_flatten_normal )(
                 const Matrix< DDRMat >& aNormal,
                 Matrix< DDRMat >&       aFlatNormal ) = nullptr;
 
-        void ( CM_Struc_Linear::*mConstFunc )(
+        void ( CM_Struc_Linear::* mConstFunc )(
                 std::initializer_list< const real >&& tParams ) = &CM_Struc_Linear::full_3d;
 
-        void ( CM_Struc_Linear::*m_eval_inv_bulk_modulus )(
+        void ( CM_Struc_Linear::* m_eval_inv_bulk_modulus )(
                 const real& aNu,
                 const real& aEMod,
                 real&       aInvBulkModulus ) = &CM_Struc_Linear::eval_inv_bulk_modulus_generic;
