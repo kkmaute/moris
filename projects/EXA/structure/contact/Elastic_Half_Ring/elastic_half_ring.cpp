@@ -44,7 +44,7 @@ namespace moris
     uint tInterfaceRefinement = 0;
 
     real tInitialGap  = 5.0;
-    real tPenetration = 5.0; // Mlika: 70
+    real tPenetration = 70.0; // Mlika: 70
     real tVerticalDisplacement = ( tInitialGap + tPenetration );    // only the upper body moves
 
     /* --------------------------------------- Top Geometry ----------------------------------------- */
@@ -109,12 +109,12 @@ namespace moris
     real tMaxNegativeRayLength    = -8.0;
     real tMaxPositiveRayLength    = 50.0;
 
-    mtk::Integration_Order tNonconformalIntegrationOrder = mtk::Integration_Order::BAR_2;
+    mtk::Integration_Order tNonconformalIntegrationOrder = mtk::Integration_Order::BAR_4;
 
     /* ------------------------------------------- Contact ------------------------------------------ */
     std::string tContactType          = "mlika";
     std::string tContactBias          = "unsymmetric";
-    std::string tContactStabilization = "100.00/0.0";
+    std::string tContactStabilization = "1.00/0.0";
 
     /* -------------------------------------- Control Variables ------------------------------------- */
     bool tOnlyGenerateMesh   = false;
@@ -187,7 +187,7 @@ namespace moris
             Vector< Matrix< DDRMat > >      &aParameters,
             fem::Field_Interpolator_Manager *aFIManager )
     {
-        real tLoadFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
+        real tLoadFactor = gLogger.get_action_data("NonLinearAlgorithm", "NLBGS", "Solve", "LoadFactor");
         aPropMatrix      = aParameters( 0 ) * tLoadFactor;
     }
 
@@ -840,7 +840,7 @@ namespace moris
         pl.set("NLA_Linear_solver",                   0);
         pl.set("NLA_max_iter",                        tNewtonMaxIter );
         pl.set("NLA_rel_res_norm_drop",               tNewtonRelRes);
-        pl.set("NLA_time_offset",                     1.0);
+        pl.set("NLA_time_offset",                     0.0);
         //pl.set("NLA_relaxation_parameter",            tRelaxation);
         pl.set("NLA_relaxation_strategy", 	    sol::SolverRelaxationType::InvResNormAdaptive );
         pl.set("NLA_relaxation_parameter",	    1.0 );
@@ -885,6 +885,7 @@ namespace moris
         pl = moris::prm::create_time_solver_algorithm_parameter_list();
         pl.set( "TSA_Num_Time_Steps", 1 );
         pl.set( "TSA_Time_Frame", 10.0 ); // nonlinear 100.0
+        pl.set( "TSA_Nonlinear_Solver", 1 );  
         aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
