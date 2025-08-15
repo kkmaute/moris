@@ -124,7 +124,7 @@ namespace moris
     real
     Box_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&    aGeometryParameters )
+            const Vector< real >&   aGeometryParameters )
     {
         real tBoxExponent = 24.0;
 
@@ -161,7 +161,7 @@ namespace moris
     real
     Hole_Pattern_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&    aGeometryParameters )
+            const Vector< real >&   aGeometryParameters )
     {
         Matrix< DDRMat > tDelta  = { { tHoleXdim / tNumHolesX }, { tHoleYdim / tNumHolesY }, { tHoleZdim / tNumHolesZ } };
         Matrix< DDRMat > tOrigin = { { tHoleXOrg + tDelta( 0 ) / 2.0 }, { tHoleYOrg + tDelta( 1, 0 ) / 2.0 }, { tHoleZOrg + tDelta( 2, 0 ) / 2.0 } };
@@ -211,9 +211,9 @@ namespace moris
 
     void
     Func_Neumann_U(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         if ( aFIManager->get_IG_geometry_interpolator()->valx()( 1 ) < 0.2 )
         {
@@ -244,9 +244,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -517,14 +517,14 @@ namespace moris
         // create parameter list for constitutive model 1
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMStrucLinIso_Frame" );
-        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( tDofStrg, "Displacement" ) );
         aParameterLists.set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
 
         // create parameter list for constitutive model 1
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
         aParameterLists.set( "constitutive_name", "CMStrucLinIso_Interior" );
-        aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+        aParameterLists.set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
         aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( tDofStrg, "Displacement" ) );
         aParameterLists.set( "properties", "PropYoungs,YoungsModulus;PropPoisson,PoissonRatio" );
 
@@ -533,33 +533,33 @@ namespace moris
         // create parameter list for stabilization parameter 1
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", "SPNitscheDirichletBC" );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
         aParameterLists.set( "function_parameters", "100.0" );
         aParameterLists.set( "leader_properties", "PropYoungs,Material" );
 
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", std::string( "SPNitscheFrameInteriorInterface" ) );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::NITSCHE_INTERFACE ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::NITSCHE_INTERFACE );
         aParameterLists.set( "function_parameters", std::string( "100.0" ) );
         aParameterLists.set( "leader_properties", std::string( "PropYoungs,Material" ) );
         aParameterLists.set( "follower_properties", std::string( "PropYoungs,Material" ) );
 
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", std::string( "SPGhost_Frame" ) );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         aParameterLists.set( "function_parameters", std::string( "0.005" ) );
         aParameterLists.set( "leader_properties", std::string( "PropYoungs,Material" ) );
 
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
         aParameterLists.set( "stabilization_name", std::string( "SPGhost_Interior" ) );
-        aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::GHOST_DISPL ) ;
+        aParameterLists.set( "stabilization_type", fem::Stabilization_Type::GHOST_DISPL );
         aParameterLists.set( "function_parameters", std::string( "0.005" ) );
         aParameterLists.set( "leader_properties", std::string( "PropYoungs,Material" ) );
 
         //------------------------------------------------------------------------------
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGBulkU_Frame" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
         aParameterLists.set( "dof_residual", tDofStrg );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso_Frame,ElastLinIso" );
@@ -568,7 +568,7 @@ namespace moris
 
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGBulkU_Frame" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
         aParameterLists.set( "dof_residual", tDofStrg );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso_Interior,ElastLinIso" );
@@ -577,7 +577,7 @@ namespace moris
 
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGDirichletU" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
         aParameterLists.set( "dof_residual", tDofStrg );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "leader_properties", "PropDirichletU,Dirichlet" );
@@ -587,7 +587,7 @@ namespace moris
 
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", "IWGTraction" );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         aParameterLists.set( "dof_residual", tDofStrg );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "leader_properties", "PropTraction,Traction" );
@@ -595,7 +595,7 @@ namespace moris
 
         aParameterLists( FEM::IWG ).add_parameter_list();
         aParameterLists.set( "IWG_name", std::string( "IWGFrameInteriorInterface" ) );
-        aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) ;
+        aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE );
         aParameterLists.set( "dof_residual", tDofStrg );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "follower_dof_dependencies", tDofStrg );
@@ -608,7 +608,7 @@ namespace moris
         {
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", std::string( "IWGGhostFrame" ) );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
             aParameterLists.set( "dof_residual", tDofStrg );
             aParameterLists.set( "leader_dof_dependencies", tDofStrg );
             aParameterLists.set( "follower_dof_dependencies", tDofStrg );
@@ -618,7 +618,7 @@ namespace moris
 
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", std::string( "IWGGhostInterior" ) );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::GHOST_NORMAL_FIELD ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::GHOST_NORMAL_FIELD );
             aParameterLists.set( "dof_residual", tDofStrg );
             aParameterLists.set( "leader_dof_dependencies", tDofStrg );
             aParameterLists.set( "follower_dof_dependencies", tDofStrg );
@@ -630,7 +630,7 @@ namespace moris
         //------------------------------------------------------------------------------
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkUX" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "dof_quantity", tDofStrg );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "vectorial_field_index", 0 );
@@ -638,7 +638,7 @@ namespace moris
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkUY" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "dof_quantity", tDofStrg );
         aParameterLists.set( "vectorial_field_index", 1 );
@@ -648,42 +648,42 @@ namespace moris
         {
             aParameterLists( FEM::IQI ).add_parameter_list();
             aParameterLists.set( "IQI_name", "IQIBulkUZ" );
-            aParameterLists.set( "IQI_type",  fem::IQI_Type::DOF ) ;
+            aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
             aParameterLists.set( "leader_dof_dependencies", tDofStrg );
             aParameterLists.set( "dof_quantity", tDofStrg );
             aParameterLists.set( "vectorial_field_index", 2 );
             aParameterLists.set( "mesh_set_names", tTotalDomainSets );
-            }
+        }
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso_Frame,Elast" );
         aParameterLists.set( "mesh_set_names", tFrameSets );
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkStrainEnergy_Interior" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::STRAIN_ENERGY ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso_Interior,Elast" );
         aParameterLists.set( "mesh_set_names", tInteriorSets );
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVolume_Frame" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
         aParameterLists.set( "leader_properties", "PropDensity,Density" );
         aParameterLists.set( "mesh_set_names", tFrameSets );
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkVolume_Interior" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
         aParameterLists.set( "leader_properties", "PropDensity,Density" );
         aParameterLists.set( "mesh_set_names", tInteriorSets );
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIPerimeter_InterfaceVoid" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
         aParameterLists.set( "leader_dof_dependencies", tDofStrg );
         aParameterLists.set( "mesh_set_names", tInterfaceVoidSSets );
 
@@ -717,7 +717,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -739,7 +739,7 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", tTotalDomainSets );
 
         if ( tIs3D )
@@ -747,14 +747,14 @@ namespace moris
             aParameterLists.set( "Field_Names", std::string( "UX,UY,UZ,StrainEnergyFrame,StrainEnergyInterior,VolumeInterior,PerimeterInteriorVoid" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkUZ,IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,"
-                                                                    "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
+                                                           "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
         }
         else
         {
             aParameterLists.set( "Field_Names", std::string( "UX,UY,StrainEnergyFrame,StrainEnergyInterior,VolumeInterior,PerimeterInteriorVoid" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,"
-                                                                    "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
+                                                           "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
         }
 
         aParameterLists.set( "Save_Frequency", 1 );
