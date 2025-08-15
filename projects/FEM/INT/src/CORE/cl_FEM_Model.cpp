@@ -484,6 +484,8 @@ namespace moris::fem
         }
     }
 
+    //------------------------------------------------------------------------------
+
     void
     FEM_Model::create_fem_sets(
             mtk::Interpolation_Mesh *aIPMesh,
