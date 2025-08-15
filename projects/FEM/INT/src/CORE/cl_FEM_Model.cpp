@@ -1241,12 +1241,12 @@ namespace moris::fem
             return;
         }
 
-        auto *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
+        mtk::Integration_Mesh_DataBase_IG* tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
 
         auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 
         Vector< mtk::Side_Set const * > tSideSets;
-        for ( auto &tSetName : tSetNames )
+        for ( std::string const & tSetName : tSetNames )
         {
             tSideSets.push_back( dynamic_cast< mtk::Side_Set const * >( tIGMesh->get_set_by_name( tSetName ) ) );
         }
