@@ -2781,7 +2781,7 @@ namespace moris::fem
             tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tFollowerdVgpdeta - tFollowerdYgpdeta;
 
             // check determination of jacobian
-            if ( det( tJacRay ) < MORIS_REAL_EPS )
+            if ( std::abs( det( tJacRay ) ) < MORIS_REAL_EPS )
             {
                 break;
             }
@@ -2846,8 +2846,7 @@ namespace moris::fem
             mGapData->mEval = false;
 
             // return a point with eta set to -2.0
-            Matrix< DDRMat > tFollowerParamPoint( tSpaceDim + 1, 1, 0.0 );
-            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = mGapData->mEta.matrix_data();
+            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = -2.0;
 
             // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             if ( tPlotRays )
@@ -3317,7 +3316,7 @@ namespace moris::fem
             tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tFollowerdVgpdeta - tFollowerdYgpdeta;
 
             // check determination of jacobian
-            if ( det( tJacRay ) < MORIS_REAL_EPS )
+            if ( std::abs( det( tJacRay ) ) < MORIS_REAL_EPS )
             {
                 break;
             }
@@ -3359,8 +3358,7 @@ namespace moris::fem
             mGapData->mEval = false;
 
             // return a point with eta set to -2.0
-            Matrix< DDRMat > tFollowerParamPoint( tSpaceDim + 1, 1, 0.0 );
-            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = mGapData->mEta.matrix_data();
+            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = -2.0;
 
             // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             if ( tPlotRays )
@@ -4904,7 +4902,7 @@ namespace moris::fem
                     {
                         // invalid perturbation; skip FD for this node and direction
                         MORIS_LOG_INFO(
-                                "IWG::select_dRdp_FD_geometry_double - unique node  has conflicting FD schemes" );
+                                "IWG::select_dRdp_FD_geometry_double - unique node has conflicting FD schemes" );
                         continue;
                     }
 
