@@ -16,21 +16,13 @@
 #include <gperftools/profiler.h>
 #endif
 
-#include <map>
-#include <set>
 #include <algorithm>
 
 // LINALG/src
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_unique.hpp"
-#include "fn_sum.hpp"    // for check
-#include "fn_iscol.hpp"
-#include "fn_trans.hpp"
 #include "moris_typedefs.hpp"
-#include "op_equal_equal.hpp"
 // MTK/src
-#include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -41,18 +33,11 @@
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_FEM_MM_Factory.hpp"
-#include "cl_FEM_CM_Factory.hpp"
-#include "cl_FEM_SP_Factory.hpp"
-#include "cl_FEM_IWG_Factory.hpp"
-#include "cl_FEM_IQI_Factory.hpp"
 #include "cl_FEM_Field.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
-// FEM/VIS/src
-#include "cl_VIS_Output_Enums.hpp"
 // GEN/src
 #include "GEN_Data_Types.hpp"
 // Logging package

@@ -8,7 +8,6 @@
  *
  */
 #include <utility>
-#include <set>
 #include "cl_MTK_Interpolation_Rule.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_assert.hpp"

@@ -9,7 +9,6 @@
  */
 
 #include "cl_MTK_Contact_Mesh_Editor.hpp"
-#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_MTK_PointPairs.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
