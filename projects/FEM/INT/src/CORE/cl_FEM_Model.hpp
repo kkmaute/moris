@@ -559,12 +559,6 @@ namespace moris
             {
                 return mContactMeshEditor;
             };
-
-            void
-            set_contact_mesh_editor( std::shared_ptr< mtk::Contact_Mesh_Editor > aContactMeshEditor )
-            {
-                mContactMeshEditor = std::move( aContactMeshEditor );
-            }
         };
     }    // namespace fem
 } /* namespace moris */
