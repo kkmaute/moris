@@ -85,8 +85,11 @@ namespace moris::fem
         // Read consistency flag from input parameters
         if ( mParameters.size() > 0 )
         {
-            MORIS_ERROR( mParameters.size() == 2 && mParameters( 0 ).numel() == 1 && mParameters( 1 ).numel() == 1,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only two parameters possible." );
+            MORIS_ERROR( mParameters.size() == 3 &&                  //
+                                 mParameters( 0 ).numel() == 1 &&    //
+                                 mParameters( 1 ).numel() == 1 &&    //
+                                 mParameters( 2 ).numel() == 1,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only three parameters possible." );
 
             mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
 
@@ -96,6 +99,8 @@ namespace moris::fem
                 mTractionScaling = 0.0;    // set scaling of all traction related terms to zero
                 mTheta           = 0.0;    // theta overwritten to eliminate adjoint term for pure penalty formulation
             }
+
+            mDebugFlag = mParameters( 2 )( 0 );
         }
     }
 
@@ -148,51 +153,6 @@ namespace moris::fem
                 mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
                 mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
 
-        // xxxxxxxxxxxxxx
-        if ( false )
-        {
-            Matrix< DDRMat > tCheckPoint =
-                    mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx();
-
-            if ( std::abs( tCheckPoint( 1 ) - 1.0 ) < 0.005 && tCheckPoint( 0 ) > 2.253 && tCheckPoint( 0 ) < 2.374 )
-            {
-                real tvalueLeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
-                real tvalueFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
-
-                fprintf( stdout, "valueLeader = %f  valueFollower = %f  tImposeContactLeader = %f  tImposeContactFollower = %f\n",    //
-                        tvalueLeader,
-                        tvalueFollower,
-                        tImposeContactLeader,
-                        tImposeContactFollower );
-            }
-
-            //            const Matrix< DDRMat >& tRefPoint = { { 0.000012, -0.004000 } };
-            //
-            //            const real tDelta = 1.0e-3;    // tolerance for checking the IG geometry interpolator
-            //
-            //            if ( std::abs( tCheckPoint( 0 ) - tRefPoint( 0 ) ) < tDelta && std::abs( tCheckPoint( 1 ) - tRefPoint( 1 ) ) < tDelta )
-            //            {
-            //                real tTimeWeightFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
-            //
-            //                Matrix< DDRMat > tLeaderDisp   = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
-            //                Matrix< DDRMat > tFollowerDisp = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
-            //
-            //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tLeaderDisp: %e  %e\n",    //
-            //                        tCheckPoint( 0 ),
-            //                        tCheckPoint( 1 ),
-            //                        tTimeWeightFactor,
-            //                        tLeaderDisp( 0 ),
-            //                        tLeaderDisp( 1 ) );
-            //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tFollowerDisp: %e  %e\n",    //
-            //                        tCheckPoint( 0 ),
-            //                        tCheckPoint( 1 ),
-            //                        tTimeWeightFactor,
-            //                        tFollowerDisp( 0 ),
-            //                        tFollowerDisp( 1 ) );
-            //            }
-        }
-        // xxxxxxxxxxxxxx
-
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
         {
@@ -238,47 +198,6 @@ namespace moris::fem
         // compute augmented Lagrangian term
         const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
 
-        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        if ( true )
-        {
-            sint tNiter = (sint)gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
-
-            Matrix< DDRMat > tRayCastPoint = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
-                                           + trans( mLeaderFIManager->get_IP_geometry_interpolator()->valx() );
-            Matrix< DDRMat > tTgtPoint = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
-                                       + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
-
-            fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e  %e  %e\n",    //
-                    tNiter,
-                    tRayCastPoint( 0 ),
-                    tRayCastPoint( 1 ),
-                    tTgtPoint( 0 ),
-                    tTgtPoint( 1 ),
-                    tContactPressure,
-                    tAugLagrTerm,
-                    mGapData->mGap );
-            fprintf( stdout, "Niter = %d NormalMlika %e  %e  %e  %e  %e  %e\n",    //
-                    tNiter,
-                    tRayCastPoint( 0 ),
-                    tRayCastPoint( 1 ),
-                    mGapData->mLeaderNormal( 0 ),
-                    mGapData->mLeaderNormal( 1 ),
-                    mGapData->mLeaderRefNormal( 0 ),
-                    mGapData->mLeaderRefNormal( 1 ) );
-
-            const Matrix< DDRMat >& tCauchyTraction =
-                    tConstitutiveModelLeader->traction( mGapData->mLeaderNormal, CM_Function_Type::CAUCHY );
-
-            fprintf( stdout, "Niter = %d TractionMlika %e  %e  %e  %e  %e  %e\n",    //
-                    tNiter,
-                    tRayCastPoint( 0 ),
-                    tRayCastPoint( 1 ),
-                    tTraction( 0 ),
-                    tTraction( 1 ),
-                    tCauchyTraction( 0 ),
-                    tCauchyTraction( 1 ) );
-        }
-
         if ( tAugLagrTerm > 0 )
         {
             mSet->get_residual()( 0 )(
@@ -299,6 +218,12 @@ namespace moris::fem
                     0.5 * aWStar * (                                          //
                             +trans( mGapData->mdGapdv ) * tContactPressure    //
                             + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
+        }
+
+        // call debug function
+        if ( mDebugFlag > 0 )
+        {
+            this->debug_function();
         }
 
         // check for nan, infinity
@@ -548,6 +473,134 @@ namespace moris::fem
     void IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_dRdp( real aWStar )
     {
         MORIS_ERROR( false, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_dRdp - This function does nothing." );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::debug_function()
+    {
+        switch ( mDebugFlag )
+        {
+            case 1:
+            {
+                // get leader index for residual dof type, indices for assembly
+                Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
+
+                sint tNiter = (sint)gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
+
+                Matrix< DDRMat > tRayCastPoint = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
+                                               + trans( mLeaderFIManager->get_IP_geometry_interpolator()->valx() );
+                Matrix< DDRMat > tTgtPoint = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
+                                           + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
+
+                const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
+                        mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+                // get the Nitsche stabilization parameter
+                const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
+                        mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
+
+                // get Piola traction
+                const Matrix< DDRMat > tTraction =
+                        mTractionScaling * tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
+
+                // get Cauchy traction
+                const Matrix< DDRMat >& tCauchyTraction =
+                        tConstitutiveModelLeader->traction( mGapData->mLeaderNormal, CM_Function_Type::CAUCHY );
+
+                // compute contact pressure using current normal
+                real tContactPressure = dot( tTraction, mGapData->mLeaderNormal );
+
+                // Nitsche parameter gamma
+                const real tNitscheParam = tSPNitsche->val()( 0 );
+
+                // compute augmented Lagrangian term
+                const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
+
+                fprintf( stdout, "Niter = %d Mlika %e  %e  %e  %e  %e  %e  %e\n",    //
+                        tNiter,
+                        tRayCastPoint( 0 ),
+                        tRayCastPoint( 1 ),
+                        tTgtPoint( 0 ),
+                        tTgtPoint( 1 ),
+                        tContactPressure,
+                        tAugLagrTerm,
+                        mGapData->mGap );
+                fprintf( stdout, "Niter = %d NormalMlika %e  %e  %e  %e  %e  %e\n",    //
+                        tNiter,
+                        tRayCastPoint( 0 ),
+                        tRayCastPoint( 1 ),
+                        mGapData->mLeaderNormal( 0 ),
+                        mGapData->mLeaderNormal( 1 ),
+                        mGapData->mLeaderRefNormal( 0 ),
+                        mGapData->mLeaderRefNormal( 1 ) );
+
+                fprintf( stdout, "Niter = %d TractionMlika %e  %e  %e  %e  %e  %e\n",    //
+                        tNiter,
+                        tRayCastPoint( 0 ),
+                        tRayCastPoint( 1 ),
+                        tTraction( 0 ),
+                        tTraction( 1 ),
+                        tCauchyTraction( 0 ),
+                        tCauchyTraction( 1 ) );
+                break;
+            }
+            case 2:
+            {
+                Matrix< DDRMat > tCheckPoint =
+                        mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->valx();
+
+                if ( std::abs( tCheckPoint( 1 ) - 1.0 ) < 0.005 && tCheckPoint( 0 ) > 2.253 && tCheckPoint( 0 ) < 2.374 )
+                {
+                    // check whether contact should be enforced
+                    const std::shared_ptr< Property >& tSelectLeader =
+                            mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+                    const std::shared_ptr< Property >& tSelectFollower =
+                            mFollowerProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+                    real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
+                    real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
+
+                    real tvalueLeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
+                    real tvalueFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP )->val()( 0 );
+
+                    fprintf( stdout, "valueLeader = %f  valueFollower = %f  tImposeContactLeader = %f  tImposeContactFollower = %f\n",    //
+                            tvalueLeader,
+                            tvalueFollower,
+                            tImposeContactLeader,
+                            tImposeContactFollower );
+                }
+                //            const Matrix< DDRMat >& tRefPoint = { { 0.000012, -0.004000 } };
+                //
+                //            const real tDelta = 1.0e-3;    // tolerance for checking the IG geometry interpolator
+                //
+                //            if ( std::abs( tCheckPoint( 0 ) - tRefPoint( 0 ) ) < tDelta && std::abs( tCheckPoint( 1 ) - tRefPoint( 1 ) ) < tDelta )
+                //            {
+                //                real tTimeWeightFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
+                //
+                //                Matrix< DDRMat > tLeaderDisp   = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
+                //                Matrix< DDRMat > tFollowerDisp = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
+                //
+                //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tLeaderDisp: %e  %e\n",    //
+                //                        tCheckPoint( 0 ),
+                //                        tCheckPoint( 1 ),
+                //                        tTimeWeightFactor,
+                //                        tLeaderDisp( 0 ),
+                //                        tLeaderDisp( 1 ) );
+                //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tFollowerDisp: %e  %e\n",    //
+                //                        tCheckPoint( 0 ),
+                //                        tCheckPoint( 1 ),
+                //                        tTimeWeightFactor,
+                //                        tFollowerDisp( 0 ),
+                //                        tFollowerDisp( 1 ) );
+                //            }
+                break;
+            }
+            default:
+                MORIS_ERROR( false, "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::debug_function - Invalid debug flag." );
+        }
     }
 
     //------------------------------------------------------------------------------

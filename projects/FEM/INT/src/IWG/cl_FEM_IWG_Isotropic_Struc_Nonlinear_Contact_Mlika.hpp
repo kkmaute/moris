@@ -39,6 +39,12 @@ namespace moris::fem
         // scaling factor for the traction; set to zero for pure penalty formulation
         real mTractionScaling = 1.0;
 
+        // flag to trigger debug output
+        sint mDebugFlag = 0;
+
+        // debug functions
+        void debug_function();
+
       public:
         enum class IWG_Property_Type
         {
