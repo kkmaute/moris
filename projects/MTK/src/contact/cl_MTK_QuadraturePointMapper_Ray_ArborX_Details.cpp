@@ -12,7 +12,6 @@
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_Tracer.hpp"
 #include <unordered_map>
-#include <functional>
 
 namespace moris::mtk::arborx
 {

@@ -10,9 +10,7 @@
 #ifndef MORIS_CL_MTK_MAPPINGRESULT_HPP
 #define MORIS_CL_MTK_MAPPINGRESULT_HPP
 
-#include <ostream>
 #include "cl_Vector.hpp"
-#include "cl_Matrix.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Json_Object.hpp"
 

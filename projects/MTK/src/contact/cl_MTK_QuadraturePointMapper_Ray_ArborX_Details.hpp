@@ -18,10 +18,7 @@
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_View.hpp>
 #include <decl/Kokkos_Declare_SERIAL.hpp>
-#include <functional>
-#include <iostream>
 #include <sys/types.h>
-#include <tuple>
 #include <unordered_map>
 #include <utility>
 
