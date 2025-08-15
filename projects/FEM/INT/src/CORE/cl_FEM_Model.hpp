@@ -171,7 +171,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
                     const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
+                    const Module_Parameter_Lists             &aParameterList,
                     const std::shared_ptr< Library_IO >      &aLibrary );
 
             //------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
                     const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
+                    const Module_Parameter_Lists             &aParameterList,
                     MSI::Design_Variable_Interface           *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief resets model member variables
+             * @brief reports the number of Gauss points in the assembly
              */
             inline void
             report_on_assembly() override
