@@ -1253,15 +1253,14 @@ namespace moris::fem
 
         mtk::Integrator tSideIntegrator = prepare_nonconformal_integrator( tIGMesh );
 
-        auto tCMEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
-        this->set_contact_mesh_editor( tCMEditor );
+        mContactMeshEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
 
         // get the maximum negative ray length (of any of the sets... the value is set in the computation parameter list and therefore the same for all sets
         real const tMaxNegativeRayLength = mSetInfo( 0 ).get_max_negative_ray_length();
         real const tMaxPositiveRayLength = mSetInfo( 0 ).get_max_positive_ray_length();
-        tCMEditor->set_max_ray_length( tMaxNegativeRayLength, tMaxPositiveRayLength );
+        mContactMeshEditor->set_max_ray_length( tMaxNegativeRayLength, tMaxPositiveRayLength );
 
-        tCMEditor->update_nonconformal_side_sets();
+        mContactMeshEditor->update_nonconformal_side_sets();
     }
 
     //------------------------------------------------------------------------------
