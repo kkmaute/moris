@@ -16,21 +16,13 @@
 #include <gperftools/profiler.h>
 #endif
 
-#include <map>
-#include <set>
 #include <algorithm>
 
 // LINALG/src
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
-#include "fn_unique.hpp"
-#include "fn_sum.hpp"    // for check
-#include "fn_iscol.hpp"
-#include "fn_trans.hpp"
 #include "moris_typedefs.hpp"
-#include "op_equal_equal.hpp"
 // MTK/src
-#include "MTK_Tools.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -41,18 +33,11 @@
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Model.hpp"
 #include "cl_FEM_Set.hpp"
-#include "cl_FEM_MM_Factory.hpp"
-#include "cl_FEM_CM_Factory.hpp"
-#include "cl_FEM_SP_Factory.hpp"
-#include "cl_FEM_IWG_Factory.hpp"
-#include "cl_FEM_IQI_Factory.hpp"
 #include "cl_FEM_Field.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
-// FEM/VIS/src
-#include "cl_VIS_Output_Enums.hpp"
 // GEN/src
 #include "GEN_Data_Types.hpp"
 // Logging package
@@ -498,6 +483,8 @@ namespace moris::fem
             }
         }
     }
+
+    //------------------------------------------------------------------------------
 
     void
     FEM_Model::create_fem_sets(
@@ -1241,27 +1228,26 @@ namespace moris::fem
             return;
         }
 
-        auto *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
+        mtk::Integration_Mesh_DataBase_IG* tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
 
         auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 
         Vector< mtk::Side_Set const * > tSideSets;
-        for ( auto &tSetName : tSetNames )
+        for ( std::string const & tSetName : tSetNames )
         {
             tSideSets.push_back( dynamic_cast< mtk::Side_Set const * >( tIGMesh->get_set_by_name( tSetName ) ) );
         }
 
         mtk::Integrator tSideIntegrator = prepare_nonconformal_integrator( tIGMesh );
 
-        auto tCMEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
-        this->set_contact_mesh_editor( tCMEditor );
+        mContactMeshEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
 
         // get the maximum negative ray length (of any of the sets... the value is set in the computation parameter list and therefore the same for all sets
         real const tMaxNegativeRayLength = mSetInfo( 0 ).get_max_negative_ray_length();
         real const tMaxPositiveRayLength = mSetInfo( 0 ).get_max_positive_ray_length();
-        tCMEditor->set_max_ray_length( tMaxNegativeRayLength, tMaxPositiveRayLength );
+        mContactMeshEditor->set_max_ray_length( tMaxNegativeRayLength, tMaxPositiveRayLength );
 
-        tCMEditor->update_nonconformal_side_sets();
+        mContactMeshEditor->update_nonconformal_side_sets();
     }
 
     //------------------------------------------------------------------------------

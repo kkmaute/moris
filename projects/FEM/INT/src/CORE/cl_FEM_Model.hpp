@@ -21,15 +21,12 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Integrator.hpp"
 #include "cl_MTK_Contact_Mesh_Editor.hpp"
-#include "fn_Parsing_Tools.hpp"
 #include "cl_Communication_Tools.hpp"
 
-#include "fn_PRM_FEM_Parameters.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "GEN_Data_Types.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
-#include "cl_FEM_Phase_User_Info.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_Library_IO.hpp"
 
@@ -174,7 +171,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
                     const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
+                    const Module_Parameter_Lists             &aParameterList,
                     const std::shared_ptr< Library_IO >      &aLibrary );
 
             //------------------------------------------------------------------------------
@@ -189,7 +186,7 @@ namespace moris
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
                     const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
+                    const Module_Parameter_Lists             &aParameterList,
                     MSI::Design_Variable_Interface           *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
@@ -237,7 +234,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief resets model member variables
+             * @brief reports the number of Gauss points in the assembly
              */
             inline void
             report_on_assembly() override
@@ -559,12 +556,6 @@ namespace moris
             {
                 return mContactMeshEditor;
             };
-
-            void
-            set_contact_mesh_editor( std::shared_ptr< mtk::Contact_Mesh_Editor > aContactMeshEditor )
-            {
-                mContactMeshEditor = std::move( aContactMeshEditor );
-            }
         };
     }    // namespace fem
 } /* namespace moris */
