@@ -92,7 +92,7 @@ namespace moris
 
     real tMMAPenalty  = 5.0;
     real tMMAStepSize = 0.05;
-    int  tMMAMaxIter  = 12;
+    int  tMMAMaxIter  = 11;
 
     real tBsplineLimit = tHoleRadius;
 
@@ -1055,7 +1055,7 @@ namespace moris
             aParameterLists.set( "dof_quantity", tDofStrg );
             aParameterLists.set( "vectorial_field_index", 2 );
             aParameterLists.set( "mesh_set_names", tTotalDomainSets );
-            }
+        }
 
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
@@ -1217,7 +1217,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1250,7 +1250,7 @@ namespace moris
             aParameterLists.set( "Field_Names", std::string( "UX,UY,UZ,StrainEnergyFrame,StrainEnergyInterior,VolumeInterior,PerimeterInteriorVoid" ) );
             aParameterLists.set( "Field_Type", std::string( "NODAL,NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL,GLOBAL" ) );
             aParameterLists.set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkUZ,IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,"
-                                                                    "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
+                                                           "IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid" ) );
         }
         else
         {

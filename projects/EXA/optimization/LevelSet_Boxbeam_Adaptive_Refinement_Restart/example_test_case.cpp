@@ -28,38 +28,92 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 extern "C" void
 check_results(
         const std::string& aExoFileName,
-        uint               aTestCaseIndex )
+        const std::string& aLabel )
 {
     MORIS_LOG_INFO( " " );
-    MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
+    MORIS_LOG_INFO( "Checking Results for stage %s on %i processor.", aLabel.c_str(), par_size() );
     MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
 
+    // reference node IDs to check
+    Vector< uint > tNodeIDs = { 0, 100, 200, 300, 400, 500, 600, 700, 800 };
+
+    std::cout << "Checking: " << aLabel << '\n';
+
+    uint tNumDims  = tExoIO.get_number_of_dimensions();
+    uint tNumNodes = tExoIO.get_number_of_nodes();
+    uint tNumElems = tExoIO.get_number_of_elements();
+
     if ( gPrintReferenceValues )
     {
-        std::cout << "Test case index: " << aTestCaseIndex << '\n';
 
-        uint tNumDims  = tExoIO.get_number_of_dimensions();
-        uint tNumNodes = tExoIO.get_number_of_nodes();
-        uint tNumElems = tExoIO.get_number_of_elements();
+        std::cout << "uint tReferenceNumDims     = " << tNumDims << ";\n";
+        std::cout << "uint tReferenceNumNodes    = " << tNumNodes << ";\n";
+        std::cout << "uint tReferenceNumElements = " << tNumElems << ";\n";
 
-        std::cout << "Number of dimensions: " << tNumDims << '\n';
-        std::cout << "Number of nodes     : " << tNumNodes << '\n';
-        std::cout << "Number of elements  : " << tNumElems << '\n';
+        std::cout << "Vector< real > tLevelSetValues = {\n";
+
+        for ( uint iCheckNode = 0; iCheckNode < tNodeIDs.size(); iCheckNode++ )
+        {
+            if ( iCheckNode > 0 )
+            {
+                std::cout << ",\n";
+            }
+            // get nodal level set value
+            std::cout << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 );
+        }
+        std::cout << "};\n";
 
         return;
     }
 
-    // Reference nodal values to check
-    Vector< uint > tNodeIDs = { 0, 100, 200, 300, 400, 500, 600, 700, 800 };
-    Vector< real > tLevelSetValues = { -0.000135399, 7.40848, 14.3591, 15.4603, 0.861916, -0.499474, -7.59165, -13.1653, -15.2731 };
+    // define reference values for dimension, number of nodes and number of elements
+    uint tReferenceNumDims     = 2;
+    uint tReferenceNumNodes    = 12103;
+    uint tReferenceNumElements = 9997;
+
+    // define reference nodal values
+    Vector< real > tLevelSetValues = {
+        -1.103832737029360e-04,
+        7.297122490942622e+00,
+        1.158782219523812e+01,
+        1.333500196238856e+01,
+        1.679078682912798e-02,
+        -1.965913331381824e-01,
+        -6.847209299360845e+00,
+        -1.052316058716752e+01,
+        -1.329570299466918e+01
+    };
+
+    MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent  error %12.5e.",
+            tReferenceNumDims,
+            tNumDims,
+            std::abs( ( tNumDims - tReferenceNumDims ) / tReferenceNumDims * 100.0 ) );
+
+    MORIS_LOG_INFO( "Check number of nodes: reference %12d, actual %12d, percent  error %12.5e.",
+            tReferenceNumNodes,
+            tNumNodes,
+            std::abs( ( tNumNodes - tReferenceNumNodes ) / tReferenceNumNodes * 100.0 ) );
+
+    MORIS_LOG_INFO( "Check number of elements: reference %12d, actual %12d, percent  error %12.5e.",
+            tReferenceNumElements,
+            tNumElems,
+            std::abs( ( tNumElems - tReferenceNumElements ) / tReferenceNumElements * 100.0 ) );
 
     // Check field values
     for ( uint iCheckNode = 0; iCheckNode < 9; iCheckNode++ )
     {
-        CHECK( tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 ) == Approx( tLevelSetValues( iCheckNode ) ).epsilon( 0.0001 ) );
+        real tValue = tExoIO.get_nodal_field_value( tNodeIDs( iCheckNode ), 2, 0 );
+
+        MORIS_LOG_INFO( "Check level set value at node %d: reference %12.5e, actual %12.5e, percent  error %12.5e.",
+                tNodeIDs( iCheckNode ),
+                tLevelSetValues( iCheckNode ),
+                tValue,
+                std::abs( ( tValue - tLevelSetValues( iCheckNode ) ) / tLevelSetValues( iCheckNode ) * 100.0 ) );
+
+        CHECK( tValue == Approx( tLevelSetValues( iCheckNode ) ).epsilon( 0.0001 ) );
     }
 }
 
@@ -89,6 +143,9 @@ TEST_CASE( "Leveset Boxbeam Create File",
 
     // catch test statements should follow
     REQUIRE( tRet == 0 );
+
+    // perform check on initial file
+    check_results( "Levelset_Boxbeam_Create_File.exo.e-s.0011", "Create" );
 }
 
 //---------------------------------------------------------------
@@ -110,9 +167,6 @@ TEST_CASE( "Leveset Boxbeam Restart",
     // catch test statements should follow
     REQUIRE( tRet == 0 );
 
-    // set test case index
-    uint tTestCaseIndex = 0;
-
-    // perform check for Test Case 0
-    check_results( "Levelset_Boxbeam_Restart.exo.e-s.0016", tTestCaseIndex );
+    // perform check on restart file
+    check_results( "Levelset_Boxbeam_Restart.exo.e-s.0011", "Restart" );
 }
