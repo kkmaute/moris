@@ -181,7 +181,8 @@ namespace moris::wrk
 
             // re-initialize GEN
             Module_Parameter_Lists tGENParameterList = tLibrary->get_parameters_for_module( Module_Type::GEN );
-            tGeometryEngine                       = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
+
+            tGeometryEngine = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
         }
 
         // Step 2: Initialize Level set field in GEN -----------------------------------------------
@@ -210,13 +211,18 @@ namespace moris::wrk
         // get optimization iteration
         sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
+        // increment optimization iteration counter
+        mIter++;
+
         // compute total optimization iteration accounting for iterations performed //
         // in previous instances of optimization algorithm
-        tOptIter = tOptIter + mIter;
+        tOptIter += mIter;
 
         // return vector of design criteria with NANs causing the optimization algorithm to restart
         if ( mIter >= mReinitializeIterInterval or ( uint ) tOptIter == mReinitializeIterFirst )
         {
+            MORIS_LOG_INFO( "Re-initializing optimization after %d optimization and %d total iterations.", tOptIter, mIter );
+
             mInitializeOptimizationRestart = true;
 
             Vector< real > tVector( mNumCriteria, std::numeric_limits< real >::quiet_NaN() );
@@ -485,9 +491,6 @@ namespace moris::wrk
         {
             tVector( iCriteriaIndex ) = tVal( iCriteriaIndex )( 0 );
         }
-
-        // increment optimization iteration counter
-        mIter++;
 
         // return vector of design criteria
         return tVector;
