@@ -1,0 +1,39 @@
+name: Run CTests on Custom Machine
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  dbg-build-and-test:
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure project
+      run: cmake -S . -B build_dbg -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON
+
+    - name: Build project
+      run: cmake --build build_dbg
+
+    - name: Run tests
+      run: cd build_dbg && ctest --output-on-failure
+  
+  opt-build-and-test:
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure project
+      run: cmake -S . -B build_opt -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON
+
+    - name: Build project
+      run: cmake --build build_opt
+
+    - name: Run tests
+      run: cd build_opt && ctest --output-on-failure
