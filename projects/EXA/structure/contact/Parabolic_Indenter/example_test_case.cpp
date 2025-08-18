@@ -36,7 +36,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 //---------------------------------------------------------------
 
-extern "C" void check_results( std::string aLinearNonlinear )
+extern "C" void check_results( const std::string &aLinearNonlinear )
 {
     // check that run is serial; parallel not implemented yet
     MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
