@@ -1264,14 +1264,12 @@ namespace moris
         }
 
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
-        uint tParamCounter = 0;
 
         aParameterLists.set( "name", "LevelsetField" );
         aParameterLists.set( "dependencies", "Level_Set_Field" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
         aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "HMR_dummy_n_p2", "HMR_dummy_c_p2" );
-        tParamCounter++;
     }
 
     void

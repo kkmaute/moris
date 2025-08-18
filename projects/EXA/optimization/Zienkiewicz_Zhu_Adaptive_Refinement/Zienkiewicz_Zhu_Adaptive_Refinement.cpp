@@ -965,7 +965,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
             aParameterLists.set( "discretization_upper_bound", tBsplineLimitTop );
         }
 
-        uint tParamCounter = 0;
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
         aParameterLists.set( "name", "LvL_Set_Field" );
         aParameterLists.set( "dependencies", "Level_Set_Field" );
@@ -983,8 +982,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         {
             aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p8", "HMR_dummy_c_p8", "HMR_dummy_n_p9", "HMR_dummy_c_p9", "ghost_p9" );
         }
-
-        tParamCounter++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1734,7 +1731,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------
