@@ -1,0 +1,39 @@
+name: Run CTests on Custom Machine
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at 0:00 AM
+  workflow_dispatch:     # Allows manual triggering from GitHub UI
+
+jobs:
+  dbg-build-and-test:
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure project
+      run: source ~/.bashrc_moris && export MORISROOT=`pwd` && echo $MORISROOT && cmake -S . -B build_dbg -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=OFF -DMORIS_USE_EXAMPLES=ON
+
+    - name: Build project
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake --build build_dbg --parallel 9
+
+    - name: Run tests
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cd build_dbg && ctest --output-on-failure
+  
+  opt-build-and-test:
+    runs-on: [self-hosted, Linux, X64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure project
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake -S . -B build_opt -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON
+
+    - name: Build project
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake --build build_opt --parallel 6
+
+    - name: Run tests
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cd build_opt && ctest --output-on-failure
