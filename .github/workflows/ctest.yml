@@ -14,13 +14,13 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Configure project
-      run: source ~/.bashrc_moris && cmake -S . -B build_dbg -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON
+      run: source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake -S . -B build_dbg -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON
 
     - name: Build project
-      run:  source ~/.bashrc_moris && cmake --build build_dbg
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake --build build_dbg --parallel 9
 
     - name: Run tests
-      run:  source ~/.bashrc_moris && cd build_dbg && ctest --output-on-failure
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cd build_dbg && ctest --output-on-failure
   
   opt-build-and-test:
     runs-on: [self-hosted, Linux, X64]
@@ -30,10 +30,10 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Configure project
-      run:  source ~/.bashrc_moris && cmake -S . -B build_opt -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake -S . -B build_opt -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON
 
     - name: Build project
-      run:  source ~/.bashrc_moris && cmake --build build_opt
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cmake --build build_opt --parallel 6
 
     - name: Run tests
-      run:  source ~/.bashrc_moris && cd build_opt && ctest --output-on-failure
+      run:  source ~/.bashrc_moris && export MORISROOT=`pwd` && cd build_opt && ctest --output-on-failure
