@@ -9,6 +9,7 @@
  */
 
 #include <exodusII.h>
+#include "IO_Tools.hpp"
 
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
@@ -21,6 +22,7 @@
 
 #include <iostream>
 #include <utility>
+#include <filesystem>
 
 namespace moris::mtk
 {
@@ -653,6 +655,9 @@ namespace moris::mtk
         {
             aTempPath += "/";
         }
+
+        // check and if necessary create the temporary path
+        create_directory( aTempPath );
 
         mTempFileName = aTempPath + aTempName;
         mPermFileName = aFilePath + aFileName;
@@ -1305,4 +1310,25 @@ namespace moris::mtk
                 return 0;
         }
     }
+
+    //--------------------------------------------------------------------------
+
+    void Writer_Exodus::create_directory( const std::string& aDirectoryName )
+    {
+        namespace fs = std::filesystem;
+
+        // Define folder path
+        fs::path tDirectoryPath( aDirectoryName );
+
+        // Check if path exists
+        if ( !fs::exists( tDirectoryPath ) )
+        {
+
+            // Create all necessary directories fs::create_directories( tDirectoryPath )
+            MORIS_ERROR( true,
+                    "create_director - failed to create %s",
+                    aDirectoryName.c_str() );
+        }
+    }
+
 }    // namespace moris::mtk
