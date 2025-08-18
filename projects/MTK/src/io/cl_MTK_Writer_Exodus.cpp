@@ -9,7 +9,6 @@
  */
 
 #include <exodusII.h>
-#include "IO_Tools.hpp"
 
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
@@ -658,6 +657,7 @@ namespace moris::mtk
 
         // check and if necessary create the temporary path
         create_directory( aTempPath );
+        create_directory( aFilePath );
 
         mTempFileName = aTempPath + aTempName;
         mPermFileName = aFilePath + aFileName;
