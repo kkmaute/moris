@@ -369,10 +369,10 @@ Nonlinear_Solver::get_my_nonlin_problem()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Solver::set_compute_static_residual_flag( bool aComputeFlag, bool mUseStaticResidual )
+void Nonlinear_Solver::set_compute_static_residual_flag( bool aComputeFlag, bool aUseStaticResidual )
 {
     mComputeStaticResidual = aComputeFlag;
-    mUseStaticResidual     = mUseStaticResidual;
+    mUseStaticResidual     = aUseStaticResidual;
 
     // set flag for all sub-solvers
     for ( uint Ik = 0; Ik < mNonLinearSubSolverList.size(); ++Ik )

@@ -384,7 +384,7 @@ namespace moris
             for ( uint iSubParamList = 0; iSubParamList < tMaxNumSubParamLists; iSubParamList++ )
             {
                 // get the name for this sub-parameter list
-                std::string tOuterSubParamListName = tSubmoduleNames( iSubParamList );
+                const std::string& tOuterSubParamListName = tSubmoduleNames( iSubParamList );
 
                 // check if the sub-parameter list is found
                 size_t tSubParamListCount = mXmlReader->count_keys_in_subtree( tModuleRoot, tOuterSubParamListName );
@@ -810,7 +810,7 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& tKeys, Vector< std::string >& tValues )
+    uint get_subchild_index_from_xml_list( const std::string& tInnerSubParamListName, Vector< std::string >& tKeys, Vector< std::string >& tValues )
     {
         uint tIndex = 0;
         if ( tInnerSubParamListName == "Geometry" )
