@@ -31,9 +31,9 @@ namespace moris
      */
     struct External_Validator
     {
-        std::string         mParameterName;
-        Module_Type         mParameterListType  = Module_Type::END_ENUM;
-        uint                mParameterListIndex = 0;
+        std::string mParameterName;
+        Module_Type mParameterListType  = Module_Type::END_ENUM;
+        uint        mParameterListIndex = 0;
     };
 
     class Parameter
@@ -59,12 +59,12 @@ namespace moris
          */
         template< typename T >
         Parameter(
-                T                   aParameterValue,
-                Entry_Type          aExternalValidationType,
-                std::string         aExternalParameterName,
+                T           aParameterValue,
+                Entry_Type  aExternalValidationType,
+                std::string aExternalParameterName,
                 Module_Type aExternalParameterListType,
-                uint                aExternalParameterListIndex )
-                : mValue( make_variant( aParameterValue ) )
+                uint        aExternalParameterListIndex )
+                : mValue( make_variant( std::move( aParameterValue ) ) )
                 , mEntryType( aExternalValidationType )
                 , mNumberOfEntries( split_variant( mValue ).size() )
                 , mValidator( new Type_Validator< T >() )
@@ -85,7 +85,10 @@ namespace moris
          * @param aMaximumValue Minimum permitted parameter value
          */
         template< typename T >
-        Parameter( T aParameterValue, T aMinimumValue, T aMaximumValue )
+        Parameter(
+                const T& aParameterValue,
+                const T& aMinimumValue,
+                const T& aMaximumValue )
         {
             // Set default value without validation
             mValue = make_variant( aParameterValue );
@@ -102,7 +105,9 @@ namespace moris
          * @param aValidSelections Vector of valid values
          */
         template< typename T >
-        Parameter( T aParameterValue, const Vector< T >& aValidSelections )
+        Parameter(
+                T                  aParameterValue,
+                const Vector< T >& aValidSelections )
                 : mEntryType( Entry_Type::SELECTION )
         {
             // Set default value without validation
@@ -259,5 +264,10 @@ namespace moris
 
     // Declare template specializations of the Parameter constructor
     template<>
-    Parameter::Parameter( const char*, Entry_Type, std::string, Module_Type, uint );
+    Parameter::Parameter(
+            const char*,
+            Entry_Type,
+            std::string,
+            Module_Type,
+            uint );
 }    // namespace moris

@@ -117,11 +117,11 @@ namespace moris
 
     template<>
     Parameter::Parameter(
-            const char*         aString,
-            Entry_Type          aExternalValidationType,
-            std::string         aExternalParameterName,
+            const char* aString,
+            Entry_Type  aExternalValidationType,
+            std::string aExternalParameterName,
             Module_Type aExternalParameterListType,
-            uint                aExternalParameterListIndex )
+            uint        aExternalParameterListIndex )
             : Parameter( std::string( aString ),
                       aExternalValidationType,
                       std::move( aExternalParameterName ),

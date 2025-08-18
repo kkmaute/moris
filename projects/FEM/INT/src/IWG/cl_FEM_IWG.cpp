@@ -2708,8 +2708,8 @@ namespace moris::fem
         Matrix< DDRMat > tFollowerNVIGNodes( tSpaceDim, tNumDofs );
 
         // since follower IP is not initialized use the one of the leader
-        const Matrix< DDRMat > tFollowerParamSpaceTime        = tLeaderParamSpaceTime;
-        Matrix< DDRMat >       tFollowerIGNodesParamSpaceTime = tFollowerParamSpaceTime;
+        const Matrix< DDRMat >& tFollowerParamSpaceTime        = tLeaderParamSpaceTime;
+        Matrix< DDRMat >        tFollowerIGNodesParamSpaceTime = tFollowerParamSpaceTime;
 
         for ( uint in = 0; in < tNumIGNodes; in++ )
         {
@@ -3047,10 +3047,10 @@ namespace moris::fem
         uint tJcounter = 0;
 
         mGapData->mGap             = tGap;
-        mGapData->mEta             = std::move( tEta );
-        mGapData->mLeaderNormal    = std::move( tLeaderNormal );
-        mGapData->mLeaderRefNormal = std::move( tLeaderRefNormal );
-        mGapData->mGapVec          = std::move( tGapVector );
+        mGapData->mEta             = tEta;
+        mGapData->mLeaderNormal    = tLeaderNormal;
+        mGapData->mLeaderRefNormal = tLeaderRefNormal;
+        mGapData->mGapVec          = tGapVector;
 
         mGapData->mdGapdu.set_size( 1, tNumDofs );
         mGapData->mdGapdv.set_size( 1, tNumDofs );
@@ -3560,10 +3560,10 @@ namespace moris::fem
         uint tJcounter = 0;
 
         mGapData->mGap             = tGap;
-        mGapData->mEta             = std::move( tEta );
-        mGapData->mLeaderNormal    = std::move( tLeaderNormal );
-        mGapData->mLeaderRefNormal = std::move( tLeaderRefNormal );
-        mGapData->mGapVec          = std::move( tGapVector );
+        mGapData->mEta             = tEta;
+        mGapData->mLeaderNormal    = tLeaderNormal;
+        mGapData->mLeaderRefNormal = tLeaderRefNormal;
+        mGapData->mGapVec          = tGapVector;
 
         mGapData->mdGapdu.set_size( 1, tNumDofs );
         mGapData->mdGapdv.set_size( 1, tNumDofs );

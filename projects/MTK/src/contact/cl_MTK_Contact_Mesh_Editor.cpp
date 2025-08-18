@@ -71,9 +71,11 @@ namespace moris::mtk
         std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > tCellPairs;
         for ( moris_index const &tResultIndex : aResultIndices )
         {
-            const moris_index &                         tSourceCellIndex = aMappingResult.mSourceCellIndex( tResultIndex );
-            const moris_index &                         tTargetCellIndex = aMappingResult.mTargetCellIndices( tResultIndex );
-            const std::pair< moris_index, moris_index > tCellPair        = std::make_pair( tSourceCellIndex, tTargetCellIndex );
+            const moris_index &tSourceCellIndex = aMappingResult.mSourceCellIndex( tResultIndex );
+            const moris_index &tTargetCellIndex = aMappingResult.mTargetCellIndices( tResultIndex );
+
+            const std::pair< moris_index, moris_index > tCellPair = std::make_pair( tSourceCellIndex, tTargetCellIndex );
+
             tCellPairs[ tCellPair ].push_back( tResultIndex );
         }
         return tCellPairs;
@@ -253,15 +255,15 @@ namespace moris::mtk
         Matrix< DDRMat >      tLeaderParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
         Matrix< DDRMat >      tFollowerParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
 
-        const Side_Set*           tSideSet         = mSideSets( aMappingResult.mSourceMeshIndex );
-        const Side_Cluster*       tCluster         = dynamic_cast< mtk::Side_Cluster const                    *>( tSideSet->get_clusters_by_index( tLeaderClusterIndex ) );
-        const Matrix< IndexMat >& tSideOrdinals    = tCluster->get_cell_side_ordinals();
+        const Side_Set           *tSideSet         = mSideSets( aMappingResult.mSourceMeshIndex );
+        const Side_Cluster       *tCluster         = dynamic_cast< mtk::Side_Cluster const * >( tSideSet->get_clusters_by_index( tLeaderClusterIndex ) );
+        const Matrix< IndexMat > &tSideOrdinals    = tCluster->get_cell_side_ordinals();
         Vector< const Cell * >    tCells           = tCluster->get_primary_cells_in_cluster();
         auto                      tHasCorrectIndex = [ &tLeaderCellIndex ]( const Cell *const &aCell ) { return aCell->get_index() == tLeaderCellIndex; };
-        auto const &              tCell            = std::find_if( tCells.begin(), tCells.end(), tHasCorrectIndex );
+        auto const               &tCell            = std::find_if( tCells.begin(), tCells.end(), tHasCorrectIndex );
         MORIS_ASSERT( tCell != tCells.end(), "Contact_Mesh_Editor::create_nodal_point_pairs_from_results: Could not find cell with index %d in cluster %d!", tLeaderCellIndex, tLeaderClusterIndex );
-        size_t                         tCellIndex  = std::distance( tCells.begin(), tCell );
-        const Vector< const Vertex* >& tVertices   = tCells( tCellIndex )->get_vertices_on_side_ordinal( tSideOrdinals( tCellIndex ) );
+        size_t                          tCellIndex = std::distance( tCells.begin(), tCell );
+        const Vector< const Vertex * > &tVertices  = tCells( tCellIndex )->get_vertices_on_side_ordinal( tSideOrdinals( tCellIndex ) );
 
         // loop over each index in the mapping result for this pair of cells
         for ( uint iIndex = 0; iIndex < tNumResults; ++iIndex )
@@ -338,7 +340,7 @@ namespace moris::mtk
 
         // we convert each mapping result to a list of nonconformal side clusters, grouped by the source- and target side sets
         std::map< SetPair, Vector< Nonconformal_Side_Cluster > > tConvertedResults;
-        for ( const MappingResult& tMappingResult : tMappingResults )
+        for ( const MappingResult &tMappingResult : tMappingResults )
         {
             tConvertedResults.merge( convert_mapping_result_to_nonconformal_side_clusters( tMappingResult ) );
         }
@@ -356,7 +358,7 @@ namespace moris::mtk
         // We therefore take all candidate pairs and remove the ones that will be created based on the mapping.
         // the remaining set pairs will be used to create empty nonconformal side sets.
         std::set< SetPair > tAllPossibleSetPairs;
-        for ( const std::pair< moris_index, moris_index >& tPair : mCandidatePairs )
+        for ( const std::pair< moris_index, moris_index > &tPair : mCandidatePairs )
         {
             tAllPossibleSetPairs.insert( tPair );
         }
@@ -377,7 +379,7 @@ namespace moris::mtk
         }
 
         // create empty nonconformal side sets for the remaining candidate pairs
-        for ( const SetPair& tSetPair : tAllPossibleSetPairs )
+        for ( const SetPair &tSetPair : tAllPossibleSetPairs )
         {
             mIGMesh->add_nonconformal_side_set(
                     this->get_nonconformal_side_set_name( tSetPair ),
@@ -422,10 +424,10 @@ namespace moris::mtk
 
     Matrix< DDRMat > Contact_Mesh_Editor::get_nodal_parametric_coordinates() const
     {
-        const Side_Cluster*            tCluster      = dynamic_cast< mtk::Side_Cluster const*>( mSideSets( 0 )->get_clusters_on_set()( 0 ) );
-        const Cell*                    tCell         = tCluster->get_primary_cells_in_cluster()( 0 );
-        const Matrix< IndexMat >&      tSideOrdinals = tCluster->get_cell_side_ordinals();
-        const Vector< const Vertex* >& tVertices     = tCell->get_vertices_on_side_ordinal( tSideOrdinals( 0 ) );
+        const Side_Cluster             *tCluster      = dynamic_cast< mtk::Side_Cluster const * >( mSideSets( 0 )->get_clusters_on_set()( 0 ) );
+        const Cell                     *tCell         = tCluster->get_primary_cells_in_cluster()( 0 );
+        const Matrix< IndexMat >       &tSideOrdinals = tCluster->get_cell_side_ordinals();
+        const Vector< const Vertex * > &tVertices     = tCell->get_vertices_on_side_ordinal( tSideOrdinals( 0 ) );
         MORIS_ASSERT( tVertices.size() == 2, "Currently, only Line elements are supported in the nonconformal mapping!" );
         return { { -1.0, 1.0 } };    // has to be generalized for different cell types
     }

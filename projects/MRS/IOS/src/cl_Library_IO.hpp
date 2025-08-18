@@ -314,7 +314,7 @@ namespace moris
      * @param tValues - The values of the XML file parameter list
      * @return uint - The index of the sub-module type for special forms like "GEN/Geometry", "OPT/Algorithm" and "SOL/Linear_Algorithm", if not these forms, returns 0
      */
-    uint get_subchild_index_from_xml_list( std::string tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
+    uint get_subchild_index_from_xml_list( const std::string& tInnerSubParamListName, Vector< std::string >& aKeys, Vector< std::string >& aValues );
 
     /**
      * @brief convert_parameter_from_string_to_type - Converts the string value from the XML file to the correct data type
