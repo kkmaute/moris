@@ -31,9 +31,9 @@ namespace moris
 {
 
     void
-    Func1( moris::Matrix< moris::DDRMat >&                 aPropMatrix,
+    Func1( moris::Matrix< moris::DDRMat >&            aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -46,8 +46,8 @@ namespace moris
 
     moris::real
     Lvl_set_1(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< moris::real* >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< moris::real* >&  aGeometryParameters )
     {
         return 1.01;
     }
@@ -283,12 +283,7 @@ namespace moris
     void
     VISParameterList( Module_Parameter_Lists& aParameterList )
     {
-
-        std::string tMorisOutput = std::getenv( "MORISOUTPUT" );
-
-        MORIS_ERROR( tMorisOutput.size() > 0,
-                "Environment variable MORISOUTPUT not set." );
-        aParameterList( 0 ).set( "File_Name", std::pair< std::string, std::string >( tMorisOutput, "MDL_input_test.exo" ) );
+        aParameterList( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "MDL_input_test.exo" ) );
         aParameterList( 0 ).set( "Set_Names", "HMR_dummy_n_p1" );
         aParameterList( 0 ).set( "Field_Names", "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" );
         aParameterList( 0 ).set( "Field_Type", "ELEMENTAL_AVG,GLOBAL,NODAL" );
