@@ -2,7 +2,7 @@ name: Nightly Regression Tests
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs every day at 0:00 AM
+    - cron: '0 6 * * *'  # Runs every day at 0:00 AM UTC
   workflow_dispatch:     # Allows manual triggering from GitHub UI
 
 jobs:
