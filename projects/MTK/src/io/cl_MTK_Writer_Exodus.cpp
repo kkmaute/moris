@@ -1317,6 +1317,12 @@ namespace moris::mtk
     {
         namespace fs = std::filesystem;
 
+        // skip if directory name is empty
+        if ( aDirectoryName.empty() )
+        {
+            return;
+        }
+
         // Define folder path
         fs::path tDirectoryPath( aDirectoryName );
 
@@ -1324,8 +1330,8 @@ namespace moris::mtk
         if ( !fs::exists( tDirectoryPath ) )
         {
 
-            // Create all necessary directories fs::create_directories( tDirectoryPath )
-            MORIS_ERROR( true,
+            // Create all necessary directories
+            MORIS_ERROR( fs::create_directories( tDirectoryPath ),
                     "create_director - failed to create %s",
                     aDirectoryName.c_str() );
         }
