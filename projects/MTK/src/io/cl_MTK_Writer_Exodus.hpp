@@ -424,6 +424,15 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        /**
+         * Check if file name does not include path information with exception of ./.
+         *
+         * @param aFileName.
+         */
+        bool isFileNameOnly( const std::string& aFileName );
+
+        //------------------------------------------------------------------------------
+
     };    // end: class Writer_Exodus
 
     //------------------------------------------------------------------------------
