@@ -29,7 +29,7 @@ namespace moris::gen
 
       private:
         Vector< Background_Node > mBackgroundNodes;
-        Vector< Derived_Node* > mDerivedNodes;
+        Vector< Derived_Node* >   mDerivedNodes;
 
       public:
         /**
@@ -98,9 +98,9 @@ namespace moris::gen
          */
         void create_derived_node(
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&  aParametricCoordinates,
-                mtk::Geometry_Type       aGeometryType,
-                mtk::Interpolation_Order aInterpolationOrder );
+                const Matrix< DDRMat >&           aParametricCoordinates,
+                mtk::Geometry_Type                aGeometryType,
+                mtk::Interpolation_Order          aInterpolationOrder );
 
         /**
          * Adds a derived node to this manager.
@@ -233,4 +233,4 @@ namespace moris::gen
          */
         void delete_all_nodes();
     };
-}
+}    // namespace moris::gen
