@@ -8,7 +8,7 @@
 * This installation is based on spack.
 *
 * The instructions have been tested for OPENSuse 15.x.x 
-* and Ubuntu 22.04.1
+* Ubuntu 22.04.1 and Fedora 41.
 *
 * Note: The installation process uses tcsh
 *------------------------------------------------------------
