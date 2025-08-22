@@ -56,8 +56,6 @@ namespace moris
 
     /* --------------------------------------- Bottom Geometry -------------------------------------- */
     real tBottomHeight = 50.0;
-    bool tBottomHasSymmetryWest = false;
-    bool tBottomHasSymmetryEast = false;
 
     real tDomainHeight = tBottomHeight + tInitialGap + tTopRadius;
 
@@ -70,7 +68,6 @@ namespace moris
 
     /* --------------------------------------- Domain Setting --------------------------------------- */
     real tDomainOffsetX = -0.5 * tDomainWidth;
-    //real tDomainOffsetY = -0.5 * tDomainHeight;
     real tDomainOffsetY = -tBottomHeight;
 
     std::string tInterpolationOrder     = "2";
@@ -165,25 +162,6 @@ namespace moris
 
         // else: below lower line
         return 1; // lower body
-    }
-
-    // Level set function for a parabola that splits the domain into a top and a bottom part.
-    real Parabola( const Matrix< DDRMat > &aCoordinates,
-            const Vector< real >          &aGeometryParameters )
-    {
-        const real tMinimumLevelSetValue = 1.0e-8;
-
-        const real tXShift = aGeometryParameters( 0 );
-        const real tYShift = aGeometryParameters( 1 );
-        const real tFactor = aGeometryParameters( 2 );
-
-        const real x = aCoordinates( 0 ) - tXShift;
-        const real y = aCoordinates( 1 ) - tYShift;
-
-        // Compute Signed-Distance field
-        const real tVal = y - ( tFactor * x * x );
-
-        return ( std::abs( tVal ) < tMinimumLevelSetValue ) ? tMinimumLevelSetValue : tVal;
     }
 
     /* ----------------------------------- Property Field Function ---------------------------------- */
@@ -642,36 +620,6 @@ namespace moris
         pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
-        /* ---------------------------------------- Symmetry ------------------------------------------ */
-        if ( tBottomHasSymmetryWest )
-        {
-            pl = prm::create_IWG_parameter_list();
-            pl.set( "IWG_name", "IWGSymmetryBottomWest" );
-            pl.set( "IWG_type", (uint)fem::IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
-            pl.set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
-            pl.set( "dof_residual", "UX,UY" );
-            pl.set( "leader_phase_name", "PhaseBottom" );
-            pl.set( "side_ordinals", "4" );
-            pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
-            pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
-            pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( FEM::IWG ).add_parameter_list( pl );
-        }
-
-        if ( tBottomHasSymmetryEast )
-        {
-            pl = prm::create_IWG_parameter_list();
-            pl.set( "IWG_name", "IWGSymmetryBottomEast" );
-            pl.set( "IWG_type", (uint)fem::IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
-            pl.set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
-            pl.set( "dof_residual", "UX,UY" );
-            pl.set( "leader_phase_name", "PhaseBottom" );
-            pl.set( "side_ordinals", "2" );
-            pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
-            pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
-            pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( FEM::IWG ).add_parameter_list( pl );
-        }
 
         /* ------------------------------------- Contact Interface ------------------------------------ */
         // determine the requested contact type
