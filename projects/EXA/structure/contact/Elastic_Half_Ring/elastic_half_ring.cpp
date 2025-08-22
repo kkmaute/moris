@@ -125,35 +125,46 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
 
     /* --------------------------------------- Phase Indexing --------------------------------------- */
-    uint Phase_Index_Split( const Bitset< 3 > &aGeometrySigns )
+    uint Phase_Index_Split( const Bitset< 4 > &aGeometrySigns )
     {
-        const bool b2 = aGeometrySigns.test( 2 );
-        const bool b1 = aGeometrySigns.test( 1 );
-        const bool b0 = aGeometrySigns.test( 0 );
+        if ( aGeometrySigns.test( 3 ) )
+        {
+            // above bottom block
 
-        if ( b2 and b1 and b0 ) // p7
-          return 3; // void above upper domain
+            if ( aGeometrySigns.test( 2 ) )
+            {
+                // outside outer circle
+                return 0;    // interface
+            }
+            else
+            {
+                // inside outer circle
 
-        if ( !b2 and b1 and b0 ) // p3
-          return 1; // upper domain
+                if ( aGeometrySigns.test( 1 ) )
+                {
+                    // outside mid circle
+                    return 2;    // upper body outer shell
+                }
+                else
+                {
+                    // inside mid circle
 
-        if ( !b2 and !b1 and b0 ) // p1
-          return 0; // interface
+                    if ( aGeometrySigns.test( 0 ) )
+                    {
+                        // outside inner circle
+                        return 3;    // upper body inner shell
+                    }
+                    else
+                    {
+                        // inside inner circle
+                        return 4;    // void
+                    }
+                }
+            }
+        }
 
-        if ( !b2 and !b1 and !b0 ) // p0
-          return 2; // bottom
-
-        return 3; // upper void domain
-
-        //if ( aGeometrySigns.test( 1 ) )
-        //{
-        //    if ( aGeometrySigns.test( 0 ) )
-        //    {
-        //        return 1;    // upper domain
-        //    }
-        //    return 0;    // interface
-        //}
-        //return 2;    // bottom
+        // else: below lower line
+        return 1; // lower body
     }
 
     // Level set function for a parabola that splits the domain into a top and a bottom part.
@@ -260,7 +271,8 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                        GEN Parameter                                         */
         /* -------------------------------------------------------------------------------------------- */
-        aParameterLists.set( "number_of_phases", 4 );
+        aParameterLists.set( "number_of_phases", 5 );
+        // to use the phase index split, use the following line (and comment out the phase map)
         //aParameterLists.set( "phase_function_name", F2STR( Phase_Index_Split ) );
 
         Matrix< DDUMat > tPhaseMap( 16, 1, 4 ); // num rows, num cols, initial value
@@ -271,6 +283,7 @@ namespace moris
         tPhaseMap( 14 )             = 1;    // lower body
         tPhaseMap( 15 )             = 0;    // interface
 
+        // to use the phase map (instead of phase index split), use the following line
         aParameterLists.set( "phase_table", moris::ios::stringify( tPhaseMap ) );
         aParameterLists.set( "print_phase_table", true );
         aParameterLists.set( "output_mesh_file","gen.exo");
