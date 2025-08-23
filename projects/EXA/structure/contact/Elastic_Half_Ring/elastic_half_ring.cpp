@@ -56,8 +56,6 @@ namespace moris
 
     /* --------------------------------------- Bottom Geometry -------------------------------------- */
     real tBottomHeight = 50.0;
-    bool tBottomHasSymmetryWest = false;
-    bool tBottomHasSymmetryEast = false;
 
     real tDomainHeight = tBottomHeight + tInitialGap + tTopRadius;
 
@@ -70,7 +68,6 @@ namespace moris
 
     /* --------------------------------------- Domain Setting --------------------------------------- */
     real tDomainOffsetX = -0.5 * tDomainWidth;
-    //real tDomainOffsetY = -0.5 * tDomainHeight;
     real tDomainOffsetY = -tBottomHeight;
 
     std::string tInterpolationOrder     = "2";
@@ -125,54 +122,46 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
 
     /* --------------------------------------- Phase Indexing --------------------------------------- */
-    uint Phase_Index_Split( const Bitset< 3 > &aGeometrySigns )
+    uint Phase_Index_Split( const Bitset< 4 > &aGeometrySigns )
     {
-        const bool b2 = aGeometrySigns.test( 2 );
-        const bool b1 = aGeometrySigns.test( 1 );
-        const bool b0 = aGeometrySigns.test( 0 );
+        if ( aGeometrySigns.test( 3 ) )
+        {
+            // above bottom block
 
-        if ( b2 and b1 and b0 ) // p7
-          return 3; // void above upper domain
+            if ( aGeometrySigns.test( 2 ) )
+            {
+                // outside outer circle
+                return 0;    // interface
+            }
+            else
+            {
+                // inside outer circle
 
-        if ( !b2 and b1 and b0 ) // p3
-          return 1; // upper domain
+                if ( aGeometrySigns.test( 1 ) )
+                {
+                    // outside mid circle
+                    return 2;    // upper body outer shell
+                }
+                else
+                {
+                    // inside mid circle
 
-        if ( !b2 and !b1 and b0 ) // p1
-          return 0; // interface
+                    if ( aGeometrySigns.test( 0 ) )
+                    {
+                        // outside inner circle
+                        return 3;    // upper body inner shell
+                    }
+                    else
+                    {
+                        // inside inner circle
+                        return 4;    // void
+                    }
+                }
+            }
+        }
 
-        if ( !b2 and !b1 and !b0 ) // p0
-          return 2; // bottom
-
-        return 3; // upper void domain
-
-        //if ( aGeometrySigns.test( 1 ) )
-        //{
-        //    if ( aGeometrySigns.test( 0 ) )
-        //    {
-        //        return 1;    // upper domain
-        //    }
-        //    return 0;    // interface
-        //}
-        //return 2;    // bottom
-    }
-
-    // Level set function for a parabola that splits the domain into a top and a bottom part.
-    real Parabola( const Matrix< DDRMat > &aCoordinates,
-            const Vector< real >          &aGeometryParameters )
-    {
-        const real tMinimumLevelSetValue = 1.0e-8;
-
-        const real tXShift = aGeometryParameters( 0 );
-        const real tYShift = aGeometryParameters( 1 );
-        const real tFactor = aGeometryParameters( 2 );
-
-        const real x = aCoordinates( 0 ) - tXShift;
-        const real y = aCoordinates( 1 ) - tYShift;
-
-        // Compute Signed-Distance field
-        const real tVal = y - ( tFactor * x * x );
-
-        return ( std::abs( tVal ) < tMinimumLevelSetValue ) ? tMinimumLevelSetValue : tVal;
+        // else: below lower line
+        return 1; // lower body
     }
 
     /* ----------------------------------- Property Field Function ---------------------------------- */
@@ -260,7 +249,8 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                        GEN Parameter                                         */
         /* -------------------------------------------------------------------------------------------- */
-        aParameterLists.set( "number_of_phases", 4 );
+        aParameterLists.set( "number_of_phases", 5 );
+        // to use the phase index split, use the following line (and comment out the phase map)
         //aParameterLists.set( "phase_function_name", F2STR( Phase_Index_Split ) );
 
         Matrix< DDUMat > tPhaseMap( 16, 1, 4 ); // num rows, num cols, initial value
@@ -271,6 +261,7 @@ namespace moris
         tPhaseMap( 14 )             = 1;    // lower body
         tPhaseMap( 15 )             = 0;    // interface
 
+        // to use the phase map (instead of phase index split), use the following line
         aParameterLists.set( "phase_table", moris::ios::stringify( tPhaseMap ) );
         aParameterLists.set( "print_phase_table", true );
         aParameterLists.set( "output_mesh_file","gen.exo");
@@ -629,36 +620,6 @@ namespace moris
         pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
-        /* ---------------------------------------- Symmetry ------------------------------------------ */
-        if ( tBottomHasSymmetryWest )
-        {
-            pl = prm::create_IWG_parameter_list();
-            pl.set( "IWG_name", "IWGSymmetryBottomWest" );
-            pl.set( "IWG_type", (uint)fem::IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
-            pl.set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
-            pl.set( "dof_residual", "UX,UY" );
-            pl.set( "leader_phase_name", "PhaseBottom" );
-            pl.set( "side_ordinals", "4" );
-            pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
-            pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
-            pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( FEM::IWG ).add_parameter_list( pl );
-        }
-
-        if ( tBottomHasSymmetryEast )
-        {
-            pl = prm::create_IWG_parameter_list();
-            pl.set( "IWG_name", "IWGSymmetryBottomEast" );
-            pl.set( "IWG_type", (uint)fem::IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
-            pl.set( "IWG_bulk_type", (uint)fem::Element_Type::SIDESET );
-            pl.set( "dof_residual", "UX,UY" );
-            pl.set( "leader_phase_name", "PhaseBottom" );
-            pl.set( "side_ordinals", "2" );
-            pl.set( "leader_properties", "PropFixed,Dirichlet;PropSelectX,Select" );
-            pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
-            pl.set( "stabilization_parameters", "SPDirichletNitscheBottom,DirichletNitsche" );
-            aParameterLists( FEM::IWG ).add_parameter_list( pl );
-        }
 
         /* ------------------------------------- Contact Interface ------------------------------------ */
         // determine the requested contact type
