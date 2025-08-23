@@ -118,59 +118,8 @@ namespace moris
     bool tUseGhost           = true;
 
     /* ---------------------------------------------------------------------------------------------- */
-    /*                                         Field Functions                                        */
+    /*                                     User-Defined Functions                                     */
     /* ---------------------------------------------------------------------------------------------- */
-
-    /* --------------------------------------- Phase Indexing --------------------------------------- */
-    uint Phase_Index_Split( const Bitset< 4 > &aGeometrySigns )
-    {
-        if ( aGeometrySigns.test( 3 ) )
-        {
-            // above bottom block
-
-            if ( aGeometrySigns.test( 2 ) )
-            {
-                // outside outer circle
-                return 0;    // interface
-            }
-            else
-            {
-                // inside outer circle
-
-                if ( aGeometrySigns.test( 1 ) )
-                {
-                    // outside mid circle
-                    return 2;    // upper body outer shell
-                }
-                else
-                {
-                    // inside mid circle
-
-                    if ( aGeometrySigns.test( 0 ) )
-                    {
-                        // outside inner circle
-                        return 3;    // upper body inner shell
-                    }
-                    else
-                    {
-                        // inside inner circle
-                        return 4;    // void
-                    }
-                }
-            }
-        }
-
-        // else: below lower line
-        return 1; // lower body
-    }
-
-    /* ----------------------------------- Property Field Function ---------------------------------- */
-    void Func_Const( Matrix< DDRMat >       &aPropMatrix,
-            Vector< Matrix< DDRMat > >      &aParameters,
-            fem::Field_Interpolator_Manager *aFIManager )
-    {
-        aPropMatrix = aParameters( 0 );
-    }
 
     void Func_Dirichlet( Matrix< DDRMat >   &aPropMatrix,
             Vector< Matrix< DDRMat > >      &aParameters,
@@ -250,18 +199,14 @@ namespace moris
         /*                                        GEN Parameter                                         */
         /* -------------------------------------------------------------------------------------------- */
         aParameterLists.set( "number_of_phases", 5 );
-        // to use the phase index split, use the following line (and comment out the phase map)
-        //aParameterLists.set( "phase_function_name", F2STR( Phase_Index_Split ) );
 
         Matrix< DDUMat > tPhaseMap( 16, 1, 4 ); // num rows, num cols, initial value
-                                       // 4 is default = top void
-        //tPhaseMap(  1 )             = 4;    // top void = circle inner
-        tPhaseMap(  9 )             = 3;    // upper body inner shell
-        tPhaseMap( 13 )             = 2;    // upper body outer shell
-        tPhaseMap( 14 )             = 1;    // lower body
-        tPhaseMap( 15 )             = 0;    // interface
+                                                // 4 is default = top void
+        tPhaseMap(  9 )  = 3;	           	// upper body inner shell
+        tPhaseMap( 13 )  = 2;	           	// upper body outer shell
+        tPhaseMap( 14 )  = 1;	           	// lower body
+        tPhaseMap( 15 )  = 0;	           	// interface
 
-        // to use the phase map (instead of phase index split), use the following line
         aParameterLists.set( "phase_table", moris::ios::stringify( tPhaseMap ) );
         aParameterLists.set( "print_phase_table", true );
         aParameterLists.set( "output_mesh_file","gen.exo");
@@ -356,32 +301,27 @@ namespace moris
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropYoungsTopInner" );
         pl.set( "function_parameters", std::to_string( tTopEmodInner ) );
-        pl.set( "value_function", F2STR( Func_Const ) );
         aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropYoungsTopOuter" );
         pl.set( "function_parameters", std::to_string( tTopEmodOuter ) );
-        pl.set( "value_function", F2STR( Func_Const ) );
         aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropYoungsBottom" );
         pl.set( "function_parameters", std::to_string( tBottomEmod ) );
-        pl.set( "value_function", F2STR( Func_Const ) );
         aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* ------------------------------------------ Poisson ----------------------------------------- */
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropPoissonTop" );
         pl.set( "function_parameters", std::to_string( tTopPois ) );
-        pl.set( "value_function", F2STR( Func_Const ) );
         aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropPoissonBottom" );
         pl.set( "function_parameters", std::to_string( tBottomPois ) );
-        pl.set( "value_function", F2STR( Func_Const ) );
         aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* --------------------------------------- Dirichlet Top -------------------------------------- */
@@ -395,7 +335,6 @@ namespace moris
         pl = prm::create_property_parameter_list();
         pl.set( "property_name", "PropFixed" );
         pl.set( "function_parameters", "0.0;0.0" );
-        pl.set( "value_function", F2STR( Func_Const ) );
         aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
 
         /* -------------------------------------- Symmetry Plane -------------------------------------- */
@@ -861,9 +800,7 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                        Solver Warehouse                                      */
         /* -------------------------------------------------------------------------------------------- */
-        pl = moris::prm::create_solver_warehouse_parameterlist();
         // pl.set("SOL_save_operator_to_matlab", "jacobian");
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                      Preconditioner List                                     */
