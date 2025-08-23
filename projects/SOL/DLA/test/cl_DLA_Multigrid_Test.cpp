@@ -250,7 +250,6 @@ namespace moris
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
-            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
             tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );

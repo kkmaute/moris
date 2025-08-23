@@ -36,9 +36,21 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Submodule_Parameter_Lists::add_parameter_list( const Parameter_List& aParameterList )
+    void Submodule_Parameter_Lists::add_parameter_list(
+            const Parameter_List& aParameterList,
+            const bool            aIsUnique )
     {
+        // check if parameter list allows for multiple entries
+        MORIS_ERROR( mIsUnique ? mParameterLists.size() == 0 : true,
+                "Submodule_Parameter_Lists::add_parameter_list - The %s submodule only allows for one parameter list, "
+                "which is created automatically. Remove add_parameter_list command in input file.",
+                mType.c_str() );
+
+        // add parameter list
         mParameterLists.push_back( aParameterList );
+
+        // set uniqueness flag
+        mIsUnique = aIsUnique;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -124,14 +136,14 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-//    void Submodule_Parameter_Lists::add_parameter_list( uint aGeometryType, gen::Field_Type aFieldType )
-//    {
-//        // Check for correct submodule type
-//        this->check_submodule_type( GEN_Submodule_String::values( static_cast< uint >( GEN::GEOMETRIES ) ) );
-//
-//        // Add new parameter list TODO BRENDAN: add overall GEN function for this
-//        MORIS_ERROR( false, "GEN geometries cannot be created automatically yet" );
-//    }
+    //    void Submodule_Parameter_Lists::add_parameter_list( uint aGeometryType, gen::Field_Type aFieldType )
+    //    {
+    //        // Check for correct submodule type
+    //        this->check_submodule_type( GEN_Submodule_String::values( static_cast< uint >( GEN::GEOMETRIES ) ) );
+    //
+    //        // Add new parameter list TODO BRENDAN: add overall GEN function for this
+    //        MORIS_ERROR( false, "GEN geometries cannot be created automatically yet" );
+    //    }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -190,8 +202,8 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 
     void Submodule_Parameter_Lists::insert(
-        const std::string&     aName,
-        const Design_Variable& aDesignVariable )
+            const std::string&     aName,
+            const Design_Variable& aDesignVariable )
     {
         // Insert into parameter list
         mParameterLists.back().insert( aName, aDesignVariable );
@@ -213,14 +225,14 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    auto Submodule_Parameter_Lists::begin()->decltype( mParameterLists.begin() )
+    auto Submodule_Parameter_Lists::begin() -> decltype( mParameterLists.begin() )
     {
         return mParameterLists.begin();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    auto Submodule_Parameter_Lists::end()->decltype( mParameterLists.end() )
+    auto Submodule_Parameter_Lists::end() -> decltype( mParameterLists.end() )
     {
         return mParameterLists.end();
     }
@@ -233,4 +245,4 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris

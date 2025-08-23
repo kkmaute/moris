@@ -135,13 +135,13 @@ namespace moris
         MORIS_ASSERT( aAxis.numel() == 3, "axis need to have length 3" );
 
         Vector< moris::real > relativePosition = { ( aPoint( 0 ) - aCenter( 0 ) ), ( aPoint( 1 ) - aCenter( 1 ) ), ( aPoint( 2 ) - aCenter( 2 ) ) };
-        moris::real         lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
-        moris::real         lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
+        moris::real           lsFromLeft       = ( relativePosition( 0 ) * ( -aAxis( 0 ) ) + relativePosition( 1 ) * ( -aAxis( 1 ) ) + relativePosition( 2 ) * ( -aAxis( 2 ) ) ) - aLength / 2.0;
+        moris::real           lsFromRight      = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) ) - aLength / 2.0;
 
-        moris::real         axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
+        moris::real           axialCrd  = ( relativePosition( 0 ) * ( aAxis( 0 ) ) + relativePosition( 1 ) * ( aAxis( 1 ) ) + relativePosition( 2 ) * ( aAxis( 2 ) ) );
         Vector< moris::real > radDir    = { ( relativePosition( 0 ) - aAxis( 0 ) * axialCrd ), ( relativePosition( 1 ) - aAxis( 1 ) * axialCrd ), ( relativePosition( 2 ) - aAxis( 2 ) * axialCrd ) };
-        moris::real         radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
-        moris::real         lsFromRad = radDist - aRad;
+        moris::real           radDist   = std::pow( radDir( 0 ) * radDir( 0 ) + radDir( 1 ) * radDir( 1 ) + radDir( 2 ) * radDir( 2 ), 0.5 );
+        moris::real           lsFromRad = radDist - aRad;
 
         return -std::max( std::max( lsFromLeft, lsFromRight ), lsFromRad );
     }
@@ -164,9 +164,9 @@ namespace moris
 
     inline void
     tConstValFunction_MDL_XTK_HMR(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -236,8 +236,8 @@ namespace moris
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
-            auto tPlane = std::make_shared< moris::gen::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
-            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tPlane );
+            auto                                              tPlane = std::make_shared< moris::gen::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
+            tGeometryVector( 0 )                                     = std::make_shared< gen::Level_Set_Geometry >( tPlane );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -245,9 +245,9 @@ namespace moris
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-            size_t                          tModelDimension       = 3;
+            size_t                            tModelDimension       = 3;
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+            xtk::Model                        tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -353,11 +353,11 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            dla::Solver_Factory                             tSolFactory;
-        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
-        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
-        tLinearSolverParameterList.set( "AZ_output", AZ_none );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -473,8 +473,8 @@ namespace moris
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
-            auto tPlane = std::make_shared< moris::gen::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
-            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tPlane );
+            auto                                              tPlane = std::make_shared< moris::gen::Plane >( 1.011, 1.011, 1.411, 0.0, 0.0, 1.0 );
+            tGeometryVector( 0 )                                     = std::make_shared< gen::Level_Set_Geometry >( tPlane );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -482,9 +482,9 @@ namespace moris
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-            size_t                          tModelDimension       = 3;
+            size_t                            tModelDimension       = 3;
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+            xtk::Model                        tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -622,11 +622,11 @@ namespace moris
             // STEP 1: create linear solver and algorithm
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            dla::Solver_Factory                             tSolFactory;
-        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
-        tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
-        tLinearSolverParameterList.set( "AZ_output", AZ_none );
-        std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
+            tLinearSolverParameterList.set( "AZ_output", AZ_none );
+            std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( tLinearSolverParameterList );
 
             dla::Linear_Solver tLinSolver;
 
@@ -754,8 +754,8 @@ namespace moris
             tic tTimer_XTK;
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
-            auto tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Vector< gen::ADV >() );
-            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
+            auto                                              tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( &( LevelSetSphereCylinderGeometry ), Vector< gen::ADV >() );
+            tGeometryVector( 0 )                                                = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -763,9 +763,9 @@ namespace moris
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-            size_t                          tModelDimension       = 3;
+            size_t                            tModelDimension       = 3;
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+            xtk::Model                        tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -928,7 +928,6 @@ namespace moris
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
-            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
             tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::PETSC ) );
@@ -1033,8 +1032,8 @@ namespace moris
             tic tTimer_XTK;
 
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector( 1 );
-            auto tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( LevelSetSphereCylinderGeometry );
-            tGeometryVector( 0 ) = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
+            auto                                              tUserDefinedField = std::make_shared< moris::gen::User_Defined_Field >( LevelSetSphereCylinderGeometry );
+            tGeometryVector( 0 )                                                = std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField );
 
             // Tell the geometry engine about the discrete field mesh and how to interpret phases
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -1042,9 +1041,9 @@ namespace moris
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
 
             // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-            size_t                          tModelDimension       = 3;
+            size_t                            tModelDimension       = 3;
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
-            xtk::Model                      tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+            xtk::Model                        tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -1208,7 +1207,6 @@ namespace moris
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
-            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
 
             tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
