@@ -429,7 +429,7 @@ namespace moris::fem
     Interpolation_Element::fill_mat_pdv_assembly_vector()
     {
         // get the design variable interface
-        MSI::Design_Variable_Interface* tDVInterface =
+        std::shared_ptr< const MSI::Design_Variable_Interface > tDVInterface =
                 mSet->mEquationModel->get_design_variable_interface();
 
         // get the list of requested dv types by the opt solver

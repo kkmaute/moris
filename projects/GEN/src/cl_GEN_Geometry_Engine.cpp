@@ -45,7 +45,7 @@ namespace moris::gen
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
             , mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
-            , mPDVHostManager( mNodeManager )
+            , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager ) )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
@@ -86,7 +86,7 @@ namespace moris::gen
         {
             tRequestedPDVTypes( tPDVTypeIndex ) = tPDVTypeMap[ tRequestedPDVNames( tPDVTypeIndex ) ];
         }
-        mPDVHostManager.set_requested_interpolation_pdv_types( tRequestedPDVTypes );
+        mPDVHostManager->set_requested_interpolation_pdv_types( tRequestedPDVTypes );
 
         // Initialize PDV type list
         this->initialize_pdv_type_list();
@@ -110,7 +110,7 @@ namespace moris::gen
             , mADVManager( aParameters.mADVManager )
             , mInitialPrimitiveADVs( aParameters.mADVManager.mADVs )
             , mTimeOffset( aParameters.mTimeOffset )
-            , mPDVHostManager( mNodeManager )
+            , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager ) )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
@@ -202,7 +202,7 @@ namespace moris::gen
             const Vector< moris::Matrix< DDRMat >* >& adQIdp,
             moris::Matrix< moris::DDSMat >*           aMap )
     {
-        mPDVHostManager.set_dQIdp( adQIdp, aMap );
+        mPDVHostManager->set_dQIdp( adQIdp, aMap );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ namespace moris::gen
     void
     Geometry_Engine::communicate_requested_IQIs()
     {
-        mPDVHostManager.set_requested_IQIs( mRequestedIQIs );
+        mPDVHostManager->set_requested_IQIs( mRequestedIQIs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -240,15 +240,15 @@ namespace moris::gen
     Matrix< DDRMat >
     Geometry_Engine::get_dcriteria_dadv()
     {
-        return mPDVHostManager.compute_diqi_dadv( mFullADVIds );
+        return mPDVHostManager->compute_diqi_dadv( mFullADVIds );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    MSI::Design_Variable_Interface*
+    std::shared_ptr< MSI::Design_Variable_Interface >
     Geometry_Engine::get_design_variable_interface()
     {
-        return &mPDVHostManager;
+        return mPDVHostManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -747,18 +747,18 @@ namespace moris::gen
         }
 
         // Set interpolation PDV types in host manager
-        mPDVHostManager.set_interpolation_pdv_types( tPDVTypes );
+        mPDVHostManager->set_interpolation_pdv_types( tPDVTypes );
 
         // Get and save communication map from IP mesh
         Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
-        mPDVHostManager.set_communication_table( tCommTable );
+        mPDVHostManager->set_communication_table( tCommTable );
 
         // Get and save global to local vertex maps from IP and IG meshes
         std::unordered_map< moris_id, moris_index > tIPVertexGlobaToLocalMap =
                 tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
         std::unordered_map< moris_id, moris_index > tIGVertexGlobaToLocalMap =
                 tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
-        mPDVHostManager.set_vertex_global_to_local_maps(
+        mPDVHostManager->set_vertex_global_to_local_maps(
                 tIPVertexGlobaToLocalMap,
                 tIGVertexGlobaToLocalMap );
 
@@ -776,7 +776,7 @@ namespace moris::gen
         }
 
         // Create PDV IDs
-        mPDVHostManager.create_pdv_ids();
+        mPDVHostManager->create_pdv_ids();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -935,10 +935,10 @@ namespace moris::gen
         tTemporaryPDVTypeList.shrink_to_fit();
 
         // Communicate dof types so that all processors have the same unique list
-        mPDVHostManager.communicate_dof_types( tTemporaryPDVTypeList );
+        mPDVHostManager->communicate_dof_types( tTemporaryPDVTypeList );
 
         // Create a map
-        mPDVHostManager.create_dv_type_map();
+        mPDVHostManager->create_dv_type_map();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -996,7 +996,7 @@ namespace moris::gen
         }
 
         // Set owned ADV IDs
-        mPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
+        mPDVHostManager->set_owned_adv_ids( tOwnedADVIds );
 
         MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", (moris::real)( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
 
@@ -1263,7 +1263,7 @@ namespace moris::gen
         mNodeManager.reset_background_nodes( aMesh );
 
         // Reset PDV host manager
-        mPDVHostManager.reset();
+        mPDVHostManager->reset();
 
         // Reset info related to the mesh
         mActiveGeometryIndex = 0;
@@ -1677,7 +1677,7 @@ namespace moris::gen
         }
 
         // Create hosts of nodes of non-unzipped interpolation nodes
-        mPDVHostManager.create_interpolation_pdv_hosts(
+        mPDVHostManager->create_interpolation_pdv_hosts(
                 tNodeIndicesPerSet,
                 tNodeIdsPerSet,
                 tNodeOwnersPerSet,
@@ -1700,7 +1700,7 @@ namespace moris::gen
                 for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
                 {
                     // Create interpolation PDV
-                    mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPDVType, iProperty );
+                    mPDVHostManager->create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPDVType, iProperty );
                 }
             }
         }
@@ -1750,8 +1750,8 @@ namespace moris::gen
         }
 
         // Set PDV types
-        mPDVHostManager.set_integration_pdv_types( tPDVTypes );
-        mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePDVs );
+        mPDVHostManager->set_integration_pdv_types( tPDVTypes );
+        mPDVHostManager->set_requested_integration_pdv_types( tCoordinatePDVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------

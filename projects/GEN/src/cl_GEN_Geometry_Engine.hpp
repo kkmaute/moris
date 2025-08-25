@@ -74,8 +74,8 @@ namespace moris::gen
         real        mTimeOffset;
 
         // PDVs
-        PDV_Host_Manager   mPDVHostManager;
-        Intersection_Node* mQueuedIntersectionNode = nullptr;
+        std::shared_ptr< PDV_Host_Manager > mPDVHostManager;
+        Intersection_Node*                  mQueuedIntersectionNode = nullptr;
 
         // diagnostic information
         bool        mDiagnostics = false;
@@ -182,7 +182,7 @@ namespace moris::gen
          *
          * @return member pdv host manager pointer
          */
-        MSI::Design_Variable_Interface* get_design_variable_interface();
+        std::shared_ptr< MSI::Design_Variable_Interface > get_design_variable_interface();
 
         /**
          * Returns if the element consisting of provided node indices and coordinates is intersected by the active geometry index.

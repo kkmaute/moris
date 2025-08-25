@@ -2013,7 +2013,7 @@ namespace moris::fem
                 "Trying to set PDV assembly map on a VIS cluster. This shouldn't happen." );
 
         // get the design variable interface
-        MSI::Design_Variable_Interface* tDVInterface =
+        std::shared_ptr< const MSI::Design_Variable_Interface > tDVInterface =
                 mEquationModel->get_design_variable_interface();
 
         // get the geo dv types requested by the opt
@@ -3751,7 +3751,7 @@ namespace moris::fem
             Vector< enum gen::PDV_Type >& aGeoPdvType )
     {
         // get design variable interface
-        MSI::Design_Variable_Interface* tPdvInterface =
+        std::shared_ptr< const MSI::Design_Variable_Interface > tPdvInterface =
                 mEquationModel->get_design_variable_interface();
 
         // if the pdv interface is set

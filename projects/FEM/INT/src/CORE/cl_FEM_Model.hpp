@@ -158,10 +158,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-                    const moris_index                   &aMeshPairIndex,
-                    Vector< fem::Set_User_Info >        &aSetInfo,
-                    MSI::Design_Variable_Interface      *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+                    const moris_index                                &aMeshPairIndex,
+                    Vector< fem::Set_User_Info >                     &aSetInfo,
+                    std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -172,10 +172,10 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-                    const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
-                    const std::shared_ptr< Library_IO >      &aLibrary );
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    const moris_index                   &aMeshPairIndex,
+                    const Module_Parameter_Lists        &aParameterList,
+                    const std::shared_ptr< Library_IO > &aLibrary );
 
             //------------------------------------------------------------------------------
             /**
@@ -187,10 +187,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-                    const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
-                    MSI::Design_Variable_Interface           *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+                    const moris_index                                &aMeshPairIndex,
+                    const Module_Parameter_Lists                     &aParameterList,
+                    std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**

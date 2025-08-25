@@ -303,7 +303,7 @@ namespace moris::gen
             CHECK( tGeometryEngine.get_geometric_region( 0, 28, { {} } ) == Geometric_Region::POSITIVE );
 
             // Get the PDV host manager
-            auto tPDVHostManager = dynamic_cast< PDV_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
+            auto tPDVHostManager = std::dynamic_pointer_cast< PDV_Host_Manager >( tGeometryEngine.get_design_variable_interface() );
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
             Vector< Matrix< DDRMat > > tPDVValues( 0 );

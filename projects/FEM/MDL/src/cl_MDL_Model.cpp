@@ -150,12 +150,12 @@ namespace moris::mdl
 
     //------------------------------------------------------------------------------
     Model::Model(
-            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const uint                           aBSplineIndex,
-            Vector< fem::Set_User_Info >&        aSetInfo,
-            MSI::Design_Variable_Interface*      aDesignVariableInterface,
-            const moris_index                    aMeshPairIndex,
-            const bool                           aUseMultigrid )
+            std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+            const uint                                        aBSplineIndex,
+            Vector< fem::Set_User_Info >&                     aSetInfo,
+            std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface,
+            const moris_index                                 aMeshPairIndex,
+            const bool                                        aUseMultigrid )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mBSplineIndex( aBSplineIndex )
@@ -448,13 +448,9 @@ namespace moris::mdl
 
     //------------------------------------------------------------------------------
     void
-    Model::set_design_variable_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
+    Model::set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
     {
         mDesignVariableInterface = aDesignVariableInterface;
-
-        //            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-        //
-        //            mDesignVariableInterface->set_equation_model( mEquationModel );
     }
 
     //------------------------------------------------------------------------------

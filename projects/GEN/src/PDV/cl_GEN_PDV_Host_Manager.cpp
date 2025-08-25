@@ -70,7 +70,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ip_dv_types_for_set(
             const moris::moris_index      aIPMeshSetIndex,
-            Vector< Vector< PDV_Type > >& aPDVTypes )
+            Vector< Vector< PDV_Type > >& aPDVTypes ) const
     {
         if ( mIpPDVTypes.size() > 0 )    // FIXME
         {
@@ -82,8 +82,8 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ig_dv_types_for_set(
-            const moris::moris_index      aIGMeshSetIndex,
-            Vector< Vector< PDV_Type > >& aPDVTypes )
+            const moris_index             aIGMeshSetIndex,
+            Vector< Vector< PDV_Type > >& aPDVTypes ) const
     {
         if ( mIgPDVTypes.size() > 0 )    // FIXME
         {
@@ -96,7 +96,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ip_unique_dv_types_for_set(
             const moris_index   aIPMeshSetIndex,
-            Vector< PDV_Type >& aPDVTypes )
+            Vector< PDV_Type >& aPDVTypes ) const
     {
         if ( mUniqueIpPDVTypes.size() > 0 )    // FIXME
         {
@@ -109,7 +109,7 @@ namespace moris::gen
     void
     PDV_Host_Manager::get_ig_unique_dv_types_for_set(
             const moris::moris_index aIGMeshSetIndex,
-            Vector< PDV_Type >&      aPDVTypes )
+            Vector< PDV_Type >&      aPDVTypes ) const
     {
         if ( mUniqueIgPDVTypes.size() > 0 )    // FIXME
         {
@@ -123,7 +123,7 @@ namespace moris::gen
     PDV_Host_Manager::get_ip_pdv_value(
             const Matrix< IndexMat >&   aNodeIndices,
             const Vector< PDV_Type >&   aPDVTypes,
-            Vector< Matrix< DDRMat > >& aDvValues )
+            Vector< Matrix< DDRMat > >& aDvValues ) const
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.numel();
@@ -177,7 +177,7 @@ namespace moris::gen
             const Matrix< IndexMat >&   aNodeIndices,
             const Vector< PDV_Type >&   aPDVTypes,
             Vector< Matrix< DDRMat > >& aDvValues,
-            Vector< Vector< bool > >&   aIsActiveDv )
+            Vector< Vector< bool > >&   aIsActiveDv ) const
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -237,7 +237,7 @@ namespace moris::gen
     PDV_Host_Manager::get_ip_dv_ids_for_type_and_ind(
             const Matrix< IndexMat >&  aNodeIndices,
             const Vector< PDV_Type >&  aPDVTypes,
-            Vector< Matrix< IdMat > >& aDvIds )
+            Vector< Matrix< IdMat > >& aDvIds ) const
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -278,7 +278,7 @@ namespace moris::gen
     PDV_Host_Manager::get_ig_dv_ids_for_type_and_ind(
             const Matrix< IndexMat >&  aNodeIndices,
             const Vector< PDV_Type >&  aPDVTypes,
-            Vector< Matrix< IdMat > >& aDvIds )
+            Vector< Matrix< IdMat > >& aDvIds ) const
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.numel();
@@ -315,7 +315,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes )
+    PDV_Host_Manager::get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes ) const
     {
         aPDVTypes = mRequestedIpPDVTypes;
     }

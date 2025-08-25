@@ -76,7 +76,7 @@ namespace moris
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
 
-            MSI::Design_Variable_Interface* mDesignVariableInterface = nullptr;
+            std::shared_ptr< MSI::Design_Variable_Interface > mDesignVariableInterface = nullptr;
 
             bool mIsForwardAnalysis             = true;
             bool mIsAdjointSensitivityAnalysis  = true;
@@ -371,7 +371,7 @@ namespace moris
              * @param[ in ] aDesignVariableInterface pointer to design variable interface
              */
             void
-            set_design_variable_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
+            set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
             {
                 mDesignVariableInterface = aDesignVariableInterface;
             }
@@ -381,7 +381,7 @@ namespace moris
              * @brief get pointer to design variable interface
              * @returns pointer to design variable interface
              */
-            MSI::Design_Variable_Interface*
+            std::shared_ptr< const MSI::Design_Variable_Interface >
             get_design_variable_interface()
             {
                 return mDesignVariableInterface;

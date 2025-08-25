@@ -24,6 +24,7 @@
 namespace moris::gen
 {
     class PDV_Host_Manager : public MSI::Design_Variable_Interface
+            , public std::enable_shared_from_this< PDV_Host_Manager >
     {
       private:
         // Node manager
@@ -148,7 +149,7 @@ namespace moris::gen
         void
         get_ip_dv_types_for_set(
                 moris_index                   aIGMeshSetIndex,
-                Vector< Vector< PDV_Type > >& aPDVTypes ) override;
+                Vector< Vector< PDV_Type > >& aPDVTypes ) const override;
 
         /**
          * Get dv types for set
@@ -158,8 +159,8 @@ namespace moris::gen
          */
         void
         get_ig_dv_types_for_set(
-                moris_index                   aIGMeshSetIndex,
-                Vector< Vector< PDV_Type > >& aPDVTypes ) override;
+                const moris_index             aIGMeshSetIndex,
+                Vector< Vector< PDV_Type > >& aPDVTypes ) const override;
 
         /**
          * Get unique dv types for set
@@ -170,7 +171,7 @@ namespace moris::gen
         void
         get_ip_unique_dv_types_for_set(
                 moris_index         aIGMeshSetIndex,
-                Vector< PDV_Type >& aPDVTypes ) override;
+                Vector< PDV_Type >& aPDVTypes ) const override;
 
         /**
          * Get unique dv types for set
@@ -180,8 +181,8 @@ namespace moris::gen
          */
         void
         get_ig_unique_dv_types_for_set(
-                moris_index         aIGMeshSetIndex,
-                Vector< PDV_Type >& aPDVTypes ) override;
+                const moris_index   aIGMeshSetIndex,
+                Vector< PDV_Type >& aPDVTypes ) const override;
 
         /**
          * Get pdv values for requested vertex indices and dv types
@@ -194,7 +195,7 @@ namespace moris::gen
         get_ip_pdv_value(
                 const Matrix< IndexMat >&   aNodeIndices,
                 const Vector< PDV_Type >&   aPDVTypes,
-                Vector< Matrix< DDRMat > >& aDvValues ) override;
+                Vector< Matrix< DDRMat > >& aDvValues ) const override;
 
         /**
          * Get pdv values for requested vertex indices and dv types
@@ -209,7 +210,7 @@ namespace moris::gen
                 const Matrix< IndexMat >&   aNodeIndices,
                 const Vector< PDV_Type >&   aPDVTypes,
                 Vector< Matrix< DDRMat > >& aDvValues,
-                Vector< Vector< bool > >&   aIsActiveDv ) override;
+                Vector< Vector< bool > >&   aIsActiveDv ) const override;
 
         /**
          * Get the local to global pdv type map
@@ -230,7 +231,7 @@ namespace moris::gen
         void get_ip_dv_ids_for_type_and_ind(
                 const Matrix< IndexMat >&  aNodeIndices,
                 const Vector< PDV_Type >&  aPDVTypes,
-                Vector< Matrix< IdMat > >& aDvIds ) override;
+                Vector< Matrix< IdMat > >& aDvIds ) const override;
 
         /**
          * Get local to global DV type map
@@ -242,14 +243,14 @@ namespace moris::gen
         void get_ig_dv_ids_for_type_and_ind(
                 const Matrix< IndexMat >&  aNodeIndices,
                 const Vector< PDV_Type >&  aPDVTypes,
-                Vector< Matrix< IdMat > >& aDvIds ) override;
+                Vector< Matrix< IdMat > >& aDvIds ) const override;
 
         /**
          * Get requested pdv types on interpolation mesh nodes for sensitivity analysis
          *
          * @param[ in ] aPDVTypes list of dv types to fill
          */
-        void get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes ) override;
+        void get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes ) const override;
 
         /**
          * Get requested pdv types on integration mesh nodes for sensitivity analysis

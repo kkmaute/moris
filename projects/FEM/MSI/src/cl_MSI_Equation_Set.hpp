@@ -715,10 +715,10 @@ namespace moris
             void create_requested_IQI_type_map();
 
             //------------------------------------------------------------------------------
-            /**
-             * get requested dv types
-             */
-            Vector< enum gen::PDV_Type > get_requested_dv_types();
+            // /**
+            //  * get requested dv types
+            //  */
+            // Vector< enum gen::PDV_Type > get_requested_dv_types();
 
             //------------------------------------------------------------------------------
             /**

@@ -134,32 +134,32 @@ namespace moris::MSI
 
         //------------------------------------------------------------------------------
 
-        void get_ip_unique_dv_types_for_set( const moris::moris_index aIntegrationMeshSetIndex,
-                Vector< enum gen::PDV_Type >&                         aDvTypes ) override
+        void get_ip_unique_dv_types_for_set( const moris_index aIntegrationMeshSetIndex,
+                Vector< enum gen::PDV_Type >&                  aDvTypes ) const override
         {
             aDvTypes = { gen::PDV_Type::DENSITY };
         };
 
         //------------------------------------------------------------------------------
 
-        void get_ig_unique_dv_types_for_set( const moris::moris_index aIntegrationMeshSetIndex,
-                Vector< enum gen::PDV_Type >&                         aDvTypes ) override
+        void get_ig_unique_dv_types_for_set( const moris_index aIntegrationMeshSetIndex,
+                Vector< enum gen::PDV_Type >&                  aDvTypes ) const override
         {
             aDvTypes = { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE };
         };
 
         //------------------------------------------------------------------------------
 
-        void get_ip_dv_types_for_set( const moris::moris_index aIntegrationMeshSetIndex,
-                Vector< Vector< enum gen::PDV_Type > >&        aDvTypes ) override
+        void get_ip_dv_types_for_set( const moris_index aIntegrationMeshSetIndex,
+                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) const override
         {
             aDvTypes = { { gen::PDV_Type::DENSITY } };
         };
 
         //------------------------------------------------------------------------------
 
-        void get_ig_dv_types_for_set( const moris::moris_index aIntegrationMeshSetIndex,
-                Vector< Vector< enum gen::PDV_Type > >&        aDvTypes ) override
+        void get_ig_dv_types_for_set( const moris_index aIntegrationMeshSetIndex,
+                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) const override
         {
             aDvTypes = { { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE } };
         };
@@ -167,10 +167,10 @@ namespace moris::MSI
         //------------------------------------------------------------------------------
 
         void get_ig_pdv_value(
-                const moris::Matrix< IndexMat >&    aNodeIndices,
+                const Matrix< IndexMat >&           aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< DDRMat > >&  aDvValues,
-                Vector< Vector< bool > >&           aIsActiveDv ) override
+                Vector< Matrix< DDRMat > >&         aDvValues,
+                Vector< Vector< bool > >&           aIsActiveDv ) const override
         {
             // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -210,7 +210,7 @@ namespace moris::MSI
         void get_ip_pdv_value(
                 const moris::Matrix< IndexMat >&    aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< DDRMat > >&  aDvValues ) override
+                Vector< moris::Matrix< DDRMat > >&  aDvValues ) const override
         {
             // Get the number of node indices requested
             uint tNumIndices = aNodeIndices.length();
@@ -245,7 +245,7 @@ namespace moris::MSI
 
         void reshape_pdv_values(
                 const Vector< moris::Matrix< DDRMat > >& aPdvValues,
-                moris::Matrix< DDRMat >&                 aReshapedPdvValues ) override
+                moris::Matrix< DDRMat >&                 aReshapedPdvValues ) const override
         {
             MORIS_ASSERT( aPdvValues.size() != 0,
                     "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty." );
@@ -274,7 +274,7 @@ namespace moris::MSI
 
         void get_ip_dv_ids_for_type_and_ind( const Matrix< IndexMat >& aNodeIndices,
                 const Vector< enum gen::PDV_Type >&                    aDvTypes,
-                Vector< moris::Matrix< IdMat > >&                      aDvIds ) override
+                Vector< moris::Matrix< IdMat > >&                      aDvIds ) const override
         {
             aDvIds.resize( aDvTypes.size() );
 
@@ -292,7 +292,7 @@ namespace moris::MSI
 
         void get_ig_dv_ids_for_type_and_ind( const Matrix< IndexMat >& aNodeIndices,
                 const Vector< enum gen::PDV_Type >&                    aDvTypes,
-                Vector< moris::Matrix< IdMat > >&                      aDvIds ) override
+                Vector< moris::Matrix< IdMat > >&                      aDvIds ) const override
         {
             aDvIds.resize( aDvTypes.size() );
 
@@ -309,7 +309,7 @@ namespace moris::MSI
 
         //------------------------------------------------------------------------------
 
-        void get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) override
+        void get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) const override
         {
             aDvTypes = { gen::PDV_Type::DENSITY };
         }
