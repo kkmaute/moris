@@ -38,8 +38,6 @@
 // Advection
 #include "cl_FEM_IWG_Advection_Bulk.hpp"
 // Elasticity
-#include "cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp"
-#include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp"
@@ -189,15 +187,15 @@ namespace moris::fem
                 return std::make_shared< IWG_Advection_Bulk >();
 
             case IWG_Type::STRUC_LINEAR_BULK:
-                return std::make_shared< IWG_Isotropic_Struc_Linear_Bulk >();
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Bulk >( CM_Function_Type::DEFAULT, CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
 
             case IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE:
-                return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >( -1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::DEFAULT, CM_Function_Type::DEFAULT, -1 );
 
             case IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE:
-                return std::make_shared< IWG_Isotropic_Struc_Linear_Dirichlet >( 1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::DEFAULT, CM_Function_Type::DEFAULT, 1 );
 
             case IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE:
                 return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( -1 );

@@ -204,7 +204,10 @@ namespace moris::fem
                 if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     // compute the contribution to Jacobian
-                    tJac += aWStar * ( trans( tCMElasticity->testStrain( mStrainType ) ) * tCMElasticity->dFluxdDOF( tDofType, mStressType ) + trans( tCMElasticity->dTestStraindDOF( tDofType, mStrainType ) ) * tCMElasticity->flux( 1, mStressType ) * tCMElasticity->dTestStraindDOF( tDofType, mStrainType ) );
+                    if ( mStrainType == CM_Function_Type::DEFAULT and mStressType == CM_Function_Type::DEFAULT ) // linear
+                        tJac += aWStar * ( trans( tCMElasticity->testStrain( ) ) * tCMElasticity->dFluxdDOF( tDofType ) );
+                    else
+                        tJac += aWStar * ( trans( tCMElasticity->testStrain( mStrainType ) ) * tCMElasticity->dFluxdDOF( tDofType, mStressType ) + trans( tCMElasticity->dTestStraindDOF( tDofType, mStrainType ) ) * tCMElasticity->flux( 1, mStressType ) * tCMElasticity->dTestStraindDOF( tDofType, mStrainType ) );
                 }
             }
             // check for nan, infinity
