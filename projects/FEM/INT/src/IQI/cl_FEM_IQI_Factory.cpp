@@ -58,6 +58,7 @@
 #include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
 #include "cl_FEM_IQI_Contact_Pressure.hpp"
 #include "cl_FEM_IQI_Max_Damage.hpp"
+#include "cl_FEM_IQI_Nitsche_Energy.hpp"
 
 namespace moris::fem
 {
@@ -215,6 +216,9 @@ namespace moris::fem
                 return std::make_shared< IQI_Linear_Elasticity_Damage >();
             case IQI_Type::MAX_DAMAGE:
                 return std::make_shared< IQI_Max_Damage >();
+            
+            case IQI_Type::NITSCHE_ENERGY:
+                return std::make_shared< IQI_Nitsche_Energy >();
 
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

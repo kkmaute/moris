@@ -48,6 +48,8 @@ namespace moris
 
         bool mIsForwardAnalysis            = true;
         bool mIsAdjointSensitivityAnalysis = true;
+        bool mIsNonlinearTrustRegionSolve = false;
+        std::string mTrustRegionIQIName = "";
 
       protected:
         Vector< moris_id > mNonZeroDigonal;
@@ -100,10 +102,44 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
+        set_trust_region_flag( bool aFlag )
+        {
+            mIsNonlinearTrustRegionSolve = aFlag;
+        };
+
+        //------------------------------------------------------------------------------
+
+        virtual void
+        set_trust_region_IQI_name( std::string aIQIName )
+        {
+            mTrustRegionIQIName = aIQIName;
+        };
+
+         //------------------------------------------------------------------------------
+
+        virtual bool
+        get_trust_region_flag()
+        {
+            return mIsNonlinearTrustRegionSolve;
+        };
+
+        //------------------------------------------------------------------------------
+
+        virtual std::string
+        get_trust_region_IQI_name()
+        {
+            return mTrustRegionIQIName;
+        };
+
+
+        //------------------------------------------------------------------------------
+        virtual void
         compute_IQI()
         {
             MORIS_ERROR( false, "Solver_Interface::compute_IQI: not set." );
         };
+
+        //------------------------------------------------------------------------------
 
         virtual Vector< moris::Matrix< DDRMat > >&
         get_IQI()

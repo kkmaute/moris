@@ -14,6 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Communication_Tools.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
@@ -144,7 +145,7 @@ namespace moris
                 tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
                 tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
                 tNonlinearSolverParameterList.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::TRUST_REGION_SOLVER );
-                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 10);
+                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 30);
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
                         tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
@@ -154,21 +155,22 @@ namespace moris
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
                 // Set nasty initial guess
-                sol::Dist_Vector* tInitGuess = tNonlinearProblem.get_full_vector();
-                sint tLength = tInitGuess->vec_global_length();
-                std::cout<<"Length"<< tLength;
-                // declare IDs and vec
+                // sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+                // sol::Dist_Vector* tInitGuess = tMatFactory.create_vector(tNonlinearProblem.get_solver_interface(),tNonlinearProblem.get_full_vector()->get_map(), 1);
+                // sint tLength = tInitGuess->vec_global_length();
+                // std::cout<<"Length"<< tLength;
+                // // declare IDs and vec
                 // Matrix< DDSMat > tIDs(3,1,0);
                 // Matrix< DDRMat > tVals(3,1,0.0);
                 // tIDs( 1, 0 ) = 1;
                 // tIDs( 2, 0 ) = 2;
 
                 // tVals( 0, 0 ) = (2.0);
-                // tVals( 1, 0 ) = (-7.0);
-                // tVals( 2, 0 ) = (1.0);
+                // tVals( 1, 0 ) = (7.0);
+                // tVals( 2, 0 ) = (-1.0);
                 // tInitGuess->sum_into_global_values(tIDs, tVals);
 
-                // // Replace original initial guess with current initial guess
+                // // // Replace original initial guess with current initial guess
                 // tSolverInput->set_solution_vector( tInitGuess );
 
 

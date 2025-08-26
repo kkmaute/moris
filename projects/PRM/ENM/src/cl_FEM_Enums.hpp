@@ -210,6 +210,7 @@ namespace moris::fem
             ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
             LINEAR_ELASTICITY_DAMAGE,
             MAX_DAMAGE,
+            NITSCHE_ENERGY,
             END_IQI_TYPE )
 
     ENUM_MACRO( Constitutive_Type,

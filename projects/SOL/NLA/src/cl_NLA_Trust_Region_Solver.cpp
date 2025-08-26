@@ -91,7 +91,29 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     mNonlinearProblem = aNonlinearProblem;
 
     // Zero out the initial guess
-    mNonlinearProblem->get_full_vector()->vec_put_scalar( 0.0 );
+    //mNonlinearProblem->get_full_vector()->vec_put_scalar( 0.0 );
+
+    // Set trust region flag to true for solver interface
+    mNonlinearProblem->get_solver_interface()->set_trust_region_flag( true );
+
+    // Set IQI (objective functional for the trust region solver to minimize)
+    //std::string tIQIs = mParameterListNonlinearSolver.get< Vector< std::string > >( "NLA_trust_region_objective" );
+    //mNonlinearProblem->get_solver_interface()->set_requested_IQI_names( tIQIs );
+
+    //const char* tFileName = "Initial_Sol_Vec.hdf5";
+    //tInitGuess->read_vector_from_HDF5(tFileName, "Res_Vec");
+    //tInitGuess->vector_global_assembly();
+    //declare IDs and vec
+    // Matrix< DDSMat > tIDs(3,1,0);
+    // Matrix< DDRMat > tVals(3,1,0.0);
+    // tIDs( 1, 0 ) = 1;
+    // tIDs( 2, 0 ) = 2;
+
+    // tVals( 0, 0 ) = (2.0);
+    // tVals( 1, 0 ) = (7.0);
+    // tVals( 2, 0 ) = (-1.0);
+    // mNonlinearProblem->get_full_vector()->sum_into_global_values( tIDs, tVals );
+    // mNonlinearProblem->get_full_vector()->vector_global_assembly();
 
     Matrix< DDRMat > tUpdateOld;
 
@@ -110,6 +132,16 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     //Compute initial obj val
     mNonlinearProblem->get_solver_interface()->compute_IQI();
     Vector< Matrix< DDRMat > > tInitialIQI = mNonlinearProblem->get_solver_interface()->get_IQI();
+
+    Matrix< DDRMat > tInitObjVal = {{0.0}};
+    Matrix< DDRMat > tIQIValue = {{0.0}};
+
+    // Sum it up since the initial obj val is strain energy + dirichlet energy + traction
+    for (uint iIQIval = 0; iIQIval < tInitialIQI.size(); iIQIval++ )
+    {
+        tInitObjVal += tInitialIQI( iIQIval );
+        
+    }
 
     // get iteration id when references norm are computed
     sint tRefIts = mParameterListNonlinearSolver.get< sint >( "NLA_ref_iter" );
@@ -207,7 +239,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             tCauchyPoint->scale_vector(tTrSize/std::pow(tCauchyPointNormSquared,0.5));
             mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( tCauchyPoint ); 
             tCauchyPointNormSquared = std::pow( tTrSize, 2 );
-            tStepType = "boundary";
+            tStepType = "Boundary";
         }
         else
         {
@@ -271,8 +303,17 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             // Compute rho value
             mNonlinearProblem->get_solver_interface()->compute_IQI();
             Vector< Matrix< DDRMat > > tIQI = mNonlinearProblem->get_solver_interface()->get_IQI();
+            
+            // Sum up all IQI values since that's the objective
+            for (uint iIQIval = 0; iIQIval < tIQI.size(); iIQIval++ )
+            {
+                tIQIValue += tIQI( iIQIval );
+            }
 
-            real tRho = -(tIQI(0)(0) - tInitialIQI(0)(0))/(-tModelObjective(0));
+            // Compute rho
+            real tRho = -(tIQIValue( 0 ) - tInitObjVal( 0 ))/(-tModelObjective( 0 ));
+
+            //real tRho = -(tIQI(0)(0) - tInitialIQI(0)(0))/(-tModelObjective(0));
 
             // Update trust region size
             // Get convergence reason from KSP
@@ -297,6 +338,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
             if ((tRho >= mParameterListNonlinearSolver.get< real >("NLA_trust_region_eta1") ) || ((tRho >= -0.0) && ( tNormNew( 0 ) < tNorm( 0 ) ))) 
             {
+                tInitialIQI = tIQI;
                 tWillAccept = true;
                 tAcceptTrSize = true;
             }
@@ -311,6 +353,8 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
                 MORIS_LOG_INFO("Trust region solver iteration not accepted. Rebuilding linear system");
                 mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
+
+                tStepType = "Boundary";
             
             }
 
@@ -320,22 +364,30 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         if ( tConverged )
         {
             MORIS_LOG( "Trust region solver converged ");
+            
             break;
         }
 
-        
-        tD->extract_copy(tUpdateOld);
 
-        std::cout<<"Print out values"<<tSol(0);
+
+        
+        //tD->extract_copy(tUpdateOld);
+
+        //std::cout<<"Print out values"<<tSol(0);
 
           
 
     }
-    Matrix< DDRMat > tUpdate;
-    mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()->extract_copy(tUpdate);
+    //Matrix< DDRMat > tUpdate;
+    //mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()->extract_copy(tUpdate);
+    if (tConverged ==  false)
+    {
+        MORIS_LOG("Trust region solver failed to converge. Try again");
+    }
+    mNonlinearProblem->get_solver_interface()->set_trust_region_flag( false );
 
-    std::cout<<"Print out values"<<tUpdate(0);
-    std::cout<<"Print out values"<<tUpdateOld(0);
+    //std::cout<<"Print out values"<<tUpdate(0);
+    //std::cout<<"Print out values"<<tUpdateOld(0);
     
        
 }    // end trust-region algorithm
