@@ -16,8 +16,9 @@
 #include "cl_Communication_Tools.hpp"
 
 #define protected public
-#define private   public
-#include "cl_MSI_Equation_Object.hpp"
+#define private public
+#include "cl_MSI_Equation_Set_Proxy.hpp"
+#include "cl_MSI_Equation_Object_Proxy.hpp"
 #include "cl_MSI_Node_Proxy.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
@@ -27,14 +28,14 @@
 
 namespace moris::MSI
 {
-    TEST_CASE("Eqn_Obj","[MSI],[Eqn_Obj]")
+    TEST_CASE( "Eqn_Obj", "[MSI],[Eqn_Obj]" )
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 1;
 
-        fem::Node_Base * Node1;
-        fem::Node_Base * Node2;
+        fem::Node_Base *Node1;
+        fem::Node_Base *Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -89,26 +90,26 @@ namespace moris::MSI
         tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
-        Equation_Object EquObj( tNodeIds_1 );
+        Equation_Object_Proxy EquObj( tNodeIds_1 );
 
         // Check Node Ids of this equation object
         CHECK( equal_to( ( EquObj.mNodeObj( 0 )( 0 ) )->get_id(), 0 ) );
         CHECK( equal_to( ( EquObj.mNodeObj( 0 )( 1 ) )->get_id(), 1 ) );
 
         // Check number of possible pdof hosts of this equation object
-        CHECK( equal_to( EquObj.get_num_pdof_hosts(), 2 ));
+        CHECK( equal_to( EquObj.get_num_pdof_hosts(), 2 ) );
         delete Node1;
         delete Node2;
     }
 
-    TEST_CASE("Eqn_Obj_create_pdof_host","[MSI],[Eqn_Obj_create_pdof_host]")
+    TEST_CASE( "Eqn_Obj_create_pdof_host", "[MSI],[Eqn_Obj_create_pdof_host]" )
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        fem::Node_Base * Node1;
-        fem::Node_Base * Node2;
+        fem::Node_Base *Node1;
+        fem::Node_Base *Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -163,22 +164,22 @@ namespace moris::MSI
         tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
-        Equation_Object EquObj( tNodeIds_1 );
+        Equation_Object_Proxy EquObj( tNodeIds_1 );
 
         // Create the pdof hosts of this equation object
         Vector< Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 1;
 
-        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-        tDofTypeIndexMap(3, 0) = 0;
+        Matrix< DDSMat > tDofTypeIndexMap( 4, 1, -1 );
+        tDofTypeIndexMap( 3, 0 ) = 0;
 
-        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+        Matrix< DDUMat > tTimePerDofType( 4, 1, 1 );
 
-        Equation_Set tEqnBlock;
+        Equation_Set_Proxy tEqnBlock;
         tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         tEqnBlock.mUniqueDofTypeListLeaderFollower.resize( 1 );
-        tEqnBlock.mUniqueDofTypeListLeaderFollower(0).resize( 1, MSI::Dof_Type::TEMP );
+        tEqnBlock.mUniqueDofTypeListLeaderFollower( 0 ).resize( 1, MSI::Dof_Type::TEMP );
         EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
@@ -194,19 +195,19 @@ namespace moris::MSI
         CHECK( equal_to( EquObj.mMyPdofHosts( 0 )( 1 )->mNodeID, 2 ) );
         delete Node1;
         delete Node2;
-        delete tPdofHostList(0);
-        delete tPdofHostList(1);
-        delete tPdofHostList(2);
+        delete tPdofHostList( 0 );
+        delete tPdofHostList( 1 );
+        delete tPdofHostList( 2 );
     }
 
-    TEST_CASE("Eqn_Obj_create_my_pdof_list","[MSI],[Eqn_Obj_create_my_pdof_list]")
+    TEST_CASE( "Eqn_Obj_create_my_pdof_list", "[MSI],[Eqn_Obj_create_my_pdof_list]" )
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        fem::Node_Base * Node1;
-        fem::Node_Base * Node2;
+        fem::Node_Base *Node1;
+        fem::Node_Base *Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -261,23 +262,23 @@ namespace moris::MSI
         tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
-        Equation_Object EquObj( tNodeIds_1 );
+        Equation_Object_Proxy EquObj( tNodeIds_1 );
 
         // Create pdof hosts of this equation object
         Vector< Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 
-        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-        tDofTypeIndexMap(0, 0) = 0;
-        tDofTypeIndexMap(3, 0) = 1;
+        Matrix< DDSMat > tDofTypeIndexMap( 4, 1, -1 );
+        tDofTypeIndexMap( 0, 0 ) = 0;
+        tDofTypeIndexMap( 3, 0 ) = 1;
 
-        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+        Matrix< DDUMat > tTimePerDofType( 4, 1, 1 );
 
-        Equation_Set tEqnBlock;
+        Equation_Set_Proxy tEqnBlock;
         tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         tEqnBlock.mUniqueDofTypeListLeaderFollower.resize( 1 );
-        tEqnBlock.mUniqueDofTypeListLeaderFollower(0).resize( 1, MSI::Dof_Type::TEMP );
+        tEqnBlock.mUniqueDofTypeListLeaderFollower( 0 ).resize( 1, MSI::Dof_Type::TEMP );
         EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
@@ -295,21 +296,21 @@ namespace moris::MSI
         CHECK( equal_to( EquObj.mFreePdofs.size(), 2 ) );
         delete Node1;
         delete Node2;
-        delete tPdofHostList(0);
-        delete tPdofHostList(1);
-        delete tPdofHostList(2);
+        delete tPdofHostList( 0 );
+        delete tPdofHostList( 1 );
+        delete tPdofHostList( 2 );
 
         // FIXME extend this test
     }
 
-    TEST_CASE("Eqn_Obj_create_my_pdof_list_2","[MSI],[Eqn_Obj_create_my_pdof_list_2]")
+    TEST_CASE( "Eqn_Obj_create_my_pdof_list_2", "[MSI],[Eqn_Obj_create_my_pdof_list_2]" )
     {
         // Create node obj
         moris::uint tNodeId1 = 0;
         moris::uint tNodeId2 = 2;
 
-        fem::Node_Base * Node1;
-        fem::Node_Base * Node2;
+        fem::Node_Base *Node1;
+        fem::Node_Base *Node2;
 
         //---------------------------------------------------------------------------------
         // Create generic adofs to this nodes pdof
@@ -362,22 +363,22 @@ namespace moris::MSI
         tNodeIds_1( 0 )( 1 ) = Node2;
 
         // Create generic equation objects
-        Equation_Object EquObj( tNodeIds_1 );
+        Equation_Object_Proxy EquObj( tNodeIds_1 );
 
         // Create pdof hosts of this equation object
         Vector< Pdof_Host * > tPdofHostList;
         tPdofHostList.resize( 3, nullptr );
         moris::uint tNumMaxPdofTypes = 2;
 
-        Matrix< DDSMat > tDofTypeIndexMap(4, 1, -1);
-        tDofTypeIndexMap(3, 0) = 0;
+        Matrix< DDSMat > tDofTypeIndexMap( 4, 1, -1 );
+        tDofTypeIndexMap( 3, 0 ) = 0;
 
-        Matrix< DDUMat > tTimePerDofType(4, 1, 1);
+        Matrix< DDUMat > tTimePerDofType( 4, 1, 1 );
 
-        Equation_Set tEqnBlock;
+        Equation_Set_Proxy tEqnBlock;
         tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
         tEqnBlock.mUniqueDofTypeListLeaderFollower.resize( 1 );
-        tEqnBlock.mUniqueDofTypeListLeaderFollower(0).resize( 1, MSI::Dof_Type::TEMP );
+        tEqnBlock.mUniqueDofTypeListLeaderFollower( 0 ).resize( 1, MSI::Dof_Type::TEMP );
         EquObj.mEquationSet = &tEqnBlock;
 
         EquObj.create_my_pdof_hosts( tNumMaxPdofTypes, tDofTypeIndexMap, tTimePerDofType, tPdofHostList );
@@ -396,15 +397,15 @@ namespace moris::MSI
 
         delete Node1;
         delete Node2;
-        delete tPdofHostList(0);
-        delete tPdofHostList(1);
-        delete tPdofHostList(2);
+        delete tPdofHostList( 0 );
+        delete tPdofHostList( 1 );
+        delete tPdofHostList( 2 );
     }
 
-    TEST_CASE("Eqn_Obj_create_my_list_of_adof_ids","[MSI],[Eqn_Obj_create_my_list_of_adof_ids]")
+    TEST_CASE( "Eqn_Obj_create_my_list_of_adof_ids", "[MSI],[Eqn_Obj_create_my_list_of_adof_ids]" )
     {
         // Create generic equation objects
-        Equation_Object EquObj;
+        Equation_Object_Proxy EquObj;
 
         EquObj.mFreePdofs.resize( 4 );
         EquObj.mFreePdofs( 0 ) = new Pdof;
@@ -444,10 +445,10 @@ namespace moris::MSI
         delete EquObj.mFreePdofs( 3 );
     }
 
-    TEST_CASE("Eqn_Obj_create_adof_map","[MSI],[Eqn_Obj_create_adof_map]")
+    TEST_CASE( "Eqn_Obj_create_adof_map", "[MSI],[Eqn_Obj_create_adof_map]" )
     {
         // Create generic equation objects
-        Equation_Object EquObj;
+        Equation_Object_Proxy EquObj;
 
         // Hadcode values into the mUniqueAdofList for test purposes
         EquObj.mUniqueAdofList.set_size( 6, 1 );
@@ -462,18 +463,18 @@ namespace moris::MSI
         EquObj.set_unique_adof_map();
 
         // Check if map works
-        CHECK( equal_to( EquObj.mUniqueAdofMap[ 1 ],  0 ) );
-        CHECK( equal_to( EquObj.mUniqueAdofMap[ 5 ],  1 ) );
+        CHECK( equal_to( EquObj.mUniqueAdofMap[ 1 ], 0 ) );
+        CHECK( equal_to( EquObj.mUniqueAdofMap[ 5 ], 1 ) );
         CHECK( equal_to( EquObj.mUniqueAdofMap[ 10 ], 2 ) );
         CHECK( equal_to( EquObj.mUniqueAdofMap[ 15 ], 3 ) );
         CHECK( equal_to( EquObj.mUniqueAdofMap[ 16 ], 4 ) );
         CHECK( equal_to( EquObj.mUniqueAdofMap[ 19 ], 5 ) );
     }
 
-    TEST_CASE("Eqn_Obj_PADofMap","[MSI],[Eqn_Obj_PADofMap]")
+    TEST_CASE( "Eqn_Obj_PADofMap", "[MSI],[Eqn_Obj_PADofMap]" )
     {
         // Create generic equation objects
-        Equation_Object EquObj;
+        Equation_Object_Proxy EquObj;
 
         // Hadcode values into the mUniqueAdofList for test purposes
         EquObj.mUniqueAdofList.set_size( 6, 1 );
@@ -552,4 +553,4 @@ namespace moris::MSI
         delete EquObj.mFreePdofs( 3 );
     }
 
-    }
+}    // namespace moris::MSI

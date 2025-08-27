@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef SRC_FEM_CL_EQUATION_OBJECT_HPP_
-#define SRC_FEM_CL_EQUATION_OBJECT_HPP_
+
+#pragma once
 
 #include <memory>
 #include "cl_Matrix.hpp"
@@ -369,113 +369,80 @@ namespace moris
              * compute jacobian on equation object
              */
             virtual void
-            compute_jacobian()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_jacobian - not implemented in msi." );
-            }
+            compute_jacobian() = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
              * compute residual on equation object
              */
             virtual void
-            compute_residual()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_residual - not implemented in msi." );
-            }
+            compute_residual() = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
              * compute jacobian and residual on equation object
              */
             virtual void
-            compute_jacobian_and_residual()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_jacobian_and_residual - not implemented in msi." );
-            }
-
+            compute_jacobian_and_residual() = 0;
             //------------------------------------------------------------------------------
             /**
              * compute dRdp on equation object
              */
             virtual void
-            compute_dRdp()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_dRdp - not implemented in msi." );
-            }
+            compute_dRdp() = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute dQIdp explicit on equation object
              */
             virtual void
-            compute_dQIdp_explicit()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit - not implemented in msi." );
-            }
+            compute_dQIdp_explicit() = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute dQIdp implicit on equation object
              */
             virtual void
-            compute_dQIdp_implicit()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
-            }
+            compute_dQIdp_implicit() = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute dQIdp explicit and implicit on equation object
              */
             virtual void
-            compute_dQIdp_explicit_implicit()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit_implicit - not implemented in msi." );
-            }
+            compute_dQIdp_explicit_implicit() = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute dQIdu on equation object
              */
             virtual void
-            compute_dQIdu()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_dQIdu - not implemented in msi." );
-            }
+            compute_dQIdu() = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute QI on equation object
              */
             virtual void
-            compute_QI()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_QI - not implemented in msi." );
-            };
+            compute_QI() = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute integration error
+             * 
+             * brendan useless function
              */
-            virtual moris::real
-            compute_integration_error(
-                    moris::real ( *aFunction )( const Matrix< DDRMat >& aPoint ) )
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_integration_error - not implemented in msi." );
-                return 0.0;
-            }
+            // virtual real
+            //         compute_integration_error( real ( *aFunction )( const Matrix< DDRMat >& aPoint ) ) = 0;
 
             //------------------------------------------------------------------------------
             /**
              * compute element average of scalar field
+             * 
+             * brendan useless function
              */
-            virtual moris::real
-            compute_element_average_of_scalar_field()
-            {
-                MORIS_ERROR( false, "Equation_Object::compute_element_average_of_scalar_field - not implemented in msi." );
-                return 0.0;
-            }
+            // virtual real
+            // compute_element_average_of_scalar_field() = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -512,26 +479,23 @@ namespace moris
              * get nodal pdof value
              * @param[ in ] aVertexIndex index for nodal value to get
              * @param[ in ] aDofType     list of dof type to get
+             * 
+             * brendan useless function
              */
-            virtual moris::real
-            get_element_nodal_pdof_value(
-                    moris_index                    aVertexIndex,
-                    const Vector< MSI::Dof_Type >& aDofType )
-            {
-                MORIS_ERROR( false, "Equation_Object::get_element_nodal_pdof_value - this function does nothing" );
-                return 0.0;
-            }
+            // virtual real
+            // get_element_nodal_pdof_value(
+            //         moris_index                    aVertexIndex,
+            //         const Vector< MSI::Dof_Type >& aDofType ) = 0;
 
             //------------------------------------------------------------------------------
             /**
              * set visualization cluster
              * @param[ in ] aVisMeshCluster mesh cluster pointer to set
+             * 
+             * brendan useless function
              */
-            virtual void
-            set_visualization_cluster( const mtk::Cluster* aVisMeshCluster )
-            {
-                MORIS_ASSERT( false, "Equation_Object::set_visualization_cluster() - not implemented for base class." );
-            }
+            // virtual void
+            // set_visualization_cluster( const mtk::Cluster* aVisMeshCluster ) = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -542,24 +506,16 @@ namespace moris
             virtual void
             compute_quantity_of_interest(
                     const uint           aFemMeshIndex,
-                    enum vis::Field_Type aFieldType )
-            {
-                MORIS_ASSERT( false, "Equation_Object::compute_quantity_of_interest() - not implemented for base class." );
-            }
+                    enum vis::Field_Type aFieldType ) = 0;
 
             //------------------------------------------------------------------------------
 
             virtual void
             populate_fields(
                     Vector< std::shared_ptr< fem::Field > >& aFields,
-                    Vector< std::string > const &            aFieldIQINames )
-            {
-                MORIS_ASSERT( false, "Equation_Set::create_fields - not implemented for base class." );
-            }
+                    Vector< std::string > const &            aFieldIQINames ) = 0;
 
             //------------------------------------------------------------------------------
         };
     }    // namespace MSI
 }    // namespace moris
-
-#endif /* SRC_FEM_CL_EQUATION_OBJECT_HPP_ */

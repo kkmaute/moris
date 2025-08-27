@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_FEM_CL_MSI_EQUATION_BLOCK_HPP_
-#define SRC_FEM_CL_MSI_EQUATION_BLOCK_HPP_
+#pragma once
 
 #include "assert.h"
 #include "cl_Communication_Tools.hpp"    //FEM/INT/src
@@ -329,56 +328,39 @@ namespace moris
             virtual void
             initialize_set(
                     const bool                      aIsStaggered            = false,
-                    const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = fem::Time_Continuity_Flag::DEFAULT )
-            {
-                MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function" );
-            }
+                    const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = fem::Time_Continuity_Flag::DEFAULT ) = 0;
 
             /**
              * \brief Get the displacement for every node in the set.
              * \return A map from the node index to the displacement vector.
              */
-            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes )
-            {
-                MORIS_ERROR( false, "Equation_Set::get_nodal_displacements - not implemented for virtual member function" );
-                return {};
-            };
+            virtual std::unordered_map< moris_index, Vector< real > > get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes ) = 0;
 
-            virtual void update()
-            {
-                MORIS_ERROR( false, "Equation_Set::update - not implemented for virtual member function" );
-            };
+            virtual void update() = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
              * free memory
              */
             virtual void
-            free_memory()
-            {
-                MORIS_ERROR( false, "Equation_Set::free_memory - not implemented for virtual member function" );
-            }
+            free_memory() = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
              * finalize
              */
             virtual void
-            finalize( MSI::Model_Solver_Interface* aModelSolverInterface )
-            {
-                MORIS_ERROR( false, "Equation_Set::finalize - not implemented for msi base class." );
-            }
+            finalize( MSI::Model_Solver_Interface* aModelSolverInterface ) = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
              * set GEN/MSI interface
              * @param[ in ] aDesignVariableInterface a GEN/MSI interface pointer
+             *
+             * brendan useless function
              */
-            virtual void
-            set_dv_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
-            {
-                MORIS_ERROR( false, "Equation_Set::set_dv_interface - not implemented for msi base class." );
-            }
+            // virtual void
+            // set_dv_interface( MSI::Design_Variable_Interface* aDesignVariableInterface ) = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -416,11 +398,7 @@ namespace moris
              * param[ out ] aElementType element type for the set
              */
             virtual fem::Element_Type
-            get_element_type() const
-            {
-                MORIS_ERROR( false, "Equation_Set::get_element_type - not implemented for virtual member function" );
-                return fem::Element_Type::END_ELEMENT_TYPE;
-            }
+            get_element_type() const = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -564,11 +542,7 @@ namespace moris
              * @param[ out ] uint number of requested IQI for SA on set
              */
             virtual uint
-            get_number_of_requested_IQIs()
-            {
-                MORIS_ERROR( false, "not implemented for base class." );
-                return 0;
-            }
+            get_number_of_requested_IQIs() = 0;
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -731,10 +705,7 @@ namespace moris
             set_visualization_set(
                     const uint       aMeshIndex,
                     moris::mtk::Set* aVisMeshSet,
-                    const bool       aOnlyPrimaryCells )
-            {
-                MORIS_ASSERT( false, "Equation_Set::set_visualization_set(), not implemented for base class" );
-            }
+                    const bool       aOnlyPrimaryCells ) = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -747,10 +718,7 @@ namespace moris
             compute_quantity_of_interest_global(
                     const uint                   aMeshIndex,
                     Matrix< DDRMat >*            aFieldValues,
-                    const Vector< std::string >& aQINames )
-            {
-                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_global - not implemented for base class." );
-            }
+                    const Vector< std::string >& aQINames ) = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -763,10 +731,7 @@ namespace moris
             compute_quantity_of_interest_nodal(
                     const uint                   aMeshIndex,
                     Matrix< DDRMat >*            aFieldValues,
-                    const Vector< std::string >& aQINames )
-            {
-                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_nodal - not implemented for base class." );
-            }
+                    const Vector< std::string >& aQINames ) = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -781,30 +746,19 @@ namespace moris
                     const uint                   aMeshIndex,
                     Matrix< DDRMat >*            aFieldValues,
                     const Vector< std::string >& aQINames,
-                    const bool                   aOutputAverageValue = true )
-            {
-                MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
-            }
+                    const bool                   aOutputAverageValue = true ) = 0;
 
             //------------------------------------------------------------------------------
 
             virtual void
             populate_fields(
                     Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
-                    Vector< std::string > const &            aFieldIQINames )
-            {
-                MORIS_ERROR( false, "populate_fields(), no child implementation." );
-            }
+                    Vector< std::string > const &            aFieldIQINames ) = 0;
 
             //------------------------------------------------------------------------------
 
             virtual std::string
-            get_set_name()
-            {
-
-                MORIS_ERROR( false, "get_set_name(), not implemented for base class." );
-                return "";
-            }
+            get_set_name() = 0;
 
             //------------------------------------------------------------------------------
         };
@@ -812,4 +766,4 @@ namespace moris
     }    // namespace MSI
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_MSI_EQUATION_SET_HPP_ */
+#pragma once
