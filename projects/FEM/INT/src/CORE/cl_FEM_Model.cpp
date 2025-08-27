@@ -112,10 +112,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const moris_index                   &aMeshPairIndex,
-            Vector< fem::Set_User_Info >        &aSetInfo,
-            MSI::Design_Variable_Interface      *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+            const moris_index                                &aMeshPairIndex,
+            Vector< fem::Set_User_Info >                     &aSetInfo,
+            std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
     {
@@ -199,10 +199,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const moris_index                   &aMeshPairIndex,
-            const Module_Parameter_Lists        &aParameterList,
-            MSI::Design_Variable_Interface      *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+            const moris_index                                &aMeshPairIndex,
+            const Module_Parameter_Lists                     &aParameterList,
+            std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -824,6 +824,7 @@ namespace moris::fem
                         mParameterList,
                         aLibrary,
                         tMeshPair,
+                        mDesignVariableInterface,
                         mSpaceDim,
                         mUseNewGhostSets,
                         mDofTypeToBsplineMeshIndex );
@@ -835,6 +836,7 @@ namespace moris::fem
                         mParameterList,
                         aLibrary,
                         tMeshPair,
+                        mDesignVariableInterface,
                         mSpaceDim,
                         mUseNewGhostSets,
                         mDofTypeToBsplineMeshIndex );
@@ -850,6 +852,7 @@ namespace moris::fem
 
         mSetInfo    = tModelInitializer->get_set_info();
         mIQIs       = tModelInitializer->get_iqis();
+        mGQIs       = tModelInitializer->get_gqis();
         mFields     = tModelInitializer->get_fields();
         mFieldTypes = tModelInitializer->get_field_types();
     }
@@ -970,6 +973,13 @@ namespace moris::fem
 
     //-------------------------------------------------------------------------------------------------
 
+    Vector< std::shared_ptr< fem::GQI > > &FEM_Model::get_gqis()
+    {
+        return mGQIs;
+    }
+
+    //-------------------------------------------------------------------------------------------------
+
     const std::shared_ptr< fem::Field > &
     FEM_Model::get_field( mtk::Field_Type tFieldType )
     {
@@ -1053,6 +1063,14 @@ namespace moris::fem
             std::string tIQIName = tIQI->get_name();
 
             mIQINameToIndexMap[ tIQIName ] = tCounter++;
+        }
+
+        // brendan
+        // loop over all GQIs and build a name to index map
+        for ( const std::shared_ptr< GQI > &tGQI : mGQIs )
+        {
+            std::string tGQIName           = tGQI->get_name();
+            mIQINameToIndexMap[ tGQIName ] = tCounter++;
         }
     }
 

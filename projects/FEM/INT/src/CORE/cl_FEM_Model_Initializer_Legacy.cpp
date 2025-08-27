@@ -366,9 +366,9 @@ namespace moris::fem
 
     void Model_Initializer_Legacy::create_iwgs()
     {
-        IWG_Factory              tIWGFactory;
+        IWG_Factory               tIWGFactory;
         Submodule_Parameter_Lists tIWGParameterList = mParameterList( 3 );
-        uint const               tNumIWGs          = tIWGParameterList.size();
+        uint const                tNumIWGs          = tIWGParameterList.size();
         mIWGs.resize( tNumIWGs, nullptr );    // list of IWG pointers
 
         for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )

@@ -17,6 +17,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "GEN_Data_Types.hpp"
+#include "cl_GEN_GQI.hpp"
 
 #include "cl_Library_IO.hpp"
 
@@ -50,6 +51,8 @@ namespace moris
           protected:
             // list of equation sets
             Vector< MSI::Equation_Set* > mFemSets;
+            // List of GQIs
+            // Vector< std::shared_ptr< fem::GQI > > mGQIs;
 
             // list of equation objects
             Vector< MSI::Equation_Object* > mFemClusters;
@@ -106,6 +109,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual void free_memory() = 0;
+
+            //------------------------------------------------------------------------------
+
+            virtual Vector< std::shared_ptr< fem::GQI > >& get_gqis() = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -521,7 +528,9 @@ namespace moris
             virtual void initialize_IQIs() = 0;
 
             /**
-             * @brief computes the "requested" IQIs which are set in GEN parameter list
+             * @brief Computes the IQIs that are being used for optimization ONLY.
+             * These come from the GEN parameter list, and this function is only used for optimization problems.
+             * BRENDAN read this
              */
             void compute_IQIs();
 

@@ -13,9 +13,10 @@
 
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
-#include "cl_FEM_IQI.hpp" //FEM/INT/src
+#include "cl_FEM_IQI.hpp"    //FEM/INT/src
+#include "cl_GEN_GQI.hpp"
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
@@ -33,23 +34,28 @@ namespace moris::fem
         /**
          * constructor
          */
-        IQI_Factory(){};
+        IQI_Factory() {};
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IQI_Factory(){};
+        ~IQI_Factory() {};
 
         //------------------------------------------------------------------------------
         /**
          * create IQI
          */
         std::shared_ptr< IQI > create_IQI( IQI_Type aIQIType );
+
+        //------------------------------------------------------------------------------
+        /**
+         * create GQI
+         */
+        std::shared_ptr< GQI > create_GQI( IQI_Type aIQIType );
     };
 
     //------------------------------------------------------------------------------
 }    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_FACTORY_HPP_ */
-

@@ -17,8 +17,10 @@
 #include "cl_FEM_Material_Model.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
+#include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_IQI.hpp"
+#include "cl_GEN_GQI.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
 #include <string>
@@ -31,12 +33,13 @@ namespace moris::fem
 
       public:
         Model_Initializer(
-                const Module_Parameter_Lists        &aParameterList,
-                mtk::Mesh_Pair const                            *aMeshPair,
-                std::shared_ptr< Library_IO >                    aLibrary,
-                uint                                             aSpatialDimension,
-                bool                                             aUseNewGhostSets,
-                std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
+                const Module_Parameter_Lists                           &aParameterList,
+                std::shared_ptr< Library_IO >                           aLibrary,
+                mtk::Mesh_Pair const                                   *aMeshPair,
+                std::shared_ptr< const MSI::Design_Variable_Interface > aDesignVariableInterface,
+                uint                                                    aSpatialDimension,
+                bool                                                    aUseNewGhostSets,
+                std::unordered_map< MSI::Dof_Type, moris_index >        aDofTypeToBsplineMeshIndex )
                 : mParameterList( aParameterList )
                 , mMeshPair( aMeshPair )
                 , mLibrary( std::move( aLibrary ) )
@@ -53,6 +56,7 @@ namespace moris::fem
 
         Vector< std::shared_ptr< moris::fem::Field > > const &get_fields() const { return mFields; }
         Vector< std::shared_ptr< moris::fem::IQI > > const   &get_iqis() const { return mIQIs; }
+        Vector< std::shared_ptr< moris::fem::GQI > > const   &get_gqis() const { return mGQIs; }
 
       protected:
         void create_properties();
@@ -68,6 +72,11 @@ namespace moris::fem
         virtual void create_iwgs() = 0;
 
         virtual void create_iqis() = 0;
+
+        /**
+         * Checks if an input QI is a geometry quantity of interest. If so, it will be computed on the requested geometry
+         */
+        bool is_GQI( fem::IQI_Type aQIType ) const;
 
         virtual void create_set_info() = 0;
 
@@ -99,13 +108,14 @@ namespace moris::fem
                 moris::fem::Field_Interpolator_Manager   *aFIManager );
 
         // data
-        Module_Parameter_Lists               mParameterList;
-        mtk::Mesh_Pair const                            *mMeshPair;
-        std::shared_ptr< Library_IO >                    mLibrary;
-        uint                                             mSpatialDimension;
-        bool                                             mUseNewGhostSets;
-        std::unordered_map< MSI::Dof_Type, moris_index > mDofTypeToBsplineMeshIndex;
-        Vector< fem::Set_User_Info >                     mSetInfo;
+        Module_Parameter_Lists                                  mParameterList;
+        mtk::Mesh_Pair const                                   *mMeshPair;
+        std::shared_ptr< Library_IO >                           mLibrary;
+        std::shared_ptr< const MSI::Design_Variable_Interface > mDesignVariableInterface;
+        uint                                                    mSpatialDimension;
+        bool                                                    mUseNewGhostSets;
+        std::unordered_map< MSI::Dof_Type, moris_index >        mDofTypeToBsplineMeshIndex;
+        Vector< fem::Set_User_Info >                            mSetInfo;
 
         moris::map< std::string, MSI::Dof_Type >   mMSIDofTypeMap = moris::MSI::get_msi_dof_type_map();
         moris::map< std::string, gen::PDV_Type >   mMSIDvTypeMap  = gen::get_pdv_type_map();
@@ -121,6 +131,7 @@ namespace moris::fem
         PointerCell< fem::Stabilization_Parameter > mStabilizationParameters;
         PointerCell< fem::IWG >                     mIWGs;
         PointerCell< fem::IQI >                     mIQIs;
+        PointerCell< fem::GQI >                     mGQIs;
 
         using StringIndexMap = std::map< std::string, uint >;
         StringIndexMap mPropertyMap;

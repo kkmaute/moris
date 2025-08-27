@@ -30,7 +30,7 @@ namespace moris::fem
     void Model_Initializer::create_properties()
     {
         Submodule_Parameter_Lists tPropParameterList = mParameterList( 0 );
-        uint                     tNumProps          = tPropParameterList.size();
+        uint                      tNumProps          = tPropParameterList.size();
 
         mProperties.resize( tNumProps, nullptr );
 
@@ -39,7 +39,7 @@ namespace moris::fem
         {
             // get property parameter list
             const Parameter_List &tPropParameter = tPropParameterList( iProp );
-            auto           tProperty      = std::make_shared< fem::Property >();
+            auto                  tProperty      = std::make_shared< fem::Property >();
 
             // get property name from parameter list
             std::string tPropertyName = tPropParameter.get< std::string >( "property_name" );
@@ -98,7 +98,7 @@ namespace moris::fem
     void Model_Initializer::create_fields()
     {
         Submodule_Parameter_Lists tFieldParameterList = mParameterList( 6 );
-        sint                     tNumFields          = tFieldParameterList.size();
+        sint                      tNumFields          = tFieldParameterList.size();
 
         mFields.resize( tNumFields, nullptr );
 
@@ -154,6 +154,20 @@ namespace moris::fem
             }
 
             mFields( iField ) = tField;
+        }
+    }
+
+    //----------------------------------------------------------------
+
+    // BRENDAN experimental function
+    bool Model_Initializer::is_GQI( fem::IQI_Type aQIType ) const
+    {
+        switch ( aQIType )
+        {
+            case fem::IQI_Type::CURVATURE:
+                return true;
+            default:
+                return false;
         }
     }
 

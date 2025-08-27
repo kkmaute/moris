@@ -107,6 +107,15 @@ namespace moris::MSI
             }
         }
 
+        Vector< std::shared_ptr< fem::GQI > >& tGQIs = this->get_gqis();
+
+        // GQIs are defined over a different domain, so let the GQIs compute themselves
+        for ( uint tGQIIndex = 0; tGQIIndex < tGQIs.size(); tGQIIndex++ )
+        {
+            tGQIs( tGQIIndex )->compute_QI();
+            mGlobalIQIVal( tNumIQIsOnModel + tGQIIndex ) = tGQIs( tGQIIndex )->get_QI();
+        }
+
         // Normalization
         if ( gLogger.mIteration == 0 )
         {

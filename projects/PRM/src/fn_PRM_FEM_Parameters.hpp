@@ -78,11 +78,11 @@ namespace moris::prm
     {
         Parameter_List tParameterList( "MM" );
 
-            tParameterList.insert( "material_name", "undefined" );
-            tParameterList.insert_enum( "material_type", fem::Material_Type_String::values );
-            tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
-            tParameterList.insert( "properties", "" );
-            tParameterList.insert( "phase_name", "" );
+        tParameterList.insert( "material_name", "undefined" );
+        tParameterList.insert_enum( "material_type", fem::Material_Type_String::values );
+        tParameterList.insert( "dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
+        tParameterList.insert( "properties", "" );
+        tParameterList.insert( "phase_name", "" );
 
         return tParameterList;
     }
@@ -247,6 +247,9 @@ namespace moris::prm
         tParameterList.insert( "time_final", -1.0 );
 
         tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
+
+        // BRENDAN everything below here is experimental for GQIs
+        tParameterList.insert( "geometry_name", "" );
 
         return tParameterList;
     }

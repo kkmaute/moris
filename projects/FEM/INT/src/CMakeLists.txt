@@ -232,6 +232,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
 
     IQI/cl_FEM_IQI.hpp
+    IQI/cl_GEN_GQI.hpp
     IQI/cl_FEM_IQI_Factory.hpp
 
     IQI/cl_FEM_IQI_Volume.hpp
@@ -279,6 +280,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Traction.hpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.hpp
     IQI/cl_FEM_IQI_Normal_Vector.hpp
+    IQI/cl_GEN_GQI_Curvature.hpp
     MEA/cl_FEM_Cluster_Measure.hpp
     )
 
@@ -487,6 +489,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
 
 	IQI/cl_FEM_IQI.cpp
+    IQI/cl_GEN_GQI.cpp
     IQI/cl_FEM_IQI_Factory.cpp
     IQI/cl_FEM_IQI_Volume.cpp
     IQI/cl_FEM_IQI_Strain_Energy.cpp
@@ -534,6 +537,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Traction.cpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.cpp
     IQI/cl_FEM_IQI_Normal_Vector.cpp
+    IQI/cl_GEN_GQI_Curvature.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     )

@@ -31,6 +31,7 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Phase_User_Info.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
+#include "cl_GEN_GQI.hpp"
 #include "cl_Library_IO.hpp"
 
 namespace moris
@@ -120,6 +121,7 @@ namespace moris
             Vector< std::shared_ptr< fem::Field > > mFields;
             Vector< moris::sint >                   mFieldTypes;
             Vector< std::shared_ptr< fem::IQI > >   mIQIs;
+            Vector< std::shared_ptr< fem::GQI > >   mGQIs;
 
             //! requested IQI Names
             Vector< std::string > mRequestedIQINames;
@@ -207,6 +209,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void free_memory() final;
+
+            //------------------------------------------------------------------------------
+
+            Vector< std::shared_ptr< fem::GQI > > &get_gqis() final;
 
             //------------------------------------------------------------------------------
             /**

@@ -209,7 +209,9 @@ namespace moris::fem
             ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
             LINEAR_ELASTICITY_DAMAGE,
             MAX_DAMAGE,
-            END_IQI_TYPE )
+            END_IQI_TYPE,
+            // brendan experimental demo IQIs
+            CURVATURE )
 
     ENUM_MACRO( Constitutive_Type,
             DIFF_LIN_ISO,
@@ -294,20 +296,20 @@ namespace moris::fem
             CELL_LENGTH_MEASURE,
             END_MEASURE_TYPE )
 
-inline map< std::string, enum fem::Measure_Type >
-get_measure_type_map()
-{
-    map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
+    inline map< std::string, enum fem::Measure_Type >
+    get_measure_type_map()
+    {
+        map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
 
         tFemMeasureTypeMap[ "CELL_MEASURE" ]        = fem::Measure_Type::CELL_MEASURE;
         tFemMeasureTypeMap[ "CELL_SIDE_MEASURE" ]   = fem::Measure_Type::CELL_SIDE_MEASURE;
         tFemMeasureTypeMap[ "CELL_LENGTH_MEASURE" ] = fem::Measure_Type::CELL_LENGTH_MEASURE;
         tFemMeasureTypeMap[ "END_MEASURE_TYPE" ]    = fem::Measure_Type::END_MEASURE_TYPE;
 
-    return tFemMeasureTypeMap;
-}
+        return tFemMeasureTypeMap;
+    }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     ENUM_MACRO( FDScheme_Type,
             POINT_1_FORWARD,
@@ -390,6 +392,6 @@ get_measure_type_map()
             FV1,
             FV1_SPACE_DER,
             END_CM_REQUEST_TYPE )
-} /* namespace moris */
+}    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */

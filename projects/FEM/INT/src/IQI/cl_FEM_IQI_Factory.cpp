@@ -58,6 +58,9 @@
 #include "cl_FEM_IQI_Contact_Pressure.hpp"
 #include "cl_FEM_IQI_Max_Damage.hpp"
 
+// Brendan experimental after here
+#include "cl_GEN_GQI_Curvature.hpp"
+
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
@@ -212,12 +215,26 @@ namespace moris::fem
                 return std::make_shared< IQI_Linear_Elasticity_Damage >();
             case IQI_Type::MAX_DAMAGE:
                 return std::make_shared< IQI_Max_Damage >();
-
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
                 return nullptr;
         }
     }
+    //------------------------------------------------------------------------------
+    // Brendan experimental after here
 
+    std::shared_ptr< GQI >
+    IQI_Factory::create_GQI( IQI_Type aIQIType )
+    {
+        switch ( aIQIType )
+        {
+            case IQI_Type::CURVATURE:
+                return std::make_shared< GQI_Curvature >();
+
+            default:
+                MORIS_ERROR( false, " IQI_Factory::create_GQI - No GQI type specified. " );
+                return nullptr;
+        }
+    }
     //------------------------------------------------------------------------------
 }    // namespace moris::fem
