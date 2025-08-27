@@ -93,12 +93,15 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const = 0;
+
             /**
              * get unique dv types for set
              * @param[ in ] aIntegrationMeshSetIndex
              * @param[ in ] aDvTypes
              */
-            virtual void get_ip_unique_dv_types_for_set(
+            virtual void
+            get_ip_unique_dv_types_for_set(
                     const moris_index             aIntegrationMeshSetIndex,
                     Vector< enum gen::PDV_Type >& aDvTypes ) const = 0;
 

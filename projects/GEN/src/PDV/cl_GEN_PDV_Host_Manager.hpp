@@ -140,6 +140,8 @@ namespace moris::gen
         void
         reset();
 
+        virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const final;
+
         /**
          * Get dv types for set
          *

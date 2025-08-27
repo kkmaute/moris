@@ -345,6 +345,12 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
+        virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const final
+        {
+            MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_requested_GQI() - not implemented in the child class" );
+            return 0.0;
+        }
+
     };    // class FEM_Design_Variable_Interface_Proxy
 
     //------------------------------------------------------------------------------

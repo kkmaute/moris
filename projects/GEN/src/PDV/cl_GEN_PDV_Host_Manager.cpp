@@ -67,6 +67,15 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const real PDV_Host_Manager::get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const
+    {
+        // Get the requested GQI value for the given geometry name and GQI type
+        // This is a placeholder implementation and should be replaced with the actual logic
+        return 0.0;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     PDV_Host_Manager::get_ip_dv_types_for_set(
             const moris::moris_index      aIPMeshSetIndex,
