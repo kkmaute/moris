@@ -292,6 +292,12 @@ namespace moris::gen
          */
         void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
 
+        //------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        //------------------------------------------------------------------------------
+
+        virtual real compute_GQI_curvature() const final;
+
       private:
         /**
          * Determines the geometric region of a point based on a level set value

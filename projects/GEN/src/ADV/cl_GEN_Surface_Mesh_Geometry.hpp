@@ -594,6 +594,12 @@ namespace moris::gen
          */
         const Vector< moris_index >& get_vertex_connectivity( uint aVertexIndex ) const;
 
+        // ----------------------------------------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        // ----------------------------------------------------------------------------------------------------------------
+
+        virtual real compute_GQI_curvature() const final;
+
         //-----------------------------------------------
         // PRIVATE FUNCTIONS
         //-----------------------------------------------

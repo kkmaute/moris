@@ -146,7 +146,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Property::get_design_info(
-            const uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {
@@ -210,5 +210,13 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Property::compute_GQI_curvature() const
+    {
+        // TO IMPLEMENT
+        return 0.0;
+    }
 
 }    // namespace moris::gen

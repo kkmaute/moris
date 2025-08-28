@@ -121,7 +121,7 @@ namespace moris::gen
          * @return the value of the property field at the requested location
          */
         void get_design_info(
-                const uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
 
@@ -193,5 +193,11 @@ namespace moris::gen
          * @return Upper bound
          */
         real get_discretization_upper_bound() const override;
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        //--------------------------------------------------------------------------------------------------------------
+
+        virtual real compute_GQI_curvature() const final;
     };
 }    // namespace moris::gen

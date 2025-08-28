@@ -176,5 +176,11 @@ namespace moris::gen
          * @return
          */
         std::shared_ptr< mtk::Field > get_mtk_field();
+
+        //------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        //------------------------------------------------------------------------------
+
+        virtual real compute_GQI_curvature() const = 0;
     };
 }    // namespace moris::gen
