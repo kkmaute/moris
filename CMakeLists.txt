@@ -204,7 +204,7 @@ option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
 option(MORIS_HAVE_SLEPC
-    "Build MORIS with support for SLEPC." OFF )
+    "Build MORIS with support for SLEPC." ON )
 
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -216,7 +216,7 @@ option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
 option(MORIS_HAVE_ARBORX
-    "Build MORIS with support for ArborX." OFF )
+    "Build MORIS with support for ArborX." ON )
     
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
