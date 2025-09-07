@@ -91,7 +91,7 @@ cd $WORKSPACE
 
 * get spack
 
-git clone https://github.com/spack/spack.git
+git clone --branch releases/v1.0 https://github.com/spack/spack.git
 
 *------------------------------------------------------------
 
@@ -193,6 +193,11 @@ spack external find
 
 *------------------------------------------------------------
 
+* set target CPU architecture  (e.g. x86_64,x86_64, zen3, zen4, etc)
+setenv ARCH auto
+
+*------------------------------------------------------------
+
 * set blas/lapack provider
 
 * blas:      amdblis      intel-mkl intel-oneapi-mkl openblas netlib-lapack
@@ -210,7 +215,7 @@ setenv mklpro     intel-mkl
 
 setenv blaspro    openblas 
 setenv lapackpro  openblas 
-setenv sclpackpro  
+setenv sclpackpro netlib-scalapack 
 setenv mklpro     intel-mkl
 
 * write setting to spack.yaml

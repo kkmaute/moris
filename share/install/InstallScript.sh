@@ -169,7 +169,7 @@ mv $ORGDIR/moris_config.log .
 
 # get spack
 
-git clone https://github.com/spack/spack.git
+git clone --branch releases/v1.0 https://github.com/spack/spack.git
 
 #------------------------------------------------------------
 
@@ -261,11 +261,11 @@ spack concretize -f -U >> moris_config.log
 
 SOPTION=""
 if [ $VERBOSE = "1" ];then
-   SOPTION="-v"
+    SOPTION="-v"
 fi
 
 if [ ! $NUMPROC = "0" ];then
-  SOPTION="$SOPTION -j $NUMPROC"
+    SOPTION="$SOPTION -j $NUMPROC"
 fi
 
 #------------------------------------------------------------
@@ -278,13 +278,13 @@ isOpenSUSE=`grep NAME /etc/os-release | head -1 | awk -F '=' '{ if ( match($2,"o
 
 if [ $isOpenSUSE = "1" ];then
 
-  echo "fixing python installation for OpenSUSE"
+    echo "fixing python installation for OpenSUSE"
 
-  export PYIDIR=`find spack/opt/spack/ -type d -name "python-*"`
+    export PYIDIR=`find spack/opt/spack/ -type d -name "python-*"`
 
-  export PYLVERS=`ls $PYIDIR/include`
-  
-  cp -R $PYIDIR/lib64/$PYLVERS/lib-dynload $PYIDIR/lib/$PYLVERS/.
+    export PYLVERS=`ls $PYIDIR/include`
+
+    cp -R $PYIDIR/lib64/$PYLVERS/lib-dynload $PYIDIR/lib/$PYLVERS/.
 fi
 
 #------------------------------------------------------------
