@@ -92,143 +92,84 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        postmultiply_implicit_dQds()
-        {
-            MORIS_ERROR( false, "Solver_Interface::postmultiply_implicit_dQds: not set." );
-        };
+        postmultiply_implicit_dQds() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        compute_IQI()
-        {
-            MORIS_ERROR( false, "Solver_Interface::compute_IQI: not set." );
-        };
+        compute_IQI() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_solution_vector( sol::Dist_Vector* aSolutionVector )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set." );
-        };
+        set_solution_vector( sol::Dist_Vector* aSolutionVector ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_eigen_solution_vector: not set." );
-        };
+        set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_eigen_values( const std::shared_ptr< Vector< real > >& aEigenValues )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_eigen_values: not set." );
-        };
+        set_eigen_values( const std::shared_ptr< Vector< real > >& aEigenValues ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set." );
-        };
+        set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set." );
-        };
+        set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
         set_time_levels_for_type(
                 const enum MSI::Dof_Type aDofType,
-                const moris::uint        aNumTimeLevels )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_time_levels_for_type: not set." );
-        };
+                const moris::uint        aNumTimeLevels ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_solution_vector_prev_time_step: not set." );
-        };
+        set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual sol::Dist_Vector*
-        get_solution_vector_prev_time_step()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_solution_vector_prev_time_step: not set." );
-            return nullptr;
-        }
+        get_solution_vector_prev_time_step() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual sol::Dist_Vector*
-        get_eigen_solution_vector()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_eigen_solution_vector: not set." );
-            return nullptr;
-        }
+        get_eigen_solution_vector() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual std::shared_ptr< Vector< real > >&
-        get_eigen_values()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_eigen_solution_vector: not set." );
-            return *( new std::shared_ptr< Vector< real > >() );
-        }
+        get_eigen_values() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_time( const Matrix< DDRMat >& aTime )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_time: not set." );
-        };
+        set_time( const Matrix< DDRMat >& aTime ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual Matrix< DDRMat >
-        get_time()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_time: not set." );
-            return Matrix< DDRMat >( 0, 0 );
-        };
+        get_time() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_previous_time( const Matrix< DDRMat >& aTime )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_previous_time: not set." );
-        };
+        set_previous_time( const Matrix< DDRMat >& aTime ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual Matrix< DDRMat >
-        get_previous_time()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_previous_time: not set." );
-            return Matrix< DDRMat >( 0, 0 );
-        };
-
-        //------------------------------------------------------------------------------
-
-        virtual void set_residual_norm( const real& aResNorm ) {
-            // MORIS_ERROR( false, "Solver_Interface::set_residual_norm: not set.");
-        };
+        get_previous_time() = 0;
 
         //------------------------------------------------------------------------------
 
@@ -335,11 +276,7 @@ namespace moris
 
         // FIXME pass return value in as reference
         virtual moris::Matrix< DDSMat >
-        get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_my_local_global_map: not set." );
-            return Matrix< DDSMat >( 0, 0 );
-        }
+        get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -361,11 +298,7 @@ namespace moris
          */
 
         virtual moris::Matrix< DDSMat >
-        get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes )
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
-            return Matrix< DDSMat >( 0, 0 );
-        };
+        get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -417,10 +350,7 @@ namespace moris
         get_equation_object_off_diag_rhs(
                 const moris::uint&          aMyBlockInd,
                 const moris::uint&          aMyElementInd,
-                Vector< Matrix< DDRMat > >& aElementRHS )
-        {
-            MORIS_ERROR( false, "not implemented" );
-        };
+                Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -428,10 +358,7 @@ namespace moris
         get_equation_object_staggered_rhs(
                 const moris::uint&          aMyEquSetInd,
                 const moris::uint&          aMyElementInd,
-                Vector< Matrix< DDRMat > >& aElementRHS )
-        {
-            MORIS_ERROR( false, "not implemented" );
-        };
+                Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -448,24 +375,6 @@ namespace moris
                 moris::Matrix< DDRMat >&    aElementMatrix,
                 Vector< Matrix< DDRMat > >& aElementRHS ) = 0;
 
-        //------------------------------------------------------------
-
-        virtual void
-        set_time_value(
-                const moris::real& aLambda,
-                moris::uint        aPos )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_time_value: not set." );
-        }
-
-        //------------------------------------------------------------
-
-        virtual void
-        use_matrix_market_files()
-        {
-            MORIS_ERROR( false, "error in use_matrix_market_files" );
-        }
-
         //------------------------------------------------------------------------------
 
         virtual const char*
@@ -478,11 +387,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual mtk::Mesh*
-        get_mesh_pointer_for_multigrid()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_mesh_pointer_for_multigrid, Only works with MSI and multigrid" );
-            return nullptr;
-        };
+        get_mesh_pointer_for_multigrid() = 0;
 
         //------------------------------------------------------------------------------
 
@@ -491,64 +396,37 @@ namespace moris
                 const moris::uint              aLevel,
                 const moris::Matrix< DDSMat >& aExtFineIndices,
                 const moris::sint              aTypeTimeIdentifier,
-                moris::Matrix< DDSMat >&       aInternalFineIndices )
-        {
-            MORIS_ERROR( false, "Solver_Interface::read_multigrid_maps, Only works with MSI and multigrid" );
-        };
+                moris::Matrix< DDSMat >&       aInternalFineIndices ) = 0;
 
         //------------------------------------------------------------------------------
 
         virtual const Vector< Matrix< DDUMat > >&
-        get_lists_of_ext_index_multigrid()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
-            return *( new Vector< Matrix< DDUMat > >() );
-        };
+        get_lists_of_ext_index_multigrid() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual const Vector< Matrix< DDSMat > >&
-        get_lists_of_multigrid_identifiers()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_lists_of_ext_index_multigrid, Only works with MSI and multigrid" );
-            return *( new Vector< Matrix< DDSMat > >() );
-        };
+        get_lists_of_multigrid_identifiers() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual const Vector< Vector< Matrix< DDSMat > > >&
-        get_multigrid_map()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_multigrid_map, Only works with MSI and multigrid" );
-            return *( new Vector< Vector< Matrix< DDSMat > > >() );
-        };
+        get_multigrid_map() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual const moris::Matrix< DDUMat >&
-        get_number_remaining_dofs()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_number_remaining_dofs, Only works with MSI and multigrid" );
-            return *( new Matrix< DDUMat >() );
-        };
+        get_number_remaining_dofs() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual const Matrix< DDSMat >&
-        get_type_time_identifier_to_type_map()
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_type_time_identifier_to_type_map, Only works with MSI and multigrid" );
-            return *( new Matrix< DDSMat >() );
-        };
+        get_type_time_identifier_to_type_map() = 0;
 
         //------------------------------------------------------------------------------
 
         virtual moris::sint
-        get_adof_index_for_type( moris::uint aDofType )
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_adof_index_for_type, Only works with MSI and multigrid" );
-            return 0;
-        };
+        get_adof_index_for_type( moris::uint aDofType ) = 0;
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -606,27 +484,17 @@ namespace moris
         virtual void
         calculate_criteria(
                 const moris::uint& aMySetInd,
-                const moris::uint& aMyElementInd )
-        {
-            MORIS_ERROR( false, "Solver_Interface::calculate_criteria(), not implemented for base class" );
-        };
+                const moris::uint& aMyElementInd ) = 0;
 
         //---------------------------------------------------------------------------------------------------------
 
         virtual const Vector< moris::Matrix< DDRMat > >&
-        get_criteria( const moris::uint& aMySetInd )
-        {
-            MORIS_ERROR( false, "Solver_Interface::get_criteria(), not implemented for base class" );
-            return *( new Vector< moris::Matrix< DDRMat > >() );
-        };
+        get_criteria( const moris::uint& aMySetInd ) = 0;
 
         //---------------------------------------------------------------------------------------------------------
 
-        virtual void
-        set_requested_IQI_names( const Vector< std::string >& aIQINames )
-        {
-            MORIS_ERROR( false, "Solver_Interface::set_requested_IQI_type(), not implemented for base class" );
-        };
+        virtual void    // brendan delete
+        set_requested_IQI_names( const Vector< std::string >& aIQINames ) = 0;
 
         //------------------------------------------------------------------------------
 
@@ -645,10 +513,7 @@ namespace moris
          * @brief virtual method to be overloaded by MSI child class
          *
          */
-        virtual void compute_sparsity_pattern()
-        {
-            MORIS_ERROR( false, "Solver_Interface::compute_sparsity_pattern(), not implemented for base class" );
-        };
+        virtual void compute_sparsity_pattern() = 0;
 
         /**
          * Updates the underlying problem being solved.

@@ -428,24 +428,6 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * compute integration error
-             * 
-             * brendan useless function
-             */
-            // virtual real
-            //         compute_integration_error( real ( *aFunction )( const Matrix< DDRMat >& aPoint ) ) = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * compute element average of scalar field
-             * 
-             * brendan useless function
-             */
-            // virtual real
-            // compute_element_average_of_scalar_field() = 0;
-
-            //------------------------------------------------------------------------------
-            /**
              * return Neumann boundary conditions, writable version
              */
             virtual Matrix< DDRMat >&
@@ -473,29 +455,6 @@ namespace moris
             {
                 return mNodeObj( 0 ).size();
             }
-
-            //------------------------------------------------------------------------------
-            /**
-             * get nodal pdof value
-             * @param[ in ] aVertexIndex index for nodal value to get
-             * @param[ in ] aDofType     list of dof type to get
-             * 
-             * brendan useless function
-             */
-            // virtual real
-            // get_element_nodal_pdof_value(
-            //         moris_index                    aVertexIndex,
-            //         const Vector< MSI::Dof_Type >& aDofType ) = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * set visualization cluster
-             * @param[ in ] aVisMeshCluster mesh cluster pointer to set
-             * 
-             * brendan useless function
-             */
-            // virtual void
-            // set_visualization_cluster( const mtk::Cluster* aVisMeshCluster ) = 0;
 
             //------------------------------------------------------------------------------
             /**

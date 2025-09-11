@@ -7,8 +7,7 @@
  * cl_MSI_Solver_Interface.hpp
  *
  */
-#ifndef SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
-#define SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
+#pragma once
 
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -630,5 +629,3 @@ namespace moris
         };
     }    // namespace MSI
 }    // namespace moris
-
-#endif /* SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_ */

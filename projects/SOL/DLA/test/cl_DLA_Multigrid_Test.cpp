@@ -221,7 +221,7 @@ namespace moris
 
             tMSI->finalize();
 
-            moris::Solver_Interface* tSolverInterface = new moris::MSI::MSI_Solver_Interface( tMSI );
+            MSI::MSI_Solver_Interface* tSolverInterface = new MSI::MSI_Solver_Interface( tMSI );
 
             tSolverInterface->set_requested_dof_types( { MSI::Dof_Type::L2 } );
 

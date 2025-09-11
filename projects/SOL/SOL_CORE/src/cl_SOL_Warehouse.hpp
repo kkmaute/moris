@@ -22,13 +22,14 @@
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"    //CNT/src
 #include "cl_TSA_Time_Solver_Enums.hpp"         //CNT/src
+#include "cl_MSI_Solver_Interface.hpp"
 
 #include "cl_Module_Parameter_Lists.hpp"
 
 namespace moris
 {
-    class Solver_Interface;
     class Library_IO;
+
     namespace dla
     {
         class Linear_Solver_Algorithm;
@@ -70,7 +71,7 @@ namespace moris
         {
           private:
             // Pointer to the solver interface
-            moris::Solver_Interface* mSolverInterface;
+            Solver_Interface* mSolverInterface;
 
             // list of preconditioners
             Vector< dla::Preconditioner* > mPreconditioners;
@@ -182,19 +183,17 @@ namespace moris
              *
              * @param[in] aSolverInterface Pointer to the solver interface
              */
-            SOL_Warehouse( moris::Solver_Interface* aSolverInterface )
+            SOL_Warehouse( Solver_Interface* aSolverInterface )
                     : mSolverInterface( aSolverInterface )
-                    , mParameterlist( Module_Type::SOL )
-            {
-            };
+                    , mParameterlist( Module_Type::SOL ) {
+                    };
 
-            SOL_Warehouse( moris::Solver_Interface* aSolverInterface,
-                    std::shared_ptr< Library_IO >   aLibrary )
+            SOL_Warehouse( Solver_Interface*      aSolverInterface,
+                    std::shared_ptr< Library_IO > aLibrary )
                     : mSolverInterface( aSolverInterface )
                     , mParameterlist( Module_Type::SOL )
-                    , mLibrary( std::move( aLibrary ) )
-            {
-            };
+                    , mLibrary( std::move( aLibrary ) ) {
+                    };
 
             SOL_Warehouse()
                     : mParameterlist( Module_Type::SOL )
@@ -226,14 +225,14 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------
 
             void
-            set_solver_interface( moris::Solver_Interface* aSolverInterface )
+            set_solver_interface( Solver_Interface* aSolverInterface )
             {
                 mSolverInterface = aSolverInterface;
             };
 
             //--------------------------------------------------------------------------------------------------------
 
-            moris::Solver_Interface*
+            Solver_Interface*
             get_solver_interface()
             {
                 return mSolverInterface;

@@ -7,8 +7,7 @@
  * cl_TSA_Time_Solver.hpp
  *
  */
-#ifndef MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_HPP_
-#define MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_HPP_
+#pragma once
 
 // MORIS header files.
 #include "moris_typedefs.hpp"    // CON/src
@@ -375,8 +374,6 @@ namespace moris
             void check_for_outputs(
                     const moris::real& aTime,
                     const bool         aEndOfTimeIteration );
-
         };
     }    // namespace tsa
 }    // namespace moris
-#endif /* MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_HPP_ */
