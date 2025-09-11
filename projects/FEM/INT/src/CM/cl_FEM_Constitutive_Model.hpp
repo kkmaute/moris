@@ -186,68 +186,68 @@ namespace moris::fem
         bool mGlobalFieldMapBuild = true;
 
         // flag for flux related evaluation
-        bool                    mFluxEval = true;
-        moris::Matrix< DDBMat > mdFluxdDofEval;
-        moris::Matrix< DDBMat > mdFluxdDvEval;
+        bool             mFluxEval = true;
+        Matrix< DDBMat > mdFluxdDofEval;
+        Matrix< DDBMat > mdFluxdDvEval;
 
         // flag for div flux related evaluation
-        bool                    mDivFluxEval = true;
-        moris::Matrix< DDBMat > mddivfluxduEval;
+        bool             mDivFluxEval = true;
+        Matrix< DDBMat > mddivfluxduEval;
 
         // flag for grad div flux related evaluation
-        bool                    mGradDivFluxEval = true;
-        moris::Matrix< DDBMat > mGradDivFluxDofEval;
+        bool             mGradDivFluxEval = true;
+        Matrix< DDBMat > mGradDivFluxDofEval;
 
         // flag for traction related evaluation
-        bool                    mTractionEval = true;
-        moris::Matrix< DDBMat > mdTractiondDofEval;
-        moris::Matrix< DDBMat > mdTractiondDvEval;
+        bool             mTractionEval = true;
+        Matrix< DDBMat > mdTractiondDofEval;
+        Matrix< DDBMat > mdTractiondDvEval;
 
         // flag for test traction related evaluation
-        moris::Matrix< DDBMat > mTestTractionEval;
-        moris::Matrix< DDBMat > mTestTractionTransEval;
-        moris::Matrix< DDBMat > mdTestTractiondDofEval;
-        moris::Matrix< DDBMat > mdTestTractiondDvEval;
+        Matrix< DDBMat > mTestTractionEval;
+        Matrix< DDBMat > mTestTractionTransEval;
+        Matrix< DDBMat > mdTestTractiondDofEval;
+        Matrix< DDBMat > mdTestTractiondDvEval;
 
         // flag for stress related evaluation
-        bool                    mStressEval = true;
-        moris::Matrix< DDBMat > mdStressdDofEval;
+        bool             mStressEval = true;
+        Matrix< DDBMat > mdStressdDofEval;
 
         // flag for strain related evaluation
-        bool                    mStrainEval = true;
-        moris::Matrix< DDBMat > mdStraindDofEval;
-        moris::Matrix< DDBMat > mdStraindDvEval;
-        moris::Matrix< DDBMat > mdStraindxEval;
+        bool             mStrainEval = true;
+        Matrix< DDBMat > mdStraindDofEval;
+        Matrix< DDBMat > mdStraindDvEval;
+        Matrix< DDBMat > mdStraindxEval;
 
         // flag for div strain related evaluation
-        bool                    mDivStrainEval = true;
-        moris::Matrix< DDBMat > mddivstrainduEval;
+        bool             mDivStrainEval = true;
+        Matrix< DDBMat > mddivstrainduEval;
 
         // flag for test strain related evaluation
-        bool                    mTestStrainEval      = true;
-        bool                    mTestStrainTransEval = true;
-        moris::Matrix< DDBMat > mdTestStraindDofEval;
+        bool             mTestStrainEval      = true;
+        bool             mTestStrainTransEval = true;
+        Matrix< DDBMat > mdTestStraindDofEval;
 
         // flag for constitutive matrix related evaluation
-        bool                    mConstEval = true;
-        moris::Matrix< DDBMat > mdConstdDofEval;
-        moris::Matrix< DDBMat > mdConstdDvEval;
+        bool             mConstEval = true;
+        Matrix< DDBMat > mdConstdDofEval;
+        Matrix< DDBMat > mdConstdDvEval;
 
         // flag for energy related evaluation
-        bool                    mEnergyEval = true;
-        moris::Matrix< DDBMat > mEnergyDofEval;
+        bool             mEnergyEval = true;
+        Matrix< DDBMat > mEnergyDofEval;
 
         // flag for energy rate related evaluation
-        bool                    mEnergyDotEval = true;
-        moris::Matrix< DDBMat > mEnergyDotDofEval;
+        bool             mEnergyDotEval = true;
+        Matrix< DDBMat > mEnergyDotDofEval;
 
         // flag for grad energy related evaluation
-        bool                    mGradEnergyEval = true;
-        moris::Matrix< DDBMat > mGradEnergyDofEval;
+        bool             mGradEnergyEval = true;
+        Matrix< DDBMat > mGradEnergyDofEval;
 
         // flag for grad energy rate related evaluation
-        bool                    mGradEnergyDotEval = true;
-        moris::Matrix< DDBMat > mGradEnergyDotDofEval;
+        bool             mGradEnergyDotEval = true;
+        Matrix< DDBMat > mGradEnergyDotDofEval;
 
         //------------------------------------------------------------------------------
 
@@ -426,7 +426,7 @@ namespace moris::fem
          * reset evaluation flags specific to certain constitutive models
          * Unless direct child of the Constitutive_Model, call the parent implementation!
          */
-        virtual void reset_specific_eval_flags(){};
+        virtual void reset_specific_eval_flags() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -624,7 +624,7 @@ namespace moris::fem
          * function is called in the build_global_dof_type_list()
          * Unless direct child of the Constitutive_Model, call the parent implementation!
          */
-        virtual void initialize_spec_storage_vars_and_eval_flags(){};
+        virtual void initialize_spec_storage_vars_and_eval_flags() {};
 
         //------------------------------------------------------------------------------
         /**
