@@ -305,5 +305,13 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Voxel_Geometry::compute_GQI( gen::GQI_Type aGQIType ) const
+    {
+        MORIS_ERROR( false, "Voxel_Geometry::compute_GQI() - GQI not implemented for voxel geometry." );
+        return 0.0;
+    }
 
 }    // namespace moris::gen

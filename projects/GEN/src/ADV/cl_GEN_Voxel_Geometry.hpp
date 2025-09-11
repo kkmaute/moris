@@ -229,5 +229,12 @@ namespace moris::gen
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
         void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
+
+
+        //------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        //------------------------------------------------------------------------------
+
+        virtual real compute_GQI( gen::GQI_Type aGQIType ) const final;
     };
 }    // namespace moris::gen

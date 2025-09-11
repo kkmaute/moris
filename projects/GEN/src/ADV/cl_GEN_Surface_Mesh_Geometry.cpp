@@ -2222,7 +2222,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::compute_GQI_curvature() const
+    real Surface_Mesh_Geometry::compute_GQI( gen::GQI_Type aGQIType ) const
     {
         // TO IMPLEMENT
         return 0.0;

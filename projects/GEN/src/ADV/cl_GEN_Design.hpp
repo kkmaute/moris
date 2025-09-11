@@ -21,9 +21,11 @@ namespace moris::gen
      */
     struct Design_Parameters
     {
-        Vector< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
-        Vector< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
-        sint           mRefinementFunctionIndex;    // Index of a user-defined refinement function (default = -1)
+        Vector< uint >        mNumberOfRefinements;        // The number of refinement steps to use for this field
+        Vector< uint >        mRefinementMeshIndices;      // Indices of meshes to perform refinement on
+        sint                  mRefinementFunctionIndex;    // Index of a user-defined refinement function (default = -1)
+        Vector< GQI_Type >    mRequestedGQIs;              // List of GQIs to be computed on this design
+        Vector< std::string > mRequestedGQINames;          // Names for the requested GQIs
 
         /**
          * Constructor with a given parameter list
@@ -44,8 +46,10 @@ namespace moris::gen
         Design_Parameters mParameters;
 
       protected:
-        uint                     mOffsetID;        // Offset of the global ADVs to this Design's ADVs
-        Vector< Vector< sint > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
+        uint                       mOffsetID;            // Offset of the global ADVs to this Design's ADVs
+        Vector< Vector< sint > >   mSharedADVIDs;        // IDs of the ADVs that this design shares. Size = number of fields
+        Vector< real >             mGQIValues;           // Values of the requested geometric quantities of interest (GQIs) for this design
+        Vector< Matrix< DDRMat > > mGQISensitivities;    // Sensitivities of the requested GQIs wrt the ADVs of this design
 
       public:
         /**
@@ -181,11 +185,43 @@ namespace moris::gen
         virtual void set_advs( sol::Dist_Vector* aADVs ) = 0;
 
         /**
+         * Check if the design depends on ADVs
+         */
+        virtual bool depends_on_advs() const = 0;
+
+        /**
          * Updates the dependencies of this design based on the given designs
          * (fields may have been mapped/updated).
          *
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
         virtual void update_dependencies( const Vector< std::shared_ptr< Design > >& aUpdatedFields ) = 0;
+
+
+        //------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions brendan document all
+        //------------------------------------------------------------------------------
+
+      public:
+        /**
+         * Convenience function to loop through all GQIs, compute them (by calling compute_GQI()), and store them in mGQIValues
+         */
+        void compute_all_GQIs();
+
+        const real get_GQI( gen::GQI_Type aGQIType ) const;
+
+        const uint get_num_GQIs() const;
+
+        const Vector< std::string >& get_all_GQI_names() const;
+
+        const Vector< real >& get_all_GQI_values() const;
+
+        const Vector< Matrix< DDRMat > >& get_all_GQI_sensitivities() const;
+
+      protected:
+        /**
+         * Computes the value of a requested geometric quantity of interest (GQI) for this design.
+         */
+        virtual real compute_GQI( gen::GQI_Type aGQIType ) const = 0;
     };
 }    // namespace moris::gen

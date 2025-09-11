@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Design.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris::gen
 {
@@ -19,7 +20,16 @@ namespace moris::gen
             : mNumberOfRefinements( aParameterList.get_vector< uint >( "number_of_refinements" ) )
             , mRefinementMeshIndices( aParameterList.get_vector< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
+            // , mRequestedGQIs( aParameterList.get_vector< GQI_Type >( "GQI_types" ) ) // brendan need to implement variants for Vectors of enums
+            , mRequestedGQINames( aParameterList.get_vector< std::string >( "GQI_names" ) )
     {
+        // Need to convert GQI types to enum for now
+        Vector< uint > tGQITypes = aParameterList.get_vector< uint >( "GQI_types" );
+        mRequestedGQIs.reserve( tGQITypes.size() );
+        for ( const auto& tGQI : tGQITypes )
+        {
+            mRequestedGQIs.push_back( static_cast< GQI_Type >( tGQI ) );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -404,5 +414,62 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    const real
+    Design::get_GQI( gen::GQI_Type aGQIType ) const
+    {
+        // Get the index of the requested GQI type fixme remove find? brendan
+        auto tGQITypeIter = std::find( mParameters.mRequestedGQIs.begin(), mParameters.mRequestedGQIs.end(), aGQIType );
+
+        MORIS_ASSERT( tGQITypeIter != mParameters.mRequestedGQIs.end(),
+                "Design::get_GQI - Requested GQI type not found in design." );
+
+        // Return the corresponding GQI value
+        return mGQIValues( std::distance( mParameters.mRequestedGQIs.begin(), tGQITypeIter ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const uint Design::get_num_GQIs() const
+    {
+        return mGQIValues.size();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Design::compute_all_GQIs()
+    {
+        Tracer tTracer( "gen", this->get_name(), "compute_all_GQIs" );
+
+        mGQIValues.resize( mParameters.mRequestedGQIs.size(), 0.0 );
+        for ( uint iGQI = 0; iGQI < mParameters.mRequestedGQIs.size(); iGQI++ )
+        {
+            mGQIValues( iGQI ) = this->compute_GQI( mParameters.mRequestedGQIs( iGQI ) );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< std::string >& Design::get_all_GQI_names() const
+    {
+        return mParameters.mRequestedGQINames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< real >& Design::get_all_GQI_values() const
+    {
+        return mGQIValues;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< Matrix< DDRMat > >& Design::get_all_GQI_sensitivities() const
+    {
+        return mGQISensitivities;
+    }
 
 }    // namespace moris::gen

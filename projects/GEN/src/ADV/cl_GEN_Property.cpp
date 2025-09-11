@@ -177,6 +177,13 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Property::depends_on_advs() const
+    {
+        return false;    // brendan ????
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     bool Property::intended_discretization() const
     {
         return ( mParameters.mDiscretizationIndex >= 0 );
@@ -213,7 +220,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Property::compute_GQI_curvature() const
+    real Property::compute_GQI( gen::GQI_Type aGQIType ) const
     {
         // TO IMPLEMENT
         return 0.0;

@@ -721,7 +721,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Level_Set_Geometry::compute_GQI_curvature() const
+    real Level_Set_Geometry::compute_GQI( gen::GQI_Type aGQIType ) const
     {
         // TO IMPLEMENT
         return 0.0;

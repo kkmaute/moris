@@ -167,6 +167,12 @@ namespace moris::gen
         }
 
         /**
+         * Check if the property field depends on ADVs
+         * Currently, I'm not sure this is possible, so the function just returns false
+         */
+        virtual bool depends_on_advs() const final;
+
+        /**
          * Gets if this field is to be used for seeding a B-spline field.
          *
          * @return Logic for B-spline creation
@@ -198,6 +204,6 @@ namespace moris::gen
         // Geometry Quantity of Interest (GQI) functions
         //--------------------------------------------------------------------------------------------------------------
 
-        virtual real compute_GQI_curvature() const final;
+        virtual real compute_GQI( gen::GQI_Type aGQIType ) const final;
     };
 }    // namespace moris::gen
