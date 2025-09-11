@@ -41,8 +41,9 @@ namespace moris::fem
                 bool                                                    aUseNewGhostSets,
                 std::unordered_map< MSI::Dof_Type, moris_index >        aDofTypeToBsplineMeshIndex )
                 : mParameterList( aParameterList )
-                , mMeshPair( aMeshPair )
                 , mLibrary( std::move( aLibrary ) )
+                , mMeshPair( aMeshPair )
+                , mDesignVariableInterface( std::move( aDesignVariableInterface ) )
                 , mSpatialDimension( aSpatialDimension )
                 , mUseNewGhostSets( aUseNewGhostSets )
                 , mDofTypeToBsplineMeshIndex( std::move( aDofTypeToBsplineMeshIndex ) ) {};
@@ -56,7 +57,7 @@ namespace moris::fem
 
         Vector< std::shared_ptr< moris::fem::Field > > const &get_fields() const { return mFields; }
         Vector< std::shared_ptr< moris::fem::IQI > > const   &get_iqis() const { return mIQIs; }
-        Vector< std::shared_ptr< moris::fem::GQI > > const   &get_gqis() const { return mGQIs; }
+        // Vector< std::shared_ptr< moris::fem::GQI > > const   &get_gqis() const { return mGQIs; } brendan delete
 
       protected:
         void create_properties();
@@ -72,11 +73,6 @@ namespace moris::fem
         virtual void create_iwgs() = 0;
 
         virtual void create_iqis() = 0;
-
-        /**
-         * Checks if an input QI is a geometry quantity of interest. If so, it will be computed on the requested geometry
-         */
-        bool is_GQI( fem::IQI_Type aQIType ) const;
 
         virtual void create_set_info() = 0;
 
@@ -109,8 +105,8 @@ namespace moris::fem
 
         // data
         Module_Parameter_Lists                                  mParameterList;
-        mtk::Mesh_Pair const                                   *mMeshPair;
         std::shared_ptr< Library_IO >                           mLibrary;
+        mtk::Mesh_Pair const                                   *mMeshPair;
         std::shared_ptr< const MSI::Design_Variable_Interface > mDesignVariableInterface;
         uint                                                    mSpatialDimension;
         bool                                                    mUseNewGhostSets;
@@ -131,7 +127,6 @@ namespace moris::fem
         PointerCell< fem::Stabilization_Parameter > mStabilizationParameters;
         PointerCell< fem::IWG >                     mIWGs;
         PointerCell< fem::IQI >                     mIQIs;
-        PointerCell< fem::GQI >                     mGQIs;
 
         using StringIndexMap = std::map< std::string, uint >;
         StringIndexMap mPropertyMap;

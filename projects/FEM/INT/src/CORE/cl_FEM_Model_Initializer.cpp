@@ -159,20 +159,6 @@ namespace moris::fem
 
     //----------------------------------------------------------------
 
-    // BRENDAN experimental function
-    bool Model_Initializer::is_GQI( fem::IQI_Type aQIType ) const
-    {
-        switch ( aQIType )
-        {
-            case fem::IQI_Type::CURVATURE:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    //----------------------------------------------------------------
-
     void Model_Initializer::print_physics_model()
     {
         Parameter_List tComputationParameterList = this->mParameterList( 5 )( 0 );

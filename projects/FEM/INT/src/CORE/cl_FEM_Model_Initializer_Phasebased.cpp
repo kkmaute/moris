@@ -816,14 +816,14 @@ namespace moris::fem
 
         // set size for list of IQI and GQI pointers
         mIQIs.resize( tNumQIs, nullptr );
-        mGQIs.resize( tNumQIs, nullptr );
+        // mGQIs.resize( tNumQIs, nullptr );
 
         // init counters for number of IQIs and GQIs
-        uint tNumGQIs = 0;
+        // uint tNumGQIs = 0;
         uint tNumIQIs = 0;
 
         // loop over the parameter lists
-        for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+        for ( uint iIQI = 0; iIQI < tNumQIs; iIQI++ )
         {
             // get the treated IQI parameter list
             const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
@@ -861,168 +861,143 @@ namespace moris::fem
             // set bool to true if double sideset
             bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIQIBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
 
-            if ( is_GQI( tIQIType ) )
+            // create an IQI pointer
+            mIQIs( tNumIQIs ) = tIQIFactory.create_IQI( tIQIType );
+
+            // set name
+            mIQIs( tNumIQIs )->set_name( tIQIName );
+
+            // set constant parameters
+            mIQIs( tNumIQIs )->set_parameters( tFuncParameters );
+
+            // set quantity dof type
+            mIQIs( tNumIQIs )->set_quantity_dof_type( tQuantityDofTypes );
+
+            // set index for vectorial field
+            mIQIs( tNumIQIs )->set_output_type_index( tIQIFieldIndex );
+
+            // set bulk type
+            mIQIs( tNumIQIs )->set_bulk_type( tIQIBulkType );
+
+            // set final time
+            mIQIs( tNumIQIs )->set_time_final( tTimeFinal );
+            if ( tTimeFinal > -1.0 ) { mIQIs( tNumIQIs )->set_time_boundary( true ); }
+
+            // init string for leader or follower
+            std::string          tIsLeaderString = "leader";
+            mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
+
+            // loop on leader and follower
+            for ( uint iLeader = 0; iLeader <= tLeaderFollower; iLeader++ )
             {
-                // Get the name of the geometry required to compute this GQI
-                std::string tGeometryName = tIQIParameter.get< std::string >( "geometry_name" );
-
-                // create an IQI pointer
-                mGQIs( tNumGQIs ) = tIQIFactory.create_GQI( tIQIType );
-
-                // set name
-                mGQIs( tNumGQIs )->set_name( tIQIName );
-
-                mGQIs( tNumGQIs )->set_geometry_name( tGeometryName );
-
-                mGQIs( tNumGQIs )->set_design_variable_interface( mDesignVariableInterface );
-
-                // Increment the number of GQIs
-                tNumGQIs++;
-            }
-            else
-            {
-                // create an IQI pointer
-                mIQIs( tNumIQIs ) = tIQIFactory.create_IQI( tIQIType );
-
-                // set name
-                mIQIs( tNumIQIs )->set_name( tIQIName );
-
-                // set constant parameters
-                mIQIs( tNumIQIs )->set_parameters( tFuncParameters );
-
-                // set quantity dof type
-                mIQIs( tNumIQIs )->set_quantity_dof_type( tQuantityDofTypes );
-
-                // set index for vectorial field
-                mIQIs( tNumIQIs )->set_output_type_index( tIQIFieldIndex );
-
-                // set bulk type
-                mIQIs( tNumIQIs )->set_bulk_type( tIQIBulkType );
-
-                // set final time
-                mIQIs( tNumIQIs )->set_time_final( tTimeFinal );
-                if ( tTimeFinal > -1.0 ) { mIQIs( tNumIQIs )->set_time_boundary( true ); }
-
-                // init string for leader or follower
-                std::string          tIsLeaderString = "leader";
-                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
-
-                // loop on leader and follower
-                for ( uint iLeader = 0; iLeader <= tLeaderFollower; iLeader++ )
+                // if follower
+                if ( iLeader )
                 {
-                    // if follower
-                    if ( iLeader )
-                    {
-                        // reset string for follower
-                        tIsLeaderString = "follower";
-                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
-                    }
-
-                    // get the treated IWG phase
-                    std::string tPhaseName = tIQIParameter.get< std::string >( tIsLeaderString + "_phase_name" );
-
-                    // check for unknown phase
-                    MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                            "Model_Initializer_Phasebased::create_IQIs_without_phase - %s: Unknown %s phase name: %s.",
-                            tIQIName.c_str(),
-                            tIsLeaderString.c_str(),
-                            tPhaseName.c_str() );
-
-                    // set phase name
-                    mIQIs( tNumIQIs )->set_phase_name( tPhaseName, tIsLeader );
-
-                    // get the phase index
-                    uint tPhaseIndex = mPhaseMap[ tPhaseName ];
-
-                    // get dof type list from phase
-                    const Vector< Vector< MSI::Dof_Type > > &tDofTypes =
-                            mPhaseInfo( tPhaseIndex ).get_dof_type_list();
-
-                    // get dof type list from phase
-                    const Vector< Vector< gen::PDV_Type > > &tDvTypes =
-                            mPhaseInfo( tPhaseIndex ).get_dv_type_list();
-
-                    // set leader dof dependencies
-                    mIQIs( tNumIQIs )->set_dof_type_list( tDofTypes );
-
-                    // set leader dv dependencies
-                    mIQIs( tNumIQIs )->set_dv_type_list( tDvTypes );
-
-                    // set leader properties
-                    Vector< Vector< std::string > > tPropertyNamesPair;
-                    string_to_vector_of_vectors(
-                            tIQIParameter.get< std::string >( tIsLeaderString + "_properties" ),
-                            tPropertyNamesPair );
-
-                    for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
-                    {
-                        // get the property name
-                        std::string tPropertyName = tPropertyNamesPair( iProp )( 0 );
-
-                        // check for unknown property
-                        MORIS_ERROR( mPropertyMap.find( tPropertyName ) != mPropertyMap.end(),
-                                "Model_Initializer_Phasebased::create_IQIs_without_phase - Unknown %s aPropertyString: %s \n",
-                                tIsLeaderString.c_str(),
-                                tPropertyName.c_str() );
-
-                        // get property index
-                        uint tPropertyIndex = mPropertyMap[ tPropertyName ];
-
-                        // set property for IWG
-                        mIQIs( tNumIQIs )->set_property( mProperties( tPropertyIndex ), tPropertyNamesPair( iProp )( 1 ), tIsLeader );
-                    }
-
-                    // set leader constitutive models
-                    Vector< Vector< std::string > > tCMNamesPair;
-                    string_to_vector_of_vectors(
-                            tIQIParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
-                            tCMNamesPair );
-
-                    for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
-                    {
-                        // get CM name
-                        std::string tCMName = tCMNamesPair( iCM )( 0 );
-
-                        // get CM from phase
-                        std::shared_ptr< fem::Constitutive_Model > tCM =
-                                mPhaseInfo( tPhaseIndex ).get_CM_by_name( tCMName );
-
-                        // set CM for IQI
-                        mIQIs( tNumIQIs )->set_constitutive_model( tCM, tCMNamesPair( iCM )( 1 ), tIsLeader );
-                    }
+                    // reset string for follower
+                    tIsLeaderString = "follower";
+                    tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                 }
 
-                // set stabilization parameters
-                Vector< Vector< std::string > > tSPNamesPair;
+                // get the treated IWG phase
+                std::string tPhaseName = tIQIParameter.get< std::string >( tIsLeaderString + "_phase_name" );
+
+                // check for unknown phase
+                MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
+                        "Model_Initializer_Phasebased::create_IQIs_without_phase - %s: Unknown %s phase name: %s.",
+                        tIQIName.c_str(),
+                        tIsLeaderString.c_str(),
+                        tPhaseName.c_str() );
+
+                // set phase name
+                mIQIs( tNumIQIs )->set_phase_name( tPhaseName, tIsLeader );
+
+                // get the phase index
+                uint tPhaseIndex = mPhaseMap[ tPhaseName ];
+
+                // get dof type list from phase
+                const Vector< Vector< MSI::Dof_Type > > &tDofTypes =
+                        mPhaseInfo( tPhaseIndex ).get_dof_type_list();
+
+                // get dof type list from phase
+                const Vector< Vector< gen::PDV_Type > > &tDvTypes =
+                        mPhaseInfo( tPhaseIndex ).get_dv_type_list();
+
+                // set leader dof dependencies
+                mIQIs( tNumIQIs )->set_dof_type_list( tDofTypes );
+
+                // set leader dv dependencies
+                mIQIs( tNumIQIs )->set_dv_type_list( tDvTypes );
+
+                // set leader properties
+                Vector< Vector< std::string > > tPropertyNamesPair;
                 string_to_vector_of_vectors(
-                        tIQIParameter.get< std::string >( "stabilization_parameters" ),
-                        tSPNamesPair );
+                        tIQIParameter.get< std::string >( tIsLeaderString + "_properties" ),
+                        tPropertyNamesPair );
 
-                for ( uint iSP = 0; iSP < tSPNamesPair.size(); iSP++ )
+                for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
                 {
-                    // get the SP name
-                    std::string tSPName = tSPNamesPair( iSP )( 0 );
+                    // get the property name
+                    std::string tPropertyName = tPropertyNamesPair( iProp )( 0 );
 
-                    // check for unknown SP
-                    MORIS_ERROR( mStabilizationParameterMap.find( tSPName ) != mStabilizationParameterMap.end(),
-                            "Model_Initializer_Phasebased::create_IQIs_without_phase - Unknown aSPString: %s \n",
-                            tSPName.c_str() );
+                    // check for unknown property
+                    MORIS_ERROR( mPropertyMap.find( tPropertyName ) != mPropertyMap.end(),
+                            "Model_Initializer_Phasebased::create_IQIs_without_phase - Unknown %s aPropertyString: %s \n",
+                            tIsLeaderString.c_str(),
+                            tPropertyName.c_str() );
 
-                    // get SP index
-                    uint tSPIndex = mStabilizationParameterMap[ tSPName ];
+                    // get property index
+                    uint tPropertyIndex = mPropertyMap[ tPropertyName ];
 
-                    // set SP for IWG
-                    mIQIs( tNumIQIs )->set_stabilization_parameter( mStabilizationParameters( tSPIndex ), tSPNamesPair( iSP )( 1 ) );
+                    // set property for IWG
+                    mIQIs( tNumIQIs )->set_property( mProperties( tPropertyIndex ), tPropertyNamesPair( iProp )( 1 ), tIsLeader );
                 }
 
-                // Increment the number of IQIs
-                tNumIQIs++;
-            }
-        }
+                // set leader constitutive models
+                Vector< Vector< std::string > > tCMNamesPair;
+                string_to_vector_of_vectors(
+                        tIQIParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
+                        tCMNamesPair );
 
-        // brendan gross
-        mIQIs.resize( tNumIQIs );
-        mGQIs.resize( tNumGQIs );
+                for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
+                {
+                    // get CM name
+                    std::string tCMName = tCMNamesPair( iCM )( 0 );
+
+                    // get CM from phase
+                    std::shared_ptr< fem::Constitutive_Model > tCM =
+                            mPhaseInfo( tPhaseIndex ).get_CM_by_name( tCMName );
+
+                    // set CM for IQI
+                    mIQIs( tNumIQIs )->set_constitutive_model( tCM, tCMNamesPair( iCM )( 1 ), tIsLeader );
+                }
+            }
+
+            // set stabilization parameters
+            Vector< Vector< std::string > > tSPNamesPair;
+            string_to_vector_of_vectors(
+                    tIQIParameter.get< std::string >( "stabilization_parameters" ),
+                    tSPNamesPair );
+
+            for ( uint iSP = 0; iSP < tSPNamesPair.size(); iSP++ )
+            {
+                // get the SP name
+                std::string tSPName = tSPNamesPair( iSP )( 0 );
+
+                // check for unknown SP
+                MORIS_ERROR( mStabilizationParameterMap.find( tSPName ) != mStabilizationParameterMap.end(),
+                        "Model_Initializer_Phasebased::create_IQIs_without_phase - Unknown aSPString: %s \n",
+                        tSPName.c_str() );
+
+                // get SP index
+                uint tSPIndex = mStabilizationParameterMap[ tSPName ];
+
+                // set SP for IWG
+                mIQIs( tNumIQIs )->set_stabilization_parameter( mStabilizationParameters( tSPIndex ), tSPNamesPair( iSP )( 1 ) );
+            }
+
+            // Increment the number of IQIs
+            tNumIQIs++;
+        }
     }
 
     //----------------------------------------------------------------
@@ -1206,10 +1181,10 @@ namespace moris::fem
         // loop over the IQIs
         for ( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
         {
-            // get the treated IWG parameter list
+            // get the treated IQI parameter list
             const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
 
-            // get the IWG bulk type
+            // get the IQI bulk type
             fem::Element_Type tIQIBulkType = mIQIs( iIQI )->get_bulk_type();
 
             // get time continuity flag
@@ -1324,8 +1299,7 @@ namespace moris::fem
 
     //----------------------------------------------------------------
 
-    void
-    Model_Initializer_Phasebased::get_mesh_set_names(
+    void Model_Initializer_Phasebased::get_mesh_set_names(
             fem::Element_Type      aIWGBulkType,
             const std::string     &aLeaderPhaseName,
             const std::string     &aFollowerPhaseName,
