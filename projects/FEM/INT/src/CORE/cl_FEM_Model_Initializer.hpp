@@ -20,7 +20,6 @@
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_IQI.hpp"
-#include "cl_GEN_GQI.hpp"
 #include "cl_Library_IO.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
 #include <string>

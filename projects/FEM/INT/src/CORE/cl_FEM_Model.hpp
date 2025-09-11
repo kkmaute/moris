@@ -31,7 +31,6 @@
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Phase_User_Info.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
-#include "cl_GEN_GQI.hpp"
 #include "cl_Library_IO.hpp"
 
 namespace moris
@@ -415,6 +414,13 @@ namespace moris
             void
             set_requested_IQI_names( const Vector< std::string > &aRequestedIQINames ) override
             {
+                if ( mDesignVariableInterface == nullptr )
+                {
+                    MORIS_LOG_WARNING( "FEM_Model::set_requested_IQI_names - design variable interface is nullptr, cannot set requested IQI names. Skipping!" );
+                }
+                else
+                {
+                }
                 mDesignVariableInterface->set_requested_QIs( aRequestedIQINames );
             }
 
@@ -422,9 +428,15 @@ namespace moris
             /**
              * @brief get requested IQI names
              */
-            const Vector< std::string > &    // brendan refactor
+            const Vector< std::string > &
             get_requested_IQI_names() override
             {
+                // if ( mDesignVariableInterface == nullptr )
+                // {
+                //     MORIS_LOG_WARNING( "FEM_Model::get_requested_IQI_names - design variable interface is nullptr, cannot get requested IQI names. Returning empty list!" );
+                //     static const Vector< std::string > tEmpty;
+                //     return tEmpty;
+                // }
                 return mDesignVariableInterface->get_requested_QI_names();
             }
 

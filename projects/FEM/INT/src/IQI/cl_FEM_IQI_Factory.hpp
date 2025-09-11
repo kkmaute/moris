@@ -14,7 +14,6 @@
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_FEM_IQI.hpp"    //FEM/INT/src
-#include "cl_GEN_GQI.hpp"
 
 //------------------------------------------------------------------------------
 namespace moris::fem
