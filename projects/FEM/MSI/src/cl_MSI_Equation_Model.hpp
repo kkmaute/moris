@@ -525,7 +525,6 @@ namespace moris
             /**
              * @brief Computes the IQIs that are being used for optimization ONLY.
              * These come from the GEN parameter list, and this function is only used for optimization problems.
-             * BRENDAN read this
              */
             void compute_IQIs();
 

@@ -420,8 +420,8 @@ namespace moris
                 }
                 else
                 {
+                    mDesignVariableInterface->set_requested_QIs( aRequestedIQINames );
                 }
-                mDesignVariableInterface->set_requested_QIs( aRequestedIQINames );
             }
 
             //     //------------------------------------------------------------------------------
@@ -431,12 +431,12 @@ namespace moris
             const Vector< std::string > &
             get_requested_IQI_names() override
             {
-                // if ( mDesignVariableInterface == nullptr )
-                // {
-                //     MORIS_LOG_WARNING( "FEM_Model::get_requested_IQI_names - design variable interface is nullptr, cannot get requested IQI names. Returning empty list!" );
-                //     static const Vector< std::string > tEmpty;
-                //     return tEmpty;
-                // }
+                if ( mDesignVariableInterface == nullptr )
+                {
+                    MORIS_LOG_WARNING( "FEM_Model::get_requested_IQI_names - design variable interface is nullptr, cannot get requested IQI names. Returning empty list!" );
+                    static const Vector< std::string > tEmpty;
+                    return tEmpty;
+                }
                 return mDesignVariableInterface->get_requested_QI_names();
             }
 
