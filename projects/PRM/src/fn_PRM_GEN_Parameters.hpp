@@ -224,7 +224,11 @@ namespace moris::prm
         tDesignParameterList.insert( "refinement_mesh_index", Vector< uint >(),      // Refinement pattern
                 Entry_Type::LINKED_SIZE_VECTOR,
                 "number_of_refinements" );
-        tDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
+        tDesignParameterList.insert( "refinement_function_index", -1 );       // Index of user-defined refinement function (-1 = default)
+        tDesignParameterList.insert( "GQI_types", Vector< uint >() );         // Geometric quantities of interest (GQI) to compute on this design BRENDAN MAKE THIS AN ENUM
+        tDesignParameterList.insert( "GQI_names", Vector< std::string >(),    // Names for GQIs, used for identifying in optimization module
+                Entry_Type::LINKED_SIZE_VECTOR,
+                "GQI_types" );
 
         return tDesignParameterList;
     }
