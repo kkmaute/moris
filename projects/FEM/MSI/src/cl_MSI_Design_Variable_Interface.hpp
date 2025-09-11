@@ -43,7 +43,7 @@ namespace moris
 
           protected:
             // QI Values that were requested to be used for optimization objectives or constraints
-            Vector< std::string >& mRequestedQIs;
+            Vector< std::string > mRequestedQIs = {};
 
             // All QI values that were specified in the input file, names mapped to QI objects
             std::map< std::string, MSI::QI > mQIs;
