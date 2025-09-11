@@ -52,7 +52,7 @@ namespace moris::fem
         mtk::Leader_Follower mIsLeader;
 
         // dof type map
-        moris::Matrix< DDSMat > mDofTypeMap;
+        Matrix< DDSMat > mDofTypeMap;
 
         // list of field interpolators
         Vector< Field_Interpolator* > mFI;
@@ -67,7 +67,7 @@ namespace moris::fem
         const Vector< Vector< enum gen::PDV_Type > > mDvTypes;
 
         // dof type map
-        moris::Matrix< DDSMat > mDvTypeMap;
+        Matrix< DDSMat > mDvTypeMap;
 
         // list of field interpolators
         Vector< Field_Interpolator* > mDvFI;
@@ -79,7 +79,7 @@ namespace moris::fem
         const Vector< Vector< mtk::Field_Type > > mFieldTypes;
 
         // field type map
-        moris::Matrix< DDSMat > mFieldTypeMap;
+        Matrix< DDSMat > mFieldTypeMap;
 
         // list of field interpolators
         Vector< Field_Interpolator* > mFieldFI;

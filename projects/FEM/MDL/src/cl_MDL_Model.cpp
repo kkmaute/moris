@@ -423,7 +423,7 @@ namespace moris::mdl
 
     //------------------------------------------------------------------------------
 
-    Vector< moris::Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     Model::get_IQI_values()
     {
         return mEquationModel->get_IQI_values();

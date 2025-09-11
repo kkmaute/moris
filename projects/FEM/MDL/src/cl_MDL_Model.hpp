@@ -174,7 +174,7 @@ namespace moris
             /**
              * destructor
              */
-            ~Model();
+            virtual ~Model();
 
             //------------------------------------------------------------------------------
 
@@ -192,7 +192,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            Vector< moris::Matrix< DDRMat > > get_IQI_values();
+            Vector< Matrix< DDRMat > > get_IQI_values();
 
             //------------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
+            virtual void set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
