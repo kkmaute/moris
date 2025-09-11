@@ -70,16 +70,13 @@ namespace moris::gen
         uint mNumOwnedPDVs          = 0;
         uint mNumOwnedAndSharedPDVs = 0;
 
-        // Requested IQI types
-        Vector< std::string > mRequestedIQIs;
-
       public:
         /**
          * Constructor
          *
          * @param aNodeManager Node manager from the geometry engine
          */
-        explicit PDV_Host_Manager( Node_Manager& aNodeManager );
+        explicit PDV_Host_Manager( Node_Manager& aNodeManager, Vector< std::string >& aRequestedQIs );
 
         /**
          * Destructor
@@ -139,8 +136,6 @@ namespace moris::gen
          */
         void
         reset();
-
-        virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const final;
 
         /**
          * Get dv types for set
@@ -339,6 +334,11 @@ namespace moris::gen
                 uint                               aNodeIndex,
                 PDV_Type                           aPDVType,
                 const std::shared_ptr< Property >& aProperty );
+
+        /**
+         * Uses the bound GQI callback function (Geometry engine function) to compute the GQI values and fills them into the matrix
+         */
+        virtual void fill_GQI_values() final;
 
         /**
          * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV

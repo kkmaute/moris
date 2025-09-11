@@ -8,16 +8,16 @@
  *
  */
 
-#ifndef PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
+#pragma once
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
 
+#include "cl_MSI_Design_Variable_Interface.hpp"
+
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "GEN_Data_Types.hpp"
-#include "cl_GEN_GQI.hpp"
 
 #include "cl_Library_IO.hpp"
 
@@ -42,7 +42,6 @@ namespace moris
         class MSI_Solver_Interface;
         class Equation_Set;
         class Equation_Object;
-        class Design_Variable_Interface;
         enum class Dof_Type;
         //------------------------------------------------------------------------------
 
@@ -69,7 +68,7 @@ namespace moris
 
             sol::Dist_Map* mdQIdpMap = nullptr;
 
-            Vector< moris::Matrix< DDRMat > > mGlobalIQIVal;
+            // Vector< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
             sol::Dist_Vector* mImplicitdQidp = nullptr;
             sol::Dist_Vector* mExplicitdQidp = nullptr;
@@ -109,10 +108,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual void free_memory() = 0;
-
-            //------------------------------------------------------------------------------
-
-            virtual Vector< std::shared_ptr< fem::GQI > >& get_gqis() = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -401,7 +396,7 @@ namespace moris
              */
             virtual void set_requested_IQI_names( const Vector< std::string >& aRequestedIQINames ) = 0;
 
-            //------------------------------------------------------------------------------
+            // //------------------------------------------------------------------------------
             /**
              * @brief get requested IQI names
              */
@@ -409,12 +404,12 @@ namespace moris
             get_requested_IQI_names() = 0;
 
             //------------------------------------------------------------------------------
-            /**
-             * @brief set requested IQI names
-             * @param[ in ] aRequestedIQINames List of requested IQI names
-             */
-            virtual void
-            create_IQI_map() = 0;
+            // /**
+            //  * @brief set requested IQI names
+            //  * @param[ in ] aRequestedIQINames List of requested IQI names
+            //  */
+            // virtual void
+            // create_IQI_map() = 0; brendan delete
 
             //------------------------------------------------------------------------------
             /**
@@ -507,13 +502,13 @@ namespace moris
             /**
              * compute implicit dQidp
              */
-            //            void compute_implicit_dQIdp();
+            void compute_implicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**
              * compute explicit dQidp
              */
-            //            void compute_explicit_dQIdp();
+            void compute_explicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**
@@ -523,7 +518,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief initialize QI
+             * @brief initialize QI brendan delete maybe
              */
             virtual void initialize_IQIs() = 0;
 
@@ -540,17 +535,11 @@ namespace moris
              *
              * @returns mGlobalIQIVal cell filled with global QI values
              */
-            Vector< moris::Matrix< DDRMat > >&
+            Vector< moris::Matrix< DDRMat > >
             get_IQI_values()
             {
-                return mGlobalIQIVal;
+                return mDesignVariableInterface->get_requested_QI_values_mat();
             }
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief Scale the IQIs according to user input. Default does nothing, scaling is done in child class.
-             */
-            virtual void normalize_IQIs() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -684,5 +673,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace MSI */
 } /* namespace moris */
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_ */

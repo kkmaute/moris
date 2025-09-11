@@ -502,6 +502,12 @@ namespace moris::fem
     }
 
     void
+    FEM_Model::set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
+    {
+        mDesignVariableInterface = aDesignVariableInterface;
+    }
+
+    void
     FEM_Model::create_fem_sets(
             mtk::Interpolation_Mesh *aIPMesh,
             mtk::Integration_Mesh   *aIGMesh )
@@ -852,9 +858,11 @@ namespace moris::fem
 
         mSetInfo    = tModelInitializer->get_set_info();
         mIQIs       = tModelInitializer->get_iqis();
-        mGQIs       = tModelInitializer->get_gqis();
         mFields     = tModelInitializer->get_fields();
         mFieldTypes = tModelInitializer->get_field_types();
+
+        // Register IQIs with the Design Variable Interface
+        this->register_iqis();
     }
 
     //------------------------------------------------------------------------------
@@ -914,68 +922,12 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    FEM_Model::normalize_IQIs()
-    {
-        for ( uint tRequestedIQIIndex = 0; tRequestedIQIIndex < mRequestedIQINames.size(); tRequestedIQIIndex++ )
-        {
-            // IQI index
-            uint tIQIIndex = 0;
-            while ( tIQIIndex < mIQIs.size() and ( mIQIs( tIQIIndex )->get_name() not_eq mRequestedIQINames( tRequestedIQIIndex ) ) )
-            {
-                tIQIIndex++;
-            }
-            MORIS_ASSERT( tIQIIndex < mIQIs.size(),
-                    "IQI was not found with the requested name %s",
-                    mRequestedIQINames( tRequestedIQIIndex ).c_str() );
-
-            // Set normalization
-            std::string tNormalization = mParameterList( 4 )( tIQIIndex ).get< std::string >( "normalization" );
-            if ( tNormalization == "none" )
-            {
-                // Do nothing
-            }
-            else if ( tNormalization == "time" )
-            {
-                MORIS_ERROR( false, "Time normalization not implemented yet for IQIs yet, implementation should go here." );
-            }
-            else if ( tNormalization == "design" )
-            {
-                mIQIs( tRequestedIQIIndex )->set_reference_value( mGlobalIQIVal( tRequestedIQIIndex )( 0 ) );
-                mGlobalIQIVal( tRequestedIQIIndex )( 0 ) = 1.0;
-            }
-            else
-            {
-                // Try to set reference values directly
-                try
-                {
-                    mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_matrix< DDRMat >( tNormalization )( 0 ) );
-                } catch ( ... )
-                {
-                    // error
-                    MORIS_ERROR( false,
-                            "FEM_Model::normalize_IQIs() - Unknown normalization: %s. Must be 'none', 'time', 'design', or a reference value.",
-                            tNormalization.c_str() );
-                }
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
     void FEM_Model::update_fields()
     {
         for ( const auto &iField : mFields )
         {
             iField->update_field();
         }
-    }
-
-    //-------------------------------------------------------------------------------------------------
-
-    Vector< std::shared_ptr< fem::GQI > > &FEM_Model::get_gqis()
-    {
-        return mGQIs;
     }
 
     //-------------------------------------------------------------------------------------------------
@@ -1050,61 +1002,49 @@ namespace moris::fem
     //-------------------------------------------------------------------------------------------------
 
     void
-    FEM_Model::create_IQI_map()
+    FEM_Model::register_iqis()
     {
-        // erase the content of the map
-        mIQINameToIndexMap.clear();
-
-        uint tCounter = 0;
-
-        // loop over all IQIs and build a name to index map
-        for ( const std::shared_ptr< IQI > &tIQI : mIQIs )
+        // Loop through IQIs
+        for ( auto &tIQI : mIQIs )
         {
-            std::string tIQIName = tIQI->get_name();
-
-            mIQINameToIndexMap[ tIQIName ] = tCounter++;
-        }
-
-        // brendan
-        // loop over all GQIs and build a name to index map
-        for ( const std::shared_ptr< GQI > &tGQI : mGQIs )
-        {
-            std::string tGQIName           = tGQI->get_name();
-            mIQINameToIndexMap[ tGQIName ] = tCounter++;
+            // Register IQI with the Design Variable Interface
+            mDesignVariableInterface->register_QI( tIQI->get_name(), 0.0 );    // brendan need sensitivities
         }
     }
 
     //-------------------------------------------------------------------------------------------------
 
-    void
-    FEM_Model::initialize_IQIs()
+    void FEM_Model::initialize_IQIs()
     {
         // create content of the map
-        this->create_IQI_map();
+        // this->create_IQI_map(); brendan delete
 
-        // number of requested IQIs for the model
-        moris::uint tNumIQIs = mRequestedIQINames.size();
+        // Get the requested IQI names from the design variable interface
+        // const Vector< std::string > &tRequestedIQINames = mDesignVariableInterface->get_requested_QI_names();
 
-        // resize the Global IQI cell
-        mGlobalIQIVal.resize( tNumIQIs );
+        // // number of requested IQIs for the model
+        // moris::uint tNumIQIs = tRequestedIQINames.size();
 
-        // set a counter
-        uint iIQICounter = 0;
+        // // resize the Global IQI cell
+        // mGlobalIQIVal.resize( tNumIQIs );
 
-        for ( auto &tQI : mGlobalIQIVal )
-        {
-            // use the map to get the IQI index of requested IQI
-            moris_index tIQIIndex = mIQINameToIndexMap[ mRequestedIQINames( iIQICounter ) ];
+        // // set a counter
+        // uint iIQICounter = 0;
 
-            // get the matrix dimension of the IQI
-            std::pair< uint, uint > tMatrixDim = mIQIs( tIQIIndex )->get_matrix_dim();
+        // for ( auto &tQI : mGlobalIQIVal )
+        // {
+        //     // use the map to get the IQI index of requested IQI
+        //     moris_index tIQIIndex = mIQINameToIndexMap[ tRequestedIQINames( iIQICounter ) ];
 
-            // set size for the QI value and initialize the value with 0
-            tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
+        //     // get the matrix dimension of the IQI
+        //     std::pair< uint, uint > tMatrixDim = mIQIs( tIQIIndex )->get_matrix_dim();
 
-            // increase the counter by 1
-            iIQICounter++;
-        }
+        //     // set size for the QI value and initialize the value with 0
+        //     tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
+
+        //     // increase the counter by 1
+        //     iIQICounter++;
+        // }
     }
 
     //------------------------------------------------------------------------------

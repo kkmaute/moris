@@ -37,6 +37,7 @@ namespace moris::MSI
 
       public:
         Design_Variable_Interface_Proxy()
+                : Design_Variable_Interface( *( new Vector< std::string >() ) )
         {
             mDvTypes.resize( 2 );
             mDvTypes( 0 ).resize( 2 );
@@ -323,7 +324,7 @@ namespace moris::MSI
 
         //------------------------------------------------------------------------------
 
-        void set_requested_IQIs( const Vector< std::string >& aRequestedIQINames );
+        void set_requested_QIs( const Vector< std::string >& aRequestedIQINames );
 
         virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const final
         {

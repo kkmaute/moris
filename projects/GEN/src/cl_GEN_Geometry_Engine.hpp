@@ -25,6 +25,7 @@ namespace moris::gen
 {
     class Geometry;
     class Property;
+    class Design;
 }    // namespace moris::gen
 
 namespace moris::MSI
@@ -149,7 +150,17 @@ namespace moris::gen
          * Lets MDL know about the stored requested IQIs through the PDV host manager. This has to be done after
          * the model is set, that's why it's a separate call that needs to be performed at the right time.
          */
-        void communicate_requested_IQIs();
+        // void communicate_requested_QIs();
+
+        /**
+         * Gets the value of a requested geometric quantity of interest (GQI) for a given design.
+         */
+        const real get_GQI( const std::string& aDesign, GQI_Type aGQIType ) const;
+
+        /**
+         * Loops through all designs, gets their GQIs, and tells the PDV host manager how to compute them
+         */
+        void register_GQIs();
 
         /**
          * Import a phase function pointer

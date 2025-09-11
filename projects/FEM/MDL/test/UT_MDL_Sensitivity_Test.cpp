@@ -507,7 +507,7 @@ TEST_CASE( "Sensitivity test", "[Sensitivity test]" )
         //                          Sensitivity analysis
         //--------------------------------------------------------------------------
 
-        tGeometryEngine.communicate_requested_IQIs( tRequestedIQINames );
+        tGeometryEngine.communicate_requested_QIs( tRequestedIQINames );
 
         tModel->perform_sensitivity_analysis();
 

@@ -181,7 +181,7 @@ namespace moris::wrk
 
             // re-initialize GEN
             Module_Parameter_Lists tGENParameterList = tLibrary->get_parameters_for_module( Module_Type::GEN );
-            tGeometryEngine                       = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
+            tGeometryEngine                          = std::make_shared< gen::Geometry_Engine >( tGENParameterList, tLibrary );
         }
 
         // Step 2: Initialize Level set field in GEN -----------------------------------------------
@@ -447,7 +447,7 @@ namespace moris::wrk
 
         mPerformerManager->mMDLPerformer( 0 )->initialize();
 
-        mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+        // mPerformerManager->mGENPerformer( 0 )->communicate_requested_QIs(); brendan delete
 
         // Build MDL components and solve
         mPerformerManager->mMDLPerformer( 0 )->perform();
@@ -468,7 +468,7 @@ namespace moris::wrk
         }
 
         // evaluate IQIs
-        Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+        Vector< Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
         // get number of design criteria
         mNumCriteria = tVal.size();
@@ -498,7 +498,7 @@ namespace moris::wrk
     Matrix< DDRMat >
     Workflow_HMR_XTK::compute_dcriteria_dadv()
     {
-        mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+        // mPerformerManager->mGENPerformer( 0 )->communicate_requested_QIs(); brendan delete
 
         mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 

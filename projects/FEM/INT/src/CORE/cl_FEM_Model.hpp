@@ -121,13 +121,6 @@ namespace moris
             Vector< std::shared_ptr< fem::Field > > mFields;
             Vector< moris::sint >                   mFieldTypes;
             Vector< std::shared_ptr< fem::IQI > >   mIQIs;
-            Vector< std::shared_ptr< fem::GQI > >   mGQIs;
-
-            //! requested IQI Names
-            Vector< std::string > mRequestedIQINames;
-
-            // A map for mIQIs
-            moris::map< std::string, moris_index > mIQINameToIndexMap;
 
             // flag to skip GEN procedures
             bool mFEMOnly = false;
@@ -209,10 +202,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void free_memory() final;
-
-            //------------------------------------------------------------------------------
-
-            Vector< std::shared_ptr< fem::GQI > > &get_gqis() final;
 
             //------------------------------------------------------------------------------
             /**
@@ -394,6 +383,10 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
+            virtual void set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface ) final;
+
+            //------------------------------------------------------------------------------
             /**
              * @brief set space dimension ( only for UT)
              * @param[ in ] aSpaceDim int for space dimension
@@ -416,30 +409,32 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief set requested IQI names
+             * @brief set requested IQI names brendan refactor
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
             void
             set_requested_IQI_names( const Vector< std::string > &aRequestedIQINames ) override
             {
-                mRequestedIQINames = aRequestedIQINames;
+                mDesignVariableInterface->set_requested_QIs( aRequestedIQINames );
             }
 
-            //------------------------------------------------------------------------------
+            //     //------------------------------------------------------------------------------
             /**
              * @brief get requested IQI names
              */
-            const Vector< std::string > &
+            const Vector< std::string > &    // brendan refactor
             get_requested_IQI_names() override
             {
-                return mRequestedIQINames;
+                return mDesignVariableInterface->get_requested_QI_names();
             }
 
             //------------------------------------------------------------------------------
             /**
              * @brief build a map for the mIQIs, fills in the mIQINameToIndexMap values
              */
-            void create_IQI_map() override;
+            //     void create_IQI_map() override;brendan delete
+
+            void register_iqis();
 
             //------------------------------------------------------------------------------
             /**
@@ -452,12 +447,6 @@ namespace moris
              * @brief finalize the fem sets
              */
             void finalize_equation_sets( MSI::Model_Solver_Interface *aModelSolverInterface ) override;
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief scale the IQIs according to user input.
-             */
-            void normalize_IQIs() override;
 
             //------------------------------------------------------------------------------
             /**

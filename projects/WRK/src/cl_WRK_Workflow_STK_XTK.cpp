@@ -137,7 +137,7 @@ namespace moris::wrk
 
         mPerformerManager->mMDLPerformer( 0 )->initialize();
 
-        mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+        // mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
         // Build MDL components and solve
         mPerformerManager->mMDLPerformer( 0 )->perform();
@@ -164,7 +164,7 @@ namespace moris::wrk
     Matrix< DDRMat >
     Workflow_STK_XTK::compute_dcriteria_dadv()
     {
-        mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
+        // mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
         mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 

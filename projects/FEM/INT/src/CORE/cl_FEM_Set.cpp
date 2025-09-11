@@ -2365,8 +2365,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::build_requested_IWG_dof_type_list( const bool aIsStaggered )
+    void Set::build_requested_IWG_dof_type_list( const bool aIsStaggered )
     {
         for ( const std::shared_ptr< IWG >& tIWG : mRequestedIWGs )
         {
@@ -2376,8 +2375,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::build_requested_IQI_dof_type_list()
+    void Set::build_requested_IQI_dof_type_list()
     {
         for ( const std::shared_ptr< IQI >& tIQI : mRequestedIQIs )
         {
@@ -2387,8 +2385,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::initialize_mJacobian()
+    void Set::initialize_mJacobian()
     {
         // if residual not initialized before
         if ( !mJacobianExist )
@@ -2495,8 +2492,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::initialize_mResidual()
+    void Set::initialize_mResidual()
     {
         // if residual not initialized before
         if ( !mResidualExist )
@@ -2575,8 +2571,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::initialize_mQI()
+    void Set::initialize_mQI()
     {
         // if list of QI values not initialized before
         if ( !mQIExist )
@@ -2620,8 +2615,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::initialize_mdQIdpMat()
+    void Set::initialize_mdQIdpMat()
     {
         // if dRdpMap not initialized before
         if ( !mdQIdpMatExist )
@@ -2699,8 +2693,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::initialize_mdQIdpGeo( const std::shared_ptr< fem::Cluster >& aFemCluster )
+    void Set::initialize_mdQIdpGeo( const std::shared_ptr< fem::Cluster >& aFemCluster )
     {
         // get the number of requested IQIs
         uint tNumRequestedIQIs = this->get_equation_model()->get_requested_IQI_names().size();
@@ -2718,8 +2711,7 @@ namespace moris::fem
 
     //----------------------------------------------------------------------
 
-    void
-    Set::initialize_mdRdpMat()
+    void Set::initialize_mdRdpMat()
     {
         // if dRdpMap not initialized before
         if ( !mdRdpMatExist )
@@ -2818,8 +2810,7 @@ namespace moris::fem
 
     //----------------------------------------------------------------------
 
-    void
-    Set::initialize_mdRdpGeo( const std::shared_ptr< fem::Cluster >& aFemCluster )
+    void Set::initialize_mdRdpGeo( const std::shared_ptr< fem::Cluster >& aFemCluster )
     {
         // get the dof types requested by the solver
         const Vector< enum MSI::Dof_Type >& tRequestedDofTypes =
@@ -3192,8 +3183,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::set_visualization_set(
+    void Set::set_visualization_set(
             const uint       aVisMeshIndex,
             moris::mtk::Set* aVisMeshSet,
             const bool       aOnlyPrimaryCells )
@@ -3248,8 +3238,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::construct_cell_assembly_map_for_VIS_set(
+    void Set::construct_cell_assembly_map_for_VIS_set(
             const uint       aVisMeshIndex,
             moris::mtk::Set* aVisMeshSet,
             const bool       aOnlyPrimaryCells )
@@ -3294,8 +3283,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::construct_facet_assembly_map_for_VIS_set(
+    void Set::construct_facet_assembly_map_for_VIS_set(
             const uint       aVisMeshIndex,
             moris::mtk::Set* aVisMeshSet )
     {
@@ -3443,8 +3431,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::compute_quantity_of_interest_nodal(
+    void Set::compute_quantity_of_interest_nodal(
             const uint                   aVisMeshIndex,
             Matrix< DDRMat >*            aNodalFieldValues,
             const Vector< std::string >& aQINames )
@@ -3479,8 +3466,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    uint
-    Set::get_number_of_requested_nodal_IQIs_for_visualization()
+    uint Set::get_number_of_requested_nodal_IQIs_for_visualization()
     {
         return mRequestedNodalIQIs.size();
     }
@@ -3495,8 +3481,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::compute_quantity_of_interest_global(
+    void Set::compute_quantity_of_interest_global(
             const uint                   aVisMeshIndex,
             Matrix< DDRMat >*            aGlobalFieldValues,
             const Vector< std::string >& aQINames )
@@ -3531,8 +3516,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    uint
-    Set::get_number_of_requested_global_IQIs_for_visualization()
+    uint Set::get_number_of_requested_global_IQIs_for_visualization()
     {
         return mRequestedGlobalIQIs.size();
     }
@@ -3547,8 +3531,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::compute_quantity_of_interest_elemental(
+    void Set::compute_quantity_of_interest_elemental(
             const uint                   aVisMeshIndex,
             Matrix< DDRMat >*            aElementalFieldValues,
             const Vector< std::string >& aQINames,
@@ -3606,8 +3589,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    uint
-    Set::get_number_of_requested_elemental_IQIs_for_visualization()
+    uint Set::get_number_of_requested_elemental_IQIs_for_visualization()
     {
         return mRequestedElementalIQIs.size();
     }
@@ -3630,8 +3612,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    uint
-    Set::get_number_of_requested_field_IQIs()
+    uint Set::get_number_of_requested_field_IQIs()
     {
         return mRequestedFieldIQIs.size();
     }
@@ -3646,8 +3627,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::gather_requested_IQIs(
+    void Set::gather_requested_IQIs(
             Vector< std::string > const &     aNames,
             Vector< std::shared_ptr< IQI > >& aListOfRequestedIQIs,
             Vector< moris_index >&            aListOfIQIGlobalIndices )
@@ -3688,8 +3668,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::determine_set_type()
+    void Set::determine_set_type()
     {
         mtk::SetType tMtkSetType = mMeshSet->get_set_type();
 
@@ -3738,16 +3717,14 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::set_set_type( fem::Element_Type aElementType )
+    void Set::set_set_type( fem::Element_Type aElementType )
     {
         mElementType = aElementType;
     }
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::get_ig_unique_dv_types_for_set(
+    void Set::get_ig_unique_dv_types_for_set(
             Vector< enum gen::PDV_Type >& aGeoPdvType )
     {
         // get design variable interface
@@ -3766,8 +3743,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::get_ip_dv_types_for_set(
+    void Set::get_ip_dv_types_for_set(
             Vector< Vector< enum gen::PDV_Type > >& aMatPdvType,
             mtk::Leader_Follower                    aIsLeader )
     {
@@ -3804,8 +3780,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void
-    Set::populate_fields(
+    void Set::populate_fields(
             Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
             Vector< std::string > const &            aFieldIQINames )
     {

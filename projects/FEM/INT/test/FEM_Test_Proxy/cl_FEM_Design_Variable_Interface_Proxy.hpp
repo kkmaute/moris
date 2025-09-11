@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
-#define SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
+#pragma once
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -43,6 +42,7 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         FEM_Design_Variable_Interface_Proxy()
+                : Design_Variable_Interface( *( new Vector< std::string >() ) )
         {
             mDvTypes.resize( 2 );
             mDvTypes( 0 ).resize( 2 );
@@ -341,7 +341,7 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
-        void set_requested_IQIs( const Vector< std::string >& aRequestedIQINames );
+        void set_requested_QIs( const Vector< std::string >& aRequestedIQINames );
 
         //------------------------------------------------------------------------------
 
@@ -356,5 +356,3 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
 }    // namespace moris::fem
-
-#endif /* SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_ */

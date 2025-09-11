@@ -8,9 +8,7 @@
  *
  */
 
-#ifndef SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
-#define SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
-
+#pragma once
 #include <utility>
 
 #include "moris_typedefs.hpp"
@@ -21,6 +19,7 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_QI.hpp"
 
 namespace moris
 {
@@ -42,6 +41,13 @@ namespace moris
             bool                                   mdQIdpImported = false;
             sol::Dist_Vector*                      mdQIdp         = nullptr;
 
+          protected:
+            // QI Values that were requested to be used for optimization objectives or constraints
+            Vector< std::string >& mRequestedQIs;
+
+            // All QI values that were specified in the input file, names mapped to QI objects
+            std::map< std::string, MSI::QI > mQIs;
+
             //------------------------------------------------------------------------------
 
           public:
@@ -50,7 +56,8 @@ namespace moris
             /**
              * trivial constructor
              */
-            Design_Variable_Interface() {};
+            Design_Variable_Interface( Vector< std::string >& aRequestedQIs )
+                    : mRequestedQIs( aRequestedQIs ) {};
 
             //------------------------------------------------------------------------------
 
@@ -86,14 +93,104 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * set requested IQI type for sensitivity analysis
-             * @param[ in ] aRequestedIQIType
+             * Registers a single quantity of interest. Adds to list of mQIs and adds the name to mQINameToIndexMap.
+             * @param[ in ] aQI Quantity of interest to register. See QI constructor for options with construction.
              */
-            void set_requested_IQIs( const Vector< std::string >& aRequestedIQIs );
+            void register_QI( QI aQI );
 
             //------------------------------------------------------------------------------
 
-            virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const = 0;
+            /**
+             * Templated constructor to register a single quantity of interest. Forwards the arguments to the appropriate QI constructor.
+             * See MSI_QI constructor for options with construction.
+             *
+             * @tparam Args Variadic template to accept any number of arguments of any type
+             * @param[ in ] args Arguments to forward to the QI constructor
+             */
+            template< typename... Args >
+            void register_QI( Args&&... args )
+            {
+                this->register_QI( QI( std::forward< Args >( args )... ) );
+            }
+
+            //------------------------------------------------------------------------------
+
+
+            template< typename T >
+            void register_QIs( const Vector< std::string >& aQIName, Vector< T >& aQIValue )
+            {
+                MORIS_ASSERT( aQIName.size() == aQIValue.size(),
+                        "Design_Variable_Interface::register_QI - Size of aQIName and aQIValue must be the same." );
+
+                for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
+                {
+                    this->register_QI( QI( aQIName( iQI ), aQIValue( iQI ) ) );
+                }
+            }
+
+            //------------------------------------------------------------------------------
+
+            template< typename T, typename U >
+            void register_QIs( const Vector< std::string >& aQIName, Vector< T >& aQIValue, Vector< U >& adQIdADV = Vector< U >() )
+            {
+                MORIS_ASSERT( aQIName.size() == aQIValue.size() && aQIName.size() == adQIdADV.size(),
+                        "Design_Variable_Interface::register_QI - Size of aQIName, aQIValue and adQIdADV must be the same." );
+
+                for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
+                {
+                    this->register_QI( QI( aQIName( iQI ), aQIValue( iQI ), adQIdADV( iQI ) ) );
+                }
+            }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * set requested IQI type for sensitivity analysis
+             * @param[ in ] aRequestedIQIType
+             */
+            void set_requested_QIs( const Vector< std::string >& aRequestedIQIs );
+
+            //------------------------------------------------------------------------------
+
+            const Vector< std::string >&
+            get_requested_QI_names() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Gets the value of the QIs that were requested for optimization as a vector of scalars
+             */
+            const Vector< real >
+            get_requested_QI_values() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Gets the value of the requested QI values as a vector of matrices. Since QI values are scalars, this function should eventually be deprecated.
+             */
+            const Vector< Matrix< DDRMat > >
+            get_requested_QI_values_mat() const;
+
+            //-----------------------------------------------------------------------------
+
+            /**
+             * Brendan documentation
+             */
+            real get_QI( const std::string& aQIName ) const;
+
+            /**
+             * Brendan documentation
+             */
+            const Matrix< DDRMat >& get_dQIdADV( const std::string& aQIName ) const;
+
+            /*
+             * Brendan documentation
+             */
+            void update_QI( const std::string& aQIName, real aValue );
+
+            void update_QI( const std::string& aQIName, const Matrix< DDRMat >& adQIdADV );
+
+            void update_QI( const std::string& aQIName, real aValue, const Matrix< DDRMat >& adQIdADV );
 
             /**
              * get unique dv types for set
@@ -246,5 +343,3 @@ namespace moris
 
     }    // namespace MSI
 }    // namespace moris
-
-#endif /* SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_ */

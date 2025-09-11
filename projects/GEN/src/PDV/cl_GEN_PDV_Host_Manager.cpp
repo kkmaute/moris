@@ -23,8 +23,11 @@ namespace moris::gen
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    PDV_Host_Manager::PDV_Host_Manager( Node_Manager& aNodeManager )
-            : mNodeManager( aNodeManager )
+    PDV_Host_Manager::PDV_Host_Manager(
+            Node_Manager&          aNodeManager,
+            Vector< std::string >& aRequestedQIs )
+            : MSI::Design_Variable_Interface( aRequestedQIs )
+            , mNodeManager( aNodeManager )
     {
     }
 
@@ -63,15 +66,6 @@ namespace moris::gen
         mOwnedAndSharedPDVLocalToGlobalMap.resize( 0, 0 );
         mNumOwnedPDVs          = 0;
         mNumOwnedAndSharedPDVs = 0;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const real PDV_Host_Manager::get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const
-    {
-        // Get the requested GQI value for the given geometry name and GQI type
-        // This is a placeholder implementation and should be replaced with the actual logic
-        return 0.0;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -535,6 +529,14 @@ namespace moris::gen
 
         // Create PDV with given type and property
         mIpPDVHosts( aNodeIndex )->create_pdv( aPDVType, aProperty );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    PDV_Host_Manager::fill_GQI_values()
+    {
+        // Loop through QIs
     }
 
     //--------------------------------------------------------------------------------------------------------------
