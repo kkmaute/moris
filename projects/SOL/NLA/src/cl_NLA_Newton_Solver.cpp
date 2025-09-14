@@ -115,7 +115,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         MORIS_LOG_ITERATION();
 
         // output pseudo time step
-        if ( tTimeOffSet > 0.0 )
+        if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() && tTimeOffSet > 0.0 )
         {
             // increment pseudo time for output
             tOutputTime += tTimeOffSet;
