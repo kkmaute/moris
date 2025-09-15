@@ -839,7 +839,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", tLibraryName );
         aParameterLists.set( "restart_file", "" );
-        aParameterLists.set( "reinitialize_interface_iter", 18 );
+        aParameterLists.set( "reinitialize_interface_iter", 19 );
 
         aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::GCMMA );
         aParameterLists.set( "step_size", tMMAStepSize );
