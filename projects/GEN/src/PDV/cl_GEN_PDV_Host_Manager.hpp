@@ -360,10 +360,10 @@ namespace moris::gen
 
         //-------------------------------------------------------------------------------
 
-        void
-        set_dQIdp(
-                const Vector< Matrix< DDRMat >* >& adQIdp,
-                Matrix< DDSMat >*                  aMap );
+        // void
+        // set_dQIdp(
+        //         const Vector< Matrix< DDRMat >* >& adQIdp,
+        //         Matrix< DDSMat >*                  aMap );
 
         //-------------------------------------------------------------------------------
 

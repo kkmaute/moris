@@ -32,6 +32,9 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
+// IOS
+#include "cl_Library_Enums.hpp"    // just for Module_Type enum
+
 namespace moris::gen
 {
 
@@ -225,13 +228,13 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::set_dQIdp(
-            const Vector< moris::Matrix< DDRMat >* >& adQIdp,
-            moris::Matrix< moris::DDSMat >*           aMap )
-    {
-        mPDVHostManager->set_dQIdp( adQIdp, aMap );
-    }
+    // void
+    // Geometry_Engine::set_dQIdp(
+    //         const Vector< moris::Matrix< DDRMat >* >& adQIdp,
+    //         moris::Matrix< moris::DDSMat >*           aMap )
+    // {
+    //     mPDVHostManager->set_dQIdp( adQIdp, aMap );
+    // }
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1903,10 +1906,12 @@ namespace moris::gen
         uint tFixedGQIIndex  = 0;
 
         // Initialize GQI information to pass to PDV Host Manager
+        Vector< Module_Type >      tModule( tNumADVDependentGQIs, Module_Type::GEN );
         Vector< std::string >      tADVDepGQINames( tNumADVDependentGQIs );
         Vector< real >             tADVDepGQIValues( tNumADVDependentGQIs );
         Vector< Matrix< DDRMat > > tADVDepdGQIdADV( tNumADVDependentGQIs );
 
+        Vector< Module_Type >      tModuleFixed( tNumFixedGQIs, Module_Type::GEN );
         Vector< std::string >      tFixedGQINames( tNumFixedGQIs );
         Vector< real >             tFixedGQIValues( tNumFixedGQIs );
         Vector< Matrix< DDRMat > > tFixedGQIdADV( tNumFixedGQIs );
@@ -1980,8 +1985,8 @@ namespace moris::gen
         }
 
         // Register both lists with the PDV Host Manager
-        mPDVHostManager->register_QIs( tADVDepGQINames, tADVDepGQIValues, tADVDepdGQIdADV );
-        mPDVHostManager->register_QIs( tFixedGQINames, tFixedGQIValues );
+        mPDVHostManager->register_QIs( tADVDepGQINames, tModule, tADVDepGQIValues, tADVDepdGQIdADV );
+        mPDVHostManager->register_QIs( tFixedGQINames, tModuleFixed, tFixedGQIValues );
     }
 
 }    // namespace moris::gen

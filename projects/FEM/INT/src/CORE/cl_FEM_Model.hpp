@@ -408,7 +408,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief set requested IQI names brendan refactor
+             * @brief set requested IQI names
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
             void
@@ -428,7 +428,7 @@ namespace moris
             /**
              * @brief get requested IQI names
              */
-            const Vector< std::string > &
+            const Vector< std::string >
             get_requested_IQI_names() override
             {
                 if ( mDesignVariableInterface == nullptr )
@@ -437,7 +437,7 @@ namespace moris
                     static const Vector< std::string > tEmpty;
                     return tEmpty;
                 }
-                return mDesignVariableInterface->get_requested_QI_names();
+                return mDesignVariableInterface->get_QI_names( Module_Type::FEM );
             }
 
             //------------------------------------------------------------------------------
@@ -510,6 +510,7 @@ namespace moris
              */
             void set_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
                     Vector< Matrix< DDSMat > >      &aXYZPvIds );
+
 
             //------------------------------------------------------------------------------
             /**

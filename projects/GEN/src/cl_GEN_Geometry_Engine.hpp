@@ -172,14 +172,14 @@ namespace moris::gen
                 uint                         aNumPhases,
                 const Vector< std::string >& aPhaseNames = {} );
 
-        /**
-         * Import dcriteria/dx from file
-         * used in plato workflow where platoanalyze does the forward analysis
-         */
-        void
-        set_dQIdp(
-                const Vector< Matrix< DDRMat >* >& adQIdp,
-                Matrix< DDSMat >*                  aMap );
+        // /**
+        //  * Import dcriteria/dx from file
+        //  * used in plato workflow where platoanalyze does the forward analysis
+        //  */
+        // void
+        // set_dQIdp(
+        //         const Vector< Matrix< DDRMat >* >& adQIdp,
+        //         Matrix< DDSMat >*                  aMap );
 
         /**
          * Gets the sensitivities of the criteria with respect to the advs

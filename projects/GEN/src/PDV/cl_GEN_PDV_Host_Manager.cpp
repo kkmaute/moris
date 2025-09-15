@@ -1489,49 +1489,49 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    PDV_Host_Manager::set_dQIdp(
-            const Vector< Matrix< DDRMat >* >& adQIdp,
-            Matrix< DDSMat >*                  aMap )
-    {
-        // Number
-        sint tNumIQIs = adQIdp.size();
+    // void
+    // PDV_Host_Manager::set_dQIdp(
+    //         const Vector< Matrix< DDRMat >* >& adQIdp,
+    //         Matrix< DDSMat >*                  aMap )
+    // {
+    //     // Number
+    //     sint tNumIQIs = adQIdp.size();
 
-        // Create factory for resulting distributed vector
-        sol::Matrix_Vector_Factory tDistributedFactory;
+    //     // Create factory for resulting distributed vector
+    //     sol::Matrix_Vector_Factory tDistributedFactory;
 
-        // node map from
-        sol::Dist_Map* tMap = tDistributedFactory.create_map( this->get_my_local_global_map() );
+    //     // node map from
+    //     sol::Dist_Map* tMap = tDistributedFactory.create_map( this->get_my_local_global_map() );
 
-        // allocate dist vector
-        sol::Dist_Vector* tdQIDp = tDistributedFactory.create_vector( tMap, tNumIQIs, false, true );
+    //     // allocate dist vector
+    //     sol::Dist_Vector* tdQIDp = tDistributedFactory.create_vector( tMap, tNumIQIs, false, true );
 
-        for ( uint iIQI = 0; iIQI < (uint)tNumIQIs; iIQI++ )
-        {
-            // iterate through intersection vertices
-            for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
-            {
-                if ( mNodeManager.node_depends_on_advs( iNodeIndex ) )
-                {
-                    // Get number of PDVs and starting ID
-                    moris_id tStartingPDVId = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
-                    uint     tNumberOfPDVs  = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
+    //     for ( uint iIQI = 0; iIQI < (uint)tNumIQIs; iIQI++ )
+    //     {
+    //         // iterate through intersection vertices
+    //         for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+    //         {
+    //             if ( mNodeManager.node_depends_on_advs( iNodeIndex ) )
+    //             {
+    //                 // Get number of PDVs and starting ID
+    //                 moris_id tStartingPDVId = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+    //                 uint     tNumberOfPDVs  = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
-                    moris::Matrix< DDSMat > tPDVIds( 1, tNumberOfPDVs );
-                    for ( moris::uint iPDV = 0; iPDV < tNumberOfPDVs; iPDV++ )
-                    {
-                        tPDVIds( iPDV ) = tStartingPDVId + iPDV;
-                    }
+    //                 moris::Matrix< DDSMat > tPDVIds( 1, tNumberOfPDVs );
+    //                 for ( moris::uint iPDV = 0; iPDV < tNumberOfPDVs; iPDV++ )
+    //                 {
+    //                     tPDVIds( iPDV ) = tStartingPDVId + iPDV;
+    //                 }
 
-                    Matrix< DDRMat > tIndividualSensitivity = adQIdp( iIQI )->get_row( iNodeIndex );
+    //                 Matrix< DDRMat > tIndividualSensitivity = adQIdp( iIQI )->get_row( iNodeIndex );
 
-                    tdQIDp->sum_into_global_values( tPDVIds, tIndividualSensitivity, iIQI );
-                }
-            }
-        }
+    //                 tdQIDp->sum_into_global_values( tPDVIds, tIndividualSensitivity, iIQI );
+    //             }
+    //         }
+    //     }
 
-        this->set_dQIdp_dist_vect( tdQIDp );
-    }
+    //     this->set_dQIdp_dist_vect( tdQIDp );
+    // }
 
     //--------------------------------------------------------------------------------------------------------------
 

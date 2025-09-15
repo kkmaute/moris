@@ -30,15 +30,45 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     const Vector< std::string >&
-    Design_Variable_Interface::get_requested_QI_names() const
+    Design_Variable_Interface::get_all_QI_names() const
     {
         return mRequestedQIs;
     }
 
     //------------------------------------------------------------------------------
 
+    const Vector< std::string >
+    Design_Variable_Interface::get_QI_names( Module_Type aModule ) const
+    {
+
+        // Dry run to size output vector
+        uint tNumQIsInModule = 0;
+        for ( const auto& tQI : mQIs )
+        {
+            if ( tQI.second.mModule == aModule )
+            {
+                tNumQIsInModule++;
+            }
+        }
+
+        // Fill the vector with the QI values
+        Vector< std::string > tRequestedQINames( tNumQIsInModule );
+        uint                  tIndex = 0;
+        for ( const auto& tQI : mQIs )
+        {
+            if ( tQI.second.mModule == aModule )
+            {
+                tRequestedQINames( tIndex++ ) = tQI.first;
+            }
+        }
+
+        return tRequestedQINames;
+    }
+
+    //------------------------------------------------------------------------------
+
     const Vector< real >
-    Design_Variable_Interface::get_requested_QI_values() const
+    Design_Variable_Interface::get_all_QI_values() const
     {
         Vector< real > tQIValues( mRequestedQIs.size(), 0.0 );
 
@@ -53,7 +83,7 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     const Vector< Matrix< DDRMat > >
-    Design_Variable_Interface::get_requested_QI_values_mat() const
+    Design_Variable_Interface::get_all_QI_values_mat() const
     {
         Vector< Matrix< DDRMat > > tQIValues( mRequestedQIs.size(), Matrix< DDRMat >( 1, 1, 0.0 ) );
 
@@ -68,15 +98,15 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     void
-    Design_Variable_Interface::register_QI( QI aQI )
+    Design_Variable_Interface::register_QI( const std::string& aName, QI aQI )
     {
         // check if the name already exists
-        MORIS_ERROR( mQIs.find( aQI.name() ) == mQIs.end(),
+        MORIS_ERROR( mQIs.find( aName ) == mQIs.end(),
                 "Design_Variable_Interface::register_QI - Quantity of interest with name %s already exists. Please use a unique name for each quantity of interest.",
-                aQI.name().c_str() );
+                aName.c_str() );
 
         // add to map
-        mQIs.emplace( aQI.name(), std::move( aQI ) );
+        mQIs.emplace( aName, std::move( aQI ) );
     }
 
     //------------------------------------------------------------------------------
@@ -156,11 +186,11 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    void
-    Design_Variable_Interface::set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp )
-    {
-        mdQIdpImported = true;
-        mdQIdp         = adQIdp;
-    }
+    // void
+    // Design_Variable_Interface::set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp )
+    // {
+    //     mdQIdpImported = true;
+    //     mdQIdp         = adQIdp;
+    // }
 
 }    // namespace moris::MSI

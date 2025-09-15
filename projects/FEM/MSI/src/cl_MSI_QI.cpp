@@ -12,27 +12,11 @@
 
 namespace moris::MSI
 {
-    // QI::QI( const std::string& aName, const real& aValue )
-    //         : mName( aName )
-    //         , mValue( std::move( aValue ) )
-    //         , mIsEvaluated( true )
-    // {
-    // }
-
-    // //------------------------------------------------------------------------------
-
-    // QI::QI( const std::string& aName, std::function< real() > aValueFunction )
-    //         : mName( aName )
-    //         , mValueFunction( std::move( aValueFunction ) )
-    // {
-    // }
-
-    //------------------------------------------------------------------------------
-
-    QI::QI( const std::string       aName,
+    QI::QI(
+            Module_Type             aModule,
             const real&             aValue,
             const Matrix< DDRMat >& aDQIdADV )
-            : mName( aName )
+            : mModule( aModule )
             , mValue( std::move( aValue ) )
             , mIsEvaluated( true )
     {
@@ -44,10 +28,11 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    QI::QI( const std::string                    aName,
+    QI::QI(
+            Module_Type                          aModule,
             std::function< real() >              aValueFunction,
             std::function< Matrix< DDRMat >&() > aDQIdADVFunction )
-            : mName( aName )
+            : mModule( aModule )
             , mValueFunction( std::move( aValueFunction ) )
             , mDQIdADVFunction( std::move( aDQIdADVFunction ) )
     {
@@ -55,10 +40,11 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    QI::QI( const std::string                    aName,
+    QI::QI(
+            Module_Type                          aModule,
             const real&                          aValue,
             std::function< Matrix< DDRMat >&() > aDQIdADVFunction )
-            : mName( aName )
+            : mModule( aModule )
             , mValue( std::move( aValue ) )
             , mIsEvaluated( true )
             , mDQIdADVFunction( std::move( aDQIdADVFunction ) )
@@ -67,10 +53,11 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    QI::QI( const std::string       aName,
+    QI::QI(
+            Module_Type             aModule,
             std::function< real() > aValueFunction,
             const Matrix< DDRMat >& aDQIdADV )
-            : mName( aName )
+            : mModule( aModule )
             , mValueFunction( std::move( aValueFunction ) )
     {
         if ( aDQIdADV.numel() != 0 )
@@ -123,13 +110,6 @@ namespace moris::MSI
     void QI::set_dADV( const Matrix< DDRMat >& aDQIdADV )
     {
         mdQIdADV = aDQIdADV;
-    }
-
-    //------------------------------------------------------------------------------
-
-    const std::string& QI::name() const
-    {
-        return mName;
     }
 
     //------------------------------------------------------------------------------

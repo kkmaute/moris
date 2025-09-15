@@ -400,7 +400,7 @@ namespace moris
             /**
              * @brief get requested IQI names
              */
-            virtual const Vector< std::string >&
+            virtual const Vector< std::string >
             get_requested_IQI_names() = 0;
 
             //------------------------------------------------------------------------------
@@ -537,7 +537,7 @@ namespace moris
             Vector< moris::Matrix< DDRMat > >
             get_IQI_values()
             {
-                return mDesignVariableInterface->get_requested_QI_values_mat();
+                return mDesignVariableInterface->get_all_QI_values_mat();
             }
 
             //------------------------------------------------------------------------------

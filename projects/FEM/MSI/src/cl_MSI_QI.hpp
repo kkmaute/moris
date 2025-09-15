@@ -12,14 +12,18 @@
 #include <functional>
 #include <optional>
 #include "cl_Matrix.hpp"
+#include "cl_Library_Enums.hpp"
 
 namespace moris::MSI
 {
     class QI
     {
-      private:
-        const std::string mName;
 
+      public:
+        // Public and const so it can be accessed directly without a getter
+        const Module_Type mModule;
+
+      private:
         // Forward solve variables
         mutable real            mValue         = MORIS_REAL_MAX;    // Stores the value of the QI
         mutable bool            mIsEvaluated   = false;             // Flag if the QI value has been computed
@@ -38,25 +42,25 @@ namespace moris::MSI
 
         // Optimization problem constructor - eagerly computed QI and sensitivity
         explicit QI(
-                const std::string       aName,
+                Module_Type             aModule,
                 const real&             aValue,
                 const Matrix< DDRMat >& aDQIdADV = Matrix< DDRMat >() );
 
         // Optimization problem constructor - lazily computed QI and sensitivity
         explicit QI(
-                const std::string                    aName,
+                Module_Type                          aModule,
                 std::function< real() >              aValueFunction,
                 std::function< Matrix< DDRMat >&() > aDQIdADVFunction );
 
         // Optimization problem constructor - eagerly computed QI and lazily computed sensitivity
         explicit QI(
-                const std::string                    aName,
+                Module_Type                          aModule,
                 const real&                          aValue,
                 std::function< Matrix< DDRMat >&() > aDQIdADVFunction );
 
         // Optimization problem constructor - lazily computed QI and eagerly computed sensitivity
         explicit QI(
-                const std::string       aName,
+                Module_Type             aModule,
                 std::function< real() > aValueFunction,
                 const Matrix< DDRMat >& aDQIdADV = Matrix< DDRMat >() );
 
@@ -80,11 +84,6 @@ namespace moris::MSI
          * Sets the dQi/dADV sensitivity and marks it as evaluated
          */
         void set_dADV( const Matrix< DDRMat >& aDQIdADV );
-
-        /**
-         * Gets the name of the QI
-         */
-        const std::string& name() const;
 
         /**
          * Resets the QI to signify the value must be recomputed

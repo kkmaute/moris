@@ -1008,7 +1008,7 @@ namespace moris::fem
         for ( auto &tIQI : mIQIs )
         {
             // Register IQI with the Design Variable Interface
-            mDesignVariableInterface->register_QI( tIQI->get_name(), 0.0 );    // brendan need sensitivities
+            mDesignVariableInterface->register_QI( tIQI->get_name(), Module_Type::FEM, 0.0 );    // brendan need sensitivities
         }
     }
 
@@ -1020,7 +1020,7 @@ namespace moris::fem
         // this->create_IQI_map(); brendan delete
 
         // Get the requested IQI names from the design variable interface
-        // const Vector< std::string > &tRequestedIQINames = mDesignVariableInterface->get_requested_QI_names();
+        // const Vector< std::string > &tRequestedIQINames = mDesignVariableInterface->get_all_QI_names();
 
         // // number of requested IQIs for the model
         // moris::uint tNumIQIs = tRequestedIQINames.size();

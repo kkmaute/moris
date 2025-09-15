@@ -56,7 +56,6 @@ namespace moris::fem
 
         Vector< std::shared_ptr< moris::fem::Field > > const &get_fields() const { return mFields; }
         Vector< std::shared_ptr< moris::fem::IQI > > const   &get_iqis() const { return mIQIs; }
-        // Vector< std::shared_ptr< moris::fem::GQI > > const   &get_gqis() const { return mGQIs; } brendan delete
 
       protected:
         void create_properties();
