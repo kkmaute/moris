@@ -49,7 +49,7 @@ namespace moris
         bool mIsForwardAnalysis            = true;
         bool mIsAdjointSensitivityAnalysis = true;
         bool mIsNonlinearTrustRegionSolve = false;
-        std::string mTrustRegionIQIName = "";
+        Vector< std::string > mTrustRegionIQIName;
 
       protected:
         Vector< moris_id > mNonZeroDigonal;
@@ -110,7 +110,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
-        set_trust_region_IQI_name( std::string aIQIName )
+        set_trust_region_IQI_name( Vector< std::string > aIQIName )
         {
             mTrustRegionIQIName = aIQIName;
         };
@@ -125,12 +125,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        virtual std::string
+        virtual Vector< std::string >
         get_trust_region_IQI_name()
         {
             return mTrustRegionIQIName;
         };
 
+        //-----------------------------------------------------------------------------
+
+        virtual bool is_unit_test() = 0;
 
         //------------------------------------------------------------------------------
         virtual void

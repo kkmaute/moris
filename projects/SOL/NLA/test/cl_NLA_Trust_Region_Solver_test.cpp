@@ -18,6 +18,7 @@
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
+//#include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
@@ -99,6 +100,8 @@ namespace moris
         tObj( 0 ) = tMyValues( 0 , 0 )*(tMyValues( 0 , 0 ) + 1.0) + 0.3*tMyValues( 1 , 0 )*(tMyValues( 1 , 0 )-0.2) + 0.2*tMyValues( 2 , 0 )*(tMyValues( 2 , 0 )-0.5) + std::pow(tMyValues( 0 , 0 ), 2)*std::pow(tMyValues( 1 , 0 ), 2) + tMyValues( 0 , 0 )*tMyValues( 1 , 0 ) + std::sin(tMyValues( 0 , 0 ));
 
         tObjval.push_back( tObj );
+        tObjval.push_back( {{0.0}} );
+        tObjval.push_back( {{0.0}} );
 
         return tObjval;
     }
@@ -140,7 +143,7 @@ namespace moris
                 Nonlinear_Problem tNonlinearProblem( tSolverInput, 0, true, sol::MapType::Petsc );
 
                 Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
-                tNonlinearSolverParameterList.set( "NLA_max_iter", 1 );
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 20 );
                 tNonlinearSolverParameterList.set( "NLA_hard_break", false );
                 tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
                 tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
@@ -154,7 +157,17 @@ namespace moris
 
                 tNonLinSolManager.set_nonlinear_algorithm( tNonlLinSolverAlgorithm, 0 );
 
-                // Set nasty initial guess
+                dla::Solver_Factory tSolFactory;
+                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
+                Parameter_List tPreconditionerParameterList = prm::create_preconditioner_parameter_list(sol::PreconditionerType::PETSC);
+                tLinearSolverParameterList.set( "KSPType", std::string( "stcg" ) );
+                tLinearSolverParameterList.set( "PCType", std::string( "cholesky" ));
+                dla::Preconditioner* tPrec1 = tSolFactory.create_preconditioner( tPreconditionerParameterList );
+                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
+                //std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
+                tLinSolver1->set_preconditioner( tPrec1 );
+
+                // // Set nasty initial guess
                 // sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
                 // sol::Dist_Vector* tInitGuess = tMatFactory.create_vector(tNonlinearProblem.get_solver_interface(),tNonlinearProblem.get_full_vector()->get_map(), 1);
                 // sint tLength = tInitGuess->vec_global_length();
@@ -169,20 +182,10 @@ namespace moris
                 // tVals( 1, 0 ) = (7.0);
                 // tVals( 2, 0 ) = (-1.0);
                 // tInitGuess->sum_into_global_values(tIDs, tVals);
+                // tInitGuess->vector_global_assembly();
 
-                // // // Replace original initial guess with current initial guess
+                // // Replace original initial guess with current initial guess
                 // tSolverInput->set_solution_vector( tInitGuess );
-
-
-                dla::Solver_Factory tSolFactory;
-                Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
-                Parameter_List tPreconditionerParameterList = prm::create_preconditioner_parameter_list(sol::PreconditionerType::PETSC);
-                tLinearSolverParameterList.set( "KSPType", std::string( "stcg" ) );
-                tLinearSolverParameterList.set( "PCType", std::string( "cholesky" ));
-                dla::Preconditioner* tPrec1 = tSolFactory.create_preconditioner( tPreconditionerParameterList );
-                std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
-                //std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
-                tLinSolver1->set_preconditioner( tPrec1 );
 
                 tLinSolManager.set_linear_algorithm( 0, tLinSolver1 );
                 

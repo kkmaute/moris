@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_TRACTION_HPP_
-#define PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_TRACTION_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_TRACTION_POTENTIAL_HPP_
+#define PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_TRACTION_POTENTIAL_HPP_
 
 #include "moris_typedefs.hpp"           //MRS/COR/src
 #include "cl_Vector.hpp"                //MRS/CNT/src
@@ -23,14 +23,12 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    class IQI_Traction : public IQI
+    class IQI_Traction_Potential : public IQI
     {
-        enum CM_Function_Type mStressType;
-        enum CM_Function_Type mStrainType;
         
-        enum class IQI_Constitutive_Type
+        enum class IQI_Property_Type
         {
-            TRACTION_CM,
+            TRACTION,
             MAX_ENUM
         };
 
@@ -41,16 +39,13 @@ namespace moris::fem
         /*
          * constructor
          */
-        IQI_Traction(
-            enum CM_Function_Type aStressType = CM_Function_Type::DEFAULT,
-            enum CM_Function_Type aStrainType = CM_Function_Type::DEFAULT
-          );
+        IQI_Traction_Potential();
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IQI_Traction() override{};
+        ~IQI_Traction_Potential() override{};
 
         //------------------------------------------------------------------------------
 

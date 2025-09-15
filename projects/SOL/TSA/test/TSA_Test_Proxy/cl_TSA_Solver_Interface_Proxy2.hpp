@@ -140,6 +140,14 @@ namespace moris
                 return mMyGlobalElements;
             };
 
+            //----------------------------------------------------------------------------------------------
+
+            bool is_unit_test() override
+            {
+                return true;
+
+            }
+
             // ----------------------------------------------------------------------------------------------
 
             moris::Matrix< DDSMat > get_my_local_global_overlapping_map() override

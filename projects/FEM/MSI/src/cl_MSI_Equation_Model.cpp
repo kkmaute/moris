@@ -65,10 +65,16 @@ namespace moris::MSI
 
     void
     Equation_Model::compute_IQIs()
-    {
+    {    
         // get number of IQI on the model
         uint tNumIQIsOnModel =
                 this->get_requested_IQI_names().size();
+
+        // Initialize IQIs to zero
+        for ( uint iIQI = 0; iIQI < tNumIQIsOnModel ; iIQI++ )
+        {
+            mGlobalIQIVal( iIQI ) = {{0.0}};
+        }
 
         // get local number of equation sets
         uint tNumSets = mFemSets.size();
@@ -106,6 +112,8 @@ namespace moris::MSI
                 mFemSets( tSetIndex )->free_matrix_memory();
             }
         }
+
+        PRINT( mGlobalIQIVal( 0 ) );
 
         // Normalization
         if ( gLogger.mIteration == 0 )

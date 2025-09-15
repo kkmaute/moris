@@ -25,6 +25,10 @@ namespace moris::fem
 
     class IQI_Nitsche_Energy : public IQI
     {
+
+        enum CM_Function_Type mStressType;
+        enum CM_Function_Type mStrainType;
+
         enum class IQI_Constitutive_Type
         {
             TRACTION_CM,
@@ -50,7 +54,10 @@ namespace moris::fem
         /*
          * constructor
          */
-        IQI_Nitsche_Energy();
+        IQI_Nitsche_Energy( 
+                enum CM_Function_Type aStressType = CM_Function_Type::DEFAULT,
+                enum CM_Function_Type aStrainType = CM_Function_Type::DEFAULT 
+            );
 
         //------------------------------------------------------------------------------
         /**

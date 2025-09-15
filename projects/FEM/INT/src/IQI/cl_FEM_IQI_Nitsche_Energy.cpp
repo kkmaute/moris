@@ -18,9 +18,15 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    IQI_Nitsche_Energy::IQI_Nitsche_Energy()
+    IQI_Nitsche_Energy::IQI_Nitsche_Energy( 
+            enum CM_Function_Type aStressType,
+            enum CM_Function_Type aStrainType 
+        )
     {
         mFEMIQIType = fem::IQI_Type::NITSCHE_ENERGY;
+
+        mStressType = aStressType;
+        mStrainType = aStrainType;
 
         // set size for the constitutive model pointer cell
         mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -65,13 +71,13 @@ namespace moris::fem
 
         // evaluate traction
         const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal );
+                tTraction = tCMLeader->traction( mNormal , mStressType );
 
         // Get Displacement-
         const Matrix< DDRMat > tDisplacement = tFILeader->val();
 
         // Compute the integrand
-        aQI = trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
+        aQI = trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
 
     }
 
@@ -106,13 +112,13 @@ namespace moris::fem
 
         // evaluate traction
         const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal );
+                tTraction = tCMLeader->traction( mNormal , mStressType );
 
         // Get Displacement-
         const Matrix< DDRMat > tDisplacement = tFILeader->val();
 
         // Compute the integrand
-        Matrix < DDRMat > tQI = tTraction * ( tDisplacement - tPropDirichlet->val()) + tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
+        Matrix < DDRMat > tQI = trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
 
         // add the contribution
         mSet->get_QI()( tQIIndex ) += aWStar * tQI;

@@ -88,7 +88,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMLeaderElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
     tCMLeaderElastLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
     tCMLeaderElastLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
     tCMLeaderElastLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
@@ -98,7 +98,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // define the IWGs
     fem::IQI_Factory tIQIFactory;
 
-    std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
+    std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY_NL );
     tIQI->set_constitutive_model( tCMLeaderElastLinIso, "Elast", mtk::Leader_Follower::LEADER );
     tIQI->set_name("Strain Energy");
 
@@ -182,7 +182,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
 
     tParameterList( 4 ).add_parameter_list( prm::create_IQI_parameter_list() );
     tParameterList( 4 )( 0 ).set( "IQI_name",                   "Strain Energy");
-    tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
+    tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY_NL ) );
     tParameterList( 4 )( 0 ).set( "normalization",              "design" );
 
     // create computation  parameter list
@@ -250,7 +250,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tIQI->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::UX }};
 
     Vector< Vector< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
-    tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
+    tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY_NL );
 
     tSet->create_requested_IQI_type_map();
 
@@ -274,6 +274,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     //------------------------------------------------------------------------------
     // evaluate the quantity of interest
     tModel.initialize_IQIs();
+    std::cout<<" Print IQI " << tModel.get_IQI_values()(0)(0) << "\n";
     tModel.compute_IQIs();
     CHECK(tModel.get_IQI_values()(0)(0) == 1.0);
 

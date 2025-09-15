@@ -1,0 +1,60 @@
+diff --git a/projects/FEM/INT/src/IQI/cl_FEM_IQI_Factory.cpp b/projects/FEM/INT/src/IQI/cl_FEM_IQI_Factory.cpp
+index af6e11d20..b30a1684f 100644
+--- a/projects/FEM/INT/src/IQI/cl_FEM_IQI_Factory.cpp
++++ b/projects/FEM/INT/src/IQI/cl_FEM_IQI_Factory.cpp
+@@ -30,9 +30,8 @@
+ #include "cl_FEM_IQI_H1_Error.hpp"
+ #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
+ #include "cl_FEM_IQI_Max_Stress.hpp"
+-#include "cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp"
+-#include "cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp"
+-#include "cl_FEM_IQI_Effective_Conductivity.hpp"
++#include "cl_FEM_IQI_Turbulence_Fluid_Coefficient.hpp"
++#include "cl_FEM_IQI_Turbulence_Heat_Coefficient.hpp"
+ #include "cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp"
+ #include "cl_FEM_IQI_Power_Dissipation.hpp"
+ #include "cl_FEM_IQI_Power_Dissipation_Bulk.hpp"
+@@ -58,7 +57,6 @@
+ #include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
+ #include "cl_FEM_IQI_Contact_Pressure.hpp"
+ #include "cl_FEM_IQI_Max_Damage.hpp"
+ #include "cl_FEM_IQI_Nitsche_Energy.hpp"
+ 
+ namespace moris::fem
+ {
+@@ -97,6 +95,8 @@ namespace moris::fem
+ 
+             case IQI_Type::STRAIN_ENERGY:
+                 return std::make_shared< IQI_Strain_Energy >();
++            case IQI_Type::STRAIN_ENERGY_NL:
++                return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
+ 
+             case IQI_Type::NORMAL_STRESS:
+                 return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );
+@@ -147,12 +147,10 @@ namespace moris::fem
+             case IQI_Type::LIFT_COEFF:
+                 return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
+ 
+-            case IQI_Type::TURBULENT_DYNAMIC_VISCOSITY:
+-                return std::make_shared< IQI_Turbulent_Dynamic_Viscosity >();
+-            case IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY:
+-                return std::make_shared< IQI_Effective_Dynamic_Viscosity >();
+-            case IQI_Type::EFFECTIVE_CONDUCTIVITY:
+-                return std::make_shared< IQI_Effective_Conductivity >();
++            case IQI_Type::TURBULENCE_FLUID_COEFFICIENT:
++                return std::make_shared< IQI_Turbulence_Fluid_Coefficient >();
++            case IQI_Type::TURBULENCE_HEAT_COEFFICIENT:
++                return std::make_shared< IQI_Turbulence_Heat_Coefficient >();
+             case IQI_Type::SPALART_ALLMARAS_COEFFICIENT:
+                 return std::make_shared< IQI_Spalart_Allmaras_Coefficient >();
+ 
+@@ -216,9 +214,6 @@ namespace moris::fem
+                 return std::make_shared< IQI_Linear_Elasticity_Damage >();
+             case IQI_Type::MAX_DAMAGE:
+                 return std::make_shared< IQI_Max_Damage >();
+-            
+-            case IQI_Type::NITSCHE_ENERGY:
+-                return std::make_shared< IQI_Nitsche_Energy >();
+ 
+             default:
+                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

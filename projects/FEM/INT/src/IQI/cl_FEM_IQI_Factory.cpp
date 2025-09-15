@@ -55,6 +55,7 @@
 #include "cl_FEM_IQI_Jump_Dof.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
+#include "cl_FEM_IQI_Traction_Potential.hpp"
 #include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
 #include "cl_FEM_IQI_Contact_Pressure.hpp"
 #include "cl_FEM_IQI_Max_Damage.hpp"
@@ -97,6 +98,8 @@ namespace moris::fem
 
             case IQI_Type::STRAIN_ENERGY:
                 return std::make_shared< IQI_Strain_Energy >();
+            case IQI_Type::STRAIN_ENERGY_NL:
+                return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
 
             case IQI_Type::NORMAL_STRESS:
                 return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );
@@ -205,6 +208,10 @@ namespace moris::fem
                 return std::make_shared< IQI_Jump_Traction >();
             case IQI_Type::TRACTION:
                 return std::make_shared< IQI_Traction >();
+            case IQI_Type::TRACTION_NL:
+                return std::make_shared< IQI_Traction >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
+            case IQI_Type::TRACTION_POTENTIAL:
+                return std::make_shared< IQI_Traction_Potential >();
             case IQI_Type::CONTACT_PRESSURE_REFERENCE:
                 return std::make_shared< IQI_Contact_Pressure >( true );
             case IQI_Type::CONTACT_PRESSURE_CURRENT:
@@ -219,6 +226,10 @@ namespace moris::fem
             
             case IQI_Type::NITSCHE_ENERGY:
                 return std::make_shared< IQI_Nitsche_Energy >();
+            case IQI_Type::NITSCHE_ENERGY_NL:
+                return std::make_shared< IQI_Nitsche_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
+            case IQI_Type::STRAIN_ENERGY_NL_PK1:
+                return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
 
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

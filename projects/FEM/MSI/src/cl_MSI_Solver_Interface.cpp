@@ -113,17 +113,12 @@ namespace moris::MSI
     void
     MSI_Solver_Interface::compute_IQI()
     {
-        // // set specific IQI to be computed if requested for trust region solver
+        // set specific IQI to be computed if requested for trust region solver
         // if (this->get_trust_region_flag())
         // {
-        //     // Get the IQI name
-        //     std::string tIQIName = this->get_trust_region_IQI_name();
-
-        //     // Create vector
-        //     Vector< std::string > tIQINames;
-        //     tIQINames.push_back(tIQIName);
-
-        //     this->set_requested_IQI_names( tIQINames );
+        //      // Get the IQI name
+        //      Vector< std::string > tIQINames = this->get_trust_region_IQI_name();
+        //      this->set_requested_IQI_names( tIQINames );
         // }
 
         mMSI->mEquationModel->compute_IQIs();

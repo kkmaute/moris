@@ -158,12 +158,23 @@ namespace moris
 
             void postmultiply_implicit_dQds() override;
 
+            //------------------------------------------------------------------------------
+
             void compute_IQI() override;
+
+            //------------------------------------------------------------------------------
 
             Vector< moris::Matrix< DDRMat > >& get_IQI() override
             {
                 return mMSI->mEquationModel->get_IQI_values();
 
+            }
+
+            //------------------------------------------------------------------------------
+
+            bool is_unit_test() override
+            {
+                return false;
             }
         
             //------------------------------------------------------------------------------

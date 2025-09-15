@@ -70,7 +70,7 @@ namespace NLA
                     const moris::uint&                      aBlockRowOffsets,
                     Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
 
-        void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
+        //void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
 
         
         
@@ -86,64 +86,11 @@ namespace NLA
                                   bool        & aHardBreak);
 
         //------------------------------------------------------------------------------
-        // temporary vectors for printing solutions (this is being used only for debugging purposes)
-        moris::Matrix<DDRMat> mDis;
-        moris::Matrix<DDRMat> mFor;
-
-        
-
-        Dist_Vector* mFext;
-        //------------------------------------------------------------------------------
-
-        moris::real mB;
-        moris::real mDeltaA;
-        moris::real mForTol;
-        moris::real mResTol;
-
-        moris::real mR0;
-
-        moris::real mArcNumer;
-        moris::real mArcDenom;
-        moris::real mF_tilde;
-        moris::real mFArc;
-
-        moris::real mDeltaLambda;
-        moris::real mLambdaK;
-
-        moris::real mLambdaSolveNMinus1;
-        moris::real mLambdaSolveNMinus2;
-
-        moris::real mDFArcDDeltaLambda;
-
-        moris::real mDelLambdaNum;
-        moris::real mDelLambdaDen;
-        moris::real mTrSize;
-
-
-        //------------------------------------------------------------------------------
         //--------------------------- vectors and matrices -----------------------------
         //------------------------------------------------------------------------------
         sol::Dist_Matrix* mJac;
 
-        Dist_Vector* mJacVal;
-        Dist_Vector* mD_tilde;
-
-        Dist_Vector* mJacVal0;
-        Dist_Vector* mD_tilde0;
-        Dist_Vector* mDK;
-
-        Dist_Vector* mDSolve;
-        Dist_Vector* mDSolveNMinus1;
-        Dist_Vector* mDSolveNMinus2;
-
         sol::Dist_Vector* mGlobalRHS;
-
-        Dist_Vector* mDFArcDDeltaD;
-
-        Dist_Vector* mDelLamNum;
-        Dist_Vector* mDelLamDen;
-        Dist_Vector* mDeltaD;
-        Dist_Vector* mdeltaD;
         //------------------------------------------------------------------------------
 
         std::shared_ptr< tsa::Time_Solver_Algorithm > mMyTimeSolverAlgorithm = nullptr;
@@ -157,38 +104,13 @@ namespace NLA
                                                               sol::Dist_Vector* aD,
                                                               real          &aTrSize,
                                                               real          &aZz     );
-
-        Matrix< DDRMat > project_to_boundary_with_coeffs( Matrix< DDRMat > &aZ,
-                                                                       Matrix< DDRMat > &aD,
-                                                                       real          &aTrSize,
-                                                                       real          &aZz,
-                                                                       real          &aZd,
-                                                                       real          &aDd    );
-
-        real              update_step_length_squared( real          &aAlpha,
-                                                      real          &aZz,
-                                                      real          &aZd,
-                                                      real          &aDd );
-
-        std::tuple< real, real > cg_inner_products_preconditioned(   real         &aAlpha,
-                                                                                  real         &aBeta,
-                                                                                  real         &aZd,
-                                                                                  real         &aDd,
-                                                                                  real         &aRPr,
-                                                                                  Matrix< DDRMat > &aZ,
-                                                                                  Matrix< DDRMat > &aD );
-        sol::Dist_Vector*             dogleg_step(sol::Dist_Vector* aZ,
-                                                  sol::Dist_Vector* aQ,
-                                                  real          &aTrSize);
+       
+        sol::Dist_Vector*   dogleg_step(sol::Dist_Vector* aZ,
+                                        sol::Dist_Vector* aQ,
+                                        real        &aTrSize);
                                                   
-        void initialize_variables( Nonlinear_Problem *aNonlinearProblem );     
-        
-
-        std::tuple< real, real > cg_inner_products_unpreconditioned( Matrix< DDRMat >         &aZ,
-                                                                                  Matrix< DDRMat >         &aD );
-        
-
-        
+        //void initialize_variables( Nonlinear_Problem *aNonlinearProblem );     
+                
 
     protected:
 

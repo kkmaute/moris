@@ -161,11 +161,22 @@ namespace moris
             void compute_IQI() override;
 
             // ----------------------------------------------------------------------------
+            
+            void set_trust_region_IQI_name(Vector< std::string > aIQINames) override;
+
+            // ----------------------------------------------------------------------------
 
             Vector< moris::Matrix< DDRMat > >& get_IQI() override
             {
                 return mIQIVal;
 
+            }
+
+            // ----------------------------------------------------------------------------
+
+            bool is_unit_test() override
+            {
+                return true;
             }
 
             // ----------------------------------------------------------------------------

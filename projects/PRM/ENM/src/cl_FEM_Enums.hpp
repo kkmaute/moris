@@ -149,6 +149,8 @@ namespace moris::fem
     ENUM_MACRO( IQI_Type,
             VOLUME,
             STRAIN_ENERGY,
+            STRAIN_ENERGY_NL,
+            STRAIN_ENERGY_NL_PK1,
             VOLUME_FRACTION,
             GAP,
             DOF,
@@ -179,6 +181,8 @@ namespace moris::fem
             JUMP_DOF,
             JUMP_TRACTION,
             TRACTION,
+            TRACTION_NL,
+            TRACTION_POTENTIAL,
             CONTACT_PRESSURE_REFERENCE,
             CONTACT_PRESSURE_CURRENT,
             ADVECTION_STRONG_RESIDUAL,
@@ -211,6 +215,7 @@ namespace moris::fem
             LINEAR_ELASTICITY_DAMAGE,
             MAX_DAMAGE,
             NITSCHE_ENERGY,
+            NITSCHE_ENERGY_NL,
             END_IQI_TYPE )
 
     ENUM_MACRO( Constitutive_Type,

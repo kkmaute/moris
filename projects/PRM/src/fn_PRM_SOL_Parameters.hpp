@@ -931,7 +931,7 @@ namespace moris::prm
         tNonLinAlgorithmParameterList.insert( "NLA_trust_region_eta3", 0.5  );
         tNonLinAlgorithmParameterList.insert( "NLA_trust_region_t1",   0.25 );
         tNonLinAlgorithmParameterList.insert( "NLA_trust_region_t2",   1.75 );
-        tNonLinAlgorithmParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
+        tNonLinAlgorithmParameterList.insert( "NLA_trust_region_objective", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
                 Entry_Type::SELECTION, "IQI_name",
                 Module_Type::FEM, 4 ); 
         

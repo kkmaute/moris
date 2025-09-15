@@ -17,8 +17,15 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    IQI_Traction::IQI_Traction()
+    IQI_Traction::IQI_Traction(           
+            enum CM_Function_Type aStressType,
+            enum CM_Function_Type aStrainType
+        )
     {
+        // Assign stress and strain type
+        mStressType = aStressType;
+        mStrainType = aStrainType;
+    
         mFEMIQIType = fem::IQI_Type::TRACTION;
 
         // set size for the constitutive model pointer cell
@@ -44,7 +51,7 @@ namespace moris::fem
 
         // evaluate traction
         const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal );
+                tTraction = tCMLeader->traction( mNormal , mStressType );
 
         // based on the IQI index select the norm or the individual component
         if ( mIQITypeIndex == -1 )
@@ -79,7 +86,7 @@ namespace moris::fem
 
         // evaluate traction
         const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal );
+                tTraction = tCMLeader->traction( mNormal , mStressType );
 
         // initialize the output matrix
         Matrix< DDRMat > tMat;

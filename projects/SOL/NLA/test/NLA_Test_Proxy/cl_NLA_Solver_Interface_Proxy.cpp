@@ -224,3 +224,15 @@ void NLA_Solver_Interface_Proxy::compute_IQI()
     mIQIVal = { mFunctionObj( mNX, mNY, mMySolVec, mMyElementInd ) }; 
 
 }
+
+// ----------------------------------------------------------------------------------------------
+
+void NLA_Solver_Interface_Proxy::set_trust_region_IQI_name( Vector< std::string > aIQINames )
+{
+    
+    // Do nothing. This is a dummy function just so that trust region solver does not throw an error.
+
+}
+
+// ----------------------------------------------------------------------------------------------
+
