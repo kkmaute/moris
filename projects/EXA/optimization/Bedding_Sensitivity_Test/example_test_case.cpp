@@ -374,14 +374,6 @@ check_results(
 TEST_CASE( "Bedding_Sensitivity_Test",
         "[moris],[example],[optimization],[bedding]" )
 {
-    // remove files from previous test runs
-    // FIXME: should be made independent of OS; note std::remove does not take wild cards
-    if ( par_rank() == 0 )
-    {
-        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Bedding_Sensitivity_Test - removing *exo* files failed" );
-        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Bedding_Sensitivity_Test - removing *hdf5* files failed" );
-    }
-
     // for debugging in parallel
     // test_pause();
 

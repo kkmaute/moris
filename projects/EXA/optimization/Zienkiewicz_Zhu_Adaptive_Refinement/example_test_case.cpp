@@ -9,6 +9,9 @@
  */
 
 #include <catch.hpp>
+#include <filesystem>
+#include <iostream>
+#include <regex>
 
 #include "cl_Logger.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"

@@ -122,14 +122,6 @@ check_results(
 TEST_CASE( "Leveset Boxbeam Create File",
         "[moris],[example],[optimization],[levelset_boxbeam_create_file]" )
 {
-    // remove files from previous test runs
-    // FIXME: should be made independent of OS; note std::remove does not take wild cards
-    if ( par_rank() == 0 )
-    {
-        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Leveset Boxbeam Create File - removing *exo* files failed" );
-        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Leveset Boxbeam Create File - removing *hdf5* files failed" );
-    }
-
     // define command line call
     int argc = 2;
 
