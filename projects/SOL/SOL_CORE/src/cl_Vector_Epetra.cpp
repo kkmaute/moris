@@ -60,8 +60,7 @@ Vector_Epetra::~Vector_Epetra()
 
 //-----------------------------------------------------------------------------
 
-real&
-Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
+real& Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
 {
     // Get offset for this vector
     uint tOffset = this->vec_local_length() * aVectorIndex;
@@ -75,8 +74,7 @@ Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::replace_global_values(
+void Vector_Epetra::replace_global_values(
         const moris::Matrix< DDSMat >& aGlobalIds,
         const moris::Matrix< DDRMat >& aValues,
         const uint&                    aVectorIndex )
@@ -89,7 +87,9 @@ Vector_Epetra::replace_global_values(
 
     // check for valid IDs
     MORIS_ASSERT( aGlobalIds.min() >= 0 and aGlobalIds.max() < MORIS_SINT_MAX,
-            "Vector_Epetra::replace_global_values - invalid ID range (%d, %d) provided", aGlobalIds.min(), aGlobalIds.max() );
+            "Vector_Epetra::replace_global_values - invalid ID range (%d, %d) provided",
+            aGlobalIds.min(),
+            aGlobalIds.max() );
 
     // call native epetra function
     int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
@@ -105,8 +105,7 @@ Vector_Epetra::replace_global_values(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::replace_global_values(
+void Vector_Epetra::replace_global_values(
         const Vector< sint >& aGlobalIds,
         const Vector< real >& aValues )
 {
@@ -130,8 +129,7 @@ Vector_Epetra::replace_global_values(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::sum_into_global_values(
+void Vector_Epetra::sum_into_global_values(
         const moris::Matrix< DDSMat >& aGlobalIds,
         const moris::Matrix< DDRMat >& aValues,
         const uint&                    aVectorIndex )
@@ -144,7 +142,9 @@ Vector_Epetra::sum_into_global_values(
 
     // check for valid IDs
     MORIS_ASSERT( aGlobalIds.min() >= 0 and aGlobalIds.max() < MORIS_SINT_MAX,
-            "Vector_Epetra::sum_into_global_values - invalid ID range (%d, %d) provided", aGlobalIds.min(), aGlobalIds.max() );
+            "Vector_Epetra::sum_into_global_values - invalid ID range (%d, %d) provided",
+            aGlobalIds.min(),
+            aGlobalIds.max() );
 
     // call native epetra function
     if ( mVecBuildWithPointMap )
@@ -180,8 +180,7 @@ Vector_Epetra::sum_into_global_values(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::sum_into_global_values(
+void Vector_Epetra::sum_into_global_values(
         const Vector< sint >&   aGlobalIds,
         const Matrix< DDRMat >& aValues,
         const uint&             aVectorIndex )
@@ -226,8 +225,7 @@ Vector_Epetra::sum_into_global_values(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::vector_global_assembly()
+void Vector_Epetra::vector_global_assembly()
 {
     // Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
     int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->GlobalAssemble();
@@ -238,8 +236,7 @@ Vector_Epetra::vector_global_assembly()
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::vec_plus_vec(
+void Vector_Epetra::vec_plus_vec(
         const moris::real& aScaleA,
         sol::Dist_Vector&  aVecA,
         const moris::real& aScaleThis )
@@ -310,8 +307,7 @@ Vector_Epetra::vec_plus_vec(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::scale_vector(
+void Vector_Epetra::scale_vector(
         const moris::real& aValue,
         const moris::uint& aVecIndex )
 {
@@ -338,8 +334,7 @@ Vector_Epetra::scale_vector(
 //----------------------------------------------------------------------------------------------
 
 // Import the local vector into the global vector object mEpetraVec
-void
-Vector_Epetra::import_local_to_global( sol::Dist_Vector& aSourceVec )
+void Vector_Epetra::import_local_to_global( sol::Dist_Vector& aSourceVec )
 {
     // check if both vectors have the same map
     const Epetra_BlockMap* tMap = aSourceVec.get_map()->get_epetra_map();
@@ -373,8 +368,7 @@ Vector_Epetra::import_local_to_global( sol::Dist_Vector& aSourceVec )
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::vec_put_scalar( const moris::real& aValue )
+void Vector_Epetra::vec_put_scalar( const moris::real& aValue )
 {
     // set all entries of this vector to aValue
     mEpetraVector->PutScalar( aValue );
@@ -382,8 +376,7 @@ Vector_Epetra::vec_put_scalar( const moris::real& aValue )
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::random()
+void Vector_Epetra::random()
 {
     // set all entries to random values
     mEpetraVector->Random();
@@ -422,8 +415,7 @@ Vector_Epetra::vec_norm2()
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::extract_copy( moris::Matrix< DDRMat >& LHSValues )
+void Vector_Epetra::extract_copy( moris::Matrix< DDRMat >& LHSValues )
 {
     // std::cout<<*mEpetraVector<<std::endl;
 
@@ -455,11 +447,10 @@ void Vector_Epetra::extract_copy( Vector< real >& aVector )
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::extract_my_values(
-        const moris::uint&                      aNumIndices,
-        const moris::Matrix< DDSMat >&          aGlobalRows,
-        const moris::uint&                      aRowOffsets,
+void Vector_Epetra::extract_my_values(
+        const moris::uint&                 aNumIndices,
+        const moris::Matrix< DDSMat >&     aGlobalRows,
+        const moris::uint&                 aRowOffsets,
         Vector< moris::Matrix< DDRMat > >& ExtractedValues )
 {
     ExtractedValues.resize( mNumVectors );
@@ -488,32 +479,28 @@ Vector_Epetra::extract_my_values(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::print() const
+void Vector_Epetra::print() const
 {
     std::cout << *mEpetraVector << '\n';
 }
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
+void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 {
     EpetraExt::MultiVectorToMatrixMarketFile( aFilename, *mEpetraVector );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::save_vector_to_matlab_file( const char* aFilename )
+void Vector_Epetra::save_vector_to_matlab_file( const char* aFilename )
 {
     EpetraExt::MultiVectorToMatlabFile( aFilename, *mEpetraVector );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
+void Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
 {
     EpetraExt::HDF5 HDF5( mMap->get_epetra_map()->Comm() );
     HDF5.Create( aFilename );
@@ -526,8 +513,7 @@ Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
 
 //-----------------------------------------------------------------------------
 
-void
-Vector_Epetra::read_vector_from_HDF5(
+void Vector_Epetra::read_vector_from_HDF5(
         const char* aFilename,
         std::string aGroupName,
         sint        aVectorindex )
@@ -597,7 +583,6 @@ Vector_Epetra::read_vector_from_HDF5(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::check_vector()
+void Vector_Epetra::check_vector()
 {
 }
