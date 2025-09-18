@@ -467,7 +467,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Matrix< DDRMat > >& Design::get_all_GQI_sensitivities() const
+    const Vector< sol::Dist_Vector* >& Design::get_all_GQI_sensitivities() const
     {
         return mGQISensitivities;
     }

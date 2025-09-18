@@ -319,11 +319,11 @@ namespace moris::mdl
             // initialize the Equation Model
             mEquationModel->initialize_from_inputfile( mLibrary );
 
-            // set the equation model if using design variables
-            if ( mDesignVariableInterface != nullptr )
-            {
-                mDesignVariableInterface->set_equation_model( mEquationModel );
-            }
+            // set the equation model if using design variables brendan delete
+            // if ( mDesignVariableInterface != nullptr )
+            // {
+            //     mDesignVariableInterface->set_equation_model( mEquationModel );
+            // }
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

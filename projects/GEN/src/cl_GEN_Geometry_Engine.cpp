@@ -1906,15 +1906,14 @@ namespace moris::gen
         uint tFixedGQIIndex  = 0;
 
         // Initialize GQI information to pass to PDV Host Manager
-        Vector< Module_Type >      tModule( tNumADVDependentGQIs, Module_Type::GEN );
-        Vector< std::string >      tADVDepGQINames( tNumADVDependentGQIs );
-        Vector< real >             tADVDepGQIValues( tNumADVDependentGQIs );
-        Vector< Matrix< DDRMat > > tADVDepdGQIdADV( tNumADVDependentGQIs );
+        Vector< Module_Type >       tModule( tNumADVDependentGQIs, Module_Type::GEN );
+        Vector< std::string >       tADVDepGQINames( tNumADVDependentGQIs );
+        Vector< real >              tADVDepGQIValues( tNumADVDependentGQIs );
+        Vector< sol::Dist_Vector* > tADVDepdGQIdADV( tNumADVDependentGQIs );
 
-        Vector< Module_Type >      tModuleFixed( tNumFixedGQIs, Module_Type::GEN );
-        Vector< std::string >      tFixedGQINames( tNumFixedGQIs );
-        Vector< real >             tFixedGQIValues( tNumFixedGQIs );
-        Vector< Matrix< DDRMat > > tFixedGQIdADV( tNumFixedGQIs );
+        Vector< Module_Type > tModuleFixed( tNumFixedGQIs, Module_Type::GEN );
+        Vector< std::string > tFixedGQINames( tNumFixedGQIs );
+        Vector< real >        tFixedGQIValues( tNumFixedGQIs );
 
         // Loop through geometries and get GQI information
         for ( uint iG = 0; iG < mGeometries.size(); iG++ )
@@ -1927,7 +1926,7 @@ namespace moris::gen
             if ( mGeometries( iG )->depends_on_advs() )
             {
                 // Since the GQIs depend on ADVs, get the sensitivities as well
-                const Vector< Matrix< DDRMat > >& tGeomdGQIdADV = mGeometries( iG )->get_all_GQI_sensitivities();
+                const Vector< sol::Dist_Vector* >& tGeomdGQIdADV = mGeometries( iG )->get_all_GQI_sensitivities();
 
                 // Copy into overall GQI information for ADV dependent GQIs
                 for ( uint iGQI = 0; iGQI < tNumGeomsGQIs; iGQI++ )
@@ -1961,7 +1960,7 @@ namespace moris::gen
             if ( mProperties( iP )->depends_on_advs() )
             {
                 // Since the GQIs depend on ADVs, get the sensitivities as well
-                const Vector< Matrix< DDRMat > >& tPropdGQIdADV = mProperties( iP )->get_all_GQI_sensitivities();
+                const Vector< sol::Dist_Vector* >& tPropdGQIdADV = mProperties( iP )->get_all_GQI_sensitivities();
 
                 // Copy into overall GQI information for ADV dependent GQIs
                 for ( uint iGQI = 0; iGQI < tNumPropsGQIs; iGQI++ )

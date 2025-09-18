@@ -362,7 +362,7 @@ namespace moris::MSI
             Matrix< DDRMat > tTime = { { 0.0 }, { 1.0 } };
             tEquationModel->set_time( tTime );
 
-            tDesignVariableInterface->set_equation_model( tModel->get_fem_model() );
+            //     tDesignVariableInterface->set_equation_model( tModel->get_fem_model() ); brendan delete
             tDesignVariableInterface->set_requested_QIs( { "IQI_1" } );
             tWorkSet->create_requested_IQI_type_map();
 

@@ -10,59 +10,68 @@
 
 #include "cl_MSI_QI.hpp"
 
+
 namespace moris::MSI
 {
     QI::QI(
-            Module_Type             aModule,
-            const real&             aValue,
-            const Matrix< DDRMat >& aDQIdADV )
-            : mModule( aModule )
+            uint              aIndex,
+            Module_Type       aModule,
+            const real        aValue,
+            sol::Dist_Vector* adQI )
+            : mIndex( aIndex )
+            , mModule( aModule )
             , mValue( std::move( aValue ) )
             , mIsEvaluated( true )
     {
-        if ( aDQIdADV.numel() != 0 )
+        if ( adQI != nullptr )
         {
-            mdQIdADV = std::move( aDQIdADV );
+            mdQI = std::move( adQI );
         }
     }
 
     //------------------------------------------------------------------------------
 
     QI::QI(
+            uint                                 aIndex,
             Module_Type                          aModule,
             std::function< real() >              aValueFunction,
-            std::function< Matrix< DDRMat >&() > aDQIdADVFunction )
-            : mModule( aModule )
+            std::function< sol::Dist_Vector*() > adQIFunction )
+            : mIndex( aIndex )
+            , mModule( aModule )
             , mValueFunction( std::move( aValueFunction ) )
-            , mDQIdADVFunction( std::move( aDQIdADVFunction ) )
+            , mdQIFunction( std::move( adQIFunction ) )
     {
     }
 
     //------------------------------------------------------------------------------
 
     QI::QI(
+            uint                                 aIndex,
             Module_Type                          aModule,
-            const real&                          aValue,
-            std::function< Matrix< DDRMat >&() > aDQIdADVFunction )
-            : mModule( aModule )
+            const real                           aValue,
+            std::function< sol::Dist_Vector*() > adQIFunction )
+            : mIndex( aIndex )
+            , mModule( aModule )
             , mValue( std::move( aValue ) )
             , mIsEvaluated( true )
-            , mDQIdADVFunction( std::move( aDQIdADVFunction ) )
+            , mdQIFunction( std::move( adQIFunction ) )
     {
     }
 
     //------------------------------------------------------------------------------
 
     QI::QI(
+            uint                    aIndex,
             Module_Type             aModule,
             std::function< real() > aValueFunction,
-            const Matrix< DDRMat >& aDQIdADV )
-            : mModule( aModule )
+            sol::Dist_Vector*       adQI )
+            : mIndex( aIndex )
+            , mModule( aModule )
             , mValueFunction( std::move( aValueFunction ) )
     {
-        if ( aDQIdADV.numel() != 0 )
+        if ( adQI != nullptr )
         {
-            mdQIdADV = std::move( aDQIdADV );
+            mdQI = std::move( adQI );
         }
     }
 
@@ -89,27 +98,30 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& QI::dADV() const
+    const Matrix< DDRMat > QI::dADV() const
     {
-        if ( not mdQIdADV.has_value() )
+        Matrix< DDRMat > tdQI;
+        if ( not mdQI.has_value() )
         {
-            if ( mDQIdADVFunction == nullptr )
+            if ( mdQIFunction == nullptr )
             {
-                mdQIdADV = Matrix< DDRMat >( 0, 0 );    // brendan maybe set size
+                return tdQI;    // return empty matrix
             }
             else
             {
-                mdQIdADV = mDQIdADVFunction();
+                mdQI = mdQIFunction();
             }
         }
-        return mdQIdADV.value();
+
+        mdQI.value()->extract_copy( tdQI );
+        return tdQI;
     }
 
     //------------------------------------------------------------------------------
 
-    void QI::set_dADV( const Matrix< DDRMat >& aDQIdADV )
+    void QI::set_dADV( sol::Dist_Vector* adQI )
     {
-        mdQIdADV = aDQIdADV;
+        mdQI = adQI;
     }
 
     //------------------------------------------------------------------------------
@@ -117,6 +129,6 @@ namespace moris::MSI
     void QI::reset()
     {
         mIsEvaluated = false;
-        mdQIdADV.reset();
+        mdQI.reset();
     }
 }    // namespace moris::MSI

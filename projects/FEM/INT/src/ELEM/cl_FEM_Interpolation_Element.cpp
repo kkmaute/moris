@@ -945,6 +945,9 @@ namespace moris::fem
                         Ik );
             }
         }
+
+        // Tell the model to update the dQIdp within the design variable interface
+        mEquationSet->get_equation_model()->update_dQIdp();
     }
 
     //-------------------------------------------------------------------------------------------------

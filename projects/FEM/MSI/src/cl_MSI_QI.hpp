@@ -13,6 +13,7 @@
 #include <optional>
 #include "cl_Matrix.hpp"
 #include "cl_Library_Enums.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 
 namespace moris::MSI
 {
@@ -21,6 +22,7 @@ namespace moris::MSI
 
       public:
         // Public and const so it can be accessed directly without a getter
+        const uint        mIndex = MORIS_UINT_MAX;
         const Module_Type mModule;
 
       private:
@@ -30,39 +32,43 @@ namespace moris::MSI
         std::function< real() > mValueFunction = nullptr;           // Function to compute the QI value (may never be set if the QI is evaulated eagerly)
 
         // Sensitivity analysis variables
-        mutable std::optional< Matrix< DDRMat > > mdQIdADV;                      // Stores dQi/dADV sensitivity
-        std::function< Matrix< DDRMat >() >       mDQIdADVFunction = nullptr;    // Function to compute the dQi/dADV sensitivity (may never be set if the sensitivity is evaluated eagerly)
+        mutable std::optional< sol::Dist_Vector* > mdQI;                      // Stores dQi/dPDV unless the module is a GQI. Then it is dQi/dADV
+        std::function< sol::Dist_Vector*() >       mdQIFunction = nullptr;    // Function to compute the dQi/dADV sensitivity (may never be set if the sensitivity is evaluated eagerly)
 
       public:
         // // Forward problem only constructor - eagerly computed QI
-        // explicit QI( const std::string& aName, const real& aValue );
+        // explicit QI( const std::string& aName, const real aValue );
 
         // // Forward problem only constructor - lazily computed QI
         // explicit QI( const std::string& aName, std::function< real() > aValueFunction );
 
         // Optimization problem constructor - eagerly computed QI and sensitivity
         explicit QI(
-                Module_Type             aModule,
-                const real&             aValue,
-                const Matrix< DDRMat >& aDQIdADV = Matrix< DDRMat >() );
+                uint              aIndex,
+                Module_Type       aModule,
+                const real        aValue,
+                sol::Dist_Vector* adQI = nullptr );
 
         // Optimization problem constructor - lazily computed QI and sensitivity
         explicit QI(
+                uint                                 aIndex,
                 Module_Type                          aModule,
                 std::function< real() >              aValueFunction,
-                std::function< Matrix< DDRMat >&() > aDQIdADVFunction );
+                std::function< sol::Dist_Vector*() > aDQIdADVFunction );
 
         // Optimization problem constructor - eagerly computed QI and lazily computed sensitivity
         explicit QI(
+                uint                                 aIndex,
                 Module_Type                          aModule,
-                const real&                          aValue,
-                std::function< Matrix< DDRMat >&() > aDQIdADVFunction );
+                const real                           aValue,
+                std::function< sol::Dist_Vector*() > aDQIdADVFunction );
 
         // Optimization problem constructor - lazily computed QI and eagerly computed sensitivity
         explicit QI(
+                uint                    aIndex,
                 Module_Type             aModule,
                 std::function< real() > aValueFunction,
-                const Matrix< DDRMat >& aDQIdADV = Matrix< DDRMat >() );
+                sol::Dist_Vector*       adQIdADV = nullptr );
 
         /**
          * Gets the value of the QI, computes the value if it hasn't been computed already
@@ -78,12 +84,12 @@ namespace moris::MSI
         /**
          * Gets the dQi/dADV sensitivity, computes the sensitivity if it hasn't been computed already
          */
-        const Matrix< DDRMat >& dADV() const;
+        const Matrix< DDRMat > dADV() const;
 
         /**
          * Sets the dQi/dADV sensitivity and marks it as evaluated
          */
-        void set_dADV( const Matrix< DDRMat >& aDQIdADV );
+        void set_dADV( sol::Dist_Vector* adQIdADV );
 
         /**
          * Resets the QI to signify the value must be recomputed

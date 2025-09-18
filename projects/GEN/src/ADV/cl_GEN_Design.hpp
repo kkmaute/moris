@@ -46,10 +46,10 @@ namespace moris::gen
         Design_Parameters mParameters;
 
       protected:
-        uint                       mOffsetID;            // Offset of the global ADVs to this Design's ADVs
-        Vector< Vector< sint > >   mSharedADVIDs;        // IDs of the ADVs that this design shares. Size = number of fields
-        Vector< real >             mGQIValues;           // Values of the requested geometric quantities of interest (GQIs) for this design
-        Vector< Matrix< DDRMat > > mGQISensitivities;    // Sensitivities of the requested GQIs wrt the ADVs of this design
+        uint                        mOffsetID;            // Offset of the global ADVs to this Design's ADVs
+        Vector< Vector< sint > >    mSharedADVIDs;        // IDs of the ADVs that this design shares. Size = number of fields
+        Vector< real >              mGQIValues;           // Values of the requested geometric quantities of interest (GQIs) for this design
+        Vector< sol::Dist_Vector* > mGQISensitivities;    // Sensitivities of the requested GQIs wrt the ADVs of this design
 
       public:
         /**
@@ -216,7 +216,7 @@ namespace moris::gen
 
         const Vector< real >& get_all_GQI_values() const;
 
-        const Vector< Matrix< DDRMat > >& get_all_GQI_sensitivities() const;
+        const Vector< sol::Dist_Vector* >& get_all_GQI_sensitivities() const;
 
       protected:
         /**

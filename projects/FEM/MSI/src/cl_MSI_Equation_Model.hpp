@@ -322,6 +322,11 @@ namespace moris
              */
             sol::Dist_Vector* get_dQIdp();
 
+            /**
+             * Gives the design variable interface new values for dIQI/dp for all FEM IQIs
+             */
+            void update_dQIdp();
+
             //------------------------------------------------------------------------------
             /**
              * @brief set time for current time slab

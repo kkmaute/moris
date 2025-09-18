@@ -36,10 +36,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-            Matrix< DDRMat >                       mTime;
-            std::shared_ptr< MSI::Equation_Model > mModel         = nullptr;
-            bool                                   mdQIdpImported = false;
-            sol::Dist_Vector*                      mdQIdp         = nullptr;
+            Matrix< DDRMat > mTime;
+            // std::shared_ptr< MSI::Equation_Model > mModel         = nullptr; brendan delete
+            bool              mdQIdpImported = false;
+            sol::Dist_Vector* mdQIdp         = nullptr;
 
           protected:
             // QI Values that were requested to be used for optimization objectives or constraints
@@ -72,11 +72,11 @@ namespace moris
              * set model pointer
              * @param[ in ] aModel Model pointer
              */
-            void
-            set_equation_model( std::shared_ptr< MSI::Equation_Model > aModel )
-            {
-                mModel = std::move( aModel );
-            }
+            // void
+            // set_equation_model( std::shared_ptr< MSI::Equation_Model > aModel )
+            // {
+            //     mModel = std::move( aModel ); brendan delete
+            // }
 
             //------------------------------------------------------------------------------
 
@@ -110,7 +110,7 @@ namespace moris
             template< typename... Args >
             void register_QI( const std::string& aName, Args&&... args )
             {
-                this->register_QI( aName, QI( std::forward< Args >( args )... ) );
+                this->register_QI( aName, QI( mQIs.size(), std::forward< Args >( args )... ) );
             }
 
             //------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ namespace moris
 
                 for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
                 {
-                    this->register_QI( aQIName( iQI ), QI( aModule( iQI ), aQIValue( iQI ) ) );
+                    this->register_QI( aQIName( iQI ), QI( mQIs.size(), aModule( iQI ), aQIValue( iQI ) ) );
                 }
             }
 
@@ -138,7 +138,7 @@ namespace moris
 
                 for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
                 {
-                    this->register_QI( aQIName( iQI ), QI( aModule( iQI ), aQIValue( iQI ), adQIdADV( iQI ) ) );
+                    this->register_QI( aQIName( iQI ), QI( mQIs.size(), aModule( iQI ), aQIValue( iQI ), adQIdADV( iQI ) ) );
                 }
             }
 
@@ -192,16 +192,26 @@ namespace moris
             /**
              * Brendan documentation
              */
-            const Matrix< DDRMat >& get_dQIdADV( const std::string& aQIName ) const;
+            const Matrix< DDRMat > get_dQIdADV( const std::string& aQIName ) const;
 
             /*
              * Brendan documentation
              */
             void update_QI( const std::string& aQIName, real aValue );
 
-            void update_QI( const std::string& aQIName, const Matrix< DDRMat >& adQIdADV );
+            void update_QI( const std::string& aQIName, sol::Dist_Vector* adQI );
 
-            void update_QI( const std::string& aQIName, real aValue, const Matrix< DDRMat >& adQIdADV );
+            void update_QI( const std::string& aQIName, real aValue, sol::Dist_Vector* adQI );
+
+            /**
+             * Updates all QIs for the given module.
+             */
+            void update_QIs( Module_Type aModule, sol::Dist_Vector* adQIdp );
+
+            /**
+             * Updates all QIs in the list of aQIName
+             */
+            void update_QIs( Vector< std::string >& aQIName, sol::Dist_Vector* adQIdp );
 
             /**
              * get unique dv types for set
