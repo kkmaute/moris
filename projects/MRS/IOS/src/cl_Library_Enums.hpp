@@ -58,34 +58,32 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     // define enums for input file types
-    enum class Module_Type
-    {
-        //! only have types here for which we have a standard parameter list (with the exception of "UNDEFINED")
-        //! Make sure to include all enums defined here in the convert to string function below (with the exception of "UNDEFINED")
-        OPT,
-        HMR,
-        STK,
-        XTK,
-        GEN,
-        FEM,
-        SOL,
-        MSI,
-        VIS,
-        MIG,
-        WRK,
-        MORISGENERAL,
-        END_ENUM
-    };
+    ENUM_MACRO( Module_Type,
+            //! only have types here for which we have a standard parameter list (with the exception of "UNDEFINED")
+            //! Make sure to include all enums defined here in the convert to string function below (with the exception of "UNDEFINED")
+            OPT,
+            HMR,
+            STK,
+            XTK,
+            GEN,
+            FEM,
+            SOL,
+            MSI,
+            VIS,
+            MIG,
+            WRK,
+            MORISGENERAL,
+            END_ENUM, )
 
     ENUM_MACRO( OPT_Submodule,
-        OPTIMIZATION_PROBLEMS,
-        INTERFACE,
-        ALGORITHMS )
+            OPTIMIZATION_PROBLEMS,
+            INTERFACE,
+            ALGORITHMS )
 
     ENUM_MACRO( HMR_Submodule,
-        GENERAL,
-        LAGRANGE_MESHES,
-        BSPLINE_MESHES )
+            GENERAL,
+            LAGRANGE_MESHES,
+            BSPLINE_MESHES )
 
     enum class STK_Submodule
     {
@@ -98,30 +96,30 @@ namespace moris
     };
 
     ENUM_MACRO( GEN_Submodule,
-        GENERAL,
-        GEOMETRIES,
-        PROPERTIES )
+            GENERAL,
+            GEOMETRIES,
+            PROPERTIES )
 
     ENUM_MACRO( FEM_Submodule,
-        PROPERTIES,
-        CONSTITUTIVE_MODELS,
-        STABILIZATION,
-        IWG,
-        IQI,
-        COMPUTATION,
-        FIELDS,
-        PHASES,
-        MATERIAL_MODELS )
+            PROPERTIES,
+            CONSTITUTIVE_MODELS,
+            STABILIZATION,
+            IWG,
+            IQI,
+            COMPUTATION,
+            FIELDS,
+            PHASES,
+            MATERIAL_MODELS )
 
     ENUM_MACRO( SOL_Submodule,
-        LINEAR_ALGORITHMS,
-        LINEAR_SOLVERS,
-        NONLINEAR_ALGORITHMS,
-        NONLINEAR_SOLVERS,
-        TIME_SOLVER_ALGORITHMS,
-        TIME_SOLVERS,
-        SOLVER_WAREHOUSE,
-        PRECONDITIONERS )
+            LINEAR_ALGORITHMS,
+            LINEAR_SOLVERS,
+            NONLINEAR_ALGORITHMS,
+            NONLINEAR_SOLVERS,
+            TIME_SOLVER_ALGORITHMS,
+            TIME_SOLVERS,
+            SOLVER_WAREHOUSE,
+            PRECONDITIONERS )
 
     enum class MSI_Submodule
     {
@@ -174,7 +172,7 @@ namespace moris
 
     /**
      * Gets the submodule names for a particular MORIS module.
-     * 
+     *
      * @param aModuleType Module parameter list type
      * @return Submodule names
      */
@@ -194,7 +192,7 @@ namespace moris
     std::string
     get_inner_sub_parameter_list_name(
             Module_Type aModule,
-            uint                aParamListIndex );
+            uint        aParamListIndex );
 
     // -----------------------------------------------------------------------------
 
