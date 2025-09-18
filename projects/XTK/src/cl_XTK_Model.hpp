@@ -242,6 +242,9 @@ namespace moris::xtk
         void
         perform_enrichment();
 
+        void
+        compute_XQIs();
+
         //--------------------------------------------------------------------------------
         /**
          * Decomposes a mesh to conform to a geometric interface

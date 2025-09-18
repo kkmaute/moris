@@ -11,6 +11,7 @@
 #include "cl_XTK_Model.hpp"
 
 #include <utility>
+#include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -168,6 +169,7 @@ namespace moris::xtk
     void
     Model::initialize( moris::mtk::Interpolation_Mesh *aMesh )
     {
+        // brendan delete most of this is done in constructor
         mBackgroundMesh     = aMesh;
         mModelDimension     = aMesh->get_spatial_dim();
         mCutMesh            = Cut_Mesh( this, mModelDimension );
@@ -185,6 +187,7 @@ namespace moris::xtk
     {
         bool tReturn = this->perform_decomposition();
         this->perform_enrichment();
+        this->compute_XQIs();
         return tReturn;
     }
 
@@ -565,6 +568,39 @@ namespace moris::xtk
             MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT ) );
             MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( mtk::EntityRank::NODE ) );
             MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( mtk::EntityRank::ELEMENT ) );
+        }
+    }
+
+    void
+    Model::compute_XQIs()
+    {
+        // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
+        std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mGeometryEngine->get_design_variable_interface();
+
+        // Get list of requested XQI names and types
+        Vector< std::string > tXQINames = mParameterList.get_vector< std::string >( "xqi_names" );
+        // BRENDAN TODO Need to convert XQI types to enum
+        Vector< uint >     tXQITypesUINT = mParameterList.get_vector< uint >( "XQI_types" );
+        Vector< XQI_Type > tXQITypes( tXQITypesUINT.size() );
+        for ( uint tXQI = 0; tXQI < tXQITypesUINT.size(); tXQI++ )
+        {
+            tXQITypes( tXQI ) = static_cast< XQI_Type >( tXQITypesUINT( tXQI ) );
+        }
+        uint tNumXQIs = tXQINames.size();
+
+        // Loop over requested XQIs
+        for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
+        {
+            // Get XQI name and type
+            std::string tXQIName = tXQINames( iXQI );
+            XQI_Type    tXQIType = tXQITypes( iXQI );
+
+            // Compute XQI based on type BRENDAN TODO
+            std::cout << "Computing XQI: " << tXQIName << " with type: " << static_cast< uint >( tXQIType ) << "\n";
+            real              tXQIValue = 0.0;
+            sol::Dist_Vector *tdXQIdPDV = nullptr;
+
+            tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue, tdXQIdPDV );
         }
     }
 
