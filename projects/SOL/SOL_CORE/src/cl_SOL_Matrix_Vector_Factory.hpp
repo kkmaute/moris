@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_
-#define SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_
+#pragma once
 
 #include <memory>
 #include "cl_Matrix.hpp"
@@ -107,4 +106,3 @@ namespace moris
         };
     }    // namespace sol
 }    // namespace moris
-#endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */
