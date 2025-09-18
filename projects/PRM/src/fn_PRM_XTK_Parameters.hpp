@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_Parameter_List.hpp"
+#include "cl_XTK_Enums.hpp"
 
 namespace moris::prm
 {
@@ -144,6 +145,9 @@ namespace moris::prm
         tParameterList.insert( "activate_cell_agglomeration", false );
         tParameterList.insert( "visualize_cell_association", true );
 
+        // XQI Parameters
+        tParameterList.insert( "xqi_names", "" );
+        tParameterList.insert( "xqi_types", Vector< uint >() );    // TODO: change to XTK::XQI_Type enum
         return tParameterList;
     }
     //------------------------------------------------------------------------------
