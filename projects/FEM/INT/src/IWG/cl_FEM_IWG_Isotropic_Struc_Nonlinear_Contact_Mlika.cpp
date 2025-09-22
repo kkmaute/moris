@@ -44,6 +44,9 @@ namespace moris::fem
             : mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
             , mCMFunctionType( aCMFunctionType )
     {
+        // set time continuity flag
+        mTimeContinuity = true;
+
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
         mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -161,6 +164,48 @@ namespace moris::fem
 
         // set integration point for follower side
         mFollowerFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+
+        if ( get_time_continuity() )
+        {
+            // get residual dof type field interpolator for current time step
+            Field_Interpolator* tFICurrent = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            if ( mLeaderPreviousFIManager == nullptr )
+            {
+                MORIS_ERROR( false,
+                        "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - previous time step field interpolator manager is not set.\n" );
+            }
+
+            // get residual dof type field interpolator for previous time step
+            Field_Interpolator* tFIPrevious = mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
+            mLeaderFIManager->set_field_interpolator_manager_previous( mLeaderPreviousFIManager );
+
+            if ( mFollowerPreviousFIManager == nullptr )
+            {
+                MORIS_ERROR( false,
+                        "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - previous time step field interpolator manager is not set.\n" );
+            }
+
+            //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
+            mFollowerFIManager->set_field_interpolator_manager_previous( mFollowerPreviousFIManager );
+
+            // FIXME: set initial time
+            real tInitTime = 0.0;
+
+            // initialize jump
+            Matrix< DDRMat > tJump = tFICurrent->val();
+            //std::cout << "current disp: " << tFICurrent->val() << std::endl;
+
+            if ( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
+            {
+                tJump -= tFIPrevious->val();
+                //std::cout << "previous disp: " << tFIPrevious->val() << std::endl;
+            }
+
+            //std::cout << "Time: " << mLeaderFIManager->get_IP_geometry_interpolator()->valt() << "; Displacement jump: " << tJump << std::endl;
+        }
 
         // get the elasticity constitutive models
         const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
