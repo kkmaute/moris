@@ -48,10 +48,6 @@ namespace moris::fem
         std::shared_ptr< IQI > create_IQI( IQI_Type aIQIType );
 
         //------------------------------------------------------------------------------
-        // /**
-        //  * create GQI brendan
-        //  */
-        // std::shared_ptr< GQI > create_GQI( IQI_Type aIQIType );
     };
 
     //------------------------------------------------------------------------------
