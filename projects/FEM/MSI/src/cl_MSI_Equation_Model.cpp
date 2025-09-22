@@ -290,9 +290,9 @@ namespace moris::MSI
     }
 
     void
-    Equation_Model::update_dQIdp()
+    Equation_Model::update_dIQIdp()
     {
-        mDesignVariableInterface->update_QIs( Module_Type::FEM, this->get_dQIdp() );
+        mDesignVariableInterface->update_QI_sensitivity( Module_Type::FEM, this->get_dQIdp() );
     }
 
 }    // namespace moris::MSI

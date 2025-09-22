@@ -325,7 +325,7 @@ namespace moris
             /**
              * Gives the design variable interface new values for dIQI/dp for all FEM IQIs
              */
-            void update_dQIdp();
+            void update_dIQIdp();
 
             //------------------------------------------------------------------------------
             /**
