@@ -376,12 +376,6 @@ namespace moris
                     0,
                     tSetInfo );
 
-            //     // get the global IQI values in order to determine the corerct size brendan delete
-            //     Vector< Matrix< DDRMat > >& tGlobalIQICell = tModel->get_fem_model()->get_IQI_values();
-
-            //     // Resize the global IQI properly
-            //     tGlobalIQICell.resize( 1 );
-
             Solver_Interface* tSolverInterface = tModel->get_solver_interface();
 
             // --------------------------------------------------------------------------------------
