@@ -379,10 +379,15 @@ namespace moris::fem
                 mLeaderPreviousFIManager = aFieldInterpolatorManager;
                 break;
             }
+            case mtk::Leader_Follower::FOLLOWER:
+            {
+                mFollowerPreviousFIManager = aFieldInterpolatorManager;
+                break;
+            }
 
             default:
             {
-                MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be leader" );
+                MORIS_ERROR( false, "IWG::set_field_interpolator_manager - can only be leader or follower" );
             }
         }
     }

@@ -168,6 +168,7 @@ namespace moris::fem
         Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
         Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
         Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
+        Field_Interpolator_Manager* mFollowerPreviousFIManager = nullptr;
 
         // leader and follower dv type lists
         Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
