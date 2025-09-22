@@ -396,6 +396,25 @@ namespace moris::fem
             tFollowerGeometryInterpolator->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
 
             tFollowerGeometryInterpolator->set_time_coeff( this->get_time() );
+
+            if ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+            {
+                // set the IP geometry interpolator physical space and time coefficients for the previous
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_time_coeff( this->get_previous_time() );
+
+                // set the IP geometry interpolator physical space and time coefficients for the previous
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_time_coeff( this->get_previous_time() );
+            }
         }
 
         // if time sideset
