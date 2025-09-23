@@ -1258,7 +1258,8 @@ namespace moris::fem
                     mFollowerDofTypes,
                     mFollowerDvTypes,
                     mFollowerFieldTypes,
-                    this );
+                    this,
+                    mtk::Leader_Follower::FOLLOWER );
 
             // assign cell shape to the field interpolator manager
             mFollowerPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
