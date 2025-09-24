@@ -191,6 +191,10 @@ namespace moris::fem
             //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
             mFollowerFIManager->set_field_interpolator_manager_previous( mFollowerPreviousFIManager );
 
+            // for the Leader Previous FI manager, the space time is set from the local IG point (see above)
+            // it seems to be necessary for the Follower Previous FI manager as well
+            mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+
             // FIXME: set initial time
             real tInitTime = 0.0;
 
