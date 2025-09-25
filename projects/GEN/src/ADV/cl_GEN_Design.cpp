@@ -417,38 +417,10 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    const real
-    Design::get_GQI( gen::GQI_Type aGQIType ) const
-    {
-        // Get the index of the requested GQI type fixme remove find? brendan
-        auto tGQITypeIter = std::find( mParameters.mRequestedGQIs.begin(), mParameters.mRequestedGQIs.end(), aGQIType );
-
-        MORIS_ASSERT( tGQITypeIter != mParameters.mRequestedGQIs.end(),
-                "Design::get_GQI - Requested GQI type not found in design." );
-
-        // Return the corresponding GQI value
-        return mGQIValues( std::distance( mParameters.mRequestedGQIs.begin(), tGQITypeIter ) );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
 
     const uint Design::get_num_GQIs() const
     {
-        return mGQIValues.size();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Design::compute_all_GQIs()
-    {
-        Tracer tTracer( "gen", this->get_name(), "compute_all_GQIs" );
-
-        mGQIValues.resize( mParameters.mRequestedGQIs.size(), 0.0 );
-        for ( uint iGQI = 0; iGQI < mParameters.mRequestedGQIs.size(); iGQI++ )
-        {
-            mGQIValues( iGQI ) = this->compute_GQI( mParameters.mRequestedGQIs( iGQI ) );
-        }
+        return mParameters.mRequestedGQIs.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -460,16 +432,26 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< real >& Design::get_all_GQI_values() const
+    Vector< real >
+    Design::compute_GQIs( sol::Dist_Vector* aGQISensitivities, const Vector< uint >& aRequestIndices )
     {
-        return mGQIValues;
-    }
+        Tracer tTracer( "gen", this->get_name(), "compute_all_GQIs" );
 
-    //--------------------------------------------------------------------------------------------------------------
+        Vector< real > tGQIValues( this->get_num_GQIs(), MORIS_REAL_MAX );
 
-    const Vector< sol::Dist_Vector* >& Design::get_all_GQI_sensitivities() const
-    {
-        return mGQISensitivities;
+        for ( uint iGQI = 0; iGQI < this->get_num_GQIs(); iGQI++ )
+        {
+            // Compute the GQI value, store for output
+            tGQIValues( iGQI ) = this->compute_GQI( mParameters.mRequestedGQIs( iGQI ) );
+
+            // Check if the sensitivities are requested
+            if ( aRequestIndices( iGQI ) != MORIS_UINT_MAX )
+            {
+                this->compute_GQI_sensitivities( mParameters.mRequestedGQIs( iGQI ), aGQISensitivities, aRequestIndices( iGQI ) );
+            }
+        }
+
+        return tGQIValues;
     }
 
 }    // namespace moris::gen

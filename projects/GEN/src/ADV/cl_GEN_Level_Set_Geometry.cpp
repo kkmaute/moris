@@ -727,4 +727,14 @@ namespace moris::gen
         return 0.0;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::compute_GQI_sensitivities(
+            gen::GQI_Type     aGQIType,
+            sol::Dist_Vector* aGQISensitivities,
+            uint              aRequestIndex ) const
+    {
+        MORIS_ERROR( false, "Level_Set_Geometry::compute_GQI_sensitivities() - GQI sensitivities not implemented for level set geometry." );
+    }
+
 }    // namespace moris::gen

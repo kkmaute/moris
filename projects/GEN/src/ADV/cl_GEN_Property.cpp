@@ -226,4 +226,14 @@ namespace moris::gen
         return 0.0;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Property::compute_GQI_sensitivities(
+            gen::GQI_Type     aGQIType,
+            sol::Dist_Vector* aGQISensitivities,
+            uint              aRequestIndex ) const
+    {
+        // TO IMPLEMENT
+    }
+
 }    // namespace moris::gen

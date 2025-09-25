@@ -46,10 +46,8 @@ namespace moris::gen
         Design_Parameters mParameters;
 
       protected:
-        uint                        mOffsetID;            // Offset of the global ADVs to this Design's ADVs
-        Vector< Vector< sint > >    mSharedADVIDs;        // IDs of the ADVs that this design shares. Size = number of fields
-        Vector< real >              mGQIValues;           // Values of the requested geometric quantities of interest (GQIs) for this design
-        Vector< sol::Dist_Vector* > mGQISensitivities;    // Sensitivities of the requested GQIs wrt the ADVs of this design
+        uint                     mOffsetID;        // Offset of the global ADVs to this Design's ADVs
+        Vector< Vector< sint > > mSharedADVIDs;    // IDs of the ADVs that this design shares. Size = number of fields
 
       public:
         /**
@@ -203,25 +201,27 @@ namespace moris::gen
         //------------------------------------------------------------------------------
 
       public:
-        /**
-         * Convenience function to loop through all GQIs, compute them (by calling compute_GQI()), and store them in mGQIValues
-         */
-        void compute_all_GQIs();
-
-        const real get_GQI( gen::GQI_Type aGQIType ) const;
-
         const uint get_num_GQIs() const;
 
         const Vector< std::string >& get_all_GQI_names() const;
 
-        const Vector< real >& get_all_GQI_values() const;
-
-        const Vector< sol::Dist_Vector* >& get_all_GQI_sensitivities() const;
+        /**
+         * Loops through all GQIs requested on this design, computes their values, and if requested,
+         * computes their sensitivities and stores them in the given distributed vector.
+         *
+         * @param aGQISensitivities Distributed vector to store GQI sensitivities in. Contains all GQI sensitivities for all designs.
+         * @param aRequestIndices Vector indices in aGQISensitivities that this design's GQI sensitivities should be stored in. MORIS_UINT_MAX if the GQI is not requested.
+         *
+         * @return Vector< real > Values of ALL the GQIs for this design. NOTE: This is the size of mParameters.mRequestedGQIs
+         */
+        Vector< real > compute_GQIs( sol::Dist_Vector* aGQISensitivities, const Vector< uint >& aRequestIndices );
 
       protected:
         /**
          * Computes the value of a requested geometric quantity of interest (GQI) for this design.
          */
-        virtual real compute_GQI( gen::GQI_Type aGQIType ) const = 0;
+        virtual real compute_GQI( GQI_Type aGQIType ) const = 0;
+
+        virtual void compute_GQI_sensitivities( GQI_Type aGQIType, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const = 0;
     };
 }    // namespace moris::gen

@@ -65,8 +65,10 @@ namespace moris::gen
         sol::Dist_Vector* mOwnedADVs     = nullptr;
         sol::Dist_Vector* mPrimitiveADVs = nullptr;
 
-        // IQIs
-        Vector< std::string > mRequestedIQIs;
+        // QIs
+        Vector< std::string >    mRequestedQIs;
+        Vector< Vector< uint > > mDesignGQIIndices;    // For each design, stores the index in mdGQIdADV that the GQIs need to be summed into. MORIS_UINT_MAX if the GQI is not requested
+        sol::Dist_Vector*        mdGQIdADV = nullptr;
 
         size_t      mActiveGeometryIndex = 0;
         std::string mGeometryFieldFile;
@@ -147,18 +149,9 @@ namespace moris::gen
         Vector< real >& get_upper_bounds();
 
         /**
-         * Lets MDL know about the stored requested IQIs through the PDV host manager. This has to be done after
-         * the model is set, that's why it's a separate call that needs to be performed at the right time.
-         */
-        // void communicate_requested_QIs();
-
-        /**
-         * Gets the value of a requested geometric quantity of interest (GQI) for a given design.
-         */
-        const real get_GQI( const std::string& aDesign, GQI_Type aGQIType ) const;
-
-        /**
-         * Loops through all designs, gets their GQIs, and tells the PDV host manager how to compute them
+         * Creates QI objects in the PDV Host Manager, which can be used for output or as criteria in optimization.
+         * If the QI is used for optimization, its sensitivities will be stored in mdGQIdADV. Thus, this function also builds the
+         * mDesignGQIIndices map
          */
         void register_GQIs();
 
@@ -588,5 +581,15 @@ namespace moris::gen
                 const Matrix< DDUMat >& aBulkPhases,
                 PHASE_FUNCTION          aPhaseFunction = nullptr,
                 uint                    aNumPhases     = 1 );
+
+        /**
+         * Updates the GQIs by name to the specified values.
+         *
+         * @param aGQINames Names of the GQIs to update
+         * @param aGQIValues New values for the GQIs
+         */
+        void update_GQIs(
+                const Vector< std::string >& aGQINames,
+                const Vector< real >&        aGQIValues );
     };
 }    // namespace moris::gen

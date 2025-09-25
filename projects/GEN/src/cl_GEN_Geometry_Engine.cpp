@@ -54,9 +54,9 @@ namespace moris::gen
         Tracer tTracer( "GEN", "Create geometry engine" );
 
         // Requested IQIs brendan delete maybe
-        mRequestedIQIs = aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" );
+        mRequestedQIs = aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" );
 
-        mPDVHostManager = std::make_shared< PDV_Host_Manager >( mNodeManager, mRequestedIQIs );
+        mPDVHostManager = std::make_shared< PDV_Host_Manager >( mNodeManager, mRequestedQIs );
 
         // Geometries
         mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
@@ -102,16 +102,6 @@ namespace moris::gen
             mPhaseTable.print();
         }
 
-        // Compute GQIs
-        for ( auto& tGeometry : mGeometries )
-        {
-            tGeometry->compute_all_GQIs();
-        }
-        for ( auto& tProperty : mProperties )
-        {
-            tProperty->compute_all_GQIs();
-        }
-
         // Pass GQIs to PDV Host Manager
         this->register_GQIs();
     }
@@ -128,7 +118,7 @@ namespace moris::gen
             , mADVManager( aParameters.mADVManager )
             , mInitialPrimitiveADVs( aParameters.mADVManager.mADVs )
             , mTimeOffset( aParameters.mTimeOffset )
-            , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager, aParameters.mRequestedIQIs ) )
+            , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager, aParameters.mRequestedQIs ) )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
@@ -143,16 +133,6 @@ namespace moris::gen
 
         // Distribute ADVs
         this->distribute_advs( tMeshPair );
-
-        // Compute GQIs
-        for ( auto& tGeometry : mGeometries )
-        {
-            tGeometry->compute_all_GQIs();
-        }
-        for ( auto& tProperty : mProperties )
-        {
-            tProperty->compute_all_GQIs();
-        }
 
         // Pass GQIs to PDV Host Manager
         this->register_GQIs();
@@ -185,11 +165,22 @@ namespace moris::gen
         for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
         {
             mGeometries( tGeometryIndex )->import_advs( mOwnedADVs );
+
+            // Recompute the GQIs and their sensitivities, update these in the PDV host manager
+            Vector< real > tGeomGQIValues = mGeometries( tGeometryIndex )->compute_GQIs( mdGQIdADV, mDesignGQIIndices( tGeometryIndex ) );
+            this->update_GQIs( mGeometries( tGeometryIndex )->get_all_GQI_names(), tGeomGQIValues );
         }
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
         {
             mProperties( tPropertyIndex )->import_advs( mOwnedADVs );
+
+            // Recompute the GQIs and their sensitivities, update these in the PDV host manager
+            Vector< real > tPropGQIValues = mProperties( tPropertyIndex )->compute_GQIs( mdGQIdADV, mDesignGQIIndices( mGeometries.size() + tPropertyIndex ) );
+            this->update_GQIs( mProperties( tPropertyIndex )->get_all_GQI_names(), tPropGQIValues );
         }
+
+        // Update the GQI sensitivities in the PDV host manager
+        mPDVHostManager->update_QI_sensitivity( Module_Type::GEN, mdGQIdADV );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -257,15 +248,6 @@ namespace moris::gen
     {
         return mADVManager.mUpperBounds;
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    // void
-    // Geometry_Engine::communicate_requested_QIs()
-    // {
-    //     mPDVHostManager->set_requested_QIs( mRequestedIQIs );
-    // }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1844,148 +1826,98 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const real Geometry_Engine::get_GQI( const std::string& aDesign, GQI_Type aGQI ) const
+    void
+    Geometry_Engine::register_GQIs()
     {
-        // Search for design FIXME brute force search
-        std::shared_ptr< Design > tDesign = nullptr;
-        for ( uint iG = 0; iG < mGeometries.size(); iG++ )
+        // Determine the total number of GQIs
+        uint tNumGQIs = 0;
+
+        for ( const auto& tGeom : mGeometries )
         {
-            if ( mGeometries( iG )->get_name() == aDesign )
-            {
-                tDesign = mGeometries( iG );
-                break;
-            }
+            tNumGQIs += tGeom->get_num_GQIs();
         }
-        if ( not tDesign )
+        for ( const auto& tProp : mProperties )
         {
-            for ( uint iP = 0; iP < mProperties.size(); iP++ )
-            {
-                if ( mProperties( iP )->get_name() == aDesign )
-                {
-                    tDesign = mProperties( iP );
-                    break;
-                }
-            }
+            tNumGQIs += tProp->get_num_GQIs();
         }
 
-        return tDesign->get_GQI( aGQI );
+        // Size vectors
+        Vector< std::string > tGQINames( tNumGQIs );
+        Vector< real >        tGQIValues( tNumGQIs, MORIS_REAL_MAX );    // Initialize with dummy value, compute the GQIs later on FIXME probably pass function to evaluate them later on
+        Vector< Module_Type > tModule( tNumGQIs, Module_Type::GEN );
+        mDesignGQIIndices.resize( mGeometries.size() + mProperties.size() );    // Store for every design
+
+        // Get all the requested GQIs
+        Vector< std::string > tRequestedGQIs = mPDVHostManager->get_requested_QIs< std::string >( Module_Type::GEN );
+
+        // Get the GQI names from all the designs. Determine which ones are requested and fill mDesignGQIIndices accordingly
+        tNumGQIs                  = 0;    // Reset counter to fill in the GQI names
+        uint tRequestedGQICounter = 0;    // Counter for requested GQIs
+
+        // GQIs from geometries
+        for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
+        {
+            const Vector< std::string >& tGeomGQINames = mGeometries( iGeom )->get_all_GQI_names();
+            Vector< uint >               tGeomRequestedGQIIndices( tGeomGQINames.size(), MORIS_UINT_MAX );
+
+            for ( uint iGQI = 0; iGQI < tGeomGQINames.size(); iGQI++ )
+            {
+                // Add to list of GQIs
+                tGQINames( tNumGQIs ) = tGeomGQINames( iGQI );
+                tNumGQIs++;    // Increment counter
+
+                // Check if this GQI is requested
+                if ( std::find( tRequestedGQIs.begin(), tRequestedGQIs.end(), tGeomGQINames( iGQI ) ) != tRequestedGQIs.end() )
+                {
+                    tGeomRequestedGQIIndices( iGQI ) = tRequestedGQICounter++;    // Increment counter
+                }
+            }
+
+            // Store the requested GQI indices
+            mDesignGQIIndices( iGeom ) = tGeomRequestedGQIIndices;
+        }
+
+        // GQIs from properties
+        for ( uint iProp = 0; iProp < mProperties.size(); iProp++ )
+        {
+            const Vector< std::string >& tPropGQINames = mProperties( iProp )->get_all_GQI_names();
+            Vector< uint >               tPropRequestedGQIIndices( tPropGQINames.size(), MORIS_UINT_MAX );
+
+            for ( uint iGQI = 0; iGQI < tPropGQINames.size(); iGQI++ )
+            {
+                // Add to list of GQIs
+                tGQINames( tNumGQIs ) = tPropGQINames( iGQI );
+                tNumGQIs++;    // Increment counter
+
+                // Check if this GQI is requested
+                if ( std::find( tRequestedGQIs.begin(), tRequestedGQIs.end(), tPropGQINames( iGQI ) ) != tRequestedGQIs.end() )
+                {
+                    tPropRequestedGQIIndices( iGQI ) = tRequestedGQICounter++;    // Increment counter
+                }
+            }
+
+            // Store the requested GQI indices
+            mDesignGQIIndices( mGeometries.size() + iProp ) = tPropRequestedGQIIndices;
+        }
+
+        // Create QI objects in the PDV host manager
+        mPDVHostManager->register_QIs( tGQINames, tModule, tGQIValues );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Geometry_Engine::register_GQIs()
+    Geometry_Engine::update_GQIs(
+            const Vector< std::string >& aGQINames,
+            const Vector< real >&        aGQIValues )
     {
-        // Loop through designs that depend on ADVs and count the number of GQIs (to size vectors appropriately)
-        uint tNumADVDependentGQIs = 0;
-        uint tNumFixedGQIs        = 0;
-        for ( uint iG = 0; iG < mGeometries.size(); iG++ )
+        MORIS_ASSERT( aGQINames.size() == aGQIValues.size(),
+                "Geometry_Engine::update_GQIs - Number of GQI names and values do not match." );
+
+        for ( uint iGQI = 0; iGQI < aGQINames.size(); iGQI++ )
         {
-            if ( mGeometries( iG )->depends_on_advs() )
-            {
-                tNumADVDependentGQIs += mGeometries( iG )->get_num_GQIs();
-            }
-            else
-            {
-                tNumFixedGQIs += mGeometries( iG )->get_num_GQIs();
-            }
+            mPDVHostManager->update_QI( aGQINames( iGQI ), aGQIValues( iGQI ) );
         }
-        for ( uint iP = 0; iP < mProperties.size(); iP++ )
-        {
-            if ( mProperties( iP )->depends_on_advs() )
-            {
-                tNumADVDependentGQIs += mProperties( iP )->get_num_GQIs();
-            }
-            else
-            {
-                tNumFixedGQIs += mProperties( iP )->get_num_GQIs();
-            }
-        }
-
-        uint tADVDepGQIIndex = 0;
-        uint tFixedGQIIndex  = 0;
-
-        // Initialize GQI information to pass to PDV Host Manager
-        Vector< Module_Type >       tModule( tNumADVDependentGQIs, Module_Type::GEN );
-        Vector< std::string >       tADVDepGQINames( tNumADVDependentGQIs );
-        Vector< real >              tADVDepGQIValues( tNumADVDependentGQIs );
-        Vector< sol::Dist_Vector* > tADVDepdGQIdADV( tNumADVDependentGQIs );
-
-        Vector< Module_Type > tModuleFixed( tNumFixedGQIs, Module_Type::GEN );
-        Vector< std::string > tFixedGQINames( tNumFixedGQIs );
-        Vector< real >        tFixedGQIValues( tNumFixedGQIs );
-
-        // Loop through geometries and get GQI information
-        for ( uint iG = 0; iG < mGeometries.size(); iG++ )
-        {
-            // Get the GQI information for this geometry
-            const Vector< std::string >& tGeomGQINames  = mGeometries( iG )->get_all_GQI_names();
-            const Vector< real >&        tGeomGQIValues = mGeometries( iG )->get_all_GQI_values();
-            uint                         tNumGeomsGQIs  = mGeometries( iG )->get_num_GQIs();
-
-            if ( mGeometries( iG )->depends_on_advs() )
-            {
-                // Since the GQIs depend on ADVs, get the sensitivities as well
-                const Vector< sol::Dist_Vector* >& tGeomdGQIdADV = mGeometries( iG )->get_all_GQI_sensitivities();
-
-                // Copy into overall GQI information for ADV dependent GQIs
-                for ( uint iGQI = 0; iGQI < tNumGeomsGQIs; iGQI++ )
-                {
-                    tADVDepGQINames( tADVDepGQIIndex )  = tGeomGQINames( iGQI );
-                    tADVDepGQIValues( tADVDepGQIIndex ) = tGeomGQIValues( iGQI );
-                    tADVDepdGQIdADV( tADVDepGQIIndex )  = tGeomdGQIdADV( iGQI );
-                    tADVDepGQIIndex++;
-                }
-            }
-            else
-            {
-                // Copy into overall GQI information for fixed GQI list
-                for ( uint iGQI = 0; iGQI < tNumGeomsGQIs; iGQI++ )
-                {
-                    tFixedGQINames( tFixedGQIIndex )  = tGeomGQINames( iGQI );
-                    tFixedGQIValues( tFixedGQIIndex ) = tGeomGQIValues( iGQI );
-                    tFixedGQIIndex++;
-                }
-            }
-        }
-
-        // Loop through properties and get GQI information
-        for ( uint iP = 0; iP < mProperties.size(); iP++ )
-        {
-            // Get the GQI information for this geometry
-            const Vector< std::string >& tPropGQINames  = mProperties( iP )->get_all_GQI_names();
-            const Vector< real >&        tPropGQIValues = mProperties( iP )->get_all_GQI_values();
-            uint                         tNumPropsGQIs  = mProperties( iP )->get_num_GQIs();
-
-            if ( mProperties( iP )->depends_on_advs() )
-            {
-                // Since the GQIs depend on ADVs, get the sensitivities as well
-                const Vector< sol::Dist_Vector* >& tPropdGQIdADV = mProperties( iP )->get_all_GQI_sensitivities();
-
-                // Copy into overall GQI information for ADV dependent GQIs
-                for ( uint iGQI = 0; iGQI < tNumPropsGQIs; iGQI++ )
-                {
-                    tADVDepGQINames( tADVDepGQIIndex )  = tPropGQINames( iGQI );
-                    tADVDepGQIValues( tADVDepGQIIndex ) = tPropGQIValues( iGQI );
-                    tADVDepdGQIdADV( tADVDepGQIIndex )  = tPropdGQIdADV( iGQI );
-                    tADVDepGQIIndex++;
-                }
-            }
-            else
-            {
-                // Copy into overall GQI information for fixed GQI list
-                for ( uint iGQI = 0; iGQI < tNumPropsGQIs; iGQI++ )
-                {
-                    tFixedGQINames( tFixedGQIIndex )  = tPropGQINames( iGQI );
-                    tFixedGQIValues( tFixedGQIIndex ) = tPropGQIValues( iGQI );
-                    tFixedGQIIndex++;
-                }
-            }
-        }
-
-        // Register both lists with the PDV Host Manager
-        mPDVHostManager->register_QIs( tADVDepGQINames, tModule, tADVDepGQIValues );
-        mPDVHostManager->register_QIs( tFixedGQINames, tModuleFixed, tFixedGQIValues );
     }
 
 }    // namespace moris::gen

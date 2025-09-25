@@ -600,6 +600,11 @@ namespace moris::gen
 
         virtual real compute_GQI( gen::GQI_Type aGQIType ) const final;
 
+        virtual void compute_GQI_sensitivities(
+                GQI_Type          aGQIType,
+                sol::Dist_Vector* aGQISensitivities,
+                uint              aRequestIndex ) const final;
+
         //-----------------------------------------------
         // PRIVATE FUNCTIONS
         //-----------------------------------------------
