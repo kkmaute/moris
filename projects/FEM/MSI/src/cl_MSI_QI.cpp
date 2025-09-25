@@ -13,13 +13,13 @@
 
 namespace moris::MSI
 {
+    //------------------------------------------------------------------------------
+
     QI::QI(
-            uint              aIndex,
             Module_Type       aModule,
             const real        aValue,
             sol::Dist_Vector* adQI )
-            : mIndex( aIndex )
-            , mModule( aModule )
+            : mModule( aModule )
             , mValue( std::move( aValue ) )
             , mIsEvaluated( true )
     {
@@ -32,12 +32,10 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     QI::QI(
-            uint                                 aIndex,
             Module_Type                          aModule,
             std::function< real() >              aValueFunction,
             std::function< sol::Dist_Vector*() > adQIFunction )
-            : mIndex( aIndex )
-            , mModule( aModule )
+            : mModule( aModule )
             , mValueFunction( std::move( aValueFunction ) )
             , mdQIFunction( std::move( adQIFunction ) )
     {
@@ -46,12 +44,10 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     QI::QI(
-            uint                                 aIndex,
             Module_Type                          aModule,
             const real                           aValue,
             std::function< sol::Dist_Vector*() > adQIFunction )
-            : mIndex( aIndex )
-            , mModule( aModule )
+            : mModule( aModule )
             , mValue( std::move( aValue ) )
             , mIsEvaluated( true )
             , mdQIFunction( std::move( adQIFunction ) )
@@ -61,12 +57,10 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     QI::QI(
-            uint                    aIndex,
             Module_Type             aModule,
             std::function< real() > aValueFunction,
             sol::Dist_Vector*       adQI )
-            : mIndex( aIndex )
-            , mModule( aModule )
+            : mModule( aModule )
             , mValueFunction( std::move( aValueFunction ) )
     {
         if ( adQI != nullptr )
@@ -98,30 +92,36 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    const Matrix< DDRMat > QI::dADV() const
+    bool QI::has_sensitivities() const
     {
-        Matrix< DDRMat > tdQI;
-        if ( not mdQI.has_value() )
-        {
-            if ( mdQIFunction == nullptr )
-            {
-                return tdQI;    // return empty matrix
-            }
-            else
-            {
-                mdQI = mdQIFunction();
-            }
-        }
-
-        mdQI.value()->extract_copy( tdQI );
-        return tdQI;
+        return ( mdQI.has_value() && mdQI.value() != nullptr ) || mdQIFunction != nullptr;
     }
 
     //------------------------------------------------------------------------------
 
-    void QI::set_dADV( sol::Dist_Vector* adQI )
+    sol::Dist_Vector* QI::sensitivity() const
+    {
+        if ( not mdQI.has_value() )
+        {
+            MORIS_ERROR( mdQIFunction != nullptr, "QI::sensitivity() - No function to compute QI sensitivity was provided." );
+            mdQI = mdQIFunction();
+        }
+        return mdQI.value();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void QI::set_sensitivity( sol::Dist_Vector* adQI )
     {
         mdQI = adQI;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void QI::set_sensitivity( uint aIndex, real aValue )
+    {
+        MORIS_ERROR( mdQI.has_value(), "QI::set_sensitivity - Sensitivity vector has not been set." );
+        ( *mdQI.value() )( aIndex ) = aValue;
     }
 
     //------------------------------------------------------------------------------

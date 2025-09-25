@@ -542,7 +542,7 @@ namespace moris
             Vector< moris::Matrix< DDRMat > >
             get_IQI_values()
             {
-                return mDesignVariableInterface->get_all_QI_values_mat();
+                return mDesignVariableInterface->get_all_QI_values< Matrix< DDRMat > >();
             }
 
             //------------------------------------------------------------------------------

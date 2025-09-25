@@ -19,10 +19,7 @@ namespace moris::MSI
 {
     class QI
     {
-
       public:
-        // Public and const so it can be accessed directly without a getter
-        const uint        mIndex = MORIS_UINT_MAX;
         const Module_Type mModule;
 
       private:
@@ -36,36 +33,26 @@ namespace moris::MSI
         std::function< sol::Dist_Vector*() >       mdQIFunction = nullptr;    // Function to compute the dQi/dADV sensitivity (may never be set if the sensitivity is evaluated eagerly)
 
       public:
-        // // Forward problem only constructor - eagerly computed QI
-        // explicit QI( const std::string& aName, const real aValue );
-
-        // // Forward problem only constructor - lazily computed QI
-        // explicit QI( const std::string& aName, std::function< real() > aValueFunction );
-
         // Optimization problem constructor - eagerly computed QI and sensitivity
         explicit QI(
-                uint              aIndex,
                 Module_Type       aModule,
-                const real        aValue,
-                sol::Dist_Vector* adQI = nullptr );
+                const real        aValue = MORIS_REAL_MAX,
+                sol::Dist_Vector* adQI   = nullptr );
 
         // Optimization problem constructor - lazily computed QI and sensitivity
         explicit QI(
-                uint                                 aIndex,
                 Module_Type                          aModule,
                 std::function< real() >              aValueFunction,
                 std::function< sol::Dist_Vector*() > aDQIdADVFunction );
 
         // Optimization problem constructor - eagerly computed QI and lazily computed sensitivity
         explicit QI(
-                uint                                 aIndex,
                 Module_Type                          aModule,
                 const real                           aValue,
                 std::function< sol::Dist_Vector*() > aDQIdADVFunction );
 
         // Optimization problem constructor - lazily computed QI and eagerly computed sensitivity
         explicit QI(
-                uint                    aIndex,
                 Module_Type             aModule,
                 std::function< real() > aValueFunction,
                 sol::Dist_Vector*       adQIdADV = nullptr );
@@ -80,16 +67,19 @@ namespace moris::MSI
          */
         void set_val( real aValue );
 
+        bool has_sensitivities() const;
 
         /**
-         * Gets the dQi/dADV sensitivity, computes the sensitivity if it hasn't been computed already
+         * Gets the dQi/PDV sensitivity (dQI/dADV for GEN QIs), computes the sensitivity if it hasn't been computed already
          */
-        const Matrix< DDRMat > dADV() const;
+        sol::Dist_Vector* sensitivity() const;
 
         /**
          * Sets the dQi/dADV sensitivity and marks it as evaluated
          */
-        void set_dADV( sol::Dist_Vector* adQIdADV );
+        void set_sensitivity( sol::Dist_Vector* adQIdADV );
+
+        void set_sensitivity( uint aIndex, real aValue );
 
         /**
          * Resets the QI to signify the value must be recomputed

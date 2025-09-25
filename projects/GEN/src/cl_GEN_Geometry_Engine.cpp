@@ -272,7 +272,7 @@ namespace moris::gen
     Matrix< DDRMat >
     Geometry_Engine::get_dcriteria_dadv()
     {
-        return mPDVHostManager->compute_diqi_dadv( mFullADVIds );
+        return mPDVHostManager->compute_dqi_dadv( mFullADVIds );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1984,7 +1984,7 @@ namespace moris::gen
         }
 
         // Register both lists with the PDV Host Manager
-        mPDVHostManager->register_QIs( tADVDepGQINames, tModule, tADVDepGQIValues, tADVDepdGQIdADV );
+        mPDVHostManager->register_QIs( tADVDepGQINames, tModule, tADVDepGQIValues );
         mPDVHostManager->register_QIs( tFixedGQINames, tModuleFixed, tFixedGQIValues );
     }
 

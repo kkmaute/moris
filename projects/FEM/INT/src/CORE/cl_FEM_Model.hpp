@@ -437,7 +437,7 @@ namespace moris
                     static const Vector< std::string > tEmpty;
                     return tEmpty;
                 }
-                return mDesignVariableInterface->get_QI_names( Module_Type::FEM );
+                return mDesignVariableInterface->get_requested_QIs< std::string >( Module_Type::FEM );
             }
 
             //------------------------------------------------------------------------------

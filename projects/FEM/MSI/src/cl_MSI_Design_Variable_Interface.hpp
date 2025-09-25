@@ -36,17 +36,20 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-            Matrix< DDRMat > mTime;
             // std::shared_ptr< MSI::Equation_Model > mModel         = nullptr; brendan delete
             bool              mdQIdpImported = false;
-            sol::Dist_Vector* mdQIdp         = nullptr;
+            sol::Dist_Vector* mdXQIdPDV      = nullptr;    // XTK module sensitivities
+            sol::Dist_Vector* mdGQIdADV      = nullptr;    // GQIs are done by ADV since PDVs don't exist in GEN
+            sol::Dist_Vector* mdIQIdPDV      = nullptr;    // FEM module sensitivities
 
           protected:
             // QI Values that were requested to be used for optimization objectives or constraints
             Vector< std::string > mRequestedQIs = {};
 
             // All QI values that were specified in the input file, names mapped to QI objects
-            std::map< std::string, MSI::QI > mQIs;
+            Vector< MSI::QI >                  mQIs;
+            map< std::string, moris_index >    mQINameToIndexMap;        // <QI name, index in mQIs>. Used to access QIs by name
+            map< Module_Type, Vector< uint > > mModuleToQIIndicesMap;    // <Module_Type, list of indices in mQIs>. Used to access QIs by module type
 
             //------------------------------------------------------------------------------
 
@@ -64,7 +67,12 @@ namespace moris
             /**
              * trivial destructor
              */
-            virtual ~Design_Variable_Interface() {};
+            virtual ~Design_Variable_Interface()
+            {
+                delete mdXQIdPDV;
+                delete mdGQIdADV;
+                delete mdIQIdPDV;
+            }
 
             //------------------------------------------------------------------------------
 
@@ -81,26 +89,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * set time
-             * @param[ in ] aTime Time
-             */
-            void
-            set_time( const Matrix< DDRMat >& aTime )
-            {
-                mTime = aTime;
-            }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * Registers a single quantity of interest. Adds to list of mQIs and adds the name to mQINameToIndexMap.
-             * @param[ in ] aQI Quantity of interest to register. See QI constructor for options with construction.
-             */
-            void register_QI( const std::string& aName, QI aQI );
-
-            //------------------------------------------------------------------------------
-
-            /**
              * Templated constructor to register a single quantity of interest. Forwards the arguments to the appropriate QI constructor.
              * See MSI_QI constructor for options with construction.
              *
@@ -108,9 +96,14 @@ namespace moris
              * @param[ in ] args Arguments to forward to the QI constructor
              */
             template< typename... Args >
-            void register_QI( const std::string& aName, Args&&... args )
+            void register_QI( const std::string& aName, Module_Type aModule, Args&&... args )
             {
-                this->register_QI( aName, QI( mQIs.size(), std::forward< Args >( args )... ) );
+                // Add the name to the map
+                mQINameToIndexMap[ aName ] = mQIs.size();
+                mModuleToQIIndicesMap[ aModule ].push_back( mQIs.size() );
+
+                // Add the QI to the list
+                mQIs.push_back( QI( aModule, std::forward< Args >( args )... ) );
             }
 
             //------------------------------------------------------------------------------
@@ -122,9 +115,12 @@ namespace moris
                 MORIS_ASSERT( aQIName.size() == aQIValue.size(),
                         "Design_Variable_Interface::register_QI - Size of aQIName and aQIValue must be the same." );
 
+                // Allocate memory
+                mQIs.reserve( mQIs.size() + aQIName.size() );
+
                 for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
                 {
-                    this->register_QI( aQIName( iQI ), QI( mQIs.size(), aModule( iQI ), aQIValue( iQI ) ) );
+                    this->register_QI( aQIName( iQI ), aModule( iQI ), aQIValue( iQI ) );
                 }
             }
 
@@ -136,63 +132,55 @@ namespace moris
                 MORIS_ASSERT( aQIName.size() == aQIValue.size() && aQIName.size() == adQIdADV.size(),
                         "Design_Variable_Interface::register_QI - Size of aQIName, aQIValue and adQIdADV must be the same." );
 
+                // Allocate memory
+                mQIs.reserve( mQIs.size() + aQIName.size() );
+
                 for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
                 {
-                    this->register_QI( aQIName( iQI ), QI( mQIs.size(), aModule( iQI ), aQIValue( iQI ), adQIdADV( iQI ) ) );
+                    this->register_QI( aQIName( iQI ), aModule( iQI ), aQIValue( iQI ), adQIdADV( iQI ) );
                 }
             }
 
             //------------------------------------------------------------------------------
 
             /**
-             * set requested IQI type for sensitivity analysis
-             * @param[ in ] aRequestedIQIType
+             * set requested QI names for sensitivity analysis
+             * @param[ in ] aRequestedQIs
              */
-            void set_requested_QIs( const Vector< std::string >& aRequestedIQIs );
-
-            //------------------------------------------------------------------------------
-
-            const Vector< std::string >&
-            get_all_QI_names() const;
+            void set_requested_QIs( const Vector< std::string >& aRequestedQIs );
 
             //------------------------------------------------------------------------------
 
             /**
-             * Gets the names of all requested QIs that come from a specific module (e.g. FEM, GEN, etc.)
+             * Gets the list of QI names/indices that were requested for sensitivity analysis
              *
-             * @param[ in ] aModule Module type to filter requested QI names by
-             * @return Vector of strings containing the names of the requested QIs from the specified module
+             * @tparam[ in ] T Return type, either std::string or uint for getting the names or the indices.
+             *               Explicit instantiations for these two types are provided in the cpp file.
+             * @param[ in ] aModule Module type to filter requested QI names by (GEN, FEM, XTK, etc.)
              */
-            const Vector< std::string >
-            get_QI_names( Module_Type aModule ) const;
+            template< typename T >
+            Vector< T > get_requested_QIs( Module_Type aModule = Module_Type::END_ENUM ) const;
 
             //------------------------------------------------------------------------------
 
             /**
              * Gets the value of the QIs that were requested for optimization as a vector of scalars
+             *
+             * @tparam T Return type, either real or Matrix< DDRMat > for getting the values
              */
-            const Vector< real >
+            template< typename T >
+            const Vector< T >
             get_all_QI_values() const;
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * Gets the value of the requested QI values as a vector of matrices. Since QI values are scalars, this function should eventually be deprecated.
-             */
-            const Vector< Matrix< DDRMat > >
-            get_all_QI_values_mat() const;
 
             //-----------------------------------------------------------------------------
 
             /**
              * Brendan documentation
              */
-            real get_QI( const std::string& aQIName ) const;
+            real get_QI( const std::string& aQIName )
+                    const;
 
-            /**
-             * Brendan documentation
-             */
-            const Matrix< DDRMat > get_dQIdADV( const std::string& aQIName ) const;
+            real get_QI( uint aQIIndex ) const;
 
             /*
              * Brendan documentation
@@ -206,12 +194,7 @@ namespace moris
             /**
              * Updates all QIs for the given module.
              */
-            void update_QIs( Module_Type aModule, sol::Dist_Vector* adQIdp );
-
-            /**
-             * Updates all QIs in the list of aQIName
-             */
-            void update_QIs( Vector< std::string >& aQIName, sol::Dist_Vector* adQIdp );
+            void update_QI_sensitivity( Module_Type aModule, sol::Dist_Vector* adQIdp );
 
             /**
              * get unique dv types for set
@@ -348,7 +331,7 @@ namespace moris
              * returns the dQIdp
              * @param[ out ] dQIdp matrix filled with dQIdp
              */
-            virtual sol::Dist_Vector* get_dQIdp();
+            virtual sol::Dist_Vector* get_dQIdp( Module_Type aModule );
 
             //------------------------------------------------------------------------------
 

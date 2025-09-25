@@ -336,17 +336,12 @@ namespace moris::gen
                 const std::shared_ptr< Property >& aProperty );
 
         /**
-         * Uses the bound GQI callback function (Geometry engine function) to compute the GQI values and fills them into the matrix
-         */
-        virtual void fill_GQI_values() final;
-
-        /**
          * Does the necessary chain rule on the IQI derivatives with respect to PDVs which each of the PDV
          * derivatives with respect to the ADVs, to obtain the complete sensitivities.
          *
          * @return Matrix of optimization sensitivities
          */
-        Matrix< DDRMat > compute_diqi_dadv( const Vector< sint >& aFullADVIds );
+        Matrix< DDRMat > compute_dqi_dadv( const Vector< sint >& aFullADVIds );
 
         void communicate_dof_types( Vector< enum PDV_Type >& aPDVTypeList );
 
@@ -363,7 +358,7 @@ namespace moris::gen
         // void
         // set_dQIdp(
         //         const Vector< Matrix< DDRMat >* >& adQIdp,
-        //         Matrix< DDSMat >*                  aMap );
+        //         Matrix< DDSMat >*                  aMap );`
 
         //-------------------------------------------------------------------------------
 
