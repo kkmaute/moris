@@ -162,18 +162,35 @@ namespace moris
     }
 
     Matrix< DDSMat >
-Dist_Map_Custom::map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds )
-{
-    // get number of IDs
-    uint tNumIds = aGlobalIds.numel();
+    Dist_Map_Custom::map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds )
+    {
+        // get number of IDs
+        uint tNumIds = aGlobalIds.numel();
 
-    // allocate vector for indices
-    Matrix< DDSMat > tIndices( tNumIds, 1 );
+        // allocate vector for indices
+        Matrix< DDSMat > tIndices( tNumIds, 1 );
 
-    // determine indices for given IDs, if give ID does not exists a "-1" is inserted
-    ISGlobalToLocalMappingApply( mMorisIDtoIndexMap, IS_GTOLM_MASK, tNumIds, aGlobalIds.data(), nullptr, tIndices.data() );
+        // determine indices for given IDs, if give ID does not exists a "-1" is inserted
+        ISGlobalToLocalMappingApply( mMorisIDtoIndexMap, IS_GTOLM_MASK, tNumIds, aGlobalIds.data(), nullptr, tIndices.data() );
 
-    return tIndices;
-}
+        return tIndices;
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat >
+    Dist_Map_Custom::map_from_moris_ids_to_indices( const Vector< sint >& aGlobalIds )
+    {
+        // get number of IDs
+        uint tNumIds = aGlobalIds.size();
+
+        // allocate vector for indices
+        Matrix< DDSMat > tIndices( tNumIds, 1 );
+
+        // determine indices for given IDs, if give ID does not exists a "-1" is inserted
+        ISGlobalToLocalMappingApply( mMorisIDtoIndexMap, IS_GTOLM_MASK, tNumIds, aGlobalIds.memptr(), nullptr, tIndices.data() );
+
+        return tIndices;
+    }
 
 }    // namespace moris

@@ -128,6 +128,11 @@ namespace moris
                 const moris::uint&                      aBlockRowOffsets,
                 Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
 
+        void extract_my_values( const moris::uint&      aNumIndices,
+        const Vector< sint >&           aGlobalBlockRows,
+        const moris::uint&                      aBlockRowOffsets,
+        Vector< moris::Matrix< DDRMat > >& LHSValues ) override; // brendan format
+
         void print() const override;
 
         void save_vector_to_matrix_market_file( const char* aFilename ) override{};

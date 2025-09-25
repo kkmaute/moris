@@ -479,6 +479,38 @@ void Vector_Epetra::extract_my_values(
 
 //----------------------------------------------------------------------------------------------
 
+void Vector_Epetra::extract_my_values(
+        const moris::uint&                 aNumIndices,
+        const Vector< sint >&              aGlobalRows,
+        const moris::uint&                 aRowOffsets,
+        Vector< moris::Matrix< DDRMat > >& ExtractedValues )
+{
+    ExtractedValues.resize( mNumVectors );
+
+    for ( moris::sint Ik = 0; Ik < mNumVectors; ++Ik )
+    {
+        ExtractedValues( Ik ).set_size( aNumIndices, 1 );
+    }
+
+    moris::sint tVecLength = this->vec_local_length();
+
+    for ( moris::sint Ik = 0; Ik < mNumVectors; ++Ik )
+    {
+        moris::sint tOffset = tVecLength * Ik;
+
+        for ( moris::uint Ii = 0; Ii < aNumIndices; ++Ii )
+        {
+            const int tLocIndex = mMap->return_local_ind_of_global_Id( aGlobalRows( Ii ) );
+
+            MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed" );
+
+            ExtractedValues( Ik )( Ii ) = mValuesPtr[ tLocIndex + tOffset ];
+        }
+    }
+}
+
+//----------------------------------------------------------------------------------------------
+
 void Vector_Epetra::print() const
 {
     std::cout << *mEpetraVector << '\n';

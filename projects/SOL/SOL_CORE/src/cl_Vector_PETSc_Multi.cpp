@@ -542,6 +542,47 @@ MultiVector_PETSc::extract_my_values(
 //-----------------------------------------------------------------------------
 
 void
+MultiVector_PETSc::extract_my_values(
+        const uint&               aNumIndices,
+        const Vector< sint >&     aGlobalBlockRows,
+        const uint&               aBlockRowOffsets,
+        Vector< Matrix< DDRMat > >& ExtractedValues )
+{
+    // MORIS_ASSERT( false, "extract_my_values() not implemented for petsc" );
+    ExtractedValues.resize( mNumVectors );
+
+    for ( moris::uint Ik = 0; Ik < mNumVectors; ++Ik )
+    {
+        ExtractedValues( Ik ).set_size( aNumIndices, 1 );
+    }
+
+    // moris::sint tVecLength = this->vec_local_length();
+
+    // get map from moris id to indices in vector
+    MORIS_ASSERT( mMap->is_full_map(), "MultiVector_PETSc::extract_my_values - full map required" );
+
+    Matrix< DDSMat > tIndices = mMap->map_from_moris_ids_to_indices( aGlobalBlockRows );
+
+    for ( moris::uint Ik = 0; Ik < mNumVectors; ++Ik )
+    {
+        Vec mPetscVectorSingle;
+        MatDenseGetColumnVec( mPetscVector, Ik, &mPetscVectorSingle );
+
+        // get values from petsc vector
+        VecGetValues( mPetscVectorSingle, tIndices.numel(), tIndices.data(), ExtractedValues( Ik ).data() );
+
+        // free the petsc memoery objects
+        MatDenseRestoreColumnVec( mPetscVector, Ik, &mPetscVectorSingle );
+    }
+
+    // check that vector index  is zero
+    MORIS_ASSERT( aBlockRowOffsets == 0,
+            "MultiVector_PETSc::extract_my_values - petsc not implemented yet for aBlockRowOffsets neq 0" );
+}
+
+//-----------------------------------------------------------------------------
+
+void
 MultiVector_PETSc::print() const
 {
     MatView( mPetscVector, PETSC_VIEWER_STDOUT_WORLD );
