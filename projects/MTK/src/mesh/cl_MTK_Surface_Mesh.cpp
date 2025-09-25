@@ -1412,9 +1412,18 @@ namespace moris::mtk
             // Get the vertices connected to this vertex
             const Vector< moris_index >& tNeighbors = mVertexConnectivity( aVertexIndex );
 
-            // Determine the order of the vertices
-            moris_index tLowNeighbor  = tNeighbors( 0 ) < tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
-            moris_index tHighNeighbor = tNeighbors( 0 ) > tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+            moris_index tLowNeighbor;
+            moris_index tHighNeighbor;
+            if ( aVertexIndex > 1 and std::any_of( tNeighbors.begin(), tNeighbors.end(), []( moris_index i ) { return i == 0; } ) )
+            {
+                tLowNeighbor  = tNeighbors( 0 ) == 0 ? tNeighbors( 1 ) : tNeighbors( 0 );
+                tHighNeighbor = 0;
+            }
+            else
+            {    // Determine the order of the vertices
+                tLowNeighbor  = tNeighbors( 0 ) < tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+                tHighNeighbor = tNeighbors( 0 ) > tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+            }
 
             // Get vertex coordinates
             const Matrix< DDRMat > tLowCoords  = this->get_vertex_coordinates( tLowNeighbor );

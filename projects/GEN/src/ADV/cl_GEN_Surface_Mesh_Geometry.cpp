@@ -2208,17 +2208,20 @@ namespace moris::gen
         // Loop over surface mesh vertices
         for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
         {
-            // Compute dGQI_dvertex
-            Matrix< DDRMat > tdGQIdvertex = ( this->*get_dGQI_dvertex )( iVertexIndex );
+            if ( this->facet_vertex_depends_on_advs( iVertexIndex ) )
+            {
+                // Compute dGQI_dvertex
+                Matrix< DDRMat > tdGQIdvertex = ( this->*get_dGQI_dvertex )( iVertexIndex );
 
-            // Compute dGQI_dADV
-            Matrix< DDRMat > tdGQIdADVs = tdGQIdvertex * this->get_dvertex_dadv( iVertexIndex );
+                // Compute dGQI_dADV
+                Matrix< DDRMat > tdGQIdADVs = tdGQIdvertex * this->get_dvertex_dadv( iVertexIndex );
 
-            // Get the ADV IDs for this vertex
-            const Vector< sint >& tADVIds = this->get_vertex_adv_ids( iVertexIndex );
+                // Get the ADV IDs for this vertex
+                const Vector< sint >& tADVIds = this->get_vertex_adv_ids( iVertexIndex );
 
-            // Add the sensitivities to the output vector
-            aGQISensitivities->sum_into_global_values( tADVIds, tdGQIdADVs, aRequestIndex );
+                // Add the sensitivities to the output vector
+                aGQISensitivities->sum_into_global_values( tADVIds, tdGQIdADVs, aRequestIndex );
+            }
         }
     }
 
