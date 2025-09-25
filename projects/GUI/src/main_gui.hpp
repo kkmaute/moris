@@ -27,6 +27,7 @@
 #include <QScrollArea>
 #include <QTreeWidget>
 #include <QList>
+#include <QSet>
 
 #include "cl_tree_widget_item.hpp"
 #include "fn_read_file_dialog.hpp"
@@ -107,7 +108,10 @@ namespace moris
         QStringList mPropertyNameList;
         QStringList mPhaseNameList;
         QStringList mMaterialModelList;
-
+        /**
+         * The set of submodules for which Add button can be used
+         */
+        static const QSet<QString> sCanAdd;
       public:
         // Add argument that reads a parameter list
 
@@ -172,7 +176,28 @@ namespace moris
 
         void write_to_xml();
 
+        /**
+         * @brief enables/disables the add button when the tree selection changes
+         * @param QTreeWidgetItem* current
+         * @param int aIndex
+         * @note This function is called when the current item in the tree widget changes. It enables or disables the add button based on the selected item.
+         */
+        void on_submodule_changed( QTreeWidgetItem* current, QTreeWidgetItem* previous );
+
       private:
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief helper function to wire the correct 'name' field if cast matches
+         * @param Moris_Tree_Widget_Item *aContainer
+         * @param uint aRoot
+         * @param uint aChild
+         * @return NONE
+         * @note This function looks for a well known objectName and only connects it if the cast matches. e.g. QLineEdit "property_name", QComboBox "phase_name"
+         */
+
+         void connect_name_binding(Moris_Tree_Widget_Item *aContainer, uint aRoot, uint aChild);
         //--------------------------------------------------------------------------------------------------------------
 
         /**
@@ -184,6 +209,8 @@ namespace moris
 
         QList< QStringList > convert_parameters_to_QStringList( Parameter_List );
 
+        //--------------------------------------------------------------------------------------------------------------
+
         /**
          * @brief Function to add a project to the GUI
          * @param uint aRoot
@@ -193,8 +220,16 @@ namespace moris
          */
         void add_project( uint aRoot, uint aChild, uint aSubChild );
 
+        //--------------------------------------------------------------------------------------------------------------
+        
         void update_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
+
+        //--------------------------------------------------------------------------------------------------------------
+        
         void update_property_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void update_phase_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
     };
 

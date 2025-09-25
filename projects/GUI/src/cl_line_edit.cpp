@@ -52,52 +52,86 @@ namespace moris
         mParameter = parameter;
     }
 
+    // Template function to set the parameter value based on its type
+    // Inputs:
+    // - aParameterName: Name of the parameter to be set.
+    // - aValue: Value to be set for the parameter.
+    // - aNewText: New text input in the widget.
+    template<typename T>
+    void Moris_Line_Edit::mTrySetParameter(const std::string& aParameterName, const T& aValue, const QString& aNewText)
+    {
+        mParameter.set_value(aParameterName, aValue, false);
+        emit textChanged(objectName(), aNewText);
+    }
+
     // Slot to handle text changes
     // This slot is connected to the textChanged signal of QLineEdit and updates the linked Parameter object.
     // Inputs:
     // - new_text: New text input in the widget.
     void Moris_Line_Edit::onTextChanged( const QString &new_text )
-    {
-        // Switch between different types based on the parameter index and update the parameter value
-        if ( mParameter.index() == variant_index< std::string >() )
+    {   
+        // early escape if the parameter is locked
+        if(mParameter.is_locked()) return;
+
+        // convert to string so to avoid unnecessary conversions later
+        const std::string tParameterName = objectName().toStdString();
+        const std::string tNewTextString = new_text.toStdString();
+
+        if(mParameter.index() == variant_index<std::string>())
         {
-            mParameter.set_value( objectName().toStdString(), new_text.toStdString(), false );
+           mTrySetParameter(tParameterName, tNewTextString, new_text);
+           return;
         }
-        else if ( mParameter.index() == variant_index< std::pair< std::string, std::string > >() )
+        
+        if(mParameter.index() == variant_index<std::pair< std::string, std::string > >())
         {
-            Vector< std::string >                 tVec  = split_string( new_text.toStdString(), "," );
-            std::pair< std::string, std::string > tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
-            mParameter.set_value( objectName().toStdString(), tPair, false );
-        }
-        else if ( mParameter.index() == variant_index< Vector< uint > >() )
-        {
-            Vector< uint > tVec = string_to_vector< uint >( new_text.toStdString() );
-            mParameter.set_value( objectName().toStdString(), tVec, false );
-        }
-        else if ( mParameter.index() == variant_index< Vector< sint > >() )
-        {
-            Vector< sint > tVec = string_to_vector< sint >( new_text.toStdString() );
-            mParameter.set_value( objectName().toStdString(), tVec, false );
-        }
-        else if ( mParameter.index() == variant_index< Vector< real > >() )
-        {
-            Vector< real > tVec = string_to_vector< real >( new_text.toStdString() );
-            mParameter.set_value( objectName().toStdString(), tVec, false );
-        }
-        else if ( mParameter.index() == variant_index< Vector< std::string > >() )
-        {
-            Vector< std::string > tVec = string_to_vector< std::string >( new_text.toStdString() );
-            mParameter.set_value( objectName().toStdString(), tVec, false );
-        }
-        else
-        {
-            // Geometry center_x variable spazzes out when empty
-            Vector< real >  tVec             = string_to_vector< real >( new_text.toStdString() );
-            Design_Variable tDesign_Variable = Design_Variable( tVec( 0 ) );
-            mParameter.set_value( objectName().toStdString(), tDesign_Variable, false );
+            Vector< std::string > tVec = split_string( tNewTextString, "," );
+            if ( tVec.size() < 2 ) return;
+            auto tPair = std::make_pair( tVec( 0 ), tVec( 1 ) );
+            mTrySetParameter(tParameterName, tPair, new_text);
+            return;
         }
 
-        // Emit the custom textChanged signal with the widget's name and new text
-        emit textChanged( objectName(), new_text );
+        if(mParameter.index() == variant_index< Vector< uint > >() )
+        {
+            auto tVec = string_to_vector< uint >( tNewTextString );
+            if(tVec.empty()) return;
+            mTrySetParameter(tParameterName, tVec, new_text);
+            return;
+        }
+
+        if(mParameter.index() == variant_index< Vector< sint > >() )
+        {
+            auto tVec = string_to_vector< sint >( tNewTextString );
+            if(tVec.empty()) return;
+            mTrySetParameter(tParameterName, tVec, new_text);
+            return;
+        }
+
+        if(mParameter.index() == variant_index< Vector< real > >() )
+        {
+            auto tVec = string_to_vector< real >( tNewTextString );
+            if(tVec.empty()) return;
+            mTrySetParameter(tParameterName, tVec, new_text);
+            return;
+        }
+
+        if(mParameter.index() == variant_index< Vector< std::string > >() )
+        {
+            auto tVec = string_to_vector< std::string >( tNewTextString );
+            if(tVec.empty()) return;
+            mTrySetParameter(tParameterName, tVec, new_text);
+            return;
+        }
+
+        
+        {
+            // Geometry center_x variable spazzes out when empty
+            Vector< real >  tVec      = string_to_vector< real >( tNewTextString );
+            if ( tVec.empty() ) return;
+            Design_Variable tDesign_Variable = Design_Variable( tVec( 0 ) );
+            mTrySetParameter(tParameterName, tDesign_Variable, new_text);
+        }
+
     }
 }    // namespace moris

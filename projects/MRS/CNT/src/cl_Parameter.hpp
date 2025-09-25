@@ -143,7 +143,7 @@ namespace moris
         void set_value(
                 const std::string& aParameterName,
                 T                  aParameterValue,
-                bool               aLockValue = true )
+                bool               aLockValue = false ) // originally true
         {
             // Make sure parameter is not locked
             MORIS_ERROR( mValidator,

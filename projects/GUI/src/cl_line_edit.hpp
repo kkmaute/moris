@@ -58,6 +58,8 @@ namespace moris
 
       private:
         Parameter &mParameter;    // Reference to the associated Parameter object
+        template<typename T>
+        void mTrySetParameter(const std::string& aParameterName, const T& aValue, const QString& aNewText);
     };
 
 }    // namespace moris

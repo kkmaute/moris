@@ -12,6 +12,6 @@
 add_subdirectory(src)
 
 # Add test directory
-#if(MORIS_USE_TESTS AND BUILD_GUI)
-#    add_subdirectory(test)
-#endif()
+if(MORIS_USE_TESTS AND BUILD_GUI)
+   add_subdirectory(test)
+endif()

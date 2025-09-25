@@ -10,6 +10,7 @@
 
 #include "cl_Submodule_Parameter_Lists.hpp"
 #include "parameters.hpp"
+#include <iostream>
 
 namespace moris
 {
@@ -52,6 +53,8 @@ namespace moris
 
     void Submodule_Parameter_Lists::add_parameter_list()
     {
+        std::cerr << "[Submodule_Parameter_List] add_parameter_list() for type:"
+                 << mType << std::endl;
         if ( mType == HMR_Submodule_String::values( static_cast< uint >( HMR::LAGRANGE_MESHES ) ) )
         {
             mParameterLists.push_back( prm::create_lagrange_mesh_parameter_list() );

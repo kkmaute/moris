@@ -16,6 +16,30 @@
 // Logger       gLogger;
 namespace moris
 {
+    const QSet<QString> Moris_Gui::sCanAdd = {
+        
+        // HMR Submodules
+        QString::fromStdString( HMR_Submodule_String::values( static_cast< uint >( HMR::LAGRANGE_MESHES ) ) ),
+        QString::fromStdString( HMR_Submodule_String::values( static_cast< uint >( HMR::BSPLINE_MESHES ) ) ),
+
+        // FEM Submodules
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::PROPERTIES ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::CONSTITUTIVE_MODELS ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::STABILIZATION ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::IWG ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::IQI ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::FIELDS ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::PHASES ) ) ),
+        QString::fromStdString( FEM_Submodule_String::values( static_cast< uint >( FEM::MATERIAL_MODELS ) ) ),
+        
+        // SOL Submodules
+        QString::fromStdString( SOL_Submodule_String::values( static_cast< uint >( SOL::LINEAR_SOLVERS ) ) ),
+        QString::fromStdString( SOL_Submodule_String::values( static_cast< uint >( SOL::NONLINEAR_ALGORITHMS ) ) ),
+        QString::fromStdString( SOL_Submodule_String::values( static_cast< uint >( SOL::NONLINEAR_SOLVERS ) ) ),
+        QString::fromStdString( SOL_Submodule_String::values( static_cast< uint >( SOL::TIME_SOLVER_ALGORITHMS ) ) ),
+        QString::fromStdString( SOL_Submodule_String::values( static_cast< uint >( SOL::TIME_SOLVERS ) ) )
+    };
+
     // uint       tag       = 0;
     // Moris_Gui *gMorisGui = nullptr;
     Moris_Gui::Moris_Gui( QWidget *parent )
@@ -351,6 +375,9 @@ namespace moris
         connect( mAddButton, SIGNAL( clicked() ), this, SLOT( add_more_props() ) );
         connect( mRemoveButton, SIGNAL( clicked() ), this, SLOT( remove_props() ) );
         connect( m_save_to_xml_Button, SIGNAL( clicked() ), this, SLOT( write_to_xml() ) );
+        connect( mTreeWidget, &QTreeWidget::currentItemChanged, this, &Moris_Gui::on_submodule_changed );
+
+        on_submodule_changed(mTreeWidget->currentItem(), nullptr);
     }
 
     void Moris_Gui::parameter_selected()
@@ -373,6 +400,8 @@ namespace moris
                 tOldWidget->set_form_visible( false );
                 tCurrentWidget->set_form_visible( true );
                 mOldItem = tCurrentItem;
+
+                
             }
         }
     }
@@ -479,39 +508,7 @@ namespace moris
                 // for ( uint i = 0; i < mTreeWidgetSubChildren[ tRoot ][ tChild ].size(); i++ )
                 // {
 
-                for ( uint it = 0; it < mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->mWidget.size(); it++ )
-                {
-                    if ( endswith( mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->mWidget[ it ]->objectName().toStdString(), "name" ) )
-                    {
-                        auto  tLineEdit      = dynamic_cast< Moris_Line_Edit  *>( mTreeWidgetSubChildren[ tRoot ][ tChild ].last()->mWidget[ it ] );
-                        auto &treeWidgetItem = mTreeWidgetSubChildren[ tRoot ][ tChild ].last();
-
-                        if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
-                        {
-                            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                update_property_tree_widget_name( treeWidgetItem, aText );
-                            } );
-                        }
-                        else if ( tRoot == (uint)Module_Type::FEM && tChild == (uint)FEM_Submodule::PHASES && mQTreeWidgetSubChildren[ tRoot ][ tChild ].size() > 0 )
-                        {
-                            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                update_phase_tree_widget_name( treeWidgetItem, aText );
-                            } );
-                        }
-                        else
-                        {
-
-                            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                                // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                                update_tree_widget_name( treeWidgetItem, aText );
-                            } );
-                        }
-                        break;
-                    }
-                    //}
-                }
+                connect_name_binding(mTreeWidgetSubChildren[tRoot][tChild].last(), tRoot, tChild);
             }
             else
             {
@@ -640,41 +637,7 @@ namespace moris
             }
         }
 
-        // Get mWidget from the Moris_Tree_Widget_Item by reference
-        QList< QWidget * > &tWidget = mTreeWidgetSubChildren[ aRoot ][ aChild ].last()->mWidget;
-
-        for ( uint it = 0; it < tWidget.size(); it++ )
-        {
-            if ( endswith( tWidget[ it ]->objectName().toStdString(), "name" ) )
-            {
-                auto &tLineEdit      = dynamic_cast< Moris_Line_Edit      &>( *tWidget[ it ] );
-                auto &treeWidgetItem = mTreeWidgetSubChildren[ aRoot ][ aChild ].last();
-
-                if ( aRoot == (uint)Module_Type::FEM && aChild == (uint)FEM_Submodule::PROPERTIES && mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() > 0 )
-                {
-                    connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                        // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                        update_property_tree_widget_name( treeWidgetItem, aText );
-                    } );
-                }
-                else if ( aRoot == (uint)Module_Type::FEM && aChild == (uint)FEM_Submodule::PHASES && mQTreeWidgetSubChildren[ aRoot ][ aChild ].size() > 0 )
-                {
-                    connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                        // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                        update_phase_tree_widget_name( treeWidgetItem, aText );
-                    } );
-                }
-                else
-                {
-
-                    connect( &tLineEdit, &QLineEdit::textChanged, this, [ this, treeWidgetItem ]( const QString &aText ) {
-                        // Call the rename_tree_widget_item function, passing both the QTreeWidgetItem and the text
-                        update_tree_widget_name( treeWidgetItem, aText );
-                    } );
-                }
-                break;
-            }
-        }
+        connect_name_binding(mTreeWidgetSubChildren[aRoot][aChild].last(), aRoot, aChild);
     }
 
     void Moris_Gui::write_to_xml()
@@ -789,6 +752,70 @@ namespace moris
         }
     }
 
+    void Moris_Gui::connect_name_binding(Moris_Tree_Widget_Item *aContainer, uint aRoot, uint aChild)
+    {
+        
+        QWidget* tNameLineWidget = nullptr; // QLineEdit name
+        QWidget* tPhaseComboWidget = nullptr; // QComboBox phase name
+
+        for ( QWidget* widgetIterator : aContainer->mWidget )
+        {
+            const QString objectName = widgetIterator->objectName();
+
+            if ( objectName == "property_name" || objectName == "name" )
+            {
+                tNameLineWidget = widgetIterator;
+            }
+            else if ( objectName == "phase_name" )
+            {
+                tPhaseComboWidget = widgetIterator;
+            }
+        }
+
+        auto* tTreeWidgetItem = aContainer;
+
+        // FEM->PROPERTIES: rename comes from a line edit called "property_name" or "name"
+        if (aRoot == ( uint )Module_Type::FEM && aChild == ( uint )FEM_Submodule::PROPERTIES)
+        {
+            if ( auto* tLineEdit = qobject_cast< Moris_Line_Edit* >( tNameLineWidget ) )
+            {
+                connect( tLineEdit, &QLineEdit::textChanged, this, [ this, tTreeWidgetItem ]( const QString &aText ) {
+                    update_property_tree_widget_name( tTreeWidgetItem, aText );
+                });
+            }
+            return;
+        }
+
+        // FEM->PHASES: rename comes from a line edit called "phase_name"
+        if (aRoot == (uint)Module_Type::FEM && aChild == (uint)FEM_Submodule::PHASES)
+        {
+            if ( auto* tLineEdit = qobject_cast< Moris_Line_Edit* >( tNameLineWidget ) )
+            {
+                connect( tLineEdit, &QLineEdit::textChanged, this, [ this, tTreeWidgetItem ]( const QString &aText ) {
+                    update_phase_tree_widget_name( tTreeWidgetItem, aText );
+                });
+            }
+
+            if ( auto* tComboBox = qobject_cast< Moris_Combo_Box* >( tPhaseComboWidget ) )
+            {
+                connect( tComboBox, &QComboBox::currentTextChanged, this, [ this, tTreeWidgetItem ]( const QString &aText ) {
+                    update_phase_tree_widget_name( tTreeWidgetItem, aText );
+                });
+            }
+            return;
+        }
+
+        // DEFAULT: for any other module, rename comes from a line edit called "name"
+        if ( auto* tLineEdit = qobject_cast< Moris_Line_Edit* >( tNameLineWidget ) )
+        {
+            connect( tLineEdit, &QLineEdit::textChanged, this, [ this, tTreeWidgetItem ]( const QString &aText ) {
+                update_tree_widget_name( tTreeWidgetItem, aText );
+            });
+        }
+    }
+
+
+
 
     QList< QStringList > Moris_Gui::convert_parameters_to_QStringList( Parameter_List aList )
     {
@@ -813,6 +840,35 @@ namespace moris
         }
 
         return tQtList;
+    }
+
+
+    void Moris_Gui::on_submodule_changed( QTreeWidgetItem *Current, QTreeWidgetItem *Previous )
+    {
+        /**
+         * @brief Function to handle the submodule change event
+         * @param QTreeWidgetItem *Current, QTreeWidgetItem *Previous
+         * @return NONE
+         * @note This function is called when the current item in the tree widget changes. It updates the form associated with the new current item.
+         */
+        if ( !Current )
+        {
+            mAddButton->setEnabled( false );
+            mRemoveButton->setEnabled( false );
+            return;
+        }
+
+        QString type = Current->text( 0 );
+
+        bool canAdd = sCanAdd.contains(type);
+        mAddButton->setEnabled(canAdd);
+
+        auto tCurrentWidget = qobject_cast< Moris_Tree_Widget_Item * >( mTreeWidget->itemWidget( Current, 0 ) );
+        QTreeWidgetItem* tParentWidget = Current->parent();
+        QString tParentType = tParentWidget ? tParentWidget->text( 0 ) : QString();
+
+        bool canRemove = tCurrentWidget && tCurrentWidget->isSubForm() && sCanAdd.contains(tParentType);
+        mRemoveButton->setEnabled( canRemove );
     }
 
 
