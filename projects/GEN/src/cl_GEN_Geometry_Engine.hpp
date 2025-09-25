@@ -155,6 +155,8 @@ namespace moris::gen
          */
         void register_GQIs();
 
+        void build_GQI_data();
+
         /**
          * Import a phase function pointer
          * used in plato workflow where platoanalyze does the forward analysis and no library is present

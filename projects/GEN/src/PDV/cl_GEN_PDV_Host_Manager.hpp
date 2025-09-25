@@ -341,7 +341,7 @@ namespace moris::gen
          *
          * @return Matrix of optimization sensitivities
          */
-        Matrix< DDRMat > compute_dqi_dadv( const Vector< sint >& aFullADVIds );
+        Matrix< DDRMat > compute_dqi_dadv( const Vector< sint >& aFullADVIds, sol::Dist_Vector* aFulldQIdADV );
 
         void communicate_dof_types( Vector< enum PDV_Type >& aPDVTypeList );
 

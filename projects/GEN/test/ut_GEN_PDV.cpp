@@ -484,7 +484,11 @@ namespace moris::gen
             {
                 tFullADVIds = tOwnedADVIds;
             }
-            Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_dqi_dadv( tFullADVIds );
+
+            sol::Matrix_Vector_Factory tDistributedFactory;
+            sol::Dist_Map*             tADVMap   = tDistributedFactory.create_map( tFullADVIds );
+            sol::Dist_Vector*          tdADV     = tDistributedFactory.create_vector( tADVMap, 1, false, true );
+            Matrix< DDRMat >           tdIQIdADV = tPDVHostManager.compute_dqi_dadv( tFullADVIds, tdADV );
 
             // Check sensitivities
             if ( par_rank() == 0 )
@@ -584,6 +588,16 @@ namespace moris::gen
         // Owned ADV IDs
         tPDVHostManager.set_owned_adv_ids( { 2 * par_rank(), 2 * par_rank() + 1 } );
 
+        // Add QIs
+        tPDVHostManager.register_QI( "TrickGQI1", Module_Type::GEN, 0.0, nullptr );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickIQI3", Module_Type::FEM, 0.0, nullptr );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickXQI1", Module_Type::XTK, 0.0, nullptr );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrivialIQI1", Module_Type::FEM, 0.0, nullptr );    // Requested for optimization
+        tPDVHostManager.register_QI( "TrickXQI2", Module_Type::XTK, 0.0, nullptr );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrivialIQI2", Module_Type::FEM, 0.0, nullptr );    // Requested for optimization
+        tPDVHostManager.register_QI( "TrickGQI2", Module_Type::GEN, 0.0, nullptr );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickIQI4", Module_Type::FEM, 0.0, nullptr );      // Dummy to make sure indexing is correct
+
         // Full ADV IDs
         Vector< sint > tFullADVIds;
         if ( par_rank() == 0 )
@@ -595,23 +609,17 @@ namespace moris::gen
             }
         }
 
+        sol::Matrix_Vector_Factory tDistributedFactory;
+        sol::Dist_Map*             tADVMap = tDistributedFactory.create_map( tFullADVIds );
+        sol::Dist_Vector*          tdADV   = tDistributedFactory.create_vector( tADVMap, 2, false, true );
+
         // brendan delete
         tPDVHostManager.get_dQIdp( Module_Type::FEM )->print();
-
-        // Add QIs
-        tPDVHostManager.register_QI( "TrickGQI1", Module_Type::GEN, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrickIQI3", Module_Type::FEM, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrickXQI1", Module_Type::XTK, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrivialIQI1", Module_Type::FEM, 0.0, nullptr );    // Requested for optimization
-        tPDVHostManager.register_QI( "TrickXQI2", Module_Type::XTK, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrivialIQI2", Module_Type::FEM, 0.0, nullptr );    // Requested for optimization
-        tPDVHostManager.register_QI( "TrickGQI2", Module_Type::GEN, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrickIQI4", Module_Type::FEM, 0.0, nullptr );      // Dummy to make sure indexing is correct
 
         tPDVHostManager.set_requested_QIs( { "TrivialIQI1", "TrivialIQI2" } );
 
         // Compute sensitivities
-        Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_dqi_dadv( tFullADVIds );
+        Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_dqi_dadv( tFullADVIds, tdADV );
 
         // Check sensitivities
         REQUIRE( tdIQIdADV.n_rows() == 2 );
