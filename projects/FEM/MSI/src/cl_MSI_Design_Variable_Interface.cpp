@@ -33,6 +33,12 @@ namespace moris::MSI
     Vector< std::string >
     Design_Variable_Interface::get_requested_QIs< std::string >( Module_Type aModule ) const
     {
+        // Check if we want all the requested QIs or from a specific module
+        if ( aModule == Module_Type::END_ENUM )
+        {
+            return mRequestedQIs;
+        }
+
         // Get the indices of all the requested QIs
         Vector< std::string > tRequestedQINames;
         tRequestedQINames.reserve( mRequestedQIs.size() );
@@ -50,7 +56,7 @@ namespace moris::MSI
             uint tQIIndex = mQINameToIndexMap.at( tQIName );
 
             // Add the index to the list if the module matches or we didn't get a module specified
-            if ( ( mQIs( tQIIndex ).mModule == aModule ) or aModule == Module_Type::END_ENUM )
+            if ( ( mQIs( tQIIndex ).mModule == aModule ) )
             {
                 tRequestedQINames.push_back( tQIName );
             }
