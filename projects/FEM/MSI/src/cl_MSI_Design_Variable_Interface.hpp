@@ -39,7 +39,7 @@ namespace moris
             // std::shared_ptr< MSI::Equation_Model > mModel         = nullptr; brendan delete
             bool              mdQIdpImported = false;
             sol::Dist_Vector* mdXQIdPDV      = nullptr;    // XTK module sensitivities
-            sol::Dist_Vector* mdGQIdADV      = nullptr;    // GQIs are done by ADV since PDVs don't exist in GEN
+        //     sol::Dist_Vector* mdGQIdADV      = nullptr;    // GQIs are done by ADV since PDVs don't exist in GEN brendan delete
             sol::Dist_Vector* mdIQIdPDV      = nullptr;    // FEM module sensitivities
 
           protected:
@@ -70,7 +70,7 @@ namespace moris
             virtual ~Design_Variable_Interface()
             {
                 delete mdXQIdPDV;
-                delete mdGQIdADV;
+                // delete mdGQIdADV; brendan delete
                 delete mdIQIdPDV;
             }
 
@@ -160,6 +160,13 @@ namespace moris
              */
             template< typename T >
             Vector< T > get_requested_QIs( Module_Type aModule = Module_Type::END_ENUM ) const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Brendan documentation
+             */
+            uint get_num_requested_QIs() const;
 
             //------------------------------------------------------------------------------
 

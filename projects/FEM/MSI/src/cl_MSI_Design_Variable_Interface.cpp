@@ -48,15 +48,9 @@ namespace moris::MSI
         {
             // Get the name of the requested QI and check it exists
             const std::string& tQIName = mRequestedQIs( iQI );
-            MORIS_ASSERT( mQINameToIndexMap.key_exists( tQIName ),
-                    "Design_Variable_Interface::get_requested_QI_indices - Quantity of interest with name %s not found.",
-                    tQIName.c_str() );
 
-            // Get the index of the requested QI
-            uint tQIIndex = mQINameToIndexMap.at( tQIName );
-
-            // Add the index to the list if the module matches or we didn't get a module specified
-            if ( ( mQIs( tQIIndex ).mModule == aModule ) )
+            // Add the index to the list if the QI has been created and the module matches
+            if ( mQINameToIndexMap.key_exists( tQIName ) and mQIs( mQINameToIndexMap.at( tQIName ) ).mModule == aModule )
             {
                 tRequestedQINames.push_back( tQIName );
             }
@@ -80,21 +74,22 @@ namespace moris::MSI
         {
             // Get the name of the requested QI and check it exists
             const std::string& tQIName = mRequestedQIs( iQI );
-            MORIS_ASSERT( mQINameToIndexMap.key_exists( tQIName ),
-                    "Design_Variable_Interface::get_requested_QI_indices - Quantity of interest with name %s not found.",
-                    tQIName.c_str() );
-
-            // Get the index of the requested QI
-            uint tQIIndex = mQINameToIndexMap.at( tQIName );
 
             // Add the index to the list if the module matches
-            if ( ( mQIs( tQIIndex ).mModule == aModule ) or aModule == Module_Type::END_ENUM )
+            if ( aModule == Module_Type::END_ENUM or ( mQINameToIndexMap.key_exists( tQIName ) and ( mQIs( mQINameToIndexMap.at( tQIName ) ).mModule == aModule ) ) )
             {
-                tRequestedQIIndices.push_back( tQIIndex );
+                tRequestedQIIndices.push_back( mQINameToIndexMap.at( tQIName ) );
             }
         }
 
         return tRequestedQIIndices;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    uint Design_Variable_Interface::get_num_requested_QIs() const
+    {
+        return mRequestedQIs.size();
     }
 
     //------------------------------------------------------------------------------
@@ -213,11 +208,11 @@ namespace moris::MSI
                 mdXQIdPDV = adQIdp;
                 break;
             }
-            case Module_Type::GEN:
-            {
-                mdGQIdADV = adQIdp;
-                break;
-            }
+            // case Module_Type::GEN:
+            // {
+            //     // mdGQIdADV = adQIdp; brendan delete
+            //     break;
+            // }
             default:
             {
                 MORIS_ASSERT( false,
@@ -270,10 +265,10 @@ namespace moris::MSI
             {
                 return mdXQIdPDV;
             }
-            case Module_Type::GEN:
-            {
-                return mdGQIdADV;
-            }
+            // case Module_Type::GEN:
+            // {
+            //     // return mdGQIdADV; brendan delete
+            // }
             default:
             {
                 MORIS_ASSERT( false,
