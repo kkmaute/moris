@@ -97,7 +97,6 @@ namespace moris::gen
         if ( this->do_regularization() )
         {
             this->load_regularization_function( aLibrary );
-            this->build_vertex_connectivity();
         }
 
         // If this surface mesh is being optimized via B-spline fields, construct seeding fields and check for a scaling function
@@ -573,41 +572,6 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh_Geometry::build_vertex_connectivity()
-    {
-        // Initialize a set to store unique vertex connectivity for every vertex
-        uint                              tNumVertices = this->get_number_of_vertices();
-        Vector< std::set< moris_index > > tVertexConnectivity( tNumVertices );
-
-        uint tNumVertsPerFacet = Surface_Mesh::get_facets_vertex_indices( 0 ).size();
-
-        // Loop through all facets of the surface mesh
-        for ( auto& tFacet : Surface_Mesh::get_facet_connectivity() )
-        {
-            // Loop through all vertices of the facet
-            for ( uint iVertex = 0; iVertex < tNumVertsPerFacet; iVertex++ )
-            {
-                // Get the current vertex and the next vertex (wrapping around)
-                moris_index tCurrentVertex = tFacet( iVertex );
-                moris_index tNextVertex    = tFacet( ( iVertex + 1 ) % tNumVertsPerFacet );
-
-                // Add both to each others sets
-                tVertexConnectivity( tCurrentVertex ).insert( tNextVertex );
-                tVertexConnectivity( tNextVertex ).insert( tCurrentVertex );
-            }
-        }
-
-        // Convert the sets to vectors and store them in the vertex connectivity
-        mVertexConnectivity.resize( tNumVertices );
-        for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
-        {
-            // Convert the set to a vector
-            mVertexConnectivity( iVertex ) = Vector< moris_index >( tVertexConnectivity( iVertex ).begin(), tVertexConnectivity( iVertex ).end() );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
 #if MORIS_HAVE_ARBORX
     void Surface_Mesh_Geometry::flood_fill_mesh_regions()
     {
@@ -934,7 +898,7 @@ namespace moris::gen
             uint tNumV = this->get_number_of_vertices();
 
             // Get the regularization from whatever function was loaded
-            Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_all_original_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
+            Matrix< DDRMat > tRegularizationDisp = regularize_mesh( Surface_Mesh::get_all_vertex_coordinates(), Surface_Mesh::get_all_original_vertex_coordinates(), Surface_Mesh::get_facet_connectivity(), Surface_Mesh::get_vertex_connectivity(), mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
 
             MORIS_ASSERT( tRegularizationDisp.n_rows() == this->get_spatial_dimension(), "Regularization function for surface mesh %s does not return the correct number of rows. Expected %d, got %lu", mParameters.mName.c_str(), this->get_spatial_dimension(), tRegularizationDisp.n_rows() );
             MORIS_ASSERT( tRegularizationDisp.n_cols() == this->get_number_of_vertices(), "Regularization function for surface mesh %s does not return the correct number of cols. Expected %d, got %lu", mParameters.mName.c_str(), this->get_number_of_vertices(), tRegularizationDisp.n_cols() );
@@ -966,7 +930,7 @@ namespace moris::gen
             for ( moris_index iRegIter = 1; iRegIter < mParameters.mRegularizationIterations; iRegIter++ )
             {
                 // Get the regularization from whatever function was loaded
-                Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_all_original_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
+                Matrix< DDRMat > tRegularizationDisp = regularize_mesh( Surface_Mesh::get_all_vertex_coordinates(), Surface_Mesh::get_all_original_vertex_coordinates(), Surface_Mesh::get_facet_connectivity(), Surface_Mesh::get_vertex_connectivity(), mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
 
                 MORIS_ASSERT( tRegularizationDisp.n_rows() == this->get_spatial_dimension(), "Regularization function for surface mesh %s does not return the correct number of rows. Expected %d, got %lu", mParameters.mName.c_str(), this->get_spatial_dimension(), tRegularizationDisp.n_rows() );
                 MORIS_ASSERT( tRegularizationDisp.n_cols() == tNumV, "Regularization function for surface mesh %s does not return the correct number of cols. Expected %d, got %lu", mParameters.mName.c_str(), tNumV, tRegularizationDisp.n_cols() );
@@ -1000,9 +964,9 @@ namespace moris::gen
 
                         // Get surface mesh vertex dependencies
                         Vector< moris_index > tVertexDependencies = regularization_vertex_inds(
-                                this->get_all_vertex_coordinates(),
-                                this->get_facet_connectivity(),
-                                mVertexConnectivity,
+                                Surface_Mesh::get_all_vertex_coordinates(),
+                                Surface_Mesh::get_facet_connectivity(),
+                                Surface_Mesh::get_vertex_connectivity(),
                                 mParameters.mRegularizationFactors,
                                 iV );
 
@@ -1014,10 +978,10 @@ namespace moris::gen
                             {
                                 // Get dx_i/dx_k for this vertex
                                 Matrix< DDRMat > tDviDvk = regularization_sensitivity(
-                                        this->get_all_vertex_coordinates(),
-                                        this->get_all_original_vertex_coordinates(),
-                                        this->get_facet_connectivity(),
-                                        mVertexConnectivity,
+                                        Surface_Mesh::get_all_vertex_coordinates(),
+                                        Surface_Mesh::get_all_original_vertex_coordinates(),
+                                        Surface_Mesh::get_facet_connectivity(),
+                                        Surface_Mesh::get_vertex_connectivity(),
                                         mParameters.mRegularizationFactors,
                                         iV,
                                         iDependency,
@@ -1112,7 +1076,7 @@ namespace moris::gen
             Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 ) : get_discretization_scaling_user_defined( Surface_Mesh::get_original_vertex_coordinates( iV ) );
 
             // Get the regularization dependencies for this vertex
-            Vector< moris_index > tVertexDependencies = regularization_vertex_inds( this->get_all_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, iV );
+            Vector< moris_index > tVertexDependencies = regularization_vertex_inds( Surface_Mesh::get_all_vertex_coordinates(), Surface_Mesh::get_facet_connectivity(), Surface_Mesh::get_vertex_connectivity(), mParameters.mRegularizationFactors, iV );
 
             // Loop through all the vertex dependencies and set the initial sensitivity to be identity
             for ( auto iDependency : tVertexDependencies )
@@ -1122,10 +1086,10 @@ namespace moris::gen
                 {
                     // Get dx_i/dx_k regularization sensitivity for this dependency vertex
                     Matrix< DDRMat > tDviDvk = regularization_sensitivity(
-                            this->get_all_vertex_coordinates(),
-                            this->get_all_original_vertex_coordinates(),
-                            this->get_facet_connectivity(),
-                            mVertexConnectivity,
+                            Surface_Mesh::get_all_vertex_coordinates(),
+                            Surface_Mesh::get_all_original_vertex_coordinates(),
+                            Surface_Mesh::get_facet_connectivity(),
+                            Surface_Mesh::get_vertex_connectivity(),
                             mParameters.mRegularizationFactors,
                             iV,
                             iDependency,
@@ -1361,22 +1325,6 @@ namespace moris::gen
     bool Surface_Mesh_Geometry::facet_vertex_depends_on_advs( const uint aFacetVertexIndex ) const
     {
         return this->do_regularization() ? mRegularizationSensitivities( aFacetVertexIndex ).first.size() > 0 : this->facet_vertex_explicitly_depends_on_advs( aFacetVertexIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Vector< Vector< moris_index > >&
-    Surface_Mesh_Geometry::get_all_vertex_connectivity() const
-    {
-        return mVertexConnectivity;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Vector< moris_index >&
-    Surface_Mesh_Geometry::get_vertex_connectivity( uint aVertexIndex ) const
-    {
-        return mVertexConnectivity( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -2224,18 +2172,57 @@ namespace moris::gen
 
     real Surface_Mesh_Geometry::compute_GQI( gen::GQI_Type aGQIType ) const
     {
-        // TO IMPLEMENT
-        return 0.0;
+        switch ( aGQIType )
+        {
+            case GQI_Type::VOLUME:
+                return Surface_Mesh::compute_volume();
+                break;
+            default:
+                MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );
+                return 0.0;
+                break;
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh_Geometry::compute_GQI_sensitivities(
-            gen::GQI_Type     aGQIType,
+            GQI_Type          aGQIType,
             sol::Dist_Vector* aGQISensitivities,
             uint              aRequestIndex ) const
     {
-        // TO IMPLEMENT
+        // Load function pointer to get dGQI_dvertex
+        using dGQI_dvertex_Function            = Matrix< DDRMat > ( mtk::Surface_Mesh::* )( const uint ) const;
+        dGQI_dvertex_Function get_dGQI_dvertex = nullptr;
+
+        switch ( aGQIType )
+        {
+            case GQI_Type::VOLUME:
+                get_dGQI_dvertex = &mtk::Surface_Mesh::compute_dvolume_dvertex;
+                break;
+            default:
+                MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );
+                break;
+        }
+
+        // Loop over surface mesh vertices
+        for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
+        {
+            // Compute dGQI_dvertex
+            Matrix< DDRMat > tdGQIdvertex = ( this->*get_dGQI_dvertex )( iVertexIndex );
+
+            // Compute dGQI_dADV
+            Matrix< DDRMat > tdGQIdADVs = tdGQIdvertex * this->get_dvertex_dadv( iVertexIndex );
+
+            // Get the ADV IDs for this vertex
+            const Vector< sint >& tADVIds = this->get_vertex_adv_ids( iVertexIndex );
+
+            // Add the sensitivities to the output vector
+            aGQISensitivities->sum_into_global_values( tADVIds, tdGQIdADVs, aRequestIndex );
+        }
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 
 }    // namespace moris::gen

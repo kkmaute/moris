@@ -17,6 +17,7 @@
 #include "fn_cross.hpp"
 #include "fn_trans.hpp"
 #include "op_elemwise_mult.hpp"
+#include <set>
 
 namespace moris::mtk::arborx
 {
@@ -65,6 +66,9 @@ namespace moris::mtk
 
         // Compute the normals of the facets
         this->initialize_facet_normals();
+
+        // Build the vertex connectivity
+        this->build_vertex_connectivity();
 
 #if MORIS_HAVE_ARBORX
         // Construct the ArborX BVH
@@ -202,6 +206,13 @@ namespace moris::mtk
     const Vector< Vector< moris_index > >& Surface_Mesh::get_facet_connectivity() const
     {
         return mFacetConnectivity;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< Vector< moris_index > >& Surface_Mesh::get_vertex_connectivity() const
+    {
+        return mVertexConnectivity;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1274,6 +1285,41 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Surface_Mesh::build_vertex_connectivity()
+    {
+        // Initialize a set to store unique vertex connectivity for every vertex
+        uint                              tNumVertices = this->get_number_of_vertices();
+        Vector< std::set< moris_index > > tVertexConnectivity( tNumVertices );
+
+        uint tNumVertsPerFacet = this->get_facets_vertex_indices( 0 ).size();
+
+        // Loop through all facets of the surface mesh
+        for ( auto& tFacet : this->get_facet_connectivity() )
+        {
+            // Loop through all vertices of the facet
+            for ( uint iVertex = 0; iVertex < tNumVertsPerFacet; iVertex++ )
+            {
+                // Get the current vertex and the next vertex (wrapping around)
+                moris_index tCurrentVertex = tFacet( iVertex );
+                moris_index tNextVertex    = tFacet( ( iVertex + 1 ) % tNumVertsPerFacet );
+
+                // Add both to each others sets
+                tVertexConnectivity( tCurrentVertex ).insert( tNextVertex );
+                tVertexConnectivity( tNextVertex ).insert( tCurrentVertex );
+            }
+        }
+
+        // Convert the sets to vectors and store them in the vertex connectivity
+        mVertexConnectivity.resize( tNumVertices );
+        for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
+        {
+            // Convert the set to a vector
+            mVertexConnectivity( iVertex ) = Vector< moris_index >( tVertexConnectivity( iVertex ).begin(), tVertexConnectivity( iVertex ).end() );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh::set_vertex_coordinates( const uint aVertexIndex, const Matrix< DDRMat >& aCoordinates )
     {
         mVertexCoordinates.set_column( aVertexIndex, aCoordinates );
@@ -1327,5 +1373,63 @@ namespace moris::mtk
         }
     }
 
-    //--------------------------------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------------------------------
+    // Quantities of Interest
+    // --------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::compute_volume() const
+    {
+        real tVolume = 0.0;
+
+        // Apply shoelace formula for 2D surface mesh BRENDAN NOT GENERALIZABLE
+        if ( this->get_spatial_dimension() == 2 )
+        {
+            for ( uint iFacet = 0; iFacet < this->get_number_of_facets(); iFacet++ )
+            {
+                Matrix< DDRMat > tCoords = this->get_all_vertex_coordinates_of_facet( iFacet );
+
+                tVolume += 0.5 * ( tCoords( 0, 0 ) * tCoords( 1, 1 ) - tCoords( 0, 1 ) * tCoords( 1, 0 ) );
+            }
+        }
+        else
+        {
+            MORIS_ERROR( false, "Surface Mesh volume computation only implemented for 2D (lines) meshes" );
+        }
+
+        return tVolume;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_dvolume_dvertex( uint aVertexIndex ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        Matrix< DDRMat > tDVolumeDVertex( 1, tDim, MORIS_REAL_MAX );
+
+        if ( this->get_spatial_dimension() == 2 )
+        {
+            // Get the vertices connected to this vertex
+            const Vector< moris_index >& tNeighbors = mVertexConnectivity( aVertexIndex );
+
+            // Determine the order of the vertices
+            moris_index tLowNeighbor  = tNeighbors( 0 ) < tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+            moris_index tHighNeighbor = tNeighbors( 0 ) > tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+
+            // Get vertex coordinates
+            const Matrix< DDRMat > tLowCoords  = this->get_vertex_coordinates( tLowNeighbor );
+            const Matrix< DDRMat > tHighCoords = this->get_vertex_coordinates( tHighNeighbor );
+
+            tDVolumeDVertex( 0 ) = 0.5 * ( tHighCoords( 1 ) - tLowCoords( 1 ) );
+            tDVolumeDVertex( 1 ) = 0.5 * ( tLowCoords( 0 ) - tHighCoords( 0 ) );
+        }
+        else
+        {
+            MORIS_ERROR( false, "Surface Mesh dVolume/dVertex computation only implemented for 2D (lines) meshes" );
+        }
+
+        return tDVolumeDVertex;
+    }
+
+
 }    // namespace moris::mtk

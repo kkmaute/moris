@@ -129,9 +129,14 @@ namespace moris::mtk
         [[nodiscard]] virtual const Matrix< DDRMat >& get_vertex_displacements() const;
 
         /**
-         * @brief gets the entire vertex connectivity of the surface mesh
+         * @brief gets the entire facet to vertex connectivity of the surface mesh
          */
         [[nodiscard]] const Vector< Vector< moris_index > >& get_facet_connectivity() const;
+
+        /**
+         * @brief gets the entire vertex to facet connectivity of the surface mesh
+         */
+        [[nodiscard]] const Vector< Vector< moris_index > >& get_vertex_connectivity() const;
 
         /**
          * @brief Gets the indices to the vertices that form the facet with the local index aFacetIndex
@@ -215,7 +220,6 @@ namespace moris::mtk
                 bool&                   aWarning,
                 bool                    aIgnoreWarnings = true ) const;
 
-
         /**
          * Casts many rays and returns all of the associated intersection pairs. Uses the same directions for every origin.
          *
@@ -250,6 +254,16 @@ namespace moris::mtk
                 Vector< Matrix< DDRMat > >& aDirections,
                 Vector< Vector< bool > >&   aWarnings,
                 bool                        aIgnoreWarnings = true ) const;
+
+        //-------------------------------------------------------------------------------
+        // Quantities of interest
+        // -------------------------------------------------------------------------------
+
+        void build_vertex_connectivity();
+
+        real compute_volume() const;
+
+        Matrix< DDRMat > compute_dvolume_dvertex( const uint aVertexIndex ) const;
 
         //-------------------------------------------------------------------------------
         // Output Methods
@@ -456,6 +470,9 @@ namespace moris::mtk
          * size: number of facets< spatial_dim >
          */
         Vector< Vector< moris_index > > mFacetConnectivity;
+
+        Vector< Vector< moris_index > > mVertexConnectivity;    // Input: vertex index, Output: All vertices connected by an edge to this vertex brendan documentation
+
 
         /**
          * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!

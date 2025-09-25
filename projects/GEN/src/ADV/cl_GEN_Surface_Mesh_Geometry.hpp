@@ -186,7 +186,6 @@ namespace moris::gen
         Vector< std::shared_ptr< Field > >                             mPerturbationFields;                  // Vector of perturbation fields
         Matrix< DDRMat >                                               mOriginalVertexBases;                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
         Vector< const mtk::Cell* >                                     mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
-        Vector< Vector< moris_index > >                                mVertexConnectivity;                  // Input: vertex index, Output: All vertices connected by an edge to this vertex
         Vector< std::pair< Vector< moris_index >, Matrix< DDRMat > > > mRegularizationSensitivities;         // Stores dx_i/dx_k for each vertex i and dependency vertex k. Size <number of vertices*dims> x <number of vertices*dims> x_i is column TODO: make sparse
         Matrix< DDRMat >                                               mRegularizationDisplacements;         // Stores the regularization displacements for each vertex, size <number of vertices*dims> x <number of vertices*dims>
 
@@ -320,11 +319,6 @@ namespace moris::gen
         // ----------------------------------------------------------------------------------------------------------------
         // OPTIMIZATION FUNCTIONS
         // ----------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Determines how vertices are connected through edges. Sets mVertexConnectivity using a std::set to ensure uniqueness
-         */
-        void build_vertex_connectivity();
 
         /**
          *
