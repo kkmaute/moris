@@ -719,7 +719,7 @@ namespace moris::gen
         tdIQIdADV->vector_global_assembly();
 
         // Import
-        tdFulldQIdADV->import_local_to_global( *tdFulldQIdADV );
+        tdFulldQIdADV->import_local_to_global( *tdIQIdADV );
 
         // Add to any GQI sensitivities
         aFulldQIdADV->vec_plus_vec( 1.0, *tdFulldQIdADV, 1.0 );
