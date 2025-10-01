@@ -26,6 +26,9 @@ namespace moris::fem
         mStressType = aStressType;
         mStrainType = aStrainType;
 
+        MORIS_ASSERT( mStrainType != CM_Function_Type::DEFORMATION_GRADIENT && mStressType != CM_Function_Type::PK1, "PK1 Stress Contracted with Deformation" 
+            "gradient does not give bulk strain energy for a St. Venant Kirchhoff Constitutive model!" );
+
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 

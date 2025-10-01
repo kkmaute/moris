@@ -66,9 +66,27 @@ namespace moris::MSI
     void
     Equation_Model::compute_IQIs()
     {    
+        // Get the requested IQI Names -
+        mSavedIQINames = this->get_requested_IQI_names();
+
+        // if forward solve, get the IQIs from the trust region solver
+        if ( mIsSolve )
+        {
+            this->set_requested_IQI_names( mSolverIQINames );
+            this->initialize_IQIs();
+
+        }
+        else
+        {
+            this->initialize_IQIs();
+        }
+
         // get number of IQI on the model
         uint tNumIQIsOnModel =
                 this->get_requested_IQI_names().size();
+
+        // Print the IQI names
+        PRINT(this->get_requested_IQI_names());
 
         // Initialize IQIs to zero
         for ( uint iIQI = 0; iIQI < tNumIQIsOnModel ; iIQI++ )
@@ -104,16 +122,61 @@ namespace moris::MSI
                     // loop over IQIs on model
                     for ( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                     {
+                        // // Check if solve flag is true ( set to true if IQI values requested during solver runtime)
+                        // if ( this->get_is_solve() )
+                        // {
+                        //     bool tIsSolverRequestedIQI = false;
+
+                        //     // Loop over solver requested IQI names and get their indices
+                        //     for ( uint iSolverReqIQIs = 0; iSolverReqIQIs < mSolverIQINames.size() ; iSolverReqIQIs++ )
+                        //     {
+                        //         // Get IQI
+                        //         std::string tSolReqIQI = mSolverIQINames( iSolverReqIQIs );
+
+                        //         // if the index matches current index, set flag to true
+                        //         if ( tSolReqIQI == this->get_requested_IQI_names()( tIQIIndex ) ) 
+                        //         {
+                        //             tIsSolverRequestedIQI = true;
+                        //             break;
+                        //         }
+
+                        //     }
+
+                        //     // If it is a solver-requesteed IQI then compute it
+                        //     if ( tIsSolverRequestedIQI )
+                        //     {
+                        //         // assemble QI values into global vector
+                        //         mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
+
+                        //     }
+                            
+                        // }
+                        // else // Not being called from solver. Compute all IQIs
+                        // {
                         // assemble QI values into global vector
                         mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
+                        //}
+                        
                     }
                 }
                 // free memory on treated equation set
                 mFemSets( tSetIndex )->free_matrix_memory();
             }
         }
+        // Revert the requested IQI names back to the saved ones
+        if ( mGlobalIQIVal.size() > 0 )
+        {
+            PRINT( mGlobalIQIVal );
+        }
 
-        PRINT( mGlobalIQIVal( 0 ) );
+        this->set_requested_IQI_names( mSavedIQINames );
+        
+
+        if (mGlobalIQIVal.size() > 0)
+        {
+            PRINT( mGlobalIQIVal );
+        }
+        
 
         // Normalization
         if ( gLogger.mIteration == 0 )
@@ -291,6 +354,14 @@ namespace moris::MSI
 
         // add explicit contribution to dQIdp
         mdQIdp->vec_plus_vec( 1.0, *mExplicitdQidp, 1.0 );
+
+        Vector< real > tNorms = mExplicitdQidp->vec_norm2();
+
+        PRINT(tNorms);
+
+        Vector< real > tNormsImplicit = mImplicitdQidp->vec_norm2();
+
+        PRINT(tNormsImplicit);
 
         // add implicit contribution to dQIdp
         mdQIdp->vec_plus_vec( 1.0, *mImplicitdQidp, 1.0 );

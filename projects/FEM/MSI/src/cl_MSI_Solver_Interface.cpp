@@ -120,7 +120,19 @@ namespace moris::MSI
         //      Vector< std::string > tIQINames = this->get_trust_region_IQI_name();
         //      this->set_requested_IQI_names( tIQINames );
         // }
+        // If nonlinear solver wants the IQIs, set the solver flag to true 
+        // and pass the requested IQI names to MSI equation model
+        
+        // Set is solve flag to true/false based on trust region flag
+        mMSI->mEquationModel->set_is_solve( this->get_trust_region_flag() );
+        
+        // If trust region flag is true then pass on the requested IQI names to the equation model
+        if ( this->get_trust_region_flag() )
+        {                        
+            // Send solver-requested IQI names
+            mMSI->mEquationModel->set_solver_IQI_names( this->get_trust_region_IQI_name() );
 
+        }
         mMSI->mEquationModel->compute_IQIs();
     }
 

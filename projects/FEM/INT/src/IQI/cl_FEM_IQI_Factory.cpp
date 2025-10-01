@@ -105,6 +105,10 @@ namespace moris::fem
                 return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );
             case IQI_Type::SHEAR_STRESS:
                 return std::make_shared< IQI_Stress >( Stress_Type::SHEAR_STRESS );
+            case IQI_Type::NORMAL_STRESS_NL:
+                return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS, CM_Function_Type::PK2 );
+            case IQI_Type::SHEAR_STRESS_NL:
+                return std::make_shared< IQI_Stress >( Stress_Type::SHEAR_STRESS, CM_Function_Type::PK2 );
             case IQI_Type::VON_MISES_STRESS:
                 return std::make_shared< IQI_Stress >( Stress_Type::VON_MISES_STRESS );
             case IQI_Type::PRINCIPAL_STRESS:
@@ -228,8 +232,8 @@ namespace moris::fem
                 return std::make_shared< IQI_Nitsche_Energy >();
             case IQI_Type::NITSCHE_ENERGY_NL:
                 return std::make_shared< IQI_Nitsche_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
-            case IQI_Type::STRAIN_ENERGY_NL_PK1:
-                return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
+
+            
 
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

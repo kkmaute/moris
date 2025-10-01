@@ -85,6 +85,30 @@ namespace moris::fem
     void
     IQI_Traction_Potential::compute_dQIdu( real aWStar )
     {
+        
+        // sint tQIIndex = mSet->get_QI_assembly_index( mName );
+        // uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+
+        // // compute dQIdu for indirect dof dependencies
+        // for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
+        // {
+        //     // get the treated dof type
+        //     Vector< MSI::Dof_Type > &tDofType = mRequestedLeaderGlobalDofTypes( iDof );
+
+        //     // get leader index for residual dof type, indices for assembly
+        //     uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+        //     uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        //     uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+
+        //     const Matrix< DDRMat >
+        //         tTraction( 8, 1, 0.0 );
+
+        //     // compute dQIdu
+        //     mSet->get_residual()( tQIIndex )(
+        //                 { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
+        //                 aWStar * 0.5 * ( tTraction );
+            
+        // }
         MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
     }
 

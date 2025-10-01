@@ -701,53 +701,6 @@ namespace moris::prm
 
     //------------------------------------------------------------------------------
 
-    // creates a parameter list with default inputs
-    inline Parameter_List
-    create_linear_algorithm_parameter_list_trust_region_petsc()
-    {
-        Parameter_List tLinAlgorithmParameterList = create_algorithm_parameter_list();
-
-        tLinAlgorithmParameterList.set( "Solver_Implementation", sol::SolverType::PETSC );
-
-        // Set KSP type
-        tLinAlgorithmParameterList.insert( "KSPType", std::string( "stcg" ) );    //  "gmres" , "fgmres", "preonly"
-
-        // Set default preconditioner
-        tLinAlgorithmParameterList.insert( "PCType", std::string( "cholesky" ) );
-
-        // Sets maximal iters for KSP
-        tLinAlgorithmParameterList.insert( "KSPMaxits", 1000 );
-
-        // Sets tolerance for KSP
-        tLinAlgorithmParameterList.insert( "KSPTol", 1e-10 );
-
-        // Sets the number of levels of fill to use for ILU
-        tLinAlgorithmParameterList.insert( "ILUFill", 0 );
-
-        // Sets drop tolerance for ilu
-        tLinAlgorithmParameterList.insert( "ILUTol", 1e-6 );
-
-        // Set multigrid levels
-        tLinAlgorithmParameterList.insert( "MultigridLevels", 3 );
-
-        // Schwarz preconditioner volume fraction threshold
-        tLinAlgorithmParameterList.insert( "MG_use_schwarz_smoother", false );
-
-        // Schwarz smoothing iterations
-        tLinAlgorithmParameterList.insert( "MG_schwarz_smoothing_iters", 1 );
-
-        // Schwarz preconditioner volume fraction threshold
-        tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
-
-        // number of eigen values to be outputted
-        tLinAlgorithmParameterList.insert( "ouput_eigenspectrum", (uint)0 );
-
-        // blocks in addtive Schwartz algorthim
-        tLinAlgorithmParameterList.insert( "ASM_blocks_output_filename", "" );
-
-        return tLinAlgorithmParameterList;
-    }
-
     //------------------------------------------------------------------------------
 
     inline Parameter_List
@@ -970,9 +923,9 @@ namespace moris::prm
         tNonLinSolverParameterList.insert( "NLA_Solver_Implementation",
                 tNonlinearSolverType,
                 NLA::NonlinearSolverType::NEWTON_SOLVER,
-                NLA::NonlinearSolverType::ARC_LENGTH_SOLVER );
+                NLA::NonlinearSolverType::TRUST_REGION_SOLVER );
 
-        tNonLinSolverParameterList.insert( "NLA_DofTypes", "UNDEFINED" );
+        tNonLinSolverParameterList.insert( "NLA_DofTypes", "UX,UY" );
 
         tNonLinSolverParameterList.insert( "NLA_Secondary_DofTypes", "UNDEFINED" );
 

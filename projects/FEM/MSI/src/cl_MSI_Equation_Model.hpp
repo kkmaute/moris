@@ -67,6 +67,10 @@ namespace moris
             sol::Dist_Map* mdQIdpMap = nullptr;
 
             Vector< moris::Matrix< DDRMat > > mGlobalIQIVal;
+            moris::map< std::string, moris_index > mIQINameToIndexMap;
+            Vector< std::string > mSolverIQINames;
+            Vector< std::string > mSavedIQINames;
+            bool mIsSolve = false;
 
             sol::Dist_Vector* mImplicitdQidp = nullptr;
             sol::Dist_Vector* mExplicitdQidp = nullptr;
@@ -403,6 +407,15 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * @brief get IQI name map
+             */
+            moris::map< std::string, moris_index >&
+            get_IQI_map()
+            {
+                return mIQINameToIndexMap;
+            } 
+            //------------------------------------------------------------------------------
+            /**
              * @brief set requested IQI names
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
@@ -535,6 +548,39 @@ namespace moris
             get_IQI_values()
             {
                 return mGlobalIQIVal;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief set trust region solver IQI names
+             * 
+             */
+            void
+            set_solver_IQI_names( Vector< std::string > aSolverIQINames )
+            {
+                mSolverIQINames = aSolverIQINames;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief set if class being accessed while non lin solver is running.
+             *
+             */
+            void
+            set_is_solve( bool aIsSolve )
+            {
+                mIsSolve = aIsSolve;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief get if class being accessed while non lin solver is running.
+             *
+             */
+            bool
+            get_is_solve()
+            {
+                return mIsSolve;
             }
 
             //------------------------------------------------------------------------------

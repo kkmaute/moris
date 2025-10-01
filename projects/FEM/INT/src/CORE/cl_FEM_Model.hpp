@@ -125,7 +125,7 @@ namespace moris
             Vector< std::string > mRequestedIQINames;
 
             // A map for mIQIs
-            moris::map< std::string, moris_index > mIQINameToIndexMap;
+            //moris::map< std::string, moris_index > mIQINameToIndexMap;
 
             // flag to skip GEN procedures
             bool mFEMOnly = false;

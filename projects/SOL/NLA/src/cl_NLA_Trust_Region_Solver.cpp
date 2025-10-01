@@ -111,9 +111,9 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         tIDs( 1, 0 ) = 1;
         tIDs( 2, 0 ) = 2;
 
-        tVals( 0, 0 ) = (2.0);
-        tVals( 1, 0 ) = (7.0);
-        tVals( 2, 0 ) = (-1.0);
+        tVals( 0, 0 ) = (0.0);
+        tVals( 1, 0 ) = (0.0);
+        tVals( 2, 0 ) = (0.0);
         mNonlinearProblem->get_full_vector()->sum_into_global_values( tIDs, tVals );
         mNonlinearProblem->get_full_vector()->vector_global_assembly();
 
@@ -243,7 +243,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
         while (tAcceptTrSize == false)
         {
-            // Decide which update to use (Cauchy/Newton) based on Dogleg step
+            // Decide which update to use (Cauchy/Newton) based on Dogleg step -- check if full solver stays even after you rebuild system
             tD = this->dogleg_step( (mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()), 
             tCauchyPoint, tTrSize);
             tD->extract_copy(tUpdateOld);
@@ -296,13 +296,22 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             
             MORIS_LOG_INFO("Incremental objective value at this iteration: %f", (tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )) );
             // Compute rho
-            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + + tInitIQIVal( 2 )( 0 )))/(-tModelObjective( 0 ));
+            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )))/(-tModelObjective( 0 ));
             //real tIQIVal = tIQI(0)(0) ;//+ tIQI(1)(0) + tIQI(2)(0);
             //real tRho = -(tIQIVal - (tInitialIQI( 0 )( 0 )))/(-tModelObjective(0));
+            // if ( tRho < 0.0 )
+            // {
+            //     tModelObjective = -tModelObjective;
+            //     tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )))/(-tModelObjective( 0 ));
+            //     MORIS_LOG("Positive model objective increase - debug if you see this") ;
+            // }
 
             // Update trust region size
             // Get convergence reason from KSP
-            if (mLinSolverManager->get_conv_reason())
+            Vector< real > tSolNorm = tD->vec_norm2();
+            // Reset the steptype before going in
+            tStepType = "Interior";
+            if ( (tTrSize -  tSolNorm( 0 ) < 1e-07 && tTrSize -  tSolNorm( 0 ) >= 0.0) )
             {
                 tStepType = "Boundary";
             }
@@ -326,6 +335,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
                 tInitIQIVal = tIQI;
                 tWillAccept = true;
                 tAcceptTrSize = true;
+                tStepType = "Interior";
             }
 
             if ( tWillAccept == false )
