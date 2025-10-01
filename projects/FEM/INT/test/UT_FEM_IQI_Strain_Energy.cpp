@@ -269,7 +269,7 @@ TEST_CASE( "IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]" )
     //     tModel.initialize_IQIs();  brendan delete
     tModel.compute_IQIs();
     // FIXME BRENDAN: the FEM Set is never registered with the Model, so this call does nothing, and this check is useless
-    CHECK( tModel.get_IQI_values()( 0 )( 0 ) == 0.0 );
+    CHECK( tModel.get_IQI_values()( 0 )( 0 ) == MORIS_REAL_MAX );
 
     Matrix< DDRMat > tdQIdu;
     Matrix< DDRMat > tdQIduFD;

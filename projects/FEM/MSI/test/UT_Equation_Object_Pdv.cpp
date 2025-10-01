@@ -363,7 +363,8 @@ namespace moris::MSI
             tEquationModel->set_time( tTime );
 
             //     tDesignVariableInterface->set_equation_model( tModel->get_fem_model() ); brendan delete
-            tDesignVariableInterface->set_requested_QIs( { "IQI_1" } );
+            tDesignVariableInterface->set_requested_QIs( { tIQI->get_name() } );
+            tDesignVariableInterface->register_QI( tIQI->get_name(), Module_Type::FEM, MORIS_REAL_MAX );
             tWorkSet->create_requested_IQI_type_map();
 
             // Init IWG and IQI for forward analysis
