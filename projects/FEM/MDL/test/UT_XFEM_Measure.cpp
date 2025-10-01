@@ -14,6 +14,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "moris_typedefs.hpp"
+#include "cl_Library_Enums.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -24,11 +25,7 @@
 
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
-#include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh_Data_STK.hpp"
-#include "cl_MTK_Mesh_Core_STK.hpp"
-#include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -47,22 +44,15 @@
 #include "cl_FEM_SP_Factory.hpp"                    //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
+#include "cl_FEM_Design_Variable_Interface_Proxy.hpp"
 
 #include "cl_MDL_Model.hpp"
-#include "cl_VIS_Factory.hpp"
-#include "cl_VIS_Visualization_Mesh.hpp"
-#include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Background_Mesh.hpp"      //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
-#include "cl_HMR_Element.hpp"              //HMR/src
-#include "cl_HMR_Factory.hpp"              //HMR/src
+#include "cl_HMR_Parameters.hpp"           //HMR/src
 #include "cl_HMR_Field.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
-#include "cl_HMR_Parameters.hpp"            //HMR/src
-#include "cl_HMR_Database.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -84,8 +74,6 @@
 #include "cl_GEN_Line.hpp"
 
 #include "fn_norm.hpp"
-
-#include "cl_FEM_Model.hpp"
 
 // define free function for properties
 inline void
@@ -376,6 +364,11 @@ namespace moris
                     0,
                     tSetInfo );
 
+            std::shared_ptr< fem::FEM_Design_Variable_Interface_Proxy > tDVI = std::make_shared< fem::FEM_Design_Variable_Interface_Proxy >();
+            tDVI->register_QI( tIQIVolFraction->get_name(), Module_Type::FEM, MORIS_REAL_MAX );
+
+            tModel->set_design_variable_interface( tDVI );
+
             Solver_Interface* tSolverInterface = tModel->get_solver_interface();
 
             // --------------------------------------------------------------------------------------
@@ -451,6 +444,7 @@ namespace moris
             tSolverInterface->get_adof_ids_based_on_criteria( aCriteriaIds, 0.1 );
 
             delete tInterpMesh;
+            delete tModel;
         }
 
     } /* END_TEST_CASE */
