@@ -452,7 +452,7 @@ namespace moris
             /**
              * @brief Initialize the IQI with the correct size
              */
-            void initialize_IQIs() override;
+            // void initialize_IQIs() override; brendan delete
 
             //------------------------------------------------------------------------------
             /**

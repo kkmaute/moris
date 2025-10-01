@@ -1014,38 +1014,38 @@ namespace moris::fem
 
     //-------------------------------------------------------------------------------------------------
 
-    void FEM_Model::initialize_IQIs()
-    {
-        // create content of the map
-        // this->create_IQI_map(); brendan delete
+    // void FEM_Model::initialize_IQIs() brendan delete
+    // {
+    //     // create content of the map
+    //     // this->create_IQI_map(); brendan delete
 
-        // Get the requested IQI names from the design variable interface
-        // const Vector< std::string > &tRequestedIQINames = mDesignVariableInterface->get_all_QI_names();
+    //     // Get the requested IQI names from the design variable interface
+    //     // const Vector< std::string > &tRequestedIQINames = mDesignVariableInterface->get_all_QI_names();
 
-        // // number of requested IQIs for the model
-        // moris::uint tNumIQIs = tRequestedIQINames.size();
+    //     // // number of requested IQIs for the model
+    //     // moris::uint tNumIQIs = tRequestedIQINames.size();
 
-        // // resize the Global IQI cell
-        // mGlobalIQIVal.resize( tNumIQIs );
+    //     // // resize the Global IQI cell
+    //     // mGlobalIQIVal.resize( tNumIQIs );
 
-        // // set a counter
-        // uint iIQICounter = 0;
+    //     // // set a counter
+    //     // uint iIQICounter = 0;
 
-        // for ( auto &tQI : mGlobalIQIVal )
-        // {
-        //     // use the map to get the IQI index of requested IQI
-        //     moris_index tIQIIndex = mIQINameToIndexMap[ tRequestedIQINames( iIQICounter ) ];
+    //     // for ( auto &tQI : mGlobalIQIVal )
+    //     // {
+    //     //     // use the map to get the IQI index of requested IQI
+    //     //     moris_index tIQIIndex = mIQINameToIndexMap[ tRequestedIQINames( iIQICounter ) ];
 
-        //     // get the matrix dimension of the IQI
-        //     std::pair< uint, uint > tMatrixDim = mIQIs( tIQIIndex )->get_matrix_dim();
+    //     //     // get the matrix dimension of the IQI
+    //     //     std::pair< uint, uint > tMatrixDim = mIQIs( tIQIIndex )->get_matrix_dim();
 
-        //     // set size for the QI value and initialize the value with 0
-        //     tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
+    //     //     // set size for the QI value and initialize the value with 0
+    //     //     tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
 
-        //     // increase the counter by 1
-        //     iIQICounter++;
-        // }
-    }
+    //     //     // increase the counter by 1
+    //     //     iIQICounter++;
+    //     // }
+    // }
 
     //------------------------------------------------------------------------------
 

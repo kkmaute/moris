@@ -416,7 +416,7 @@ namespace moris::mdl
     {
         mEquationModel->set_is_forward_analysis();
 
-        mEquationModel->initialize_IQIs();
+        // mEquationModel->initialize_IQIs(); brendan delete
 
         mSolverWarehouse->get_main_time_solver()->solve();
     }
@@ -451,6 +451,7 @@ namespace moris::mdl
     Model::set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
     {
         mDesignVariableInterface = aDesignVariableInterface;
+        mEquationModel->set_design_variable_interface( aDesignVariableInterface );
     }
 
     //------------------------------------------------------------------------------

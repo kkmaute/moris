@@ -49,6 +49,8 @@ foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
+include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/test/FEM_Test_Proxy)
+
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 

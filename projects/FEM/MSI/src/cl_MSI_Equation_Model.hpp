@@ -525,7 +525,7 @@ namespace moris
             /**
              * @brief initialize QI brendan delete maybe
              */
-            virtual void initialize_IQIs() = 0;
+            // virtual void initialize_IQIs() = 0;
 
             /**
              * @brief Computes the IQIs that are being used for optimization ONLY.
