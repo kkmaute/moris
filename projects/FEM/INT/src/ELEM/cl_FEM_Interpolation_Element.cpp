@@ -223,7 +223,7 @@ namespace moris::fem
             {
                 // get the pdof values for the ith dof type group
                 Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
-                this->get_my_pdof_values( mSet->mPreviousPdofValues, tDofTypeGroup, tCoeff_Original );
+                this->get_my_pdof_values( mSet->mPreviousPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
                 // reshape tCoeffs into the order the cluster expects them
                 Matrix< DDRMat > tCoeff;
