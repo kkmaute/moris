@@ -39,7 +39,6 @@ namespace moris
             // std::shared_ptr< MSI::Equation_Model > mModel         = nullptr; brendan delete
             bool              mdQIdpImported = false;
             sol::Dist_Vector* mdXQIdPDV      = nullptr;    // XTK module sensitivities
-        //     sol::Dist_Vector* mdGQIdADV      = nullptr;    // GQIs are done by ADV since PDVs don't exist in GEN brendan delete
             sol::Dist_Vector* mdIQIdPDV      = nullptr;    // FEM module sensitivities
 
           protected:
