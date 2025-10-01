@@ -204,10 +204,10 @@ namespace moris::gen
          */
         void
         get_ig_pdv_value(
-                const Matrix< IndexMat >&   aNodeIndices,
-                const Vector< PDV_Type >&   aPDVTypes,
-                Vector< Matrix< DDRMat > >& aDvValues,
-                Vector< Vector< bool > >&   aIsActiveDv ) const override;
+                const Vector< moris_index >& aNodeIndices,
+                const Vector< PDV_Type >&    aPDVTypes,
+                Vector< Matrix< DDRMat > >&  aDvValues,
+                Vector< Vector< bool > >&    aIsActiveDv ) const override;
 
         /**
          * Get the local to global pdv type map
@@ -238,9 +238,9 @@ namespace moris::gen
          * @param aDvIds     List of Dv Ids
          */
         void get_ig_dv_ids_for_type_and_ind(
-                const Matrix< IndexMat >&  aNodeIndices,
-                const Vector< PDV_Type >&  aPDVTypes,
-                Vector< Matrix< IdMat > >& aDvIds ) const override;
+                const Vector< moris_index >& aNodeIndices,
+                const Vector< PDV_Type >&    aPDVTypes,
+                Vector< Matrix< IdMat > >&   aDvIds ) const override;
 
         /**
          * Get requested pdv types on interpolation mesh nodes for sensitivity analysis

@@ -309,7 +309,7 @@ namespace moris::gen
             Vector< Matrix< DDRMat > > tPDVValues( 0 );
             Vector< Vector< bool > >   tIsActive( 0 );
             tPDVHostManager->get_ig_pdv_value(
-                    { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 } },
+                    { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 },
                     { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE },
                     tPDVValues,
                     tIsActive );

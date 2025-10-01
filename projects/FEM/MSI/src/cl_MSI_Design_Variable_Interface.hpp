@@ -239,7 +239,7 @@ namespace moris
             }
 
             virtual void get_ig_pdv_value(
-                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< moris_index >&        aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
                     Vector< Matrix< DDRMat > >&         aDvValues,
                     Vector< Vector< bool > >&           aIsActiveDv ) const = 0;
@@ -311,7 +311,7 @@ namespace moris
                     Vector< Matrix< IdMat > >&          aDvIds ) const = 0;
 
             virtual void get_ig_dv_ids_for_type_and_ind(
-                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< moris_index >&        aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
                     Vector< Matrix< IdMat > >&          aDvIds ) const = 0;
 

@@ -293,7 +293,7 @@ namespace moris::fem
                 uint tVertexIndex = mIGNodes( iNode )->get_index();
 
                 // get the pdv values from the MSI/GEN interface
-                Matrix< IndexMat >         tVertexIndices( 1, 1, tVertexIndex );
+                Vector< moris_index >      tVertexIndices( 1, tVertexIndex );
                 Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
                 Vector< Vector< bool > >   tIsActiveDv;
 

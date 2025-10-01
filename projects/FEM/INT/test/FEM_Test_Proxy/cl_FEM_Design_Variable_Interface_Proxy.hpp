@@ -226,7 +226,7 @@ namespace moris::fem
 
         void
         get_ig_pdv_value(
-                const moris::Matrix< IndexMat >&    aNodeIndices,
+                const Vector< moris_index >&        aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
                 Vector< moris::Matrix< DDRMat > >&  aDvValues,
                 Vector< Vector< bool > >&           aIsActiveDv ) const override
@@ -316,7 +316,7 @@ namespace moris::fem
 
         void
         get_ig_dv_ids_for_type_and_ind(
-                const Matrix< IndexMat >&           aNodeIndices,
+                const Vector< moris_index >&        aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
                 Vector< moris::Matrix< IdMat > >&   aDvIds ) const override
         {

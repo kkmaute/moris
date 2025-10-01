@@ -168,13 +168,13 @@ namespace moris::MSI
         //------------------------------------------------------------------------------
 
         void get_ig_pdv_value(
-                const Matrix< IndexMat >&           aNodeIndices,
+                const Vector< moris_index >&        aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
                 Vector< Matrix< DDRMat > >&         aDvValues,
                 Vector< Vector< bool > >&           aIsActiveDv ) const override
         {
             // Get the number of node indices requested
-            uint tNumIndices = aNodeIndices.length();
+            uint tNumIndices = aNodeIndices.size();
 
             // Get the number of dv types requested
             uint tNumTypes = aDvTypes.size();
@@ -191,7 +191,7 @@ namespace moris::MSI
 
                 sint tIndex = mDvToIndexMap.find( aDvTypes( Ik ) );
 
-                for ( uint Ii = 0; Ii < aNodeIndices.numel(); Ii++ )
+                for ( uint Ii = 0; Ii < aNodeIndices.size(); Ii++ )
                 {
                     // get node index
                     uint tNodeIndex = aNodeIndices( Ii );
@@ -291,17 +291,17 @@ namespace moris::MSI
         }
         //------------------------------------------------------------------------------
 
-        void get_ig_dv_ids_for_type_and_ind( const Matrix< IndexMat >& aNodeIndices,
-                const Vector< enum gen::PDV_Type >&                    aDvTypes,
-                Vector< moris::Matrix< IdMat > >&                      aDvIds ) const override
+        void get_ig_dv_ids_for_type_and_ind( const Vector< moris_index >& aNodeIndices,
+                const Vector< enum gen::PDV_Type >&                       aDvTypes,
+                Vector< moris::Matrix< IdMat > >&                         aDvIds ) const override
         {
             aDvIds.resize( aDvTypes.size() );
 
             for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
             {
-                aDvIds( Ik ).set_size( aNodeIndices.length(), 1, MORIS_UINT_MAX );
+                aDvIds( Ik ).set_size( aNodeIndices.size(), 1, MORIS_UINT_MAX );
 
-                for ( uint Ii = 0; Ii < aNodeIndices.length(); Ii++ )
+                for ( uint Ii = 0; Ii < aNodeIndices.size(); Ii++ )
                 {
                     aDvIds( Ik )( Ii ) = mDvIds( Ik )( aNodeIndices( Ii ) );
                 }
