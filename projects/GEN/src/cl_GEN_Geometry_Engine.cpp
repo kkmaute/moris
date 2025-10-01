@@ -1266,8 +1266,12 @@ namespace moris::gen
         MORIS_LOG_INFO( "Time to reset mesh information: %f sec", (moris::real)( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
 
         // Set up the GQI sensitivity matrix
-        sol::Dist_Map* tFullMap = tDistributedFactory.create_map( mFullADVIds );
-        mdGQIdADV               = tDistributedFactory.create_vector( tFullMap, (sint)mPDVHostManager->get_num_requested_QIs(), false, true );
+        if ( mFullADVIds.size() > 0 )
+        {
+            // Create distributed vector for GQI sensitivities
+            sol::Dist_Map* tFullMap = tDistributedFactory.create_map( mFullADVIds );
+            mdGQIdADV               = tDistributedFactory.create_vector( tFullMap, (sint)mPDVHostManager->get_num_requested_QIs(), false, true );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
