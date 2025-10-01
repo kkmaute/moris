@@ -402,7 +402,9 @@ void Solver_Interface::get_adof_ids_based_on_criteria(
             // resize adof id vector
             aCriteriaIds.resize( aCriteriaIds.size() + tNumEquationObjectOnSet );
 
-            // hard-coded for right now. FIXME the moment I have time
+            // hard-coded for right now. FIXME this is hard coded for the UT_XFEM_Measure test.
+            // This QI does not always exist and will cause problems if not actually created with this name.
+            // Likely need a SOL parameter that sets solver requested IQIs and store this list separately from the requested QIs for optimization
             this->set_requested_IQI_names( { "IQIBulkVolumeFraction" } );
 
             // initialize set
