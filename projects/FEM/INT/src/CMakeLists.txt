@@ -149,8 +149,6 @@ set(HEADERS
     #IWG/cl_FEM_IWG_Olsson_CLS_Bulk.hpp
     #IWG/cl_FEM_IWG_Olsson_CLS_Interface.hpp
 
-    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
-    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp
@@ -396,8 +394,6 @@ set(LIB_SOURCES
 
     IWG/cl_FEM_IWG_FS_Struc_Interface.cpp
 
-    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
-    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.cpp
