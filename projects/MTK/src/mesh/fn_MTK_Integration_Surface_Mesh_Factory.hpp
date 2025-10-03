@@ -29,7 +29,9 @@ namespace moris::mtk
     {
 
       public:    // constructors
-        Integration_Surface_Mesh_Data( Integration_Mesh const *aIGMesh, const Vector< std::string > &aSideSetNames );
+        Integration_Surface_Mesh_Data(
+                Integration_Mesh const      *aIGMesh,
+                const Vector< std::string > &aSideSetNames );
 
         Integration_Surface_Mesh_Data(
                 Integration_Mesh const          *aIGMesh,
@@ -42,7 +44,7 @@ namespace moris::mtk
         // methods
 
         Vector< Side_Set const * >
-        obtain_sidesets_from_names( Integration_Mesh_DataBase_IG const *aIGMesh, const Vector< std::string > &aSideSetNames );
+        obtain_sidesets_from_names( Integration_Mesh const *aIGMesh, const Vector< std::string > &aSideSetNames );
 
         Matrix< DDRMat > get_vertex_coordinates() const
         {
@@ -108,7 +110,7 @@ namespace moris::mtk
 
       public:
         // data
-        Integration_Mesh_DataBase_IG const *mIGMesh;
+        Integration_Mesh const *mIGMesh;
 
         /**
          * @brief Map from the global vertex index to the index of the vertex in the surface mesh

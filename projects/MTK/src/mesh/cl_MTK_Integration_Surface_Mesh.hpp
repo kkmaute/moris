@@ -13,9 +13,11 @@
 #include "fn_MTK_Integration_Surface_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
+#include "cl_XTK_Enums.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_Json_Object.hpp"
+#include "cl_SOL_Dist_Vector.hpp"
 #include <ostream>
 
 namespace moris::mtk
@@ -132,8 +134,29 @@ namespace moris::mtk
 
         Json to_json() const;
 
-      private:    // methods
+        //--------------------------------------------------------------------------------
+        // XQI Related functions
+        //--------------------------------------------------------------------------------
 
+        real compute_XQI( xtk::XQI_Type aType ) const;
+
+        //--------------------------------------------------------------------------------
+
+        /**
+         * Computes the sensitivities of the requested XQI type wrt to PDVs.
+         *
+         * @param aType The type of XQI for which the sensitivities are requested.
+         * @param aVertexPDVIDs The PDV IDs associated with each vertex in the surface mesh. -1 if no PDV is associated with the vertex.
+         * @param aSensitivities The distributed vector where the sensitivities will be stored. It is assumed that this vector is already initialized and has the correct map.
+         * @param aRequestIndex The vector index in the Dist_Vector to store the sensitivities.
+         */
+        void compute_XQI_sensitivities(
+                const xtk::XQI_Type                    aType,
+                const Vector< Vector< moris_index > > &aVertexPDVIDs,
+                sol::Dist_Vector                      *aSensitivities,
+                const uint                             aRequestIndex ) const;
+
+      private:    // methods
         void initialize_facet_measure();
 
         void initialize_vertex_normals();
@@ -153,5 +176,4 @@ namespace moris::mtk
          */
         Matrix< DDRMat > mFacetMeasure = Matrix< DDRMat >( 0, 0 );
     };
-
 }    // namespace moris::mtk

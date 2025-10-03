@@ -37,12 +37,15 @@
 #include "cl_MTK_Visualization_STK.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Integration_Surface_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "cl_XTK_Basis_Processor.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "GEN_Data_Types.hpp"
 
 using namespace moris;
 
@@ -574,19 +577,43 @@ namespace moris::xtk
     void
     Model::compute_XQIs()
     {
+        Tracer tTracer( "XTK", "Compute XQIs" );
+
         // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
         std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mGeometryEngine->get_design_variable_interface();
 
         // Get list of requested XQI names and types
-        Vector< std::string > tXQINames = mParameterList.get_vector< std::string >( "xqi_names" );
-        // BRENDAN TODO Need to convert XQI types to enum
-        Vector< uint >     tXQITypesUINT = mParameterList.get_vector< uint >( "XQI_types" );
-        Vector< XQI_Type > tXQITypes( tXQITypesUINT.size() );
+        Vector< std::string > tXQINames     = mParameterList.get_vector< std::string >( "XQI_names" );
+        Vector< uint >        tXQITypesUINT = mParameterList.get_vector< uint >( "XQI_types" );    // BRENDAN todo convert to enum
+        Vector< XQI_Type >    tXQITypes( tXQITypesUINT.size() );
         for ( uint tXQI = 0; tXQI < tXQITypesUINT.size(); tXQI++ )
         {
             tXQITypes( tXQI ) = static_cast< XQI_Type >( tXQITypesUINT( tXQI ) );
         }
         uint tNumXQIs = tXQINames.size();
+
+        if ( tNumXQIs == 0 )    // todo brendan be more elegant
+        {
+            return;
+        }
+
+        // Create a surface mesh from the IG mesh for surface XQIs
+        // FIXME indexing for which enriched IG mesh?
+        mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0" } );    // FIXME side set names make variable
+        mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
+
+        // Create a dist vector to store the sensitivities
+        sol::Matrix_Vector_Factory tDistFactory;
+        sol::Dist_Map             *tMap      = tDistFactory.create_map( tDesignCriteriaManager->get_my_local_global_map() );
+        sol::Dist_Vector          *tdXQIdPDV = tDistFactory.create_vector( tMap, tXQITypes.size() );
+
+        tdXQIdPDV->print();    // brendan delete
+
+        // Get the IG to PDV ID map
+        Vector< Vector< moris_index > > tPDVIDs;
+        Vector< gen::PDV_Type >         tPDVTypes = this->get_spatial_dim() == 2 ? Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE } )
+                                                                                 : Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE } );
+        tDesignCriteriaManager->get_ig_dv_ids_for_type_and_ind( tSurfaceMeshData.mLocalToGlobalVertexIndex, tPDVTypes, tPDVIDs );
 
         // Loop over requested XQIs
         for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
@@ -595,13 +622,13 @@ namespace moris::xtk
             std::string tXQIName = tXQINames( iXQI );
             XQI_Type    tXQIType = tXQITypes( iXQI );
 
-            // Compute XQI based on type BRENDAN TODO
-            std::cout << "Computing XQI: " << tXQIName << " with type: " << static_cast< uint >( tXQIType ) << "\n";
-            real              tXQIValue = 0.0;
-            sol::Dist_Vector *tdXQIdPDV = nullptr;
+            tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tSurfaceMesh.compute_XQI( tXQIType ) );
 
-            tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue, tdXQIdPDV );
+            tSurfaceMesh.compute_XQI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
         }
+
+        tdXQIdPDV->vector_global_assembly();
+        tDesignCriteriaManager->update_QI_sensitivity( Module_Type::XTK, tdXQIdPDV );
     }
 
     // ----------------------------------------------------------------------------------

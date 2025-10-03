@@ -20,8 +20,20 @@ namespace moris::mtk
     Integration_Surface_Mesh_Data::Integration_Surface_Mesh_Data(
             Integration_Mesh const      *aIGMesh,
             const Vector< std::string > &aSideSetNames )
-            : Integration_Surface_Mesh_Data( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ), aSideSetNames )
+            : mIGMesh( aIGMesh )
+    // : Integration_Surface_Mesh_Data( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ), aSideSetNames )
     {
+        Vector< Side_Set const * > tSideSets;
+
+
+        auto tSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) {
+            return dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) );
+        };
+
+        std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( tSideSets ), tSideSetFromName );
+
+        this->initialize_from_side_sets( tSideSets );
+        this->initialize_vertex_coordinates();
     }
 
     Integration_Surface_Mesh_Data::Integration_Surface_Mesh_Data(
@@ -53,7 +65,7 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< Side_Set const * >
-    Integration_Surface_Mesh_Data::obtain_sidesets_from_names( Integration_Mesh_DataBase_IG const *aIGMesh, const Vector< std::string > &aSideSetNames )
+    Integration_Surface_Mesh_Data::obtain_sidesets_from_names( Integration_Mesh const *aIGMesh, const Vector< std::string > &aSideSetNames )
     {
         Vector< Side_Set const * > aSideSets;
 
@@ -93,7 +105,6 @@ namespace moris::mtk
             Set const                                 *aSideSet )
     {
         // loop over all clusters that the side set consists of
-
         moris_index const tNumClustersOnSet = aSideSet->get_clusters_on_set().size();
         mClusterToCellIndices.resize( tNumClustersOnSet, Vector< moris_index >() );
         for ( moris_index tClusterIndex = 0; tClusterIndex < tNumClustersOnSet; tClusterIndex++ )
@@ -137,6 +148,8 @@ namespace moris::mtk
     {
         MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
 
+        PRINT( aCell->get_vertex_coords() );    // brendan delete
+
         auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
 
         // local index (on the surface mesh, from 0 to n_surfacemesh), global index (in the integration mesh, arbitrary numbers between 0 and n_igmesh)
@@ -170,6 +183,8 @@ namespace moris::mtk
             Vector< Vertex const * >                  &aSideVertices,
             Vertex const                              *aVertex )
     {
+        PRINT( aVertex->get_coords() );    // brendan delete
+
         moris_index const tVertexIndex             = aVertex->get_index();
         moris_index       tCurrentLocalVertexIndex = 0;
         if ( this->mGlobalToLocalVertexIndex.key_exists( tVertexIndex ) )
@@ -226,7 +241,7 @@ namespace moris::mtk
         mVertexCoordinates.resize( tDim, tNumVertices );
         for ( moris::size_t i = 0; i < tNumVertices; i++ )
         {
-            mVertexCoordinates.set_column( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
+            mVertexCoordinates.set_column( i, trans( mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) ) );
         }
     }
 

@@ -105,6 +105,7 @@ namespace moris
         };
 
         ENUM_MACRO( XQI_Type,
+                VOLUME,
                 END_ENUM, )
     }    // namespace xtk
 }    // namespace moris

@@ -146,8 +146,8 @@ namespace moris::prm
         tParameterList.insert( "visualize_cell_association", true );
 
         // XQI Parameters
-        tParameterList.insert( "xqi_names", "" );
-        tParameterList.insert( "xqi_types", Vector< uint >() );    // TODO: change to XTK::XQI_Type enum
+        tParameterList.insert( "XQI_names", Vector< std::string >() );
+        tParameterList.insert( "XQI_types", Vector< uint >() );    // TODO: change to XTK::XQI_Type enum
         return tParameterList;
     }
     //------------------------------------------------------------------------------

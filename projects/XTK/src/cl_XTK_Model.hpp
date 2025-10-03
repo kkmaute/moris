@@ -540,8 +540,8 @@ namespace moris::xtk
         // Printing Functions
         //--------------------------------------------------------------------------------
 
-        void
-        print_vectors();
+        // void
+        // print_vectors();
 
         //------------------------------------------------------------------------------
 
@@ -671,105 +671,105 @@ namespace moris::xtk
       protected:
         //------------------------------------------------------------------------------
 
-        /*
-         * For nodes that are created during the decomposition process, tell
-         * the XTK mesh about where they live in child meshes.
-         */
-        void
-        associate_nodes_created_during_decomp_to_child_meshes();
+        // /*
+        //  * For nodes that are created during the decomposition process, tell
+        //  * the XTK mesh about where they live in child meshes.
+        //  */
+        // void
+        // associate_nodes_created_during_decomp_to_child_meshes();
 
         //------------------------------------------------------------------------------
 
-        /*
-         * Set element phase index
-         */
-        void
-        set_element_phases();
+        // /*
+        //  * Set element phase index
+        //  */
+        // void
+        // set_element_phases();
 
         //------------------------------------------------------------------------------
 
-        /*
-         * Tells the XTK mesh about where it's children live in the cut mesh
-         */
-        void
-        set_downward_inheritance();
+        // /*
+        //  * Tells the XTK mesh about where it's children live in the cut mesh
+        //  */
+        // void
+        // set_downward_inheritance();
 
         //------------------------------------------------------------------------------
-        /*
-         * This algorithm sets up the active child mesh indices and registers new pairs in the downward inheritance
-         */
+        // /*
+        //  * This algorithm sets up the active child mesh indices and registers new pairs in the downward inheritance
+        //  */
 
-        void
-        run_first_cut_routine(
-                moris::uint         aGeomIndex,
-                Matrix< IndexMat >& aActiveChildMeshIndices,
-                Matrix< IndexMat >& aNewPairBool );
-
-        //------------------------------------------------------------------------------
-        /*
-         * Returns a flag that all intersected cells are on the same level if false the decomposition will return false
-         */
-        bool
-        all_child_meshes_on_same_level();
+        // void
+        // run_first_cut_routine(
+        //         moris::uint         aGeomIndex,
+        //         Matrix< IndexMat >& aActiveChildMeshIndices,
+        //         Matrix< IndexMat >& aNewPairBool );
 
         //------------------------------------------------------------------------------
-
-        /*!
-         * Constructs the output mesh using provided Output_Options
-         */
-        moris::mtk::Integration_Mesh*
-        construct_output_mesh( Output_Options const & aOutputOptions );
+        // /*
+        //  * Returns a flag that all intersected cells are on the same level if false the decomposition will return false
+        //  */
+        // bool
+        // all_child_meshes_on_same_level();
 
         //------------------------------------------------------------------------------
 
-        /*!
-         * Setup interface single sided side sets
-         */
-        void
-        setup_interface_single_side_sets(
-                Output_Options const &     aOutputOptions,
-                Vector< Matrix< IdMat > >& aCellIdsAndSideOrds,
-                Vector< std::string >&     aInterfaceSetNames );
+        // /*!
+        //  * Constructs the output mesh using provided Output_Options
+        //  */
+        // moris::mtk::Integration_Mesh*
+        // construct_output_mesh( Output_Options const & aOutputOptions );
 
         //------------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------------
-
-        Vector< std::string >
-        assign_geometry_data_names();
-
-        //------------------------------------------------------------------------------
-
-        Vector< mtk::EntityRank >
-        assign_geometry_data_field_ranks();
+        // /*!
+        //  * Setup interface single sided side sets
+        //  */
+        // void
+        // setup_interface_single_side_sets(
+        //         Output_Options const &     aOutputOptions,
+        //         Vector< Matrix< IdMat > >& aCellIdsAndSideOrds,
+        //         Vector< std::string >&     aInterfaceSetNames );
 
         //------------------------------------------------------------------------------
 
         //------------------------------------------------------------------------------
 
-        /*!
-         * Sets up background side sets for mesh output. Propogates the side set from
-         * the background mesh to the output mesh
-         */
-        Vector< moris::mtk::MtkSideSetInfo >
-        propogate_background_side_sets(
-                Vector< Matrix< IndexMat > >& aSideSetData,
-                Output_Options const &        aOutputOptions );
+        // Vector< std::string >
+        // assign_geometry_data_names();
 
         //------------------------------------------------------------------------------
 
-        /*!
-         * Add a single side set from the background mesh
-         */
-        void
-        propogate_background_side_set(
-                std::string const &                   aSideSetName,
-                moris::moris_index                    aNoChildIndex,
-                moris::moris_index                    aChildIndex,
-                Vector< Matrix< IndexMat > >&         aElementIdsAndSideOrd,
-                Vector< moris::mtk::MtkSideSetInfo >& aSideSetData,
-                Output_Options const &                aOutputOptions,
-                bool                                  aOutputIndices );
+        // Vector< mtk::EntityRank >
+        // assign_geometry_data_field_ranks();
+
+        //------------------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
+
+        // /*!
+        //  * Sets up background side sets for mesh output. Propogates the side set from
+        //  * the background mesh to the output mesh
+        //  */
+        // Vector< moris::mtk::MtkSideSetInfo >
+        // propogate_background_side_sets(
+        //         Vector< Matrix< IndexMat > >& aSideSetData,
+        //         Output_Options const &        aOutputOptions );
+
+        //------------------------------------------------------------------------------
+
+        // /*!
+        //  * Add a single side set from the background mesh
+        //  */
+        // void
+        // propogate_background_side_set(
+        //         std::string const &                   aSideSetName,
+        //         moris::moris_index                    aNoChildIndex,
+        //         moris::moris_index                    aChildIndex,
+        //         Vector< Matrix< IndexMat > >&         aElementIdsAndSideOrd,
+        //         Vector< moris::mtk::MtkSideSetInfo >& aSideSetData,
+        //         Output_Options const &                aOutputOptions,
+        //         bool                                  aOutputIndices );
 
         //------------------------------------------------------------------------------
 
@@ -783,75 +783,75 @@ namespace moris::xtk
 
         //------------------------------------------------------------------------------
 
-        /*!
-         * Combine interface and non-interface blocks
-         */
-        Vector< Matrix< IdMat > >
-        combine_interface_and_non_interface_blocks(
-                Vector< Matrix< IdMat > >& tChildElementsByPhase,
-                Vector< Matrix< IdMat > >& tNoChildElementsByPhase );
+        // /*!
+        //  * Combine interface and non-interface blocks
+        //  */
+        // Vector< Matrix< IdMat > >
+        // combine_interface_and_non_interface_blocks(
+        //         Vector< Matrix< IdMat > >& tChildElementsByPhase,
+        //         Vector< Matrix< IdMat > >& tNoChildElementsByPhase );
 
         //------------------------------------------------------------------------------
 
-        /*
-         * Returns the number of phases to output given the output options
-         */
-        uint
-        get_num_phases_to_output( Output_Options const & aOutputOptions );
+        // /*
+        //  * Returns the number of phases to output given the output options
+        //  */
+        // uint
+        // get_num_phases_to_output( Output_Options const & aOutputOptions );
 
         //------------------------------------------------------------------------------
 
-        /*!
-         * Setup clustering data
-         */
-        void
-        setup_cell_clusters_for_output(
-                moris::mtk::Cell_Cluster_Input& aCellClusterInput,
-                Output_Options const &          aOutputOptions,
-                Vector< Matrix< IdMat > >&      tCellIds );
+        // /*!
+        //  * Setup clustering data
+        //  */
+        // void
+        // setup_cell_clusters_for_output(
+        //         moris::mtk::Cell_Cluster_Input& aCellClusterInput,
+        //         Output_Options const &          aOutputOptions,
+        //         Vector< Matrix< IdMat > >&      tCellIds );
 
         //------------------------------------------------------------------------------
 
-        void
-        setup_interface_side_cluster(
-                std::string                     aInterfaceSideLabelBase,
-                moris::mtk::Side_Cluster_Input& aCellClusterInput,
-                Output_Options const &          aOutputOptions,
-                Vector< Matrix< IdMat > >&      tCellIdsandSideOrds,
-                Vector< Matrix< DDRMat > >&     tParametricCoordinates );
+        // void
+        // setup_interface_side_cluster(
+        //         std::string                     aInterfaceSideLabelBase,
+        //         moris::mtk::Side_Cluster_Input& aCellClusterInput,
+        //         Output_Options const &          aOutputOptions,
+        //         Vector< Matrix< IdMat > >&      tCellIdsandSideOrds,
+        //         Vector< Matrix< DDRMat > >&     tParametricCoordinates );
 
         //------------------------------------------------------------------------------
 
-        bool
-        output_node(
-                moris::moris_index     aNodeIndex,
-                Output_Options const & aOutputOptions );
+        // bool
+        // output_node(
+        //         moris::moris_index     aNodeIndex,
+        //         Output_Options const & aOutputOptions );
 
         //------------------------------------------------------------------------------
 
-        /*
-         * Prints the method of decomposition, type of background mesh,
-         */
-        void
-        print_decompsition_preamble( Vector< enum Subdivision_Method > aMethods );
+        // /*
+        //  * Prints the method of decomposition, type of background mesh,
+        //  */
+        // void
+        // print_decompsition_preamble( Vector< enum Subdivision_Method > aMethods );
 
         //------------------------------------------------------------------------------
 
-        moris::size_t
-        determine_element_phase_index(
-                moris::size_t              aRowIndex,
-                Matrix< IndexMat > const & aElementToNodeIndex );
+        // moris::size_t
+        // determine_element_phase_index(
+        //         moris::size_t              aRowIndex,
+        //         Matrix< IndexMat > const & aElementToNodeIndex );
 
-        //------------------------------------------------------------------------------
+        // //------------------------------------------------------------------------------
 
-        void
-        collect_subphases_attached_to_facet_on_cell(
-                moris::moris_index            aCellIndex,
-                moris::moris_index            aFacetOrdinal,
-                Vector< moris::moris_index >& aCellSubphaseIndices,
-                Vector< moris::moris_index >& aCellSubphaseBulkIndices,
-                Vector< moris::moris_index >& aRepresentativeCellInd,
-                Vector< moris::moris_index >& aRepresentativeCellSideOrdinal );
+        // void
+        // collect_subphases_attached_to_facet_on_cell(
+        //         moris::moris_index            aCellIndex,
+        //         moris::moris_index            aFacetOrdinal,
+        //         Vector< moris::moris_index >& aCellSubphaseIndices,
+        //         Vector< moris::moris_index >& aCellSubphaseBulkIndices,
+        //         Vector< moris::moris_index >& aRepresentativeCellInd,
+        //         Vector< moris::moris_index >& aRepresentativeCellSideOrdinal );
 
         //------------------------------------------------------------------------------
 

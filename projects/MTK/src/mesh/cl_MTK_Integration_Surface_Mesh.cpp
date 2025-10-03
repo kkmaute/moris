@@ -289,4 +289,84 @@ namespace moris::mtk
 
         return tMesh;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+    // XQI Related functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Integration_Surface_Mesh::compute_XQI( xtk::XQI_Type aType ) const
+    {
+        switch ( aType )
+        {
+            case xtk::XQI_Type::VOLUME:
+            {
+                return this->compute_volume();
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "XQI type not recognized." );
+                return MORIS_REAL_MAX;
+                break;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Integration_Surface_Mesh::compute_XQI_sensitivities(
+            const xtk::XQI_Type                    aType,
+            const Vector< Vector< moris_index > > &aVertexPDVIDs,
+            sol::Dist_Vector                      *aSensitivities,
+            const uint                             aRequestIndex ) const
+    {
+        // Load function pointer to get dXQI_dvertex
+        using dXQI_dvertex_Function            = Matrix< DDRMat > ( mtk::Surface_Mesh::* )( const uint ) const;
+        dXQI_dvertex_Function get_dXQI_dvertex = nullptr;
+
+        switch ( aType )
+        {
+            case xtk::XQI_Type::VOLUME:
+                get_dXQI_dvertex = &mtk::Surface_Mesh::compute_dvolume_dvertex;
+                break;
+            default:
+                MORIS_ERROR( false, "XQI type not implemented for surface mesh geometry." );
+                break;
+        }
+
+        // Loop over surface mesh vertices
+        for ( uint iV = 0; iV < this->get_number_of_vertices(); iV++ )
+        {
+            // Check that this vertex has at least one PDV associated with it
+            bool tHasPDV = false;
+            for ( uint iDim = 0; iDim < aVertexPDVIDs.size(); iDim++ )
+            {
+                if ( aVertexPDVIDs( iDim )( iV ) != -1 )
+                {
+                    tHasPDV = true;
+                    break;
+                }
+            }
+            if ( tHasPDV )
+            {
+                // Compute the sensitivity wrt to the vertex
+                Matrix< DDRMat > tdXQI_dvertex = ( this->*get_dXQI_dvertex )( iV );
+
+                // Loop over spatial dimensions
+                for ( uint iDim = 0; iDim < aVertexPDVIDs.size(); iDim++ )
+                {
+                    // Get the PDV ID for this vertex in this dimension
+                    moris_index tPDVID = aVertexPDVIDs( iDim )( iV );
+                    if ( tPDVID != -1 )
+                    {
+                        // Sum into the sensitivities vector
+                        real &tValue = ( *aSensitivities )( tPDVID, aRequestIndex );
+                        tValue += tdXQI_dvertex( iDim );
+
+                        aSensitivities->print(); // brendan delete
+                    }
+                }
+            }
+        }
+    }
 }    // namespace moris::mtk

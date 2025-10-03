@@ -389,19 +389,6 @@ namespace moris::wrk
             return tVector;
         }
 
-        if ( tDeleteXTK )
-        {
-            // delete the xtk-performer
-            delete tXTKPerformer;
-        }
-        else
-        {
-            // IMPORTANT!!! do not overwrite previous XTK and MTK performer before we know if this XTK performer triggers a restart.
-            // otherwise the fem::field meshes are deleted and cannot be used anymore.
-            mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr< xtk::Model >( tXTKPerformer );
-            mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
-        }
-
         // mtk::Mesh_Checker tMeshCheckerXTK(
         //         0,
         //         mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
@@ -428,14 +415,32 @@ namespace moris::wrk
 
         if ( tDeleteXTK )
         {
-            // free the memory and delete the unused data
-            mPerformerManager->mDataBasePerformer( 0 )->free_memory();
         }
 
         mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
         // Assign PDVs
         mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
+
+        // FIXME: perform_decomposition(), perform_enrichment() and compute_XQIs() are all executed in xtk::Model::perform(), which should be called here instead.
+        // These functions should be made private and kept out of the main workflow
+        tXTKPerformer->compute_XQIs();
+
+        if ( tDeleteXTK )
+        {
+            // delete the xtk-performer
+            delete tXTKPerformer;
+
+            // free the memory and delete the unused data
+            mPerformerManager->mDataBasePerformer( 0 )->free_memory();
+        }
+        else
+        {
+            // IMPORTANT!!! do not overwrite previous XTK and MTK performer before we know if this XTK performer triggers a restart.
+            // otherwise the fem::field meshes are deleted and cannot be used anymore.
+            mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr< xtk::Model >( tXTKPerformer );
+            mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+        }
 
         // Stage 3: MDL perform ---------------------------------------------------------------------
 
