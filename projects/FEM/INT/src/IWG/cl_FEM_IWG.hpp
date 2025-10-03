@@ -1126,18 +1126,28 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat > remap_nonconformal_rays(
-                Field_Interpolator* aLeaderFieldInterpolator,
-                Field_Interpolator* aFollowerFieldInterpolator );
+                const bool aUseDeformedGeometryForGap,
+                const bool aUseConsistentDeformedGeometryForGap,
+                const Vector< MSI::Dof_Type > aDisplDofTypes,
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >& aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_consistent_deformed_geometry(
-                Field_Interpolator* aLeaderFieldInterpolator,
-                Field_Interpolator* aFollowerFieldInterpolator );
+                const Vector< MSI::Dof_Type > aDisplDofTypes,
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >& aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_linear_deformed_geometry(
-                Field_Interpolator* aLeaderFieldInterpolator,
-                Field_Interpolator* aFollowerFieldInterpolator );
+                const Vector< MSI::Dof_Type > aDisplDofTypes,
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >& aGapData ) const;
 
-        Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry() const;
+        Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry(
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager ) const;
 
         const std::unique_ptr< GapData >& get_gap_data()
         {

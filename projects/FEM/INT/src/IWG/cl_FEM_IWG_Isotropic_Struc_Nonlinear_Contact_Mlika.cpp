@@ -153,8 +153,12 @@ namespace moris::fem
 
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
-                mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
-                mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
+                mUseDeformedGeometryForGap,
+                mUseConsistentDeformedGeometryForGap,
+                tDisplDofTypes,
+                mLeaderFIManager,
+                mFollowerFIManager,
+                mGapData );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -319,8 +323,12 @@ namespace moris::fem
 
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
-                mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
-                mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
+                mUseDeformedGeometryForGap,
+                mUseConsistentDeformedGeometryForGap,
+                tDisplDofTypes,
+                mLeaderFIManager,
+                mFollowerFIManager,
+                mGapData );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )

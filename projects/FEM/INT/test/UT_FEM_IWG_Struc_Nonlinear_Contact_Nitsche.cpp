@@ -471,7 +471,13 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 // set integration point on follower side
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
 
-                Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
+                        tIWG->mUseDeformedGeometryForGap,
+                        tIWG->mUseConsistentDeformedGeometryForGap,
+                        tDispDofTypes( 0 ),
+                        tIWG->mSet->mLeaderFIManager,
+                        tIWG->mSet->mFollowerFIManager,
+                        tIWG->mGapData );
 
                 tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
 
