@@ -293,13 +293,13 @@ namespace moris::MSI
 
         void get_ig_dv_ids_for_type_and_ind( const Vector< moris_index >& aNodeIndices,
                 const Vector< enum gen::PDV_Type >&                       aDvTypes,
-                Vector< moris::Matrix< IdMat > >&                         aDvIds ) const override
+                Vector< Vector< moris_index > >&                          aDvIds ) const override
         {
             aDvIds.resize( aDvTypes.size() );
 
             for ( uint Ik = 0; Ik < aDvTypes.size(); Ik++ )
             {
-                aDvIds( Ik ).set_size( aNodeIndices.size(), 1, MORIS_UINT_MAX );
+                aDvIds( Ik ).resize( aNodeIndices.size(), MORIS_UINT_MAX );
 
                 for ( uint Ii = 0; Ii < aNodeIndices.size(); Ii++ )
                 {

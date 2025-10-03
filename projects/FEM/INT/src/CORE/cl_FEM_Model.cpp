@@ -297,6 +297,7 @@ namespace moris::fem
                 Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
                 Vector< Vector< bool > >   tIsActiveDv;
 
+                // FIXME: this function is designed to provide multiple nodes pdv values at once, move this out of the loop and only call once
                 this->get_design_variable_interface()->get_ig_pdv_value(
                         tVertexIndices,
                         tGeoPdvType,
@@ -326,7 +327,8 @@ namespace moris::fem
                 }
 
                 // get the id associated to the pdv
-                Vector< moris::Matrix< DDSMat > > tPdvIds;
+                // FIXME: this function is designed to provide multiple nodes pdv values at once, move this out of the loop and only call once
+                Vector< Vector< moris_index > > tPdvIds;
                 this->get_design_variable_interface()->get_ig_dv_ids_for_type_and_ind(
                         tVertexIndices,
                         tGeoPdvType,
@@ -1093,8 +1095,8 @@ namespace moris::fem
 
     void
     FEM_Model::set_vertex_xyz_pdv_ids(
-            moris_index                 aVertexIndex,
-            Vector< Matrix< DDSMat > > &aXYZPvIds )
+            moris_index                      aVertexIndex,
+            Vector< Vector< moris_index > > &aXYZPvIds )
     {
         // get num of pdv
         uint tNumXYZPdv = aXYZPvIds.size();

@@ -33,7 +33,7 @@ namespace moris::fem
         /**
          * destructor
          */
-        virtual ~Node_Base(){};
+        virtual ~Node_Base() {};
 
         //------------------------------------------------------------------------------
 
@@ -219,7 +219,7 @@ namespace moris::fem
          */
         virtual void
         set_vertex_xyz_pdv_ids(
-                Vector< Matrix< DDSMat > > &aXYZPvIds )
+                Vector< Vector< moris_index > > &aXYZPvIds )
         {
             MORIS_ERROR( false, "fem::Node_Base::set_vertex_xyz_pdv_ids() - not implemented in base class" );
         }

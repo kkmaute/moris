@@ -509,7 +509,7 @@ namespace moris
              * @param[ in ] aXYZPvIds list of xyz pdv ids
              */
             void set_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
-                    Vector< Matrix< DDSMat > >      &aXYZPvIds );
+                    Vector< Vector< moris_index > > &aXYZPvIds );
 
 
             //------------------------------------------------------------------------------

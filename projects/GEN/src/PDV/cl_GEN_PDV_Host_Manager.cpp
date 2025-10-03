@@ -279,9 +279,9 @@ namespace moris::gen
 
     void
     PDV_Host_Manager::get_ig_dv_ids_for_type_and_ind(
-            const Vector< moris_index >& aNodeIndices,
-            const Vector< PDV_Type >&    aPDVTypes,
-            Vector< Matrix< IdMat > >&   aDvIds ) const
+            const Vector< moris_index >&     aNodeIndices,
+            const Vector< PDV_Type >&        aPDVTypes,
+            Vector< Vector< moris_index > >& aDvIds ) const
     {
         // get the number of node indices requested
         uint tNumIndices = aNodeIndices.size();
@@ -295,7 +295,7 @@ namespace moris::gen
         // loop over the requested dv types
         for ( uint tPDVTypeIndex = 0; tPDVTypeIndex < tNumTypes; tPDVTypeIndex++ )
         {
-            aDvIds( tPDVTypeIndex ).set_size( tNumIndices, 1, -1 );
+            aDvIds( tPDVTypeIndex ).resize( tNumIndices, -1 );
 
             // loop over the node indices
             for ( uint tNode = 0; tNode < tNumIndices; tNode++ )

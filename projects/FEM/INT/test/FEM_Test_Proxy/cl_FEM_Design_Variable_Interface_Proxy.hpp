@@ -318,7 +318,7 @@ namespace moris::fem
         get_ig_dv_ids_for_type_and_ind(
                 const Vector< moris_index >&        aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< IdMat > >&   aDvIds ) const override
+                Vector< Vector< moris_index > >&    aDvIds ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_ids_for_type_and_ind() - not implemented in the child class" );
         }

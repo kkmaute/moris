@@ -313,7 +313,7 @@ namespace moris
             virtual void get_ig_dv_ids_for_type_and_ind(
                     const Vector< moris_index >&        aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
-                    Vector< Matrix< IdMat > >&          aDvIds ) const = 0;
+                    Vector< Vector< moris_index > >&    aDvIds ) const = 0;
 
             //------------------------------------------------------------------------------
 
