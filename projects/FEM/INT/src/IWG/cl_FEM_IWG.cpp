@@ -3065,8 +3065,6 @@ namespace moris::fem
         }
 
         // save results in GapData resorted such that nodes first
-        uint tIcounter = 0;
-        uint tJcounter = 0;
 
         aGapData->mGap             = tGap;
         aGapData->mEta             = tEta;
@@ -3076,54 +3074,9 @@ namespace moris::fem
 
         aGapData->set_matrix_sizes( tSpaceDim, tNumDofs );
 
-        for ( uint idim = 0; idim < tSpaceDim; idim++ )
-        {
-            for ( uint in = 0; in < tNumNodes; in++ )
-            {
-                aGapData->mdGapdu( tIcounter ) = tdGapdu( idim + in * tSpaceDim );
-                aGapData->mdGapdv( tIcounter ) = tdGapdv( idim + in * tSpaceDim );
-                aGapData->mdEtadu( tIcounter ) = tdEtadu( idim + in * tSpaceDim );
-                aGapData->mdEtadv( tIcounter ) = tdEtadv( idim + in * tSpaceDim );
+        aGapData->set_first_order_derivatives( tSpaceDim, tNumNodes, tdGapdu, tdGapdv, tdEtadu, tdEtadv, tLeaderdNormaldU, tdGapvecdu, tdGapvecdv);
 
-                aGapData->mLeaderdNormaldu.get_column( tIcounter ) = tLeaderdNormaldU.get_column( idim + in * tSpaceDim );
-                aGapData->mdGapvecdu.get_column( tIcounter )       = tdGapvecdu.get_column( idim + in * tSpaceDim );
-                aGapData->mdGapvecdv.get_column( tIcounter )       = tdGapvecdv.get_column( idim + in * tSpaceDim );
-
-                tIcounter++;
-            }
-        }
-
-        tIcounter = 0;
-        for ( uint idim = 0; idim < tSpaceDim; idim++ )
-        {
-            for ( uint in = 0; in < tNumNodes; in++ )
-            {
-                tJcounter = 0;
-                for ( uint jdim = 0; jdim < tSpaceDim; jdim++ )
-                {
-                    for ( uint jn = 0; jn < tNumNodes; jn++ )
-                    {
-                        aGapData->mdGap2du2( tIcounter, tJcounter ) = tdGap2du2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdGap2dv2( tIcounter, tJcounter ) = tdGap2dv2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdGap2duv( tIcounter, tJcounter ) = tdGap2duv( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdEta2du2( tIcounter, tJcounter ) = tdEta2du2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdEta2dv2( tIcounter, tJcounter ) = tdEta2dv2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdEta2duv( tIcounter, tJcounter ) = tdEta2duv( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-
-                        aGapData->mLeaderdNormal2du2.get_column( tIcounter * tNumDofs + tJcounter ) =
-                               tLeaderdNormal2dU2.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        aGapData->mdGapvec2du2.get_column( tIcounter * tNumDofs + tJcounter ) =
-                               tdGapvec2du2.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        aGapData->mdGapvec2dv2.get_column( tIcounter * tNumDofs + tJcounter ) =
-                               tdGapvec2dv2.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        aGapData->mdGapvec2duv.get_column( tIcounter * tNumDofs + tJcounter ) =
-                                tdGapvec2duv.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        tJcounter++;
-                    }
-                }
-                tIcounter++;
-            }
-        }
+        aGapData->set_second_order_derivatives( tSpaceDim, tNumNodes, tNumDofs, tdGap2du2, tdGap2dv2, tdGap2duv, tdEta2du2, tdEta2dv2, tdEta2duv, tLeaderdNormal2dU2, tdGapvec2du2, tdGapvec2dv2, tdGapvec2duv );
 
         // gap data evaluation flag to false, i.e. does not need to be recomputed
         aGapData->mEval = false;
@@ -3564,8 +3517,6 @@ namespace moris::fem
         }
 
         // save results in GapData resorted such that nodes first
-        uint tIcounter = 0;
-        uint tJcounter = 0;
 
         aGapData->mGap             = tGap;
         aGapData->mEta             = tEta;
@@ -3575,54 +3526,9 @@ namespace moris::fem
 
         aGapData->set_matrix_sizes( tSpaceDim, tNumDofs );
 
-        for ( uint idim = 0; idim < tSpaceDim; idim++ )
-        {
-            for ( uint in = 0; in < tNumNodes; in++ )
-            {
-                aGapData->mdGapdu( tIcounter ) = tdGapdu( idim + in * tSpaceDim );
-                aGapData->mdGapdv( tIcounter ) = tdGapdv( idim + in * tSpaceDim );
-                aGapData->mdEtadu( tIcounter ) = tdEtadu( idim + in * tSpaceDim );
-                aGapData->mdEtadv( tIcounter ) = tdEtadv( idim + in * tSpaceDim );
+        aGapData->set_first_order_derivatives( tSpaceDim, tNumNodes, tdGapdu, tdGapdv, tdEtadu, tdEtadv, tLeaderdNormaldU, tdGapvecdu, tdGapvecdv);
 
-                aGapData->mLeaderdNormaldu.get_column( tIcounter ) = tLeaderdNormaldU.get_column( idim + in * tSpaceDim );
-                aGapData->mdGapvecdu.get_column( tIcounter )       = tdGapvecdu.get_column( idim + in * tSpaceDim );
-                aGapData->mdGapvecdv.get_column( tIcounter )       = tdGapvecdv.get_column( idim + in * tSpaceDim );
-
-                tIcounter++;
-            }
-        }
-
-        tIcounter = 0;
-        for ( uint idim = 0; idim < tSpaceDim; idim++ )
-        {
-            for ( uint in = 0; in < tNumNodes; in++ )
-            {
-                tJcounter = 0;
-                for ( uint jdim = 0; jdim < tSpaceDim; jdim++ )
-                {
-                    for ( uint jn = 0; jn < tNumNodes; jn++ )
-                    {
-                        aGapData->mdGap2du2( tIcounter, tJcounter ) = tdGap2du2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdGap2dv2( tIcounter, tJcounter ) = tdGap2dv2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdGap2duv( tIcounter, tJcounter ) = tdGap2duv( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdEta2du2( tIcounter, tJcounter ) = tdEta2du2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdEta2dv2( tIcounter, tJcounter ) = tdEta2dv2( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-                        aGapData->mdEta2duv( tIcounter, tJcounter ) = tdEta2duv( idim + in * tSpaceDim, jdim + jn * tSpaceDim );
-
-                        aGapData->mLeaderdNormal2du2.get_column( tIcounter * tNumDofs + tJcounter ) =
-                                tLeaderdNormal2dU2.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        aGapData->mdGapvec2du2.get_column( tIcounter * tNumDofs + tJcounter ) =
-                                tdGapvec2du2.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        aGapData->mdGapvec2dv2.get_column( tIcounter * tNumDofs + tJcounter ) =
-                                tdGapvec2dv2.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        aGapData->mdGapvec2duv.get_column( tIcounter * tNumDofs + tJcounter ) =
-                                tdGapvec2duv.get_column( ( idim + in * tSpaceDim ) * tNumDofs + jdim + jn * tSpaceDim );
-                        tJcounter++;
-                    }
-                }
-                tIcounter++;
-            }
-        }
+        aGapData->set_second_order_derivatives( tSpaceDim, tNumNodes, tNumDofs, tdGap2du2, tdGap2dv2, tdGap2duv, tdEta2du2, tdEta2dv2, tdEta2duv, tLeaderdNormal2dU2, tdGapvec2du2, tdGapvec2dv2, tdGapvec2duv );
 
         // gap data evaluation flag to false, i.e. does not need to be recomputed
         aGapData->mEval = false;

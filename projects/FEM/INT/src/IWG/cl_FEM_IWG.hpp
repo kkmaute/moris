@@ -124,6 +124,91 @@ namespace moris::fem
 
         //----------------------------------------------------------------------------
 
+        void set_first_order_derivatives(
+            const uint aSpaceDim,
+            const uint aNumNodes,
+            const Matrix< DDRMat >& adGapdu,
+            const Matrix< DDRMat >& adGapdv,
+            const Matrix< DDRMat >& adEtadu,
+            const Matrix< DDRMat >& adEtadv,
+            const Matrix< DDRMat >& aLeaderdNormaldU,
+            const Matrix< DDRMat >& adGapvecdu,
+            const Matrix< DDRMat >& adGapvecdv )
+        {
+            uint tIcounter = 0;
+
+            for ( uint idim = 0; idim < aSpaceDim; idim++ )
+            {
+                for ( uint in = 0; in < aNumNodes; in++ )
+                {
+                    mdGapdu( tIcounter ) = adGapdu( idim + in * aSpaceDim );
+                    mdGapdv( tIcounter ) = adGapdv( idim + in * aSpaceDim );
+                    mdEtadu( tIcounter ) = adEtadu( idim + in * aSpaceDim );
+                    mdEtadv( tIcounter ) = adEtadv( idim + in * aSpaceDim );
+
+                    mLeaderdNormaldu.get_column( tIcounter ) = aLeaderdNormaldU.get_column( idim + in * aSpaceDim );
+                    mdGapvecdu.get_column( tIcounter )       = adGapvecdu.get_column( idim + in * aSpaceDim );
+                    mdGapvecdv.get_column( tIcounter )       = adGapvecdv.get_column( idim + in * aSpaceDim );
+
+                    tIcounter++;
+                }
+            }
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_second_order_derivatives(
+            const uint aSpaceDim,
+            const uint tNumNodes,
+            const uint aNumDofs,
+            const Matrix< DDRMat >& tdGap2du2,
+            const Matrix< DDRMat >& tdGap2dv2,
+            const Matrix< DDRMat >& tdGap2duv,
+            const Matrix< DDRMat >& tdEta2du2,
+            const Matrix< DDRMat >& tdEta2dv2,
+            const Matrix< DDRMat >& tdEta2duv,
+            const Matrix< DDRMat >& tLeaderdNormal2dU2,
+            const Matrix< DDRMat >& tdGapvec2du2,
+            const Matrix< DDRMat >& tdGapvec2dv2,
+            const Matrix< DDRMat >& tdGapvec2duv )
+            {
+                uint tIcounter = 0;
+                uint tJcounter = 0;
+
+                for ( uint idim = 0; idim < aSpaceDim; idim++ )
+                {
+                    for ( uint in = 0; in < tNumNodes; in++ )
+                    {
+                        tJcounter = 0;
+                        for ( uint jdim = 0; jdim < aSpaceDim; jdim++ )
+                        {
+                            for ( uint jn = 0; jn < tNumNodes; jn++ )
+                            {
+                                mdGap2du2( tIcounter, tJcounter ) = tdGap2du2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdGap2dv2( tIcounter, tJcounter ) = tdGap2dv2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdGap2duv( tIcounter, tJcounter ) = tdGap2duv( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdEta2du2( tIcounter, tJcounter ) = tdEta2du2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdEta2dv2( tIcounter, tJcounter ) = tdEta2dv2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdEta2duv( tIcounter, tJcounter ) = tdEta2duv( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+
+                                mLeaderdNormal2du2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                       tLeaderdNormal2dU2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                mdGapvec2du2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                       tdGapvec2du2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                mdGapvec2dv2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                       tdGapvec2dv2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                mdGapvec2duv.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                        tdGapvec2duv.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                tJcounter++;
+                            }
+                        }
+                        tIcounter++;
+                    }
+                }
+            }
+
+        //----------------------------------------------------------------------------
+
         Matrix< DDRMat > multiply_leader_dnormal2du2( const Matrix< DDRMat >& tVector )
         {
             uint tSpaceDim = mLeaderdNormal2du2.n_rows();
