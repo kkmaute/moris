@@ -3074,14 +3074,7 @@ namespace moris::fem
         aGapData->mLeaderRefNormal = tLeaderRefNormal;
         aGapData->mGapVec          = tGapVector;
 
-        aGapData->mdGapdu.set_size( 1, tNumDofs );
-        aGapData->mdGapdv.set_size( 1, tNumDofs );
-        aGapData->mdEtadu.set_size( 1, tNumDofs );
-        aGapData->mdEtadv.set_size( 1, tNumDofs );
-
-        aGapData->mLeaderdNormaldu.set_size( tSpaceDim, tNumDofs );
-        aGapData->mdGapvecdu.set_size( tSpaceDim, tNumDofs );
-        aGapData->mdGapvecdv.set_size( tSpaceDim, tNumDofs );
+        aGapData->set_matrix_sizes( tSpaceDim, tNumDofs );
 
         for ( uint idim = 0; idim < tSpaceDim; idim++ )
         {
@@ -3099,18 +3092,6 @@ namespace moris::fem
                 tIcounter++;
             }
         }
-
-        aGapData->mdGap2du2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdGap2dv2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdGap2duv.set_size( tNumDofs, tNumDofs );
-        aGapData->mdEta2du2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdEta2dv2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdEta2duv.set_size( tNumDofs, tNumDofs );
-
-        aGapData->mLeaderdNormal2du2.set_size( tSpaceDim, tNumDofs * tNumDofs );    // tLeaderdNormal2dU2
-        aGapData->mdGapvec2du2.set_size( tSpaceDim, tNumDofs * tNumDofs );          // tdGapvec2du2
-        aGapData->mdGapvec2dv2.set_size( tSpaceDim, tNumDofs * tNumDofs );          // tdGapvec2dv2
-        aGapData->mdGapvec2duv.set_size( tSpaceDim, tNumDofs * tNumDofs );          // tdGapvec2duv
 
         tIcounter = 0;
         for ( uint idim = 0; idim < tSpaceDim; idim++ )
@@ -3592,14 +3573,7 @@ namespace moris::fem
         aGapData->mLeaderRefNormal = tLeaderRefNormal;
         aGapData->mGapVec          = tGapVector;
 
-        aGapData->mdGapdu.set_size( 1, tNumDofs );
-        aGapData->mdGapdv.set_size( 1, tNumDofs );
-        aGapData->mdEtadu.set_size( 1, tNumDofs );
-        aGapData->mdEtadv.set_size( 1, tNumDofs );
-
-        aGapData->mLeaderdNormaldu.set_size( tSpaceDim, tNumDofs );
-        aGapData->mdGapvecdu.set_size( tSpaceDim, tNumDofs );
-        aGapData->mdGapvecdv.set_size( tSpaceDim, tNumDofs );
+        aGapData->set_matrix_sizes( tSpaceDim, tNumDofs );
 
         for ( uint idim = 0; idim < tSpaceDim; idim++ )
         {
@@ -3617,18 +3591,6 @@ namespace moris::fem
                 tIcounter++;
             }
         }
-
-        aGapData->mdGap2du2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdGap2dv2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdGap2duv.set_size( tNumDofs, tNumDofs );
-        aGapData->mdEta2du2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdEta2dv2.set_size( tNumDofs, tNumDofs );
-        aGapData->mdEta2duv.set_size( tNumDofs, tNumDofs );
-
-        aGapData->mLeaderdNormal2du2.set_size( tSpaceDim, tNumDofs * tNumDofs );    // tLeaderdNormal2dU2
-        aGapData->mdGapvec2du2.set_size( tSpaceDim, tNumDofs * tNumDofs );          // tdGapvec2du2
-        aGapData->mdGapvec2dv2.set_size( tSpaceDim, tNumDofs * tNumDofs );          // tdGapvec2dv2
-        aGapData->mdGapvec2duv.set_size( tSpaceDim, tNumDofs * tNumDofs );          // tdGapvec2duv
 
         tIcounter = 0;
         for ( uint idim = 0; idim < tSpaceDim; idim++ )

@@ -98,6 +98,32 @@ namespace moris::fem
 
         //----------------------------------------------------------------------------
 
+        void set_matrix_sizes( const uint aSpaceDim, const uint aNumDofs )
+        {
+            mdGapdu.set_size( 1, aNumDofs );
+            mdGapdv.set_size( 1, aNumDofs );
+            mdEtadu.set_size( 1, aNumDofs );
+            mdEtadv.set_size( 1, aNumDofs );
+
+            mLeaderdNormaldu.set_size( aSpaceDim, aNumDofs );
+            mdGapvecdu.set_size( aSpaceDim, aNumDofs );
+            mdGapvecdv.set_size( aSpaceDim, aNumDofs );
+
+            mdGap2du2.set_size( aNumDofs, aNumDofs );
+            mdGap2dv2.set_size( aNumDofs, aNumDofs );
+            mdGap2duv.set_size( aNumDofs, aNumDofs );
+            mdEta2du2.set_size( aNumDofs, aNumDofs );
+            mdEta2dv2.set_size( aNumDofs, aNumDofs );
+            mdEta2duv.set_size( aNumDofs, aNumDofs );
+
+            mLeaderdNormal2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2dv2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2duv.set_size( aSpaceDim, aNumDofs * aNumDofs );
+        }
+
+        //----------------------------------------------------------------------------
+
         Matrix< DDRMat > multiply_leader_dnormal2du2( const Matrix< DDRMat >& tVector )
         {
             uint tSpaceDim = mLeaderdNormal2du2.n_rows();
