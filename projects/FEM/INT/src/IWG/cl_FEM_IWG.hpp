@@ -226,6 +226,29 @@ namespace moris::fem
 
             return tResult;
         }
+
+        //----------------------------------------------------------------------------
+
+        static void compute_outward_normal_at_gp_for_linear_deformed_geometry(
+                Field_Interpolator*         aLeaderFieldInterpolatorManager,
+                Geometry_Interpolator*      aLeaderIGGI,
+                Matrix< DDRMat >&           aLeaderNormal,
+                Matrix< DDRMat >&           aLeaderRefNormal,
+                Matrix< DDRMat >&           aLeaderdNormaldU,
+                Matrix< DDRMat >&           aLeaderNormal2dU2,
+                const bool                  aEvaluateLinearization = true ) ;
+
+        //----------------------------------------------------------------------------
+
+        static void compute_outward_normal_at_gp_for_consistent_deformed_geometry(
+                Field_Interpolator*         aLeaderFieldInterpolatorManager,
+                Geometry_Interpolator*      aLeaderIGGI,
+                Matrix< DDRMat >&           aLeaderNormal,
+                Matrix< DDRMat >&           aLeaderRefNormal,
+                Matrix< DDRMat >&           aLeaderdNormaldU,
+                Matrix< DDRMat >&           aLeaderNormal2dU2,
+                const bool                  aEvaluateLinearization = true ) ;
+
     };
 
     class Set;
