@@ -9,21 +9,14 @@
  */
 
 #include "cl_Bitset.hpp"
-#include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Solver_Interface.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
-#include "cl_MSI_Equation_Object.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 #include "parameters.hpp"
-#include "fn_equal_to.hpp"
-#include "fn_norm.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
-#include <iostream>
 #include <string>
 
-#include "AztecOO.h"
 //---------------------------------------------------------------
 
 #define F2STR( func ) #func
@@ -49,46 +42,42 @@ namespace moris
     real tHeight = 1.0;
     real tWidth  = 1.0;
 
-    uint tNumElems            = 11;
-    uint tInterfaceRefinement = 0;
-    uint tNumElemsX           = tNumElems;
-    uint tNumElemsY           = tNumElems;
+    uint tNumElems  = 10;
+    uint tNumElemsX = tNumElems;
+    uint tNumElemsY = tNumElems;
 
-    real tInitialGap = 0.01;
-    // real tPenetration = 0.05 * 0.85;
-    real tPenetration          = 0.02;
-    real tVerticalDisplacement = ( tInitialGap + tPenetration ) / 2;    // both bodies move
+    real tInitialGap           = 0.001;
+    real tInitialGapMiddle     = 0.503 * tHeight;
+    real tPenetration          = 0.05;
+    real tVerticalDisplacement = -tInitialGap - tPenetration;
 
     /* --------------------------------------- Top Geometry ----------------------------------------- */
     bool tTopIsPlane         = false;
-    bool tTopHasSymmetryWest = true;
-    bool tTopHasSymmetryEast = true;
+    bool tTopHasSymmetryWest = false;
+    bool tTopHasSymmetryEast = false;
 
     real tInterfaceTopAngle = 0 * M_PI / 180.0;
-    real tTopYShift         = tInitialGap / 2;
-    real tTopXShift         = 0.0;
-    real tTopParabolaFactor = 0.5;
+    real tTopYShift         = tInitialGapMiddle + tInitialGap / 2;
+    real tTopXShift         = 0.5;
+    real tTopParabolaFactor = 1;
 
     /* --------------------------------------- Bottom Geometry -------------------------------------- */
-    bool tBottomIsPlane         = false;
-    bool tBottomHasSymmetryWest = true;
-    bool tBottomHasSymmetryEast = true;
+    bool tBottomIsPlane         = true;
+    bool tBottomHasSymmetryWest = false;
+    bool tBottomHasSymmetryEast = false;
 
     real tInterfaceBottomAngle = 0 * M_PI / 180.0;
-    real tBottomYShift         = -tInitialGap / 2;
-    real tBottomXShift         = 0.0;
-    real tBottomParabolaFactor = -0.5;
+    real tBottomYShift         = tInitialGapMiddle - tInitialGap / 2;
+    real tBottomXShift         = 0.5;
+    real tBottomParabolaFactor = -0.7;
 
     /* ------------------------------------- Material Parameters ------------------------------------ */
     real tTopEmod    = 1000.0;
     real tBottomEmod = 1000.0;
-    real tTopPois    = 0.3;
-    real tBottomPois = 0.3;
+    real tTopPois    = 0.0;
+    real tBottomPois = 0.0;
 
     /* --------------------------------------- Domain Setting --------------------------------------- */
-    real tDomainOffsetX = -0.5 * tWidth;
-    real tDomainOffsetY = -0.5 * tHeight;
-
     std::string tInterpolationOrder     = std::to_string( gInterpolationOrder );
     std::string tDomainTop              = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tDomainBottom           = "HMR_dummy_n_p2,HMR_dummy_c_p2";
@@ -105,30 +94,35 @@ namespace moris
     int tMaxIterations = 200;
 
     real tRelResNormDrop     = 1e-8;
-    real tRelaxation         = 0.6;
-    real tFDPerturbationSize = 1e-8;
+    real tRelaxation         = 1.0;
+    //real tFDPerturbationSize = 1e-8;
 
-    fem::Perturbation_Type tFDPerturbationStrategy = fem::Perturbation_Type::RELATIVE;
-    fem::FDScheme_Type     tFDScheme               = fem::FDScheme_Type::POINT_3_CENTRAL;
+    //fem::Perturbation_Type tFDPerturbationStrategy = fem::Perturbation_Type::ABSOLUTE;
+    //fem::FDScheme_Type     tFDScheme               = fem::FDScheme_Type::POINT_3_CENTRAL;
 
-    int  tLoadControlSteps    = 20;
-    real tLoadControlFactor   = 0.01;
-    real tLoadControlRelRes   = 1e0;
+    int  tLoadControlSteps    = 15;
+    real tLoadControlFactor   = 0.1;
+    real tLoadControlRelRes   = 1e-2;
     real tLoadControlExponent = 1.0;
 
     real tRemapResidualChange     = -1e-2;
     int  tRemapLoadStepFrequency  = 1;
-    int  tRemapIterationFrequency = 1;
-    auto tRaytracingStrategy      = sol::SolverRaytracingStrategy::EveryNthIteration;
-    real tMaxNegativeRayLength    = -0.08;
-    real tMaxPositiveRayLength    = 0.5;
+    int  tRemapIterationFrequency = 10;
+    auto tRaytracingStrategy      = sol::SolverRaytracingStrategy::MixedNthLoadStepAndResidualChange;
+    real tMaxNegativeRayLength    = -0.005;
+    real tMaxPositiveRayLength    = 0.01;
 
-    mtk::Integration_Order tNonconformalIntegrationOrder = mtk::Integration_Order::BAR_2;
+    mtk::Integration_Order tNonconformalIntegrationOrder = mtk::Integration_Order::BAR_6;
 
     /* ------------------------------------------- Contact ------------------------------------------ */
     std::string tContactType          = "mlika";
     std::string tContactBias          = "unsymmetric";
-    real        tContactStabilization = 30.00;
+    bool tUseAnalyticalJacbian        = true;
+    std::string tConsistentProjection = "1";
+    std::string tPenaltyOnly          = "1";
+    std::string tDebugFlag            = "0";
+    //std::string tContactStabilization = "10.00/1.0";
+    std::string tContactStabilization = "10.00/0.0";
 
     /* -------------------------------------- Control Variables ------------------------------------- */
     bool tOnlyGenerateMesh   = false;
@@ -218,18 +212,18 @@ namespace moris
         aPropMatrix( 0, 0 ) = 1.0;
     }
 
-    void Func_Body_Load( Matrix< DDRMat >   &aPropMatrix,
-            Vector< Matrix< DDRMat > >      &aParameters,
-            fem::Field_Interpolator_Manager *aFIManager )
-    {
+    //void Func_Body_Load( Matrix< DDRMat >   &aPropMatrix,
+    //        Vector< Matrix< DDRMat > >      &aParameters,
+    //        fem::Field_Interpolator_Manager *aFIManager )
+    //{
 
-        auto tXp    = aFIManager->get_IG_geometry_interpolator()->valx();
-        auto param  = aParameters( 0 )( 0 );
-        aPropMatrix = {
-            { 0.0 },
-            { param },
-        };
-    }
+    //    auto tXp    = aFIManager->get_IG_geometry_interpolator()->valx();
+    //    auto param  = aParameters( 0 )( 0 );
+    //    aPropMatrix = {
+    //        { 0.0 },
+    //        { param },
+    //    };
+    //}
 
     bool Output_Criterion( tsa::Time_Solver *aTimeSolver ) { return true; }
 
@@ -249,7 +243,6 @@ namespace moris
         /* --------------------------------------- Domain Settings ------------------------------------ */
         aParameterLists.set( "number_of_elements_per_dimension", tNumElemsX, tNumElemsY );
         aParameterLists.set( "domain_dimensions", tWidth, tHeight );
-        aParameterLists.set( "domain_offset", tDomainOffsetX, tDomainOffsetY );
 
         /* ---------------------------------------- Lagrange Mesh ------------------------------------- */
         aParameterLists.set( "lagrange_pattern", "0" );
@@ -260,11 +253,10 @@ namespace moris
         aParameterLists.set( "bspline_pattern", "0" );
         aParameterLists.set( "bspline_orders", tInterpolationOrder );
         aParameterLists.set( "lagrange_to_bspline", "0" );
-        aParameterLists.set( "truncate_bsplines", true );
 
         /* ----------------------------------------- Refinement --------------------------------------- */
-        aParameterLists.set( "refinement_buffer", 2 );
-        aParameterLists.set( "staircase_buffer", 2 );
+        aParameterLists.set( "refinement_buffer", 0 );
+        aParameterLists.set( "staircase_buffer", 0 );
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -310,7 +302,7 @@ namespace moris
             aParameterLists.set( "center_y", tTopYShift );
             aParameterLists.set( "normal_x", tNormalX );
             aParameterLists.set( "normal_y", tNormalY );
-            aParameterLists.set( "number_of_refinements", tInterfaceRefinement );
+            aParameterLists.set( "number_of_refinements", 0 );
             aParameterLists.set( "refinement_mesh_index", 0 );
         }
         else
@@ -318,8 +310,6 @@ namespace moris
             // use a parabola for the top side
             aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             aParameterLists.set( "field_function_name", "Parabola" );
-            aParameterLists.set( "number_of_refinements", tInterfaceRefinement );
-            aParameterLists.set( "refinement_mesh_index", 0 );
             aParameterLists.insert( "variable_1", tTopXShift );
             aParameterLists.insert( "variable_2", tTopYShift );
             aParameterLists.insert( "variable_3", tTopParabolaFactor );
@@ -337,7 +327,8 @@ namespace moris
             aParameterLists.set( "center_y", tBottomYShift );
             aParameterLists.set( "normal_x", tNormalX );
             aParameterLists.set( "normal_y", tNormalY );
-            aParameterLists.set( "number_of_refinements", tInterfaceRefinement );
+
+            aParameterLists.set( "number_of_refinements", 0 );
             aParameterLists.set( "refinement_mesh_index", 0 );
         }
         else
@@ -345,8 +336,6 @@ namespace moris
             // use a parabola for the bottom side
             aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
             aParameterLists.set( "field_function_name", "Parabola" );
-            aParameterLists.set( "number_of_refinements", tInterfaceRefinement );
-            aParameterLists.set( "refinement_mesh_index", 0 );
             aParameterLists.insert( "variable_1", tBottomXShift );
             aParameterLists.insert( "variable_2", tBottomYShift );
             aParameterLists.insert( "variable_3", tBottomParabolaFactor );
@@ -416,7 +405,7 @@ namespace moris
         {
             pl = prm::create_property_parameter_list();
             pl.set( "property_name", "PropDirichletTop" );
-            pl.set( "function_parameters", "0.0;" + std::to_string( -tVerticalDisplacement ) );
+            pl.set( "function_parameters", "0.0;" + std::to_string( tVerticalDisplacement ) );
             pl.set( "value_function", F2STR( Func_Dirichlet ) );
             aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
         }
@@ -426,8 +415,8 @@ namespace moris
         {
             pl = prm::create_property_parameter_list();
             pl.set( "property_name", "PropDirichletBottom" );
-            pl.set( "function_parameters", "0.0;" + std::to_string( tVerticalDisplacement ) );
-            pl.set( "value_function", F2STR( Func_Dirichlet ) );
+            pl.set( "function_parameters", "0.0;0.0" );
+            pl.set( "value_function", F2STR( Func_Const ) );
             aParameterLists( FEM::PROPERTIES ).add_parameter_list( pl );
         }
 
@@ -453,11 +442,12 @@ namespace moris
         pl.set( "constitutive_name", "MaterialTop" );
         pl.set( "phase_name", "PhaseTop" );
         pl.set( "constitutive_type",
-                (uint)fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
+                (uint)fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS );
         pl.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         pl.set( "properties",
                 "PropYoungsTop,YoungsModulus;"
                 "PropPoissonTop,PoissonRatio" );
+        pl.set( "model_type",  fem::Model_Type::PLANE_STRAIN ) ;
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( pl );
 
         /* -------------------------------- Elastic Material Bottom ----------------------------------- */
@@ -465,11 +455,12 @@ namespace moris
         pl.set( "constitutive_name", "MaterialBottom" );
         pl.set( "phase_name", "PhaseBottom" );
         pl.set( "constitutive_type",
-                (uint)fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
+                (uint)fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS );
         pl.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
         pl.set( "properties",
                 "PropYoungsBottom,YoungsModulus;"
                 "PropPoissonBottom,PoissonRatio" );
+        pl.set( "model_type",  fem::Model_Type::PLANE_STRAIN ) ;
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
@@ -495,7 +486,7 @@ namespace moris
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPContactInterfaceTop" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        pl.set( "function_parameters", std::to_string( tContactStabilization ) + ";1.0" );
+        pl.set( "function_parameters", tContactStabilization );
         pl.set( "leader_phase_name", "PhaseTop" );
         pl.set( "leader_properties", "PropYoungsTop,Material" );
         aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
@@ -503,12 +494,12 @@ namespace moris
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPContactInterfaceBottom" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        pl.set( "function_parameters", std::to_string( tContactStabilization ) + ";1.0" );
+        pl.set( "function_parameters", tContactStabilization );
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "leader_properties", "PropYoungsBottom,Material" );
         aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
-        // create ghost penalty displacement Matrix
+        // create ghost penalty displacement Top
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPGPDisplTop" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::GHOST_DISPL );
@@ -518,7 +509,7 @@ namespace moris
         pl.set( "leader_properties", "PropYoungsTop,Material" );
         aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
-        // create ghost penalty  displacement Fiber
+        // create ghost penalty  displacement Bottom
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPGPDisplBottom" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::GHOST_DISPL );
@@ -665,14 +656,14 @@ namespace moris
             if ( tContactBias == "neutral" )
                 tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL;
         }
-        if ( tContactType == "small" )
+        if ( tContactType == "mlika_frieder" )
         {
             if ( tContactBias == "symmetric" )
-                tContactIWGType = IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_SYMMETRIC_NITSCHE_UNBIASED;
+                tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC;
             if ( tContactBias == "unsymmetric" )
-                tContactIWGType = IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_UNSYMMETRIC_NITSCHE_UNBIASED;
+                tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC;
             if ( tContactBias == "neutral" )
-                tContactIWGType = IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_NEUTRAL_NITSCHE_UNBIASED;
+                tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL;
         }
 
         pl = prm::create_IWG_parameter_list();
@@ -688,7 +679,8 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceTop,NitscheInterface" );
-        pl.set( "analytical_jacobian", false );
+        pl.set( "analytical_jacobian", tUseAnalyticalJacbian );
+        pl.set( "function_parameters", tConsistentProjection + "/" + tPenaltyOnly + "/" + tDebugFlag );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         pl = prm::create_IWG_parameter_list();
@@ -704,7 +696,8 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceBottom,NitscheInterface" );
-        pl.set( "analytical_jacobian", false );
+        pl.set( "analytical_jacobian", tUseAnalyticalJacbian );
+        pl.set( "function_parameters", tConsistentProjection + "/" + tPenaltyOnly + "/" + tDebugFlag );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         if ( tUseGhost )
@@ -741,7 +734,7 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
 
         Vector< std::pair< std::string, std::string > > tSides      = { { "Top", "Bottom" },
-                 { "Bottom", "Top" } };
+                                                                        { "Bottom", "Top" } };
         Vector< std::pair< int, std::string > >         tComponents = { { 0, "X" }, { 1, "Y" } };
         for ( auto const &[ tLeaderSide, tFollowerSide ] : tSides )
         {
@@ -765,6 +758,7 @@ namespace moris
                 pl.set( "leader_dof_dependencies", "UX,UY" );
                 pl.set( "leader_phase_name", "Phase" + tLeaderSide );
                 pl.set( "vectorial_field_index", tDir );
+                aParameterLists( FEM::IQI ).add_parameter_list( pl );
             }
 
             pl = prm::create_IQI_parameter_list();
@@ -788,23 +782,24 @@ namespace moris
             aParameterLists( FEM::IQI ).add_parameter_list( pl );
             */
 
-            pl = prm::create_IQI_parameter_list();
-            pl.set( "IQI_name", "IQIGap" + tLeaderSide );
-            pl.set( "IQI_type", (uint)fem::IQI_Type::GAP );
-            pl.set( "IQI_bulk_type", (uint)fem::Element_Type::NONCONFORMAL_SIDESET );
-            pl.set( "leader_phase_name", "Phase" + tLeaderSide );
-            pl.set( "neighbor_phases", "PhaseVoid" );
-            pl.set( "follower_phase_name", "Phase" + tFollowerSide );
-            aParameterLists( FEM::IQI ).add_parameter_list( pl );
+        //    // do not use IQI gap for now (maute, 22.09.2025)
+        //    //pl = prm::create_IQI_parameter_list();
+        //    //pl.set( "IQI_name", "IQIGap" + tLeaderSide );
+        //    //pl.set( "IQI_type", (uint)fem::IQI_Type::GAP );
+        //    //pl.set( "IQI_bulk_type", (uint)fem::Element_Type::NONCONFORMAL_SIDESET );
+        //    //pl.set( "leader_phase_name", "Phase" + tLeaderSide );
+        //    //pl.set( "neighbor_phases", "PhaseVoid" );
+        //    //pl.set( "follower_phase_name", "Phase" + tFollowerSide );
+        //    //aParameterLists( FEM::IQI ).add_parameter_list( pl );
         }
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                   Computation Parameter List                                 */
         /* -------------------------------------------------------------------------------------------- */
         aParameterLists( FEM::COMPUTATION ).set( "is_analytical_forward", true );
-        aParameterLists.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
-        aParameterLists.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
-        aParameterLists.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
+        //aParameterLists.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
+        //aParameterLists.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
+        //aParameterLists.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
         aParameterLists.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
         aParameterLists.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
         aParameterLists.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
@@ -819,7 +814,7 @@ namespace moris
         /*                                        Linear Algorithm                                      */
         /* -------------------------------------------------------------------------------------------- */
         Parameter_List pl = prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
-        // pl.set( "Solver_Type", "Amesos_Umfpack" );
+        pl.set( "Solver_Type", "Amesos_Umfpack" );
         aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
@@ -859,7 +854,7 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         pl = prm::create_time_solver_algorithm_parameter_list();
         pl.set( "TSA_Num_Time_Steps", 1 );
-        pl.set( "TSA_Time_Frame", 100.0 );
+        pl.set( "TSA_Time_Frame", 10.0 );
         aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
@@ -878,7 +873,7 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
         /*                                      Preconditioner List                                     */
         /* -------------------------------------------------------------------------------------------- */
-        pl = prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        pl = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
         aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( pl );
     }
 
@@ -902,7 +897,6 @@ namespace moris
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         aParameterLists.set( "Mesh_Type", (uint)vis::VIS_Mesh_Type::STANDARD );
 
-        // std::string tSetNames = tDomain;
         std::string tSetNames = tDomain + "," + tContactInterface;
 
         std::string tFieldNames = "";
@@ -919,17 +913,17 @@ namespace moris
             {
                 tFieldNames += ",STRESSBulk" + tSide + tComponent;
                 tFieldTypes += ",ELEMENTAL_AVG";    // ELEMENTAL_AVG
-                tIQINames += ",IQIStress" + tSide + tComponent;
+                tIQINames   += ",IQIStress" + tSide + tComponent;
 
                 // add the displacement components
                 tFieldNames += ",U" + tSide + tComponent;
                 tFieldTypes += ",NODAL";    // ELEMENTAL_AVG
-                tIQINames += ",IQIDisp" + tSide + tComponent;
+                tIQINames   += ",IQIDisp" + tSide + tComponent;
             }
 
             tFieldNames += ",STRESSVonMises" + tSide;
-            tFieldTypes += ",ELEMENTAL_AVG";    // ELEMENTAL_AVG
-            tIQINames += ",IQIVonMises" + tSide;
+            tFieldTypes += ",NODAL";    // ELEMENTAL_AVG
+            tIQINames   += ",IQIVonMises" + tSide;
 
             // add the traction components
             /*tFieldNames += ",ContactPressure" + tSide;
@@ -938,9 +932,10 @@ namespace moris
             */
 
             // add the gap
-            tFieldNames += ",Gap" + tSide;
+            /*tFieldNames += ",Gap" + tSide;
             tFieldTypes += ",NODAL";
             tIQINames += ",IQIGap" + tSide;
+            */
         }
 
         // remove first comma
@@ -953,7 +948,7 @@ namespace moris
         aParameterLists.set( "Field_Type", tFieldTypes );
         aParameterLists.set( "IQI_Names", tIQINames );
         aParameterLists.set( "Save_Frequency", 1 );
-        aParameterLists.set( "Time_Offset", 0.0 );
+        aParameterLists.set( "Time_Offset", 0.1 );
     }
 
     void MORISGENERALParameterList( Module_Parameter_Lists &aParameterLists ) {}
