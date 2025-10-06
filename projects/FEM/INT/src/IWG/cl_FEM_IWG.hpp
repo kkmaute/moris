@@ -249,6 +249,10 @@ namespace moris::fem
                 Matrix< DDRMat >&           aLeaderNormal2dU2,
                 const bool                  aEvaluateLinearization = true ) ;
 
+        //----------------------------------------------------------------------------
+
+        static const Matrix< DDRMat > compute_tangential_plane_projector( const Matrix< DDRMat > aNormal );
+
     };
 
     class Set;

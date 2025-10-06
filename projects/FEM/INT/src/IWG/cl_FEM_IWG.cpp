@@ -5828,5 +5828,30 @@ namespace moris::fem
         }
     }
 
+    //------------------------------------------------------------------------------
+
+    const Matrix< DDRMat > GapData::compute_tangential_plane_projector ( const Matrix< DDRMat > aNormal )
+    {
+        // compute tangential plane projector
+        const uint tSpaceDim = aNormal.numel();
+
+        // check if space dimension is two or three
+        MORIS_ERROR( tSpaceDim == 2 || tSpaceDim == 3,
+                "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_tangential_plane_projector - Only two and three dimensional cases are implemented." );
+
+        // initialize tangential plane projector with identity matrix
+        Matrix< DDRMat > tTangentialPlane = eye( tSpaceDim, tSpaceDim );
+
+        for ( uint i = 0; i < tSpaceDim; i++ )
+        {
+            for ( uint j = 0; j < tSpaceDim; j++ )
+            {
+                tTangentialPlane( i, j ) = -aNormal( i ) * aNormal( j );
+            }
+        }
+
+        return tTangentialPlane;
+    }
+
 
 }    // namespace moris::fem
