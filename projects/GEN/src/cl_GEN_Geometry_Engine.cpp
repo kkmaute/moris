@@ -179,9 +179,6 @@ namespace moris::gen
             Vector< real > tPropGQIValues = mProperties( tPropertyIndex )->compute_GQIs( mdGQIdADV, mDesignGQIIndices( mGeometries.size() + tPropertyIndex ) );
             this->update_GQIs( mProperties( tPropertyIndex )->get_all_GQI_names(), tPropGQIValues );
         }
-
-        // Update the GQI sensitivities in the PDV host manager
-        // mPDVHostManager->update_QI_sensitivity( Module_Type::GEN, mdGQIdADV );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -217,16 +214,6 @@ namespace moris::gen
     {
         mPhaseTable.set_phase_function( aPhaseFunction, aNumPhases, aPhaseNames );
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    // void
-    // Geometry_Engine::set_dQIdp(
-    //         const Vector< moris::Matrix< DDRMat >* >& adQIdp,
-    //         moris::Matrix< moris::DDSMat >*           aMap )
-    // {
-    //     mPDVHostManager->set_dQIdp( adQIdp, aMap );
-    // }
 
     //--------------------------------------------------------------------------------------------------------------
 

@@ -148,8 +148,6 @@ namespace moris::mtk
     {
         MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
 
-        PRINT( aCell->get_vertex_coords() );    // brendan delete
-
         auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
 
         // local index (on the surface mesh, from 0 to n_surfacemesh), global index (in the integration mesh, arbitrary numbers between 0 and n_igmesh)
@@ -183,8 +181,6 @@ namespace moris::mtk
             Vector< Vertex const * >                  &aSideVertices,
             Vertex const                              *aVertex )
     {
-        PRINT( aVertex->get_coords() );    // brendan delete
-
         moris_index const tVertexIndex             = aVertex->get_index();
         moris_index       tCurrentLocalVertexIndex = 0;
         if ( this->mGlobalToLocalVertexIndex.key_exists( tVertexIndex ) )
