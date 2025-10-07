@@ -20,18 +20,12 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Vector.hpp"
-#include "fn_dot_Arma.hpp"
-#include "fn_inv.hpp"
-#include "fn_isfinite.hpp"
 #include "fn_assert.hpp"
 #include "cl_Matrix_Arma_Dynamic.hpp"
 #include "fn_trans.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include "fn_dot.hpp"
-#include "fn_eye.hpp"
-#include <iomanip>
-#include <iostream>
 #include <string>
 #include <memory>
 #include <utility>
@@ -85,7 +79,7 @@ namespace moris::fem
         // set parameters
         mParameters = aParameters;
 
-        // Read consistency flag from input parameters
+        // Read consistency and pure penalty flag from input parameters
         if ( mParameters.size() > 0 )
         {
             MORIS_ERROR( mParameters.size() == 3 &&                  //
@@ -94,8 +88,10 @@ namespace moris::fem
                                  mParameters( 2 ).numel() == 1,
                     "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only three parameters possible." );
 
+            // parameter 0: consistency flag
             mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
 
+            // parameter 1: pure penalty flag
             // create penalty only formulation
             if ( mParameters( 1 )( 0 ) > 0.5 )
             {
@@ -130,8 +126,8 @@ namespace moris::fem
         const std::shared_ptr< Property >& tSelectFollower =
                 mFollowerProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
-        real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
-        real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
+        const real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
+        const real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
 
         if ( tImposeContactLeader < MORIS_REAL_EPS || tImposeContactFollower < MORIS_REAL_EPS )
         {
@@ -142,14 +138,14 @@ namespace moris::fem
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
 
         // get leader index for residual dof type, indices for assembly
-        uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
-        uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-        uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+        const uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        const uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
         // get follower index for residual dof type, indices for assembly
-        uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
-        uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
-        uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
+        const uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+        const uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+        const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
@@ -242,7 +238,7 @@ namespace moris::fem
                 tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, mCMFunctionType );
 
         // compute contact pressure using current normal
-        real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
+        const real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
 
         // compute variation of contact pressure
         Matrix< DDRMat > tTestContactPressuredUleader =
@@ -262,14 +258,14 @@ namespace moris::fem
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
                     0.5 * aWStar * (                                                    //
-                            +trans( mGapData->mdGapdu ) * tContactPressure              //
+                            trans( mGapData->mdGapdu ) * tContactPressure               //
                             + mTheta * tTestContactPressuredUleader * mGapData->mGap    //
                             + tNitscheParam * trans( mGapData->mdGapdu ) * mGapData->mGap );
 
             mSet->get_residual()( 0 )(
                     { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
                     0.5 * aWStar * (                                          //
-                            +trans( mGapData->mdGapdv ) * tContactPressure    //
+                            trans( mGapData->mdGapdv ) * tContactPressure     //
                             + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
         }
 
@@ -312,14 +308,14 @@ namespace moris::fem
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
 
         // get leader index for residual dof type, indices for assembly
-        uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
-        uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-        uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+        const uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        const uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
         // get follower index for residual dof type, indices for assembly
-        uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
-        uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
-        uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
+        const uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+        const uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+        const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
@@ -366,10 +362,10 @@ namespace moris::fem
                 tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, mCMFunctionType );
 
         // compute contact pressure using current normal
-        real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
+        const real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
 
         // compute variation of contact pressure
-        Matrix< DDRMat > tTestContactPressuredUleader =
+        const Matrix< DDRMat > tTestContactPressuredUleader =
                 mTractionScaling * ( tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction );
 
         // compute augmented Lagrangian term
@@ -461,7 +457,7 @@ namespace moris::fem
         }
 
         // compute the Jacobian for indirect dof dependencies through follower constitutive models
-        uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+        const uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
         for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
         {
             // get dof type
