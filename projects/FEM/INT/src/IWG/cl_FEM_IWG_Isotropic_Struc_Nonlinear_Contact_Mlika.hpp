@@ -41,6 +41,9 @@ namespace moris::fem
         // flag to trigger debug output
         sint mDebugFlag = 0;
 
+        // variable to keep track of the old traction TODO: implement this properly
+        std::map< int, Matrix< DDRMat > > mTractionHistoryMap;
+
         // debug functions
         void debug_function();
 
