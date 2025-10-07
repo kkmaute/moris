@@ -238,7 +238,7 @@ namespace moris::fem
             Field_Interpolator* tLeaderCurrentFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             MORIS_ERROR( tLeaderCurrentFI != nullptr,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - previous time step field interpolator manager is not set.\n" );
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - current time step leader field interpolator manager is not set.\n" );
 
             // get residual dof type field interpolator for previous time step
             Field_Interpolator* tLeaderPreviousFI = mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
@@ -252,10 +252,10 @@ namespace moris::fem
             Field_Interpolator* tFollowerCurrentFI = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             MORIS_ERROR( tFollowerCurrentFI != nullptr,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - previous time step field interpolator manager is not set.\n" );
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - current time step follower field interpolator manager is not set.\n" );
 
             //  get residual dof type field interpolator for previous time step
-            //Field_Interpolator* tFollowerPreviousFI = mFollowerPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFollowerPreviousFI = mFollowerPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
             mFollowerFIManager->set_field_interpolator_manager_previous( mFollowerPreviousFIManager );
@@ -263,21 +263,42 @@ namespace moris::fem
             // for the Leader Previous FI manager, the space time is set from the local IG point (see above)
             // it seems to be necessary for the Follower Previous FI manager as well
             mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+            // get IG geometry interpolator for leader and follower
+            Geometry_Interpolator* tLeaderPreviousIGGI   = mLeaderPreviousFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tFollowerPreviousIGGI = mFollowerPreviousFIManager->get_IG_geometry_interpolator();
 
-            // FIXME: set initial time
-            real tInitTime = 0.0;
+            // Poulios and Renard - 2015 - An unconstrained integral approximation of large sliding frictional contact between deformable solids
+            // define the simplified sliding velocity vector in eqn. (25) as:
+            // v(X) = 1/dt * ( phi_n(X_n+1) - phi_n(Y_n+1) + g_n+1 * n_n)
 
-            // initialize jump
-            Matrix< DDRMat > tJump = tLeaderCurrentFI->val();
-            //std::cout << "current disp: " << tLeaderCurrentFI->val() << std::endl;
+            // dt: time step size
+            const real tDeltat = mLeaderFIManager->get_IG_geometry_interpolator()->get_time_step();
 
-            if ( mLeaderFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
-            {
-                tJump -= tLeaderPreviousFI->val();
-                //std::cout << "previous disp: " << tLeaderPreviousFI->val() << std::endl;
-            }
+            // get displacements at previous time step
+            const Matrix< DDRMat > tLeaderPreviousDisp   = tLeaderPreviousFI->val();
+            const Matrix< DDRMat > tFollowerPreviousDisp = tFollowerPreviousFI->val();
+            // Xgp = global coordinates of quadrature points
+            const Matrix< DDRMat > tLeaderPreviousXgp    = tLeaderPreviousIGGI->valx();
+            const Matrix< DDRMat > tFollowerPreviousXgp  = tFollowerPreviousIGGI->valx();
 
-            //std::cout << "Time: " << mLeaderFIManager->get_IP_geometry_interpolator()->valt() << "; Displacement jump: " << tJump << std::endl;
+            // current gap measure
+            const real tCurrentGap = mGapData->mGap;
+
+            // computing the previous time-step leader normal
+            Matrix< DDRMat > tLeaderPreviousNormal;
+            Matrix< DDRMat > tLeaderPreviousdNormaldU;   // dummy
+            Matrix< DDRMat > tLeaderPreviousdNormal2dU2; // dummy
+            Matrix< DDRMat > tLeaderPreviousRefNormal;   // dummy
+            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry(tLeaderPreviousFI, tLeaderPreviousIGGI, tLeaderPreviousNormal, tLeaderPreviousRefNormal, tLeaderPreviousdNormaldU, tLeaderPreviousdNormal2dU2, false );
+
+            // tangential slip increment = dt * sliding velocity
+            const Matrix< DDRMat > tSlipIncrement = ( ( trans( tLeaderPreviousXgp ) + tLeaderPreviousDisp ) - ( trans( tFollowerPreviousXgp ) + tFollowerPreviousDisp ) + tCurrentGap * tLeaderPreviousNormal );
+
+            // simplified sliding velocity vector at current time step
+            const Matrix< DDRMat > tSlidingVelocityCurrent = 1.0 / tDeltat * tSlipIncrement;
+
+            std::cout << "current slip increment  : " << tSlipIncrement << std::endl;
+            std::cout << "current sliding velocity: " << tSlidingVelocityCurrent << std::endl;
         }
 
         // call debug function
