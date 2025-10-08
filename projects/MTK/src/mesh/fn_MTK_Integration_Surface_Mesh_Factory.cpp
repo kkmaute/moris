@@ -235,9 +235,23 @@ namespace moris::mtk
         auto const tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
         uint const tDim         = mIGMesh->get_spatial_dim();
         mVertexCoordinates.resize( tDim, tNumVertices );
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
+
+        // Check if the input coordinates are column vectors or row vectors
+        bool tIsColumn = mIGMesh->get_node_coordinate( 0 ).n_cols() == 1;
+
+        if ( tIsColumn )
         {
-            mVertexCoordinates.set_column( i, trans( mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) ) );
+            for ( moris::size_t i = 0; i < tNumVertices; i++ )
+            {
+                mVertexCoordinates.set_column( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
+            }
+        }
+        else
+        {
+            for ( moris::size_t i = 0; i < tNumVertices; i++ )
+            {
+                mVertexCoordinates.set_column( i, trans( mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) ) );
+            }
         }
     }
 
