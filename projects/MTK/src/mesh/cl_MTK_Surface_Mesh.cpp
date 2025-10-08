@@ -55,7 +55,7 @@ namespace moris::mtk
             real                                   aIntersectionTolerance )
             : mVertexCoordinates( aVertexCoordinates )
             , mDisplacements( aVertexCoordinates.n_rows(), aVertexCoordinates.n_cols(), 0.0 )
-            , mFacetConnectivity( aFacetConnnectivity )
+            , mFacetToVertexConnectivity( aFacetConnnectivity )
             , mIntersectionTolerance( aIntersectionTolerance )
     {
         // Remove the unused vertices, update the facet connectivity
@@ -67,8 +67,11 @@ namespace moris::mtk
         // Compute the normals of the facets
         this->initialize_facet_normals();
 
-        // Build the vertex connectivity
+        // Build the vertex to vertex connectivity
         this->build_vertex_connectivity();
+
+        // Build the vertex to facet connectivity
+        this->build_vertex_to_facet_connectivity();
 
 #if MORIS_HAVE_ARBORX
         // Construct the ArborX BVH
@@ -84,11 +87,11 @@ namespace moris::mtk
     {
         // STEP 1: Check if all vertices are used in the mesh
         // Initialize vector to store the indices of all the vertices that are connected to facets
-        Vector< moris_index > tUsedVertexIndices( mFacetConnectivity.size() * mFacetConnectivity( 0 ).size(), MORIS_INDEX_MAX );
+        Vector< moris_index > tUsedVertexIndices( mFacetToVertexConnectivity.size() * mFacetToVertexConnectivity( 0 ).size(), MORIS_INDEX_MAX );
 
         // Loop through all the facets and store the vertices they use
         uint tIndex = 0;
-        for ( auto tFacet : mFacetConnectivity )
+        for ( auto tFacet : mFacetToVertexConnectivity )
         {
             for ( moris_index tVertexIndex : tFacet )
             {
@@ -123,7 +126,7 @@ namespace moris::mtk
             mVertexCoordinates.resize( mVertexCoordinates.n_rows(), tNumUsedVertices );
 
             // Loop through the facets and replace the vertex indices with the cleaned indices
-            for ( auto& tFacet : mFacetConnectivity )
+            for ( auto& tFacet : mFacetToVertexConnectivity )
             {
                 for ( moris_index& tVertexIndex : tFacet )
                 {
@@ -205,21 +208,28 @@ namespace moris::mtk
 
     const Vector< Vector< moris_index > >& Surface_Mesh::get_facet_connectivity() const
     {
-        return mFacetConnectivity;
+        return mFacetToVertexConnectivity;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     const Vector< Vector< moris_index > >& Surface_Mesh::get_vertex_connectivity() const
     {
-        return mVertexConnectivity;
+        return mVertexToVertexConnectivity;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< moris_index > Surface_Mesh::get_facets_vertex_indices( const uint aFacetIndex ) const
+    const Vector< moris_index >& Surface_Mesh::get_facets_vertex_indices( const uint aFacetIndex ) const
     {
-        return mFacetConnectivity( aFacetIndex );
+        return mFacetToVertexConnectivity( aFacetIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< moris_index >& Surface_Mesh::get_vertexs_facet_indices( const uint aVertexIndex ) const
+    {
+        return mVertexToFacetConnectivity( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -227,7 +237,7 @@ namespace moris::mtk
     Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates_of_facet( uint aFacetIndex ) const
     {
         // Get the facets vertex indices
-        Vector< moris_index > tVertices    = mFacetConnectivity( aFacetIndex );
+        Vector< moris_index > tVertices    = this->get_facets_vertex_indices( aFacetIndex );
         uint                  tNumVertices = tVertices.size();
 
         // Initialize return matrix
@@ -267,7 +277,7 @@ namespace moris::mtk
 
     uint Surface_Mesh::get_number_of_facets() const
     {
-        return mFacetConnectivity.size();
+        return mFacetToVertexConnectivity.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1310,11 +1320,28 @@ namespace moris::mtk
         }
 
         // Convert the sets to vectors and store them in the vertex connectivity
-        mVertexConnectivity.resize( tNumVertices );
+        mVertexToVertexConnectivity.resize( tNumVertices );
         for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
         {
             // Convert the set to a vector
-            mVertexConnectivity( iVertex ) = Vector< moris_index >( tVertexConnectivity( iVertex ).begin(), tVertexConnectivity( iVertex ).end() );
+            mVertexToVertexConnectivity( iVertex ) = Vector< moris_index >( tVertexConnectivity( iVertex ).begin(), tVertexConnectivity( iVertex ).end() );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::build_vertex_to_facet_connectivity()
+    {
+        mVertexToFacetConnectivity.resize( this->get_number_of_vertices(), Vector< moris_index >( this->get_spatial_dimension() ) );
+
+        for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
+        {
+            Vector< moris_index > tFacetVertices = this->get_facets_vertex_indices( iF );
+
+            for ( uint iV = 0; iV < tFacetVertices.size(); iV++ )
+            {
+                mVertexToFacetConnectivity( tFacetVertices( iV ) )( iV ) = (moris_index)iF;
+            }
         }
     }
 
@@ -1329,7 +1356,7 @@ namespace moris::mtk
 
     void Surface_Mesh::initialize_facet_normals()
     {
-        auto const tNumFacets = static_cast< moris::size_t >( mFacetConnectivity.size() );
+        auto const tNumFacets = static_cast< moris::size_t >( mFacetToVertexConnectivity.size() );
         uint const tDim       = this->get_spatial_dimension();
 
         mFacetNormals.resize( tDim, tNumFacets );
@@ -1410,7 +1437,7 @@ namespace moris::mtk
         if ( this->get_spatial_dimension() == 2 )
         {
             // Get the vertices connected to this vertex
-            const Vector< moris_index >& tNeighbors = mVertexConnectivity( aVertexIndex );
+            const Vector< moris_index >& tNeighbors = mVertexToVertexConnectivity( aVertexIndex );
 
             moris_index tLowNeighbor;
             moris_index tHighNeighbor;
@@ -1440,5 +1467,68 @@ namespace moris::mtk
         return tDVolumeDVertex;
     }
 
+    // --------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::compute_shape_diameter() const
+    {
+        // Compute the vertex normals
+
+        return MORIS_REAL_MAX;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_ddiameter_dvertex( uint aVertexIndex ) const
+    {
+        return Matrix< DDRMat >( 1, this->get_spatial_dimension(), MORIS_REAL_MAX );
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Vector< real > Surface_Mesh::compute_facet_measure() const
+    {
+        uint tNumCells = this->get_number_of_facets();
+
+        Vector< real > tFacetMeasure( tNumCells );
+
+        for ( moris::size_t iF = 0; iF < tNumCells; iF++ )
+        {
+            MORIS_ASSERT( get_spatial_dimension() == 2, "Surface Mesh facet measure only implemented for 2D meshes (Lines)" );
+            Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
+
+            tFacetMeasure( iF ) = norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
+        }
+
+        return tFacetMeasure;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_vertex_normals() const
+    {
+        const uint             tNumVertices  = this->get_number_of_vertices();
+        const uint             tDim          = this->get_spatial_dimension();
+        const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
+        const Vector< real >   tFacetMeasure = this->compute_facet_measure();
+        Matrix< DDRMat >       tVertexNormals( tDim, tNumVertices );
+
+        auto tNormal = Matrix< DDRMat >( tDim, 1 );
+        for ( moris::size_t iV = 0; iV < tNumVertices; iV++ )
+        {
+            Vector< moris_index > tVertexCellNeighbors = this->get_vertexs_facet_indices( iV );
+            auto const            tNumNeighbors        = static_cast< moris::size_t >( tVertexCellNeighbors.size() );
+            tNormal.fill( 0.0 );    // reset the current normal to zero for each vertex normal calculation
+
+            // compute the normal as the weighted average of the facet normals of the neighboring facets
+            for ( moris::size_t iVN = 0; iVN < tNumNeighbors; iVN++ )
+            {
+                int const tFacetIndex = tVertexCellNeighbors( iVN );
+                tNormal += tFacetNormals.get_column( tFacetIndex ) * tFacetMeasure( tFacetIndex );
+            }
+            tVertexNormals.set_column( iV, tNormal / norm( tNormal ) );
+        }
+
+        return tVertexNormals;
+    }
 
 }    // namespace moris::mtk

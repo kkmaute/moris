@@ -21,7 +21,7 @@ namespace moris::mtk
     Integration_Surface_Mesh::Integration_Surface_Mesh(
             Integration_Surface_Mesh_Data const &aData )
             : Surface_Mesh(
-                      aData.get_vertex_coordinates(),
+                      aData.get_global_vertex_coordinates(),
                       aData.get_cell_to_vertex_indices(),
                       1e-9 )
             , mData( aData )
@@ -114,46 +114,12 @@ namespace moris::mtk
 
     void Integration_Surface_Mesh::initialize_facet_measure()
     {
-        auto const       tNumCells          = static_cast< moris::size_t >( mData.mLocalToGlobalCellIndex.size() );
-        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates();
-        mFacetMeasure.resize( tNumCells, 1 );
-
-        for ( moris::size_t i = 0; i < tNumCells; i++ )
-        {
-            MORIS_ASSERT( get_spatial_dimension() == 2, "Surface Mesh facet measure only implemented for 2D meshes (Lines)" );
-            Vector< moris_index > tVertices = mData.mCellToVertexIndices( i );
-            Matrix< DDRMat >      tCoords( 2, 2 );
-            // int const   tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-            // int         tSideOrdinal     = mCellSideOrdinals( i );
-            // Cell const &tCell            = mIGMesh->get_mtk_cell( tGlobalCellIndex );
-            // real const  tMeasure         = tCell.compute_cell_side_measure( tSideOrdinal );
-            mFacetMeasure( i ) = norm( tVertexCoordinates.get_column( tVertices( 1 ) ) - tVertexCoordinates.get_column( tVertices( 0 ) ) );
-        }
+        mFacetMeasure = Surface_Mesh::compute_facet_measure();
     }
 
     void Integration_Surface_Mesh::initialize_vertex_normals()
     {
-        auto const             tNumVertices  = static_cast< moris::size_t >( mData.mLocalToGlobalVertexIndex.size() );
-        uint const             tDim          = this->get_spatial_dimension();
-        const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
-        const Matrix< DDRMat > tFacetMeasure = this->get_facet_measure();
-        mVertexNormals.resize( tDim, tNumVertices );
-
-        auto tNormal = Matrix< DDRMat >( tDim, 1 );
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
-        {
-            Vector< moris_index > tVertexCellNeighbors = mData.mVertexToCellIndices( i );
-            auto const            tNumNeighbors        = static_cast< moris::size_t >( tVertexCellNeighbors.size() );
-            tNormal.fill( 0.0 );    // reset the current normal to zero for each vertex normal calculation
-
-            // compute the normal as the weighted average of the facet normals of the neighboring cells
-            for ( moris::size_t j = 0; j < tNumNeighbors; j++ )
-            {
-                int const tCellIndex = tVertexCellNeighbors( j );
-                tNormal += tFacetNormals.get_column( tCellIndex ) * tFacetMeasure( tCellIndex );
-            }
-            mVertexNormals.set_column( i, tNormal / norm( tNormal ) );
-        }
+        mVertexNormals = Surface_Mesh::compute_vertex_normals();
     }
 
     Vector< Vector< moris_index > > Integration_Surface_Mesh::get_vertex_neighbors() const
@@ -167,12 +133,12 @@ namespace moris::mtk
         return mData.mVertexNeighbors( aLocalVertexIndex );
     }
 
-    const Matrix< DDRMat > &Integration_Surface_Mesh::get_facet_measure() const
+    Vector< real > Integration_Surface_Mesh::compute_facet_measure() const
     {
         return mFacetMeasure;
     }
 
-    Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals() const
+    Matrix< DDRMat > Integration_Surface_Mesh::compute_vertex_normals() const
     {
         return mVertexNormals;
     }
@@ -212,16 +178,6 @@ namespace moris::mtk
         return mData.mCellToClusterIndices( aLocalCellIndex );
     }
 
-    Vector< moris_index > Integration_Surface_Mesh::get_vertices_of_cell( moris_index aLocalCellIndex ) const
-    {
-        return mData.mCellToVertexIndices( aLocalCellIndex );
-    }
-
-    Vector< moris_index > Integration_Surface_Mesh::get_cells_of_vertex( moris_index aLocalVertexIndex ) const
-    {
-        return mData.mVertexToCellIndices( aLocalVertexIndex );
-    }
-
     uint Integration_Surface_Mesh::get_spatial_dimension() const
     {
         return mData.mIGMesh->get_spatial_dim();
@@ -229,8 +185,8 @@ namespace moris::mtk
 
     Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals_of_cell( moris_index aLocalCellIndex ) const
     {
-        Matrix< DDRMat >      tVertexNormals = this->get_vertex_normals();
-        Vector< moris_index > tVertexIndices = this->get_vertices_of_cell( aLocalCellIndex );
+        Matrix< DDRMat >      tVertexNormals = this->compute_vertex_normals();    // Value is stored as member data for this child class, not recomputed here
+        Vector< moris_index > tVertexIndices = this->get_facets_vertex_indices( aLocalCellIndex );
         size_t const          tDim           = tVertexNormals.n_rows();
         size_t const          tNumVertices   = tVertexIndices.size();
         Matrix< DDRMat >      tCellVertexNormals{ tDim, tNumVertices };
@@ -363,7 +319,7 @@ namespace moris::mtk
                         real &tValue = ( *aSensitivities )( tPDVID, aRequestIndex );
                         tValue += tdXQI_dvertex( iDim );
 
-                        aSensitivities->print(); // brendan delete
+                        aSensitivities->print();    // brendan delete
                     }
                 }
             }

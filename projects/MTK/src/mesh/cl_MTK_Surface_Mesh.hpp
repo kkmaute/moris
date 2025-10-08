@@ -144,7 +144,15 @@ namespace moris::mtk
          * @param aFacetIndex local index of the facet
          * @return Vector< moris_index > local vertex indices that form the facet
          */
-        [[nodiscard]] const Vector< moris_index > get_facets_vertex_indices( const uint aFacetIndex ) const;
+        [[nodiscard]] const Vector< moris_index >& get_facets_vertex_indices( const uint aFacetIndex ) const;
+
+        /**
+         * @brief Gets the indices to the facets that are connected to the vertex with the local index aVertexIndex
+         * 
+         * @param aVertexIndex local index of the vertex
+         * @return Vector< moris_index > local facet indices that are connected to the vertex
+         */
+        [[nodiscard]] const Vector< moris_index >& get_vertexs_facet_indices( const uint aVertexIndex ) const;
 
         /**
          * @brief Gets the coordinates of all vertices that form the facet with the local index aFacetIndex
@@ -259,11 +267,49 @@ namespace moris::mtk
         // Quantities of interest
         // -------------------------------------------------------------------------------
 
-        void build_vertex_connectivity();
-
+        /**
+         * Computes the volume enclosed by the surface mesh
+         */
         real compute_volume() const;
 
+        /**
+         * Gets the derivative of the volume wrt a vertex's coordinates
+         *
+         * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @return Matrix< DDRMat > dVolume/dVertex. Size: <1> x <spatial dim>
+         */
         Matrix< DDRMat > compute_dvolume_dvertex( const uint aVertexIndex ) const;
+
+        /**
+         * Computes the norm(brendan ?) of the shape diameter for every surface mesh node
+         *
+         * @return real Norm of the shape diameter for each node
+         */
+        real compute_shape_diameter() const;
+
+        /**
+         * Gets the derivative of the shape diameter wrt a vertex's coordinates
+         *
+         * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
+         */
+        Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
+
+        /**
+         * Computes the measure (area in 3D, length in 2D) of each facet in the surface mesh
+         * Virtual as some child implementations may prefer to compute and store this value. This implementation computes it on the fly.
+         *
+         * @return Vector< real > facet measures. Size: <number of facets> x <1>
+         */
+        virtual Vector< real > compute_facet_measure() const;
+
+        /**
+         * Computes the normal vector for each vertex as the average of the normals of its facets
+         * Virtual as some child implementations may prefer to compute and store this value. This implementation computes it on the fly.
+         *
+         * @return Matrix< DDRMat > vertex normals stored column-wise. Size: <spatial dim> x <number of vertices>
+         */
+        virtual Matrix< DDRMat > compute_vertex_normals() const;
 
         //-------------------------------------------------------------------------------
         // Output Methods
@@ -288,6 +334,16 @@ namespace moris::mtk
          * @brief computes the facet normals and stores in mFacetNormals. mVertexCoordinates must be initialized first
          */
         void initialize_facet_normals();
+
+        /**
+         * @brief Determines which vertices are connected to each other via a facet. Does not store any information about the facets
+         */
+        void build_vertex_connectivity();
+
+        /**
+         * Determines which facets are connected to each vertex. Used for computing vertex normals
+         */
+        void build_vertex_to_facet_connectivity();
 
         //-------------------------------------------------------------------------------
         // Private methods useful for raycasting
@@ -367,6 +423,9 @@ namespace moris::mtk
         // Generates a random direction vector for raycasting
         Matrix< DDRMat > random_direction() const;
 
+        //-------------------------------------------------------------------------------
+        // ArborX API methods - used for raycasting acceleration
+        // -------------------------------------------------------------------------------
 #if MORIS_HAVE_ARBORX
 
         /**
@@ -465,13 +524,14 @@ namespace moris::mtk
         Matrix< DDRMat > mDisplacements;
 
         /**
-         * @brief List of cell indices that the vertex with the given index is part of. The indices are the indices of
-         * the cell in the surface mesh
+         * @brief List of vertices that are part of a given facet. The indices are the indices of the vertices in the surface mesh
          * size: number of facets< spatial_dim >
          */
-        Vector< Vector< moris_index > > mFacetConnectivity;
+        Vector< Vector< moris_index > > mFacetToVertexConnectivity;
 
-        Vector< Vector< moris_index > > mVertexConnectivity;    // Input: vertex index, Output: All vertices connected by an edge to this vertex brendan documentation
+        Vector< Vector< moris_index > > mVertexToVertexConnectivity;    // Input: vertex index, Output: All vertices connected by an edge to this vertex brendan documentation
+
+        Vector< Vector< moris_index > > mVertexToFacetConnectivity;
 
 
         /**

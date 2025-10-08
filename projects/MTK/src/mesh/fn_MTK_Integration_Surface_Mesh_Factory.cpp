@@ -33,7 +33,7 @@ namespace moris::mtk
         std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( tSideSets ), tSideSetFromName );
 
         this->initialize_from_side_sets( tSideSets );
-        this->initialize_vertex_coordinates();
+        this->get_global_vertex_coordinates();
     }
 
     Integration_Surface_Mesh_Data::Integration_Surface_Mesh_Data(
@@ -42,7 +42,7 @@ namespace moris::mtk
             : mIGMesh( dynamic_cast< Integration_Mesh_DataBase_IG const * >( aIGMesh ) )
     {
         this->initialize_from_side_sets( aSideSets );
-        this->initialize_vertex_coordinates();
+        this->get_global_vertex_coordinates();
     }
 
     Integration_Surface_Mesh_Data::Integration_Surface_Mesh_Data(
@@ -59,7 +59,7 @@ namespace moris::mtk
         std::transform( aSideSetNames.begin(), aSideSetNames.end(), std::back_inserter( tSideSets ), tSideSetFromName );
 
         this->initialize_from_side_sets( tSideSets );
-        this->initialize_vertex_coordinates();
+        this->get_global_vertex_coordinates();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -196,11 +196,9 @@ namespace moris::mtk
         {    // check that the vertex has not already been added to the surface mesh
             this->mGlobalToLocalVertexIndex[ tVertexIndex ] = tCurrentLocalVertexIndex;
             this->mLocalToGlobalVertexIndex.push_back( tVertexIndex );
-            this->mVertexToCellIndices.push_back( Vector< moris_index >() );
         }
 
         // update the vertex to cell and cell to vertex map for this vertex
-        this->mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aCurrentLocalCellIndex );
         this->mCellToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
 
         for ( auto const &tNeighbor : aSideVertices )
@@ -230,11 +228,11 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Integration_Surface_Mesh_Data::initialize_vertex_coordinates()
+    Matrix< DDRMat > Integration_Surface_Mesh_Data::get_global_vertex_coordinates() const
     {
-        auto const tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        uint const tDim         = mIGMesh->get_spatial_dim();
-        mVertexCoordinates.resize( tDim, tNumVertices );
+        auto const       tNumVertices = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
+        uint const       tDim         = mIGMesh->get_spatial_dim();
+        Matrix< DDRMat > tVertexCoordinates( tDim, tNumVertices );
 
         // Check if the input coordinates are column vectors or row vectors
         bool tIsColumn = mIGMesh->get_node_coordinate( 0 ).n_cols() == 1;
@@ -243,16 +241,18 @@ namespace moris::mtk
         {
             for ( moris::size_t i = 0; i < tNumVertices; i++ )
             {
-                mVertexCoordinates.set_column( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
+                tVertexCoordinates.set_column( i, mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) );
             }
         }
         else
         {
             for ( moris::size_t i = 0; i < tNumVertices; i++ )
             {
-                mVertexCoordinates.set_column( i, trans( mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) ) );
+                tVertexCoordinates.set_column( i, trans( mIGMesh->get_node_coordinate( mLocalToGlobalVertexIndex( i ) ) ) );
             }
         }
+
+        return tVertexCoordinates;
     }
 
 }    // namespace moris::mtk

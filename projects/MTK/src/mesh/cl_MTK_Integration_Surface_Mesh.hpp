@@ -70,14 +70,14 @@ namespace moris::mtk
          * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
          * @return A (n x 1) matrix where n is the number of facets in the surface mesh.
          */
-        [[nodiscard]] const Matrix< DDRMat > &get_facet_measure() const;
+        [[nodiscard]] Vector< real > compute_facet_measure() const final;
 
         /**
          * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
          * @details The vertex normals are averaged over all facets that are connected to the vertex, weighted by the respective facet measure.
          * @return A (d x n) matrix where d is the dimension of the mesh (holding the normal components) and n is the number of vertices in the surface mesh.
          */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_normals() const;
+        [[nodiscard]] Matrix< DDRMat > compute_vertex_normals() const final;
 
         /**
          * @brief Returns the global index of a vertex with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
@@ -101,20 +101,6 @@ namespace moris::mtk
         [[nodiscard]] moris_index get_local_vertex_index( moris_index aGlobalVertexIndex ) const;
 
         [[nodiscard]] moris_index get_cluster_of_cell( moris_index aLocalCellIndex ) const;
-
-        /**
-         * @brief Returns all local vertices that are part of the cell with the given local index.
-         * @param aLocalCellIndex The local index of the cell in the surface mesh.
-         * @return A list of local vertex indices that are part of the cell with the given index.
-         */
-        [[nodiscard]] Vector< moris_index > get_vertices_of_cell( moris_index aLocalCellIndex ) const;
-
-        /**
-         * @brief Returns all local cells that are neighbors of the vertex with the given local index.
-         * @param aLocalVertexIndex The local index of the vertex in the surface mesh.
-         * @return A list of local cell indices that are neighbors of the vertex with the given index.
-         */
-        [[nodiscard]] Vector< moris_index > get_cells_of_vertex( moris_index aLocalVertexIndex ) const;
 
         /**
          * @brief Returns the (averaged) vertex normals of all vertices that are part of the cell with the given local index.
@@ -174,6 +160,6 @@ namespace moris::mtk
         /**
          * @brief Is used to store the measure of each facet.
          */
-        Matrix< DDRMat > mFacetMeasure = Matrix< DDRMat >( 0, 0 );
+        Vector< real > mFacetMeasure = Vector< real >( 0 );
     };
 }    // namespace moris::mtk

@@ -46,16 +46,16 @@ namespace moris::mtk
         Vector< Side_Set const * >
         obtain_sidesets_from_names( Integration_Mesh const *aIGMesh, const Vector< std::string > &aSideSetNames );
 
-        Matrix< DDRMat > get_vertex_coordinates() const
-        {
-            return mVertexCoordinates;
-        }
-
         Vector< Vector< moris_index > > get_cell_to_vertex_indices() const
         {
             return mCellToVertexIndices;
         }
 
+        /**
+         * Gets the global coordinates from the IG mesh for the vertices in the surface mesh.
+         * @return Matrix where each column is the coordinates of a vertex in the surface mesh.
+         */
+        Matrix< DDRMat > get_global_vertex_coordinates() const;
 
       private:    // methods
         /**
@@ -106,7 +106,6 @@ namespace moris::mtk
                 Vector< Vertex const * >                  &aSideVertices,
                 Vertex const                              *aVertex );
 
-        void initialize_vertex_coordinates();
 
       public:
         // data
@@ -164,12 +163,6 @@ namespace moris::mtk
          */
         Vector< Vector< moris_index > > mCellToVertexIndices;
 
-        /**
-         * @brief List of cell indices that the vertex with the given index is part of. The indices are the indices of
-         * the cell in the surface mesh, not the global indices!
-         */
-        Vector< Vector< moris_index > > mVertexToCellIndices;
-
         Vector< mtk::Side_Set const * > mSideSets;
 
         Vector< Vector< moris_index > > mSideSetToClusterIndices;
@@ -177,8 +170,6 @@ namespace moris::mtk
         Vector< Vector< moris_index > > mClusterToCellIndices;
 
         Vector< moris_index > mCellToClusterIndices;
-
-        Matrix< DDRMat > mVertexCoordinates;
     };
 
 }    // namespace moris::mtk
