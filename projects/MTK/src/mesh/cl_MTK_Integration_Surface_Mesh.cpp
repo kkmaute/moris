@@ -250,13 +250,18 @@ namespace moris::mtk
     // XQI Related functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Integration_Surface_Mesh::compute_XQI( xtk::XQI_Type aType ) const
+    real Integration_Surface_Mesh::compute_XQI( xtk::XQI_Type aType )
     {
         switch ( aType )
         {
             case xtk::XQI_Type::VOLUME:
             {
                 return this->compute_volume();
+                break;
+            }
+            case xtk::XQI_Type::SHAPE_DIAMETER:
+            {
+                return this->compute_shape_diameter();
                 break;
             }
             default:
@@ -284,6 +289,9 @@ namespace moris::mtk
         {
             case xtk::XQI_Type::VOLUME:
                 get_dXQI_dvertex = &mtk::Surface_Mesh::compute_dvolume_dvertex;
+                break;
+            case xtk::XQI_Type::SHAPE_DIAMETER:
+                get_dXQI_dvertex = &mtk::Surface_Mesh::compute_ddiameter_dvertex;
                 break;
             default:
                 MORIS_ERROR( false, "XQI type not implemented for surface mesh geometry." );

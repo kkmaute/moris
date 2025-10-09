@@ -220,7 +220,7 @@ namespace moris::gen
         /**
          * Computes the value of a requested geometric quantity of interest (GQI) for this design.
          */
-        virtual real compute_GQI( GQI_Type aGQIType ) const = 0;
+        virtual real compute_GQI( GQI_Type aGQIType ) = 0;
 
         virtual void compute_GQI_sensitivities( GQI_Type aGQIType, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const = 0;
     };

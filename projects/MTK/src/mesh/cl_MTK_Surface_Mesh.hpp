@@ -50,7 +50,43 @@ namespace moris::mtk
     // helper function for 2d raycast
     real cross_2d( const Matrix< DDRMat >& aVector1, const Matrix< DDRMat >& aVector2 );
 
-    typedef Vector< std::pair< uint, real > > Intersection_Vector;
+    typedef Vector< std::pair< uint, real > > Intersection_Vector;    // pair of (facet index, distance)
+
+    struct Ray_Cones
+    {
+        Vector< real > mDirectionWeights;    // Weight for each ray direction
+
+        Vector< Matrix< DDRMat > > mRayDirections;    // Each entry in the vector corresponds to a vertex. Each Matrix contains the ray directions as columns.
+
+        /**
+         * Constructor to size the data structures
+         */
+        Ray_Cones( uint aNumVertices, uint aNumRays, uint aDim )
+                : mDirectionWeights( aNumRays )
+                , mRayDirections( aNumVertices, Matrix< DDRMat >( aDim, aNumRays ) )
+        {
+        }
+    };
+
+    struct Shape_Diameter_Distances
+    {
+        Vector< real >& mDirectionWeights;    // Weight for each ray direction
+
+        // Each entry in the vector corresponds to a vertex.
+        // Each vertex has a number of rays( aNumPolarRays* aNumAzimuthRays ) associated with it.
+        // Each ray only stores its nearest intersection (facet index, distance)
+        // Usage: Input( vertex index, ray index ) -> Output( facet index, distance )
+        Vector< Intersection_Vector > mDistances;
+
+        /**
+         * Constructor to size the data structures
+         */
+        Shape_Diameter_Distances( Vector< real >& aDirectionWeights, uint aNumVertices, uint aNumRays )
+                : mDirectionWeights( aDirectionWeights )
+                , mDistances( aNumVertices, Intersection_Vector( aNumRays ) )
+        {
+        }
+    };
 
     /**
      * @brief This class is used to extract a surface mesh from a given mesh.
@@ -148,11 +184,19 @@ namespace moris::mtk
 
         /**
          * @brief Gets the indices to the facets that are connected to the vertex with the local index aVertexIndex
-         * 
+         *
          * @param aVertexIndex local index of the vertex
          * @return Vector< moris_index > local facet indices that are connected to the vertex
          */
         [[nodiscard]] const Vector< moris_index >& get_vertexs_facet_indices( const uint aVertexIndex ) const;
+
+        /**
+         * @brief Gets the index of all vertices connected by a facet to the vertex with the local index aVertexIndex
+         *
+         * @param aVertexIndex local index of the vertex
+         * @return Vector< moris_index > local vertex indices that are connected to the vertex through a facet
+         */
+        [[nodiscard]] const Vector< moris_index >& get_vertex_neighbors( const uint aVertexIndex ) const;
 
         /**
          * @brief Gets the coordinates of all vertices that form the facet with the local index aFacetIndex
@@ -281,11 +325,46 @@ namespace moris::mtk
         Matrix< DDRMat > compute_dvolume_dvertex( const uint aVertexIndex ) const;
 
         /**
+         * Constructs a cone of rays for each vertex, centered around the vertex normal
+         * @param aConeAngle Angle of the cone in degrees
+         * @param aNumPolarRays Number of rays in the polar direction (θ)
+         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
+         * @return Ray_Cones struct which holds the weights and the ray directions for each vertex
+         */
+        Ray_Cones build_ray_cone_directions( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
+
+        /**
+         * Casts a cone of rays from each node, centered around the vertex normal, and gets the distances for each ray-facet intersection
+         *
+         * @param aConeAngle Angle of the cone in degrees
+         * @param aNumPolarRays Number of rays in the polar direction (θ)
+         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
+         * @return Shape_Diameter_Distances struct which holds the weights and the intersection distances for each ray at each vertex
+         */
+        Shape_Diameter_Distances compute_nodal_shape_diameter_distances( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
+
+        /**
+         * @brief For each raycast result, determines the nearest intersection that is not part of the originating vertex's facets
+         * Used for shape diameter computation
+         *
+         * @param aAllDistances Raycast results for ray for each vertex - result of a batch raycast
+         * @return Vector< Intersection_Vector > Nearest non-trivial intersection for each ray at each vertex. Size: <number of vertices> x <number of rays per vertex>
+         */
+        Vector< Intersection_Vector > determine_nearest_nontrivial_intersections( Vector< Vector< Intersection_Vector > >& aAllIntersections ) const;
+
+        /**
+         * Computes the shape diameter for each surface mesh node
+         * The shape diameter is computed by casting a cone of rays from each node and taking the minimum ray length of all the rays
+         */
+        Vector< real > compute_nodal_shape_diameter();
+
+        /**
          * Computes the norm(brendan ?) of the shape diameter for every surface mesh node
+         * The shape diameter is computed by casting a cone of rays from each node and taking the minimum ray length of all the rays
          *
          * @return real Norm of the shape diameter for each node
          */
-        real compute_shape_diameter() const;
+        real compute_shape_diameter();
 
         /**
          * Gets the derivative of the shape diameter wrt a vertex's coordinates
@@ -532,6 +611,8 @@ namespace moris::mtk
         Vector< Vector< moris_index > > mVertexToVertexConnectivity;    // Input: vertex index, Output: All vertices connected by an edge to this vertex brendan documentation
 
         Vector< Vector< moris_index > > mVertexToFacetConnectivity;
+
+        Matrix< DDRMat > mdShapeDiameterdVertex;    // cached shape diameter sensitivities
 
 
         /**

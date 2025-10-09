@@ -63,7 +63,7 @@ namespace moris::gen
     // Geometric quantities of interest (GQI) enum
     ENUM_MACRO( GQI_Type,
             CURVATURE,
-            THICKNESS,
+            SHAPE_DIAMETER,
             FEATURE_SIZE,
             VOLUME,
             SURFACE_AREA )

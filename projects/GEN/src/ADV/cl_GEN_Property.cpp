@@ -220,7 +220,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Property::compute_GQI( gen::GQI_Type aGQIType ) const
+    real Property::compute_GQI( gen::GQI_Type aGQIType )
     {
         // TO IMPLEMENT
         return 0.0;

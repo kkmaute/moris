@@ -2170,10 +2170,12 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::compute_GQI( gen::GQI_Type aGQIType ) const
+    real Surface_Mesh_Geometry::compute_GQI( gen::GQI_Type aGQIType )
     {
         switch ( aGQIType )
         {
+            case GQI_Type::SHAPE_DIAMETER:
+                return Surface_Mesh::compute_shape_diameter();
             case GQI_Type::VOLUME:
                 return Surface_Mesh::compute_volume();
                 break;
@@ -2197,6 +2199,9 @@ namespace moris::gen
 
         switch ( aGQIType )
         {
+            case GQI_Type::SHAPE_DIAMETER:
+                get_dGQI_dvertex = &mtk::Surface_Mesh::compute_ddiameter_dvertex;
+                break;
             case GQI_Type::VOLUME:
                 get_dGQI_dvertex = &mtk::Surface_Mesh::compute_dvolume_dvertex;
                 break;

@@ -124,7 +124,7 @@ namespace moris::mtk
         // XQI Related functions
         //--------------------------------------------------------------------------------
 
-        real compute_XQI( xtk::XQI_Type aType ) const;
+        real compute_XQI( xtk::XQI_Type aType );
 
         //--------------------------------------------------------------------------------
 

@@ -296,7 +296,7 @@ namespace moris::gen
         // Geometry Quantity of Interest (GQI) functions
         //------------------------------------------------------------------------------
 
-        virtual real compute_GQI( gen::GQI_Type aGQIType ) const final;
+        virtual real compute_GQI( gen::GQI_Type aGQIType ) final;
 
         virtual void compute_GQI_sensitivities(
                 gen::GQI_Type     aGQIType,
