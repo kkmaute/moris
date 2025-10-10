@@ -259,6 +259,9 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             Matrix< DDRMat > tLeaderDOFHatDisp;
             Matrix< DDRMat > tFollowerDOFHatDisp;
 
+            Matrix< DDRMat > tLeaderPreviousDOFHatDisp;   // for frictional contact
+            Matrix< DDRMat > tFollowerPreviousDOFHatDisp; // for frictional contact
+
             Matrix< DDRMat > tIntegPoints;
 
             switch ( iSpaceDim )
@@ -283,6 +286,10 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                             tLeaderDOFHatDisp   = { { -0.2, 0.1 }, { -0.1, 0.1 }, { -0.1, -0.9 }, { -0.2, 0.1 } };
                             tFollowerDOFHatDisp = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.5 }, { 0.0, 0.0 } };
+
+                            // for frictional contact
+                            tLeaderPreviousDOFHatDisp   = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } };
+                            tFollowerPreviousDOFHatDisp = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } };
                             break;
                         }
                         case 2:
@@ -333,6 +340,29 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                                 { 0.0, 0.25 },
                                 { 0.0, 0.0 },
                                 { 0.0, 0.1 }
+                            };
+                            // for frictional contact
+                            tLeaderPreviousDOFHatDisp = {
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 }
+                            };
+                            tFollowerPreviousDOFHatDisp = {
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 },
+                                { 0.0, 0.0 }
                             };
                             break;
                         }
@@ -397,17 +427,27 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
             // create a cell of field interpolators for IWG
             Vector< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
+            Vector< Field_Interpolator* > tLeaderPreviousFIs( tDispDofTypes.size() ); // for frictional contact
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
+            // for frictional contact
+            tLeaderPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
+            tLeaderPreviousFIs( 0 )->set_coeff(tLeaderPreviousDOFHatDisp );
+
             // create a cell of field interpolators for IWG
             Vector< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerPreviousFIs( tDispDofTypes.size() ); // for frictional contact
 
             // create the field interpolator displacement
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tFollowerGI, tDispDofTypes( 0 ) );
             tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
+
+            // for frictional contact
+            tFollowerPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tFollowerGI, tDispDofTypes( 0 ) );
+            tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDispDofTypes.size() );
@@ -441,22 +481,39 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
             Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tLeaderFIManager.mFI                       = tLeaderFIs;
             tLeaderFIManager.mIPGeometryInterpolator   = &tLeaderGI;
             tLeaderFIManager.mIGGeometryInterpolator   = &tLeaderSideGI;
+
             tFollowerFIManager.mFI                     = tFollowerFIs;
             tFollowerFIManager.mIPGeometryInterpolator = &tFollowerGI;
             tFollowerFIManager.mIGGeometryInterpolator = &tFollowerSideGI;
 
+            // for frictional contact
+            tLeaderPreviousFIManager.mFI                     = tLeaderPreviousFIs;
+            tLeaderPreviousFIManager.mIPGeometryInterpolator = &tLeaderGI;
+            tLeaderPreviousFIManager.mIGGeometryInterpolator = &tLeaderSideGI;
+
+            // for frictional contact
+            tFollowerPreviousFIManager.mFI                     = tFollowerPreviousFIs;
+            tFollowerPreviousFIManager.mIPGeometryInterpolator = &tFollowerGI;
+            tFollowerPreviousFIManager.mIGGeometryInterpolator = &tFollowerSideGI;
+
             // set the interpolator manager to the set
             tIWG->mSet->mLeaderFIManager   = &tLeaderFIManager;
             tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
+            tIWG->mSet->mLeaderPreviousFIManager   = &tLeaderPreviousFIManager;   // for frictional contact
+            tIWG->mSet->mFollowerPreviousFIManager = &tFollowerPreviousFIManager; // for frictional contact
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
             tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
+            tIWG->set_field_interpolator_manager_previous_time( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );     // for frictional contact
+            tIWG->set_field_interpolator_manager_previous_time( &tFollowerPreviousFIManager, mtk::Leader_Follower::FOLLOWER ); // for frictional contact
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -470,6 +527,7 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                 // set integration point on follower side
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
+                tIWG->mSet->mLeaderPreviousFIManager->set_space_time_from_local_IG_point( tParamPointLeader ); // for frictional contact
 
                 Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
                         tIWG->mUseDeformedGeometryForGap,
@@ -480,6 +538,7 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                         tIWG->mGapData );
 
                 tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
+                tIWG->mSet->mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tParamPointfollower ); // for frictional contact
 
                 tIWG->reset_eval_flags();
 
