@@ -363,13 +363,13 @@ namespace moris::fem
                     mSet->get_residual()( 0 )(
                             { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
                             0.5 * aWStar * (                                                    //
-                                    - tLeaderCurrentFI->N_trans() * tTanTraction );
+                                    trans( mGapData->mdGapvecdu ) * tTanTraction );
 
                     // contribution to Follower residual
                     mSet->get_residual()( 0 )(
                             { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
                             0.5 * aWStar * (                                          //
-                                    + tFollowerCurrentFI->N_trans() * tTanTraction );
+                                    trans( mGapData->mdGapvecdv ) * tTanTraction );
                 }
                 else
                 {
