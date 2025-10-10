@@ -5682,7 +5682,6 @@ namespace moris::fem
             //                                 tLeaderNUIGNodes( { 0, tSpaceDim - 1 }, { 0, tNumDofs - 1 } ) );
 
             // Fixme: see for better solution above but requires reordering of the dof indices
-            aLeaderdNormaldU( tSpaceDim, tNumDofs );
             for ( uint in = 0; in < tNumNodes; in++ )
             {
                 aLeaderdNormaldU( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) =
@@ -5691,8 +5690,6 @@ namespace moris::fem
 
             // compute second derivative of the normal vector with respect to the leader dofs
             const Matrix< DDRMat > tLeaderNormalAux = trans( RotMat ) * tLeaderNormalTilde;
-
-            aLeaderdNormal2dU2( tSpaceDim, tNumDofs * tNumDofs );
 
             uint tCounter = 0;
             for ( uint idim = 0; idim < tSpaceDim; idim++ )
