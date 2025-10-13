@@ -367,6 +367,14 @@ namespace moris::mtk
         real compute_shape_diameter();
 
         /**
+         * Computes the centroids of all the facets in the surface mesh
+         * Size: <spatial dim> x <number of facets>
+         * 
+         * @return Matrix< DDRMat > facet centroids (average of the vertex coordinates of each facet)
+         */
+        Matrix< DDRMat > compute_facet_centroids() const;
+        
+        /**
          * Gets the derivative of the shape diameter wrt a vertex's coordinates
          *
          * @param aVertexIndex local index of the vertex to get sensitivities of
@@ -375,12 +383,30 @@ namespace moris::mtk
         Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
 
         /**
-         * Computes the measure (area in 3D, length in 2D) of each facet in the surface mesh
+         * Computes the measure (area in 3D, length in 2D) of a facet in the surface mesh
+         * Virtual as some child implementations may prefer to compute and store this value. This implementation computes it on the fly.
+         *
+         * @param aFacetIndex local index of the facet to compute measure of.
+         * @return Vector< real > facet measures. Size: <number of facets> x <1>
+         */
+        real compute_facet_measure( uint aFacetIndex ) const;
+
+        /**
+         * Computes the measure (area in 3D, length in 2D) of all facets in the surface mesh
          * Virtual as some child implementations may prefer to compute and store this value. This implementation computes it on the fly.
          *
          * @return Vector< real > facet measures. Size: <number of facets> x <1>
          */
         virtual Vector< real > compute_facet_measure() const;
+
+        /**
+         * @brief Gets the derivative of the facet measure wrt a vertex's coordinates
+         *
+         * @param aFacetIndex local index of the facet to get sensitivities of
+         * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @return Matrix< DDRMat > dMeasure/dVertex. Size: <1> x <spatial dim>
+         */
+        virtual Matrix< DDRMat > compute_dfacet_measure_dvertex( const uint aFacetIndex, const uint aVertexIndex ) const;
 
         /**
          * Computes the normal vector for each vertex as the average of the normals of its facets

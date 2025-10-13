@@ -1928,6 +1928,40 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
+    Matrix< DDRMat > Surface_Mesh::compute_facet_centroids() const
+    {
+        // Get number of facets and spatial dimension
+        uint tNumFacets = this->get_number_of_facets();
+        uint tDim       = this->get_spatial_dimension();
+
+        // Initialize matrix to hold centroids
+        Matrix< DDRMat > tCentroids( tDim, tNumFacets );
+
+        // Loop over facets to compute centroids
+        for ( uint iF = 0; iF < tNumFacets; iF++ )
+        {
+            // Get vertex coordinates of the facet
+            Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
+
+            // Loop over vertices in the facet
+            for ( uint iV = 0; iV < tVertexCoordinates.n_cols(); iV++ )
+            {
+                // Loop over dimensions to accumulate coordinates
+                for ( uint iDim = 0; iDim < tDim; iDim++ )
+                {
+                    // Compute centroid as the average of vertex coordinates
+                    tCentroids( iDim, iF ) += tVertexCoordinates( iDim, iV );
+                }
+            }
+        }
+
+        // Divide by number of vertices to get the average
+        // WARNING: This assumes all facets are lines in 2D or triangles in 3D
+        return tCentroids / (real)tDim;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
     real Surface_Mesh::compute_shape_diameter()
     {
         // Compute the shape diameter for every vertex in the surface mesh
@@ -1961,6 +1995,37 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
+    real Surface_Mesh::compute_facet_measure( uint aFacetIndex ) const
+    {
+        // Get the vertex coordinates of the facet
+        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( aFacetIndex );
+
+        switch ( this->get_spatial_dimension() )
+        {
+            case 2:
+            {
+                // Length is the norm of the edge
+                return norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
+                break;
+            }
+            case 3:
+            {
+                // Area is the norm of the cross product of two edges divided by 2
+                Matrix< DDRMat > tEdge1 = tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 );
+                Matrix< DDRMat > tEdge2 = tVertexCoordinates.get_column( 2 ) - tVertexCoordinates.get_column( 0 );
+                return 0.5 * norm( cross( tEdge1, tEdge2 ) );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_facet_measure - Only implemented for 2D and 3D." );
+                return 0.0;
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
     Vector< real > Surface_Mesh::compute_facet_measure() const
     {
         uint tNumCells = this->get_number_of_facets();
@@ -1976,6 +2041,7 @@ namespace moris::mtk
                     Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
                     tFacetMeasure( iF )                 = norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
                 }
+                break;
             }
             case 3:
             {
@@ -1998,6 +2064,39 @@ namespace moris::mtk
 
 
         return tFacetMeasure;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_dfacet_measure_dvertex( uint aFacetVertex, uint aVertexIndex ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        switch ( tDim )
+        {
+            case 2:
+            {
+                // Get the vertex indices of the facet
+                const Vector< moris_index >& tFacetVertices = this->get_facets_vertex_indices( aFacetVertex );
+
+                // Determine which index of the facet the requested vertex is, set sign accordingly
+                real tSign = aVertexIndex == (uint)tFacetVertices( 0 ) ? -1.0 : ( aVertexIndex == (uint)tFacetVertices( 1 ) ? 1.0 : 0.0 );
+
+                // Derivative is the coordinates divided by the length of the edge, times the sign
+                return tSign * trans( this->get_vertex_coordinates( aVertexIndex ) ) / this->compute_facet_measure( aFacetVertex );
+                break;
+            }
+            case 3:
+            {
+                return { { 0.0, 0.0, 0.0 } };    // TODO: implement for 3D
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_dfacet_measure_dvertex - Only implemented for 2D and 3D." );
+                return { {} };
+            }
+        }
     }
 
     // --------------------------------------------------------------------------------------------------------------
