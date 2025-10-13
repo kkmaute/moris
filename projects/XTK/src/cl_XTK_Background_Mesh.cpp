@@ -1026,21 +1026,6 @@ namespace moris::xtk
 
     // ----------------------------------------------------------------------------------
 
-    Matrix< IndexMat >
-    Background_Mesh::get_element_phase_inds( Matrix< moris::DDSTMat > const & aElementInds )
-    {
-        Matrix< IndexMat > tElementPhasesInds( 1, aElementInds.n_cols() );
-
-        for ( moris::size_t i = 0; i < aElementInds.n_cols(); i++ )
-        {
-            tElementPhasesInds( 0, i ) = this->get_element_phase_index( aElementInds( i ) );
-        }
-
-        return tElementPhasesInds;
-    }
-
-    // ----------------------------------------------------------------------------------
-
     moris_index
     Background_Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id        aEntityId,

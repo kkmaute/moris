@@ -404,9 +404,6 @@ namespace moris::xtk
         /*!
          * Multiple version of above
          */
-        Matrix< IndexMat >
-        get_element_phase_inds( Matrix< moris::DDSTMat > const & aElementInds );
-
         moris_index
         get_loc_entity_ind_from_entity_glb_id(
                 moris_id        aEntityId,
