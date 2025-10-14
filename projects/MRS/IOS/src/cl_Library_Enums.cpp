@@ -59,9 +59,9 @@ namespace moris
     {
         return convert_parameter_list_enum_to_string( aParameterListType ) + "ParameterList";
     }
-    
+
     // -----------------------------------------------------------------------------
-    
+
     Vector< std::string > get_submodule_names( Module_Type aModuleType )
     {
         // get the names of the sub-parameter lists for each of the modules
@@ -72,6 +72,9 @@ namespace moris
 
             case Module_Type::HMR:
                 return HMR_Submodule_String::values;
+
+            case Module_Type::XTK:
+                return XTK_Submodule_String::values;
 
             case Module_Type::GEN:
                 return GEN_Submodule_String::values;
@@ -85,7 +88,7 @@ namespace moris
             case Module_Type::MORISGENERAL:
                 // needs reworking anyways
                 return { "Remeshing", "Refinement", "Mapping" };
-                
+
             case Module_Type::END_ENUM:
                 return {};
 
@@ -107,7 +110,7 @@ namespace moris
     std::string
     get_inner_sub_parameter_list_name(
             Module_Type aModuleType,
-            uint                aParamListIndex )
+            uint        aParamListIndex )
     {
         // initialize the names with the standard
         Vector< std::string > tNames = { "" };
@@ -127,10 +130,11 @@ namespace moris
                 break;    // standard name
 
             case Module_Type::XTK:
+                tNames = { "General", "XQI" };
                 break;    // standard name
 
             case Module_Type::GEN:
-                tNames = { "General", "Geometry", "Field" };
+                tNames = { "General", "Geometry", "Property", "GQI" };
                 break;
 
             case Module_Type::FEM:

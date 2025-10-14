@@ -234,6 +234,38 @@ namespace moris::prm
     }
 
     /**
+     * Creates a parameter list with parameters shared by all GQIs
+     *
+     * @return GEN base GQI parameter list
+     */
+    static Parameter_List create_GQI_parameter_list()
+    {
+        Parameter_List tGQIParameterList( "GQI" );
+        tGQIParameterList.insert( "design_name", "" );    // todo brendan verify against geometry/property names
+        tGQIParameterList.insert( "GQI_name", "" );
+        tGQIParameterList.insert_enum( "GQI_type", gen::GQI_Type_String::values );
+        return tGQIParameterList;
+    }
+
+    static void insert_GQI_parameters( Parameter_List& aGQIParameterList, gen::GQI_Type aGQIType )
+    {
+        switch ( aGQIType )
+        {
+            case gen::GQI_Type::VOLUME:
+                aGQIParameterList.set( "GQI_type", gen::GQI_Type::VOLUME );
+                break;
+            case gen::GQI_Type::SHAPE_DIAMETER:
+                aGQIParameterList.set( "GQI_type", gen::GQI_Type::SHAPE_DIAMETER );
+                aGQIParameterList.insert( "number_of_rays_per_cone", 20 );
+                aGQIParameterList.insert( "cone_angle", 30.0 );
+                break;
+            default:
+                MORIS_ERROR( false, "GQI %s type not implemented.", gen::GQI_Type_String::values( static_cast< uint >( aGQIType ) ).c_str() );
+                break;
+        }
+    }
+
+    /**
      * Creates a parameter list for the construction of a geometry.
      *
      * @return Geometry parameter list
@@ -385,6 +417,21 @@ namespace moris::prm
         tPropertyParameterList.insert( "pdv_mesh_set_indices", Vector< uint >() );         // Mesh set indices for assigning PDVs
 
         return tPropertyParameterList;
+    }
+
+    /**
+     * Creates a parameter list that is used to assign a GQI to a design. Any number of these can be added to
+     * the fourth (index 3) of the parameter lists for GEN.
+     *
+     * @return GEN GQI parameter list
+     */
+    inline Parameter_List
+    create_GQI_parameter_list( gen::GQI_Type aGQIType )
+    {
+        Parameter_List tGQIParameterList = create_GQI_parameter_list();
+        insert_GQI_parameters( tGQIParameterList, aGQIType );
+
+        return tGQIParameterList;
     }
 
     //------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ namespace moris::xtk
     Basis_Processor::Basis_Processor( xtk::Model* aXTKModelPtr )
             : mXTKModelPtr( aXTKModelPtr )
             , mMeshIndices( aXTKModelPtr->mEnrichment->mMeshIndices )
-            , mParameterList( &aXTKModelPtr->mParameterList )
+            , mParameterList( &aXTKModelPtr->mParameterList( 0 )( 0 ) )
             , mSpatialDim( mXTKModelPtr->get_spatial_dim() )
 
     {

@@ -124,6 +124,20 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Submodule_Parameter_Lists::add_parameter_list( xtk::XQI_Type aXQI )
+    {
+        if ( mType == XTK_Submodule_String::values( static_cast< uint >( XTK::XQI ) ) )
+        {
+            mParameterLists.push_back( prm::create_XQI_parameter_list( aXQI ) );
+        }
+        else
+        {
+            MORIS_ERROR( false, "A %s submodule cannot create a XQI parameter list.", mType.c_str() );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Submodule_Parameter_Lists::add_parameter_list( gen::Geometry_Type aGeometryType )
     {
         // Check for correct submodule type
@@ -164,6 +178,20 @@ namespace moris
         else
         {
             MORIS_ERROR( false, "A %s submodule cannot create a geometries or properties parameter list.", mType.c_str() );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Submodule_Parameter_Lists::add_parameter_list( gen::GQI_Type aGQI )
+    {
+        if ( mType == GEN_Submodule_String::values( static_cast< uint >( GEN::GQI ) ) )
+        {
+            mParameterLists.push_back( prm::create_GQI_parameter_list( aGQI ) );
+        }
+        else
+        {
+            MORIS_ERROR( false, "A %s submodule cannot create a GQI parameter list.", mType.c_str() );
         }
     }
 

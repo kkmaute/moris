@@ -119,7 +119,7 @@ namespace moris
         {
             // TODO if we want to handle this again, give to the module parameter list for copying
             MORIS_ERROR( false, "Parameter lists are not the same size" );
-            //aParamListToModify.resize( tOuterSizeToAdd );
+            // aParamListToModify.resize( tOuterSizeToAdd );
         }
 
         // resize the inner cells, if the parameter lists to add are longer than the original ones
@@ -300,7 +300,7 @@ namespace moris
 
             // see if a function for this parameter list function exists in the provide input file
             Parameter_Function tUserDefinedParamListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
-            bool               tParamListFuncExists     = ( tUserDefinedParamListFunc != nullptr );
+            bool               tParamListFuncExists      = ( tUserDefinedParamListFunc != nullptr );
 
             // if the parameter list function exists, use it to overwrite and add to the standard parameters
             if ( tParamListFuncExists )
@@ -464,7 +464,8 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
     void
-    Library_IO::create_new_module_parameterlist() {
+    Library_IO::create_new_module_parameterlist()
+    {
         Vector< Module_Parameter_Lists > tParameterList;
         for ( uint iParamListType = 0; iParamListType < (uint)( Module_Type::END_ENUM ); iParamListType++ )
         {
@@ -510,7 +511,7 @@ namespace moris
 
         // get this module's parameter list
         Module_Parameter_Lists& tModuleParamList    = mParameterLists( tModuleIndex );
-        uint                 tOuterParamListSize = tModuleParamList.size();
+        uint                    tOuterParamListSize = tModuleParamList.size();
 
         // go through the individual sub-parameter lists and write them to the file
         for ( uint iOuterSubParamList = 0; iOuterSubParamList < tOuterParamListSize; iOuterSubParamList++ )
@@ -556,8 +557,8 @@ namespace moris
     std::string
     Library_IO::get_sub_parameter_list_location_in_xml_tree(
             const Module_Type aModule,
-            const uint                aSubParamListIndex,
-            const bool                aIsInnerParamList )
+            const uint        aSubParamListIndex,
+            const bool        aIsInnerParamList )
     {
         // initialize the location with the root of the xml tree
         std::string tLocation = XML_PARAMETER_FILE_ROOT;
@@ -896,10 +897,10 @@ namespace moris
      */
 
     Parameter_List create_and_set_parameter_list( Module_Type aModule,
-            uint                                                      aChild,
-            uint                                                      aSubChild,
-            const Vector< std::string >&                              aKeys,
-            const Vector< std::string >&                              aValues )
+            uint                                              aChild,
+            uint                                              aSubChild,
+            const Vector< std::string >&                      aKeys,
+            const Vector< std::string >&                      aValues )
     {
         // Create the parameter list with default values
         Parameter_List tParameterList = create_parameter_list( aModule, aChild, aSubChild );
@@ -981,7 +982,7 @@ namespace moris
             {
                 if ( tFind != aKeys.end() )
                 {
-                    Vector< std::string >          tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
+                    Vector< std::string >                 tVec = string_to_vector< std::string >( aValues( std::distance( aKeys.begin(), tFind ) ) );
                     std::pair< std::string, std::string > tPair;
                     if ( tVec.size() < 2 )
                     {
@@ -1155,7 +1156,15 @@ namespace moris
                 return prm::create_stk_parameter_list();
 
             case Module_Type::XTK:
-                return prm::create_xtk_parameter_list();
+                switch ( aChild )
+                {
+                    case 0:
+                        return prm::create_xtk_parameter_list();
+                    case 1:
+                        return prm::create_XQI_parameter_list( (xtk::XQI_Type)aSubChild );
+                    default:
+                        break;
+                }
 
             case Module_Type::GEN:
                 switch ( aChild )
@@ -1184,6 +1193,10 @@ namespace moris
                     case 2:
                     {
                         return prm::create_gen_property_parameter_list( gen::Field_Type::CONSTANT );
+                    }
+                    case 3:
+                    {
+                        return prm::create_GQI_parameter_list( (gen::GQI_Type)aSubChild );
                     }
                     default:
                     {

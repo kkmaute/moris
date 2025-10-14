@@ -88,7 +88,7 @@ namespace moris::xtk
         //--------------------------------------------------------------------------------
 
       protected:
-        moris::Parameter_List mParameterList;
+        moris::Module_Parameter_Lists mParameterList;
 
         uint                                    mModelDimension;
         moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
@@ -179,7 +179,7 @@ namespace moris::xtk
         /**
          * @brief Parameter list based XTK initialization
          */
-        Model( moris::Parameter_List const & aParameterList );
+        Model( moris::Module_Parameter_Lists const & aParameterList );
 
         //--------------------------------------------------------------------------------
 

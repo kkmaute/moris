@@ -38,9 +38,9 @@ namespace moris::xtk
             , mGeometryEngine( mXTKModel->get_geom_engine() )
             , mSubdivisionMethods( aMethods )
     {
-        if ( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
+        if ( mXTKModel->mParameterList( 0 )( 0 ).get< bool >( "has_parameter_list" ) )
         {
-            mOutputCutIgMesh = mXTKModel->mParameterList.get< bool >( "output_cut_ig_mesh" );
+            mOutputCutIgMesh = mXTKModel->mParameterList( 0 )( 0 ).get< bool >( "output_cut_ig_mesh" );
         }
     }
     // ----------------------------------------------------------------------------------
@@ -4763,12 +4763,12 @@ namespace moris::xtk
 
         // only construct Subphase-Groups and their Neighborhood if SPG based enrichment has been requested
         // first check if XTK-Model has parameter-list (i.e. skip this in Unit tests that don't require it)
-        if ( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
+        if ( mXTKModel->mParameterList( 0 )( 0 ).get< bool >( "has_parameter_list" ) )
         {
-            if ( mXTKModel->mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            if ( mXTKModel->mParameterList( 0 )( 0 ).get< bool >( "use_SPG_based_enrichment" ) )
             {
                 // check that the mesh indices for enrichment are defined
-                MORIS_ERROR( !mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ).empty(),
+                MORIS_ERROR( !mXTKModel->mParameterList( 0 )( 0 ).get< std::string >( "enrich_mesh_indices" ).empty(),
                         "Integration_Mesh_Generator::check_construct_subphase_groups() - No B-spline mesh indices provided for enrichment. Unable to construct Subphase-groups." );
 
                 // if all checks have past, set flag for constructing SPGs

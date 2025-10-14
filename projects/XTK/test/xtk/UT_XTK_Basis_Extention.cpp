@@ -102,9 +102,9 @@ namespace moris::xtk
 
             // These are necessary set function since there is a disconnect between the functions in the xtk model
             Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
-            tXTKModel.mVerbose            = false;
-            tXTKModel.mParameterList      = tXTKParameters;
-            tXTKModel.mBsplineMeshIndices = { { 0 } };
+            tXTKModel.mVerbose                 = false;
+            tXTKModel.mParameterList( 0 )( 0 ) = tXTKParameters;
+            tXTKModel.mBsplineMeshIndices      = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
@@ -147,7 +147,7 @@ namespace moris::xtk
 
         }    // end if: serial test run
 
-    }        // end TEST_CASE: "XTK Basis Extension"
+    }    // end TEST_CASE: "XTK Basis Extension"
 
     // ----------------------------------------------------------------------------------
 
@@ -215,9 +215,9 @@ namespace moris::xtk
 
             // These are necessary set function since there is a disconnect between the functions in the xtk model
             Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
-            tXTKModel.mVerbose            = false;
-            tXTKModel.mParameterList      = tXTKParameters;
-            tXTKModel.mBsplineMeshIndices = { { 0 } };
+            tXTKModel.mVerbose                 = false;
+            tXTKModel.mParameterList( 0 )( 0 ) = tXTKParameters;
+            tXTKModel.mBsplineMeshIndices      = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
             Vector< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
@@ -265,7 +265,7 @@ namespace moris::xtk
 
         }    // end if: serial test run
 
-    }        // end TEST_CASE: "XTK Cell Agglomeration"
+    }    // end TEST_CASE: "XTK Cell Agglomeration"
 
     // ----------------------------------------------------------------------------------
 

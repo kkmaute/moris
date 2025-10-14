@@ -90,15 +90,15 @@ namespace moris
         GENERAL
     };
 
-    enum class XTK_Submodule
-    {
-        GENERAL
-    };
+    ENUM_MACRO( XTK_Submodule,
+            GENERAL,
+            XQI )
 
     ENUM_MACRO( GEN_Submodule,
             GENERAL,
             GEOMETRIES,
-            PROPERTIES )
+            PROPERTIES,
+            GQI )
 
     ENUM_MACRO( FEM_Submodule,
             PROPERTIES,

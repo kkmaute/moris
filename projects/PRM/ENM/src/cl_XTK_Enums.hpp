@@ -106,7 +106,6 @@ namespace moris
 
         ENUM_MACRO( XQI_Type,
                 VOLUME,
-                SHAPE_DIAMETER,
-                END_ENUM, )
+                SHAPE_DIAMETER )
     }    // namespace xtk
 }    // namespace moris

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_Parameter_List.hpp"
+#include "cl_XTK_Enums.hpp"
 #include "GEN_Data_Types.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "fn_PRM_OPT_Parameters.hpp"
@@ -57,43 +58,61 @@ namespace moris
          * If this submodule does not support adding a new parameter list, an error will be thrown.
          */
         void add_parameter_list();
-        
+
         /**
-         * Adds a new optimization algorithm parameter list to be stored in this class. 
+         * Adds a new optimization algorithm parameter list to be stored in this class.
          * Will throw an error if this is not an optimization algorithm submodule.
-         * 
+         *
          * @param aOptimizationAlgorithmType Type of optimization algorithm
          */
         void add_parameter_list( opt::Optimization_Algorithm_Type aOptimziationAlgorithmType );
-        
+
         /**
-         * Adds a new geometry parameter list to be stored in this class. 
+         * Adds a new XQI parameter list to be stored in this class.
+         * Used to add specific parameters to the list based on the XQI type.
+         * Will throw an error if this is not a XQI submodule.
+         *
+         * @param aXQIType Type of XQI to be computed
+         */
+        void add_parameter_list( xtk::XQI_Type aXQI );
+
+        /**
+         * Adds a new geometry parameter list to be stored in this class.
          * Will throw an error if this is not a geometry submodule.
-         * 
+         *
          * @param aGeometryType Type of geometry
          */
         void add_parameter_list( gen::Geometry_Type aFieldType );
-        
+
         /**
-         * Adds a new GEN property parameter list to be stored in this class. 
+         * Adds a new GEN property parameter list to be stored in this class.
          * Will throw an error if this is not a GEN property submodule.
-         * 
+         *
          * @param aFieldType Type of field
          */
         void add_parameter_list( gen::Field_Type aFieldType );
-        
+
         /**
-         * Adds a new linear algorithm parameter list to be stored in this class. 
+         * Adds a new GQI parameter list to be stored in this class.
+         * Used to add specific parameters to the list based on the GQI type.
+         * Will throw an error if this is not a GQI submodule.
+         *
+         * @param aGQI Type of GQI to be computed
+         */
+        void add_parameter_list( gen::GQI_Type aGQI );
+
+        /**
+         * Adds a new linear algorithm parameter list to be stored in this class.
          * Will throw an error if this is not a linear algorithm submodule.
-         * 
+         *
          * @param aSolverType Type of linear solver
          */
         void add_parameter_list( sol::SolverType aSolverType );
-        
+
         /**
-         * Adds a new preconditioner parameter list to be stored in this class. 
+         * Adds a new preconditioner parameter list to be stored in this class.
          * Will throw an error if this is not a preconditioner submodule.
-         * 
+         *
          * @param aPreconditionerType Type of preconditioner
          */
         void add_parameter_list( sol::PreconditionerType aPreconditionerType );
@@ -147,7 +166,7 @@ namespace moris
                 const std::string& aName,
                 T                  aFirstValue,
                 T                  aSecondValue,
-                Arg_Types...       aMoreValues )
+                Arg_Types... aMoreValues )
         {
             // Set in last parameter list
             mParameterLists.back().set( aName, aFirstValue, aSecondValue, aMoreValues... );
@@ -184,19 +203,19 @@ namespace moris
          *
          * @return Beginning of the parameter list vector
          */
-        [[nodiscard]] auto begin()->decltype( mParameterLists.begin() );
+        [[nodiscard]] auto begin() -> decltype( mParameterLists.begin() );
 
         /**
          * Gets an end() iterator through the underlying vector of parameter lists.
          *
          * @return End of the parameter list vector
          */
-        [[nodiscard]] auto end()->decltype( mParameterLists.end() );
-        
+        [[nodiscard]] auto end() -> decltype( mParameterLists.end() );
+
       private:
         /**
          * This function errors out if the given type does not match the stored type for adding parameter lists
          */
         void check_submodule_type( const std::string& aExpectedType );
     };
-}
+}    // namespace moris

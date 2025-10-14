@@ -15,6 +15,39 @@
 
 namespace moris::prm
 {
+    /**
+     * Creates a basic parameter list for XQIs with no specific parameters set.
+     *
+     * @return XQI parameter list. Cannot necessarily be used directly, needs additional parameters inserted by insert_XQI_parameters()
+     */
+    static Parameter_List create_XQI_parameter_list()
+    {
+        Parameter_List tParameterList( "XQI" );
+
+        tParameterList.insert( "leader_phase_name", "" );                          // Name of the phase on the leader side of the interface TODO BRENDAN VERIFY AGAINST PHASE NAMES
+        tParameterList.insert( "follower_phase_name", "" );                        // Name of the phase on the follower side of the interface TODO BRENDAN VERIFY AGAINST PHASE NAMES
+        tParameterList.insert_enum( "XQI_type", xtk::XQI_Type_String::values );    // Type of XQI to be computed
+        tParameterList.insert( "XQI_name", "" );                                   // Name of the XQI, used for choosing design criteria for OPT or for output
+
+        return tParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    static void insert_XQI_parameters( Parameter_List& aXQIParameterList, xtk::XQI_Type aXQIType )
+    {
+        switch ( aXQIType )
+        {
+            case xtk::XQI_Type::VOLUME:
+                aXQIParameterList.set( "XQI_type", xtk::XQI_Type::VOLUME );
+                break;
+            case xtk::XQI_Type::SHAPE_DIAMETER:
+                aXQIParameterList.set( "XQI_type", xtk::XQI_Type::SHAPE_DIAMETER );
+                aXQIParameterList.insert( "number_of_rays_per_cone", 20 );    // Number of rays to be cast in a cone for the shape diameter function
+                aXQIParameterList.insert( "cone_angle", 30.0 );               // Cone angle in degrees for the shape diameter function
+                break;
+        }
+    }
 
     //------------------------------------------------------------------------------
 
@@ -145,11 +178,17 @@ namespace moris::prm
         tParameterList.insert( "activate_cell_agglomeration", false );
         tParameterList.insert( "visualize_cell_association", true );
 
-        // XQI Parameters
-        tParameterList.insert( "XQI_names", Vector< std::string >() );
-        tParameterList.insert( "XQI_types", Vector< uint >() );    // TODO: change to XTK::XQI_Type enum
         return tParameterList;
     }
     //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_XQI_parameter_list( xtk::XQI_Type aXQIType )
+    {
+        Parameter_List tParameterList = create_XQI_parameter_list();
+        insert_XQI_parameters( tParameterList, aXQIType );
+
+        return tParameterList;
+    }
 
 }    // namespace moris::prm

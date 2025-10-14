@@ -281,7 +281,7 @@ namespace moris::wrk
         Module_Parameter_Lists tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::XTK );
 
         // Create XTK
-        xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList( 0 )( 0 ) );
+        xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList );
 
         std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer = std::make_shared< mtk::Mesh_Manager >();
 
