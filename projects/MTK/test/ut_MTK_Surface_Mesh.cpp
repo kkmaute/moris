@@ -4,66 +4,81 @@
  *
  *------------------------------------------------------------------------------------
  *
- * ut_SDF_Core.cpp
+ * ut_MTK_Surface_Mesh.cpp
  *
  */
 
-#include <string>
-#include <catch.hpp>
+#include "paths.hpp"    // for moris root
+#include "catch.hpp"
+#include "fn_check_equal.hpp"
+#include "cl_MTK_Surface_Mesh.hpp"
+#include "fn_MTK_Load_External_Surface_Mesh.hpp"
+#include "cl_Communication_Tools.hpp"
 
-// core
-#include "moris_typedefs.hpp"
-#include "paths.hpp"
-
-// comm
-#include "cl_Communication_Manager.hpp"    // COM/src
-#include "cl_Communication_Tools.hpp"      // COM/src
-
-// mtk
-#include "cl_MTK_Enums.hpp"
-
-// linalg
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "op_minus.hpp"
-#include "op_equal_equal.hpp"
-#include "fn_norm.hpp"
-#include "fn_all_true.hpp"
-
-#include "cl_MTK_Mesh_Factory.hpp"
-
-// SDF
-#include "cl_SDF_Object.hpp"
-#include "SDF_Tools.hpp"
-
-namespace moris::sdf
+namespace moris::mtk
 {
-
 #if MORIS_HAVE_ARBORX
     // initialize Kokkos for the use in the spatial tree library ArborX
     std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
 
+    // get root from environment
+    std::string tMorisRoot = moris::get_base_moris_dir();
 
-    // number of random rays to cast to check result
-    uint tNumRays = 1;
-
-    TEST_CASE(
-            "gen::sdf::Raycast",
-            "[geomeng],[sdf],[Raycaster]" )
+    // Tests loading in the surface mesh from an obj file, and computing various quanitities of interest and their sensitivities
+    TEST_CASE( "MTK Surface Mesh", "[MTK],[MTK_Surface_Mesh]" )
     {
-        // get root from environment
-        std::string tMorisRoot = moris::get_base_moris_dir();
+        Matrix< DDRMat >                tCoordsExpected  = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
+        Vector< Vector< moris_index > > tConnExpected    = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
+        Matrix< DDRMat >                tNormalsExpected = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
+        Vector< real >                  tMeasureExpected = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
 
+        // load a surface mesh from file
+        std::string    tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
+        Vector< real > tOffsets  = { 0.0, 0.0 };
+        Vector< real > tScales   = { 1.0, 1.0 };
+        Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tFilePath, tOffsets, tScales ), load_facets_from_object_file( tFilePath ) );
+
+        // Check number of vertices and facets
+        REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
+        REQUIRE( tSurfaceMesh.get_number_of_facets() == tConnExpected.size() );
+
+        // Check vertex coordinates
+        check_equal( tSurfaceMesh.get_all_vertex_coordinates(), tCoordsExpected );
+
+        // Compute the facet measure
+        Vector< real > tFacetMeasures = tSurfaceMesh.compute_facet_measure();
+
+        // Loop over the surface mesh and check for correct facet normals and connectivity
+        for ( uint iF = 0; iF < tConnExpected.size(); ++iF )
+        {
+            Vector< moris_index > tFacetVertices = tSurfaceMesh.get_facets_vertex_indices( iF );
+            Matrix< DDRMat >      tFacetNormal   = tSurfaceMesh.get_facet_normal( iF );
+            for ( uint iV = 0; iV < tConnExpected( iF ).size(); ++iV )
+            {
+                // Check facet connectivity
+                REQUIRE( tFacetVertices( iV ) == tConnExpected( iF )( iV ) );
+
+                // Check facet normal component
+                CHECK( tFacetNormal( iV ) == Approx( tNormalsExpected( iV, iF ) ) );
+            }
+
+            // Check facet measure
+            CHECK( tFacetMeasures( iF ) == Approx( tMeasureExpected( iF ) ) );
+        }
+    }
+    // Test for raycasting
+    TEST_CASE( "MTK Surface Mesh Raycast", "[MTK], [MTK_Surface_Mesh], [Raycast]" )
+    {
         if ( par_size() == 1 )
         {
             SECTION( "SDF: Raycast Free Function Test - 3D" )
             {
-                // Tolerance for results
-                // real tEpsilon = 1e-8;
-
-                // create triangle object from object file
-                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
-                Object      tObject( tObjectPath );
+                // create surface mesh from object file
+                std::string    tFilePath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
+                Vector< real > tOffsets  = { 0.0, 0.0 };
+                Vector< real > tScales   = { 1.0, 1.0 };
+                Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tFilePath, tOffsets, tScales ), load_facets_from_object_file( tFilePath ) );
 
                 // define test point that is inside the object
                 Matrix< DDRMat > tTestPoint = { { 0.9, 0.6, 0.7 } };
@@ -73,7 +88,7 @@ namespace moris::sdf
 
                 // // preselect in x direction and ensure they are correct
                 // Vector< uint > tCandidatesExpected = { 1, 0, 2 };
-                // Vector< uint > tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // Vector< uint > tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateTriangles.size() == 3 );
                 // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
@@ -83,7 +98,7 @@ namespace moris::sdf
                 // // repeat for y direction
                 // tDirection          = { { 0.0 }, { 1.0 }, { 0.0 } };
                 // tCandidatesExpected = { 1, 0 };
-                // tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateTriangles.size() == 2 );
                 // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
@@ -92,8 +107,8 @@ namespace moris::sdf
                 // // repeat for z direction
                 // tDirection          = { { 0.0 }, { 0.0 }, { 1.0 } };
                 // tCandidatesExpected = { 1, 0 };
-                // tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
-                // // tPreselection       = preselect_triangles( tObject, tTestPoint, 2, tCandidateTriangles );
+                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
+                // // tPreselection       = preselect_triangles( tSurfaceMesh, tTestPoint, 2, tCandidateTriangles );
 
                 // // Check the preselection results
                 // REQUIRE( tCandidateTriangles.size() == 2 );
@@ -106,7 +121,7 @@ namespace moris::sdf
                 // Vector< real > tIntersections( 2 );
                 // for ( uint iCandidate = 0; iCandidate < 2; ++iCandidate )
                 // {
-                //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
+                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
                 // }
                 // CHECK( std::isnan( tIntersections( 0 ) ) );
                 // CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
@@ -117,7 +132,7 @@ namespace moris::sdf
                 // CHECK( tPointIsInside == INSIDE );
 
                 // cast a bunch of random rays and ensure they all return the correct result
-                mtk::Mesh_Region tPointIsInside = tObject.get_region_from_raycast( tTestPoint );
+                mtk::Mesh_Region tPointIsInside = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tPointIsInside == mtk::Mesh_Region::INSIDE );
 
                 // repeat test for point that is outside
@@ -126,13 +141,13 @@ namespace moris::sdf
                 // Expected results
                 // tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
 
-                // tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateTriangles.size() == 0 );
 
                 // tCandidatesExpected = { 1, 0, 2 };
                 // tDirection          = { { 1.0 }, { 0.0 }, { 0.0 } };
-                // tCandidateTriangles = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateTriangles.size() == 3 );
                 // CHECK( tCandidateTriangles( 0 ) == tCandidatesExpected( 0 ) );
@@ -142,7 +157,7 @@ namespace moris::sdf
                 // tIntersections.resize( 3 );
                 // for ( uint iCandidate = 0; iCandidate < 3; ++iCandidate )
                 // {
-                //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
+                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
                 // }
 
                 // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
@@ -152,11 +167,11 @@ namespace moris::sdf
                 // Repeat for all of them at the same time using batching
                 tTestPoint = { { 0.9, 0.2 }, { 0.6, 0.6 }, { 0.7, 0.7 } };
 
-                tPointIsInside = tObject.get_region_from_raycast( tTestPoint );
+                tPointIsInside = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tPointIsInside == mtk::Mesh_Region::OUTSIDE );
 
                 // Get the regions
-                Vector< mtk::Mesh_Region > tRegions  = tObject.batch_get_region_from_raycast( tTestPoint );
+                Vector< mtk::Mesh_Region > tRegions  = tSurfaceMesh.batch_get_region_from_raycast( tTestPoint );
                 Vector< mtk::Mesh_Region > tExpected = { mtk::Mesh_Region::INSIDE, mtk::Mesh_Region::OUTSIDE };
 
                 // Check each match
@@ -172,8 +187,10 @@ namespace moris::sdf
                 // real tEpsilon = 1e-8;
 
                 // create object from object file
-                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
-                Object      tObject( tObjectPath );
+                std::string    tSurfaceMeshPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
+                Vector< real > tOffsets         = { 0.0, 0.0, 0.0 };
+                Vector< real > tScales          = { 1.0, 1.0, 1.0 };
+                Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tSurfaceMeshPath, tOffsets, tScales ), load_facets_from_object_file( tSurfaceMeshPath ) );
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
@@ -182,7 +199,7 @@ namespace moris::sdf
                 // Matrix< DDRMat > tDirection = { { 1.0, 0.0 } };
 
                 // // preselect in x direction and ensure the candidates and intersected facets are marked
-                // Vector< uint > tCandidateLines           = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // Vector< uint > tCandidateLines           = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
                 // Vector< uint > tIntersectedLinesExpected = { 2, 3 };
 
                 // REQUIRE( tCandidateLines.size() == 2 );
@@ -193,7 +210,7 @@ namespace moris::sdf
                 // Vector< real > tIntersections( tCandidateLines.size() );
                 // for ( uint iCandidate = 0; iCandidate < tCandidateLines.size(); ++iCandidate )
                 // {
-                //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
+                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
                 // }
                 // Vector< real > tIntersectionCoordinatesExpected = { 0.05, 0.45 };
 
@@ -203,7 +220,7 @@ namespace moris::sdf
 
                 // ensure the test gives the same result when the entire algorithm is called, repeat many times for many different random vectors
 
-                mtk::Mesh_Region tRegion = tObject.get_region_from_raycast( tTestPoint );
+                mtk::Mesh_Region tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::OUTSIDE );
 
 
@@ -211,7 +228,7 @@ namespace moris::sdf
                 tTestPoint = { { -.25 }, { 0.2 } };
 
                 // tDirection      = { { 0.0, 1.0 } };
-                // tCandidateLines = tObject.preselect_with_arborx( tTestPoint, tDirection );
+                // tCandidateLines = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
 
                 // REQUIRE( tCandidateLines.size() == 1 );
                 // CHECK( tCandidateLines( 0 ) == 1 );
@@ -219,7 +236,7 @@ namespace moris::sdf
                 // tIntersections.resize( tCandidateLines.size() );
                 // for ( uint iCandidate = 0; iCandidate < tCandidateLines.size(); ++iCandidate )
                 // {
-                //     tIntersections( iCandidate ) = tObject.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
+                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
                 // }
 
                 // tIntersectionCoordinatesExpected = { 0.05 };
@@ -227,14 +244,14 @@ namespace moris::sdf
                 // REQUIRE( tIntersections.size() == 1 );
                 // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
 
-                tRegion = tObject.get_region_from_raycast( tTestPoint );
+                tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::INSIDE );
 
                 // Repeat with a point that is on a facet
                 tTestPoint( 0, 0 ) = 0.25;
                 tTestPoint( 1, 0 ) = 0.25;
 
-                tRegion = tObject.get_region_from_raycast( tTestPoint );
+                tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::INTERFACE );
 
 
@@ -242,14 +259,14 @@ namespace moris::sdf
                 tTestPoint( 0, 0 ) = 0.0;
                 tTestPoint( 1, 0 ) = 0.5;
 
-                tRegion = tObject.get_region_from_raycast( tTestPoint );
+                tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::INTERFACE );
 
                 // Repeat for all of them at the same time using batching
                 tTestPoint = { { -0.25, -0.25, 0.25, 0.0 }, { -0.3, 0.2, 0.25, 0.5 } };
 
                 // Get the regions
-                Vector< mtk::Mesh_Region > tRegions  = tObject.batch_get_region_from_raycast( tTestPoint );
+                Vector< mtk::Mesh_Region > tRegions  = tSurfaceMesh.batch_get_region_from_raycast( tTestPoint );
                 Vector< mtk::Mesh_Region > tExpected = { mtk::Mesh_Region::OUTSIDE, mtk::Mesh_Region::INSIDE, mtk::Mesh_Region::INTERFACE, mtk::Mesh_Region::INTERFACE };
 
                 // Check each match
@@ -265,8 +282,10 @@ namespace moris::sdf
                 real tEpsilon = 1e-8;
 
                 // create triangle object from object file
-                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
-                Object      tObject( tObjectPath );
+                std::string    tSurfaceMeshPath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
+                Vector< real > tOffsets         = { 0.0, 0.0, 0.0 };
+                Vector< real > tScales          = { 1.0, 1.0, 1.0 };
+                Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tSurfaceMeshPath, tOffsets, tScales ), load_facets_from_object_file( tSurfaceMeshPath ) );
 
                 // define test point that is inside the object
                 Matrix< DDRMat > tTestPoint = { { 0.9, 0.6, 0.7 } };
@@ -280,11 +299,11 @@ namespace moris::sdf
 
                 // compute with raycast function
                 bool                              tWarning;
-                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
+                Vector< std::pair< uint, real > > tLineDistanceX = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 1.0 }, { 0.0 } };
-                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
+                Vector< std::pair< uint, real > > tLineDistanceY = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 0.0 }, { 1.0 } };
-                Vector< std::pair< uint, real > > tLineDistanceZ = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
+                Vector< std::pair< uint, real > > tLineDistanceZ = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 1 );
@@ -299,7 +318,7 @@ namespace moris::sdf
                 Vector< Matrix< DDRMat > > tDirections = { { { 1.0, 1.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } }, { { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 } }, { { 0.0 }, { 0.0 }, { 1.0 } } };
 
                 Vector< Vector< bool > >                              tWarnings;
-                Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tObject.cast_batch_of_rays( tOrigins, tDirections, tWarnings );
+                Vector< Vector< Vector< std::pair< uint, real > > > > tLineDistances = tSurfaceMesh.cast_batch_of_rays( tOrigins, tDirections, tWarnings );
 
                 REQUIRE( tLineDistances.size() == 3 );
                 REQUIRE( tLineDistances( 0 ).size() == 2 );
@@ -322,7 +341,7 @@ namespace moris::sdf
                 Matrix< DDRMat > tSameDirections = { { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } };
 
                 Vector< Vector< bool > > tWarningSame;
-                tLineDistances = tObject.cast_batch_of_rays( tOrigins, tSameDirections, tWarningSame );
+                tLineDistances = tSurfaceMesh.cast_batch_of_rays( tOrigins, tSameDirections, tWarningSame );
 
                 REQUIRE( tLineDistances.size() == 3 );
                 REQUIRE( tLineDistances( 0 ).size() == 3 );
@@ -341,8 +360,10 @@ namespace moris::sdf
                 real tEpsilon = 1e-8;
 
                 // create triangle object from object file
-                std::string tObjectPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
-                Object      tObject( tObjectPath );
+                std::string    tSurfaceMeshPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
+                Vector< real > tOffsets         = { 0.0, 0.0 };
+                Vector< real > tScales          = { 1.0, 1.0 };
+                Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tSurfaceMeshPath, tOffsets, tScales ), load_facets_from_object_file( tSurfaceMeshPath ) );
 
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
@@ -356,9 +377,9 @@ namespace moris::sdf
 
                 // compute with raycast
                 bool                              tWarning;
-                Vector< std::pair< uint, real > > tLineDistanceX = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
+                Vector< std::pair< uint, real > > tLineDistanceX = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
                 tDirection                                       = { { 0.0 }, { 1.0 } };
-                Vector< std::pair< uint, real > > tLineDistanceY = tObject.cast_single_ray( tTestPoint, tDirection, tWarning );
+                Vector< std::pair< uint, real > > tLineDistanceY = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
 
                 // compare
                 REQUIRE( tLineDistanceX.size() == 2 );
@@ -370,6 +391,4 @@ namespace moris::sdf
             }
         }
     }
-#endif    // MORIS_HAVE_ARBORX
-
-}    // namespace moris::sdf
+}    // namespace moris::mtk
