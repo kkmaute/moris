@@ -61,9 +61,9 @@ namespace moris::mtk
         /**
          * Constructor to size the data structures
          */
-        Ray_Cones( uint aNumVertices, uint aNumRays, uint aDim )
+        Ray_Cones( uint aNumFacets, uint aNumRays, uint aDim )
                 : mDirectionWeights( aNumRays )
-                , mRayDirections( aNumVertices, Matrix< DDRMat >( aDim, aNumRays ) )
+                , mRayDirections( aNumFacets, Matrix< DDRMat >( aDim, aNumRays ) )
         {
         }
     };
@@ -264,7 +264,7 @@ namespace moris::mtk
          * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
          * @param aWarning Flag if the ray hits an edge or another pathological case
          * @param aIgnoreWarnings If true, all rays that hit a warning will be ceased immediately. Otherwise, the ray is cast and the result is returned as normal.
-         * @return Intersection_Vector Vector of pairs <uint, real> which correspond to the facet index and the distance to the intersection point. 
+         * @return Intersection_Vector Vector of pairs <uint, real> which correspond to the facet index and the distance to the intersection point.
          */
         Intersection_Vector
         cast_single_ray(
@@ -405,14 +405,6 @@ namespace moris::mtk
         // -------------------------------------------------------------------------------
 
         /**
-         * Gets the derivative of the shape diameter wrt a vertex's coordinates
-         *
-         * @param aVertexIndex local index of the vertex to get sensitivities of
-         * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
-         */
-        Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
-
-        /**
          * @brief Gets the derivative of the facet measure wrt a vertex's coordinates
          *
          * @param aFacetIndex local index of the facet to get sensitivities of
@@ -420,6 +412,18 @@ namespace moris::mtk
          * @return Matrix< DDRMat > dMeasure/dVertex. Size: <1> x <spatial dim>
          */
         virtual Matrix< DDRMat > compute_dfacet_measure_dvertex( const uint aFacetIndex, const uint aVertexIndex ) const;
+
+        /**
+         * Computes the derivative of the facet centroid wrt the coordinates of a facet vertex
+         *
+         * @param aFacetIndex local index of the facet to get sensitivities of
+         * @param aVertexIndex local index of the vertex to get sensitivities with respect to
+         * @param aRequireIsMember If true, the method will check if the vertex is part of the facet and throw an error if not. If false, the method will return a zero matrix if the vertex is not part of the facet
+         *
+         * @return Matrix< DDRMat > dCentroid/dVertex jacobian. Size: <spatial dim> x <spatial dim>
+         * Rows correspond to the components of the centroid vector, and columns correspond to the components of the vertex coordinates
+         */
+        Matrix< DDRMat > compute_dfacet_centroid_dvertex( const uint aFacetIndex, const uint aVertexIndex, bool aRequireIsMember = false ) const;
 
         /**
          * Computes the derivative of the facet normal wrt the coordinates of a facet vertex
@@ -472,6 +476,14 @@ namespace moris::mtk
                 const Matrix< DDRMat >& aOrigin,
                 const Matrix< DDRMat >& aDirection,
                 uint                    aFacetIndex ) const;
+
+        /**
+         * Gets the derivative of the shape diameter wrt a vertex's coordinates
+         *
+         * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
+         */
+        Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
 
         //-------------------------------------------------------------------------------
         // Output Methods

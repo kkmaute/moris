@@ -32,22 +32,18 @@ namespace moris::mtk
         Vector< Vector< moris_index > >      tConnExpected       = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
         Matrix< DDRMat >                     tNormalsExpected    = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
         Vector< real >                       tMeasureExpected    = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
-        Vector< Vector< Matrix< DDRMat > > > tNormalSensExpected = { { { { 0.15391713, -0.41044567 }, { 0.05771892, -0.15391713 } },          // dN1/dv1
-                                                                             { { -0.15391713, 0.41044567 }, { -0.05771892, 0.15391713 } },    // dN1/dv2
-                                                                             { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },      // dN1/dv3
-                                                                             { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },    // dN1/dv4
-            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                                     // dN2/dv1
-                    { { -0.47140452, -0.47140452 }, { 0.47140452, 0.47140452 } },                                                             // dN2/dv2
-                    { { 0.47140452, 0.47140452 }, { -0.47140452, -0.47140452 } },                                                             // dN2/dv3
-                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },                                                             // dN2/dv4
-            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                                     // dN3/dv1
-                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                               // dN3/dv2
-                    { { 0.37947332, -0.12649111 }, { 1.13841996, -0.37947332 } },                                                             // dN3/dv3
-                    { { -0.37947332, 0.12649111 }, { -1.13841996, 0.37947332 } } },                                                           // dN3/dv4
-            { { { -0.38400000, 0.51200000 }, { -0.28800000, 0.38400000 } },                                                                   // dN4/dv1
-                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                               // dN4/dv2
-                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                               // dN4/dv3
-                    { { 0.38400000, -0.51200000 }, { 0.28800000, -0.38400000 } } } };                                                         // dN4/dv4
+        Vector< Vector< Matrix< DDRMat > > > tNormalSensExpected = {
+            { { { 0.15391713, -0.41044567 }, { 0.05771892, -0.15391713 } }, { { -0.15391713, 0.41044567 }, { -0.05771892, 0.15391713 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },    // dN1/dv4
+            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { -0.47140452, -0.47140452 }, { 0.47140452, 0.47140452 } }, { { 0.47140452, 0.47140452 }, { -0.47140452, -0.47140452 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },
+            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.37947332, -0.12649111 }, { 1.13841996, -0.37947332 } }, { { -0.37947332, 0.12649111 }, { -1.13841996, 0.37947332 } } },    // dN3/dv4
+            { { { -0.38400000, 0.51200000 }, { -0.28800000, 0.38400000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.38400000, -0.51200000 }, { 0.28800000, -0.38400000 } } }
+        };
+        Vector< Vector< Matrix< DDRMat > > > tCenterSensExpected = {
+            { { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },
+            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },
+            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } } },
+            { { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } } }
+        };
         // load a surface mesh from file
         std::string    tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
         Vector< real > tOffsets  = { 0.0, 0.0 };
@@ -85,14 +81,18 @@ namespace moris::mtk
             for ( uint iV = 0; iV < tCoordsExpected.n_cols(); iV++ )
             {
                 Matrix< DDRMat > tNormalSens = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
+                Matrix< DDRMat > tCenterSens = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
                 check_equal( tNormalSens, tNormalSensExpected( iF )( iV ), 1e8 );
+                check_equal( tCenterSens, tCenterSensExpected( iF )( iV ), 1e8 );
             }
         }
 
         SECTION( "Raycast Region, Distance, and Sensitivities - 2D" )
         {
+            // FIXME: It would be better to FD the sensitivities rather than hardcoding the expected values
             Matrix< DDRMat > tdRdOExpected = { { 0.5, 0.5 } };
             Matrix< DDRMat > tdRdDExpected = { { 0.1125, 0.1125 } };
+            Matrix< DDRMat > tdRdVExpected = { { -0.28333333333, -0.28333333333 }, { -0.2166666666667, -0.2166666666667 } };
 
             // define test point and direction
             Matrix< DDRMat > tTestPoint = { { 0.8 }, { 0.4 } };
@@ -116,11 +116,19 @@ namespace moris::mtk
             // Get the sensitivity wrt to the ray direction
             Matrix< DDRMat > tdRdD = tSurfaceMesh.compute_draycast_ddirection( tTestPoint, tDirection, tDistance( 0 ).first );
 
+            // Get the sensitivity wrt to the vertices of the intersected facet
+            Matrix< DDRMat > tdRdV = tSurfaceMesh.compute_draycast_dvertices( tTestPoint, tDirection, tDistance( 0 ).first );
+
             // Loop over sensitivities and check they are correct
             for ( uint iS = 0; iS < 2; iS++ )    // Loop over spatial dimensions
             {
                 CHECK( tdRdO( iS ) == Approx( tdRdOExpected( iS ) ) );
                 CHECK( tdRdD( iS ) == Approx( tdRdDExpected( iS ) ) );
+
+                for ( uint iV = 0; iV < 2; iV++ )    // Loop over vertices
+                {
+                    CHECK( tdRdV( iV, iS ) == Approx( tdRdVExpected( iV, iS ) ) );
+                }
             }
         }
     }
