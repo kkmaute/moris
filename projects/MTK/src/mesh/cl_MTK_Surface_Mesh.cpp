@@ -1438,43 +1438,36 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::compute_dvolume_dvertex( uint aVertexIndex ) const
+    Matrix< DDRMat > Surface_Mesh::compute_facet_centroids() const
     {
-        uint tDim = this->get_spatial_dimension();
+        // Get number of facets and spatial dimension
+        uint tNumFacets = this->get_number_of_facets();
+        uint tDim       = this->get_spatial_dimension();
 
-        Matrix< DDRMat > tDVolumeDVertex( 1, tDim, MORIS_REAL_MAX );
+        // Initialize matrix to hold centroids
+        Matrix< DDRMat > tCentroids( tDim, tNumFacets );
 
-        if ( this->get_spatial_dimension() == 2 )
+        // Loop over facets to compute centroids
+        for ( uint iF = 0; iF < tNumFacets; iF++ )
         {
-            // Get the vertices connected to this vertex
-            const Vector< moris_index >& tNeighbors = mVertexToVertexConnectivity( aVertexIndex );
+            // Get vertex coordinates of the facet
+            Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
 
-            moris_index tLowNeighbor;
-            moris_index tHighNeighbor;
-            if ( aVertexIndex > 1 and std::any_of( tNeighbors.begin(), tNeighbors.end(), []( moris_index i ) { return i == 0; } ) )
+            // Loop over vertices in the facet
+            for ( uint iV = 0; iV < tVertexCoordinates.n_cols(); iV++ )
             {
-                tLowNeighbor  = tNeighbors( 0 ) == 0 ? tNeighbors( 1 ) : tNeighbors( 0 );
-                tHighNeighbor = 0;
+                // Loop over dimensions to accumulate coordinates
+                for ( uint iDim = 0; iDim < tDim; iDim++ )
+                {
+                    // Compute centroid as the average of vertex coordinates
+                    tCentroids( iDim, iF ) += tVertexCoordinates( iDim, iV );
+                }
             }
-            else
-            {    // Determine the order of the vertices
-                tLowNeighbor  = tNeighbors( 0 ) < tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
-                tHighNeighbor = tNeighbors( 0 ) > tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
-            }
-
-            // Get vertex coordinates
-            const Matrix< DDRMat > tLowCoords  = this->get_vertex_coordinates( tLowNeighbor );
-            const Matrix< DDRMat > tHighCoords = this->get_vertex_coordinates( tHighNeighbor );
-
-            tDVolumeDVertex( 0 ) = 0.5 * ( tHighCoords( 1 ) - tLowCoords( 1 ) );
-            tDVolumeDVertex( 1 ) = 0.5 * ( tLowCoords( 0 ) - tHighCoords( 0 ) );
-        }
-        else
-        {
-            MORIS_ERROR( false, "Surface Mesh dVolume/dVertex computation only implemented for 2D (lines) meshes" );
         }
 
-        return tDVolumeDVertex;
+        // Divide by number of vertices to get the average
+        // WARNING: This assumes all facets are lines in 2D or triangles in 3D
+        return tCentroids / (real)tDim;
     }
 
     // --------------------------------------------------------------------------------------------------------------
@@ -1858,44 +1851,10 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::compute_facet_centroids() const
-    {
-        // Get number of facets and spatial dimension
-        uint tNumFacets = this->get_number_of_facets();
-        uint tDim       = this->get_spatial_dimension();
-
-        // Initialize matrix to hold centroids
-        Matrix< DDRMat > tCentroids( tDim, tNumFacets );
-
-        // Loop over facets to compute centroids
-        for ( uint iF = 0; iF < tNumFacets; iF++ )
-        {
-            // Get vertex coordinates of the facet
-            Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
-
-            // Loop over vertices in the facet
-            for ( uint iV = 0; iV < tVertexCoordinates.n_cols(); iV++ )
-            {
-                // Loop over dimensions to accumulate coordinates
-                for ( uint iDim = 0; iDim < tDim; iDim++ )
-                {
-                    // Compute centroid as the average of vertex coordinates
-                    tCentroids( iDim, iF ) += tVertexCoordinates( iDim, iV );
-                }
-            }
-        }
-
-        // Divide by number of vertices to get the average
-        // WARNING: This assumes all facets are lines in 2D or triangles in 3D
-        return tCentroids / (real)tDim;
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
     real Surface_Mesh::compute_shape_diameter()
     {
         // Compute the shape diameter for every vertex in the surface mesh
-        Vector< real > tNodalShapeDiameter = this->compute_nodal_shape_diameter();
+        Vector< real > tFacetShapeDiameter = this->compute_nodal_shape_diameter();
 
         // Compute the area of every facet in the surface mesh
         Vector< real > tFacetMeasure     = this->compute_facet_measure();
@@ -1905,22 +1864,12 @@ namespace moris::mtk
         real tIntegratedShapeDiameter = 0.0;
         for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
         {
-            // Get the vertices of the facet
-            Vector< moris_index > tFacetVertices = this->get_facets_vertex_indices( iF );
-
-            // Compute the average of the shape diameter at the vertices of the facet
-            tIntegratedShapeDiameter += ( tNodalShapeDiameter( tFacetVertices( 0 ) ) + tNodalShapeDiameter( tFacetVertices( 1 ) ) + ( ( this->get_spatial_dimension() == 3 ) ? tNodalShapeDiameter( tFacetVertices( 2 ) ) : 0.0 ) ) / static_cast< real >( tFacetVertices.size() ) * tFacetMeasure( iF );
+            // Add the shape diameter at this facet times the area of this facet to the integrated shape diameter
+            tIntegratedShapeDiameter += tFacetShapeDiameter( iF ) * tFacetMeasure( iF );
         }
 
         // Divide by the total area of the surface mesh to get the integrated shape diameter
         return tIntegratedShapeDiameter / tTotalSurfaceArea;
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat > Surface_Mesh::compute_ddiameter_dvertex( uint aVertexIndex ) const
-    {
-        return mdShapeDiameterdVertex.get_row( aVertexIndex );
     }
 
     // --------------------------------------------------------------------------------------------------------------
@@ -2028,6 +1977,69 @@ namespace moris::mtk
                 return { {} };
             }
         }
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_ddiameter_dvertex( uint aVertexIndex ) const
+    {
+        // Compute the facet measures
+        Vector< real > tFacetMeasures = this->compute_facet_measure();
+        real           tSurfaceArea   = std::accumulate( tFacetMeasures.begin(), tFacetMeasures.end(), 0.0 );
+
+        // Get the facets connected to this vertex
+        const Vector< moris_index >& tConnectedFacets = this->get_vertexs_facet_indices( aVertexIndex );
+
+        Matrix< DDRMat > tIntegratedSensitivity( 1, this->get_spatial_dimension(), 0.0 );
+
+        // Loop over connected facets to compute their contribution to the sensitivity
+        for ( uint iF = 0; iF < tConnectedFacets.size(); iF++ )
+        {
+            tIntegratedSensitivity += tFacetMeasures( tConnectedFacets( iF ) ) * this->mdShapeDiameterdVertex.get_row( aVertexIndex ) / tSurfaceArea;
+        }
+
+        return tIntegratedSensitivity;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_dvolume_dvertex( uint aVertexIndex ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        Matrix< DDRMat > tDVolumeDVertex( 1, tDim, MORIS_REAL_MAX );
+
+        if ( this->get_spatial_dimension() == 2 )
+        {
+            // Get the vertices connected to this vertex
+            const Vector< moris_index >& tNeighbors = mVertexToVertexConnectivity( aVertexIndex );
+
+            moris_index tLowNeighbor;
+            moris_index tHighNeighbor;
+            if ( aVertexIndex > 1 and std::any_of( tNeighbors.begin(), tNeighbors.end(), []( moris_index i ) { return i == 0; } ) )
+            {
+                tLowNeighbor  = tNeighbors( 0 ) == 0 ? tNeighbors( 1 ) : tNeighbors( 0 );
+                tHighNeighbor = 0;
+            }
+            else
+            {    // Determine the order of the vertices
+                tLowNeighbor  = tNeighbors( 0 ) < tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+                tHighNeighbor = tNeighbors( 0 ) > tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
+            }
+
+            // Get vertex coordinates
+            const Matrix< DDRMat > tLowCoords  = this->get_vertex_coordinates( tLowNeighbor );
+            const Matrix< DDRMat > tHighCoords = this->get_vertex_coordinates( tHighNeighbor );
+
+            tDVolumeDVertex( 0 ) = 0.5 * ( tHighCoords( 1 ) - tLowCoords( 1 ) );
+            tDVolumeDVertex( 1 ) = 0.5 * ( tLowCoords( 0 ) - tHighCoords( 0 ) );
+        }
+        else
+        {
+            MORIS_ERROR( false, "Surface Mesh dVolume/dVertex computation only implemented for 2D (lines) meshes" );
+        }
+
+        return tDVolumeDVertex;
     }
 
     // --------------------------------------------------------------------------------------------------------------
