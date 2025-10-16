@@ -147,18 +147,14 @@ namespace moris::gen
         Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_spatial_dimension() * tParentVectorNorm ) * tRotationMatrix;
 
         // get the jacobians of the normal vector wrt to the facet vertices
+        // TODO BRENDAN: implement the 3D case, and remove the switch statement
         Vector< Matrix< DDRMat > > tNormalVectorSensitivities( mInterfaceGeometry.get_spatial_dimension() );
         switch ( mInterfaceGeometry.get_spatial_dimension() )
         {
             case 2:    // 2D surface mesh
             {
-                // magnitude of the normal vector
-                real tNormalVectorNorm = norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
-
-                tNormalVectorSensitivities( 0 ) = { { ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ), -1.0 * std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
-                tNormalVectorSensitivities( 1 ) = { { ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ), std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { -1.0 * std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
-                tNormalVectorSensitivities( 0 ) = tRotationMatrix / std::pow( tNormalVectorNorm, 3.0 ) * tNormalVectorSensitivities( 0 );
-                tNormalVectorSensitivities( 1 ) = tRotationMatrix / std::pow( tNormalVectorNorm, 3.0 ) * tNormalVectorSensitivities( 1 );
+                tNormalVectorSensitivities( 0 ) = mInterfaceGeometry.compute_dfacet_normal_dvertex( mParentFacet, mInterfaceGeometry.get_facets_vertex_indices( mParentFacet )( 0 ) );
+                tNormalVectorSensitivities( 1 ) = mInterfaceGeometry.compute_dfacet_normal_dvertex( mParentFacet, mInterfaceGeometry.get_facets_vertex_indices( mParentFacet )( 1 ) );
                 break;
             }
             case 3:    // 3D surface mesh
