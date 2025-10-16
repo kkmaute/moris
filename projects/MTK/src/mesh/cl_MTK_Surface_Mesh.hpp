@@ -255,7 +255,7 @@ namespace moris::mtk
         batch_get_region_from_raycast( Matrix< DDRMat >& aPoint ) const;
 
         /**
-         * @brief Determines if a point is inside or outside the surface mesh via raycasting
+         * @brief Computes all intersection distances of a ray with the surface mesh
          * This method utilizes ArborX to find ray facet intersections, and then computes the intersection locations for the ray.
          * The method will only cast a single ray, which may not be sufficient to determine the region if the ray hits an edge or another pathological case is detected
          * The region is determined by the number of intersections. Even number = outside, Odd number = inside.
@@ -264,6 +264,7 @@ namespace moris::mtk
          * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
          * @param aWarning Flag if the ray hits an edge or another pathological case
          * @param aIgnoreWarnings If true, all rays that hit a warning will be ceased immediately. Otherwise, the ray is cast and the result is returned as normal.
+         * @return Intersection_Vector Vector of pairs <uint, real> which correspond to the facet index and the distance to the intersection point. 
          */
         Intersection_Vector
         cast_single_ray(
@@ -369,18 +370,10 @@ namespace moris::mtk
         /**
          * Computes the centroids of all the facets in the surface mesh
          * Size: <spatial dim> x <number of facets>
-         * 
+         *
          * @return Matrix< DDRMat > facet centroids (average of the vertex coordinates of each facet)
          */
         Matrix< DDRMat > compute_facet_centroids() const;
-        
-        /**
-         * Gets the derivative of the shape diameter wrt a vertex's coordinates
-         *
-         * @param aVertexIndex local index of the vertex to get sensitivities of
-         * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
-         */
-        Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
 
         /**
          * Computes the measure (area in 3D, length in 2D) of a facet in the surface mesh
@@ -400,6 +393,26 @@ namespace moris::mtk
         virtual Vector< real > compute_facet_measure() const;
 
         /**
+         * Computes the normal vector for each vertex as the average of the normals of its facets
+         * Virtual as some child implementations may prefer to compute and store this value. This implementation computes it on the fly.
+         *
+         * @return Matrix< DDRMat > vertex normals stored column-wise. Size: <spatial dim> x <number of vertices>
+         */
+        virtual Matrix< DDRMat > compute_vertex_normals() const;
+
+        //-------------------------------------------------------------------------------
+        // Quantity of interest sensitivities
+        // -------------------------------------------------------------------------------
+
+        /**
+         * Gets the derivative of the shape diameter wrt a vertex's coordinates
+         *
+         * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
+         */
+        Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
+
+        /**
          * @brief Gets the derivative of the facet measure wrt a vertex's coordinates
          *
          * @param aFacetIndex local index of the facet to get sensitivities of
@@ -409,12 +422,56 @@ namespace moris::mtk
         virtual Matrix< DDRMat > compute_dfacet_measure_dvertex( const uint aFacetIndex, const uint aVertexIndex ) const;
 
         /**
-         * Computes the normal vector for each vertex as the average of the normals of its facets
-         * Virtual as some child implementations may prefer to compute and store this value. This implementation computes it on the fly.
+         * Computes the derivative of the facet normal wrt the coordinates of a facet vertex
          *
-         * @return Matrix< DDRMat > vertex normals stored column-wise. Size: <spatial dim> x <number of vertices>
+         * @param aFacetIndex local index of the facet to get sensitivities of
+         * @param aVertexIndex local index of the vertex to get sensitivities with respect to
+         * @param aRequireIsMember If true, the method will check if the vertex is part of the facet and throw an error if not. If false, the method will return a zero matrix if the vertex is not part of the facet
+         *
+         * @return Matrix< DDRMat > dNormal/dVertex jacobian. Size: <spatial dim> x <spatial dim>
+         * Rows correspond to the components of the normal vector, and columns correspond to the components of the vertex coordinates
          */
-        virtual Matrix< DDRMat > compute_vertex_normals() const;
+        Matrix< DDRMat > compute_dfacet_normal_dvertex( const uint aFacetIndex, const uint aVertexIndex, bool aRequireIsMember = false ) const;
+
+        /**
+         * Computes the sensitivity of a ray-facet intersection distance with respect to the ray origin point
+         *
+         * @param aOrigin Origin point of the ray
+         * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
+         * @param aFacetIndex Local index of the facet that the ray intersects. Must be a valid intersection
+         * @return Matrix< DDRMat > dDistance/dOrigin gradient. Size: <1> x <spatial dim>
+         */
+        Matrix< DDRMat > compute_draycast_dorigin(
+                const Matrix< DDRMat >& aOrigin,
+                const Matrix< DDRMat >& aDirection,
+                uint                    aFacetIndex ) const;
+
+        /**
+         * Computes the sensitivity of a ray-facet intersection distance with respect to the ray direction vector
+         *
+         * @param aOrigin Origin point of the ray
+         * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
+         * @param aFacetIndex Local index of the facet that the ray intersects. Must be a valid intersection
+         * @return Matrix< DDRMat > dDistance/dDirection gradient. Size: <1> x <spatial dim>
+         */
+        Matrix< DDRMat > compute_draycast_ddirection(
+                const Matrix< DDRMat >& aOrigin,
+                const Matrix< DDRMat >& aDirection,
+                uint                    aFacetIndex ) const;
+
+        /**
+         * Computes the sensitivity of a ray-facet intersection distance with respect to ALL vertices of the facet
+         *
+         * @param aOrigin Origin point of the ray
+         * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
+         * @param aFacetIndex Local index of the facet that the ray intersects. Must be a valid intersection
+         * @return Matrix< DDRMat > dDistance/dOrigin gradient. Size: <spatial dim> x <spatial dim>
+         * Columns correspond to the components of the vertex coordinates, and rows correspond to the vertices of the facet
+         */
+        Matrix< DDRMat > compute_draycast_dvertices(
+                const Matrix< DDRMat >& aOrigin,
+                const Matrix< DDRMat >& aDirection,
+                uint                    aFacetIndex ) const;
 
         //-------------------------------------------------------------------------------
         // Output Methods

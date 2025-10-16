@@ -28,11 +28,26 @@ namespace moris::mtk
     // Tests loading in the surface mesh from an obj file, and computing various quanitities of interest and their sensitivities
     TEST_CASE( "MTK Surface Mesh", "[MTK],[MTK_Surface_Mesh]" )
     {
-        Matrix< DDRMat >                tCoordsExpected  = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
-        Vector< Vector< moris_index > > tConnExpected    = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
-        Matrix< DDRMat >                tNormalsExpected = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
-        Vector< real >                  tMeasureExpected = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
-
+        Matrix< DDRMat >                     tCoordsExpected     = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
+        Vector< Vector< moris_index > >      tConnExpected       = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
+        Matrix< DDRMat >                     tNormalsExpected    = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
+        Vector< real >                       tMeasureExpected    = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
+        Vector< Vector< Matrix< DDRMat > > > tNormalSensExpected = { { { { 0.15391713, -0.41044567 }, { 0.05771892, -0.15391713 } },          // dN1/dv1
+                                                                             { { -0.15391713, 0.41044567 }, { -0.05771892, 0.15391713 } },    // dN1/dv2
+                                                                             { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },      // dN1/dv3
+                                                                             { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },    // dN1/dv4
+            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                                     // dN2/dv1
+                    { { -0.47140452, -0.47140452 }, { 0.47140452, 0.47140452 } },                                                             // dN2/dv2
+                    { { 0.47140452, 0.47140452 }, { -0.47140452, -0.47140452 } },                                                             // dN2/dv3
+                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },                                                             // dN2/dv4
+            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                                     // dN3/dv1
+                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                               // dN3/dv2
+                    { { 0.37947332, -0.12649111 }, { 1.13841996, -0.37947332 } },                                                             // dN3/dv3
+                    { { -0.37947332, 0.12649111 }, { -1.13841996, 0.37947332 } } },                                                           // dN3/dv4
+            { { { -0.38400000, 0.51200000 }, { -0.28800000, 0.38400000 } },                                                                   // dN4/dv1
+                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                               // dN4/dv2
+                    { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } },                                                               // dN4/dv3
+                    { { 0.38400000, -0.51200000 }, { 0.28800000, -0.38400000 } } } };                                                         // dN4/dv4
         // load a surface mesh from file
         std::string    tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
         Vector< real > tOffsets  = { 0.0, 0.0 };
@@ -65,6 +80,48 @@ namespace moris::mtk
 
             // Check facet measure
             CHECK( tFacetMeasures( iF ) == Approx( tMeasureExpected( iF ) ) );
+
+            // Check normal vector sensitivity wrt to every vertex in the mesh
+            for ( uint iV = 0; iV < tCoordsExpected.n_cols(); iV++ )
+            {
+                Matrix< DDRMat > tNormalSens = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
+                check_equal( tNormalSens, tNormalSensExpected( iF )( iV ), 1e8 );
+            }
+        }
+
+        SECTION( "Raycast Region, Distance, and Sensitivities - 2D" )
+        {
+            Matrix< DDRMat > tdRdOExpected = { { 0.5, 0.5 } };
+            Matrix< DDRMat > tdRdDExpected = { { 0.1125, 0.1125 } };
+
+            // define test point and direction
+            Matrix< DDRMat > tTestPoint = { { 0.8 }, { 0.4 } };
+            Matrix< DDRMat > tDirection = { { -1.0, -1.0 } };
+
+            // Check the region of this point
+            mtk::Mesh_Region tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
+            REQUIRE( tRegion == mtk::Mesh_Region::INSIDE );
+
+            // Get the distance and sensitivities
+            bool                tWarning;
+            Intersection_Vector tDistance = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
+            REQUIRE( tDistance.size() == 1 );
+            CHECK( tDistance( 0 ).second == Approx( 0.2250 ) );    // distance
+            CHECK( tDistance( 0 ).first == 1 );                    // intersected facet
+            CHECK( not tWarning );                                 // no warning
+
+            // Get the sensitivity wrt to the ray origin
+            Matrix< DDRMat > tdRdO = tSurfaceMesh.compute_draycast_dorigin( tTestPoint, tDirection, tDistance( 0 ).first );
+
+            // Get the sensitivity wrt to the ray direction
+            Matrix< DDRMat > tdRdD = tSurfaceMesh.compute_draycast_ddirection( tTestPoint, tDirection, tDistance( 0 ).first );
+
+            // Loop over sensitivities and check they are correct
+            for ( uint iS = 0; iS < 2; iS++ )    // Loop over spatial dimensions
+            {
+                CHECK( tdRdO( iS ) == Approx( tdRdOExpected( iS ) ) );
+                CHECK( tdRdD( iS ) == Approx( tdRdDExpected( iS ) ) );
+            }
         }
     }
     // Test for raycasting
@@ -217,8 +274,6 @@ namespace moris::mtk
                 // REQUIRE( tIntersections.size() == 2 );
                 // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
                 // CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
-
-                // ensure the test gives the same result when the entire algorithm is called, repeat many times for many different random vectors
 
                 mtk::Mesh_Region tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::OUTSIDE );

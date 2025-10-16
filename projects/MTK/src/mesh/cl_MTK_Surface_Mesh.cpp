@@ -787,14 +787,14 @@ namespace moris::mtk
         Matrix< DDRMat > tEdge = tFacetCoordinates.get_column( 1 ) - tFacetCoordinates.get_column( 0 );
 
         // Vector from the origin of the ray to the origin of the first vertex
-        Matrix< DDRMat > tRayToVertex;
+        Matrix< DDRMat > tOriginToV0;
         if ( aPoint.n_cols() == 1 )
         {
-            tRayToVertex = tFacetCoordinates.get_column( 0 ) - aPoint;
+            tOriginToV0 = tFacetCoordinates.get_column( 0 ) - aPoint;
         }
         else
         {
-            tRayToVertex = tFacetCoordinates.get_column( 0 ) - trans( aPoint );
+            tOriginToV0 = tFacetCoordinates.get_column( 0 ) - trans( aPoint );
         }
 
         // Get the determinant of the edge and the cast direction
@@ -804,7 +804,7 @@ namespace moris::mtk
         if ( std::abs( tDet ) < mIntersectionTolerance )
         {
             // Check for colinearity
-            if ( std::abs( cross_2d( tRayToVertex, aDirection ) < mIntersectionTolerance ) )
+            if ( std::abs( cross_2d( tOriginToV0, aDirection ) < mIntersectionTolerance ) )
             {
                 // Check if the point is in between the vertices
                 if ( ( tFacetCoordinates( 0, 0 ) - aPoint( 0 ) ) * ( tFacetCoordinates( 0, 1 ) - aPoint( 0 ) ) < 0.0
@@ -838,8 +838,8 @@ namespace moris::mtk
         real tInverseDet = 1.0 / tDet;
 
         // Solve the 2D system
-        real tDistance = cross_2d( tRayToVertex, tEdge ) * tInverseDet;
-        real tU        = cross_2d( tRayToVertex, aDirection ) * tInverseDet;
+        real tDistance = cross_2d( tOriginToV0, tEdge ) * tInverseDet;
+        real tU        = cross_2d( tOriginToV0, aDirection ) * tInverseDet;
 
         // Check the u parameter for edge cases
         aWarning = ( ( std::abs( tU ) < 1e-3 and std::abs( tU ) > mIntersectionTolerance )
@@ -888,18 +888,18 @@ namespace moris::mtk
         real tInverseDeterminant = 1.0 / tDet;
 
         // Compute the vector from the origin to the first vertex
-        Matrix< DDRMat > tRayToVertex;
+        Matrix< DDRMat > tOriginToV0;
         if ( aPoint.n_cols() == 1 )
         {
-            tRayToVertex = aPoint - tVertexCoordinates.get_column( 0 );
+            tOriginToV0 = aPoint - tVertexCoordinates.get_column( 0 );
         }
         else
         {
-            tRayToVertex = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
+            tOriginToV0 = trans( aPoint ) - tVertexCoordinates.get_column( 0 );
         }
 
         // Compute the u parameter
-        real tU = dot( tRayToVertex, tP ) * tInverseDeterminant;
+        real tU = dot( tOriginToV0, tP ) * tInverseDeterminant;
 
         // If the u parameter is < 0.0 or > 1.0, the intersection is outside the triangle
         if ( tU < -mIntersectionTolerance or tU > 1.0 + mIntersectionTolerance )
@@ -908,7 +908,7 @@ namespace moris::mtk
         }
 
         // Compute the vector from the origin to the second vertex
-        Matrix< DDRMat > tQ = cross( tRayToVertex, tEdge1 );
+        Matrix< DDRMat > tQ = cross( tOriginToV0, tEdge1 );
 
         // Compute the v parameter
         real tV = dot( aDirection, tQ ) * tInverseDeterminant;
@@ -2088,6 +2088,7 @@ namespace moris::mtk
             }
             case 3:
             {
+                MORIS_ERROR( false, "Surface_Mesh::compute_dfacet_measure_dvertex - Not implemented for 3D yet." );
                 return { { 0.0, 0.0, 0.0 } };    // TODO: implement for 3D
                 break;
             }
@@ -2097,6 +2098,213 @@ namespace moris::mtk
                 return { {} };
             }
         }
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_dfacet_normal_dvertex( uint aFacet, uint aVertex, bool aRequireIsMember ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        // Initialize sensitivity
+        Matrix< DDRMat > tSensitivity( tDim, tDim, 0.0 );
+
+        // Get the vertex indices of the facet
+        const Vector< moris_index >& tFacetVertices = this->get_facets_vertex_indices( aFacet );
+
+        // Get the index of the vertex in the facet
+        uint tVertexInFacetIndex = MORIS_UINT_MAX;
+        if ( aVertex == (uint)tFacetVertices( 0 ) )
+        {
+            tVertexInFacetIndex = 0;
+        }
+        else if ( aVertex == (uint)tFacetVertices( 1 ) )
+        {
+            tVertexInFacetIndex = 1;
+        }
+        else if ( tDim == 3 && aVertex == (uint)tFacetVertices( 2 ) )
+        {
+            tVertexInFacetIndex = 2;
+        }
+
+        // If the vertex is not part of the facet, return or throw an error based on the desired behavior
+        if ( tVertexInFacetIndex == MORIS_UINT_MAX )
+        {
+            MORIS_ERROR( not aRequireIsMember, "Surface_Mesh::compute_dfacet_normal_dvertex - Vertex is not part of the facet and the function was called requiring this to be the case." );
+            return Matrix< DDRMat >( tDim, tDim, 0.0 );
+        }
+
+        // Get the vertex coordinates of the facet
+        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( aFacet );
+
+        switch ( tDim )
+        {
+            case 2:
+            {
+                // magnitude of the normal vector
+                real tInverseNormalVectorNorm = 1.0 / norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
+
+                if ( tVertexInFacetIndex == 0 )
+                {
+                    tSensitivity = { { ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ), -1.0 * std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
+                }
+                else
+                {
+                    tSensitivity = { { ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ), std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { -1.0 * std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
+                }
+                return std::pow( tInverseNormalVectorNorm, 3.0 ) * tSensitivity;
+            }
+            case 3:
+            {
+                // Compute the normal vector (not unit)
+                Matrix< DDRMat > tNormal = cross( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ), tVertexCoordinates.get_column( 2 ) - tVertexCoordinates.get_column( 0 ) );
+
+                // magnitude of the normal vector
+                real tInverseNormalVectorNorm = 1.0 / norm( tNormal );
+
+                Matrix< DDRMat > tNormalVectorNormSensitivity( 3, 3, 0.0 );
+
+                if ( tVertexInFacetIndex == 0 )
+                {
+                    tSensitivity                 = { { 0.0, tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ), tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 1, 1 ) }, { tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 2, 1 ), 0.0, tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ) }, { tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ), tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 0, 1 ), 0.0 } };
+                    tNormalVectorNormSensitivity = { { tNormal( 2 ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ) ) - tNormal( 1 ) * ( tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ) ), -tNormal( 2 ) * ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 2 ) ), tNormal( 1 ) * ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 2 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 2 ) ) } };
+                }
+                else if ( tVertexInFacetIndex == 1 )
+                {
+                    tSensitivity                 = { { 0.0, tVertexCoordinates( 2, 2 ) - tVertexCoordinates( 2, 0 ), tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ) }, { tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ), 0.0, tVertexCoordinates( 0, 2 ) - tVertexCoordinates( 0, 0 ) }, { tVertexCoordinates( 1, 2 ) - tVertexCoordinates( 1, 0 ), tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ), 0.0 } };
+                    tNormalVectorNormSensitivity = { { -tNormal( 2 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ) ) + tNormal( 1 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ) ), tNormal( 2 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 2 ) ), -tNormal( 1 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 2 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 2 ) ) } };
+                }
+                else if ( tVertexInFacetIndex == 2 )
+                {
+                    tSensitivity                 = { { 0.0, tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ), tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) }, { tVertexCoordinates( 2, 1 ) - tVertexCoordinates( 2, 0 ), 0.0, tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) }, { tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ), tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 0.0 } };
+                    tNormalVectorNormSensitivity = { { tNormal( 2 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) - tNormal( 1 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 2, 1 ) ), -tNormal( 2 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) + tNormal( 0 ) * ( tVertexCoordinates( 2, 0 ) - tVertexCoordinates( 2, 1 ) ), tNormal( 1 ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) - tNormal( 0 ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
+                }
+
+                return tInverseNormalVectorNorm * tInverseNormalVectorNorm * ( tSensitivity - tNormal * tInverseNormalVectorNorm * tNormalVectorNormSensitivity );
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_dfacet_normal_dvertex - Only implemented for 2D and 3D." );
+                return { {} };
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_draycast_dorigin( const Matrix< DDRMat >& aRayDirection, const Matrix< DDRMat >& aDirection, uint aFacetIndex ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        // Get the vertex coordinates of the facet
+        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( aFacetIndex );
+
+        switch ( tDim )
+        {
+            case 2:
+            {
+                // Compute the edge vector
+                Matrix< DDRMat > tEdge = tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 );
+
+                // Compute the inverse determinant
+                real tInvDet = 1.0 / cross_2d( aDirection, tEdge );
+
+                Matrix< DDRMat > tNormal = { { tEdge( 1 ), -tEdge( 0 ) } };    // non-unit vector. Transposed to make the sensitivity matrix the correct size
+
+                return -tInvDet * tNormal;
+            }
+            case 3:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_draycast_dorigin - do 3d implementation" );
+                return { {} };
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_draycast_dorigin - Only implemented for 2D and 3D." );
+                return { {} };
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_draycast_ddirection( const Matrix< DDRMat >& aOrigin, const Matrix< DDRMat >& aDirection, uint aFacetIndex ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        Matrix< DDRMat > tSensitivity( 1, tDim, 0.0 );
+
+        // Get the vertex coordinates of the facet
+        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates_of_facet( aFacetIndex );
+
+        switch ( tDim )
+        {
+            case 2:
+            {
+                // Compute the edge vector
+                Matrix< DDRMat > tEdge = tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 );
+
+                // Vector from the origin of the ray to the origin of the first vertex
+                Matrix< DDRMat > tOriginToV0;
+                if ( aOrigin.n_cols() == 1 )
+                {
+                    tOriginToV0 = tVertexCoordinates.get_column( 0 ) - aOrigin;
+                }
+                else
+                {
+                    tOriginToV0 = tVertexCoordinates.get_column( 0 ) - trans( aOrigin );
+                }
+
+                // Compute the determinant of the ray to the first vertex and the edge
+                real tDet = cross_2d( tOriginToV0, tEdge );
+
+                // Compute the inverse determinant of the edge and the ray direction
+                real tInvDet = 1.0 / cross_2d( aDirection, tEdge );
+
+                Matrix< DDRMat > tNormal = { { tEdge( 1 ), -tEdge( 0 ) } };    // non-unit vector. Transposed to make the sensitivity matrix the correct size
+
+                return -tInvDet * tInvDet * tDet * tNormal;
+            }
+            case 3:
+            {
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_draycast_dorigin - Only implemented for 2D and 3D." );
+                break;
+            }
+        }
+
+        return tSensitivity;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Surface_Mesh::compute_draycast_dvertices( const Matrix< DDRMat >& aRayDirection, const Matrix< DDRMat >& aDirection, uint aFacetIndex ) const
+    {
+        uint tDim = this->get_spatial_dimension();
+
+        Matrix< DDRMat > tSensitivity( 1, tDim, 0.0 );
+
+        switch ( tDim )
+        {
+            case 2:
+            {
+                break;
+            }
+            case 3:
+            {
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Surface_Mesh::compute_draycast_dorigin - Only implemented for 2D and 3D." );
+                break;
+            }
+        }
+
+        return tSensitivity;
     }
 
     // --------------------------------------------------------------------------------------------------------------
