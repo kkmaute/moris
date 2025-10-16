@@ -701,11 +701,12 @@ namespace moris::gen
         // Get the number of ADVs
         Vector< real > tADVs = this->get_advs();
         int tNumADVs = tADVs.size();
+        int tDim   = tInterpolationMesh->get_spatial_dim();
         
         if ( mWriteDesignExtractionOperators )
         {
             // Write design extraction operators to file
-            mPDVHostManager.write_design_extraction_operators_to_file( tNumADVs );
+            mPDVHostManager.write_design_extraction_operators_to_file( tNumADVs ,tDim );
 
         }
         

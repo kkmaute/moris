@@ -394,7 +394,6 @@ namespace moris::wrk
         {
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
             MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );   
-            MORIS_LOG( "Design T-Matrix output also being written to file. Need to change this to work only on requesting." );
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
              // get the MIG parameter list
             ModuleParameterList tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MIG );
