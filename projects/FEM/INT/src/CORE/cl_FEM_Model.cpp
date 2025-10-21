@@ -1010,7 +1010,7 @@ namespace moris::fem
         for ( auto &tIQI : mIQIs )
         {
             // Register IQI with the Design Variable Interface
-            mDesignVariableInterface->register_QI( tIQI->get_name(), Module_Type::FEM, MORIS_REAL_MAX );
+            mDesignVariableInterface->register_QI( tIQI->get_name(), Module_Type::FEM, 0.0 );
         }
     }
 
