@@ -44,6 +44,13 @@ namespace moris::mtk
             { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } } },
             { { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } } }
         };
+
+        Vector< Vector< Matrix< DDRMat > > > tMeasureSensExpected = {
+            { { { 0.93632918, 0.35112344 } }, { { -0.93632918, -0.35112344 } }, { { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 } } },
+            { { { 0.00000000, 0.00000000 } }, { { -0.70710678, 0.70710678 } }, { { 0.70710678, -0.70710678 } }, { { 0.00000000, 0.00000000 } } },
+            { { { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 } }, { { -0.31622777, -0.94868330 } }, { { 0.31622777, 0.94868330 } } },
+            { { { 0.80000000, 0.60000000 } }, { { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 } }, { { -0.80000000, -0.60000000 } } },
+        };
         // load a surface mesh from file
         std::string    tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
         Vector< real > tOffsets  = { 0.0, 0.0 };
@@ -80,10 +87,12 @@ namespace moris::mtk
             // Check normal vector sensitivity wrt to every vertex in the mesh
             for ( uint iV = 0; iV < tCoordsExpected.n_cols(); iV++ )
             {
-                Matrix< DDRMat > tNormalSens = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
-                Matrix< DDRMat > tCenterSens = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
+                Matrix< DDRMat > tNormalSens  = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
+                Matrix< DDRMat > tCenterSens  = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
+                Matrix< DDRMat > tMeasureSens = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
                 check_equal( tNormalSens, tNormalSensExpected( iF )( iV ), 1e8 );
                 check_equal( tCenterSens, tCenterSensExpected( iF )( iV ), 1e8 );
+                check_equal( tMeasureSens, tMeasureSensExpected( iF )( iV ), 1e8 );
             }
         }
 
