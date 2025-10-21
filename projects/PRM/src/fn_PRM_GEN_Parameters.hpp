@@ -256,8 +256,8 @@ namespace moris::prm
                 break;
             case gen::GQI_Type::SHAPE_DIAMETER:
                 aGQIParameterList.set( "GQI_type", gen::GQI_Type::SHAPE_DIAMETER );
-                aGQIParameterList.insert( "number_of_rays_per_cone", 20 );
-                aGQIParameterList.insert( "cone_angle", 30.0 );
+                aGQIParameterList.insert( "number_of_rays_per_cone", 20, 1, 1000 );
+                aGQIParameterList.insert( "cone_angle", 30.0, 0.0, 179.9999999 );
                 break;
             default:
                 MORIS_ERROR( false, "GQI %s type not implemented.", gen::GQI_Type_String::values( static_cast< uint >( aGQIType ) ).c_str() );
