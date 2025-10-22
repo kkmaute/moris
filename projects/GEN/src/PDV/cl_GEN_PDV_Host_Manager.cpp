@@ -661,7 +661,6 @@ namespace moris::gen
                                 Matrix< DDRMat > tIndividualSensitivity =
                                         ( *tdQI )( tPDVID, iModuleQIIndex ) * tHostADVSensitivities;
 
-                                std::cout << "PDV ID: " << tPDVID << " Module QI Index: " << iModuleQIIndex << " Sensitivity: " << ( *tdQI )( tPDVID ) << std::endl;
                                 // Fill matrix
                                 tdIQIdADV->sum_into_global_values( tADVIds, tIndividualSensitivity, tQIIndex );
                             }
@@ -702,7 +701,7 @@ namespace moris::gen
                         for ( uint iModuleQIIndex = 0; iModuleQIIndex < tModuleRequestedQIIndices.size(); iModuleQIIndex++ )
                         {
                             // Get the index in the full requested list
-                            uint tQIIndex = std::distance( tRequestedQIIndices.cbegin(), std::find( tRequestedQIIndices.cbegin(), tRequestedQIIndices.cend(), iModuleQIIndex ) );
+                            uint tQIIndex = std::distance( tRequestedQIIndices.cbegin(), std::find( tRequestedQIIndices.cbegin(), tRequestedQIIndices.cend(), tModuleRequestedQIIndices( iModuleQIIndex ) ) );
 
                             Matrix< DDRMat > tIndividualSensitivity =
                                     ( *tdQI )( tPDVID, iModuleQIIndex ) * tHostADVSensitivities.get_row( tCoordinateIndex );

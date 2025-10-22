@@ -191,6 +191,12 @@ void Vector_Epetra::sum_into_global_values(
         return;
     }
 
+    // Check for valid vector index
+    MORIS_ASSERT( aVectorIndex < (uint)this->get_num_vectors(),
+            "Vector_Epetra::sum_into_global_values - vector index %d out of range (Multivector has %d vectors)",
+            aVectorIndex,
+            this->get_num_vectors() );
+
     // call native epetra function
     if ( mVecBuildWithPointMap )
     {
