@@ -36,6 +36,11 @@
 
 using namespace moris;
 
+#if MORIS_HAVE_ARBORX
+// initialize Kokkos for the use in the spatial tree library ArborX
+static std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+#endif
+
 TEST_CASE(
         "gen::sdf::Generator",
         "[geomeng],[sdf],[Triangle]" )
