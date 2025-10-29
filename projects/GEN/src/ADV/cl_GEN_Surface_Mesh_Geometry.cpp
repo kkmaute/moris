@@ -2175,7 +2175,7 @@ namespace moris::gen
         switch ( aGQIType )
         {
             case GQI_Type::SHAPE_DIAMETER:
-                return Surface_Mesh::compute_shape_diameter();
+                return Surface_Mesh::compute_global_shape_diameter( 30.0, 20 );    // BRENDAN FIXME: make parameters configurable
             case GQI_Type::VOLUME:
                 return Surface_Mesh::compute_volume();
                 break;
