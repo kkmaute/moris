@@ -337,8 +337,8 @@ namespace moris::mtk
             {
                 // create surface mesh from object file
                 std::string    tFilePath = tMorisRoot + "projects/GEN/SDF/test/data/tetrahedron.obj";
-                Vector< real > tOffsets  = { 0.0, 0.0 };
-                Vector< real > tScales   = { 1.0, 1.0 };
+                Vector< real > tOffsets  = { 0.0, 0.0, 0.0 };
+                Vector< real > tScales   = { 1.0, 1.0, 1.0 };
                 Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tFilePath, tOffsets, tScales ), load_facets_from_object_file( tFilePath ) );
 
                 // define test point that is inside the object
@@ -349,13 +349,12 @@ namespace moris::mtk
                 REQUIRE( tPointIsInside == mtk::Mesh_Region::INSIDE );
 
                 // repeat test for point that is outside
-                tTestPoint = { { 0.2, 0.6, 0.7 } };
+                tTestPoint     = { { 0.2, 0.6, 0.7 } };
+                tPointIsInside = tSurfaceMesh.get_region_from_raycast( tTestPoint );
+                REQUIRE( tPointIsInside == mtk::Mesh_Region::OUTSIDE );
 
                 // Repeat for all of them at the same time using batching
                 tTestPoint = { { 0.9, 0.2 }, { 0.6, 0.6 }, { 0.7, 0.7 } };
-
-                tPointIsInside = tSurfaceMesh.get_region_from_raycast( tTestPoint );
-                REQUIRE( tPointIsInside == mtk::Mesh_Region::OUTSIDE );
 
                 // Get the regions
                 Vector< mtk::Mesh_Region > tRegions  = tSurfaceMesh.batch_get_region_from_raycast( tTestPoint );
@@ -382,7 +381,6 @@ namespace moris::mtk
                 mtk::Mesh_Region tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::OUTSIDE );
 
-
                 // repeat for a point inside the surface
                 tTestPoint = { { -.25 }, { 0.2 } };
 
@@ -395,7 +393,6 @@ namespace moris::mtk
 
                 tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::INTERFACE );
-
 
                 // Repeat with a point that is on a vertex
                 tTestPoint( 0, 0 ) = 0.0;
