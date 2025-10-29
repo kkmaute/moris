@@ -16,7 +16,7 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
-
+#include "cl_SOL_Dist_Matrix.hpp"
 #include "cl_Communication_Tools.hpp"
 
 #include "HDF5_Tools.hpp"
@@ -90,6 +90,7 @@ void Linear_Solver::solver_linear_system(
 
     moris::sint tErrorStatus        = 0;
     moris::sint tTryRestartOnFailIt = 1;
+    mConvReason = false;
 
     moris::sint tMaxNumLinRestarts =
             mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
@@ -98,6 +99,13 @@ void Linear_Solver::solver_linear_system(
     aLinearProblem->set_rhs_matrix_type( tRHSMatrixType );
 
     mLinearSolverList( 0 )->set_trust_region_size( mTrSize );
+    MORIS_LOG_INFO("Trust Region size passed to linear solver: %f", mTrSize);
+
+    // Set flag to indicate if preconditioner should be updated
+    mLinearSolverList( 0 )->set_preconditioner_update_flag( mUpdatePreconditionerFlag );
+
+    // Set linear problem to be used for preconditioner, needed if preconditioner should be updated
+    mLinearSolverList( 0 )->set_jacobian_for_preconditioner( mPreconditionerJacobian );
 
     // if printing of LHS requested through input file, initialize hdf5 files here
     // and save LHS before and after solve
@@ -119,6 +127,9 @@ void Linear_Solver::solver_linear_system(
         // solve system
         tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
 
+        // Get convergence reason
+        mConvReason = mLinearSolverList( 0 )->get_convergence_reason();
+
         // get update after solve
         aLinearProblem->get_free_solver_LHS()->extract_copy( tLHS );
 
@@ -133,6 +144,8 @@ void Linear_Solver::solver_linear_system(
     {
         // solve system
         tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
+        
+        // Get convergence reason
         mConvReason = mLinearSolverList( 0 )->get_convergence_reason();
     }
 

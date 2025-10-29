@@ -28,6 +28,13 @@ namespace moris::fem
         // sign for symmetric/unsymmetric Nitsche
         mBeta = aBeta;
 
+        // To convert to pure penalty method 
+
+        if (mBeta == 0)
+        {
+            mTheta = 0;
+        }
+
         // assign stress and strain type to evaluate the IWG
         mStressType = aStressType;
         mStrainType = aStrainType;
@@ -116,7 +123,7 @@ namespace moris::fem
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                                                                 //
                     aWStar * (                                                                                                         //
-                            -tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType )                                //
+                             mTheta *-tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType )                                //
                             + mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tJump    //
                             + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
 

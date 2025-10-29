@@ -354,6 +354,15 @@ void Sparse_Matrix_EpetraFECrs::mat_vec_product(
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
+void Sparse_Matrix_EpetraFECrs::mat_plus_mat(
+        const moris::real&             aAlpha, // scaling factor for matrix to be added
+        moris::sol::Dist_Matrix&       aA,     // new matrix to be added
+        const moris::real&             aBeta ) // scaling factor for this matrix
+{
+    MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::mat_plus_mat: not implemented yet." );
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
 
 void Sparse_Matrix_EpetraFECrs::print() const
 {

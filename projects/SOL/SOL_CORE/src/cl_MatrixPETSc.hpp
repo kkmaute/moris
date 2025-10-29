@@ -136,6 +136,14 @@ namespace moris
                 const moris::sol::Dist_Vector& aInputVec,
                 moris::sol::Dist_Vector&       aResult,
                 const bool                     aUseTranspose ) override;
+
+        //----------------------------------------------------------------------------------------
+
+        void mat_plus_mat(
+                const moris::real&             aAlpha, // scaling factor for matrix to be added
+                moris::sol::Dist_Matrix& aA,     // new matrix to be added
+                const moris::real&             aBeta ) override; // scaling factor for this matrix
+
         //----------------------------------------------------------------------------------------
         void print() const override;
 

@@ -44,7 +44,9 @@ namespace moris
             moris::real mNumFactTime;
             moris::real mPreCondTime;
             moris::real mTrSize;
-            bool mConvergenceReasonIsTrSz;
+            bool mConvergenceReasonIsTrSz = false;
+            bool mUpdatePreconditionerFlag = false;
+            sol::Dist_Matrix* mPreconditionerJacobian = nullptr; // to be used if preconditioner needs to be updated
 
             Solver_Interface* mSolverInterface = nullptr;
 
@@ -150,9 +152,34 @@ namespace moris
              * @brief get trust region size variable
              * @return Size of the trust region
              */
-            virtual moris::real get_convergence_reason() const
+            virtual bool get_convergence_reason() const
             {
                 return mConvergenceReasonIsTrSz; 
+            };
+            //-----------------------------------------------------------------------------------
+
+            virtual bool get_preconditioner_update_flag() const
+            {
+                return mUpdatePreconditionerFlag;
+            };
+            //-----------------------------------------------------------------------------------
+            
+            virtual void set_preconditioner_update_flag( const bool aFlag )
+            {
+                mUpdatePreconditionerFlag = aFlag;
+            };
+            //-----------------------------------------------------------------------------------
+
+            virtual void set_jacobian_for_preconditioner( sol::Dist_Matrix* aJacobian )
+            {
+                // to be used if preconditioner needs to be updated
+                mPreconditionerJacobian = aJacobian;
+            };
+            //-----------------------------------------------------------------------------------
+
+            virtual sol::Dist_Matrix* get_jacobian_for_preconditioner() 
+            {
+                return mPreconditionerJacobian;
             };
 
 

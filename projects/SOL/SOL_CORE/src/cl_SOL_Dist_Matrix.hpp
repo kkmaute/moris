@@ -140,6 +140,11 @@ namespace moris::sol
                     moris::sol::Dist_Vector&       aResult,
                     const bool                     aUseTranspose ) = 0;
 
+            virtual void mat_plus_mat(
+                    const moris::real&       aAlpha, // scaling factor for matrix to be added
+                    moris::sol::Dist_Matrix& aA, // new matrix to be added
+                    const moris::real&       aBeta ) = 0; // scaling factor for this matrix
+
             virtual void print() const = 0;
 
             virtual void save_matrix_to_matlab_file( const char* aFilename ) = 0;

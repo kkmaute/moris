@@ -375,3 +375,24 @@ void Matrix_PETSc::mat_vec_product(
     // perform the matrix vector multiplication
     MatMatMult( mPETScMat, tPetscSourceMultiVec,  MAT_REUSE_MATRIX, PETSC_DEFAULT, &tPetscResultMultiVec );
 }
+
+// ----------------------------------------------------------------------------
+void Matrix_PETSc::mat_plus_mat(
+        const moris::real&             aAlpha,    // scaling factor for matrix to be added
+        moris::sol::Dist_Matrix&       aA,        // new matrix to be added
+        const moris::real&             aBeta ) // scaling factor for this matrix
+{
+
+    // case the input vector into the petsc multivector(Mat) object
+    Matrix_PETSc& tPetscAMat = dynamic_cast< Matrix_PETSc& >( aA );
+    Mat                 tPetscAMatMat = tPetscAMat.get_petsc_matrix();
+
+    // scale this matrix by beta
+    MatScale( mPETScMat, aBeta );
+
+    // add the two matrices and store the result in this matrix
+    MatAXPY( mPETScMat, aAlpha, tPetscAMatMat, DIFFERENT_NONZERO_PATTERN );
+
+    // finalize assembly of the matrix
+    this->matrix_global_assembly();
+}

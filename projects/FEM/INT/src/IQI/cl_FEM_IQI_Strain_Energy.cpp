@@ -62,7 +62,16 @@ namespace moris::fem
                 mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
         // evaluate the QI
-        aQI = 0.5 * trans( tCMElasticity->flux( mStressType ) ) * tCMElasticity->strain( mStrainType );
+        if ( mStressType == CM_Function_Type::DEFAULT && mStrainType == CM_Function_Type::LAGRANGIAN )
+        {
+            real tStrainEnergyDensity = 0;
+            tCMElasticity->eval_strain_energy_density( tStrainEnergyDensity );
+            aQI = tStrainEnergyDensity;
+        }
+        else
+        {
+            aQI = 0.5 * trans( tCMElasticity->flux( mStressType ) ) * tCMElasticity->strain( mStrainType );
+        }
 
         // if bedding
         if ( tPropBedding != nullptr )
@@ -109,7 +118,16 @@ namespace moris::fem
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
         // evaluate the QI
-        mSet->get_QI()( tQIIndex ) += aWStar * 0.5 * trans( tCMElasticity->strain( mStrainType ) ) * tCMElasticity->flux( mStressType );
+        if (mStressType == CM_Function_Type::DEFAULT && mStrainType == CM_Function_Type::LAGRANGIAN )
+        {
+            real tStrainEnergyDensity = 0;
+            tCMElasticity->eval_strain_energy_density( tStrainEnergyDensity );
+            mSet->get_QI()( tQIIndex ) += aWStar * tStrainEnergyDensity;
+        }
+        else
+        {
+            mSet->get_QI()( tQIIndex ) += aWStar * 0.5 * trans( tCMElasticity->strain( mStrainType ) ) * tCMElasticity->flux( mStressType );
+        }
 
         // if bedding
         if ( tPropBedding != nullptr )

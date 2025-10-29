@@ -100,6 +100,8 @@ namespace moris::fem
                 return std::make_shared< IQI_Strain_Energy >();
             case IQI_Type::STRAIN_ENERGY_NL:
                 return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
+            case IQI_Type::STRAIN_ENERGY_NEO_HOOKEAN:
+                return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::DEFAULT, CM_Function_Type::LAGRANGIAN );
 
             case IQI_Type::NORMAL_STRESS:
                 return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );
@@ -232,8 +234,8 @@ namespace moris::fem
                 return std::make_shared< IQI_Nitsche_Energy >();
             case IQI_Type::NITSCHE_ENERGY_NL:
                 return std::make_shared< IQI_Nitsche_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
-
-            
+            case IQI_Type::PENALTY_ENERGY:
+                return std::make_shared< IQI_Nitsche_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, 0 );
 
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

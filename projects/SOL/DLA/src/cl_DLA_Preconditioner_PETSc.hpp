@@ -57,6 +57,10 @@ namespace moris
 
             //-----------------------------------------------------------------------------------
 
+            void build_cholesky_preconditioner( sol::Dist_Matrix* aMatrix, Linear_Problem* aLinearSystem );
+
+            //-----------------------------------------------------------------------------------
+
             void build_ilu_preconditioner( Linear_Problem* aLinearSystem );
 
             //-----------------------------------------------------------------------------------
@@ -83,6 +87,10 @@ namespace moris
              */
 
             void build_preconditioner( Linear_Problem* aLinearSystem, KSP aPetscKSPProblem );
+
+            //-----------------------------------------------------------------------------------
+
+            void build_preconditioner( sol::Dist_Matrix* aMatrix, Linear_Problem* aLinearSystem, KSP aPetscKSPProblem );
 
             //-----------------------------------------------------------------------------------
         };

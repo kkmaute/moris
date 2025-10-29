@@ -104,6 +104,15 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
     // initialize convergence monitoring
     Convergence tConvergence( tRefIts );
 
+    // // Set requested IQI names
+    // mNonlinearProblem->get_solver_interface()->set_trust_region_flag( true );
+    // Vector< std::string > tIQIs = mParameterListNonlinearSolver.get< Vector< std::string > >( "NLA_trust_region_objective" );
+    // mNonlinearProblem->get_solver_interface()->set_trust_region_IQI_name( tIQIs );
+
+    // // Compute initial IQI values
+    // mNonlinearProblem->get_solver_interface()->compute_IQI();
+    // Vector< Matrix< DDRMat > > tIQI = mNonlinearProblem->get_solver_interface()->get_IQI();
+
     // Newton loop
     for ( sint It = 1; It <= tMaxIts; ++It )
     {
@@ -215,6 +224,18 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 -tRelaxationParameter,
                 *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),
                 1.0 );
+
+        // Compute New IQI values
+        mMyNonLinSolverManager->get_solver_interface()->compute_IQI();
+
+        // obtain new IQI values
+        Vector< Matrix< DDRMat > > tNewIQI = mMyNonLinSolverManager->get_solver_interface()->get_IQI();
+
+        // // Compute value of incremental objective
+        // real tIncrementalObjective = (tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 )) - ( tNewIQI( 0 )( 0 ) - tNewIQI( 1 )( 0 ) + tNewIQI( 2 )( 0 ) );
+        // MORIS_LOG_SPEC( "IncrementalObjective", tIncrementalObjective );
+
+        // tIQI = tNewIQI;
     }
 }
 

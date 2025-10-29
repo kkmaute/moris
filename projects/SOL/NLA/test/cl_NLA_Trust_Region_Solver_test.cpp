@@ -55,6 +55,11 @@ namespace moris
 
         std::cout<< "Residual Norm in func  " << std::sqrt(tResidual( 0, 0 )*tResidual( 0, 0 ) + tResidual( 1, 0 )*tResidual( 1, 0 ) + tResidual( 2, 0 )*tResidual( 2, 0 ))<<'\n';
 
+        // Print out the values of the residual
+        std::cout<<"tResidual( 0, 0 )"<<tResidual( 0, 0 )<<'\n';
+        std::cout<<"tResidual( 1, 0 )"<<tResidual( 1, 0 )<<'\n';
+        std::cout<<"tResidual( 2, 0 )"<<tResidual( 2, 0 )<<'\n';
+
         return tResidual;
     }
 
@@ -73,15 +78,15 @@ namespace moris
         tJacobian( 1, 1 ) =  2.0 * std::pow( tMyValues( 0, 0 ), 2) + (3.0/5.0);
         tJacobian( 2, 2 ) =  2.0/5.0;
 
-        std::cout<<tJacobian( 0, 0 )<<'\n';
-        std::cout<<tJacobian( 0, 1 )<<'\n';
-        std::cout<<tJacobian( 0, 2 )<<'\n';
-        std::cout<<tJacobian( 1, 0 )<<'\n';
-        std::cout<<tJacobian( 1, 1 )<<'\n';
-        std::cout<<tJacobian( 1, 2 )<<'\n';
-        std::cout<<tJacobian( 2, 0 )<<'\n';
-        std::cout<<tJacobian( 2, 1 )<<'\n';
-        std::cout<<tJacobian( 2, 2 )<<'\n';
+        std::cout<<"tJacobian( 0, 0 )"<<tJacobian( 0, 0 )<<'\n';
+        std::cout<<"tJacobian( 0, 1 )"<<tJacobian( 0, 1 )<<'\n';
+        std::cout<<"tJacobian( 0, 2 )"<<tJacobian( 0, 2 )<<'\n';
+        std::cout<<"tJacobian( 1, 0 )"<<tJacobian( 1, 0 )<<'\n';
+        std::cout<<"tJacobian( 1, 1 )"<<tJacobian( 1, 1 )<<'\n';
+        std::cout<<"tJacobian( 1, 2 )"<<tJacobian( 1, 2 )<<'\n';
+        std::cout<<"tJacobian( 2, 0 )"<<tJacobian( 2, 0 )<<'\n';
+        std::cout<<"tJacobian( 2, 1 )"<<tJacobian( 2, 1 )<<'\n';
+        std::cout<<"tJacobian( 2, 2 )"<<tJacobian( 2, 2 )<<'\n';
 
         return tJacobian;
     }
@@ -143,12 +148,14 @@ namespace moris
                 Nonlinear_Problem tNonlinearProblem( tSolverInput, 0, true, sol::MapType::Petsc );
 
                 Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
-                tNonlinearSolverParameterList.set( "NLA_max_iter", 20 );
+                tNonlinearSolverParameterList.set( "NLA_max_iter", 1000 );
                 tNonlinearSolverParameterList.set( "NLA_hard_break", false );
                 tNonlinearSolverParameterList.set( "NLA_max_lin_solver_restarts", 2 );
                 tNonlinearSolverParameterList.set( "NLA_rebuild_jacobian", true );
                 tNonlinearSolverParameterList.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::TRUST_REGION_SOLVER );
-                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 30);
+                tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 1000);
+                tNonlinearSolverParameterList.set( "NLA_tot_res_norm" , 2e-10);
+                tNonlinearSolverParameterList.set( "NLA_rel_res_norm_drop", 2e-10 );
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
                         tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );

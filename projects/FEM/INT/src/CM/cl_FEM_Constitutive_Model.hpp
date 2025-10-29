@@ -884,6 +884,17 @@ namespace moris::fem
         {
             MORIS_ERROR( false, " Constitutive_Model::eval_strain - This function does nothing. " );
         }
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate the strain energy density
+         * @param[ out ] aStrainEnergyDensity constitutive model strain energy density
+         */
+        virtual void
+        eval_strain_energy_density( real& aStrainEnergyDensity )
+        {
+            MORIS_ERROR( false, " Constitutive_Model::eval_strain_energy_density - This function does nothing. " );
+        }
+        //------------------------------------------------------------------------------
 
         /**
          * get the constitutive model strain

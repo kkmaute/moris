@@ -117,8 +117,23 @@ Linear_Solver_PETSc::solve_linear_system(
         
         // Get reason for convergence
         KSPGetConvergedReason( mPetscKSPProblem, tReason );
-        if (*tReason == KSP_CONVERGED_STEP_LENGTH)
+        
+        // Reset convergence reason variable in linear solver manager
+        this->set_convergence_reason( false );
+        
+        std::cout << "KSP Converged Reason: \n" << *tReason << std::endl;
+        if (*tReason == KSP_CONVERGED_STEP_LENGTH || *tReason == KSP_CONVERGED_NEG_CURVE)
         {
+            if (*tReason == KSP_CONVERGED_STEP_LENGTH)
+            {
+                MORIS_LOG_INFO( "KSP converged due to step length." );
+                
+            }
+            else
+            {
+                MORIS_LOG_INFO( "KSP converged due to negative curvature." );
+            }
+            
             this->set_convergence_reason( true );
         }
 
@@ -224,7 +239,18 @@ void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *a
         // initialize preconditioner
         if ( mPreconditioner != nullptr )
         {
-           mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
+            if ( this->get_preconditioner_update_flag() || this->get_jacobian_for_preconditioner() == nullptr )
+            {
+                MORIS_LOG_INFO( "Building preconditioner for this iteration" );
+                mPreconditioner->build_preconditioner( aLinearSystem, mPetscKSPProblem );
+            }
+           else
+           {
+                MORIS_LOG_INFO("Using existing preconditioner");
+                //mPreconditioner->build_preconditioner( this->get_jacobian_for_preconditioner(), mPetscKSPProblem );
+                mPreconditioner->build_preconditioner( this->get_jacobian_for_preconditioner(), aLinearSystem, mPetscKSPProblem );
+            }
+           
         }
     }
     else

@@ -28,6 +28,7 @@ namespace moris::fem
 
         enum CM_Function_Type mStressType;
         enum CM_Function_Type mStrainType;
+        sint                 mNitscheType;
 
         enum class IQI_Constitutive_Type
         {
@@ -56,7 +57,8 @@ namespace moris::fem
          */
         IQI_Nitsche_Energy( 
                 enum CM_Function_Type aStressType = CM_Function_Type::DEFAULT,
-                enum CM_Function_Type aStrainType = CM_Function_Type::DEFAULT 
+                enum CM_Function_Type aStrainType = CM_Function_Type::DEFAULT,
+                sint                  aNitscheType = 1 // 1 for Symmetric Nitsche, 0 for pure penalty, -1 for Asymmetric Nitsche (not allowed here)
             );
 
         //------------------------------------------------------------------------------

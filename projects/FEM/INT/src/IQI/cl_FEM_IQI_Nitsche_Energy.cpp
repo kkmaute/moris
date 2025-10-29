@@ -20,13 +20,18 @@ namespace moris::fem
 
     IQI_Nitsche_Energy::IQI_Nitsche_Energy( 
             enum CM_Function_Type aStressType,
-            enum CM_Function_Type aStrainType 
+            enum CM_Function_Type aStrainType,
+            sint                  aNitscheType 
         )
     {
         mFEMIQIType = fem::IQI_Type::NITSCHE_ENERGY;
 
         mStressType = aStressType;
         mStrainType = aStrainType;
+        mNitscheType = aNitscheType;
+
+        // If Nitsche type is -1 then throw an error
+        MORIS_ERROR( mNitscheType != -1, "IQI_Nitsche_Energy::IQI_Nitsche_Energy - Asymmetric Nitsche does not have an associated energy" );
 
         // set size for the constitutive model pointer cell
         mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -77,7 +82,7 @@ namespace moris::fem
         const Matrix< DDRMat > tDisplacement = tFILeader->val();
 
         // Compute the integrand
-        aQI = trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
+        aQI = mNitscheType *trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
 
     }
 
@@ -118,7 +123,7 @@ namespace moris::fem
         const Matrix< DDRMat > tDisplacement = tFILeader->val();
 
         // Compute the integrand
-        Matrix < DDRMat > tQI = trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
+        Matrix < DDRMat > tQI = mNitscheType * trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
 
         // add the contribution
         mSet->get_QI()( tQIIndex ) += aWStar * tQI;

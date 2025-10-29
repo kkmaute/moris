@@ -646,6 +646,16 @@ namespace moris::fem
 
         //--------------------------------------------------------------------------------------------------------------
         /**
+         * evaluate the strain energy density
+         * @param[ out ] aStrainEnergyDensity strain energy density
+         */
+        virtual void eval_strain_energy_density( real& aStrainEnergyDensity )
+        {
+            MORIS_ERROR( false, "eval_strain_energy_density - Not implemented in parent. " );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        /**
          * evaluate the derivative of first Piola-Kirchhoff stress tensor wrt dof
          * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
          */

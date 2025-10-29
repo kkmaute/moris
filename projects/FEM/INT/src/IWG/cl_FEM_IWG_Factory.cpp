@@ -279,6 +279,9 @@ namespace moris::fem
             case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, -1 );
 
+            case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_PENALTY_SE:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, 0 );
+
             case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, 1 );
 
@@ -293,6 +296,9 @@ namespace moris::fem
 
             case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, -1 );
+
+            case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_PENALTY_PF:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, 0 );
 
             case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, 1 );

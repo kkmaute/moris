@@ -112,6 +112,45 @@ void Preconditioner_PETSc::build_cholesky_preconditioner( Linear_Problem *aLinea
     // Finalize setup of preconditioner
     PCSetUp( mpc );
 }
+//----------------------------------------------------------------------------------------
+
+void Preconditioner_PETSc::build_cholesky_preconditioner( sol::Dist_Matrix *aMatrix, Linear_Problem *aLinearSystem )
+{
+    // check for serial run; this preconditioner does not work in parallel
+    MORIS_ERROR( par_size() == 1,
+            "Preconditioner_PETSc::build_cholesky_preconditioner - PETSc cholesky preconditioner can only be used in serial." );
+
+    // write preconditioner to log file
+    MORIS_LOG_INFO( "KSP Preconditioner: cholesky(%d)",
+            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+
+    // Set PC type
+    PCSetType( mpc, "cholesky" );
+
+    // Set operators
+    PCSetOperators(
+            mpc,
+            aLinearSystem->get_matrix()->get_petsc_matrix(), // A matrix in Ax = b should come from linear system, while preconditioner matrix is passed separately
+            aMatrix->get_petsc_matrix() );
+
+    // Set levels of fill for ILU
+    PCFactorSetLevels(
+            mpc,
+            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+
+    // Set drop tolerance for Ilu
+    PCFactorSetDropTolerance(
+            mpc,
+            mParameterList.get< moris::real >( "CholeskyTol" ),
+            PETSC_DEFAULT,
+            PETSC_DEFAULT );
+
+    // Set preconditioner options from the options database
+    PCSetFromOptions( mpc );
+
+    // Finalize setup of preconditioner
+    PCSetUp( mpc );
+}
 
 //----------------------------------------------------------------------------------------
 
@@ -686,6 +725,26 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
         // Set PC type to none
         PCSetType( mpc, "none" );
     }
+    else
+    {
+        MORIS_ERROR( false,
+                "Linear_Solver_PETSc::construct_solver_and_preconditioner - no valid preconditioner was found." );
+    }
+}
+
+void Preconditioner_PETSc::build_preconditioner( sol::Dist_Matrix *aMatrix, Linear_Problem *aLinearSystem, KSP aPetscKSPProblem )
+{
+    // get preconditioner
+    KSPGetPC( aPetscKSPProblem, &mpc );
+
+    // print preconditioner input matrix to matlab
+    aMatrix->save_matrix_to_matlab_file( "Preconditioner_Input_Matrix.mat" );
+
+    if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "cholesky" ) )
+    {
+        this->build_cholesky_preconditioner( aMatrix, aLinearSystem );
+    }
+   
     else
     {
         MORIS_ERROR( false,

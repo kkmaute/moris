@@ -119,6 +119,11 @@ public:
 
     void save_matrix_map_to_matrix_market_file( const char* aFilename ) override;
 
+    void mat_plus_mat(
+            const moris::real&             aAlpha, // scaling factor for matrix to be added
+            moris::sol::Dist_Matrix& aA,     // new matrix to be added
+            const moris::real&             aBeta ) override; // scaling factor for this matrix
+
 };
 }
 

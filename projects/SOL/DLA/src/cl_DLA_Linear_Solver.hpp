@@ -17,7 +17,7 @@
 #include <memory>
 #include <utility>
 #include "fn_PRM_SOL_Parameters.hpp"
-
+#include "cl_SOL_Dist_Matrix.hpp"
 namespace moris::dla
 {
     class Linear_Solver_Algorithm;
@@ -33,9 +33,11 @@ namespace moris::dla
 
         std::string mLhsOutputFileName;
 
-        real mTrSize = 2.0;    // Size of the trust region, used in trust region solvers
+        real mTrSize = 0.25;    // Size of the trust region, used in trust region solvers
 
-        bool mConvReason; // If it is converging because of boundary stuff
+        bool mConvReason = false; // If it is converging because of boundary stuff
+        bool mUpdatePreconditionerFlag = false; // Flag to indicate if preconditioner should be updated
+        sol::Dist_Matrix* mPreconditionerJacobian = nullptr; // Pointer to linear problem used for preconditioner, needed for preconditioner update
 
       protected:
         moris::Parameter_List mParameterListLinearSolver;
@@ -119,6 +121,34 @@ namespace moris::dla
         {
             return mConvReason;
         }
+        //--------------------------------------------------------------------------------------------------
+
+        void
+        set_update_preconditioner_flag( bool aFlag )
+        {
+            mUpdatePreconditionerFlag = aFlag;
+        }
+        //--------------------------------------------------------------------------------------------------
+        bool
+        get_update_preconditioner_flag()
+        {
+            return mUpdatePreconditionerFlag;
+        }
+        //--------------------------------------------------------------------------------------------------
+        sol::Dist_Matrix*
+        get_jacobian_for_preconditioner( )
+        {
+            return mPreconditionerJacobian;
+        }
+        //--------------------------------------------------------------------------------------------------
+
+        void
+        set_jacobian_for_preconditioner( sol::Dist_Matrix* aJacobian )
+        {
+            mPreconditionerJacobian = aJacobian;
+        }
+        //--------------------------------------------------------------------------------------------------
+
     };
 }    // namespace moris::dla
 

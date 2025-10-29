@@ -15,6 +15,7 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
+#include "fn_trace.hpp"
 
 namespace moris::fem
 {
@@ -203,6 +204,47 @@ namespace moris::fem
 
         // cast full to voigt notation
         this->full_to_voigt_sym_stress( t2PKStress, m2PKStress );
+    }
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet::eval_strain_energy_density( real& aStrainEnergyDensity )
+    {
+        // get the Poisson's ratio value
+        const real tNu = mPropPoisson->val()( 0 );
+
+        // get the Youngs' modulus value
+        const real tEmod = mPropEMod->val()( 0 );
+
+        // get the Lame's constants
+        real aLame1 = tEmod * tNu / ( ( 1.0 + tNu ) * ( 1.0 - 2.0 * tNu ) );
+        real aLame2 = tEmod / ( 2.0 * ( 1.0 + tNu ) );
+
+        // get the first invariant of the right Cauchy-Green deformation tensor
+        const Matrix< DDRMat >& tF = this->deformation_gradient();
+
+        // Compute the trace of the Cauchy-Green tensor from the deformation gradient (first invariant of the Cauchy-Green tensor)
+        Matrix< DDRMat > tRCG;
+        tRCG = trans( tF ) * tF;
+        real tI1 = trace( tRCG );
+
+        // get the volume change jacobian
+        real tJ = this->volume_change_jacobian();
+
+        // evaluate the strain energy density
+        if ( tF.numel() == 4 )
+        {
+            // 2D case
+            aStrainEnergyDensity =
+                    ( aLame2 / 2.0 ) * ( tI1 - 2.0 ) - aLame2 * std::log( tJ ) + ( aLame1 / 2.0 ) * std::pow( std::log( tJ ), 2 );
+        }
+        else if ( tF.numel() == 9 )
+        {
+            // 3D case
+            aStrainEnergyDensity =
+                    ( aLame2 / 2.0 ) * ( tI1 - 3.0 ) - aLame2 * std::log( tJ ) + ( aLame1 / 2.0 ) * std::pow( std::log( tJ ), 2 );
+        }
+            
     }
 
     //--------------------------------------------------------------------------------------------------------------

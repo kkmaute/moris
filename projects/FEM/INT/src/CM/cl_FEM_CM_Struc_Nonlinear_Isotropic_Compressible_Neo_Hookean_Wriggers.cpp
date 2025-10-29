@@ -5,6 +5,8 @@
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
+#include "fn_trace.hpp"
+#include "fn_det.hpp"
 
 #include "fn_clip_value.hpp"
 
@@ -271,6 +273,44 @@ namespace moris::fem
 
         // cast full stress to voigt notation
         this->full_to_voigt_sym_stress( tCauchyStressFull, mCauchyStress );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    void
+    CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers::eval_strain_energy_density( real &aStrainEnergyDensity )
+    {
+        // get the Poisson's ratio value
+        const real tNu = mPropPoisson->val()( 0 );
+        
+        // get the elastic modulus value
+        const real tE = mPropEMod->val()( 0 );
+
+        // Compute the Lame parameters
+        const real tLambda = tE * tNu / ( ( 1.0 + tNu ) * ( 1.0 - 2.0 * tNu ) );
+        const real tMu     = tE / ( 2.0 * ( 1.0 + tNu ) );
+
+        // get the first invariant of the right Cauchy-Green deformation tensor
+        const Matrix< DDRMat >& tF = this->deformation_gradient();
+        Matrix< DDRMat > tRCG;
+        tRCG = trans( tF ) * tF;
+        real tI1 = trace( tRCG );
+
+        // get the Jacobian
+        const real tJ = this->volume_change_jacobian();
+
+        // evaluate the strain energy density
+        if ( tF.numel() == 4 )
+        {
+            // 2D case
+            aStrainEnergyDensity = ( tLambda / 4.0 ) * ( std::pow( tJ, 2 ) - 1.0 ) - ( tLambda / 2.0 + tMu ) * std::log( tJ ) + ( tMu / 2.0 ) * ( tI1 - 2.0 );
+            
+        }
+        else if ( tF.numel() == 9 )
+        {
+            // 3D case
+            aStrainEnergyDensity = ( tLambda / 4.0 ) * ( std::pow( tJ, 2 ) - 1.0 ) - ( tLambda / 2.0 + tMu ) * std::log( tJ ) + ( tMu / 2.0 ) * ( tI1 - 3.0 );
+        }
+        
     }
 
     //------------------------------------------------------------------------------

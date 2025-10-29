@@ -32,10 +32,11 @@
 // case 4: var: 0-8 + b-spline  |  var: na
 // case 5: na                   |  var: 0-8  + b-spline
 // case 6: var: 0-8 + b-spline  |  var: 9-15 + b-spline
-extern uint tGeoModel;
+// extern uint tGeoModel;
+uint tGeoModel = 1;
 
 #ifdef __cplusplus
-extern "C" {
+        extern "C" {
 #endif
 //------------------------------------------------------------------------------
 namespace moris

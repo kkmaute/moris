@@ -1,0 +1,2234 @@
+
+ ... compiling against debug moris
+
+
+==============================================================
+
+ Script to build shared object for input files
+
+ Input: 1. name of working directory of source file and share object
+        2. name of moris build directory under $MORISROOT
+        3. name of input file (without cpp suffix)
+        4. optional: keyword dbg to keep link to input file
+
+ Output: .so file
+
+ Example: 
+
+ To create the shared objective file use:
+
+ /home/soman/codes/moris_new/share/scripts/create_shared_object.sh . build myinput
+
+ To run moris with this input file use:
+
+ /home/soman/codes/moris_new/build/main/moris myinput.so 
+
+==============================================================
+
+/home/maute/codes/spack/opt/spack/linux-zen4/cmake-3.31.6-lv3dix2e54vt65rjywgsxsbidxo6nobk/bin/cmake -S/home/soman/codes/moris_new -B/home/soman/codes/moris_new/build_dbg --check-build-system CMakeFiles/Makefile.cmake 0
+make  -f CMakeFiles/Makefile2 shared_object_file
+make[1]: Entering directory '/home/soman/codes/moris_new/build_dbg'
+/home/maute/codes/spack/opt/spack/linux-zen4/cmake-3.31.6-lv3dix2e54vt65rjywgsxsbidxo6nobk/bin/cmake -S/home/soman/codes/moris_new -B/home/soman/codes/moris_new/build_dbg --check-build-system CMakeFiles/Makefile.cmake 0
+/home/maute/codes/spack/opt/spack/linux-zen4/cmake-3.31.6-lv3dix2e54vt65rjywgsxsbidxo6nobk/bin/cmake -E cmake_progress_start /home/soman/codes/moris_new/build_dbg/CMakeFiles 1
+make  -f CMakeFiles/Makefile2 projects/mains/CMakeFiles/shared_object_file.dir/all
+make[2]: Entering directory '/home/soman/codes/moris_new/build_dbg'
+make  -f projects/mains/CMakeFiles/shared_object_file.dir/build.make projects/mains/CMakeFiles/shared_object_file.dir/depend
+make[3]: Entering directory '/home/soman/codes/moris_new/build_dbg'
+cd /home/soman/codes/moris_new/build_dbg && /home/maute/codes/spack/opt/spack/linux-zen4/cmake-3.31.6-lv3dix2e54vt65rjywgsxsbidxo6nobk/bin/cmake -E cmake_depends "Unix Makefiles" /home/soman/codes/moris_new /home/soman/codes/moris_new/projects/mains /home/soman/codes/moris_new/build_dbg /home/soman/codes/moris_new/build_dbg/projects/mains /home/soman/codes/moris_new/build_dbg/projects/mains/CMakeFiles/shared_object_file.dir/DependInfo.cmake "--color="
+make[3]: Leaving directory '/home/soman/codes/moris_new/build_dbg'
+make  -f projects/mains/CMakeFiles/shared_object_file.dir/build.make projects/mains/CMakeFiles/shared_object_file.dir/build
+make[3]: Entering directory '/home/soman/codes/moris_new/build_dbg'
+[  0%] Building CXX object projects/mains/CMakeFiles/shared_object_file.dir/input_file.cpp.o
+cd /home/soman/codes/moris_new/build_dbg/projects/mains && mpic++ -DF77ADD_ -DMORIS_HAVE_DEBUG -DMORIS_HAVE_GCMMA -DMORIS_HAVE_LBFGS -DMORIS_HAVE_PETSC -DMORIS_HAVE_SLEPC -DMORIS_HAVE_SNOPT -DMORIS_PERFORM_CHECK -DMORIS_USE_32BIT -DMORIS_USE_ARMA -DMORIS_USE_MUMPS -DMORIS_USE_PARDISO -DUSE_XTK -DXTK_USE_MORIS -Dshared_object_file_EXPORTS -I/home/soman/codes/moris_new/projects -I/home/soman/codes/moris_new/snippets -I/home/soman/codes/moris_new/include -I/home/soman/codes/moris_new/projects/MRS/ASR/src -I/home/soman/codes/moris_new/projects/MRS/CHR/src -I/home/soman/codes/moris_new/projects/MRS/CNT/src -I/home/soman/codes/moris_new/projects/MRS/COR/src -I/home/soman/codes/moris_new/projects/MRS/EXC/src -I/home/soman/codes/moris_new/projects/MRS/IOS/src -I/home/soman/codes/moris_new/projects/mains/../COM/src -I/home/soman/codes/moris_new/projects/mains/../IOS/src -I/home/soman/codes/moris_new/projects/mains/../WRK/src -I/home/soman/codes/moris_new/projects/mains/../LINALG/src -I/home/soman/codes/moris_new/projects/mains/../STK/src/Hierarchical -I/home/maute/codes/spack/opt/spack/linux-zen4/boost-1.88.0-eythn3cge3f6ibivr2lot24xeaoh6dtq/include -I/home/maute/codes/spack/opt/spack/linux-zen4/trilinos-15.1.1-cbsgze3d4fga3aabf3ngjwfm7j43f3rg/include -I/home/maute/codes/spack/opt/spack/linux-zen4/kokkos-4.2.01-fhsqgtzape3jdi4buaqwwnsxfwjxuiqe/include -I/home/soman/codes/moris_new/projects/ALG/src -I/home/soman/codes/moris_new/projects/FEM/INT/src/CORE -I/home/soman/codes/moris_new/projects/FEM/INT/src/ELEM -I/home/soman/codes/moris_new/projects/FEM/INT/src/IP -I/home/soman/codes/moris_new/projects/FEM/INT/src/MM -I/home/soman/codes/moris_new/projects/FEM/INT/src/CM -I/home/soman/codes/moris_new/projects/FEM/INT/src/SP -I/home/soman/codes/moris_new/projects/FEM/INT/src/IWG -I/home/soman/codes/moris_new/projects/FEM/INT/src/IQI -I/home/soman/codes/moris_new/projects/MTK/src/cluster -I/home/soman/codes/moris_new/projects/MTK/src/contact -I/home/soman/codes/moris_new/projects/MTK/src/field -I/home/soman/codes/moris_new/projects/MTK/src/geometry -I/home/soman/codes/moris_new/projects/MTK/src/geometry/cell -I/home/soman/codes/moris_new/projects/MTK/src/geometry/vertex -I/home/soman/codes/moris_new/projects/MTK/src/integration -I/home/soman/codes/moris_new/projects/MTK/src/interpolation -I/home/soman/codes/moris_new/projects/MTK/src/intersection -I/home/soman/codes/moris_new/projects/MTK/src/io -I/home/soman/codes/moris_new/projects/MTK/src/mesh -I/home/soman/codes/moris_new/projects/MTK/src/set -I/home/soman/codes/moris_new/projects/PRM/src -I/home/soman/codes/moris_new/projects/FEM/MSI/src -I/home/soman/codes/moris_new/projects/FEM/VIS/src -I/home/soman/codes/moris_new/projects/HMR/src -I/home/soman/codes/moris_new/projects/SOL/DLA/src -I/home/soman/codes/moris_new/projects/SOL/TSA/src -I/home/soman/codes/moris_new/projects/SOL/NLA/src -I/home/soman/codes/moris_new/projects/SOL/SOL_CORE/src -I/home/soman/codes/moris_new/projects/LINALG/src -I/home/soman/codes/moris_new/projects/LINALG/src/Arma_Impl -I/home/soman/codes/moris_new/projects/COM/src -I/home/soman/codes/moris_new/projects/PRM/ENM/src -I/home/soman/codes/moris_new/projects/MTK/src -I/home/soman/codes/moris_new/projects/XTK/src -I/home/maute/codes/spack/opt/spack/linux-zen4/armadillo-14.4.1-boegmkm4rg66nci5fzirjws6vpcu5gvs/include -I/home/maute/codes/spack/opt/spack/linux-zen4/hdf5-1.14.6-qprim4x65uct36a3j7chf4f4rmpsf2bf/include -Og -g3 -ggdb -DMORIS_HAVE_PARALLEL  -pedantic -pedantic-errors -Wall -Werror -Wno-unused-parameter -std=c++17 -m64 -fextended-identifiers -rdynamic -fPIC -g -fPIC -MD -MT projects/mains/CMakeFiles/shared_object_file.dir/input_file.cpp.o -MF CMakeFiles/shared_object_file.dir/input_file.cpp.o.d -o CMakeFiles/shared_object_file.dir/input_file.cpp.o -c /home/soman/codes/moris_new/projects/mains/input_file.cpp
+[100%] Linking CXX shared library ../../lib/input_file.so
+cd /home/soman/codes/moris_new/build_dbg/projects/mains && /home/maute/codes/spack/opt/spack/linux-zen4/cmake-3.31.6-lv3dix2e54vt65rjywgsxsbidxo6nobk/bin/cmake -E cmake_link_script CMakeFiles/shared_object_file.dir/link.txt --verbose=1
+mpic++ -fPIC  -Og -g3 -ggdb -DMORIS_HAVE_PARALLEL  -pedantic -pedantic-errors -Wall -Werror -Wno-unused-parameter -std=c++17 -m64 -fextended-identifiers -rdynamic -fPIC -g -Wl,--dependency-file=CMakeFiles/shared_object_file.dir/link.d -shared -Wl,-soname,input_file.so -o ../../lib/input_file.so CMakeFiles/shared_object_file.dir/input_file.cpp.o  -Wl,-rpath,/home/maute/codes/spack/opt/spack/linux-zen4/gcc-runtime-13.3.1-7qadpqqgcog5d643442kuxp6mupomwyk/lib:/home/maute/codes/spack/opt/spack/linux-zen4/openssl-3.4.1-cugqlablrfcpim2yajaqqlazzeuuj2ap/lib64 /home/maute/codes/spack/opt/spack/linux-zen4/gcc-runtime-13.3.1-7qadpqqgcog5d643442kuxp6mupomwyk/lib/libgfortran.so.5 /usr/lib64/libdl.a /home/maute/codes/spack/opt/spack/linux-zen4/openssl-3.4.1-cugqlablrfcpim2yajaqqlazzeuuj2ap/lib64/libssl.so /home/maute/codes/spack/opt/spack/linux-zen4/openssl-3.4.1-cugqlablrfcpim2yajaqqlazzeuuj2ap/lib64/libcrypto.so /usr/lib64/libz.so
+make[3]: Leaving directory '/home/soman/codes/moris_new/build_dbg'
+[100%] Built target shared_object_file
+make[2]: Leaving directory '/home/soman/codes/moris_new/build_dbg'
+/home/maute/codes/spack/opt/spack/linux-zen4/cmake-3.31.6-lv3dix2e54vt65rjywgsxsbidxo6nobk/bin/cmake -E cmake_progress_start /home/soman/codes/moris_new/build_dbg/CMakeFiles 0
+make[1]: Leaving directory '/home/soman/codes/moris_new/build_dbg'
+
+ restoring input_file.cpp from git repository
+
+
+ ... running debug moris on 1 processors
+
+Global Clock Initialized ... 
+Memory usage in MB: total 87 | max 87 | min 87 || current 87 | max 87 | min 87
+
+            .___  ___.   ______   .______       __       _______.
+            |   \/   |  /  __  \  |   _  \     |  |     /       |
+            |  \  /  | |  |  |  | |  |_)  |    |  |    |   (----`
+            |  |\/|  | |  |  |  | |      /     |  |     \   \
+            |  |  |  | |  `--'  | |  |\  \----.|  | .----)   |
+            |__|  |__|  \______/  | _| `._____||__| |_______/
+
+                   2023 University of Colorado Boulder
+                        Aerospace Mechanics Research Center
+
+
+     DEBUG flags are ON.
+
+     User/Host    : soman at blueflame.colorado.edu ( linux / x86_64-linux )
+     CPU Info     : AMD Ryzen 9 7950X3D 16-Core Processor 
+     Procs Used   : 1 
+
+     Build Date   : Oct 20 2025 at 11:31:16
+     Date of Run  : Wed Oct 22 13:22:00 2025
+ 
+     Matrix Lib   : Armadillo
+
+     Executable   : /home/soman/codes/moris_new/build_dbg/projects/mains/moris
+     Arguments    : Shape_Sensitivity_Bspline_2D.so
+     Run Dir      : /home/soman/codes/moris_new/projects/EXA/optimization/Shape_Sensitivity_Bspline
+
+     GIT branch   : refs/heads/Trust_region_solver
+     GIT revision : 0939342374968c244d8074ae27033fa448020685
+
+par_rank() = 0 
+|_ - Reading dynamically linked input file: Shape_Sensitivity_Bspline_2D.so 
+| 
+|__WRK - Main Interface - Load Parameters 
+|__Memory usage in MB: total 87 | max 87 | min 87 || current 87 | max 87 | min 87
+|  |_Main Interface - Parameters for OPT provided in .so file. 
+|  |_Main Interface - Parameters for HMR provided in .so file. 
+|  |_Main Interface - Parameters for XTK provided in .so file. 
+|  |_Main Interface - Parameters for GEN provided in .so file. 
+|  |_Main Interface - Parameters for FEM provided in .so file. 
+|  |_Main Interface - Parameters for SOL provided in .so file. 
+|  |_Main Interface - Parameters for MSI provided in .so file. 
+|  |_Main Interface - Parameters for VIS provided in .so file. 
+|  |_Main Interface - Parameters for MORISGENERAL provided in .so file. 
+|  |_Main Interface - An XML writer is initialized with path './Parameter_Receipt.xml'. 
+|  |_Main Interface - This file already exists and will be overwritten. 
+|  |_ElapsedTime (max/min) = 0.004195 / 0.004195 
+|  |_ElapsedWallTime (max/min) = 0.004195 / 0.004195 
+|  |_Memory usage in MB: total 93 | max 93 | min 93 || current 93 | max 93 | min 93
+| 
+| 
+|__WRK - HMR-XTK Workflow - Create 
+|__Memory usage in MB: total 93 | max 93 | min 93 || current 93 | max 93 | min 93
+|  |_WRK - Proc #0 - WARNING: Only a single HMR parameter list was found. It is recommended to use parameter lists for each Lagrange and B-spline mesh. 
+|  | 
+|  |__HMR - NoType - Create 
+|  |__Memory usage in MB: total 93 | max 93 | min 93 || current 93 | max 93 | min 93
+|  |  | 
+|  |  |__HMR - Database - Create 
+|  |  |__Memory usage in MB: total 93 | max 93 | min 93 || current 93 | max 93 | min 93
+|  |  |  | 
+|  |  |  |__HMR - Background Mesh - Create 
+|  |  |  |__Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |_Background Mesh - Decomposing the mesh over 1 processor(s). 
+|  |  |  |  |_Background Mesh - Background mesh split (x,y) across processors is (1,1) 
+|  |  |  |  |_Background Mesh - Processor #0 ... : owns i-j domain: 3-4, 3-4 
+|  |  |  |  |_Background Mesh - Initial BG element size: [1.00000000000000e+00 ; 1.00000000000000e+00 ; 0.00000000000000e+00] 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000135 / 0.000135 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000135088 / 0.000135088 
+|  |  |  |  |_Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  | 
+|  |  |  |_Database - Reset pattern #0 on background mesh. 
+|  |  |  |_Database - Reset pattern #1 on background mesh. 
+|  |  |  |_Database - Reset pattern #0 on background mesh. 
+|  |  |  |_Database - Reset pattern #1 on background mesh. 
+|  |  |  |_Database - Reset pattern #2 on background mesh. 
+|  |  |  |_Database - Reset pattern #3 on background mesh. 
+|  |  |  |_Database - Reset pattern #4 on background mesh. 
+|  |  |  |_Database - Reset pattern #5 on background mesh. 
+|  |  |  |_Database - Reset pattern #6 on background mesh. 
+|  |  |  |_Database - Reset pattern #7 on background mesh. 
+|  |  |  | 
+|  |  |  |__HMR - Database - Create Meshes 
+|  |  |  |__Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  | 
+|  |  |  |  |__HMR - B-Spline Mesh #0 - Create 
+|  |  |  |  |__Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |  |_B-Spline Mesh #0 - Creating B-spline mesh index #0 with polynomial order p=1 on pattern #0 
+|  |  |  |  |  | 
+|  |  |  |  |  |__HMR - B-Spline Mesh #0 - Update 
+|  |  |  |  |  |__Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |  |  |_B-Spline Mesh #0 - Creating elements on HMR Mesh 
+|  |  |  |  |  |  |_B-Spline Mesh #0 - Creating basis functions 
+|  |  |  |  |  |  |_B-Spline Mesh #0 - Collect active and refined basis functions 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 6.2e-05 / 6.2e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 6.299e-05 / 6.299e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |  | 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000101 / 0.000101 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000101948 / 0.000101948 
+|  |  |  |  |  |_Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__HMR - Lagrange Mesh #0 - Create 
+|  |  |  |  |__Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |  |_Lagrange Mesh #0 - Creating Lagrange mesh index #0 with polynomial order p=1 on pattern #0, associated with B-spline meshes { 0 }. 
+|  |  |  |  |  | 
+|  |  |  |  |  |__HMR - Lagrange Mesh #0 - Update 
+|  |  |  |  |  |__Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |  |  |_Lagrange Mesh #0 - Creating elements on HMR Mesh 
+|  |  |  |  |  |  |_Lagrange Mesh #0 - Creating nodes on HMR Lagrange mesh 
+|  |  |  |  |  |  |_Lagrange Mesh #0 - Lagrange Mesh #0: Computing node indices 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 5.3e-05 / 5.3e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 5.2839e-05 / 5.2839e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 94 | max 94 | min 94 || current 94 | max 94 | min 94
+|  |  |  |  |  | 
+|  |  |  |  |  |_Lagrange Mesh #0 - Initializing T-matrices on HMR Lagrange mesh 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.00297 / 0.00297 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00297095 / 0.00297095 
+|  |  |  |  |  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.003148 / 0.003148 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.00314769 / 0.00314769 
+|  |  |  |  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.003388 / 0.003388 
+|  |  |  |_ElapsedWallTime (max/min) = 0.0033886 / 0.0033886 
+|  |  |  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  |  | 
+|  |  |_ElapsedTime (max/min) = 0.003423 / 0.003423 
+|  |  |_ElapsedWallTime (max/min) = 0.00342307 / 0.00342307 
+|  |  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  | 
+|  | 
+|  |__GEN - NoType - Create geometry engine 
+|  |__Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  |  |_ElapsedTime (max/min) = 9.3e-05 / 9.3e-05 
+|  |  |_ElapsedWallTime (max/min) = 9.6179e-05 / 9.6179e-05 
+|  |  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  | 
+|  | 
+|  |__MDL - Model - Create 
+|  |__Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  |  |_ElapsedTime (max/min) = 0.00017 / 0.00017 
+|  |  |_ElapsedWallTime (max/min) = 0.000170268 / 0.000170268 
+|  |  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+|  | 
+|  |_ElapsedTime (max/min) = 0.00393 / 0.00393 
+|  |_ElapsedWallTime (max/min) = 0.0039326 / 0.0039326 
+|  |_Memory usage in MB: total 96 | max 96 | min 96 || current 96 | max 96 | min 96
+| 
+|_ - Parameters for OPT provided in .so file. 
+|_ - Parameters for HMR provided in .so file. 
+|_ - Parameters for XTK provided in .so file. 
+|_ - Parameters for GEN provided in .so file. 
+|_ - Parameters for FEM provided in .so file. 
+|_ - Parameters for SOL provided in .so file. 
+|_ - Parameters for MSI provided in .so file. 
+|_ - Parameters for VIS provided in .so file. 
+|_ - Parameters for MORISGENERAL provided in .so file. 
+| 
+|__OPT - Manager - Perform 
+|__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  | 
+|  |__OPT - Problem - Initialize 
+|  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  | 
+|  |  |__WRK - HMR-XTK Workflow - Initialize 
+|  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  | 
+|  |  |  |__HMR - NoType - Perform initial refinement 
+|  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |_HMR - Refining pattern #0 0-times. 
+|  |  |  |  | 
+|  |  |  |  |__HMR - B-Spline Mesh #0 - Update 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_B-Spline Mesh #0 - Creating elements on HMR Mesh 
+|  |  |  |  |  |_B-Spline Mesh #0 - Creating basis functions 
+|  |  |  |  |  |_B-Spline Mesh #0 - Collect active and refined basis functions 
+|  |  |  |  |  |_ElapsedTime (max/min) = 5.2e-05 / 5.2e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 5.2429e-05 / 5.2429e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__HMR - Lagrange Mesh #0 - Update 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_Lagrange Mesh #0 - Creating elements on HMR Mesh 
+|  |  |  |  |  |_Lagrange Mesh #0 - Creating nodes on HMR Lagrange mesh 
+|  |  |  |  |  |_Lagrange Mesh #0 - Lagrange Mesh #0: Computing node indices 
+|  |  |  |  |  |_ElapsedTime (max/min) = 4.4e-05 / 4.4e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 4.419e-05 / 4.419e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000153 / 0.000153 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000153098 / 0.000153098 
+|  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__WRK - Refinement Mini Performer - Perform GEN refinement 
+|  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  |__HMR - B-Spline Mesh #0 - Update 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_B-Spline Mesh #0 - Creating elements on HMR Mesh 
+|  |  |  |  |  |_B-Spline Mesh #0 - Creating basis functions 
+|  |  |  |  |  |_B-Spline Mesh #0 - Collect active and refined basis functions 
+|  |  |  |  |  |_ElapsedTime (max/min) = 4.8e-05 / 4.8e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 4.827e-05 / 4.827e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__HMR - Lagrange Mesh #0 - Update 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_Lagrange Mesh #0 - Creating elements on HMR Mesh 
+|  |  |  |  |  |_Lagrange Mesh #0 - Creating nodes on HMR Lagrange mesh 
+|  |  |  |  |  |_Lagrange Mesh #0 - Lagrange Mesh #0: Computing node indices 
+|  |  |  |  |  |_ElapsedTime (max/min) = 4e-05 / 4e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 4.045e-05 / 4.045e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000137 / 0.000137 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000137439 / 0.000137439 
+|  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__HMR - NoType - Perform 
+|  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  |__HMR - Database - Finalize 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_Database - Creating facets on HMR background mesh 
+|  |  |  |  |  |_Database - Lagrange Mesh #0: Computing node indices 
+|  |  |  |  |  |_Database - Lagrange Mesh #0: Finding shared nodes 
+|  |  |  |  |  | 
+|  |  |  |  |  |__HMR - Lagrange Mesh #0 - Compute T-matrices 
+|  |  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 2.1e-05 / 2.1e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.095e-05 / 2.095e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  | 
+|  |  |  |  |  |_Database - Lagrange Mesh #0: Creating facets 
+|  |  |  |  |  |_Database - B-Spline Mesh #0: Computing basis function indices 
+|  |  |  |  |  |_Database - B-Spline Mesh #0: Computing basis function coordinates 
+|  |  |  |  |  |_Database - Creating side sets in HMR Database 
+|  |  |  |  |  |_ElapsedTime (max/min) = 9.1e-05 / 9.1e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 9.0599e-05 / 9.0599e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__HMR - NoType - Create HMR interpolation mesh 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_HMR - Setting up global to local maps on HMR mesh 
+|  |  |  |  |  |_ElapsedTime (max/min) = 2.4e-05 / 2.4e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 2.39e-05 / 2.39e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__HMR - NoType - Create HMR integration mesh 
+|  |  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |  |_HMR - Setting up global to local maps on HMR mesh 
+|  |  |  |  |  |_HMR - Setting up cell clusters 
+|  |  |  |  |  |_HMR - Setting up block sets 
+|  |  |  |  |  |_HMR - Setting up side set clusters 
+|  |  |  |  |  |_ElapsedTime (max/min) = 7.7e-05 / 7.7e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 7.7609e-05 / 7.7609e-05 
+|  |  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  | 
+|  |  |  |  |_HMR - Registered mesh pair #0 
+|  |  |  |  |_ElapsedTime (max/min) = 0.00026 / 0.00026 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000260217 / 0.000260217 
+|  |  |  |  |_Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__GEN - NoType - Distribute ADVs 
+|  |  |  |__Memory usage in MB: total 99 | max 99 | min 99 || current 99 | max 99 | min 99
+|  |  |  |  |_GEN - Time to collect owned and shared ADVs: 0.000001 sec 
+|  |  |  |  |_GEN - Time to create owned ADVs: 0.000125 sec 
+|  |  |  |  |_GEN - Time to convert to Bspline fields: 0.000001 sec 
+|  |  |  |  |_GEN - Time to communicate ADV IDs: 0.000003 sec 
+|  |  |  |  |_GEN - Time to assemble ADVs and bounds on Proc 0: 0.000001 sec 
+|  |  |  |  |_GEN - Time to reset mesh information: 0.000002 sec 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000167 / 0.000167 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000167788 / 0.000167788 
+|  |  |  |  |_Memory usage in MB: total 100 | max 100 | min 100 || current 100 | max 100 | min 100
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000832 / 0.000832 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000832461 / 0.000832461 
+|  |  |  |_Memory usage in MB: total 100 | max 100 | min 100 || current 100 | max 100 | min 100
+|  |  | 
+|  |  |_Problem - Number of optimization variables: 1 
+|  |  |_Problem - Number of objectives : 1 
+|  |  |_Problem - Number of constraints: 1 
+|  |  |_ElapsedTime (max/min) = 0.000871 / 0.000871 
+|  |  |_ElapsedWallTime (max/min) = 0.000871081 / 0.000871081 
+|  |  |_Memory usage in MB: total 100 | max 100 | min 100 || current 100 | max 100 | min 100
+|  | 
+|  | 
+|  |__OptimizationAlgorithm - Sweep - Solve 
+|  |__Memory usage in MB: total 100 | max 100 | min 100 || current 100 | max 100 | min 100
+|  |  |_Sweep - Number of evaluation points: 1 
+|  |  |===================================================================
+|  |  |_Sweep - Iteration: 1 
+|  |  | 
+|  |  |__GEN - NoType - Output fields 
+|  |  |__Memory usage in MB: total 100 | max 100 | min 100 || current 100 | max 100 | min 100
+|  |  |  |_ElapsedTime (max/min) = 0.000956 / 0.000956 
+|  |  |  |_ElapsedWallTime (max/min) = 0.00096106 / 0.00096106 
+|  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  | 
+|  |  | 
+|  |  |__XTK - Overall - Run 
+|  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  |__XTK - Decomposition - Decompose 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  | 
+|  |  |  |  |__XTK - Integration_Mesh_Generator - perform 
+|  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Decomposition_Algorithm - Generic 
+|  |  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 5.7e-05 / 5.7e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 5.7419e-05 / 5.7419e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Decomposition_Algorithm - Node_Hierarchy_Interface 
+|  |  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000189 / 0.000189 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000188798 / 0.000188798 
+|  |  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Integration_Mesh_Generator - Creating Facets 
+|  |  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 8.6e-05 / 8.6e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 8.6609e-05 / 8.6609e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  | 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000555 / 0.000555 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000555224 / 0.000555224 
+|  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000593 / 0.000593 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000592874 / 0.000592874 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000631 / 0.000631 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000630953 / 0.000630953 
+|  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  | 
+|  |  | 
+|  |  |__XTK - NoType - Enrichment 
+|  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  |__XTK - Enrichment - Mesh Index 0 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |_Enrichment - Num Non-enriched Bases: 9 
+|  |  |  |  |_Enrichment - Num Enriched Bases: 27 
+|  |  |  |  |_ElapsedTime (max/min) = 4.8e-05 / 4.8e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 4.7619e-05 / 4.7619e-05 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Enrichment - Construct Enriched Interpolation Mesh 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enrich - Allocate Interpolation Cells 
+|  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  |_ElapsedTime (max/min) = 1.6e-05 / 1.6e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 1.633e-05 / 1.633e-05 
+|  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enrichment - Construct Enriched Interpolation Vertices and Cells 
+|  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  |_ElapsedTime (max/min) = 4.1e-05 / 4.1e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 4.0479e-05 / 4.0479e-05 
+|  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enriched_Interpolation_Mesh - merge_duplicate_interpolation_vertices 
+|  |  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |  |_Enriched_Interpolation_Mesh - Num Enriched Interpolation Vertices Pre Merge : 40 
+|  |  |  |  |  |_Enriched_Interpolation_Mesh - Num Enriched Interpolation Vertices Post Merge: 27 
+|  |  |  |  |  |_ElapsedTime (max/min) = 2.5e-05 / 2.5e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 2.521e-05 / 2.521e-05 
+|  |  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000173 / 0.000173 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000173138 / 0.000173138 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Enriched Integration Mesh - Construction 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |_ElapsedTime (max/min) = 0.000212 / 0.000212 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000211998 / 0.000211998 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000525 / 0.000525 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000525154 / 0.000525154 
+|  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  | 
+|  |  | 
+|  |  |__XTK - NoType - Create high to low double side sets 
+|  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |_ElapsedTime (max/min) = 5.4e-05 / 5.4e-05 
+|  |  |  |_ElapsedWallTime (max/min) = 5.432e-05 / 5.432e-05 
+|  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  | 
+|  |  | 
+|  |  |__XTK - GhostStabilization - Stabilize 
+|  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  |__XTK - Ghost - construct_ip_ig_cells_for_ghost_side_clusters 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |_ElapsedTime (max/min) = 1.6e-05 / 1.6e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.68e-05 / 1.68e-05 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - declare_ghost_double_side_sets_in_mesh 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |_ElapsedTime (max/min) = 1.7e-05 / 1.7e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.715e-05 / 1.715e-05 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - construct_ghost_double_side_sets_in_mesh 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 0: 2 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 1: 4 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 2: 0 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 3: 1 
+|  |  |  |  |_ElapsedTime (max/min) = 6.7e-05 / 6.7e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 6.711e-05 / 6.711e-05 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - identify and setup aura vertices in ghost 
+|  |  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.5019e-05 / 1.5019e-05 
+|  |  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000205 / 0.000205 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000204838 / 0.000204838 
+|  |  |  |_Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  | 
+|  |  |_Sweep - Registered mesh pair #0 
+|  |  | 
+|  |  |__XTK - Overall - Visualize 
+|  |  |__Memory usage in MB: total 101 | max 101 | min 101 || current 101 | max 101 | min 101
+|  |  |  |_ElapsedTime (max/min) = 0.002506 / 0.002506 
+|  |  |  |_ElapsedWallTime (max/min) = 0.00251806 / 0.00251806 
+|  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  | 
+|  |  |_Sweep - All_IG_verts: 30 
+|  |  |_Sweep - All_IG_cells: 50 
+|  |  |_Sweep - All_IP_verts: 27 
+|  |  |_Sweep - All_IP_cells: 10 
+|  |  |_Sweep - My_IG_verts: 30 
+|  |  |_Sweep - My_IG_cells: 50 
+|  |  |_Sweep - My_IP_verts: 27 
+|  |  |_Sweep - My_IP_cells: 10 
+|  |  | 
+|  |  |__DataBase - No Type - Perform 
+|  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |__MTK - IP mesh building - Build 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |_ElapsedTime (max/min) = 5.5e-05 / 5.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 5.592e-05 / 5.592e-05 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MTK - IG DataBase - Build 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |_ElapsedTime (max/min) = 0.00035 / 0.00035 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000350607 / 0.000350607 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |_No Type - Registered mesh pair #0 
+|  |  |  |_ElapsedTime (max/min) = 0.000472 / 0.000472 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000471915 / 0.000471915 
+|  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  | 
+|  |  | 
+|  |  |__GEN - NoType - Create PDVs 
+|  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |__GEN - NoType - Create interpolation PDV hosts 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |_ElapsedTime (max/min) = 1.6e-05 / 1.6e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.679e-05 / 1.679e-05 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__GEN - NoType - Set integration PDV types 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |_ElapsedTime (max/min) = 3.5e-05 / 3.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 3.4429e-05 / 3.4429e-05 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |_GEN - System has a total of 20    pdvs. 
+|  |  |  |_GEN - System has a total of 0     interpolation pdvs. 
+|  |  |  |_GEN - System has a total of 20    intersection node pdvs. 
+|  |  |  |_ElapsedTime (max/min) = 0.000146 / 0.000146 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000145099 / 0.000145099 
+|  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  | 
+|  |  | 
+|  |  |__MDL - Model - Initialize 
+|  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |__MDL - Model - CreateEquationModel 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  | 
+|  |  |  |  |__FEM - Model - Create 
+|  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |_ElapsedTime (max/min) = 1.3e-05 / 1.3e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 1.304e-05 / 1.304e-05 
+|  |  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__FEM - Model - Initialize from Input File 
+|  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  | 
+|  |  |  |  |  |__FEM - Model - Load and Initialize Parameters 
+|  |  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000339 / 0.000339 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000339136 / 0.000339136 
+|  |  |  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  | 
+|  |  |  |  |  |_Model - Number of IP Nodes: 27 
+|  |  |  |  |  |_Model - Number of IG Nodes: 30 
+|  |  |  |  |  |_Model - Number of Clusters: 5 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000492 / 0.000492 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000492065 / 0.000492065 
+|  |  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000615 / 0.000615 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000615004 / 0.000615004 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MDL - Model - CreateMSI 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |_ElapsedTime (max/min) = 2.2e-05 / 2.2e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 2.25e-05 / 2.25e-05 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MDL - Model - Create Solver Interface 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  | 
+|  |  |  |  |__MDL - Model - Create Solver 
+|  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000127 / 0.000127 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000126788 / 0.000126788 
+|  |  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  | 
+|  |  |  |  |_Model - Total number of DOFs: 16 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000204 / 0.000204 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000203258 / 0.000203258 
+|  |  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000939 / 0.000939 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000938299 / 0.000938299 
+|  |  |  |_Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  | 
+|  |  | 
+|  |  |__MDL - Model - Perform Forward Analysis 
+|  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  | 
+|  |  |  |__TimeSolver - Forward Analysis - Solve 
+|  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  | 
+|  |  |  |  |__Time Solver Algorithm - Monolithic - Solve 
+|  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |===================================================================
+|  |  |  |  |  |_Monolithic - Iteration: 1 
+|  |  |  |  |  |_Monolithic - Forward Solve Time Slab: 1 
+|  |  |  |  |  |_Monolithic - Time Slab Start Time: 0.00000000000000e+00 
+|  |  |  |  |  |_Monolithic - Time Slab End Time: 1.00000000000000e+00 
+|  |  |  |  |  | 
+|  |  |  |  |  |__NonLinearSolver - NonlinearSolver - Solve 
+|  |  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |  |_NonlinearSolver - Total number of DOFs for non-linear system: 16 
+|  |  |  |  |  |  |_NonlinearSolver - Building matrix graph on processor 0 took 0.000 seconds. 
+|  |  |  |  |  |  |_NonlinearSolver - Nonlinear solver operates on DOF types: : UX, UY 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__NonLinearAlgorithm - Newton - Solve 
+|  |  |  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |  |  |===================================================================
+|  |  |  |  |  |  |  |_Newton - Iteration: 1 
+|  |  |  |  |  |  |  |_Newton - LoadFactor: 1.00000000000000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__NonLinearProblem - NoType - Build 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleJacobian 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 102 | max 102 | min 102 || current 102 | max 102 | min 102
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.00059 / 0.00059 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000590714 / 0.000590714 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 104 | max 104 | min 104 || current 104 | max 104 | min 104
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleResidual 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 104 | max 104 | min 104 || current 104 | max 104 | min 104
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000356 / 0.000356 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000357016 / 0.000357016 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 104 | max 104 | min 104 || current 104 | max 104 | min 104
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001022 / 0.001022 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00102145 / 0.00102145 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 104 | max 104 | min 104 || current 104 | max 104 | min 104
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_Newton - ReferenceNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - ResidualNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - SolutionNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - Relaxation (Constant): 1.00000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__LinearSolver - NoType - Solve 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 104 | max 104 | min 104 || current 104 | max 104 | min 104
+|  |  |  |  |  |  |  |  |_LinearSolver - Trust Region size passed to linear solver: 2.000000 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearSolver - Amesos - Solve 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 104 | max 104 | min 104 || current 104 | max 104 | min 104
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000696 / 0.000696 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000696533 / 0.000696533 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000749 / 0.000749 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000749891 / 0.000749891 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999999999999e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999999999999e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  |  |  |_Newton - IterationTime: 0.002111 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.002123 / 0.002123 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00212307 / 0.00212307 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.002308 / 0.002308 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00230793 / 0.00230793 
+|  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999999999999e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999999999999e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  | 
+|  |  |  |  |  |__MDL - Model - Post-Process and Output Solution 
+|  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__VIS - Output Manager - Setup VIS mesh 
+|  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Create VIS mesh 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__VIS - Factory - Create VIS Mesh 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Vertices (standard mesh) 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.9e-05 / 2.9e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.882e-05 / 2.882e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create IG Cells 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.8e-05 / 1.8e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.813e-05 / 1.813e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Cell Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.6e-05 / 2.6e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.589e-05 / 2.589e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.364e-05 / 1.364e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Double Sided Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.4069e-05 / 1.4069e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Nonconformal Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.357e-05 / 1.357e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Block Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.8e-05 / 1.8e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.799e-05 / 1.799e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.3729e-05 / 1.3729e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Double Sided Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.3e-05 / 1.3e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.336e-05 / 1.336e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Nonconformal Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.3e-05 / 1.3e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.34e-05 / 1.34e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000374 / 0.000374 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000373316 / 0.000373316 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000408 / 0.000408 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000408945 / 0.000408945 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Create Sets 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.7e-05 / 2.7e-05 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.663e-05 / 2.663e-05 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Write mesh to file 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |_Output Manager - Writing shape_sensitivities.exo to . 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000346 / 0.000346 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000345816 / 0.000345816 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000867 / 0.000867 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000867331 / 0.000867331 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__VIS - Output Manager - Write Fields 
+|  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |_Output Manager - Copying .//temp.exo to shape_sensitivities.exo. 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000205 / 0.000205 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000205878 / 0.000205878 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__FEM - Model - Populate fields 
+|  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2e-05 / 2e-05 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.999e-05 / 1.999e-05 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001312 / 0.001312 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00131275 / 0.00131275 
+|  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  | 
+|  |  |  |  |  |_Monolithic - IterationTime: 0.003922 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.003932 / 0.003932 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00393242 / 0.00393242 
+|  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.003974 / 0.003974 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.00397352 / 0.00397352 
+|  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.004003 / 0.004003 
+|  |  |  |_ElapsedWallTime (max/min) = 0.00400376 / 0.00400376 
+|  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  | 
+|  |  |_Sweep - Criteria: (0, 1.26) 
+|  |  |_Sweep - MinADV: 6.50000000000000e-01 
+|  |  |_Sweep - MaxADV: 6.50000000000000e-01 
+|  |  |_Sweep - Objective: [0.00000000000000e+00] 
+|  |  |_Sweep - Constraints: [1.26000000000000e+00] 
+|  |  | 
+|  |  |__MDL - Model - Perform Sensitivity Analysis 
+|  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  | 
+|  |  |  |__TimeSolver - Sensitivity Analysis - Solve 
+|  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  | 
+|  |  |  |  |__TimeSolver - Monolithic - Solve 
+|  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |===================================================================
+|  |  |  |  |  |_Monolithic - Iteration: 1 
+|  |  |  |  |  |_Monolithic - Adjoint Solve Time Slab: 1 
+|  |  |  |  |  |_Monolithic - Time Slab Start Time: 0.00000000000000e+00 
+|  |  |  |  |  |_Monolithic - Time Slab End Time: 1.00000000000000e+00 
+|  |  |  |  |  | 
+|  |  |  |  |  |__NonLinearSolver - NonlinearSolver - Solve 
+|  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |_NonlinearSolver - Total number of DOFs for non-linear system: 16 
+|  |  |  |  |  |  |_NonlinearSolver - Building matrix graph on processor 0 took 0.000 seconds. 
+|  |  |  |  |  |  |_NonlinearSolver - Nonlinear solver operates on DOF types: : UX, UY 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__NonLinearAlgorithm - Newton - Solve 
+|  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |===================================================================
+|  |  |  |  |  |  |  |_Newton - Iteration: 1 
+|  |  |  |  |  |  |  |_Newton - LoadFactor: 1.00000000000000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__NonLinearProblem - NoType - Build 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleJacobian 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000344 / 0.000344 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000343806 / 0.000343806 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleResidual 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000324 / 0.000324 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000323986 / 0.000323986 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000732 / 0.000732 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000732022 / 0.000732022 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_Newton - ReferenceNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - ResidualNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - SolutionNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - Relaxation (Constant): 1.00000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__LinearSolver - NoType - Solve 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |_LinearSolver - Trust Region size passed to linear solver: 2.000000 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearSolver - Amesos - Solve 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000147 / 0.000147 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000148048 / 0.000148048 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000194 / 0.000194 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000194458 / 0.000194458 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999999999999e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999999999999e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  |  |  |_Newton - IterationTime: 0.001278 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001283 / 0.001283 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.0012866 / 0.0012866 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001377 / 0.001377 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00137886 / 0.00137886 
+|  |  |  |  |  |  |_Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__MSI - Equation Model - Compute dQI/dp explicit and implicit 
+|  |  |  |  |  |__Memory usage in MB: total 107 | max 107 | min 107 || current 107 | max 107 | min 107
+|  |  |  |  |  |  |_Equation Model - Process FEM set: HMR_dummy_c_p0 
+|  |  |  |  |  |  |_Equation Model - Process FEM set: SideSet_4_c_p0 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.002583 / 0.002583 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00258381 / 0.00258381 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  |_Monolithic - IterationTime: 0.004031 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.00404 / 0.00404 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.0040428 / 0.0040428 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.004076 / 0.004076 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.00407931 / 0.00407931 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.004122 / 0.004122 
+|  |  |  |_ElapsedWallTime (max/min) = 0.00412496 / 0.00412496 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__GEN - PDV Host Manager - compute dQi/dadv 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+Vector Name: tNorms
+Number of entries = 2
+0
+0.736452
+
+Vector Name: tNormsImplicit
+Number of entries = 2
+0
+0
+
+Epetra::MultiVector     MyPID           GID               Value               Value  
+         0             0                       0            0.145833
+         0             1                       0            0.145833
+         0             2                       0               0.175
+         0             3                       0               0.175
+         0             4                       0                0.25
+         0             5                       0                0.25
+         0             6                       0                 0.1
+         0             7                       0                 0.1
+         0             8                       0                   0
+         0             9                       0                   0
+         0            10                       0                   0
+         0            11                       0                   0
+         0            12                       0                   0
+         0            13                       0                   0
+         0            14                       0            0.166667
+         0            15                       0           0.0416667
+         0            16                       0               0.325
+         0            17                       0               0.325
+         0            18                       0             -0.1625
+         0            19                       0              0.1625
+
+|  |  |  |_ElapsedTime (max/min) = 0.000114 / 0.000114 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000113979 / 0.000113979 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  |_Sweep - -------------------------------------------------------------------------------- 
+|  |  |_Sweep - Gradients of design criteria wrt ADVs: 
+|  |  |_Sweep - Criteria(0): norm = 0.000000e+00   min = 0.000000e+00  (index = 0)   max = 0.000000e+00  (index = 0) 
+|  |  |_Sweep - Criteria(1): norm = 1.200000e+00   min = 1.200000e+00  (index = 0)   max = 1.200000e+00  (index = 0) 
+|  |  |_Sweep - -------------------------------------------------------------------------------- 
+|  |  |_Sweep - Objective: [0.00000000000000e+00] 
+|  |  |_Sweep - Constraints: [1.26000000000000e+00] 
+|  |  | 
+|  |  |__GEN - NoType - Output fields 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |_ElapsedTime (max/min) = 0.000561 / 0.000561 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000561564 / 0.000561564 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__XTK - Overall - Run 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__XTK - Decomposition - Decompose 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |__XTK - Integration_Mesh_Generator - perform 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Decomposition_Algorithm - Generic 
+|  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 4.2e-05 / 4.2e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 4.1669e-05 / 4.1669e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Decomposition_Algorithm - Node_Hierarchy_Interface 
+|  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000217 / 0.000217 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000273847 / 0.000273847 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Integration_Mesh_Generator - Creating Facets 
+|  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 8.6e-05 / 8.6e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 8.6279e-05 / 8.6279e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000555 / 0.000555 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000611693 / 0.000611693 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.00059 / 0.00059 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000647493 / 0.000647493 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000626 / 0.000626 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000683083 / 0.000683083 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__XTK - NoType - Enrichment 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__XTK - Enrichment - Mesh Index 0 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_Enrichment - Num Non-enriched Bases: 9 
+|  |  |  |  |_Enrichment - Num Enriched Bases: 27 
+|  |  |  |  |_ElapsedTime (max/min) = 4.8e-05 / 4.8e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 4.8239e-05 / 4.8239e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Enrichment - Construct Enriched Interpolation Mesh 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enrich - Allocate Interpolation Cells 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 1.483e-05 / 1.483e-05 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enrichment - Construct Enriched Interpolation Vertices and Cells 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |_ElapsedTime (max/min) = 4e-05 / 4e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 4.023e-05 / 4.023e-05 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enriched_Interpolation_Mesh - merge_duplicate_interpolation_vertices 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |_Enriched_Interpolation_Mesh - Num Enriched Interpolation Vertices Pre Merge : 40 
+|  |  |  |  |  |_Enriched_Interpolation_Mesh - Num Enriched Interpolation Vertices Post Merge: 27 
+|  |  |  |  |  |_ElapsedTime (max/min) = 2.3e-05 / 2.3e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 2.3549e-05 / 2.3549e-05 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000167 / 0.000167 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000166138 / 0.000166138 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Enriched Integration Mesh - Construction 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 0.000204 / 0.000204 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000203988 / 0.000203988 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000499 / 0.000499 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000498574 / 0.000498574 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__XTK - NoType - Create high to low double side sets 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |_ElapsedTime (max/min) = 5.4e-05 / 5.4e-05 
+|  |  |  |_ElapsedWallTime (max/min) = 5.411e-05 / 5.411e-05 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__XTK - GhostStabilization - Stabilize 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__XTK - Ghost - construct_ip_ig_cells_for_ghost_side_clusters 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 1.7e-05 / 1.7e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.742e-05 / 1.742e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - declare_ghost_double_side_sets_in_mesh 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 1.8e-05 / 1.8e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.744e-05 / 1.744e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - construct_ghost_double_side_sets_in_mesh 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 0: 2 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 1: 4 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 2: 0 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 3: 1 
+|  |  |  |  |_ElapsedTime (max/min) = 6.5e-05 / 6.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 6.4419e-05 / 6.4419e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - identify and setup aura vertices in ghost 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.469e-05 / 1.469e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000194 / 0.000194 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000193828 / 0.000193828 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  |_Sweep - Registered mesh pair #0 
+|  |  | 
+|  |  |__XTK - Overall - Visualize 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |_ElapsedTime (max/min) = 0.002331 / 0.002331 
+|  |  |  |_ElapsedWallTime (max/min) = 0.00233257 / 0.00233257 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  |_Sweep - All_IG_verts: 30 
+|  |  |_Sweep - All_IG_cells: 50 
+|  |  |_Sweep - All_IP_verts: 27 
+|  |  |_Sweep - All_IP_cells: 10 
+|  |  |_Sweep - My_IG_verts: 30 
+|  |  |_Sweep - My_IG_cells: 50 
+|  |  |_Sweep - My_IP_verts: 27 
+|  |  |_Sweep - My_IP_cells: 10 
+|  |  | 
+|  |  |__DataBase - No Type - Perform 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__MTK - IP mesh building - Build 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 4.7e-05 / 4.7e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 4.716e-05 / 4.716e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MTK - IG DataBase - Build 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 0.000343 / 0.000343 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000342757 / 0.000342757 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_No Type - Registered mesh pair #0 
+|  |  |  |_ElapsedTime (max/min) = 0.000454 / 0.000454 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000453675 / 0.000453675 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__GEN - NoType - Create PDVs 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__GEN - NoType - Create interpolation PDV hosts 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 1.7e-05 / 1.7e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.626e-05 / 1.626e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__GEN - NoType - Set integration PDV types 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 2.9e-05 / 2.9e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 2.8709e-05 / 2.8709e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_GEN - System has a total of 20    pdvs. 
+|  |  |  |_GEN - System has a total of 0     interpolation pdvs. 
+|  |  |  |_GEN - System has a total of 20    intersection node pdvs. 
+|  |  |  |_ElapsedTime (max/min) = 0.000118 / 0.000118 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000117969 / 0.000117969 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__MDL - Model - Initialize 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__MDL - Model - CreateEquationModel 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |__FEM - Model - Create 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |_ElapsedTime (max/min) = 1.3e-05 / 1.3e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 1.319e-05 / 1.319e-05 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__FEM - Model - Initialize from Input File 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  |__FEM - Model - Load and Initialize Parameters 
+|  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000302 / 0.000302 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000302077 / 0.000302077 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  |_Model - Number of IP Nodes: 27 
+|  |  |  |  |  |_Model - Number of IG Nodes: 30 
+|  |  |  |  |  |_Model - Number of Clusters: 5 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000434 / 0.000434 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000434325 / 0.000434325 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000613 / 0.000613 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000612453 / 0.000612453 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MDL - Model - CreateMSI 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |_ElapsedTime (max/min) = 2.1e-05 / 2.1e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 2.0989e-05 / 2.0989e-05 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MDL - Model - Create Solver Interface 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |__MDL - Model - Create Solver 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000156 / 0.000156 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000156708 / 0.000156708 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |_Model - Total number of DOFs: 16 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000229 / 0.000229 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000229408 / 0.000229408 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000972 / 0.000972 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000971999 / 0.000971999 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  | 
+|  |  |__MDL - Model - Perform Forward Analysis 
+|  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |__TimeSolver - Forward Analysis - Solve 
+|  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |__Time Solver Algorithm - Monolithic - Solve 
+|  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |===================================================================
+|  |  |  |  |  |_Monolithic - Iteration: 1 
+|  |  |  |  |  |_Monolithic - Forward Solve Time Slab: 1 
+|  |  |  |  |  |_Monolithic - Time Slab Start Time: 0.00000000000000e+00 
+|  |  |  |  |  |_Monolithic - Time Slab End Time: 1.00000000000000e+00 
+|  |  |  |  |  | 
+|  |  |  |  |  |__NonLinearSolver - NonlinearSolver - Solve 
+|  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |_NonlinearSolver - Total number of DOFs for non-linear system: 16 
+|  |  |  |  |  |  |_NonlinearSolver - Building matrix graph on processor 0 took 0.000 seconds. 
+|  |  |  |  |  |  |_NonlinearSolver - Nonlinear solver operates on DOF types: : UX, UY 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__NonLinearAlgorithm - Newton - Solve 
+|  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |===================================================================
+|  |  |  |  |  |  |  |_Newton - Iteration: 1 
+|  |  |  |  |  |  |  |_Newton - LoadFactor: 1.00000000000000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__NonLinearProblem - NoType - Build 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleJacobian 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000365 / 0.000365 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000365186 / 0.000365186 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleResidual 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.00035 / 0.00035 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000350276 / 0.000350276 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000784 / 0.000784 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000784142 / 0.000784142 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_Newton - ReferenceNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - ResidualNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - SolutionNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - Relaxation (Constant): 1.00000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__LinearSolver - NoType - Solve 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |_LinearSolver - Trust Region size passed to linear solver: 2.000000 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearSolver - Amesos - Solve 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.00015 / 0.00015 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000150778 / 0.000150778 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.0002 / 0.0002 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000199308 / 0.000199308 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.260000011999998e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.260000011999998e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  |  |  |_Newton - IterationTime: 0.001312 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001321 / 0.001321 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00132091 / 0.00132091 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001404 / 0.001404 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.0014042 / 0.0014042 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.260000011999998e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.260000011999998e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  | 
+|  |  |  |  |  |__MDL - Model - Post-Process and Output Solution 
+|  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__VIS - Output Manager - Setup VIS mesh 
+|  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Create VIS mesh 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__VIS - Factory - Create VIS Mesh 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Vertices (standard mesh) 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 3e-05 / 3e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 3.027e-05 / 3.027e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create IG Cells 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.9e-05 / 1.9e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.8729e-05 / 1.8729e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Cell Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.6e-05 / 2.6e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.587e-05 / 2.587e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.4189e-05 / 1.4189e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Double Sided Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.45e-05 / 1.45e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Nonconformal Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.3e-05 / 1.3e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.339e-05 / 1.339e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Block Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.8e-05 / 1.8e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.8519e-05 / 1.8519e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.464e-05 / 1.464e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Double Sided Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.497e-05 / 1.497e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Nonconformal Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.526e-05 / 1.526e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000388 / 0.000388 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000388176 / 0.000388176 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000422 / 0.000422 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000421786 / 0.000421786 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Create Sets 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.5e-05 / 2.5e-05 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.5499e-05 / 2.5499e-05 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Write mesh to file 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |  |_Output Manager - Writing shape_sensitivities.exo to . 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000341 / 0.000341 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000340886 / 0.000340886 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000872 / 0.000872 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00087218 / 0.00087218 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__VIS - Output Manager - Write Fields 
+|  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |_Output Manager - Copying .//temp.exo to shape_sensitivities.exo. 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000184 / 0.000184 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000188798 / 0.000188798 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__FEM - Model - Populate fields 
+|  |  |  |  |  |  |__Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.1e-05 / 2.1e-05 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.0889e-05 / 2.0889e-05 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001324 / 0.001324 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00132775 / 0.00132775 
+|  |  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  |  | 
+|  |  |  |  |  |_Monolithic - IterationTime: 0.003026 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.003037 / 0.003037 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00304122 / 0.00304122 
+|  |  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.003079 / 0.003079 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.00308254 / 0.00308254 
+|  |  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.003111 / 0.003111 
+|  |  |  |_ElapsedWallTime (max/min) = 0.0031151 / 0.0031151 
+|  |  |  |_Memory usage in MB: total 108 | max 108 | min 108 || current 108 | max 108 | min 108
+|  |  | 
+|  |  |_Sweep - Criteria: (0, 1.26) 
+|  |  |_Sweep - MinADV: 6.50000010000000e-01 
+|  |  |_Sweep - MaxADV: 6.50000010000000e-01 
+|  |  |_Sweep - Objective: [0.00000000000000e+00] 
+|  |  |_Sweep - Constraints: [1.26000001200000e+00] 
+|  |  |_Sweep - Objective: [0.00000000000000e+00] 
+|  |  |_Sweep - Constraints: [1.26000000000000e+00] 
+|  |  | 
+|  |  |__GEN - NoType - Output fields 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |_ElapsedTime (max/min) = 0.000489 / 0.000489 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000489694 / 0.000489694 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__XTK - Overall - Run 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__XTK - Decomposition - Decompose 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |__XTK - Integration_Mesh_Generator - perform 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Decomposition_Algorithm - Generic 
+|  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 4.1e-05 / 4.1e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 4.174e-05 / 4.174e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Decomposition_Algorithm - Node_Hierarchy_Interface 
+|  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000177 / 0.000177 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000177329 / 0.000177329 
+|  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  | 
+|  |  |  |  |  |__XTK - Integration_Mesh_Generator - Creating Facets 
+|  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 8.7e-05 / 8.7e-05 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 8.7069e-05 / 8.7069e-05 
+|  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000512 / 0.000512 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000511825 / 0.000511825 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000549 / 0.000549 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000549124 / 0.000549124 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000586 / 0.000586 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000586004 / 0.000586004 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__XTK - NoType - Enrichment 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__XTK - Enrichment - Mesh Index 0 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_Enrichment - Num Non-enriched Bases: 9 
+|  |  |  |  |_Enrichment - Num Enriched Bases: 27 
+|  |  |  |  |_ElapsedTime (max/min) = 4.5e-05 / 4.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 4.467e-05 / 4.467e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Enrichment - Construct Enriched Interpolation Mesh 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enrich - Allocate Interpolation Cells 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 1.515e-05 / 1.515e-05 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enrichment - Construct Enriched Interpolation Vertices and Cells 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |_ElapsedTime (max/min) = 4e-05 / 4e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 4.006e-05 / 4.006e-05 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__XTK - Enriched_Interpolation_Mesh - merge_duplicate_interpolation_vertices 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |_Enriched_Interpolation_Mesh - Num Enriched Interpolation Vertices Pre Merge : 40 
+|  |  |  |  |  |_Enriched_Interpolation_Mesh - Num Enriched Interpolation Vertices Post Merge: 27 
+|  |  |  |  |  |_ElapsedTime (max/min) = 3.8e-05 / 3.8e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 3.8e-05 / 3.8e-05 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000186 / 0.000186 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000186198 / 0.000186198 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Enriched Integration Mesh - Construction 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 0.000205 / 0.000205 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000206188 / 0.000206188 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000513 / 0.000513 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000513185 / 0.000513185 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__XTK - NoType - Create high to low double side sets 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |_ElapsedTime (max/min) = 5.4e-05 / 5.4e-05 
+|  |  |  |_ElapsedWallTime (max/min) = 5.4009e-05 / 5.4009e-05 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__XTK - GhostStabilization - Stabilize 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__XTK - Ghost - construct_ip_ig_cells_for_ghost_side_clusters 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 1.6e-05 / 1.6e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.6409e-05 / 1.6409e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - declare_ghost_double_side_sets_in_mesh 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 1.8e-05 / 1.8e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.761e-05 / 1.761e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - construct_ghost_double_side_sets_in_mesh 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 0: 2 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 1: 4 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 2: 0 
+|  |  |  |  |_Ghost - Total Ghost Facets for Bulk Phase 3: 1 
+|  |  |  |  |_ElapsedTime (max/min) = 6.9e-05 / 6.9e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 6.8879e-05 / 6.8879e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__XTK - Ghost - identify and setup aura vertices in ghost 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.519e-05 / 1.519e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.0002 / 0.0002 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000199498 / 0.000199498 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  |_Sweep - Registered mesh pair #0 
+|  |  | 
+|  |  |__XTK - Overall - Visualize 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |_ElapsedTime (max/min) = 0.002261 / 0.002261 
+|  |  |  |_ElapsedWallTime (max/min) = 0.0022614 / 0.0022614 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  |_Sweep - All_IG_verts: 30 
+|  |  |_Sweep - All_IG_cells: 50 
+|  |  |_Sweep - All_IP_verts: 27 
+|  |  |_Sweep - All_IP_cells: 10 
+|  |  |_Sweep - My_IG_verts: 30 
+|  |  |_Sweep - My_IG_cells: 50 
+|  |  |_Sweep - My_IP_verts: 27 
+|  |  |_Sweep - My_IP_cells: 10 
+|  |  | 
+|  |  |__DataBase - No Type - Perform 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__MTK - IP mesh building - Build 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 4.8e-05 / 4.8e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 4.8299e-05 / 4.8299e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MTK - IG DataBase - Build 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 0.000337 / 0.000337 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000336886 / 0.000336886 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_No Type - Registered mesh pair #0 
+|  |  |  |_ElapsedTime (max/min) = 0.000448 / 0.000448 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000447905 / 0.000447905 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__GEN - NoType - Create PDVs 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__GEN - NoType - Create interpolation PDV hosts 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 1.6e-05 / 1.6e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 1.611e-05 / 1.611e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__GEN - NoType - Set integration PDV types 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 2.9e-05 / 2.9e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 2.855e-05 / 2.855e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_GEN - System has a total of 20    pdvs. 
+|  |  |  |_GEN - System has a total of 0     interpolation pdvs. 
+|  |  |  |_GEN - System has a total of 20    intersection node pdvs. 
+|  |  |  |_ElapsedTime (max/min) = 0.000136 / 0.000136 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000136729 / 0.000136729 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__MDL - Model - Initialize 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__MDL - Model - CreateEquationModel 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |__FEM - Model - Create 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |_ElapsedTime (max/min) = 1.3e-05 / 1.3e-05 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 1.371e-05 / 1.371e-05 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  | 
+|  |  |  |  |__FEM - Model - Initialize from Input File 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  |__FEM - Model - Load and Initialize Parameters 
+|  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000304 / 0.000304 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000303997 / 0.000303997 
+|  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  |_Model - Number of IP Nodes: 27 
+|  |  |  |  |  |_Model - Number of IG Nodes: 30 
+|  |  |  |  |  |_Model - Number of Clusters: 5 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000437 / 0.000437 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000437475 / 0.000437475 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000627 / 0.000627 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000627093 / 0.000627093 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MDL - Model - CreateMSI 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |_ElapsedTime (max/min) = 2.2e-05 / 2.2e-05 
+|  |  |  |  |_ElapsedWallTime (max/min) = 2.196e-05 / 2.196e-05 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  | 
+|  |  |  |__MDL - Model - Create Solver Interface 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |__MDL - Model - Create Solver 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.000158 / 0.000158 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000157439 / 0.000157439 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |_Model - Total number of DOFs: 16 
+|  |  |  |  |_ElapsedTime (max/min) = 0.000229 / 0.000229 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.000229657 / 0.000229657 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.000997 / 0.000997 
+|  |  |  |_ElapsedWallTime (max/min) = 0.000997149 / 0.000997149 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  | 
+|  |  |__MDL - Model - Perform Forward Analysis 
+|  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |__TimeSolver - Forward Analysis - Solve 
+|  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |__Time Solver Algorithm - Monolithic - Solve 
+|  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |===================================================================
+|  |  |  |  |  |_Monolithic - Iteration: 1 
+|  |  |  |  |  |_Monolithic - Forward Solve Time Slab: 1 
+|  |  |  |  |  |_Monolithic - Time Slab Start Time: 0.00000000000000e+00 
+|  |  |  |  |  |_Monolithic - Time Slab End Time: 1.00000000000000e+00 
+|  |  |  |  |  | 
+|  |  |  |  |  |__NonLinearSolver - NonlinearSolver - Solve 
+|  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |_NonlinearSolver - Total number of DOFs for non-linear system: 16 
+|  |  |  |  |  |  |_NonlinearSolver - Building matrix graph on processor 0 took 0.000 seconds. 
+|  |  |  |  |  |  |_NonlinearSolver - Nonlinear solver operates on DOF types: : UX, UY 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__NonLinearAlgorithm - Newton - Solve 
+|  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |===================================================================
+|  |  |  |  |  |  |  |_Newton - Iteration: 1 
+|  |  |  |  |  |  |  |_Newton - LoadFactor: 1.00000000000000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__NonLinearProblem - NoType - Build 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleJacobian 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000346 / 0.000346 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000346056 / 0.000346056 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearProblem - NoType - AssembleResidual 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.00035 / 0.00035 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000349397 / 0.000349397 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.00076 / 0.00076 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000760931 / 0.000760931 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_Newton - ReferenceNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - ResidualNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - SolutionNorm: 0.00000000000000e+00 
+|  |  |  |  |  |  |  |_Newton - Relaxation (Constant): 1.00000e+00 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__LinearSolver - NoType - Solve 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |_LinearSolver - Trust Region size passed to linear solver: 2.000000 
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__LinearSolver - Amesos - Solve 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000149 / 0.000149 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000149528 / 0.000149528 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000208 / 0.000208 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000211718 / 0.000211718 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999987999998e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999987999998e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  |  |  |_Newton - IterationTime: 0.001311 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001316 / 0.001316 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00132063 / 0.00132063 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001404 / 0.001404 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00140731 / 0.00140731 
+|  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+Vector Name: this->get_requested_IQI_names()
+Number of entries = 2
+IQIBulkStrainEnergy
+IQIBulkVolume
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999987999998e+00;];
+%-------------------------------------------------
+
+
+Cell Name: mGlobalIQIVal
+Number of entries = 2
+%-------------------------------------------------
+
+Cell 0 = [ ... 
++0.000000000000000e+00;];
+%-------------------------------------------------
+
+%-------------------------------------------------
+
+Cell 1 = [ ... 
++1.259999987999998e+00;];
+%-------------------------------------------------
+
+
+|  |  |  |  |  | 
+|  |  |  |  |  |__MDL - Model - Post-Process and Output Solution 
+|  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__VIS - Output Manager - Setup VIS mesh 
+|  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Create VIS mesh 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |__VIS - Factory - Create VIS Mesh 
+|  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Vertices (standard mesh) 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.8e-05 / 2.8e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.8259e-05 / 2.8259e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create IG Cells 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.7e-05 / 1.7e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.686e-05 / 1.686e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Cell Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.6e-05 / 2.6e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.6179e-05 / 2.6179e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.494e-05 / 1.494e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Double Sided Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.499e-05 / 1.499e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Nonconformal Side Clusters 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.374e-05 / 1.374e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Block Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.8e-05 / 1.8e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.825e-05 / 1.825e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.4329e-05 / 1.4329e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Double Sided Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.5e-05 / 1.5e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.487e-05 / 1.487e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |__VIS - Factory - Create Nonconformal Side Sets 
+|  |  |  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 1.4e-05 / 1.4e-05 
+|  |  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 1.439e-05 / 1.439e-05 
+|  |  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000388 / 0.000388 
+|  |  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000388215 / 0.000388215 
+|  |  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.00042 / 0.00042 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000420005 / 0.000420005 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Create Sets 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.6e-05 / 2.6e-05 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.576e-05 / 2.576e-05 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |__VIS - Output Manager - Write mesh to file 
+|  |  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |  |_Output Manager - Writing shape_sensitivities.exo to . 
+|  |  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000343 / 0.000343 
+|  |  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000343386 / 0.000343386 
+|  |  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  | 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000873 / 0.000873 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00087278 / 0.00087278 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__VIS - Output Manager - Write Fields 
+|  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |_Output Manager - Copying .//temp.exo to shape_sensitivities.exo. 
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 0.000168 / 0.000168 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.000168998 / 0.000168998 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |__FEM - Model - Populate fields 
+|  |  |  |  |  |  |__Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  |  |_ElapsedTime (max/min) = 2.1e-05 / 2.1e-05 
+|  |  |  |  |  |  |  |_ElapsedWallTime (max/min) = 2.113e-05 / 2.113e-05 
+|  |  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  |  | 
+|  |  |  |  |  |  |_ElapsedTime (max/min) = 0.001304 / 0.001304 
+|  |  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00130646 / 0.00130646 
+|  |  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  |  | 
+|  |  |  |  |  |_Monolithic - IterationTime: 0.002997 
+|  |  |  |  |  |_ElapsedTime (max/min) = 0.003008 / 0.003008 
+|  |  |  |  |  |_ElapsedWallTime (max/min) = 0.00301551 / 0.00301551 
+|  |  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  |  | 
+|  |  |  |  |_ElapsedTime (max/min) = 0.003048 / 0.003048 
+|  |  |  |  |_ElapsedWallTime (max/min) = 0.00305506 / 0.00305506 
+|  |  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  |  | 
+|  |  |  |_ElapsedTime (max/min) = 0.003079 / 0.003079 
+|  |  |  |_ElapsedWallTime (max/min) = 0.00308583 / 0.00308583 
+|  |  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  |  | 
+|  |  |_Sweep - Criteria: (0, 1.26) 
+|  |  |_Sweep - MinADV: 6.49999990000000e-01 
+|  |  |_Sweep - MaxADV: 6.49999990000000e-01 
+|  |  |_Sweep - Objective: [0.00000000000000e+00] 
+|  |  |_Sweep - Constraints: [1.25999998800000e+00] 
+|  |  |_Sweep - IterationTime: 0.034609 
+|  |  |_ElapsedTime (max/min) = 0.034872 / 0.034872 
+|  |  |_ElapsedWallTime (max/min) = 0.0349567 / 0.0349567 
+|  |  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+|  | 
+|  |_ElapsedTime (max/min) = 0.035817 / 0.035817 
+|  |_ElapsedWallTime (max/min) = 0.0359018 / 0.0359018 
+|  |_Memory usage in MB: total 109 | max 109 | min 109 || current 109 | max 109 | min 109
+| 
+Global Clock Stopped. ElapsedTime = 0.057586 
+Global Clock Stopped. ElapsedWallTime = 0.106228 

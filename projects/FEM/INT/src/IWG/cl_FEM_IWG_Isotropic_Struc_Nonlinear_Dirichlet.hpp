@@ -33,6 +33,7 @@ namespace moris::fem
       public:
         // sign for symmetric/unsymmetric Nitsche
         sint mBeta = 1;
+        sint mTheta = 1;
 
         // stress and strain type to evaluate the IWG
         enum CM_Function_Type mStressType;

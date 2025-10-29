@@ -143,6 +143,14 @@ namespace moris::fem
 
         //--------------------------------------------------------------------------------------------------------------
         /**
+         * evaluate the strain energy density
+         * W = (μ/2) * ( I1 − 3 ) − μ * ln J + (λ/2) * ( ln J )2 [Bonet & Wood 2008 eq. 6.27]
+         * @param[ out ] aStrainEnergyDensity strain energy density
+         */
+        void eval_strain_energy_density( real& aStrainEnergyDensity ) override;
+
+        //--------------------------------------------------------------------------------------------------------------
+        /**
          * evaluate the derivative of first Piola-Kirchhoff stress tensor wrt dof
          * @param[ in ]  aDofTypes     a dof type wrt which the derivative is evaluated
          */

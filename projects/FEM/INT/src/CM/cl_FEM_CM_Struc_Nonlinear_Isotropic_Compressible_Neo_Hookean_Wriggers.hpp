@@ -126,6 +126,15 @@ namespace moris::fem
 
         void eval_flux_cauchy() override;
 
+        // --------------------------------------------------------------------------------------------------------------
+        /**
+         * evaluate the strain energy density, given as lambda/4 (J^2 -1) - (lambda/2 + mu) ln J + mu/2 (I1 -3)
+         * where I1 = trace(C) and J = det(F)
+         * Equation taken from Wriggers, Nonlinear Finite Element Methods, 2008, pg 45 (3.116)
+         */
+
+        void eval_strain_energy_density( real &aStrainEnergyDensity ) override;
+
         //--------------------------------------------------------------------------------------------------------------
         /**
          * evaluate the derivative of first Piola-Kirchhoff stress tensor wrt dof
