@@ -591,8 +591,6 @@ namespace moris::xtk
             sol::Dist_Map             *tMap      = tDistFactory.create_map( tDesignCriteriaManager->get_my_local_global_map() );
             sol::Dist_Vector          *tdXQIdPDV = tDistFactory.create_vector( tMap, tNumXQIs );
 
-            tdXQIdPDV->print();    // brendan delete
-
             // Loop through requested XQIs and compute them
             for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
             {
@@ -611,7 +609,21 @@ namespace moris::xtk
                                                                                          : Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE } );
                 tDesignCriteriaManager->get_ig_dv_ids_for_type_and_ind( tSurfaceMeshData.mLocalToGlobalVertexIndex, tPDVTypes, tPDVIDs );
 
-                tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tSurfaceMesh.compute_XQI( tXQIType ) );
+                // Determine the XQI type and compute it
+                real tXQIValue = MORIS_REAL_MAX;
+                switch ( tXQIType )
+                {
+                    case ( XQI_Type::VOLUME ):
+                        tXQIValue = tSurfaceMesh.compute_volume();
+                        break;
+                    case ( XQI_Type::SHAPE_DIAMETER ):
+                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter( mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ), mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_rays_per_cone" ) );
+                        break;
+                    default:
+                        MORIS_ERROR( false, "XTK::Model::compute_XQIs - XQI Type not implemented." );
+                }
+
+                tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue );
 
                 tSurfaceMesh.compute_XQI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
             }
