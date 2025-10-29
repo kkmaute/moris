@@ -19,43 +19,36 @@ namespace moris::mtk
 {
 #if MORIS_HAVE_ARBORX
     // initialize Kokkos for the use in the spatial tree library ArborX
-    std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
+    static std::unique_ptr< Kokkos::ScopeGuard > guard = !Kokkos::is_initialized() && !Kokkos::is_finalized() ? std::make_unique< Kokkos::ScopeGuard >() : nullptr;
 #endif
 
     // get root from environment
-    std::string tMorisRoot = moris::get_base_moris_dir();
+    static std::string tMorisRoot = moris::get_base_moris_dir();
+
+    // Finite difference epsilon
+    static real tEps = 1e-7;
 
     // Tests loading in the surface mesh from an obj file, and computing various quanitities of interest and their sensitivities
     TEST_CASE( "MTK Surface Mesh", "[MTK],[MTK_Surface_Mesh]" )
     {
-        Matrix< DDRMat >                     tCoordsExpected     = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
-        Vector< Vector< moris_index > >      tConnExpected       = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
-        Matrix< DDRMat >                     tNormalsExpected    = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
-        Vector< real >                       tMeasureExpected    = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
-        Vector< Vector< Matrix< DDRMat > > > tNormalSensExpected = {
-            { { { 0.15391713, -0.41044567 }, { 0.05771892, -0.15391713 } }, { { -0.15391713, 0.41044567 }, { -0.05771892, 0.15391713 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },    // dN1/dv4
-            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { -0.47140452, -0.47140452 }, { 0.47140452, 0.47140452 } }, { { 0.47140452, 0.47140452 }, { -0.47140452, -0.47140452 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },
-            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.37947332, -0.12649111 }, { 1.13841996, -0.37947332 } }, { { -0.37947332, 0.12649111 }, { -1.13841996, 0.37947332 } } },    // dN3/dv4
-            { { { -0.38400000, 0.51200000 }, { -0.28800000, 0.38400000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.38400000, -0.51200000 }, { 0.28800000, -0.38400000 } } }
-        };
-        Vector< Vector< Matrix< DDRMat > > > tCenterSensExpected = {
-            { { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },
-            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } } },
-            { { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } } },
-            { { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 }, { 0.00000000, 0.00000000 } }, { { 0.50000000, 0.00000000 }, { 0.00000000, 0.50000000 } } }
-        };
+        // Expected values
+        Matrix< DDRMat >                tCoordsExpected        = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
+        Vector< Vector< moris_index > > tConnExpected          = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
+        Matrix< DDRMat >                tNormalsExpected       = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
+        Matrix< DDRMat >                tCenterExpected        = { { 1.25000000, 0.62500000, 1.12500000, 1.75000000 }, { 0.87500000, 0.12500000, 0.12500000, 0.87500000 } };
+        Vector< real >                  tMeasureExpected       = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
+        real                            tShapeDiameterExpected = 0.525359746;
 
-        Vector< Vector< Matrix< DDRMat > > > tMeasureSensExpected = {
-            { { { 0.93632918, 0.35112344 } }, { { -0.93632918, -0.35112344 } }, { { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 } } },
-            { { { 0.00000000, 0.00000000 } }, { { -0.70710678, 0.70710678 } }, { { 0.70710678, -0.70710678 } }, { { 0.00000000, 0.00000000 } } },
-            { { { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 } }, { { -0.31622777, -0.94868330 } }, { { 0.31622777, 0.94868330 } } },
-            { { { 0.80000000, 0.60000000 } }, { { 0.00000000, 0.00000000 } }, { { 0.00000000, 0.00000000 } }, { { -0.80000000, -0.60000000 } } },
-        };
         // load a surface mesh from file
-        std::string    tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
-        Vector< real > tOffsets  = { 0.0, 0.0 };
-        Vector< real > tScales   = { 1.0, 1.0 };
+        std::string tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
+        // std::string    tFilePath = "/home/chong/work/AU25/Input_Files/QI_Test/square_corners_only.obj";
+        Vector< real > tOffsets = { 0.0, 0.0 };
+        Vector< real > tScales  = { 1.0, 1.0 };
         Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tFilePath, tOffsets, tScales ), load_facets_from_object_file( tFilePath ) );
+
+        // Config for shape diameter computation
+        uint tNumRays   = 120;
+        real tConeAngle = 15.0;    // degrees
 
         // Check number of vertices and facets
         REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
@@ -64,8 +57,19 @@ namespace moris::mtk
         // Check vertex coordinates
         check_equal( tSurfaceMesh.get_all_vertex_coordinates(), tCoordsExpected );
 
-        // Compute the facet measure
-        Vector< real > tFacetMeasures = tSurfaceMesh.compute_facet_measure();
+        // Compute the actual facet measure and centers
+        Vector< real >   tFacetMeasures = tSurfaceMesh.compute_facet_measure();
+        Matrix< DDRMat > tFacetCenters  = tSurfaceMesh.compute_facet_centroids();
+
+        // Compute the nodal and global shape diameter
+        Vector< real > tNodalShapeDiameter  = tSurfaceMesh.compute_nodal_shape_diameter( tConeAngle, tNumRays );
+        real           tGlobalShapeDiameter = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays );
+
+        // Nodal shape diameter sensitivities
+        const Matrix< DDRMat >& tNodalShapeDiameterSensitivities = tSurfaceMesh.get_nodal_shape_diameter_sensitivities();
+
+        // Check global shape diameter
+        CHECK( tGlobalShapeDiameter == Approx( tShapeDiameterExpected ) );
 
         // Loop over the surface mesh and check for correct facet normals and connectivity
         for ( uint iF = 0; iF < tConnExpected.size(); ++iF )
@@ -79,33 +83,124 @@ namespace moris::mtk
 
                 // Check facet normal component
                 CHECK( tFacetNormal( iV ) == Approx( tNormalsExpected( iV, iF ) ) );
+
+                // Check facet center component
+                CHECK( tFacetCenters( iV, iF ) == Approx( tCenterExpected( iV, iF ) ) );
             }
 
             // Check facet measure
             CHECK( tFacetMeasures( iF ) == Approx( tMeasureExpected( iF ) ) );
 
-            // Check normal vector sensitivity wrt to every vertex in the mesh
-            for ( uint iV = 0; iV < tCoordsExpected.n_cols(); iV++ )
+            // Setup perturbation matrix for FD
+            Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
+
+            // Loop over vertices and finite difference the quanitities
+            for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
             {
-                Matrix< DDRMat > tNormalSens  = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
-                Matrix< DDRMat > tCenterSens  = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
-                Matrix< DDRMat > tMeasureSens = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
-                check_equal( tNormalSens, tNormalSensExpected( iF )( iV ), 1e8 );
-                check_equal( tCenterSens, tCenterSensExpected( iF )( iV ), 1e8 );
-                check_equal( tMeasureSens, tMeasureSensExpected( iF )( iV ), 1e8 );
+                // Compute analytic sensitivities
+                Matrix< DDRMat > tNormalSens        = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
+                Matrix< DDRMat > tCenterSens        = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
+                Matrix< DDRMat > tMeasureSens       = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
+                Matrix< DDRMat > tShapeDiameterSens = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+
+                // Loop over dimensions
+                for ( uint iDim = 0; iDim < 2; iDim++ )
+                {
+                    // Perturb positively
+                    tPerturbation( iDim ) = tEps;
+                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                    Matrix< DDRMat > tNormalPlus             = tSurfaceMesh.get_facet_normal( iF );
+                    Matrix< DDRMat > tCenterPlus             = tSurfaceMesh.compute_facet_centroid( iF );
+                    real             tMeasurePlus            = tSurfaceMesh.compute_facet_measure( iF );
+                    real             tShapeDiameterPlus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays );
+                    Vector< real >   tNodalShapeDiameterPlus = tSurfaceMesh.compute_nodal_shape_diameter( tConeAngle, tNumRays );
+
+                    // Perturb negatively
+                    tPerturbation( iDim ) = -tEps;
+                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                    Matrix< DDRMat > tNormalMinus             = tSurfaceMesh.get_facet_normal( iF );
+                    Matrix< DDRMat > tCenterMinus             = tSurfaceMesh.compute_facet_centroid( iF );
+                    real             tMeasureMinus            = tSurfaceMesh.compute_facet_measure( iF );
+                    real             tShapeDiameterMinus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays );
+                    Vector< real >   tNodalShapeDiameterMinus = tSurfaceMesh.compute_nodal_shape_diameter( tConeAngle, tNumRays );
+
+                    // Reset perturbation
+                    tPerturbation( iDim ) = 0.0;
+                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+
+                    // Compute finite difference results - nodal shape diameter
+                    real tNSDForward  = 0.0;
+                    real tNSDBackward = 0.0;
+                    real tNSDCentral  = 0.0;
+                    for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
+                    {
+                        tNSDForward += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameter( iF ) ) / tEps;
+                        tNSDBackward += tFacetMeasures( iF ) * ( tNodalShapeDiameter( iF ) - tNodalShapeDiameterMinus( iF ) ) / tEps;
+                        tNSDCentral += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameterMinus( iF ) ) / ( 2.0 * tEps );
+                    }
+
+
+                    // Compute finite difference results - normal
+                    Matrix< DDRMat > tNForward  = ( tNormalPlus - tFacetNormal ) / tEps;
+                    Matrix< DDRMat > tNBackward = ( tFacetNormal - tNormalMinus ) / tEps;
+                    Matrix< DDRMat > tNCentral  = ( tNormalPlus - tNormalMinus ) / ( 2.0 * tEps );
+
+                    // Compute finite difference results - center
+                    Matrix< DDRMat > tCForward  = ( tCenterPlus - tFacetCenters.get_column( iF ) ) / tEps;
+                    Matrix< DDRMat > tCBackward = ( tFacetCenters.get_column( iF ) - tCenterMinus ) / tEps;
+                    Matrix< DDRMat > tCCentral  = ( tCenterPlus - tCenterMinus ) / ( 2.0 * tEps );
+
+                    // Compute finite difference results - measure
+                    real tMForward  = ( tMeasurePlus - tFacetMeasures( iF ) ) / tEps;
+                    real tMBackward = ( tFacetMeasures( iF ) - tMeasureMinus ) / tEps;
+                    real tMCentral  = ( tMeasurePlus - tMeasureMinus ) / ( 2.0 * tEps );
+
+                    // Check sensitivities for measure
+                    CHECK( tMeasureSens( iDim ) == Approx( tMForward ) );
+                    CHECK( tMeasureSens( iDim ) == Approx( tMBackward ) );
+                    CHECK( tMeasureSens( iDim ) == Approx( tMCentral ) );
+
+
+                    // Check sensitivities for normal and center
+                    for ( uint iComp = 0; iComp < 2; iComp++ )
+                    {
+                        // Check sensitivities for normal
+                        CHECK( tNormalSens( iComp, iDim ) == Approx( tNForward( iComp ) ) );
+                        CHECK( tNormalSens( iComp, iDim ) == Approx( tNBackward( iComp ) ) );
+                        CHECK( tNormalSens( iComp, iDim ) == Approx( tNCentral( iComp ) ) );
+
+                        // Check sensitivities for center
+                        CHECK( tCenterSens( iComp, iDim ) == Approx( tCForward( iComp ) ) );
+                        CHECK( tCenterSens( iComp, iDim ) == Approx( tCBackward( iComp ) ) );
+                        CHECK( tCenterSens( iComp, iDim ) == Approx( tCCentral( iComp ) ) );
+                    }
+
+                    // Check nodal shape diameter sensitivities
+                    CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDForward ).epsilon( 1e-2 ) );
+                    CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDBackward ).epsilon( 1e-2 ) );
+                    CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDCentral ).epsilon( 1e-2 ) );
+
+                    // Compute finite difference results - global shape diameter
+                    real tSDForward  = ( tShapeDiameterPlus - tGlobalShapeDiameter ) / tEps;
+                    real tSDBackward = ( tGlobalShapeDiameter - tShapeDiameterMinus ) / tEps;
+                    real tSDCentral  = ( tShapeDiameterPlus - tShapeDiameterMinus ) / ( 2.0 * tEps );
+
+                    // Check sensitivities shape diameter
+                    CHECK( tShapeDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-2 ) );
+                    CHECK( tShapeDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-2 ) );
+                    CHECK( tShapeDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-2 ) );
+                }
             }
         }
-
         SECTION( "Raycast Region, Distance, and Sensitivities - 2D" )
         {
-            // FIXME: It would be better to FD the sensitivities rather than hardcoding the expected values
-            Matrix< DDRMat > tdRdOExpected = { { 0.5, 0.5 } };
-            Matrix< DDRMat > tdRdDExpected = { { 0.1125, 0.1125 } };
-            Matrix< DDRMat > tdRdVExpected = { { -0.28333333333, -0.28333333333 }, { -0.2166666666667, -0.2166666666667 } };
-
             // define test point and direction
             Matrix< DDRMat > tTestPoint = { { 0.8 }, { 0.4 } };
-            Matrix< DDRMat > tDirection = { { -1.0, -1.0 } };
+            Matrix< DDRMat > tDirection = { { -1.0 }, { -1.0 } };
+            tDirection                  = tDirection;
+
+            // Setup perturbation matrix for FD
+            Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
 
             // Check the region of this point
             mtk::Mesh_Region tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
@@ -113,30 +208,122 @@ namespace moris::mtk
 
             // Get the distance and sensitivities
             bool                tWarning;
-            Intersection_Vector tDistance = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
+            Intersection_Vector tDistance    = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
+            real                tRefDistance = tDistance( 0 ).second;
             REQUIRE( tDistance.size() == 1 );
-            CHECK( tDistance( 0 ).second == Approx( 0.2250 ) );    // distance
-            CHECK( tDistance( 0 ).first == 1 );                    // intersected facet
-            CHECK( not tWarning );                                 // no warning
+            CHECK( tRefDistance == Approx( 0.2250 ) );    // distance
+            CHECK( tDistance( 0 ).first == 1 );           // intersected facet
+            CHECK( not tWarning );                        // no warning
 
             // Get the sensitivity wrt to the ray origin
             Matrix< DDRMat > tdRdO = tSurfaceMesh.compute_draycast_dorigin( tTestPoint, tDirection, tDistance( 0 ).first );
 
+            // Finite difference raycast sensitivity wrt origin
+            // Loop over dimensions
+            for ( uint iDim = 0; iDim < 2; iDim++ )
+            {
+                // Perturb origin positively
+                tPerturbation( iDim )                = tEps;
+                Matrix< DDRMat >    tPerturbedOrigin = tTestPoint + tPerturbation;
+                Intersection_Vector tDistancePlus    = tSurfaceMesh.cast_single_ray( tPerturbedOrigin, tDirection, tWarning );
+                CHECK( tDistancePlus.size() == 1 );
+                REQUIRE( tDistancePlus( 0 ).first == 1 );    // intersected facet
+                REQUIRE( not tWarning );                     // no warning
+                real tDistancePlusValue = tDistancePlus( 0 ).second;
+
+                // Perturb origin negatively
+                tPerturbation( iDim )              = -tEps;
+                tPerturbedOrigin                   = tTestPoint + tPerturbation;
+                Intersection_Vector tDistanceMinus = tSurfaceMesh.cast_single_ray( tPerturbedOrigin, tDirection, tWarning );
+                CHECK( tDistancePlus.size() == 1 );
+                REQUIRE( tDistancePlus( 0 ).first == 1 );    // intersected facet
+                REQUIRE( not tWarning );                     // no warning
+                real tDistanceMinusValue = tDistanceMinus( 0 ).second;
+
+                // Reset perturbation
+                tPerturbation( iDim ) = 0.0;
+
+                // Compute FD sensitivity
+                real tRForward  = ( tDistancePlusValue - tRefDistance ) / tEps;
+                real tRBackward = ( tRefDistance - tDistanceMinusValue ) / tEps;
+                real tRCentral  = ( tDistancePlusValue - tDistanceMinusValue ) / ( 2.0 * tEps );
+
+                // Check sensitivities
+                CHECK( tdRdO( iDim ) == Approx( tRForward ) );
+                CHECK( tdRdO( iDim ) == Approx( tRBackward ) );
+                CHECK( tdRdO( iDim ) == Approx( tRCentral ) );
+            }
+
             // Get the sensitivity wrt to the ray direction
             Matrix< DDRMat > tdRdD = tSurfaceMesh.compute_draycast_ddirection( tTestPoint, tDirection, tDistance( 0 ).first );
+
+            // Finite difference raycast sensitivity wrt direction
+            // Loop over dimensions
+            for ( uint iDim = 0; iDim < 2; iDim++ )
+            {
+                // Perturb direction positively
+                tPerturbation( iDim )                   = tEps;
+                Matrix< DDRMat >    tPerturbedDirection = tDirection + tPerturbation;
+                Intersection_Vector tDistancePlus       = tSurfaceMesh.cast_single_ray( tTestPoint, tPerturbedDirection, tWarning );
+                real                tDistancePlusValue  = tDistancePlus( 0 ).second;
+
+                // Perturb direction negatively
+                tPerturbation( iDim )                      = -tEps;
+                Matrix< DDRMat >    tPerturbedDirectionNeg = tDirection + tPerturbation;
+                Intersection_Vector tDistanceMinus         = tSurfaceMesh.cast_single_ray( tTestPoint, tPerturbedDirectionNeg, tWarning );
+                real                tDistanceMinusValue    = tDistanceMinus( 0 ).second;
+
+                // Reset perturbation
+                tPerturbation( iDim ) = 0.0;
+
+                // Compute FD sensitivity
+                real tRForward  = ( tDistancePlusValue - tRefDistance ) / tEps;
+                real tRBackward = ( tRefDistance - tDistanceMinusValue ) / tEps;
+                real tRCentral  = ( tDistancePlusValue - tDistanceMinusValue ) / ( 2.0 * tEps );
+
+                // Check sensitivities
+                CHECK( tdRdD( iDim ) == Approx( tRForward ) );
+                CHECK( tdRdD( iDim ) == Approx( tRBackward ) );
+                CHECK( tdRdD( iDim ) == Approx( tRCentral ) );
+            }
 
             // Get the sensitivity wrt to the vertices of the intersected facet
             Matrix< DDRMat > tdRdV = tSurfaceMesh.compute_draycast_dvertices( tTestPoint, tDirection, tDistance( 0 ).first );
 
-            // Loop over sensitivities and check they are correct
-            for ( uint iS = 0; iS < 2; iS++ )    // Loop over spatial dimensions
+            // Finite difference raycast sensitivity wrt vertices
+            Vector< moris_index > tFacetVertices = tSurfaceMesh.get_facets_vertex_indices( tDistance( 0 ).first );
+            // Loop over vertices
+            for ( uint iVLocal = 0; iVLocal < tFacetVertices.size(); iVLocal++ )
             {
-                CHECK( tdRdO( iS ) == Approx( tdRdOExpected( iS ) ) );
-                CHECK( tdRdD( iS ) == Approx( tdRdDExpected( iS ) ) );
-
-                for ( uint iV = 0; iV < 2; iV++ )    // Loop over vertices
+                moris_index iV = tFacetVertices( iVLocal );
+                // Loop over dimensions
+                for ( uint iDim = 0; iDim < 2; iDim++ )
                 {
-                    CHECK( tdRdV( iV, iS ) == Approx( tdRdVExpected( iV, iS ) ) );
+                    // Perturb vertex positively
+                    tPerturbation( iDim ) = tEps;
+                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                    Intersection_Vector tDistancePlus    = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
+                    real                tDistancePlusVal = tDistancePlus( 0 ).second;
+
+                    // Perturb vertex negatively
+                    tPerturbation( iDim ) = -tEps;
+                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                    Intersection_Vector tDistanceMinus    = tSurfaceMesh.cast_single_ray( tTestPoint, tDirection, tWarning );
+                    real                tDistanceMinusVal = tDistanceMinus( 0 ).second;
+
+                    // Reset perturbation
+                    tPerturbation( iDim ) = 0.0;
+                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+
+                    // Compute FD sensitivity
+                    real tRForward  = ( tDistancePlusVal - tRefDistance ) / tEps;
+                    real tRBackward = ( tRefDistance - tDistanceMinusVal ) / tEps;
+                    real tRCentral  = ( tDistancePlusVal - tDistanceMinusVal ) / ( 2.0 * tEps );
+
+                    // Check sensitivities
+                    CHECK( tdRdV( iVLocal, iDim ) == Approx( tRForward ) );
+                    CHECK( tdRdV( iVLocal, iDim ) == Approx( tRBackward ) );
+                    CHECK( tdRdV( iVLocal, iDim ) == Approx( tRCentral ) );
                 }
             }
         }
@@ -157,86 +344,12 @@ namespace moris::mtk
                 // define test point that is inside the object
                 Matrix< DDRMat > tTestPoint = { { 0.9, 0.6, 0.7 } };
 
-                // Define ray direction
-                // Matrix< DDRMat > tDirection = { { 1.0 }, { 0.0 }, { 0.0 } };
-
-                // // preselect in x direction and ensure they are correct
-                // Vector< uint > tCandidatesExpected = { 1, 0, 2 };
-                // Vector< uint > tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-
-                // REQUIRE( tCandidateTriangles.size() == 3 );
-                // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
-                // CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
-                // CHECK( tCandidatesExpected( 2 ) == tCandidateTriangles( 2 ) );
-
-                // // repeat for y direction
-                // tDirection          = { { 0.0 }, { 1.0 }, { 0.0 } };
-                // tCandidatesExpected = { 1, 0 };
-                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-
-                // REQUIRE( tCandidateTriangles.size() == 2 );
-                // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
-                // CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
-
-                // // repeat for z direction
-                // tDirection          = { { 0.0 }, { 0.0 }, { 1.0 } };
-                // tCandidatesExpected = { 1, 0 };
-                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-                // // tPreselection       = preselect_triangles( tSurfaceMesh, tTestPoint, 2, tCandidateTriangles );
-
-                // // Check the preselection results
-                // REQUIRE( tCandidateTriangles.size() == 2 );
-                // CHECK( tCandidatesExpected( 0 ) == tCandidateTriangles( 0 ) );
-                // CHECK( tCandidatesExpected( 1 ) == tCandidateTriangles( 1 ) );
-
-                // // check moller trumbore algorithm for proper intersection location and parent facet determination
-                // Vector< real > tIntersectionCoordinatesExpected = { 0.1805561306105482 };
-
-                // Vector< real > tIntersections( 2 );
-                // for ( uint iCandidate = 0; iCandidate < 2; ++iCandidate )
-                // {
-                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
-                // }
-                // CHECK( std::isnan( tIntersections( 0 ) ) );
-                // CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
-
-                // check if the point is inside and compare it to expectations
-                // mtk::mtk::Mesh_Region tPointIsInside = check_if_node_is_inside_triangles( tIntersections, tTestPoint, 2, 1e-8 );
-
-                // CHECK( tPointIsInside == INSIDE );
-
                 // cast a bunch of random rays and ensure they all return the correct result
                 mtk::Mesh_Region tPointIsInside = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tPointIsInside == mtk::Mesh_Region::INSIDE );
 
                 // repeat test for point that is outside
                 tTestPoint = { { 0.2, 0.6, 0.7 } };
-
-                // Expected results
-                // tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
-
-                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-
-                // REQUIRE( tCandidateTriangles.size() == 0 );
-
-                // tCandidatesExpected = { 1, 0, 2 };
-                // tDirection          = { { 1.0 }, { 0.0 }, { 0.0 } };
-                // tCandidateTriangles = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-
-                // REQUIRE( tCandidateTriangles.size() == 3 );
-                // CHECK( tCandidateTriangles( 0 ) == tCandidatesExpected( 0 ) );
-                // CHECK( tCandidateTriangles( 1 ) == tCandidatesExpected( 1 ) );
-                // CHECK( tCandidateTriangles( 2 ) == tCandidatesExpected( 2 ) );
-
-                // tIntersections.resize( 3 );
-                // for ( uint iCandidate = 0; iCandidate < 3; ++iCandidate )
-                // {
-                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateTriangles( iCandidate ), tTestPoint, tDirection );
-                // }
-
-                // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
-                // CHECK( std::isnan( tIntersections( 1 ) ) );
-                // CHECK( std::abs( tIntersections( 2 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
 
                 // Repeat for all of them at the same time using batching
                 tTestPoint = { { 0.9, 0.2 }, { 0.6, 0.6 }, { 0.7, 0.7 } };
@@ -257,9 +370,6 @@ namespace moris::mtk
             }
             SECTION( "SDF: Raycast Free Function Test - 2D" )
             {
-                // Tolerance for results
-                // real tEpsilon = 1e-8;
-
                 // create object from object file
                 std::string    tSurfaceMeshPath = tMorisRoot + "projects/GEN/SDF/test/data/rhombus.obj";
                 Vector< real > tOffsets         = { 0.0, 0.0, 0.0 };
@@ -269,52 +379,12 @@ namespace moris::mtk
                 // define test point
                 Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
 
-                // define test direction
-                // Matrix< DDRMat > tDirection = { { 1.0, 0.0 } };
-
-                // // preselect in x direction and ensure the candidates and intersected facets are marked
-                // Vector< uint > tCandidateLines           = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-                // Vector< uint > tIntersectedLinesExpected = { 2, 3 };
-
-                // REQUIRE( tCandidateLines.size() == 2 );
-                // CHECK( tCandidateLines( 0 ) == tIntersectedLinesExpected( 0 ) );
-                // CHECK( tCandidateLines( 1 ) == tIntersectedLinesExpected( 1 ) );
-
-                // // intersect the candidate facets and determine the intersection location
-                // Vector< real > tIntersections( tCandidateLines.size() );
-                // for ( uint iCandidate = 0; iCandidate < tCandidateLines.size(); ++iCandidate )
-                // {
-                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
-                // }
-                // Vector< real > tIntersectionCoordinatesExpected = { 0.05, 0.45 };
-
-                // REQUIRE( tIntersections.size() == 2 );
-                // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
-                // CHECK( std::abs( tIntersections( 1 ) - tIntersectionCoordinatesExpected( 1 ) ) < tEpsilon );
-
                 mtk::Mesh_Region tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::OUTSIDE );
 
 
                 // repeat for a point inside the surface
                 tTestPoint = { { -.25 }, { 0.2 } };
-
-                // tDirection      = { { 0.0, 1.0 } };
-                // tCandidateLines = tSurfaceMesh.preselect_with_arborx( tTestPoint, tDirection );
-
-                // REQUIRE( tCandidateLines.size() == 1 );
-                // CHECK( tCandidateLines( 0 ) == 1 );
-
-                // tIntersections.resize( tCandidateLines.size() );
-                // for ( uint iCandidate = 0; iCandidate < tCandidateLines.size(); ++iCandidate )
-                // {
-                //     tIntersections( iCandidate ) = tSurfaceMesh.moller_trumbore( tCandidateLines( iCandidate ), tTestPoint, tDirection );
-                // }
-
-                // tIntersectionCoordinatesExpected = { 0.05 };
-
-                // REQUIRE( tIntersections.size() == 1 );
-                // CHECK( std::abs( tIntersections( 0 ) - tIntersectionCoordinatesExpected( 0 ) ) < tEpsilon );
 
                 tRegion = tSurfaceMesh.get_region_from_raycast( tTestPoint );
                 REQUIRE( tRegion == mtk::Mesh_Region::INSIDE );

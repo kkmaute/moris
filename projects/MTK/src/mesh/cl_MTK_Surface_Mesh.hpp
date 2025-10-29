@@ -52,9 +52,14 @@ namespace moris::mtk
 
     typedef Vector< std::pair< uint, real > > Intersection_Vector;    // pair of (facet index, distance)
 
+    using Agglomeration_Function             = real ( * )( real aValue );                // Pointer to agglomeration function that takes a nodal shape diameter and returns an agglomerated value
+    using Agglomeration_Sensitivity_Function = Matrix< DDRMat > ( * )( real aValue );    // Pointer to agglomeration sensitivity function that takes a nodal shape diameter and returns the sensitivity of the function wrt to the shape diameter
+
     struct Ray_Cones
     {
         Vector< real > mDirectionWeights;    // Weight for each ray direction
+        Vector< real > mTheta;               // Angle from the normal for each ray direction (in radians)
+        Vector< real > mPhi;                 // Angle from the vertical for each ray direction (in radians)
 
         Vector< Matrix< DDRMat > > mRayDirections;    // Each entry in the vector corresponds to a vertex. Each Matrix contains the ray directions as columns.
 
@@ -63,6 +68,8 @@ namespace moris::mtk
          */
         Ray_Cones( uint aNumFacets, uint aNumRays, uint aDim )
                 : mDirectionWeights( aNumRays )
+                , mTheta( aNumRays )
+                , mPhi( aDim == 3 ? aNumRays : 0 )
                 , mRayDirections( aNumFacets, Matrix< DDRMat >( aDim, aNumRays ) )
         {
         }
@@ -70,7 +77,7 @@ namespace moris::mtk
 
     struct Shape_Diameter_Distances
     {
-        Vector< real >& mDirectionWeights;    // Weight for each ray direction
+        Ray_Cones mRayCones;    // FIXME brendan avoid copy
 
         // Each entry in the vector corresponds to a vertex.
         // Each vertex has a number of rays( aNumPolarRays* aNumAzimuthRays ) associated with it.
@@ -81,10 +88,19 @@ namespace moris::mtk
         /**
          * Constructor to size the data structures
          */
-        Shape_Diameter_Distances( Vector< real >& aDirectionWeights, uint aNumVertices, uint aNumRays )
-                : mDirectionWeights( aDirectionWeights )
+        Shape_Diameter_Distances( Ray_Cones& aRayCones, uint aNumVertices, uint aNumRays )
+                : mRayCones( aRayCones )
                 , mDistances( aNumVertices, Intersection_Vector( aNumRays ) )
         {
+            // Check that the number of rays matches
+            MORIS_ERROR( aRayCones.mRayDirections( 0 ).n_cols() == aNumRays,
+                    "Shape_Diameter_Distances::Constructor - Number of rays does not match between Ray_Cones and input parameter." );
+
+            // Check that all weights are positive
+            for ( const auto& tWeight : mRayCones.mDirectionWeights )
+            {
+                MORIS_ASSERT( tWeight > 0.0, "Shape_Diameter_Distances::Constructor - All direction weights must be positive." );
+            }
         }
     };
 
@@ -332,7 +348,13 @@ namespace moris::mtk
          * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
          * @return Ray_Cones struct which holds the weights and the ray directions for each vertex
          */
-        Ray_Cones build_ray_cone_directions( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
+        Ray_Cones build_ray_cone_angles( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
+
+        /**
+         * Computes the inward ray direction given the polar and azimuthal angles in a cone centered around the normal.
+         * Assumes the normal is outward facing, meaning the angle between the resulting direction and the normal will be greater than 90 degrees.
+         */
+        Matrix< DDRMat > compute_cone_direction_from_angle( const Matrix< DDRMat >& aNormal, real aTheta, real aPhi = MORIS_REAL_MAX ) const;
 
         /**
          * Casts a cone of rays from each node, centered around the vertex normal, and gets the distances for each ray-facet intersection
@@ -342,7 +364,7 @@ namespace moris::mtk
          * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
          * @return Shape_Diameter_Distances struct which holds the weights and the intersection distances for each ray at each vertex
          */
-        Shape_Diameter_Distances compute_nodal_shape_diameter_distances( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
+        Shape_Diameter_Distances cast_shape_diameter_ray_cones( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
 
         /**
          * @brief For each raycast result, determines the nearest intersection that is not part of the originating vertex's facets
@@ -357,7 +379,7 @@ namespace moris::mtk
          * Computes the shape diameter for each surface mesh node
          * The shape diameter is computed by casting a cone of rays from each node and taking the minimum ray length of all the rays
          */
-        Vector< real > compute_nodal_shape_diameter();
+        Vector< real > compute_nodal_shape_diameter( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1 );
 
         /**
          * Computes the norm(brendan ?) of the shape diameter for every surface mesh node
@@ -365,7 +387,15 @@ namespace moris::mtk
          *
          * @return real Norm of the shape diameter for each node
          */
-        real compute_shape_diameter();
+        real compute_global_shape_diameter( real aConeAngle, uint aNumPolarRays, uint aNumAzimuthRays = 1, Agglomeration_Function aAgglomerationFunction = nullptr );
+
+        /**
+         * Computes the centroids of a single facet in the surface mesh
+         * Size: <spatial dim> x <1>
+         *
+         * @return Matrix< DDRMat > facet centroid (average of the vertex coordinates of the facet)
+         */
+        Matrix< DDRMat > compute_facet_centroid( const uint aFacetIndex ) const;
 
         /**
          * Computes the centroids of all the facets in the surface mesh
@@ -382,7 +412,7 @@ namespace moris::mtk
          * @param aFacetIndex local index of the facet to compute measure of.
          * @return Vector< real > facet measures. Size: <number of facets> x <1>
          */
-        real compute_facet_measure( uint aFacetIndex ) const;
+        real compute_facet_measure( const uint aFacetIndex ) const;
 
         /**
          * Computes the measure (area in 3D, length in 2D) of all facets in the surface mesh
@@ -409,9 +439,10 @@ namespace moris::mtk
          *
          * @param aFacetIndex local index of the facet to get sensitivities of
          * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @param aRequireIsMember If true, the method will check if the vertex is part of the facet and throw an error if not. If false, the method will return a zero matrix if the vertex is not part of the facet
          * @return Matrix< DDRMat > dMeasure/dVertex. Size: <1> x <spatial dim>
          */
-        virtual Matrix< DDRMat > compute_dfacet_measure_dvertex( const uint aFacetIndex, const uint aVertexIndex ) const;
+        virtual Matrix< DDRMat > compute_dfacet_measure_dvertex( const uint aFacetIndex, const uint aVertexIndex, bool aRequireIsMember = false ) const;
 
         /**
          * Computes the derivative of the facet centroid wrt the coordinates of a facet vertex
@@ -478,12 +509,21 @@ namespace moris::mtk
                 uint                    aFacetIndex ) const;
 
         /**
+         * Gets the sum of the nodal shape diameter sensitivities wrt to all vertex coordinates
+         *
+         * @return Matrix< DDRMat > dDiameter/dVertices. Size: < number of vertices > x <spatial dim>
+         */
+        const Matrix< DDRMat >& get_nodal_shape_diameter_sensitivities() const;
+
+        /**
          * Gets the derivative of the shape diameter wrt a vertex's coordinates
          *
          * @param aVertexIndex local index of the vertex to get sensitivities of
+         * @param aAgglomerationSensitivityFunction Sensitivity of any agglomeration function used in the shape diameter computation
          * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
          */
-        Matrix< DDRMat > compute_ddiameter_dvertex( const uint aVertexIndex ) const;
+        Matrix< DDRMat > compute_ddiameter_dvertex(
+                const uint aVertexIndex ) const;    // TODO BRENDAN add agglomeration sensitivity function
 
         //-------------------------------------------------------------------------------
         // Output Methods
@@ -503,6 +543,14 @@ namespace moris::mtk
          * @param aCoordinates desired coordinates for the vertex
          */
         void set_vertex_coordinates( const uint aVertexIndex, const Matrix< DDRMat >& aCoordinates );
+
+        /**
+         * @brief computes the normal vector of a single facet in the surface mesh. Stores the result in mFacetNormals.
+         * Using the return value of this function is the same as calling get_facet_normal( aFacetIndex ) after this function
+         *
+         * @param aFacetIndex local facet index to compute normal for
+         */
+        Matrix< DDRMat > compute_facet_normal( const uint aFacetIndex );
 
         /**
          * @brief computes the facet normals and stores in mFacetNormals. mVertexCoordinates must be initialized first
@@ -707,8 +755,9 @@ namespace moris::mtk
 
         Vector< Vector< moris_index > > mVertexToFacetConnectivity;
 
-        Matrix< DDRMat > mdShapeDiameterdVertex;    // cached shape diameter sensitivities
-
+        real             mGlobalShapeDiameter = MORIS_REAL_MAX;    // cached global shape diameter value
+        Vector< real >   mShapeDiameters;                          // cached nodal shape diameter values
+        Matrix< DDRMat > mdShapeDiameterdVertex;                   // cached shape diameter sensitivities
 
         /**
          * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!
