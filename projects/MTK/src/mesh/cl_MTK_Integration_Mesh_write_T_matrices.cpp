@@ -7,7 +7,6 @@
  * cl_MTK_Integration_Mesh_write_T_matrices.cpp
  *
  */
-
 #include <string>
 #include <iomanip>
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -27,6 +26,8 @@
 #include "fn_stringify_matrix.hpp"
 #include "fn_unique.hpp"
 #include "fn_join_horiz.hpp"
+#include "fn_trans.hpp"
+#include "fn_isempty.hpp"
 
 #include "HDF5_Tools.hpp"
 
@@ -181,39 +182,71 @@ namespace moris::mtk
             // initialize cells containing info for T-matrices mapping (Background-BSp)-(Background-Lag) for each IP vertex
             Vector< Matrix< IdMat > >  tIPtoBSIds;
             Vector< Matrix< DDRMat > > tIPtoBSWeights;
-
+           
             // get T-matrices mapping from IP nodes to B-splines
             this->get_IP_to_BS_nodal_T_matrices( tIPtoBSIds, tIPtoBSWeights, iSet );
 
             // initialize cells containing info for T-matrices mapping (Background-Lag)-(IG-Vertices) for each IG vertex
             Vector< Matrix< IdMat > >  tIGtoIPIds;
+            Vector< Matrix< IdMat > >  tIGtoIPIdsX;
+            Vector< Matrix< IdMat > >  tIGtoIPIdsY;
+            Vector< Matrix< IdMat > >  tIGtoIPIdsZ;
+
             Vector< Matrix< DDRMat > > tIGtoIPWeights;
+            Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsX;
+            Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsY;
+            Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsZ;
+
+            std::vector< int >         tIGNodeIDs;
 
             // get T-matrices mapping from IG nodes to IP nodes
-            this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPWeights, iSet );
+            this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPIdsX, tIGtoIPIdsY, tIGtoIPIdsZ, tIGtoIPWeights, tIGtoIPGradientWeightsX, tIGtoIPGradientWeightsY, tIGtoIPGradientWeightsZ, tIGNodeIDs, iSet );
 
             // initialize cells containing info for T-matrices mapping (Background-BSp)-(IG-Vertices) for each IG vertex
             Vector< Matrix< IdMat > >  tIGtoBSIds;
+            Vector< Matrix< IdMat > >  tIGtoBSIdsX;
+            Vector< Matrix< IdMat > >  tIGtoBSIdsY;
+            Vector< Matrix< IdMat > >  tIGtoBSIdsZ;
+            
             Vector< Matrix< DDRMat > > tIGtoBSWeights;
+            Vector< Matrix< DDRMat > > tIGtoBSGradientWeightsX;
+            Vector< Matrix< DDRMat > > tIGtoBSGradientWeightsY;
+            Vector< Matrix< DDRMat > > tIGtoBSGradientWeightsZ;
+
 
             // combine T-Matrices to get
-            this->get_IG_to_BS_nodal_T_matrices( tIGtoBSIds, tIGtoBSWeights, tIPtoBSIds, tIPtoBSWeights, tIGtoIPIds, tIGtoIPWeights );
+            this->get_IG_to_BS_nodal_T_matrices( tIGtoBSIds, tIGtoBSIdsX, tIGtoBSIdsY, tIGtoBSIdsZ, tIGtoBSWeights, tIGtoBSGradientWeightsX, tIGtoBSGradientWeightsY, tIGtoBSGradientWeightsZ, tIPtoBSIds, tIPtoBSWeights, tIGtoIPIds, tIGtoIPIdsX, tIGtoIPIdsY, 
+                  tIGtoIPIdsZ, tIGtoIPWeights, tIGtoIPGradientWeightsX, tIGtoIPGradientWeightsY, tIGtoIPGradientWeightsZ );
 
             // -------------------------------------
             // combine everything into one matrix
 
             // initialize matrices for sparse mat
             Matrix< DDUMat > tSparseIndices;
+            Matrix< DDUMat > tSparseIndicesX;
+            Matrix< DDUMat > tSparseIndicesY;
+            Matrix< DDUMat > tSparseIndicesZ;
+            
             Matrix< DDRMat > tWeights;
+            Matrix< DDRMat > tGradientWeightsX;
+            Matrix< DDRMat > tGradientWeightsY;
+            Matrix< DDRMat > tGradientWeightsZ;
+            
+            
 
             // combine everything
-            this->build_sparse_extraction_operator( tIGtoBSIds, tIGtoBSWeights, tSparseIndices, tWeights );
+            this->build_sparse_extraction_operator( tIGtoBSIds, tIGtoBSIdsX, tIGtoBSIdsY, tIGtoBSIdsZ, tIGtoBSWeights, tIGtoBSGradientWeightsX, tIGtoBSGradientWeightsY, tIGtoBSGradientWeightsZ, tSparseIndices, tSparseIndicesX, tSparseIndicesY, tSparseIndicesZ, tWeights, tGradientWeightsX, tGradientWeightsY, tGradientWeightsZ );
 
             // -------------------------------------
             // write to file
 
             // construct string from output file name
             std::string tStrOutputFile = aFileName + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileGradientX = aFileName + "Gradient" + "X" + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileGradientY = aFileName + "Gradient" + "Y" + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileGradientZ = aFileName + "Gradient" + "Z" + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileNodeIDs = aFileName + "_IG_Node_IDs" + "." + ios::stringify( iSet ) + ".hdf5";
+
 
             // log/print that the extraction operator is output to
             MORIS_LOG_INFO( "Saving Extraction Operator for Set-# %i to file: %s", iSet, tStrOutputFile.c_str() );
@@ -228,6 +261,49 @@ namespace moris::mtk
 
             // close file
             close_hdf5_file( tFileID );
+
+            hid_t  tFileID1 = create_hdf5_file( tStrOutputFileGradientX );
+            herr_t tStatus1 = 0;
+
+            // write to file
+            save_matrix_to_hdf5_file( tFileID1, "IDs", tSparseIndicesX, tStatus1 );
+            save_matrix_to_hdf5_file( tFileID1, "Weights", tGradientWeightsX, tStatus1 );
+
+            // close file
+            close_hdf5_file( tFileID1 );
+
+            hid_t  tFileID2 = create_hdf5_file( tStrOutputFileGradientY );
+            herr_t tStatus2 = 0;
+
+            // write to file
+            save_matrix_to_hdf5_file( tFileID2, "IDs", tSparseIndicesY, tStatus2 );
+            save_matrix_to_hdf5_file( tFileID2, "Weights", tGradientWeightsY, tStatus2 );
+
+            // close file
+            close_hdf5_file( tFileID2 );
+
+            // initialize hdf5 file - This time for the IG Node IDs
+            hid_t  tFileID3 = create_hdf5_file( tStrOutputFileNodeIDs );
+            herr_t tStatus3 = 0;
+
+            // write to file
+            save_vector_to_hdf5_file( tFileID3, "IDs", tIGNodeIDs, tStatus3 );
+
+            // close file
+            close_hdf5_file( tFileID3 );
+
+            if (this->get_spatial_dim() == 3)
+            {
+                hid_t  tFileID4 = create_hdf5_file( tStrOutputFileGradientZ );
+                herr_t tStatus4 = 0;
+
+                // write to file
+                save_matrix_to_hdf5_file( tFileID4, "IDs", tSparseIndicesZ, tStatus4 );
+                save_matrix_to_hdf5_file( tFileID4, "Weights", tGradientWeightsZ, tStatus4 );
+
+                // close file
+                close_hdf5_file( tFileID4 );
+            }
 
         }    // end: loop over all sets
     }
@@ -388,7 +464,14 @@ namespace moris::mtk
     void
     Integration_Mesh::get_IG_to_IP_nodal_T_matrices(
             Vector< Matrix< IdMat > >  &aIGtoIPIds,
+            Vector< Matrix< IdMat > >  &aIGtoIPIdsX,
+            Vector< Matrix< IdMat > >  &aIGtoIPIdsY,
+            Vector< Matrix< IdMat > >  &aIGtoIPIdsZ,
             Vector< Matrix< DDRMat > > &aIGtoIPWeights,
+            Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsX,
+            Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY,
+            Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsZ,
+            std::vector< int >             &aIGNodeIDs,
             uint                        aSetIndex )
     {
         // trace this function
@@ -399,7 +482,23 @@ namespace moris::mtk
 
         // initialize cells containing info for T-matrices mapping (Background-Lag)-(IG-Vertices) for each IG vertex
         aIGtoIPIds.resize( tNumVertices );
+        aIGtoIPIdsX.resize( tNumVertices );
+        aIGtoIPIdsY.resize( tNumVertices );
         aIGtoIPWeights.resize( tNumVertices );
+        aIGtoIPGradientWeightsX.resize( tNumVertices );
+        aIGtoIPGradientWeightsY.resize( tNumVertices );
+        if ( this->get_spatial_dim() == 3 )
+        {
+            aIGtoIPIdsZ.resize( tNumVertices );
+            aIGtoIPGradientWeightsZ.resize( tNumVertices );
+        }
+        
+
+        // To ensure node IDs are not repeatedly added into aIGNodeIDs
+        std::unordered_map< moris_id, uint > tIgVertexCount;
+
+        // initialize counter for number of IG vertices
+        uint tIgCount = 0;
 
         // get number of clusters on current set
         uint tNumClustersOnSet = this->get_set_by_index( aSetIndex )->get_num_clusters_on_set();
@@ -419,6 +518,12 @@ namespace moris::mtk
                 // get list of all vertices on IP cell associated with current cluster
                 Vector< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
+                // get base IP cell 
+                const moris::mtk::Cell* tBaseCell = tInterpolationCell.get_base_cell();
+
+                // Get vertices associated with base IP cell
+                Vector< Vertex * > tBaseIPVertices = tBaseCell->get_vertex_pointers();
+                
                 // get info for IP cell associated with cluster currently handled
                 Cell_Info const *tCellInfo = tCluster->get_interpolation_cell().get_cell_info();
 
@@ -432,6 +537,12 @@ namespace moris::mtk
 
                 // create a space interpolator
                 Space_Interpolator tSpaceInterpolator( tInterpolationRule );
+
+                // Get physical coordinates from base cell
+                Matrix< DDRMat > tPhysicalIPCoords = tBaseCell->get_vertex_coords();
+
+                // Set physical coordinates
+                tSpaceInterpolator.set_space_coeff( tPhysicalIPCoords );
 
                 // get list of list of coordinate of vertices on current cluster
                 moris::Matrix< moris::DDRMat > tLocalCoords = tCluster->get_vertices_local_coordinates_wrt_interp_cell();
@@ -452,11 +563,26 @@ namespace moris::mtk
                 // get number of primary vertices on the treated mesh cluster
                 uint tNumPrimaryVerticesOnCluster = tPrimaryIGVertices.size();
 
+                // Get coordinates of base IP cell for checking if primary IG cell lies on a cell edge.
+                //Matrix< DDRMat > tVert0 = tBaseIPVertices( 0 )->get_coords();
+                //Matrix< DDRMat > tVert1 = tBaseIPVertices( 1 )->get_coords();
+                //Matrix< DDRMat > tVert2 = tBaseIPVertices( 2 )->get_coords();
+
                 // loop over the vertices on the treated mesh cluster
                 for ( uint iPrimaryIgVert = 0; iPrimaryIgVert < tNumPrimaryVerticesOnCluster; iPrimaryIgVert++ )
-                {
+                {                    
                     // get the current primary IG vertex ID
-                    moris_id tPrimaryVertexID = tPrimaryIGVertices( iPrimaryIgVert )->get_id();
+                    moris_id tPrimaryVertexID = tPrimaryIGVertices( iPrimaryIgVert )->get_id();   
+                    
+                    // Check if it has already been looped over
+                    if ( tIgVertexCount.count( tPrimaryVertexID ) == 0 )
+                    {
+                        // If not looped over, add to the list of IG node IDs, increment the count and set the vertex as treated
+                        aIGNodeIDs.push_back( tPrimaryVertexID );
+                        tIgVertexCount[ tPrimaryVertexID ] = 1;
+                        tIgCount++;
+                    }
+
 
                     // look for position of primary vertex in list of all vertices on cluster
                     auto tIter = tIgVertexMap.find( tPrimaryVertexID );
@@ -470,19 +596,50 @@ namespace moris::mtk
 
                     // set interpolation point in space to current vertex
                     tSpaceInterpolator.set_space_time( trans( tLocalCoords.get_row( tIgVertListIndex ) ) );
-
+                    
                     // evaluate vector of shape functions at current vertex and retrieve it
                     const Matrix< DDRMat > &tN = tSpaceInterpolator.NXi();
+
+                    // evaluate vector of gradient of shape functions at the current vertex and retrieve it.
+                    const Matrix< DDRMat >& tdNdXi = tSpaceInterpolator.dNdXi();
+
+                    // Get the geometric Jacobian for the gradients
+                    // evaluate the space Jacobian from the geometry interpolator
+                    const Matrix< DDRMat >& tInvJGeot = tSpaceInterpolator.inverse_space_jacobian();
+
+                    // compute first derivative of the space shape function wrt x
+                    Matrix< DDRMat > tdNdX = tInvJGeot * tdNdXi;
 
                     // get number of shape functions interpolating into current vertex
                     uint tNumSFs = tN.n_cols();
 
                     // initialize size of T-Matrix for current vertex
                     aIGtoIPIds( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    aIGtoIPIdsX( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    aIGtoIPIdsY( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    if ( this->get_spatial_dim() == 3 )
+                    {
+                        aIGtoIPIdsZ( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    }
+                    
                     aIGtoIPWeights( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
-
+                    aIGtoIPGradientWeightsX( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    aIGtoIPGradientWeightsY( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    if ( this->get_spatial_dim() == 3 )
+                    {
+                        aIGtoIPGradientWeightsZ( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    }
                     // initialize counter
                     uint tCount = 0;
+
+                    // initialize counter x IDs
+                    uint tCountX = 0;
+
+                    // initialize counter y IDs
+                    uint tCountY = 0;
+
+                    // initialize counter z IDs
+                    uint tCountZ = 0;
 
                     // loop over all T-Matrix entries
                     for ( uint iSF = 0; iSF < tNumSFs; iSF++ )
@@ -499,6 +656,43 @@ namespace moris::mtk
                             // increment counter
                             tCount++;
                         }
+                        // copy entry of gradient
+                        if ( std::abs( tdNdX( 0 , iSF ) ) > 10.0 * MORIS_REAL_EPS )
+                        {
+                            // copy pointer of dof and convert to mtk::Vertex
+                            aIGtoIPIdsX( tPrimaryVertexID - 1 )( tCountX ) = tIPVertices( iSF )->get_id();
+
+                            aIGtoIPGradientWeightsX( tPrimaryVertexID - 1 )( tCountX ) = tdNdX( 0 , iSF );
+
+                            // increment counter
+                            tCountX++;
+                            
+                        }
+                        if ( std::abs( tdNdX( 1 , iSF ) ) > 10.0 * MORIS_REAL_EPS )
+                        {
+                            // copy pointer of dof and convert to mtk::Vertex
+                            aIGtoIPIdsY( tPrimaryVertexID - 1 )( tCountY ) = tIPVertices( iSF )->get_id();
+
+                            aIGtoIPGradientWeightsY( tPrimaryVertexID - 1 )( tCountY ) = tdNdX( 1 , iSF ); 
+
+                            // increment counter
+                            tCountY++;
+                            
+                        } 
+                        if ( this->get_spatial_dim() == 3 )
+                        {
+                            if ( std::abs( tdNdX( 2 , iSF ) ) > 10.0 * MORIS_REAL_EPS )
+                            {
+                                // copy pointer of dof and convert to mtk::Vertex
+                                aIGtoIPIdsZ( tPrimaryVertexID - 1 )( tCountZ ) = tIPVertices( iSF )->get_id();
+
+                                aIGtoIPGradientWeightsZ( tPrimaryVertexID - 1 )( tCountZ ) = tdNdX( 2 , iSF ); 
+
+                                // increment counter
+                                tCountZ++;
+                                
+                            } 
+                        }                            
                     }
                 }    // end: loop over vertices on cluster
             }    // end: loop over clusters
@@ -587,6 +781,7 @@ namespace moris::mtk
                         // get list of B-spline IDs associated with current IP vertex
                         Matrix< IdMat >  tBSpIDs    = tIPVertices( iIpVert )->get_interpolation( iBspMesh )->get_ids();
                         Matrix< DDRMat > tBSWeights = *tIPVertices( iIpVert )->get_interpolation( iBspMesh )->get_weights();
+                        Matrix< DDRMat >  tCoords    = tIPVertices( iIpVert )->get_coords();
 
                         // copy the weights and basis IDs onto the output T-matrices
                         aIPtoBSIds( iBspMesh )( tUipvIndex )     = trans( tBSpIDs );
@@ -655,6 +850,27 @@ namespace moris::mtk
                         // get list of B-spline IDs associated with current IP vertex
                         Matrix< IdMat >  tBSpIDs    = tIPVertices( iIpVert )->get_interpolation( 0 )->get_ids();
                         Matrix< DDRMat > tBSWeights = *tIPVertices( iIpVert )->get_interpolation( 0 )->get_weights();
+                        Matrix< DDRMat > tCoords = tIPVertices( iIpVert )->get_coords();
+
+                        /*if( tCoords( 0 ) == 0.0 )
+                        {
+                            if( tCoords( 1 ) == 0.375 )
+                            {
+                                // print B-spline IDs and weights
+                                std::cout << "B-spline IDs: " << tBSpIDs( 0 ) << std::endl;
+                                std::cout << "B-spline Weights: " << tBSWeights( 0 ) << std::endl;
+                                std::cout << "B-spline IDs: " << tBSpIDs( 1 ) << std::endl;
+                                std::cout << "B-spline Weights: " << tBSWeights( 1 ) << std::endl;
+                                std::cout << "B-spline IDs: " << tBSpIDs( 2 ) << std::endl;
+                                std::cout << "B-spline Weights: " << tBSWeights( 2 ) << std::endl;
+                                std::cout << "B-spline IDs: " << tBSpIDs( 3 ) << std::endl;
+                                std::cout << "B-spline Weights: " << tBSWeights( 3 ) << std::endl;
+                                //Print the coordinates
+                                std::cout << "Coordinates: " << tCoords( 0 ) << std::endl;
+                                std::cout << "Coordinates: " << tCoords( 1 ) << std::endl;
+                            
+                            }
+                        }*/
 
                         // get number of B-splines associated with current IP vertex
                         uint tNumBspOnIpNode = tBSpIDs.numel();
@@ -813,11 +1029,23 @@ namespace moris::mtk
     void
     Integration_Mesh::get_IG_to_BS_nodal_T_matrices(
             Vector< Matrix< IdMat > >  &aIGtoBSIds,
+            Vector< Matrix< IdMat > >  &aIGtoBSIdsX,
+            Vector< Matrix< IdMat > >  &aIGtoBSIdsY,
+            Vector< Matrix< IdMat > >  &aIGtoBSIdsZ,
             Vector< Matrix< DDRMat > > &aIGtoBSWeights,
+            Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsX,
+            Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsY,
+            Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsZ,
             Vector< Matrix< IdMat > >  &aIPtoBSIds,
             Vector< Matrix< DDRMat > > &aIPtoBSWeights,
             Vector< Matrix< IdMat > >  &aIGtoIPIds,
-            Vector< Matrix< DDRMat > > &aIGtoIPWeights )
+            Vector< Matrix< IdMat > >  &aIGtoIPIdsX,
+            Vector< Matrix< IdMat > >  &aIGtoIPIdsY,
+            Vector< Matrix< IdMat > >  &aIGtoIPIdsZ,
+            Vector< Matrix< DDRMat > > &aIGtoIPWeights,
+            Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsX,
+            Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY,
+            Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsZ )
     {
         // trace this function
         Tracer tTracer( "MTK", "Compute IG to IP T-Matrices" );
@@ -829,17 +1057,48 @@ namespace moris::mtk
 
         // initialize size of T-Matrix cells
         aIGtoBSIds.resize( tNumIgNodes );
+        aIGtoBSIdsX.resize( tNumIgNodes );
+        aIGtoBSIdsY.resize( tNumIgNodes );
+        
         aIGtoBSWeights.resize( tNumIgNodes );
+        aIGtoBSGradientWeightsX.resize( tNumIgNodes );
+        aIGtoBSGradientWeightsY.resize( tNumIgNodes );
+        
+        if ( this->get_spatial_dim() == 3 )
+        {
+            aIGtoBSIdsZ.resize( tNumIgNodes );
+            aIGtoBSGradientWeightsZ.resize( tNumIgNodes );
+        }
 
         // loop over all IG vertices
         for ( uint iIgNode = 0; iIgNode < tNumIgNodes; iIgNode++ )
         {
             // initialize temporary vectors containing all
             Matrix< IdMat >  tNodalIGtoBSIds( 0, 0 );
+            Matrix< IdMat >  tNodalIGtoBSIdsX( 0, 0 );
+            Matrix< IdMat >  tNodalIGtoBSIdsY( 0, 0 );
+            Matrix< IdMat >  tNodalIGtoBSIdsZ( 0, 0 );
+
             Matrix< DDRMat > tNodalIGtoBSWeights( 0, 0 );
+            Matrix< DDRMat > tNodalIGtoBSGradientWeightsX( 0 , 0 );
+            Matrix< DDRMat > tNodalIGtoBSGradientWeightsY( 0 , 0 );
+            Matrix< DDRMat > tNodalIGtoBSGradientWeightsZ( 0 , 0 );
 
             // number of IP nodes associated with current IG node
             uint tNumIpBfs = aIGtoIPIds( iIgNode ).numel();
+
+            // number of IP nodes associated with current IG node for grad x
+            uint tNumIpBfsX = aIGtoIPIdsX( iIgNode ).numel();
+
+            // number of IP nodes associated with current IG node for grad y
+            uint tNumIpBfsY = aIGtoIPIdsY( iIgNode ).numel();
+
+            // number of IP nodes associated with current IG node for grad z
+            uint tNumIpBfsZ = 0;
+            if ( this->get_spatial_dim() == 3 )
+            {
+                tNumIpBfsZ = aIGtoIPIdsZ( iIgNode ).numel();
+            }
 
             // loop over all IP nodes current IG node is related to
             for ( uint jIpNode = 0; jIpNode < tNumIpBfs; jIpNode++ )
@@ -853,21 +1112,110 @@ namespace moris::mtk
                     // get what B-spline IDs and Weights are associated with current Node
                     const Matrix< IdMat > &tAddIdList     = aIPtoBSIds( tIpId - 1 );
                     Matrix< DDRMat >       tAddWeightList = aIGtoIPWeights( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+                    //Matrix< DDRMat >       tAddGradientWeightListX = aIGtoIPGradientWeightsX( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+                    //Matrix< DDRMat >       tAddGradientWeightListY = aIGtoIPGradientWeightsY( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
 
                     // append vectors of IDs and weights
                     tNodalIGtoBSIds     = join_horiz( tNodalIGtoBSIds, tAddIdList );
                     tNodalIGtoBSWeights = join_horiz( tNodalIGtoBSWeights, tAddWeightList );
+                    //tNodalIGtoBSGradientWeightsX = join_horiz( tNodalIGtoBSGradientWeightsX, tAddGradientWeightListX );
+                    //tNodalIGtoBSGradientWeightsY = join_horiz( tNodalIGtoBSGradientWeightsY, tAddGradientWeightListY );
                 }
             }    // end: loop over all IP Nodes
+
+            // loop over all IP nodes current IG node is related to for X
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfsX; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIdsX( iIgNode )( jIpNode );
+
+                if ( tIpId > gNoID )
+                {
+                    const Matrix< IdMat > &tAddIdList  = aIPtoBSIds( tIpId - 1 );
+                    Matrix< DDRMat >       tAddWeightList = aIGtoIPGradientWeightsX( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                    // append vectors of IDs and weights
+                    tNodalIGtoBSIdsX     = join_horiz( tNodalIGtoBSIdsX, tAddIdList );
+                    tNodalIGtoBSGradientWeightsX = join_horiz( tNodalIGtoBSGradientWeightsX, tAddWeightList );
+                }
+            }
+
+            // loop over all IP nodes current IG node is related to for Y
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfsY; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIdsY( iIgNode )( jIpNode );
+
+                if ( tIpId > gNoID )
+                {
+                    const Matrix< IdMat > &tAddIdList  = aIPtoBSIds( tIpId - 1 );
+                    Matrix< DDRMat >       tAddWeightList = aIGtoIPGradientWeightsY( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                    // append vectors of IDs and weights
+                    tNodalIGtoBSIdsY     = join_horiz( tNodalIGtoBSIdsY, tAddIdList );
+                    tNodalIGtoBSGradientWeightsY = join_horiz( tNodalIGtoBSGradientWeightsY, tAddWeightList );
+                }
+            }
+
+            // if spatial dimension is 3, loop over all IP nodes current IG node is related to for Z
+            if ( this->get_spatial_dim() == 3 )
+            {
+                for ( uint jIpNode = 0; jIpNode < tNumIpBfsZ; jIpNode++ )
+                {
+                    // get current IP ID
+                    moris_id tIpId = aIGtoIPIdsZ( iIgNode )( jIpNode );
+
+                    if ( tIpId > gNoID )
+                    {
+                        const Matrix< IdMat > &tAddIdList     = aIPtoBSIds( tIpId - 1 );
+                        Matrix< DDRMat >       tAddWeightList = aIGtoIPGradientWeightsZ( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                        // append vectors of IDs and weights
+                        tNodalIGtoBSIdsZ             = join_horiz( tNodalIGtoBSIdsZ, tAddIdList );
+                        tNodalIGtoBSGradientWeightsZ = join_horiz( tNodalIGtoBSGradientWeightsZ, tAddWeightList );
+                    }
+                }
+            }
 
             // get unique list of B-Spline IDs associated with each IG node
             moris::unique( tNodalIGtoBSIds, aIGtoBSIds( iIgNode ) );
 
+            // get unique list of B-Spline IDs associated with each IG node for x
+            moris::unique( tNodalIGtoBSIdsX, aIGtoBSIdsX( iIgNode ) );
+
+            // get unique list of B-Spline IDs associated with each IG node for y
+            moris::unique( tNodalIGtoBSIdsY, aIGtoBSIdsY( iIgNode ) );
+
+            // get unique list of B-Spline IDs associated with each IG node for z
+            if (this->get_spatial_dim() == 3 )
+            {
+                moris::unique( tNodalIGtoBSIdsZ, aIGtoBSIdsZ( iIgNode ) );
+            }
+
             // get number of unique IDs in list
             uint tNumUniqueIDs = aIGtoBSIds( iIgNode ).numel();
 
+            // get number of unique IDs in list X
+            uint tNumUniqueIDsX = aIGtoBSIdsX( iIgNode ).numel();
+
+            // get number of unique IDs in list Y
+            uint tNumUniqueIDsY = aIGtoBSIdsY( iIgNode ).numel();
+
+            // get number of unique IDs in list Z
+            uint tNumUniqueIDsZ = 0;
+            if ( this->get_spatial_dim() == 3 )
+            {
+                tNumUniqueIDsZ = aIGtoBSIdsZ( iIgNode ).numel();
+            }
+
             // initialize list of weights associated with unique list of IDs
             aIGtoBSWeights( iIgNode ).set_size( tNumUniqueIDs, 1, 0.0 );
+            aIGtoBSGradientWeightsX( iIgNode ).set_size( tNumUniqueIDsX, 1, 0.0 );
+            aIGtoBSGradientWeightsY( iIgNode ).set_size( tNumUniqueIDsY, 1, 0.0 );
+            if ( this->get_spatial_dim() == 3 )
+            {
+                aIGtoBSGradientWeightsZ( iIgNode ).set_size( tNumUniqueIDsZ, 1, 0.0 );
+            }
 
             // create list of weights associated with unique list of IDs
             for ( uint iUnique = 0; iUnique < tNumUniqueIDs; iUnique++ )
@@ -877,6 +1225,52 @@ namespace moris::mtk
                     if ( aIGtoBSIds( iIgNode )( iUnique ) == tNodalIGtoBSIds( jNonUnique ) )
                     {
                         aIGtoBSWeights( iIgNode )( iUnique ) = aIGtoBSWeights( iIgNode )( iUnique ) + tNodalIGtoBSWeights( jNonUnique );
+                        //aIGtoBSGradientWeightsX( iIgNode )( iUnique ) = aIGtoBSGradientWeightsX( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsX( jNonUnique );
+                        //aIGtoBSGradientWeightsY( iIgNode )( iUnique ) = aIGtoBSGradientWeightsY( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsY( jNonUnique );
+                    }
+                }
+            }
+
+            // create list of weights associated with unique list of IDs x
+            for ( uint iUnique = 0; iUnique < tNumUniqueIDsX; iUnique++ )
+            {
+                for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIdsX.numel(); jNonUnique++ )
+                {
+                    if ( aIGtoBSIdsX( iIgNode )( iUnique ) == tNodalIGtoBSIdsX( jNonUnique ) )
+                    {
+                        aIGtoBSGradientWeightsX( iIgNode )( iUnique ) = aIGtoBSGradientWeightsX( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsX( jNonUnique );
+                        //aIGtoBSGradientWeightsX( iIgNode )( iUnique ) = aIGtoBSGradientWeightsX( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsX( jNonUnique );
+                        //aIGtoBSGradientWeightsY( iIgNode )( iUnique ) = aIGtoBSGradientWeightsY( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsY( jNonUnique );
+                    }
+                }
+            }
+
+            // create list of weights associated with unique list of IDs y
+            for ( uint iUnique = 0; iUnique < tNumUniqueIDsY; iUnique++ )
+            {
+                for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIdsY.numel(); jNonUnique++ )
+                {
+                    if ( aIGtoBSIdsY( iIgNode )( iUnique ) == tNodalIGtoBSIdsY( jNonUnique ) )
+                    {
+                        aIGtoBSGradientWeightsY( iIgNode )( iUnique ) = aIGtoBSGradientWeightsY( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsY( jNonUnique );
+                        //aIGtoBSGradientWeightsX( iIgNode )( iUnique ) = aIGtoBSGradientWeightsX( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsX( jNonUnique );
+                        //aIGtoBSGradientWeightsY( iIgNode )( iUnique ) = aIGtoBSGradientWeightsY( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsY( jNonUnique );
+                    }
+                }
+            }
+            // create list of weights associated with unique list of IDs z
+            if ( this->get_spatial_dim() == 3 )
+            {
+                for ( uint iUnique = 0; iUnique < tNumUniqueIDsZ; iUnique++ )
+                {
+                    for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIdsZ.numel(); jNonUnique++ )
+                    {
+                        if ( aIGtoBSIdsZ( iIgNode )( iUnique ) == tNodalIGtoBSIdsZ( jNonUnique ) )
+                        {
+                            aIGtoBSGradientWeightsZ( iIgNode )( iUnique ) = aIGtoBSGradientWeightsZ( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsZ( jNonUnique );
+                            //aIGtoBSGradientWeightsX( iIgNode )( iUnique ) = aIGtoBSGradientWeightsX( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsX( jNonUnique );
+                            //aIGtoBSGradientWeightsY( iIgNode )( iUnique ) = aIGtoBSGradientWeightsY( iIgNode )( iUnique ) + tNodalIGtoBSGradientWeightsY( jNonUnique );
+                        }
                     }
                 }
             }
@@ -977,9 +1371,21 @@ namespace moris::mtk
     void
     Integration_Mesh::build_sparse_extraction_operator(
             Vector< Matrix< IdMat > >  &aIGtoBSIds,
+            Vector< Matrix< IdMat > >  &aIGtoBSIdsX,
+            Vector< Matrix< IdMat > >  &aIGtoBSIdsY,
+            Vector< Matrix< IdMat > >  &aIGtoBSIdsZ,
             Vector< Matrix< DDRMat > > &aIGtoBSWeights,
+            Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsX,
+            Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsY,
+            Vector< Matrix< DDRMat > > &aIGtoBSGradientWeightsZ,
             Matrix< DDUMat >           &aSparseIndices,
-            Matrix< DDRMat >           &aWeights )
+            Matrix< DDUMat >           &aSparseIndicesX,
+            Matrix< DDUMat >           &aSparseIndicesY,
+            Matrix< DDUMat >           &aSparseIndicesZ,
+            Matrix< DDRMat >           &aWeights,
+            Matrix< DDRMat >           &aGradientWeightsX,
+            Matrix< DDRMat >           &aGradientWeightsY,
+            Matrix< DDRMat >           &aGradientWeightsZ )
     {
         // trace this function
         Tracer tTracer( "MTK", "Build Sparse Extraction Operator Matrix" );
@@ -990,18 +1396,56 @@ namespace moris::mtk
         // initialize length of global sparse operator
         uint tNumIdWeightPairs = 0;
 
+        // initialize length of global sparse operator X
+        uint tNumIdWeightPairsX = 0;
+
+        // initialize length of global sparse operator Y
+        uint tNumIdWeightPairsY = 0;
+
+        // initialize length of global sparse operator Z
+        uint tNumIdWeightPairsZ = 0;
+
         // loop over all IG Nodes to figure out total number of weights
         for ( uint iG = 0; iG < tNumIgNodes; iG++ )
         {
             tNumIdWeightPairs += aIGtoBSIds( iG ).numel();
+            tNumIdWeightPairsX += aIGtoBSIdsX( iG ).numel();
+            tNumIdWeightPairsY += aIGtoBSIdsY( iG ).numel();
+            if (this->get_spatial_dim() == 3 )
+            {
+                tNumIdWeightPairsZ += aIGtoBSIdsZ( iG ).numel();
+            }
         }
 
         // initialize sparse matrix
         aSparseIndices.set_size( tNumIdWeightPairs, 2 );
+        aSparseIndicesX.set_size( tNumIdWeightPairsX, 2 );
+        aSparseIndicesY.set_size( tNumIdWeightPairsY, 2 );
+        if (this->get_spatial_dim() == 3 )
+        {
+            aSparseIndicesZ.set_size( tNumIdWeightPairsZ, 2 );
+        }
+        
         aWeights.set_size( tNumIdWeightPairs, 1 );
+        aGradientWeightsX.set_size( tNumIdWeightPairsX, 1 );
+        aGradientWeightsY.set_size( tNumIdWeightPairsY, 1 );
+
+        if (this->get_spatial_dim() == 3 )
+        {
+            aGradientWeightsZ.set_size( tNumIdWeightPairsZ, 1 );
+        }   
 
         // initialize index counter
         uint tIndex = 0;
+
+        // initialize index counter x
+        uint tIndexX = 0;
+        
+        // initialize index counter y
+        uint tIndexY = 0;
+
+        // initialize index counter z
+        uint tIndexZ = 0;
 
         // loop over all IG Nodes
         for ( uint iG = 0; iG < tNumIgNodes; iG++ )
@@ -1019,9 +1463,72 @@ namespace moris::mtk
                     aSparseIndices( tIndex, 0 ) = iG + 1;
                     aSparseIndices( tIndex, 1 ) = tBspId;
                     aWeights( tIndex )          = aIGtoBSWeights( iG )( iBsp );
+                    //aGradientWeightsX( tIndex ) = aIGtoBSGradientWeightsX( iG )( iBsp );
+                    //aGradientWeightsY( tIndex ) = aIGtoBSGradientWeightsY( iG )( iBsp );
 
                     // increment index
                     tIndex++;
+                }
+            }
+            
+            // check if IG node has interpolation x
+            if ( aIGtoBSIdsX( iG ).numel() > 0 )
+            {
+                // loop over B-splines interpolating into current IG node x
+                for ( uint iBsp = 0; iBsp < aIGtoBSIdsX( iG ).numel(); iBsp++ )
+                {
+                    // get
+                    uint tBspId = aIGtoBSIdsX( iG )( iBsp );
+
+                    // write IG/BS indices and weights to list
+                    aSparseIndicesX( tIndexX, 0 ) = iG + 1;
+                    aSparseIndicesX( tIndexX, 1 ) = tBspId;
+                    aGradientWeightsX( tIndexX ) = aIGtoBSGradientWeightsX( iG )( iBsp );
+
+                    // increment index
+                    tIndexX++;
+
+                }
+            }
+
+            // check if IG node has interpolation Y
+            if ( aIGtoBSIdsY( iG ).numel() > 0 )
+            {
+                // loop over B-splines interpolating into current IG node
+                for ( uint iBsp = 0; iBsp < aIGtoBSIdsY( iG ).numel(); iBsp++ )
+                {
+                    // get
+                    uint tBspId = aIGtoBSIdsY( iG )( iBsp );
+
+                    // write IG/BS indices and weights to list
+                    aSparseIndicesY( tIndexY, 0 ) = iG + 1;
+                    aSparseIndicesY( tIndexY, 1 ) = tBspId;
+                    aGradientWeightsY( tIndexY ) = aIGtoBSGradientWeightsY( iG )( iBsp );
+
+                    // increment index
+                    tIndexY++;
+                }
+            }
+
+            // check if IG node has interpolation Z
+            if ( this->get_spatial_dim() == 3 )
+            {
+                if ( aIGtoBSIdsZ( iG ).numel() > 0 )
+                {
+                    // loop over B-splines interpolating into current IG node
+                    for ( uint iBsp = 0; iBsp < aIGtoBSIdsZ( iG ).numel(); iBsp++ )
+                    {
+                        // get
+                        uint tBspId = aIGtoBSIdsZ( iG )( iBsp );
+
+                        // write IG/BS indices and weights to list
+                        aSparseIndicesZ( tIndexZ, 0 ) = iG + 1;
+                        aSparseIndicesZ( tIndexZ, 1 ) = tBspId;
+                        aGradientWeightsZ( tIndexZ )  = aIGtoBSGradientWeightsZ( iG )( iBsp );
+
+                        // increment index
+                        tIndexZ++;
+                    }
                 }
             }
         }    // end: loop over all IG nodes
