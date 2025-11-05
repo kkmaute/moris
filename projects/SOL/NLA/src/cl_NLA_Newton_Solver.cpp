@@ -226,10 +226,10 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 1.0 );
 
         // Compute New IQI values
-        mMyNonLinSolverManager->get_solver_interface()->compute_IQI();
+        //mMyNonLinSolverManager->get_solver_interface()->compute_IQI();
 
         // obtain new IQI values
-        Vector< Matrix< DDRMat > > tNewIQI = mMyNonLinSolverManager->get_solver_interface()->get_IQI();
+        //Vector< Matrix< DDRMat > > tNewIQI = mMyNonLinSolverManager->get_solver_interface()->get_IQI();
 
         // // Compute value of incremental objective
         // real tIncrementalObjective = (tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 )) - ( tNewIQI( 0 )( 0 ) - tNewIQI( 1 )( 0 ) + tNewIQI( 2 )( 0 ) );
