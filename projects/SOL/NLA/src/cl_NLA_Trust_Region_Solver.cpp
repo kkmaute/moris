@@ -478,7 +478,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     // MORIS_LOG_INFO( "Final Objective 1 value: %f", ( tFinalIQIVal( 0 )( 0 ) ) );
     // MORIS_LOG_INFO( "Final Objective 2 value: %f", ( tFinalIQIVal( 1 )( 0 ) ) );
     // MORIS_LOG_INFO( "Final Objective 3 value: %f", ( tFinalIQIVal( 2 )( 0 ) ) );
-    // mNonlinearProblem->get_solver_interface()->set_trust_region_flag( false );
+    mNonlinearProblem->get_solver_interface()->set_trust_region_flag( false );
 
     // Compute IQI values at the end of the trust region solve
    

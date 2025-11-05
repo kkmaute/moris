@@ -76,12 +76,12 @@ namespace moris::MSI
             this->initialize_IQIs();
 
         }
-        //else 
-        //{
+        else 
+        {
             // Note: Having this condition fails the MDL Unit test (MDL XFEM measure) as the unit test short-circuits the usual procedure of assigning solver IQIs.
             // But you need to have this in the code to ensure the IQIs are not added up over multiple calls to compute_IQIs from the trust region solver.
-        //    this->initialize_IQIs();
-        //}
+            this->initialize_IQIs();
+        }
 
         // get number of IQI on the model
         uint tNumIQIsOnModel =
