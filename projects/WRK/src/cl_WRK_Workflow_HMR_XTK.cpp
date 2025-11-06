@@ -380,9 +380,23 @@ namespace moris::wrk
             MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
             MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
 
-            // delete data that needs to be deleted explicitly to prevent memory leaks
-            delete tXTKPerformer;
-            mPerformerManager->mDataBasePerformer( 0 )->free_memory();
+            Module_Parameter_Lists tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::MIG );
+
+            // check if there are MIG parameters specified
+            if ( tMIGParameterList.size() > 0 )
+            {
+                moris::mig::MIG tMIGPerformer = moris::mig::MIG(
+                        mPerformerManager->mMTKPerformer( 1 ),
+                        tMIGParameterList( 0 )( 0 ),
+                        mPerformerManager->mGENPerformer( 0 ).get() );
+
+                tMIGPerformer.perform();
+            }
+
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
+
+            // Assign PDVs
+            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
 
             // return empty vector for design criteria
             Vector< real > tVector( 1, std::numeric_limits< real >::quiet_NaN() );

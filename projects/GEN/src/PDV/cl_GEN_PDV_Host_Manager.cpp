@@ -9,12 +9,14 @@
  */
 
 #include "cl_GEN_PDV_Host_Manager.hpp"
-
+#include "cl_MSI_Design_Variable_Interface.hpp"
 #include <utility>
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "fn_trans.hpp"
 #include "fn_eye.hpp"
+#include "cl_MSI_Solver_Interface.hpp"
+#include "HDF5_Tools.hpp"
 
 // detailed logging
 #include "cl_Tracer.hpp"
@@ -578,6 +580,42 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void
+    PDV_Host_Manager::pack_sensitivities(
+            Vector< sint >&   aADVIds,
+            Matrix< DDRMat >& aHostADVSensitivities )
+    {
+        // create vector of unique aADVIds
+        Vector< sint > tUniqueADVIds = aADVIds;
+        unique( tUniqueADVIds );
+
+        // create map of unique aADVIds
+        map< sint, sint > tMapADVIds;
+        for ( uint i = 0; i < tUniqueADVIds.size(); i++ )
+        {
+            tMapADVIds[ tUniqueADVIds( i ) ] = i;
+        }
+
+        // copy sensitivities to new matrix
+        Matrix< DDRMat > tNewHostADVSensitivities( aHostADVSensitivities.n_rows(), tUniqueADVIds.size(), 0.0 );
+
+        // loop over all sensitivities
+        for ( uint i = 0; i < aADVIds.size(); i++ )
+        {
+            // get index of unique ADV ID
+            sint tIndex = tMapADVIds[ aADVIds( i ) ];
+
+            // copy sensitivity values
+            tNewHostADVSensitivities.get_column( tIndex ) +=
+                    aHostADVSensitivities.get_column( i );
+        }
+
+        // overwrite ADV IDs and sensitivities
+        aADVIds               = std::move( tUniqueADVIds );
+        aHostADVSensitivities = std::move( tNewHostADVSensitivities );
+    }
+    //--------------------------------------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     PDV_Host_Manager::compute_diqi_dadv( const Vector< sint >& aFullADVIds )
     {
@@ -712,6 +750,458 @@ namespace moris::gen
         delete tFulldIQIdADV;
 
         return tFullSensitivity;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    PDV_Host_Manager::create_design_extraction_operators()
+    {
+        Tracer tTracer( "GEN", "PDV Host Manager", "create design extraction operators" );
+
+        // Check for ADV IDs
+        MORIS_ERROR( mADVIdsSet,
+                "PDV Host Manager must have ADV IDs set before computing sensitivities." );
+
+        // Loop of interpolation PDV hosts
+        for ( uint tPDVHostIndex = 0; tPDVHostIndex < mIpPDVHosts.size(); tPDVHostIndex++ )
+        {
+            // Check if PDV host exists
+            if ( mIpPDVHosts( tPDVHostIndex ) )
+            {
+                // Get number of PDVs
+                uint tNumPDVsOnHost = mIpPDVHosts( tPDVHostIndex )->get_num_pdvs();
+
+                // Loop over all PDVs at PDV host
+                for ( uint tPDVIndex = 0; tPDVIndex < tNumPDVsOnHost; tPDVIndex++ )
+                {
+                    // Get PDVs
+                    moris_id tPDVID = mIpPDVHosts( tPDVHostIndex )->get_pdv_id( tPDVIndex );
+
+                    // FIXME checking if the pdv is defined
+                    if ( tPDVID != -1 )
+                    {
+                        // Get sensitivities
+                        Matrix< DDRMat > tHostADVSensitivities =
+                                mIpPDVHosts( tPDVHostIndex )->get_sensitivities( tPDVIndex );
+
+                        // Get ADV IDs
+                        Vector< sint > tADVIds =
+                                mIpPDVHosts( tPDVHostIndex )->get_determining_adv_ids( tPDVIndex );
+
+                        // remove sensitivities wrt unused variables
+                        this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
+
+                        // pack sensitivities
+                        this->pack_sensitivities( tADVIds, tHostADVSensitivities );
+
+                        fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
+                        // print( tADVIds, "tADVIds for interpolation PDVs" );
+                        // print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
+
+                        // store adv ids and weights
+                        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                    }
+                }
+            }
+        }
+
+        // Create ADV Host Sensitivities
+        Matrix< DDRMat > tHostADVSensitivities;
+        Matrix< DDRMat > tI;
+
+        tIgExtractionOperators.resize( mNodeManager.get_total_number_of_nodes(), nullptr );
+
+        // Loop over intersection nodes for inserting
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+        {
+            if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
+            {
+                // Get starting ID and number of coordinates
+                uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+                uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
+
+                // Parent sensitivities and ADV IDs
+                tHostADVSensitivities.set_size( 0.0, 0.0 );
+                eye( tNumCoordinates, tNumCoordinates, tI );
+                mNodeManager.append_dcoordinate_dadv_from_derived_node( iNodeIndex, tHostADVSensitivities, tI );
+                Vector< sint > tADVIds = mNodeManager.get_coordinate_determining_adv_ids_from_derived_node( iNodeIndex );
+
+                // remove sensitivities wrt unused variables
+                this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
+
+                // pack sensitivities
+                this->pack_sensitivities( tADVIds, tHostADVSensitivities );
+
+                // loop overall coordinate directions
+                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
+                {
+                    // get PDV ID
+                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
+
+                    fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
+                    // print( tADVIds, "tADVIds for integration PDVs" );
+                    // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
+                }
+
+                tIgExtractionOperators( iNodeIndex ) = std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
+            }
+        }
+    }
+    //--------------------------------------------------------------------------------------------------------------
+
+    // To write to hdf5 file.    
+    void
+    PDV_Host_Manager::write_design_extraction_operators_to_file( int aNumADVs, int aDim )
+    {
+
+       if (aDim == 2)
+       {
+           Matrix< DDRMat > mGlobalDesExtOpt;
+           int              mNumCols = aNumADVs;
+
+           sint                maxval            = 0;
+           double              maxval_derivative = 0;
+           uint                mNumPDVs          = 0;
+           std::vector< uint > mADVIndices;
+
+           Matrix< DDRMat >    mNodeCoords;
+           std::vector< uint > mNodeIndices;
+
+           mNodeCoords.resize( mNodeManager.get_total_number_of_nodes(), 2 );
+           mGlobalDesExtOpt.resize( 2 * ( mNodeManager.get_total_number_of_nodes() ), mNumCols );
+
+
+           for ( uint iNodeIndex = ( mNodeManager.get_number_of_background_nodes() ); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+           {
+               auto mWeightAndLocn = tIgExtractionOperators( iNodeIndex );
+
+               if ( mWeightAndLocn == NULL )
+               {
+                   // skip null entries
+                   continue;
+               }
+
+               else
+               {
+                   // Increment PDV counter
+                   mNumPDVs++;
+                   // Get Nodal Coordinates - To check node ordering
+
+                   mNodeCoords( iNodeIndex, 0 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 0 );
+                   mNodeCoords( iNodeIndex, 1 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 1 );
+
+
+                   // Get Node IDs
+                   mNodeIndices.push_back( iNodeIndex );
+
+                   // Get local ADV ID vector
+                   Vector< sint > mLocalAdvIndexVec = mWeightAndLocn->mLocalAdvIndices;
+
+                   // Get global ADV ID vector
+                   Vector< sint > mGlobalAdvIndexVec = mWeightAndLocn->mAdvIds;
+
+                   // Get Weights
+                   Matrix< DDRMat > mDesExtOptWeights = mWeightAndLocn->mWeights;
+
+                   // Get max global ADV index
+                   sint   maxval_local            = mGlobalAdvIndexVec.max();
+                   double maxval_derivative_local = mDesExtOptWeights.max();
+
+
+                   // Get all ADV indices
+                   for ( uint iADVInd = 0; iADVInd < mGlobalAdvIndexVec.size(); iADVInd++ )
+                   {
+                       mADVIndices.push_back( mGlobalAdvIndexVec( iADVInd ) );
+                   }
+
+                   if ( maxval_local > maxval )
+                   {
+                       maxval = maxval_local;
+                   }
+
+                   if ( maxval_derivative_local > maxval_derivative )
+                   {
+                       maxval_derivative = maxval_derivative_local;
+                   }
+
+                   // Place in extraction operator
+                   for ( uint iAdvIdIndex = 0; iAdvIdIndex < mGlobalAdvIndexVec.size(); iAdvIdIndex++ )
+                   {
+                       uint iGlobalAdvIndex = mGlobalAdvIndexVec( iAdvIdIndex ) - 1;
+
+                       mGlobalDesExtOpt( 2 * ( iNodeIndex ), iGlobalAdvIndex ) += mDesExtOptWeights( 0, iAdvIdIndex );
+
+                       mGlobalDesExtOpt( 2 * ( iNodeIndex ) + 1, iGlobalAdvIndex ) += mDesExtOptWeights( 1, iAdvIdIndex );
+                   }
+               }
+           }
+
+           hid_t  tFileID = create_hdf5_file( "Design_Extraction_Operator_New.hdf5" );
+           herr_t tStatus = 0;
+           save_matrix_to_hdf5_file( tFileID, std::string( "T_D" ), mGlobalDesExtOpt, tStatus );
+
+           close_hdf5_file( tFileID );
+
+
+           hid_t  tFileID1 = create_hdf5_file( "Node_Coordinates.hdf5" );
+           herr_t tStatus1 = 0;
+           save_matrix_to_hdf5_file( tFileID1, std::string( "Nodes" ), mNodeCoords, tStatus1 );
+
+           close_hdf5_file( tFileID1 );
+
+
+           hid_t  tFileID2 = create_hdf5_file( "Node_IDs.hdf5" );
+           herr_t tStatus2 = 0;
+           save_vector_to_hdf5_file( tFileID2, std::string( "Indices" ), mNodeIndices, tStatus2 );
+
+           close_hdf5_file( tFileID2 );
+
+           hid_t  tFileID3 = create_hdf5_file( "ADV_Map.hdf5" );
+           herr_t tStatus3 = 0;
+           save_vector_to_hdf5_file( tFileID3, std::string( "ADVIndices" ), mADVIndices, tStatus3 );
+
+           close_hdf5_file( tFileID3 );
+
+           fprintf( stdout, "\nMax Relevant ADV value = %d\n", (sint)maxval );
+           fprintf( stdout, "\nMax PDV value = %d\n", (uint)mNumPDVs );
+           fprintf( stdout, "\nMax weight value = %f\n", (real)mGlobalDesExtOpt.max() );
+           uint mIntnodes = 2 * ( mNodeManager.get_total_number_of_nodes() - mNodeManager.get_number_of_background_nodes() );
+           fprintf( stdout, "\nIntNodesVal = %d\n", (uint)mIntnodes );
+           fprintf( stdout, "\ntotal ADVs = %d\n", (int)mNumCols );
+       }
+       else if (aDim == 3)
+       {
+           Matrix< DDRMat > mGlobalDesExtOpt;
+           int              mNumCols = aNumADVs;
+
+           sint                maxval            = 0;
+           double              maxval_derivative = 0;
+           uint                mNumPDVs          = 0;
+           std::vector< uint > mADVIndices;
+
+           Matrix< DDRMat >    mNodeCoords;
+           std::vector< uint > mNodeIndices;
+
+           mNodeCoords.resize( mNodeManager.get_total_number_of_nodes(), 3 );
+           mGlobalDesExtOpt.resize( 3 * ( mNodeManager.get_total_number_of_nodes() ), mNumCols );
+
+
+           for ( uint iNodeIndex = ( mNodeManager.get_number_of_background_nodes() ); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+           {
+               auto mWeightAndLocn = tIgExtractionOperators( iNodeIndex );
+
+               if ( mWeightAndLocn == NULL )
+               {
+                   // skip null entries
+                   continue;
+               }
+
+               else
+               {
+                   // Increment PDV counter
+                   mNumPDVs++;
+                   // Get Nodal Coordinates - To check node ordering
+
+                   mNodeCoords( iNodeIndex, 0 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 0 );
+                   mNodeCoords( iNodeIndex, 1 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 1 );
+                   mNodeCoords( iNodeIndex, 2 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 2 );
+
+                   // Get Node IDs
+                   mNodeIndices.push_back( iNodeIndex );
+
+                   // Get local ADV ID vector
+                   Vector< sint > mLocalAdvIndexVec = mWeightAndLocn->mLocalAdvIndices;
+
+                   // Get global ADV ID vector
+                   Vector< sint > mGlobalAdvIndexVec = mWeightAndLocn->mAdvIds;
+
+                   // Get Weights
+                   Matrix< DDRMat > mDesExtOptWeights = mWeightAndLocn->mWeights;
+
+                   // Get max global ADV index
+                   sint   maxval_local            = mGlobalAdvIndexVec.max();
+                   double maxval_derivative_local = mDesExtOptWeights.max();
+
+
+                   // Get all ADV indices
+                   for ( uint iADVInd = 0; iADVInd < mGlobalAdvIndexVec.size(); iADVInd++ )
+                   {
+                       mADVIndices.push_back( mGlobalAdvIndexVec( iADVInd ) );
+                   }
+
+                   if ( maxval_local > maxval )
+                   {
+                       maxval = maxval_local;
+                   }
+
+                   if ( maxval_derivative_local > maxval_derivative )
+                   {
+                       maxval_derivative = maxval_derivative_local;
+                   }
+
+                   // Place in extraction operator
+                   for ( uint iAdvIdIndex = 0; iAdvIdIndex < mGlobalAdvIndexVec.size(); iAdvIdIndex++ )
+                   {
+                       uint iGlobalAdvIndex = mGlobalAdvIndexVec( iAdvIdIndex ) - 1;
+
+                       mGlobalDesExtOpt( 3 * ( iNodeIndex ), iGlobalAdvIndex ) += mDesExtOptWeights( 0, iAdvIdIndex );
+                       mGlobalDesExtOpt( 3 * ( iNodeIndex ) + 1, iGlobalAdvIndex ) += mDesExtOptWeights( 1, iAdvIdIndex );
+                       mGlobalDesExtOpt( 3 * ( iNodeIndex ) + 2, iGlobalAdvIndex ) += mDesExtOptWeights( 2, iAdvIdIndex );
+                   }
+               }
+           }
+
+           hid_t  tFileID = create_hdf5_file( "Design_Extraction_Operator_New.hdf5" );
+           herr_t tStatus = 0;
+           save_matrix_to_hdf5_file( tFileID, std::string( "T_D" ), mGlobalDesExtOpt, tStatus );
+
+           close_hdf5_file( tFileID );
+
+
+           hid_t  tFileID1 = create_hdf5_file( "Node_Coordinates.hdf5" );
+           herr_t tStatus1 = 0;
+           save_matrix_to_hdf5_file( tFileID1, std::string( "Nodes" ), mNodeCoords, tStatus1 );
+
+           close_hdf5_file( tFileID1 );
+
+
+           hid_t  tFileID2 = create_hdf5_file( "Node_IDs.hdf5" );
+           herr_t tStatus2 = 0;
+           save_vector_to_hdf5_file( tFileID2, std::string( "Indices" ), mNodeIndices, tStatus2 );
+
+           close_hdf5_file( tFileID2 );
+
+           hid_t  tFileID3 = create_hdf5_file( "ADV_Map.hdf5" );
+           herr_t tStatus3 = 0;
+           save_vector_to_hdf5_file( tFileID3, std::string( "ADVIndices" ), mADVIndices, tStatus3 );
+
+           close_hdf5_file( tFileID3 );
+
+           fprintf( stdout, "\nMax Relevant ADV value = %d\n", (sint)maxval );
+           fprintf( stdout, "\nMax PDV value = %d\n", (uint)mNumPDVs );
+           fprintf( stdout, "\nMax weight value = %f\n", (real)mGlobalDesExtOpt.max() );
+           uint mIntnodes = 2 * ( mNodeManager.get_total_number_of_nodes() - mNodeManager.get_number_of_background_nodes() );
+           fprintf( stdout, "\nIntNodesVal = %d\n", (uint)mIntnodes );
+           fprintf( stdout, "\ntotal ADVs = %d\n", (int)mNumCols );
+       }
+    //    Matrix< DDRMat > mGlobalDesExtOpt;
+    //    int mNumCols = aNumADVs;
+
+    //    sint maxval = 0;
+    //    double maxval_derivative = 0;
+    //    uint mNumPDVs = 0;
+    //    std::vector< uint > mADVIndices;
+
+    //    Matrix< DDRMat > mNodeCoords;
+    //    std::vector< uint > mNodeIndices;
+
+    //    mNodeCoords.resize(mNodeManager.get_total_number_of_nodes(), 2);
+    //    mGlobalDesExtOpt.resize( 2*(mNodeManager.get_total_number_of_nodes()), mNumCols );
+       
+
+    //    for ( uint iNodeIndex = (mNodeManager.get_number_of_background_nodes()); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+    //     {   
+    //         auto mWeightAndLocn = tIgExtractionOperators(iNodeIndex);
+
+    //         if (mWeightAndLocn == NULL)
+    //         {
+    //             // skip null entries
+    //             continue; 
+    //         }
+            
+    //         else 
+    //         {   
+    //             // Increment PDV counter
+    //             mNumPDVs++;
+    //             // Get Nodal Coordinates - To check node ordering
+                
+    //             mNodeCoords( iNodeIndex, 0 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 0 );
+    //             mNodeCoords( iNodeIndex, 1 ) = mNodeManager.get_node_coordinate_value( iNodeIndex, 1 ); 
+                
+
+    //             // Get Node IDs
+    //             mNodeIndices.push_back( iNodeIndex );
+
+    //             // Get local ADV ID vector
+    //             Vector< sint > mLocalAdvIndexVec =  mWeightAndLocn-> mLocalAdvIndices;
+                
+    //             // Get global ADV ID vector
+    //             Vector< sint > mGlobalAdvIndexVec =  mWeightAndLocn-> mAdvIds;
+
+    //             // Get Weights
+    //             Matrix< DDRMat > mDesExtOptWeights = mWeightAndLocn-> mWeights;
+
+    //             // Get max global ADV index
+    //             sint maxval_local = mGlobalAdvIndexVec.max();
+    //             double maxval_derivative_local = mDesExtOptWeights.max();
+
+
+    //             // Get all ADV indices
+    //             for (uint iADVInd = 0; iADVInd < mGlobalAdvIndexVec.size(); iADVInd++) 
+    //             {
+    //                     mADVIndices.push_back(mGlobalAdvIndexVec( iADVInd ));
+    //             }
+
+    //             if (maxval_local > maxval)
+    //             {
+    //                 maxval = maxval_local;
+
+    //             }
+
+    //             if (maxval_derivative_local > maxval_derivative)
+    //             {
+    //                 maxval_derivative = maxval_derivative_local;
+
+    //             }
+
+    //             // Place in extraction operator
+    //             for (uint iAdvIdIndex = 0; iAdvIdIndex < mGlobalAdvIndexVec.size(); iAdvIdIndex++)
+    //             {   
+    //                 uint iGlobalAdvIndex = mGlobalAdvIndexVec( iAdvIdIndex ) - 1;
+
+    //                 mGlobalDesExtOpt( 2*(iNodeIndex), iGlobalAdvIndex ) += mDesExtOptWeights(0, iAdvIdIndex);
+
+    //                 mGlobalDesExtOpt( 2*(iNodeIndex)+1, iGlobalAdvIndex ) += mDesExtOptWeights(1, iAdvIdIndex);
+                           
+    //             } 
+
+    //         }
+    //     } 
+
+    //     hid_t  tFileID = create_hdf5_file( "Design_Extraction_Operator_New.hdf5" );
+    //     herr_t tStatus = 0;
+    //     save_matrix_to_hdf5_file( tFileID, std::string("T_D"), mGlobalDesExtOpt, tStatus );
+
+    //     close_hdf5_file( tFileID );
+        
+        
+    //     hid_t  tFileID1 = create_hdf5_file( "Node_Coordinates.hdf5" );
+    //     herr_t tStatus1 = 0;
+    //     save_matrix_to_hdf5_file( tFileID1, std::string("Nodes"), mNodeCoords , tStatus1 );
+
+    //     close_hdf5_file( tFileID1 );
+
+        
+    //     hid_t  tFileID2 = create_hdf5_file( "Node_IDs.hdf5" );
+    //     herr_t tStatus2 = 0;
+    //     save_vector_to_hdf5_file( tFileID2, std::string("Indices"), mNodeIndices , tStatus2 );
+        
+    //     close_hdf5_file( tFileID2 );
+
+    //     hid_t  tFileID3 = create_hdf5_file( "ADV_Map.hdf5" );
+    //     herr_t tStatus3 = 0;
+    //     save_vector_to_hdf5_file( tFileID3, std::string("ADVIndices"), mADVIndices , tStatus3 );
+        
+    //     close_hdf5_file( tFileID3 );
+        
+    //     fprintf( stdout, "\nMax Relevant ADV value = %d\n", (sint)maxval );
+    //     fprintf( stdout, "\nMax PDV value = %d\n", (uint)mNumPDVs );
+    //     fprintf( stdout, "\nMax weight value = %f\n", (real)mGlobalDesExtOpt.max() );
+    //     uint mIntnodes = 2*(mNodeManager.get_total_number_of_nodes() - mNodeManager.get_number_of_background_nodes());
+    //     fprintf( stdout, "\nIntNodesVal = %d\n", (uint)mIntnodes );
+    //     fprintf( stdout, "\ntotal ADVs = %d\n", (int)mNumCols );
+    //     fprintf( stdout, "\ntotal PDVs = %d\n", (int)mNumPDVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1523,5 +2013,92 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::shared_ptr< Design_Extraction_Operator > >
+    PDV_Host_Manager::get_IG_Desgin_Extraction_Operators( Matrix< moris::IndexMat > tNodeIndexList )
+    {
+        Vector< std::shared_ptr< Design_Extraction_Operator > > tVecExtractionOperators( tNodeIndexList.numel() );
+
+        for ( uint iNodeIndex = 0; iNodeIndex < tNodeIndexList.numel(); iNodeIndex++ )
+        {
+            uint tMeshNodeIndex = tNodeIndexList( iNodeIndex );
+            if ( mGenMeshMapIsInitialized )
+            {
+                tMeshNodeIndex = mGenMeshMap( tNodeIndexList( iNodeIndex ) );
+            }
+
+            tVecExtractionOperators( iNodeIndex ) = tIgExtractionOperators( tMeshNodeIndex );
+        }
+
+        return tVecExtractionOperators;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< sint >
+    PDV_Host_Manager::build_local_adv_indices(
+            Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& aExtractionOperators )
+    {
+        // collect all Adv Ids
+        Vector< sint > tAdvIds;
+        for ( const auto& tOperator : aExtractionOperators )
+        {
+            // check that extraction operator is not empty
+            if ( tOperator )
+            {
+                tAdvIds.append( tOperator->mAdvIds );
+            }
+        }
+
+        // determine unique Adv Ids
+        unique( tAdvIds );
+
+        // create map from Adv Id to index
+        map< sint, sint > tAdvIdToIndexMap;
+        for ( uint i = 0; i < tAdvIds.size(); i++ )
+        {
+            tAdvIdToIndexMap[ tAdvIds( i ) ] = (sint)i;
+        }
+
+        // update local Adv Indices in extraction operators
+        for ( auto& tOperator : aExtractionOperators )
+        {
+            // check that extraction operator is not empty
+            if ( tOperator )
+            {
+                // update Adv Indices
+                for ( uint i = 0; i < tOperator->mLocalAdvIndices.size(); i++ )
+                {
+                    tOperator->mLocalAdvIndices( i ) = tAdvIdToIndexMap[ tOperator->mAdvIds( i ) ];
+                }
+            }
+        }
+
+        return tAdvIds;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    PDV_Host_Manager::populate_adv_geo_weights(
+            const std::shared_ptr< gen::Design_Extraction_Operator >& aOperator,
+            Matrix< DDRMat >&                                         aAdvGeoWeights,
+            const uint                                                aNumAdvs )
+    {
+        // resize weights
+        aAdvGeoWeights.set_size( aOperator->mWeights.n_rows(), aNumAdvs, 0.0 );
+
+        // loop over all Advs at node
+        for ( uint iAdv = 0; iAdv < aOperator->mLocalAdvIndices.size(); ++iAdv )
+        {
+            // get local adv index
+            uint tLocalAdvIndex = aOperator->mLocalAdvIndices( iAdv );
+
+            // set adv weights for element
+            aAdvGeoWeights.get_column( tLocalAdvIndex ) = aOperator->mWeights.get_column( iAdv );
+        }
+    }
+
+    //------------------------------------------------------------------------------
 
 }    // namespace moris::gen

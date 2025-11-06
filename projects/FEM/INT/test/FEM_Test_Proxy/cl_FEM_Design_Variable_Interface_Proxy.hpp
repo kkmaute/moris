@@ -356,6 +356,28 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
+        Vector< std::shared_ptr< gen::Design_Extraction_Operator > >
+        get_IG_Desgin_Extraction_Operators( Matrix< IndexMat > aNodeIndices ) override
+        {
+            return Vector< std::shared_ptr< gen::Design_Extraction_Operator > >();
+        }
+
+        Vector< sint >
+        build_local_adv_indices(
+                Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& aExtractionOperators ) override
+        {
+            return Vector< sint >();
+        }
+
+        void
+        populate_adv_geo_weights(
+                const std::shared_ptr< gen::Design_Extraction_Operator >& aOperator,
+                Matrix< DDRMat >&                                         aAdvGeoWeights,
+                const uint                                                aNumAdvs ) override
+        {
+            // Leave empty for proxy implementation
+        }
+
     };    // class FEM_Design_Variable_Interface_Proxy
 
     //------------------------------------------------------------------------------

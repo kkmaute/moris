@@ -43,6 +43,7 @@ namespace moris::prm
         tGENParameterList.insert( "phase_function_name", "" );     // User-defined function for determining phase indices
         tGENParameterList.insert( "number_of_phases", 0 );         // Number of phases for a user-defined phase function
         tGENParameterList.insert( "print_phase_table", false );    // Whether to print the phase table
+        tGENParameterList.insert( "write_design_extraction_operator_to_file", false );    // Whether to print the design extraction operator to file
 
         // diagnostics
         tGENParameterList.insert( "diagnostics", false );
