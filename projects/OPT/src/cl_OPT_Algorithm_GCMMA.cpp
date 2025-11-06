@@ -10,6 +10,7 @@
 
 #include "cl_OPT_Algorithm_GCMMA.hpp"
 #include "cl_Communication_Tools.hpp"
+#include "HDF5_Tools.hpp"
 
 // Logger package
 #include "cl_Logger.hpp"
@@ -243,6 +244,17 @@ opt_alg_gcmma_grad_wrap(
     auto tD_Obj = aOptAlgGCMMA->get_objective_gradients().data();
 
     std::copy( tD_Obj, tD_Obj + aOptAlgGCMMA->mProblem->get_num_advs(), aD_Obj );
+
+    Matrix< DDRMat > tD_ObjCopy( aOptAlgGCMMA->mProblem->get_num_advs(), 1 );
+    
+    for ( uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_advs(); ++i )
+    {
+        tD_ObjCopy( i ) = aD_Obj[ i ];
+    }
+    hid_t  tFileID = create_hdf5_file( "Obj_gradient.hdf5" );
+    herr_t tStatus = 0;
+    save_matrix_to_hdf5_file( tFileID, std::string( "Obj" ), tD_ObjCopy, tStatus );
+    close_hdf5_file( tFileID );
 
     // Get the constraint gradient as a MORIS Matrix
     Matrix< DDRMat > tD_Con = aOptAlgGCMMA->get_constraint_gradients();
