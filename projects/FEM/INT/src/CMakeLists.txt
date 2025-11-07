@@ -278,6 +278,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Normal_Vector.hpp
     IQI/cl_FEM_IQI_Nitsche_Energy.hpp
     IQI/cl_FEM_IQI_Traction_Potential.hpp
+    IQI/cl_FEM_IQI_Nonlinear_Bedding.hpp
     MEA/cl_FEM_Cluster_Measure.hpp
     )
 
@@ -532,6 +533,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Normal_Vector.cpp
     IQI/cl_FEM_IQI_Nitsche_Energy.cpp
     IQI/cl_FEM_IQI_Traction_Potential.cpp
+    IQI/cl_FEM_IQI_Nonlinear_Bedding.cpp
 
     MEA/cl_FEM_Cluster_Measure.cpp
     )

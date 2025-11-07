@@ -221,6 +221,7 @@ namespace moris::fem
             NITSCHE_ENERGY,
             NITSCHE_ENERGY_NL,
             PENALTY_ENERGY,
+            NONLINEAR_BEDDING,
             END_IQI_TYPE )
 
     ENUM_MACRO( Constitutive_Type,

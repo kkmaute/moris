@@ -60,6 +60,7 @@
 #include "cl_FEM_IQI_Contact_Pressure.hpp"
 #include "cl_FEM_IQI_Max_Damage.hpp"
 #include "cl_FEM_IQI_Nitsche_Energy.hpp"
+#include "cl_FEM_IQI_Nonlinear_Bedding.hpp"
 
 namespace moris::fem
 {
@@ -236,6 +237,8 @@ namespace moris::fem
                 return std::make_shared< IQI_Nitsche_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
             case IQI_Type::PENALTY_ENERGY:
                 return std::make_shared< IQI_Nitsche_Energy >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, 0 );
+            case IQI_Type::NONLINEAR_BEDDING:
+                return std::make_shared< IQI_Nonlinear_Bedding >();
 
             default:
                 MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
