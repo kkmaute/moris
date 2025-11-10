@@ -1342,6 +1342,7 @@ namespace moris::xtk
     Model::kill_workflow_flag()
     {
         // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
+        // this->get_global_T_matrix_output_file_name() != "" ||
         if ( this->get_elemental_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
         {
             return true;

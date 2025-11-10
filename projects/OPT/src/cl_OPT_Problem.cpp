@@ -198,6 +198,18 @@ namespace moris::opt
             // log criteria and ADVs
             MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
 
+            Matrix< DDRMat > tCritCopy( 2, 1 );
+            for ( uint i = 0; i < 2; ++i )
+            {
+                tCritCopy( i ) = mCriteria( i );
+            }
+
+
+            hid_t  tFileID = create_hdf5_file( "Criteria.hdf5" );
+            herr_t tStatus = 0;
+            save_matrix_to_hdf5_file( tFileID, std::string( "Cri" ), tCritCopy, tStatus );
+            close_hdf5_file( tFileID );
+
             if ( mADVs.size() > 0 )
             {
                 MORIS_LOG_SPEC( "MinADV", mADVs.min() );

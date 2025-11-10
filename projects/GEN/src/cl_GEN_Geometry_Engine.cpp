@@ -695,9 +695,6 @@ namespace moris::gen
         // Create PDV IDs
         mPDVHostManager.create_pdv_ids();
 
-        // Create Design Extraction Operators
-        mPDVHostManager.create_design_extraction_operators();
-
         // Get the number of ADVs
         Vector< real > tADVs = this->get_advs();
         int tNumADVs = tADVs.size();
@@ -705,6 +702,9 @@ namespace moris::gen
         
         if ( mWriteDesignExtractionOperators )
         {
+            // Create Design Extraction Operators
+            mPDVHostManager.create_design_extraction_operators();
+            
             // Write design extraction operators to file
             mPDVHostManager.write_design_extraction_operators_to_file( tNumADVs ,tDim );
 
