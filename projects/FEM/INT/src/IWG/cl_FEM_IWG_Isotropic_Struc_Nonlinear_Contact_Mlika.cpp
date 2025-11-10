@@ -203,14 +203,47 @@ namespace moris::fem
         // compute augmented Lagrangian term
         const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
 
+        mSet->get_residual()( 0 )(
+                { tLeaderResStartIndex, tLeaderResStopIndex } ) += 0.0;
+        mSet->get_residual()( 0 )(
+                { tFollowerResStartIndex, tFollowerResStopIndex } ) += 0.0;
+
+        /*
         if ( tAugLagrTerm > 0 )
         {
+          if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+          {
+            //std::cout << "pure penalty, augLagr > 0: residual = 0" << std::endl;
+            // no contribution to the residual
+          }
+          else
+          {
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
                     -0.5 * aWStar * mTheta / tNitscheParam * tTestContactPressuredUleader * tContactPressure;
+          }
         }
         else
         {
+          if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+          {
+            //std::cout << "pure penalty, augLagr < 0: residual != 0" << std::endl;
+
+            // contribution to Leader residual
+            mSet->get_residual()( 0 )(
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
+                    0.5 * aWStar * (                                                    //
+                            + tNitscheParam * trans( mGapData->mdGapdu ) * mGapData->mGap );
+
+            // contribution to Follower residual
+            mSet->get_residual()( 0 )(
+                    { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
+                    0.5 * aWStar * (                                          //
+                            + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
+          }
+          else
+          {
+            // contribution to Leader residual
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
                     0.5 * aWStar * (                                                    //
@@ -218,12 +251,15 @@ namespace moris::fem
                             + mTheta * tTestContactPressuredUleader * mGapData->mGap    //
                             + tNitscheParam * trans( mGapData->mdGapdu ) * mGapData->mGap );
 
+            // contribution to Follower residual
             mSet->get_residual()( 0 )(
                     { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
                     0.5 * aWStar * (                                          //
                             trans( mGapData->mdGapdv ) * tContactPressure     //
                             + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
+          }
         }
+        */
 
         // frictional mechanics -> tangential contributions
         const real tFrictionCoefficient = 0.3; // hardcoded for now
@@ -513,13 +549,41 @@ namespace moris::fem
             {
                 if ( tAugLagrTerm > 0 )
                 {
+                  if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+                  {
+                    std::cout << "pure penalty, augLagr > 0: Jacobian direct dependencies are zero" << std::endl;
+                  }
+                  else
+                  {
+                    /*
                     tJacMM += -0.5 * aWStar * mTheta / tNitscheParam * (                                         //
                                       tContactPressure * tTestTraction * mGapData->mLeaderdNormaldu              //
                                       + tContactPressure * mGapData->multiply_leader_dnormal2du2( tTraction )    //
                                       + tTestContactPressuredUleader * trans( tTraction ) * mGapData->mLeaderdNormaldu );
+                    */
+                  }
                 }
                 else
                 {
+                  if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+                  {
+                    std::cout << "pure penalty, augLagr < 0: Jacobian direct dependencies are not zero" << std::endl;
+
+                    /*
+                    tJacMM += 0.5 * aWStar * (                                                                        //
+                                    + trans( mGapData->mdGapdu ) * trans( tTraction ) * mGapData->mLeaderdNormaldu    //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdu ) * mGapData->mdGapdu                //
+                                                        + mGapData->mGap * mGapData->mdGap2du2 ) );
+
+                    tJacSM += 0.5 * aWStar * (                                                                        //
+                                    + trans( mGapData->mdGapdv ) * trans( tTraction ) * mGapData->mLeaderdNormaldu    //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdu                //
+                                                        + mGapData->mGap * trans( mGapData->mdGap2duv ) ) );
+                    */
+                  }
+                  else
+                  {
+                    /*
                     tJacMM +=
                             0.5 * aWStar * (                                                                          //
                                     tContactPressure * mGapData->mdGap2du2                                            //
@@ -536,6 +600,8 @@ namespace moris::fem
                                     + trans( mGapData->mdGapdv ) * trans( tTraction ) * mGapData->mLeaderdNormaldu    //
                                     + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdu                //
                                                         + mGapData->mGap * trans( mGapData->mdGap2duv ) ) );
+                    */
+                  }
                 }
             }
 
@@ -544,13 +610,29 @@ namespace moris::fem
             {
                 if ( tAugLagrTerm > 0 )
                 {
+                  if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+                  {
+                    std::cout << "pure penalty, augLagr > 0: dependencies on the dof type are zero" << std::endl;
+                  }
+                  else
+                  {
+                    /*
                     tJacMM += -0.5 * aWStar * mTheta / tNitscheParam * (                                                                                                                                  //
                                       tConstitutiveModelLeader->dTestTractiondDOF( tDofType, mGapData->mLeaderRefNormal, tContactPressure * mGapData->mLeaderNormal, tDisplDofTypes, mCMFunctionType )    //
                                       + tContactPressure * trans( mGapData->mLeaderdNormaldu ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType )         //
                                       + tTestContactPressuredUleader * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType ) );
+                    */
+                  }
                 }
                 else
                 {
+                  if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+                  {
+                    std::cout << "pure penalty, augLagr < 0: dependencies on the dof type are zero" << std::endl;
+                  }
+                  else
+                  {
+                    /*
                     tJacMM +=
                             0.5 * aWStar * (                                                                                                                                                                               //
                                     mTractionScaling * trans( mGapData->mdGapdu ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType )    //
@@ -560,6 +642,8 @@ namespace moris::fem
                     tJacSM +=
                             0.5 * aWStar * (    //
                                     mTractionScaling * trans( mGapData->mdGapdv ) * trans( mGapData->mLeaderNormal ) * tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType ) );
+                    */
+                  }
                 }
             }
 
@@ -600,6 +684,24 @@ namespace moris::fem
                 }
                 else
                 {
+                  if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+                  {
+                    std::cout << "pure penalty, augLagr < 0: if dof type is residual dof type contributions are not zero" << std::endl;
+
+                    /*
+                    tJacMS +=
+                            0.5 * aWStar * (                                                              //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdu ) * mGapData->mdGapdv    //
+                                                        + mGapData->mGap * mGapData->mdGap2duv ) );
+                    tJacSS +=
+                            0.5 * aWStar * (                                                              //
+                                    + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdv    //
+                                                        + mGapData->mGap * trans( mGapData->mdGap2dv2 ) ) );
+                    */
+                  }
+                  else
+                  {
+                    /*
                     tJacMS +=
                             0.5 * aWStar * (                                                              //
                                     tContactPressure * mGapData->mdGap2duv                                //
@@ -611,6 +713,8 @@ namespace moris::fem
                                     tContactPressure * mGapData->mdGap2dv2                                //
                                     + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdv    //
                                                         + mGapData->mGap * trans( mGapData->mdGap2dv2 ) ) );
+                    */
+                  }
                 }
             }
 
