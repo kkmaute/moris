@@ -286,11 +286,12 @@ namespace moris::fem
             const int tCurrentIndex  = std::floor( tLeaderCurrentTime / tDeltat + 1.0e-8 ); // +1.0e-8 to avoid numerical issues
 
             // get displacements at previous time step
-            const Matrix< DDRMat > tLeaderPreviousDisp   = tLeaderPreviousFI->val();
-            const Matrix< DDRMat > tFollowerPreviousDisp = tFollowerPreviousFI->val();
+            const Matrix< DDRMat > tLeaderPreviousUgp   = tLeaderPreviousFI->val();
+            const Matrix< DDRMat > tFollowerPreviousVgp = tFollowerPreviousFI->val();
+
             // Xgp = global coordinates of quadrature points
             const Matrix< DDRMat > tLeaderPreviousXgp    = tLeaderPreviousIGGI->valx();
-            const Matrix< DDRMat > tFollowerPreviousXgp  = tFollowerPreviousIGGI->valx();
+            const Matrix< DDRMat > tFollowerPreviousYgp  = tFollowerPreviousIGGI->valx();
 
             // current gap measure
             const real tCurrentGap = mGapData->mGap;
@@ -309,7 +310,8 @@ namespace moris::fem
             const Matrix< DDRMat > tCurrentTangentialPlaneProjector = GapData::compute_tangential_plane_projector( tLeaderCurrentNormal );
 
             // tangential slip increment = dt * sliding velocity
-            const Matrix< DDRMat > tSlipIncrement = ( ( trans( tLeaderPreviousXgp ) + tLeaderPreviousDisp ) - ( trans( tFollowerPreviousXgp ) + tFollowerPreviousDisp ) + tCurrentGap * tLeaderPreviousNormal );
+            // TODO: there may be a minus sign missing in the next line, see Mlika et al. - (7)
+            const Matrix< DDRMat > tSlipIncrement = ( trans( tLeaderPreviousXgp ) + tLeaderPreviousUgp ) - ( trans( tFollowerPreviousYgp ) + tFollowerPreviousVgp ) + tCurrentGap * tLeaderPreviousNormal;
 
             // simplified sliding velocity vector at current time step
             //const Matrix< DDRMat > tSlidingVelocityCurrent = 1.0 / tDeltat * tSlipIncrement;
@@ -330,7 +332,7 @@ namespace moris::fem
 
                 // get the traction from the previous timestep
                 Matrix< DDRMat > tTractionOld(2, 1, 0.0);
-                if ( mTractionHistoryMap.find( tPreviousIndex ) != mTractionHistoryMap.end() ) // check if entry for previous time step exists
+                if ( ( tCurrentIndex > 0 ) and ( mTractionHistoryMap.find( tPreviousIndex ) != mTractionHistoryMap.end() ) ) // check if entry for previous time step exists
                 {
                     tTractionOld = mTractionHistoryMap[ tPreviousIndex ];
                 }
