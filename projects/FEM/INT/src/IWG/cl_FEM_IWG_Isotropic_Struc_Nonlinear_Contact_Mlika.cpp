@@ -26,6 +26,9 @@
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include "fn_dot.hpp"
+#include "fn_reshape.hpp"
+#include "fn_trans.hpp"
+#include "fn_eye.hpp"
 #include <string>
 #include <memory>
 #include <utility>
@@ -397,11 +400,27 @@ namespace moris::fem
                 // add tangential traction contribution to the residual
                 if ( mTractionScaling == 0.0 and mTheta == 0.0 )
                 {
+                // the residual consists of two contributions:
+                // 1) the linearization of the gap vector: dGapvecdu
+                // 2) the tangential traction: tTanTraction
+                // to derive the jacobian the combination,
+                // we start of by deriving the jacobian of each contribution
+                // and put it together when all contributions work
+                //
+                // if you perform changes in here (the residual),
+                // do not forget to change the corresponding lines in the jacobian!
+
+                // 1) dGapvecdu
+                // set the traction to a constant value
+                tTanTraction.fill( 1.0 );
                     // contribution to Leader residual
                     mSet->get_residual()( 0 )(
                             { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
                             0.5 * aWStar * (                                                    //
                                     trans( mGapData->mdGapvecdu ) * tTanTraction );
+
+                // NOTE: the jacobian of the gapvec dv contribition is not working as of now!
+                tTanTraction.fill( 0.0 );
 
                     // contribution to Follower residual
                     mSet->get_residual()( 0 )(
@@ -534,6 +553,8 @@ namespace moris::fem
             const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
             const uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
             const uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
+            const uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
+            const uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
             // extract sub-matrices
             auto tJacMM = mSet->get_jacobian()(
@@ -579,6 +600,43 @@ namespace moris::fem
                                     + trans( mGapData->mdGapdv ) * trans( tTraction ) * mGapData->mLeaderdNormaldu    //
                                     + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdu                //
                                                         + mGapData->mGap * trans( mGapData->mdGap2duv ) ) );
+                    */
+
+//                    frictional contribution
+
+                    // calculate size of local matrix (this may have some bugs ..)
+                    const uint tNumDofsLeaderRes = tLeaderResStopIndex - tLeaderResStartIndex + 1;
+                    const uint tNumDofsLeaderDep = tLeaderDepStopIndex - tLeaderDepStartIndex + 1;
+                    const uint tNumDofsFollowerDep = tFollowerDepStopIndex - tFollowerDepStartIndex + 1;
+                    std::cout << "num dofs leader res: " << tNumDofsLeaderRes << ", num dofs leader dep: " << tNumDofsLeaderDep << ", num dofs follower dep: " << tNumDofsFollowerDep << std::endl;
+
+                    MORIS_ERROR( tNumDofsLeaderRes==tNumDofsLeaderDep, "dof sizes are not equal" );
+
+                    // contribution to Leader Jacobian
+
+                    // 1) jacobian to the residual contribution: mdGapvecdu
+                    // second derivative of gap vector: u2
+                    //
+                    Matrix< DDRMat > ones(2, 1, 1.0);
+                    for (int dim = 0; dim < 2; dim++)
+                    {
+                        Matrix< DDRMat > gapvecd2du2 = mGapData->mdGapvec2du2.get_row( dim );
+                        Matrix< DDRMat > gapvecd2du2_reshaped = moris::reshape( gapvecd2du2, tNumDofsLeaderRes, tNumDofsLeaderDep );
+                        tJacMM += 0.5 * aWStar * gapvecd2du2_reshaped * ones( dim, 0 );
+                    }
+                    //
+
+                    // 1) jacobian to the residual contribution: mdGapvecdv
+                    // second derivative of gap vector: uv
+                    /*
+                    Matrix< DDRMat > ones(2, 1, 1.0);
+                    for (int dim = 0; dim < 2; dim++)
+                    {
+                        Matrix< DDRMat > gapvecd2duv = mGapData->mdGapvec2duv.get_row( dim );
+                        Matrix< DDRMat > gapvecd2duv_reshaped = moris::reshape( gapvecd2duv, tNumDofsLeaderRes, tNumDofsFollowerDep );
+                        Matrix< DDRMat > gapvecd2duv_reshaped_transposed = moris::trans( gapvecd2duv_reshaped );
+                        tJacSM += 0.5 * aWStar * gapvecd2duv_reshaped_transposed * ones( dim, 0 );
+                    }
                     */
                   }
                   else
@@ -697,6 +755,39 @@ namespace moris::fem
                             0.5 * aWStar * (                                                              //
                                     + tNitscheParam * ( trans( mGapData->mdGapdv ) * mGapData->mdGapdv    //
                                                         + mGapData->mGap * trans( mGapData->mdGap2dv2 ) ) );
+                    */
+
+                    // calculate size of local matrix (this may have some bugs ..)
+                    const uint tNumDofsLeaderRes = tLeaderResStopIndex - tLeaderResStartIndex + 1;
+                    const uint tNumDofsFollowerDep = tFollowerDepStopIndex - tFollowerDepStartIndex + 1;
+                    std::cout << "num dofs leader res: " << tNumDofsLeaderRes << ", num dofs follower dep: " << tNumDofsFollowerDep << std::endl;
+
+                    MORIS_ERROR( tNumDofsLeaderRes==tNumDofsFollowerDep, "dof sizes are not equal" );
+
+                    // 1) jacobian to the residual contribution: mdGapvecdu
+                    // second derivative of gap vector: uv
+                    //
+                    Matrix< DDRMat > ones(2, 1, 1.0);
+                    for (int dim = 0; dim < 2; dim++)
+                    {
+                        Matrix< DDRMat > gapvecd2duv = mGapData->mdGapvec2duv.get_row( dim );
+                        Matrix< DDRMat > gapvecd2duv_reshaped = moris::reshape( gapvecd2duv, tNumDofsLeaderRes, tNumDofsFollowerDep );
+                        Matrix< DDRMat > gapvecd2duv_reshaped_transposed = moris::trans( gapvecd2duv_reshaped );
+                        tJacMS += 0.5 * aWStar * gapvecd2duv_reshaped_transposed * ones( dim, 0 );
+                    }
+                    //
+
+                    // 1) jacobian to the residual contribution: mdGapvecdv
+                    // second derivative of gap vector: vv
+                    /*
+                    Matrix< DDRMat > ones(2, 1, 1.0);
+                    for (int dim = 0; dim < 2; dim++)
+                    {
+                        Matrix< DDRMat > gapvecd2dvv = mGapData->mdGapvec2dv2.get_row( dim );
+                        Matrix< DDRMat > gapvecd2dvv_reshaped = moris::reshape( gapvecd2dvv, tNumDofsLeaderRes, tNumDofsFollowerDep );
+                        Matrix< DDRMat > gapvecd2dvv_reshaped_transposed = moris::trans( gapvecd2dvv_reshaped );
+                        tJacSS += 0.5 * aWStar * gapvecd2dvv_reshaped_transposed * ones( dim, 0 );
+                    }
                     */
                   }
                   else
