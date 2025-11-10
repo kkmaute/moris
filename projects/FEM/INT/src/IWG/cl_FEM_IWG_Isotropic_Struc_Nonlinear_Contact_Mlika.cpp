@@ -226,7 +226,7 @@ namespace moris::fem
         }
 
         // frictional mechanics -> tangential contributions
-        const real tFrictionCoefficient = 0.0; // hardcoded for now
+        const real tFrictionCoefficient = 0.3; // hardcoded for now
         if ( tFrictionCoefficient > 0.0 )
         {
             // make sure time continuity is set
