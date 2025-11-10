@@ -412,21 +412,35 @@ namespace moris::fem
 
                 // 1) dGapvecdu
                 // set the traction to a constant value
-                tTanTraction.fill( 1.0 );
+                //tTanTraction.fill( 1.0 );
+
+                // 2) tTanTraction
+                // to start of, set the tangential traction to the tangential slip increment, see variable tSlipIncrement above
+
+                // the proper one, not working as of now
+                //tTanTraction = ( trans( tLeaderPreviousXgp ) + tLeaderPreviousUgp ) - ( trans( tFollowerPreviousYgp ) + tFollowerPreviousVgp ) + tCurrentGap * tLeaderPreviousNormal;
+                // working as of now, but not correct (term missing)
+                tTanTraction = ( trans( tLeaderPreviousXgp ) + tLeaderPreviousUgp ) - (                               + tFollowerPreviousVgp ) + tCurrentGap * tLeaderPreviousNormal;
+
+                const uint tNumDof = tLeaderResStopIndex - tLeaderResStartIndex + 1;
+                Matrix< DDRMat > matdofby2(tNumDof, 2, 1.0);
+
                     // contribution to Leader residual
                     mSet->get_residual()( 0 )(
                             { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
                             0.5 * aWStar * (                                                    //
-                                    trans( mGapData->mdGapvecdu ) * tTanTraction );
+                                    //trans( mGapData->mdGapvecdu ) * tTanTraction );
+                                    matdofby2 * tTanTraction );
 
                 // NOTE: the jacobian of the gapvec dv contribition is not working as of now!
-                tTanTraction.fill( 0.0 );
+                //tTanTraction.fill( 0.0 );
 
                     // contribution to Follower residual
                     mSet->get_residual()( 0 )(
                             { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
                             0.5 * aWStar * (                                          //
-                                    trans( mGapData->mdGapvecdv ) * tTanTraction );
+                                    //trans( mGapData->mdGapvecdv ) * tTanTraction );
+                                    matdofby2 * tTanTraction );
                 }
                 else
                 {
@@ -540,6 +554,26 @@ namespace moris::fem
         // compute augmented Lagrangian term
         const real tAugLagrTerm = tContactPressure + tNitscheParam * mGapData->mGap;
 
+
+        //const real tFrictionCoefficient = 0.3; // hardcoded for now
+        //if ( tFrictionCoefficient > 0.0 )
+        //{
+            // LEADER
+
+            // get residual dof type field interpolator for previous time step
+            Field_Interpolator* tLeaderPreviousFI = mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            // get IG geometry interpolator for leader
+            Geometry_Interpolator* tLeaderPreviousIGGI   = mLeaderPreviousFIManager->get_IG_geometry_interpolator();
+
+            // computing the previous time-step leader normal
+            Matrix< DDRMat > tLeaderPreviousNormal;
+            Matrix< DDRMat > tLeaderPreviousdNormaldU;   // dummy
+            Matrix< DDRMat > tLeaderPreviousdNormal2dU2; // dummy
+            Matrix< DDRMat > tLeaderPreviousRefNormal;   // dummy
+            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry(tLeaderPreviousFI, tLeaderPreviousIGGI, tLeaderPreviousNormal, tLeaderPreviousRefNormal, tLeaderPreviousdNormaldU, tLeaderPreviousdNormal2dU2, false );
+        //}
+
         // get number of leader dof dependencies
         const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
@@ -616,7 +650,7 @@ namespace moris::fem
 
                     // 1) jacobian to the residual contribution: mdGapvecdu
                     // second derivative of gap vector: u2
-                    //
+                    /*
                     Matrix< DDRMat > ones(2, 1, 1.0);
                     for (int dim = 0; dim < 2; dim++)
                     {
@@ -624,7 +658,7 @@ namespace moris::fem
                         Matrix< DDRMat > gapvecd2du2_reshaped = moris::reshape( gapvecd2du2, tNumDofsLeaderRes, tNumDofsLeaderDep );
                         tJacMM += 0.5 * aWStar * gapvecd2du2_reshaped * ones( dim, 0 );
                     }
-                    //
+                    */
 
                     // 1) jacobian to the residual contribution: mdGapvecdv
                     // second derivative of gap vector: uv
@@ -638,6 +672,28 @@ namespace moris::fem
                         tJacSM += 0.5 * aWStar * gapvecd2duv_reshaped_transposed * ones( dim, 0 );
                     }
                     */
+
+                    // linearization of the gap measure : u
+                    const uint tNumDof = tLeaderResStopIndex - tLeaderResStartIndex + 1;
+                    Matrix< DDRMat > matdofby2(tNumDof, 2, 1.0);
+
+                    //
+                    // 2) jacobian to the residual contribution: tTanTraction (currently reduced to tSlipIncrement)
+                    //
+                    // first derivative of slip increment: leader wrt. to u
+                    //
+                    Matrix< DDRMat > tdSlipIncrementdu = tLeaderPreviousNormal * mGapData->mdGapdu;
+                    Matrix< DDRMat > var2 = 0.5 * aWStar * matdofby2 * tdSlipIncrementdu;
+                    tJacMM += 0.5 * aWStar * matdofby2 * tdSlipIncrementdu;
+                    //
+
+                    //
+                    // 2) jacobian to the residual contribution: tTanTraction (currently reduced to tSlipIncrement)
+                    //
+                    // first derivative of slip increment: follower part wrt. to u
+                    //
+                    tJacSM += 0.5 * aWStar * matdofby2 * tdSlipIncrementdu;
+                    //
                   }
                   else
                   {
@@ -766,7 +822,7 @@ namespace moris::fem
 
                     // 1) jacobian to the residual contribution: mdGapvecdu
                     // second derivative of gap vector: uv
-                    //
+                    /*
                     Matrix< DDRMat > ones(2, 1, 1.0);
                     for (int dim = 0; dim < 2; dim++)
                     {
@@ -775,7 +831,7 @@ namespace moris::fem
                         Matrix< DDRMat > gapvecd2duv_reshaped_transposed = moris::trans( gapvecd2duv_reshaped );
                         tJacMS += 0.5 * aWStar * gapvecd2duv_reshaped_transposed * ones( dim, 0 );
                     }
-                    //
+                    */
 
                     // 1) jacobian to the residual contribution: mdGapvecdv
                     // second derivative of gap vector: vv
@@ -789,6 +845,24 @@ namespace moris::fem
                         tJacSS += 0.5 * aWStar * gapvecd2dvv_reshaped_transposed * ones( dim, 0 );
                     }
                     */
+
+
+                    //
+                    // 2) jacobian to the residual contribution: tTanTraction (currently reduced to tSlipIncrement)
+                    //
+                    // first derivative of slip increment: leader part wrt. to v
+                    const uint tNumDof = tLeaderResStopIndex - tLeaderResStartIndex + 1;
+                    Matrix< DDRMat > matdofby2(tNumDof, 2, 1.0);
+                    Matrix< DDRMat > tdSlipIncrementdv = tLeaderPreviousNormal * mGapData->mdGapdv;
+                    tJacMS += 0.5 * aWStar * matdofby2 * tdSlipIncrementdv;
+                    //
+
+                    //
+                    // 2) jacobian to the residual contribution: tTanTraction (currently reduced to tSlipIncrement)
+                    //
+                    // first derivative of slip increment: follower part wrt. to v
+                    tJacSS += 0.5 * aWStar * matdofby2 * tdSlipIncrementdv;
+                    //
                   }
                   else
                   {
