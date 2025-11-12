@@ -61,6 +61,14 @@ namespace moris
 
             //-----------------------------------------------------------------------------------
 
+            void build_icc_preconditioner( Linear_Problem* aLinearSystem );
+
+            //-----------------------------------------------------------------------------------
+
+            void build_icc_preconditioner( sol::Dist_Matrix* aMatrix, Linear_Problem* aLinearSystem );
+
+            //-----------------------------------------------------------------------------------
+
             void build_ilu_preconditioner( Linear_Problem* aLinearSystem );
 
             //-----------------------------------------------------------------------------------

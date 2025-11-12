@@ -25,9 +25,10 @@ namespace moris::fem
 
     class IQI_Nonlinear_Bedding : public IQI
     {
-        enum class IQI_Stabilization_Type
+        enum class IWG_Property_Type
         {
-            NONLINEAR_BEDDING_PARAM,
+            BEDDING,
+            BEDDING_THRESHOLD,
             MAX_ENUM
         };
 

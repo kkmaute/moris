@@ -22,11 +22,12 @@ namespace moris::fem
 
         mFEMIQIType = fem::IQI_Type::NONLINEAR_BEDDING;
 
-        // set size for the constitutive model pointer cell
-        mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
+        // set size for the property pointer cell
+        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-        // populate the stabilization map
-        mStabilizationMap[ "BeddingParam" ] = (uint)IQI_Stabilization_Type::NONLINEAR_BEDDING_PARAM;
+        // populate the property map
+        mPropertyMap[ "Bedding" ] = static_cast< uint >( IWG_Property_Type::BEDDING );
+        mPropertyMap[ "Bedding_Threshold" ] = static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD );
     }
 
     //------------------------------------------------------------------------------
@@ -35,8 +36,12 @@ namespace moris::fem
     IQI_Nonlinear_Bedding::compute_QI( Matrix< DDRMat >& aQI )
     {
         // get the parameter value for bedding
-        const std::shared_ptr< Stabilization_Parameter >& tSPLeader =
-                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::NONLINEAR_BEDDING_PARAM ) );
+        const std::shared_ptr< Property >& tPropLeader =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+
+        // Get the parameter value for bedding threshold
+        const std::shared_ptr< Property >& tPropBeddingThreshold =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
 
         // Obtain leader and follower field interpolators to get the displacement
         Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
@@ -48,7 +53,7 @@ namespace moris::fem
         Matrix< DDRMat > tDispDotDisp = ( trans( tDisplacement ) * tDisplacement );
 
         // compute the bedding IQI value
-        aQI = 0.5 * tSPLeader->val() * std::tanh( tDispDotDisp( 0 ) / ( 2.0 * 1e-26 ) ) * ( tDispDotDisp( 0 ) );
+        aQI = 0.5 * tPropLeader->val()( 0 ) * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( tDispDotDisp( 0 ) );
     }
 
     //------------------------------------------------------------------------------
@@ -60,8 +65,12 @@ namespace moris::fem
         sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
         // get the parameter value for bedding
-        const std::shared_ptr< Stabilization_Parameter >& tSPLeader =
-                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::NONLINEAR_BEDDING_PARAM ) );
+        const std::shared_ptr< Property >& tPropLeader =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );\
+
+        // Get the parameter value for bedding threshold
+        const std::shared_ptr< Property >& tPropBeddingThreshold =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
 
         // Obtain leader and follower field interpolators to get the displacement
         Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
@@ -73,7 +82,7 @@ namespace moris::fem
         Matrix< DDRMat > tDispDotDisp = ( trans( tDisplacement ) * tDisplacement );
 
         // compute the bedding IQI value
-        Matrix< DDRMat > tQI = 0.5 * tSPLeader->val() * std::tanh( tDispDotDisp( 0 ) / ( 2.0 * 1e-26 ) ) * ( tDispDotDisp( 0 ) );
+        Matrix< DDRMat > tQI = 0.5 * tPropLeader->val() * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( tDispDotDisp( 0 ) );
 
         // add the contribution
         mSet->get_QI()( tQIIndex ) += aWStar * tQI;
@@ -94,8 +103,12 @@ namespace moris::fem
         sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
         // get the parameter value for bedding
-        const std::shared_ptr< Stabilization_Parameter >& tSPLeader =
-                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::NONLINEAR_BEDDING_PARAM ) );
+        const std::shared_ptr< Property >& tPropLeader =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+
+        // Get the parameter value for bedding threshold
+        const std::shared_ptr< Property >& tPropBeddingThreshold =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
 
         // get the number of leader dof type dependencies
         uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
@@ -129,9 +142,9 @@ namespace moris::fem
                 // compute bedding contribution - displacements
 
                 mSet->get_residual()( tQIIndex )(
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * tSPLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( 2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( 2.0 * 1e-26 ), 2 ) ) ) 
-                        + 2.0 * std::tanh( tDispDotDisp( 0 ) / ( 2.0 * 1e-26 ) ) * ( trans( tDisplacement ) * tN ) );
-                
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * tPropLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( 2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ), 2 ) ) )
+                        + 2.0 * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( trans( tDisplacement ) * tN ) );
+
             }
         }
     }
@@ -151,8 +164,12 @@ namespace moris::fem
         }
 
         // get the bedding stabilization parameter
-        const std::shared_ptr< Stabilization_Parameter >& tSPLeader =
-                mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::NONLINEAR_BEDDING_PARAM ) );
+        const std::shared_ptr< Property >& tPropLeader =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+        
+                // Get the parameter value for bedding threshold
+        const std::shared_ptr< Property >& tPropBeddingThreshold =
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
 
         // initialize derivative
         adQIdu.fill( 0.0 );
@@ -174,9 +191,9 @@ namespace moris::fem
             Matrix< DDRMat > tDispDotDisp = trans( tDisplacement ) * tDisplacement;
 
             // compute dQIdu
-            adQIdu = 0.5 * tSPLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( 2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( 2.0 * 1e-26 ), 2 ) ) )
-                     + 2.0 * std::tanh( tDispDotDisp( 0 ) / ( 2.0 * 1e-26 ) ) * ( trans( tDisplacement ) * tN ) );
-                     
+            adQIdu = 0.5 * tPropLeader->val()( 0 ) * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( 2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ), 2 ) ) )
+                     + 2.0 * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( trans( tDisplacement ) * tN ) );
+
         }
 
     }

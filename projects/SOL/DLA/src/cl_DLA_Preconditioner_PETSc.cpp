@@ -154,6 +154,86 @@ void Preconditioner_PETSc::build_cholesky_preconditioner( sol::Dist_Matrix *aMat
 
 //----------------------------------------------------------------------------------------
 
+void Preconditioner_PETSc::build_icc_preconditioner( Linear_Problem *aLinearSystem )
+{
+    // check for serail run; this preconditioner does not work in parallel
+    MORIS_ERROR( par_size() == 1,
+            "Preconditioner_PETSc::build_icc_preconditioner - PETSc ICC preconditioner can only be used in serial." );
+
+    // write preconditioner to log file
+    MORIS_LOG_INFO( "KSP Preconditioner: Incomplete Cholesky(%d)",
+            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+
+    // Set PC type
+    PCSetType( mpc, "icc" );
+
+    // Set operators
+    PCSetOperators(
+            mpc,
+            aLinearSystem->get_matrix()->get_petsc_matrix(),
+            aLinearSystem->get_matrix()->get_petsc_matrix() );
+
+    // Set levels of fill for ILU
+    PCFactorSetLevels(
+            mpc,
+            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+
+    // Set drop tolerance for Ilu
+    PCFactorSetDropTolerance(
+            mpc,
+            mParameterList.get< moris::real >( "CholeskyTol" ),
+            PETSC_DEFAULT,
+            PETSC_DEFAULT );
+
+    // Set preconditioner options from the options database
+    PCSetFromOptions( mpc );
+
+    // Finalize setup of preconditioner
+    PCSetUp( mpc );
+}
+
+//----------------------------------------------------------------------------------------
+
+void Preconditioner_PETSc::build_icc_preconditioner( sol::Dist_Matrix *aMatrix, Linear_Problem *aLinearSystem )
+{
+    // check for serial run; this preconditioner does not work in parallel
+    MORIS_ERROR( par_size() == 1,
+            "Preconditioner_PETSc::build_icc_preconditioner - PETSc ICC preconditioner can only be used in serial." );
+
+    // write preconditioner to log file
+    MORIS_LOG_INFO( "KSP Preconditioner: Incomplete Cholesky(%d)",
+            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+
+    // Set PC type
+    PCSetType( mpc, "icc" );
+
+    // Set operators
+    PCSetOperators(
+            mpc,
+            aLinearSystem->get_matrix()->get_petsc_matrix(),    // A matrix in Ax = b should come from linear system, while preconditioner matrix is passed separately
+            aMatrix->get_petsc_matrix() );
+
+    // Set levels of fill for ILU
+    PCFactorSetLevels(
+            mpc,
+            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+
+    // Set drop tolerance for Ilu
+    PCFactorSetDropTolerance(
+            mpc,
+            mParameterList.get< moris::real >( "CholeskyTol" ),
+            PETSC_DEFAULT,
+            PETSC_DEFAULT );
+
+    // Set preconditioner options from the options database
+    PCSetFromOptions( mpc );
+
+    // Finalize setup of preconditioner
+    PCSetUp( mpc );
+}
+
+//----------------------------------------------------------------------------------------
+
 void Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSystem )
 {
     // get number of mg levels
@@ -720,6 +800,10 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
     {
         this->build_algebaric_multigrid_preconditioner( aLinearSystem );
     }
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "icc" ) )
+    {
+        this->build_icc_preconditioner( aLinearSystem );
+    }
     else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "none" ) )
     {
         // Set PC type to none
@@ -743,6 +827,10 @@ void Preconditioner_PETSc::build_preconditioner( sol::Dist_Matrix *aMatrix, Line
     if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "cholesky" ) )
     {
         this->build_cholesky_preconditioner( aMatrix, aLinearSystem );
+    }
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "icc" ) )
+    {
+        this->build_icc_preconditioner( aMatrix, aLinearSystem );
     }
    
     else

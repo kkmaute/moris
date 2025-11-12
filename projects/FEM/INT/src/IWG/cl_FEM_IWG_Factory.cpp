@@ -79,6 +79,7 @@
 #include "cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_IWG_Nonlinear_Bedding.hpp"
 // Fluid structure interface
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 // Time continuity
@@ -468,6 +469,9 @@ namespace moris::fem
 
             case IWG_Type::GHOST_NORMAL_FIELD:
                 return std::make_shared< IWG_Ghost_Normal_Field >();
+
+            case IWG_Type::NONLINEAR_BEDDING:
+                return std::make_shared< IWG_Nonlinear_Bedding >();
 
             case IWG_Type::USER_DEFINED:
                 return std::make_shared< IWG_User_Defined >();
