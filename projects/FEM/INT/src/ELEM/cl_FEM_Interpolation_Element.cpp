@@ -521,35 +521,39 @@ namespace moris::fem
     void
     Interpolation_Element::compute_jacobian()
     {
-        // compute pdof values
-        // FIXME do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if (this->has_adofs() )
         {
-            // compute pdof values for previous time step
+            // compute pdof values
             // FIXME do this only once
-            this->compute_previous_pdof_values();
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // initialize the residual
+            mSet->initialize_mResidual();
+
+            // initialize the jacobian
+            mSet->initialize_mJacobian();
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_jacobian();
         }
-
-        // initialize the residual
-        mSet->initialize_mResidual();
-
-        // initialize the jacobian
-        mSet->initialize_mJacobian();
-
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IWG_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // ask cluster to compute jacobian
-        mFemCluster( 0 )->compute_jacobian();
+        
     }
 
     //------------------------------------------------------------------------------
@@ -557,62 +561,35 @@ namespace moris::fem
     void
     Interpolation_Element::compute_residual()
     {
-        // Fixme do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if ( this->has_adofs() )
         {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_previous_pdof_values();
-        }
+            // Fixme do this only once
+            this->compute_my_pdof_values();
 
-        // initialize the residual
-        mSet->initialize_mResidual();
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-        // initialize the jacobian
-        mSet->initialize_mJacobian();
+            // initialize the residual
+            mSet->initialize_mResidual();
 
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
+            // initialize the jacobian
+            mSet->initialize_mJacobian();
 
-        // FIXME should not be like this
-        mSet->set_IWG_field_interpolator_managers();
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
 
-        // set cluster for stabilization parameter
-        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        if ( mSet->mEquationModel->is_forward_analysis() )
-        {
             // FIXME should not be like this
             mSet->set_IWG_field_interpolator_managers();
 
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // ask cluster to compute residual
-            mFemCluster( 0 )->compute_residual();
-        }
-        else
-        {
-            // compute RHS of adjoint sensitivity analysis
-            if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
-            {
-                // check whether of IQIs; if none skip dQIdu computation
-                if ( mSet->get_number_of_requested_IQIs() > 0 )
-                {
-                    // FIXME should not be like this
-                    mSet->set_IQI_field_interpolator_managers();
-
-                    // set cluster for stabilization parameter
-                    mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-                    // ask cluster to compute jacobian
-                    mFemCluster( 0 )->compute_dQIdu();
-                }
-            }
-            else
+            if ( mSet->mEquationModel->is_forward_analysis() )
             {
                 // FIXME should not be like this
                 mSet->set_IWG_field_interpolator_managers();
@@ -621,9 +598,40 @@ namespace moris::fem
                 mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
                 // ask cluster to compute residual
-                mFemCluster( 0 )->compute_dRdp();
+                mFemCluster( 0 )->compute_residual();
+            }
+            else
+            {
+                // compute RHS of adjoint sensitivity analysis
+                if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+                {
+                    // check whether of IQIs; if none skip dQIdu computation
+                    if ( mSet->get_number_of_requested_IQIs() > 0 )
+                    {
+                        // FIXME should not be like this
+                        mSet->set_IQI_field_interpolator_managers();
+
+                        // set cluster for stabilization parameter
+                        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                        // ask cluster to compute jacobian
+                        mFemCluster( 0 )->compute_dQIdu();
+                    }
+                }
+                else
+                {
+                    // FIXME should not be like this
+                    mSet->set_IWG_field_interpolator_managers();
+
+                    // set cluster for stabilization parameter
+                    mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+                    // ask cluster to compute residual
+                    mFemCluster( 0 )->compute_dRdp();
+                }
             }
         }
+       
     }
 
     //------------------------------------------------------------------------------
@@ -631,61 +639,65 @@ namespace moris::fem
     void
     Interpolation_Element::compute_jacobian_and_residual()
     {
-        // Fixme do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        // check whether the cluster has any unique adofs, if not, skip computation
+        if ( this->has_adofs() )
         {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_previous_pdof_values();
-        }
+            // Fixme do this only once
+            this->compute_my_pdof_values();
 
-        // initialize the Jacobian
-        mSet->initialize_mJacobian();
-
-        // initialize the residual
-        mSet->initialize_mResidual();
-
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IWG_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        if ( !mSet->mEquationModel->is_forward_analysis() )
-        {
-            if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
             {
-                if ( mSet->get_number_of_requested_IQIs() > 0 )
-                {
-                    // FIXME should not be like this
-                    mSet->set_IQI_field_interpolator_managers();
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
 
-                    // set cluster for stabilization parameter
-                    mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+            // initialize the Jacobian
+            mSet->initialize_mJacobian();
+
+            // initialize the residual
+            mSet->initialize_mResidual();
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            if ( !mSet->mEquationModel->is_forward_analysis() )
+            {
+                if ( mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+                {
+                    if ( mSet->get_number_of_requested_IQIs() > 0 )
+                    {
+                        // FIXME should not be like this
+                        mSet->set_IQI_field_interpolator_managers();
+
+                        // set cluster for stabilization parameter
+                        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+                    }
+                }
+                else
+                {
+                    // fill IP pdv assembly vector
+                    this->fill_mat_pdv_assembly_vector();
+
+                    // init IG pdv assembly map
+                    mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+                    // init dRdp
+                    mSet->initialize_mdRdpMat();
+                    mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
                 }
             }
-            else
-            {
-                // fill IP pdv assembly vector
-                this->fill_mat_pdv_assembly_vector();
 
-                // init IG pdv assembly map
-                mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
-
-                // init dRdp
-                mSet->initialize_mdRdpMat();
-                mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
-            }
+            // ask cluster to compute Jacobian and residual
+            mFemCluster( 0 )->compute_jacobian_and_residual();
         }
-
-        // ask cluster to compute Jacobian and residual
-        mFemCluster( 0 )->compute_jacobian_and_residual();
     }
 
     //------------------------------------------------------------------------------
@@ -693,39 +705,44 @@ namespace moris::fem
     void
     Interpolation_Element::compute_dRdp()
     {
+        // check whether the cluster has any unique adofs, if not, skip computation
+        if ( this->has_adofs() )
+        {
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // init geo pdv assembly map
+            mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+            // init dRdp
+            mSet->initialize_mdRdpMat();
+            mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+            // as long as dRdp is computed with FD we need this
+            mSet->initialize_mResidual();
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_dRdp();
+        }
         // compute pdof values
         // FIXME do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
-        {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_previous_pdof_values();
-        }
-
-        // init geo pdv assembly map
-        mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
-
-        // init dRdp
-        mSet->initialize_mdRdpMat();
-        mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
-
-        // as long as dRdp is computed with FD we need this
-        mSet->initialize_mResidual();
-
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IWG_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // ask cluster to compute jacobian
-        mFemCluster( 0 )->compute_dRdp();
+        
     }
 
     //------------------------------------------------------------------------------
@@ -753,65 +770,69 @@ namespace moris::fem
 
         // compute pdof values
         // FIXME do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if ( this->has_adofs() )
         {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_previous_pdof_values();
-        }
+            this->compute_my_pdof_values();
 
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IQI_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // initialize dQIdp
-        mSet->initialize_mdQIdpMat();
-        mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
-
-        // ask cluster to compute jacobian
-        mFemCluster( 0 )->compute_dQIdp_explicit();
-
-        // Assembly for the IP pdv
-        //----------------------------------------------------------------------------------------
-        // if assembly vector is not empty
-        if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
-        {
-            // loop over the IP pdv
-            uint tNumIQIs = mSet->mdQIdp( 0 ).size();
-            for ( uint Ik = 0; Ik < tNumIQIs; Ik++ )
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
             {
-                // assemble explicit dQIdpMat into multivector
-                mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIPPdv,
-                        mSet->mdQIdp( 0 )( Ik ),
-                        Ik );
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // initialize dQIdp
+            mSet->initialize_mdQIdpMat();
+            mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_dQIdp_explicit();
+
+            // Assembly for the IP pdv
+            //----------------------------------------------------------------------------------------
+            // if assembly vector is not empty
+            if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+            {
+                // loop over the IP pdv
+                uint tNumIQIs = mSet->mdQIdp( 0 ).size();
+                for ( uint Ik = 0; Ik < tNumIQIs; Ik++ )
+                {
+                    // assemble explicit dQIdpMat into multivector
+                    mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIPPdv,
+                            mSet->mdQIdp( 0 )( Ik ),
+                            Ik );
+                }
+            }
+
+            // Assembly for the IG pdv
+            //----------------------------------------------------------------------------------------
+            // if assembly vector is not empty
+            if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+            {
+                // loop over the IG pdv
+                uint tNumIQIs = mSet->mdQIdp( 1 ).size();
+                for ( uint Ik = 0; Ik < tNumIQIs; Ik++ )
+                {
+                    // assemble explicit dQIdpGeo into multivector
+                    mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIGPdv,
+                            mSet->mdQIdp( 1 )( Ik ),
+                            Ik );
+                }
             }
         }
-
-        // Assembly for the IG pdv
-        //----------------------------------------------------------------------------------------
-        // if assembly vector is not empty
-        if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
-        {
-            // loop over the IG pdv
-            uint tNumIQIs = mSet->mdQIdp( 1 ).size();
-            for ( uint Ik = 0; Ik < tNumIQIs; Ik++ )
-            {
-                // assemble explicit dQIdpGeo into multivector
-                mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIGPdv,
-                        mSet->mdQIdp( 1 )( Ik ),
-                        Ik );
-            }
-        }
+        
     }
 
     //------------------------------------------------------------------------------
@@ -855,96 +876,100 @@ namespace moris::fem
         // as long as dRdp is computed with FD, we need to initialize the residual storage
         mSet->initialize_mResidual();
 
-        // compute pdof values
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if ( this->has_adofs() )
         {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_previous_pdof_values();
-        }
+            // compute pdof values
+            this->compute_my_pdof_values();
 
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IWG_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // FIXME should not be like this
-        mSet->set_IQI_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // ask cluster to compute explicit derivatives of residual and IQI wrt. PDOFs
-        mFemCluster( 0 )->compute_dRdp_and_dQIdp();
-
-        // get reference to computed dRdp
-        const Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
-
-        // extract adjoint values for this equation object
-        this->compute_my_adjoint_values();
-
-        // get number of RHS
-        uint tNumRHS = mSet->mAdjointPdofValues.size();
-
-        // get number of pdof values
-        uint tNumPdofValues = tdRdp( 0 ).n_rows();
-
-        // set size for reordered adjoint values
-        Matrix< DDRMat > tAdjointPdofValuesReordered( tNumPdofValues, 1 );
-
-        // loop over the RHS, i.e. IQIs
-        for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
-        {
-            // reorder adjoint values following the requested dof types order
-            this->reorder_adjoint_pdofs( tAdjointPdofValuesReordered, Ik );
-
-            // Assembly for the IP pdv
-            if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
             {
-                // assemble explicit dQIdpMat into multivector
-                mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIPPdv,
-                        mSet->mdQIdp( 0 )( Ik ),
-                        Ik );
-
-                // post multiplication of adjoint values time dRdp
-                Matrix< DDRMat > tLocalIPdQiDp =
-                        -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
-
-                // assemble implicit dQidp into multivector
-                mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIPPdv,
-                        tLocalIPdQiDp,
-                        Ik );
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
             }
 
-            // Assembly for the IG pdv
-            if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute explicit derivatives of residual and IQI wrt. PDOFs
+            mFemCluster( 0 )->compute_dRdp_and_dQIdp();
+
+            // get reference to computed dRdp
+            const Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+
+            // extract adjoint values for this equation object
+            this->compute_my_adjoint_values();
+
+            // get number of RHS
+            uint tNumRHS = mSet->mAdjointPdofValues.size();
+
+            // get number of pdof values
+            uint tNumPdofValues = tdRdp( 0 ).n_rows();
+
+            // set size for reordered adjoint values
+            Matrix< DDRMat > tAdjointPdofValuesReordered( tNumPdofValues, 1 );
+
+            // loop over the RHS, i.e. IQIs
+            for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
             {
-                // assemble explicit dQIdpGeo into multivector
-                mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIGPdv,
-                        mSet->mdQIdp( 1 )( Ik ),
-                        Ik );
+                // reorder adjoint values following the requested dof types order
+                this->reorder_adjoint_pdofs( tAdjointPdofValuesReordered, Ik );
 
-                // post multiplication of adjoint values time dRdp
-                Matrix< DDRMat > tLocalIGdQiDp =
-                        -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
+                // Assembly for the IP pdv
+                if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+                {
+                    // assemble explicit dQIdpMat into multivector
+                    mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIPPdv,
+                            mSet->mdQIdp( 0 )( Ik ),
+                            Ik );
 
-                // assemble implicit dQidp into multivector
-                mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIGPdv,
-                        tLocalIGdQiDp,
-                        Ik );
+                    // post multiplication of adjoint values time dRdp
+                    Matrix< DDRMat > tLocalIPdQiDp =
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
+
+                    // assemble implicit dQidp into multivector
+                    mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIPPdv,
+                            tLocalIPdQiDp,
+                            Ik );
+                }
+
+                // Assembly for the IG pdv
+                if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+                {
+                    // assemble explicit dQIdpGeo into multivector
+                    mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIGPdv,
+                            mSet->mdQIdp( 1 )( Ik ),
+                            Ik );
+
+                    // post multiplication of adjoint values time dRdp
+                    Matrix< DDRMat > tLocalIGdQiDp =
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
+
+                    // assemble implicit dQidp into multivector
+                    mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIGPdv,
+                            tLocalIGdQiDp,
+                            Ik );
+                }
             }
         }
+
     }
 
     //-------------------------------------------------------------------------------------------------
@@ -1055,143 +1080,146 @@ namespace moris::fem
 
         // compute pdof values
         // FIXME do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if ( !mSet->mEquationModel->is_forward_analysis() )
         {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_previous_pdof_values();
-        }
+            this->compute_my_pdof_values();
 
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IWG_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // ask cluster to compute dRdp
-        mFemCluster( 0 )->compute_dRdp();
-
-        // get reference to computed dRdp
-        Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
-
-        // extract adjoint values for this equation object
-        this->compute_my_adjoint_values();
-
-        // get number of  RHS
-        uint tNumRHS = mSet->mAdjointPdofValues.size();
-
-        // get number of pdof values
-        uint tNumPdofValues = tdRdp( 0 ).n_rows();
-
-        // reorder adjoint values following the requested dof types order
-        Matrix< DDRMat > tAdjointPdofValuesReordered;
-
-        // get leader dof type list from set
-        const Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeGroup =
-                mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
-
-        // get number of leader dof types
-        uint tNumLeaderDofTypes = tLeaderDofTypeGroup.size();
-
-        // get follower dof type list from set
-        const Vector< Vector< MSI::Dof_Type > >& tFollowerDofTypeGroup =
-                mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
-
-        // get number of follower dof types
-        uint tNumFollowerDofTypes = tFollowerDofTypeGroup.size();
-
-        // loop over the RHS
-        for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
-        {
-            // set size for reordered adjoint values
-            tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
-
-            // loop over the leader dof types
-            for ( uint Ia = 0; Ia < tNumLeaderDofTypes; Ia++ )
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
             {
-                // get the adjoint values for the ith dof type group
-                Vector< Vector< Matrix< DDRMat > > > tLeaderAdjointOriginal;
-                this->get_my_pdof_values(
-                        mSet->mAdjointPdofValues,
-                        tLeaderDofTypeGroup( Ia ),
-                        tLeaderAdjointOriginal,
-                        mtk::Leader_Follower::LEADER );
-
-                // reshape adjoint values
-                Matrix< DDRMat > tLeaderAdjointCoeff;
-                this->reshape_pdof_values_vector( tLeaderAdjointOriginal( Ik ), tLeaderAdjointCoeff );
-
-                // get indices for begin and end
-                uint tDofIndex   = mSet->get_dof_index_for_type( tLeaderDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::LEADER );
-                uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
-
-                // fill reordered adjoint pdof values
-                tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                        tLeaderAdjointCoeff.matrix_data();
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
             }
 
-            // loop over the follower dof types
-            for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IWG_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute dRdp
+            mFemCluster( 0 )->compute_dRdp();
+
+            // get reference to computed dRdp
+            Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+
+            // extract adjoint values for this equation object
+            this->compute_my_adjoint_values();
+
+            // get number of  RHS
+            uint tNumRHS = mSet->mAdjointPdofValues.size();
+
+            // get number of pdof values
+            uint tNumPdofValues = tdRdp( 0 ).n_rows();
+
+            // reorder adjoint values following the requested dof types order
+            Matrix< DDRMat > tAdjointPdofValuesReordered;
+
+            // get leader dof type list from set
+            const Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
+
+            // get number of leader dof types
+            uint tNumLeaderDofTypes = tLeaderDofTypeGroup.size();
+
+            // get follower dof type list from set
+            const Vector< Vector< MSI::Dof_Type > >& tFollowerDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
+
+            // get number of follower dof types
+            uint tNumFollowerDofTypes = tFollowerDofTypeGroup.size();
+
+            // loop over the RHS
+            for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
             {
-                // get the adjoint values for the ith dof type group
-                Vector< Vector< Matrix< DDRMat > > > tFollowerAdjointOriginal;
-                this->get_my_pdof_values(
-                        mSet->mAdjointPdofValues,
-                        tFollowerDofTypeGroup( Ia ),
-                        tFollowerAdjointOriginal,
-                        mtk::Leader_Follower::FOLLOWER );
+                // set size for reordered adjoint values
+                tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
 
-                // reshape adjoint values
-                Matrix< DDRMat > tFollowerAdjointCoeff;
-                this->reshape_pdof_values_vector( tFollowerAdjointOriginal( Ik ), tFollowerAdjointCoeff );
+                // loop over the leader dof types
+                for ( uint Ia = 0; Ia < tNumLeaderDofTypes; Ia++ )
+                {
+                    // get the adjoint values for the ith dof type group
+                    Vector< Vector< Matrix< DDRMat > > > tLeaderAdjointOriginal;
+                    this->get_my_pdof_values(
+                            mSet->mAdjointPdofValues,
+                            tLeaderDofTypeGroup( Ia ),
+                            tLeaderAdjointOriginal,
+                            mtk::Leader_Follower::LEADER );
 
-                // get indices for begin and end
-                uint tDofIndex   = mSet->get_dof_index_for_type( tFollowerDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::FOLLOWER );
-                uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
-                uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+                    // reshape adjoint values
+                    Matrix< DDRMat > tLeaderAdjointCoeff;
+                    this->reshape_pdof_values_vector( tLeaderAdjointOriginal( Ik ), tLeaderAdjointCoeff );
 
-                // fill reordered adjoint pdof values
-                tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                        tFollowerAdjointCoeff.matrix_data();
-            }
+                    // get indices for begin and end
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tLeaderDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::LEADER );
+                    uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                    uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
-            // Assembly for the IP pdv
-            //----------------------------------------------------------------------------------------
-            // if the assembly vector is not empty
-            if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
-            {
-                // post multiplication of adjoint values time dRdp
-                Matrix< DDRMat > tLocalIPdQiDp =
-                        -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
+                    // fill reordered adjoint pdof values
+                    tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                            tLeaderAdjointCoeff.matrix_data();
+                }
 
-                // assemble implicit dQidp into multivector
-                mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIPPdv,
-                        tLocalIPdQiDp,
-                        Ik );
-            }
+                // loop over the follower dof types
+                for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
+                {
+                    // get the adjoint values for the ith dof type group
+                    Vector< Vector< Matrix< DDRMat > > > tFollowerAdjointOriginal;
+                    this->get_my_pdof_values(
+                            mSet->mAdjointPdofValues,
+                            tFollowerDofTypeGroup( Ia ),
+                            tFollowerAdjointOriginal,
+                            mtk::Leader_Follower::FOLLOWER );
 
-            // Assembly for the IG pdv
-            //----------------------------------------------------------------------------------------
-            // if assembly vector is not empty
-            if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
-            {
-                // post multiplication of adjoint values time dRdp
-                Matrix< DDRMat > tLocalIGdQiDp =
-                        -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
+                    // reshape adjoint values
+                    Matrix< DDRMat > tFollowerAdjointCoeff;
+                    this->reshape_pdof_values_vector( tFollowerAdjointOriginal( Ik ), tFollowerAdjointCoeff );
 
-                // assemble implicit dQidp into multivector
-                mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
-                        tLocalToGlobalIdsIGPdv,
-                        tLocalIGdQiDp,
-                        Ik );
+                    // get indices for begin and end
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tFollowerDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::FOLLOWER );
+                    uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
+                    uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
+
+                    // fill reordered adjoint pdof values
+                    tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
+                            tFollowerAdjointCoeff.matrix_data();
+                }
+
+                // Assembly for the IP pdv
+                //----------------------------------------------------------------------------------------
+                // if the assembly vector is not empty
+                if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+                {
+                    // post multiplication of adjoint values time dRdp
+                    Matrix< DDRMat > tLocalIPdQiDp =
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
+
+                    // assemble implicit dQidp into multivector
+                    mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIPPdv,
+                            tLocalIPdQiDp,
+                            Ik );
+                }
+
+                // Assembly for the IG pdv
+                //----------------------------------------------------------------------------------------
+                // if assembly vector is not empty
+                if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+                {
+                    // post multiplication of adjoint values time dRdp
+                    Matrix< DDRMat > tLocalIGdQiDp =
+                            -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
+
+                    // assemble implicit dQidp into multivector
+                    mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                            tLocalToGlobalIdsIGPdv,
+                            tLocalIGdQiDp,
+                            Ik );
+                }
             }
         }
     }
@@ -1200,69 +1228,77 @@ namespace moris::fem
 
     void Interpolation_Element::compute_dQIdu()
     {
-        // compute pdof values
-        // FIXME do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if (this->has_adofs())
         {
-            // compute pdof values for previous time step
+            // compute pdof values
             // FIXME do this only once
-            this->compute_previous_pdof_values();
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute jacobian
+            mFemCluster( 0 )->compute_dQIdu();
         }
-
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IQI_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // ask cluster to compute jacobian
-        mFemCluster( 0 )->compute_dQIdu();
+               
     }
 
     //------------------------------------------------------------------------------
 
     void Interpolation_Element::compute_QI()
     {
-        // compute pdof values
-        // FIXME do this only once
-        this->compute_my_pdof_values();
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if( this->has_adofs() )
         {
-            // compute pdof values for previous time step
+            // compute pdof values
             // FIXME do this only once
-            this->compute_previous_pdof_values();
+            this->compute_my_pdof_values();
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_previous_pdof_values();
+            }
+
+            // if eigen vectors
+            if ( mSet->mNumEigenVectors )
+            {
+                // compute pdof values for previous time step
+                // FIXME do this only once
+                this->compute_my_eigen_vector_values();
+            }
+
+            // initialize IQI
+            mSet->initialize_mQI();
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // FIXME should not be like this
+            mSet->set_IQI_field_interpolator_managers();
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // ask cluster to compute quantity of interest
+            mFemCluster( 0 )->compute_QI();
         }
-
-        // if eigen vectors
-        if ( mSet->mNumEigenVectors )
-        {
-            // compute pdof values for previous time step
-            // FIXME do this only once
-            this->compute_my_eigen_vector_values();
-        }
-
-        // initialize IQI
-        mSet->initialize_mQI();
-
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // FIXME should not be like this
-        mSet->set_IQI_field_interpolator_managers();
-
-        // set cluster for stabilization parameter
-        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
-
-        // ask cluster to compute quantity of interest
-        mFemCluster( 0 )->compute_QI();
+        
     }
 
     //------------------------------------------------------------------------------
@@ -1309,31 +1345,34 @@ namespace moris::fem
 
     void Interpolation_Element::setup_IQI_computation()
     {
-        // compute pdof values
-        this->compute_my_pdof_values();    // FIXME: do this only once
-
-        // if time continuity set
-        if ( mSet->get_time_continuity() )
+        if ( this->has_adofs() )
         {
-            // compute pdof values for previous time step
-            this->compute_previous_pdof_values();    // FIXME: do this only once
+            // compute pdof values
+            this->compute_my_pdof_values();    // FIXME: do this only once
+
+            // if time continuity set
+            if ( mSet->get_time_continuity() )
+            {
+                // compute pdof values for previous time step
+                this->compute_previous_pdof_values();    // FIXME: do this only once
+            }
+
+            // if eigen vectors
+            if ( mSet->mNumEigenVectors )
+            {
+                // compute pdof values for previous time step
+                this->compute_my_eigen_vector_values();    // FIXME: do this only once
+            }
+
+            // set the field interpolators coefficients
+            this->set_field_interpolators_coefficients();
+
+            // give IQI access to the field interpolator
+            mSet->set_IQI_field_interpolator_managers();    // FIXME: should not be like this
+
+            // set cluster for stabilization parameter
+            mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
         }
-
-        // if eigen vectors
-        if ( mSet->mNumEigenVectors )
-        {
-            // compute pdof values for previous time step
-            this->compute_my_eigen_vector_values();    // FIXME: do this only once
-        }
-
-        // set the field interpolators coefficients
-        this->set_field_interpolators_coefficients();
-
-        // give IQI access to the field interpolator
-        mSet->set_IQI_field_interpolator_managers();    // FIXME: should not be like this
-
-        // set cluster for stabilization parameter
-        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
     }
 
     //------------------------------------------------------------------------------

@@ -98,6 +98,11 @@ namespace moris::MSI
                     // loop over IQIs on model
                     for ( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                     {
+                        // if the IQI vector is empty (due to basis extension), continue
+                        if ( mFemSets( tSetIndex )->get_QI().size() == 0 )
+                        {
+                            continue;
+                        }
                         // assemble QI values into global vector
                         mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
                     }
