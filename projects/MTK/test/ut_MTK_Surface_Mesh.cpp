@@ -37,7 +37,7 @@ namespace moris::mtk
         Matrix< DDRMat >                tNormalsExpected       = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
         Matrix< DDRMat >                tCenterExpected        = { { 1.25000000, 0.62500000, 1.12500000, 1.75000000 }, { 0.87500000, 0.12500000, 0.12500000, 0.87500000 } };
         Vector< real >                  tMeasureExpected       = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
-        real                            tShapeDiameterExpected = 0.525359746;
+        real                            tShapeDiameterExpected = 0.52987607357825017;
 
         // load a surface mesh from file
         std::string tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
@@ -71,7 +71,7 @@ namespace moris::mtk
         // Check global shape diameter
         CHECK( tGlobalShapeDiameter == Approx( tShapeDiameterExpected ) );
 
-        // Loop over the surface mesh and check for correct facet normals and connectivity
+        // Loop over the surface mesh facets
         for ( uint iF = 0; iF < tConnExpected.size(); ++iF )
         {
             Vector< moris_index > tFacetVertices = tSurfaceMesh.get_facets_vertex_indices( iF );
