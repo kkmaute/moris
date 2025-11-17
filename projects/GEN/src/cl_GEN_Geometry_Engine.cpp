@@ -162,6 +162,9 @@ namespace moris::gen
         mOwnedADVs->vector_global_assembly();
         mPrimitiveADVs->import_local_to_global( *mOwnedADVs );
 
+        // Reset sensitivities
+        mdGQIdADV->vec_put_scalar( 0.0 );
+        
         // Import ADVs into fields that need it
         for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
         {
