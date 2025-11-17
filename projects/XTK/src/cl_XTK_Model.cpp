@@ -600,8 +600,9 @@ namespace moris::xtk
 
                 // Create a surface mesh from the IG mesh for surface XQIs
                 // FIXME brendan construct from phase names
-                mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0" } );    // FIXME side set names make variable
-                mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
+                mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_1_b1_0", "SideSet_1_c_p1", "SideSet_2_c_p1", "SideSet_3_c_p1", "SideSet_4_c_p1", "SideSet_1_n_p1", "SideSet_2_n_p1", "SideSet_3_n_p1", "SideSet_4_n_p1" } );    // FIXME side set names make variable
+                // mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0" } );    // FIXME side set names make variable
+                mtk::Integration_Surface_Mesh tSurfaceMesh( tSurfaceMeshData );
 
                 // Get the IG to PDV ID map for this surface mesh
                 Vector< Vector< moris_index > > tPDVIDs;
