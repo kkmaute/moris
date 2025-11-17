@@ -1814,6 +1814,10 @@ namespace moris::mtk
             // Loop over rays for this facet
             for ( uint iR = 0; iR < aAllIntersections( iF ).size(); iR++ )
             {
+                if ( aAllIntersections( iF )( iR ).size() == 0 )
+                {
+                    this->write_to_file( "debug_surface_mesh.obj" );    // brendan delete
+                }
                 MORIS_ASSERT( aAllIntersections( iF )( iR ).size() > 0, "No intersections found for facet %d, ray %d. Is the normal correct?", iF, iR );
 
                 // Loop over the intersections and find the first intersection that is not with the facet the ray came from
@@ -1825,6 +1829,10 @@ namespace moris::mtk
                         break;
                     }
 
+                    if ( iI >= ( aAllIntersections( iF )( iR ).size() - 1 ) )
+                    {
+                        this->write_to_file( "debug_surface_mesh.obj" );    // brendan delete
+                    }
                     MORIS_ASSERT( iI < aAllIntersections( iF )( iR ).size() - 1, "No non-trivial intersection found for facet %d, ray %d.", iF, iR );
                 }
             }
@@ -1995,7 +2003,7 @@ namespace moris::mtk
                     // Origin facets vertices
                     for ( uint iV : tFacetVertices )
                     {
-                        Matrix< DDRMat > tRotation = -trans( sdf::rotation_matrix( tConeDistances.mRayCones.mTheta( iR ) ) );
+                        Matrix< DDRMat > tRotation = -sdf::rotation_matrix( tConeDistances.mRayCones.mTheta( iR ) );
 
                         // Raycast distance is a function of the origin and the normal, which are both influenced by these vertices
                         Matrix< DDRMat > tCentroidSens = this->compute_draycast_dorigin( tCentroids.get_column( iF ), tConeDistances.mRayCones.mRayDirections( iF ).get_column( iR ), tRaysOnFacet( iR ).first )
@@ -2391,7 +2399,7 @@ namespace moris::mtk
                 // Compute the inverse determinant
                 real tInvDet = 1.0 / cross_2d( aDirection, tEdge );
 
-                MORIS_ASSERT( std::abs( tInvDet ) < MORIS_REAL_MAX, "Surface_Mesh::compute_draycast_dorigin - Division by zero detected in inverse determinant computation." );
+                MORIS_ASSERT( std::abs( tInvDet ) < MORIS_REAL_MAX, "Surface_Mesh::compute_draycast_dorigin - Ray direction and edge are parallel." );
 
                 Matrix< DDRMat > tNormal = { { -tEdge( 1 ), tEdge( 0 ) } };    // non-unit vector. Transposed to make the sensitivity matrix the correct size
 
@@ -2443,6 +2451,8 @@ namespace moris::mtk
                 // Compute the inverse determinant of the edge and the ray direction
                 real tInvDet = 1.0 / cross_2d( aDirection, tEdge );
 
+                MORIS_ASSERT( std::abs( tInvDet ) < MORIS_REAL_MAX, "Surface_Mesh::compute_draycast_dorigin - Ray direction and edge are parallel." );
+
                 Matrix< DDRMat > tNormal = { { -tEdge( 1 ), tEdge( 0 ) } };    // non-unit vector. Transposed to make the sensitivity matrix the correct size
 
                 return tInvDet * tInvDet * tDet * tNormal;
@@ -2488,6 +2498,8 @@ namespace moris::mtk
 
                 // Compute the inverse determinant of the edge and the ray direction
                 real tInvDet = 1.0 / cross_2d( aDirection, tEdge );
+
+                MORIS_ASSERT( std::abs( tInvDet ) < MORIS_REAL_MAX, "Surface_Mesh::compute_draycast_dorigin - Ray direction and edge are parallel." );
 
                 // Determinant of direction and origin
                 real tDirOriginDet = cross_2d( aOrigin, aDirection );

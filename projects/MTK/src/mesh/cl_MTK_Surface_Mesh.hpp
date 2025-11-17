@@ -99,7 +99,7 @@ namespace moris::mtk
             // Check that all weights are positive
             for ( const auto& tWeight : mRayCones.mDirectionWeights )
             {
-                MORIS_ASSERT( tWeight > 0.0, "Shape_Diameter_Distances::Constructor - All direction weights must be positive." );
+                MORIS_ERROR( tWeight > 0.0, "Shape_Diameter_Distances::Constructor - All direction weights must be positive." );
             }
         }
     };
@@ -501,7 +501,7 @@ namespace moris::mtk
          * @param aDirection Direction that the ray casts in. Does not have to be a unit vector
          * @param aFacetIndex Local index of the facet that the ray intersects. Must be a valid intersection
          * @return Matrix< DDRMat > dDistance/dOrigin gradient. Size: <spatial dim> x <spatial dim>
-         * Columns correspond to the components of the vertex coordinates, and rows correspond to the vertices of the facet
+         * Columns correspond to the components of the vertex coordinates, rows correspond to the vertices of the facet
          */
         Matrix< DDRMat > compute_draycast_dvertices(
                 const Matrix< DDRMat >& aOrigin,
