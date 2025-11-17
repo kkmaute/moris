@@ -270,6 +270,7 @@ namespace moris::gen
         // Set up field parameters
         Submodule_Parameter_Lists tFieldParameterLists( "GEOMETRIES" );
         tFieldParameterLists.add_parameter_list( gen::Field_Type::SUPERELLIPSE );
+        tFieldParameterLists.set( "name", "test_superellipse" );
         tFieldParameterLists.set( "center_x", 3.0 );
         tFieldParameterLists.set( "center_y", 4.0 );
         tFieldParameterLists.set( "semidiameter_x", 1.0 );
@@ -285,6 +286,9 @@ namespace moris::gen
         Matrix< DDRMat > tCoordinates0 = { { 2.0, 2.0 } };
         Matrix< DDRMat > tCoordinates1 = { { 3.0, 3.0 } };
         Matrix< DDRMat > tCoordinates2 = { { 4.0, 4.0 } };
+
+        // Check name
+        CHECK( tSuperellipse->get_name() == "test_superellipse" );
 
         // Check field values
         CHECK( tSuperellipse->get_field_value( 0, tCoordinates0 ) == Approx( 0.414214 ) );
