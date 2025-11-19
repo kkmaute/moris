@@ -339,6 +339,13 @@ void Solver_Interface::fill_matrix_and_RHS(
             Vector< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_operator_and_rhs( iSet, iEquationObject, tElementMatrix, tElementRHS );
 
+            // If not looped over pdof make element matrix and rhs zero matrix and vector respectively
+            if ( tElementMatrix.numel() == 0 && tElementRHS.size() == 0 )
+            {
+                tElementMatrix.set_size( tElementTopology.length(), tElementTopology.length() , 0.0 );
+                tElementRHS.resize( tNumRHS );
+            }
+
             // Fill element in distributed matrix
             if ( tElementMatrix.numel() > 0 )
             {
@@ -364,6 +371,17 @@ void Solver_Interface::fill_matrix_and_RHS(
                                 tElementRHS( Ia ),
                                 Ia );
                     }
+                    else
+                    {
+                        Matrix< DDRMat > tZeroRHS = Matrix< DDRMat >( tElementTopology.length(), 1 , 0.0 );
+                        
+                        // Fill elementRHS in distributed RHS
+                        aVectorRHS->sum_into_global_values(
+                                tElementTopology,
+                                tZeroRHS,
+                                Ia );
+                    }
+
                 }
             }
         }

@@ -127,7 +127,7 @@ namespace moris::MSI
                         // if the IQI vector is empty (due to basis extension), continue
                         if ( mFemSets( tSetIndex )->get_QI().size() == 0 )
                         {
-                            continue;
+                            mGlobalIQIVal( tIQIIndex ) += 0.0;
                         }
                         // assemble QI values into global vector
                         mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );

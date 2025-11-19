@@ -27,7 +27,7 @@ namespace moris::fem
 
         // populate the property map
         mPropertyMap[ "Bedding" ]   = static_cast< uint >( IWG_Property_Type::BEDDING );
-        mPropertyMap[ "Bedding_Threshold" ] = static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD );
+        
 
     }
 
@@ -53,10 +53,6 @@ namespace moris::fem
             const std::shared_ptr< Property >& tPropBedding =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
-            // get bedding threshold property
-            const std::shared_ptr< Property >& tPropBeddingThreshold =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
-
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } );
@@ -72,11 +68,15 @@ namespace moris::fem
 
             //get bedding and threshold value
             real tBeddingValue = tPropBedding->val()( 0 );
-            real tBeddingThresholdValue = tPropBeddingThreshold->val()( 0 );
+            real tBeddingThresholdValue = 2.0*1e-26;
 
             // compute the residual
-            tRes += aWStar * 0.5 * tBeddingValue * (( tDispTDisp( 0 ) ) * (2.0 / ( 1.0 + std::pow((tDispTDisp( 0 ) / tBeddingThresholdValue ), 2)) ) * ( trans( tDisp ) * tN ) +
-                    2.0 * std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) * ( trans( tDisp ) * tN ) );
+            Matrix< DDRMat > tTerm1 = 2.0 * ( 1.0 - std::tanh( tDispTDisp(0)/tBeddingThresholdValue ) ) * trans( tN ) * tDisp ; 
+            Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0/( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue , 2 ) ) ) * tDispTDisp( 0 ) * trans( tN ) * tDisp ;
+
+            tRes += aWStar * 0.5 * tBeddingValue * ( tTerm1 + tTerm2 );
+            //tRes += trans(aWStar * 0.5 * tBeddingValue * (( tDispTDisp( 0 ) ) * (-2.0 / ( 1.0 + std::pow((tDispTDisp( 0 ) / tBeddingThresholdValue ), 2)) ) * ( trans( tDisp ) * tN ) +
+            //        2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * ( trans( tDisp ) * tN ) ));
             
 
             // check for nan, infinity
@@ -104,10 +104,6 @@ namespace moris::fem
             // get bedding property
             const std::shared_ptr< Property > & tPropBedding =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
-
-            // get bedding threshold property
-            const std::shared_ptr< Property > & tPropBeddingThreshold =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
 
             // get the number of leader dof dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
@@ -139,12 +135,26 @@ namespace moris::fem
 
                 //get bedding and threshold value
                 real tBeddingValue = tPropBedding->val()( 0 );
-                real tBeddingThresholdValue = tPropBeddingThreshold->val()( 0 );
+                real tBeddingThresholdValue = 2.0*1e-26;
 
                 // Compute the jacobian
-                tJac += aWStar * 0.5 * tBeddingValue * ( 4.0 * tDispTDisp( 0 ) * ( trans( tN ) * ( tN ) ) * std::pow( ( 1.0 + std::pow( ( tDispTDisp( 0 )/ tBeddingThresholdValue ) , 2 ) ), 2 ) *  ( ( 1.0 +  std::pow( ( tDispTDisp( 0 )/ tBeddingThresholdValue ) , 2)  ) +
-                                                           tDispTDisp( 0 ) * ( 2.0 * tDispTDisp( 0 )/ tBeddingThresholdValue )) + 2.0 * tDispTDisp( 0 ) * ( trans( tN ) * tN ) * ( 1.0 / ( 1.0 + std::pow( (tDispTDisp( 0 )/tBeddingThresholdValue ), 2 ))) +
-                                                           2.0 * std::tanh( tDispTDisp( 0 )/ tBeddingThresholdValue ) * ( trans( tN ) * tN ) + 4.0 * tDispTDisp( 0 ) * ( trans( tN ) * tN ) * ( 1.0 / ( 1.0 + std::pow( ( tDispTDisp( 0 )/tBeddingThresholdValue ), 2 ) ) ) );
+                real tDen = std::pow( 1.0 + std::pow( tDispTDisp( 0 )/tBeddingThresholdValue , 2 ) , 2); 
+
+                Matrix< DDRMat > tTerm1 = -2.0 * ( 1.0 / tDen ) * ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) * ( trans( tN ) * tDisp ) * trans( trans( tN ) * tDisp ) * 2.0;
+                Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0 / tDen ) * ( -2.0 * tDispTDisp( 0 ) ) * ( 2.0 * tDispTDisp( 0 ) / ( tBeddingThresholdValue ) ) * ( trans( tN ) * tDisp ) * trans( trans( tN ) * tDisp );
+                Matrix< DDRMat > tTerm3 = -2.0 * ( tDispTDisp( 0 ) ) * ( 1.0 / (1.0 + std::pow( tDispTDisp( 0 )/tBeddingThresholdValue, 2 ) ) ) * ( trans(tN) * tN );
+
+                Matrix< DDRMat > tTerm4 = 2.0 * -2.0 * ( 1.0 / ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) ) * ( trans( tN ) * tDisp ) * trans( trans( tN ) * tDisp );
+                Matrix< DDRMat > tTerm5 = 2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * ( trans( tN ) * tN );
+
+                tJac += aWStar * 0.5 * tBeddingValue * ( tTerm1 + tTerm2 + tTerm3 + tTerm4 + tTerm5 );
+
+
+                //tJac += aWStar * 0.5 * tBeddingValue * ( -2.0 * ( ( 1.0 + std::pow( tDispTDisp( 0 )/tBeddingThresholdValue , 2) ) * 2.0 * trans( tDisp ) * tN +  )   )
+                
+                //tJac += trans(aWStar * 0.5 * tBeddingValue * ( -4.0 * tDispTDisp( 0 ) * ( trans( tN ) * ( tN ) ) * std::pow( ( 1.0 + std::pow( ( tDispTDisp( 0 )/ tBeddingThresholdValue ) , 2 ) ), 2 ) *  ( ( 1.0 +  std::pow( ( tDispTDisp( 0 )/ tBeddingThresholdValue ) , 2)  ) -
+                //                                          tDispTDisp( 0 ) * ( 2.0 * tDispTDisp( 0 )/ tBeddingThresholdValue )) - 2.0 * tDispTDisp( 0 ) * ( trans( tN ) * tN ) * ( 1.0 / ( 1.0 + std::pow( (tDispTDisp( 0 )/tBeddingThresholdValue ), 2 ))) +
+                //                                          2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 )/ tBeddingThresholdValue ) ) * ( trans( tN ) * tN ) - 4.0 * tDispTDisp( 0 ) * ( trans( tN ) * tN ) * ( 1.0 / ( 1.0 + std::pow( ( tDispTDisp( 0 )/tBeddingThresholdValue ), 2 ) ) ) ));
 
             }
 

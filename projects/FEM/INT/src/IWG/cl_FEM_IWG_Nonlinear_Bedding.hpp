@@ -34,7 +34,6 @@ namespace moris::fem
         enum class IWG_Property_Type
         {
             BEDDING,
-            BEDDING_THRESHOLD,
             MAX_ENUM 
         };
 

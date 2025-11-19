@@ -27,7 +27,6 @@ namespace moris::fem
 
         // populate the property map
         mPropertyMap[ "Bedding" ] = static_cast< uint >( IWG_Property_Type::BEDDING );
-        mPropertyMap[ "Bedding_Threshold" ] = static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD );
     }
 
     //------------------------------------------------------------------------------
@@ -39,10 +38,6 @@ namespace moris::fem
         const std::shared_ptr< Property >& tPropLeader =
                 mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
-        // Get the parameter value for bedding threshold
-        const std::shared_ptr< Property >& tPropBeddingThreshold =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
-
         // Obtain leader and follower field interpolators to get the displacement
         Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
@@ -50,10 +45,13 @@ namespace moris::fem
         const Matrix< DDRMat >& tDisplacement = tFILeader->val();
 
         // Transpose of displacement times displacement
-        Matrix< DDRMat > tDispDotDisp = ( trans( tDisplacement ) * tDisplacement );
+        Matrix< DDRMat > tDispDotDisp = ( trans( tDisplacement ) * tDisplacement ) ;
+
+        // declare bedding threshold
+        real tBeddingThreshold = 2.0*1e-26;
 
         // compute the bedding IQI value
-        aQI = 0.5 * tPropLeader->val()( 0 ) * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( tDispDotDisp( 0 ) );
+        aQI = 0.5 * tPropLeader->val()( 0 ) * std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) ) * ( tDispDotDisp( 0 ) );
     }
 
     //------------------------------------------------------------------------------
@@ -66,11 +64,7 @@ namespace moris::fem
 
         // get the parameter value for bedding
         const std::shared_ptr< Property >& tPropLeader =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );\
-
-        // Get the parameter value for bedding threshold
-        const std::shared_ptr< Property >& tPropBeddingThreshold =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
+                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
         // Obtain leader and follower field interpolators to get the displacement
         Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
@@ -79,10 +73,13 @@ namespace moris::fem
         const Matrix< DDRMat >& tDisplacement = tFILeader->val();
 
         // Transpose of displacement times displacement
-        Matrix< DDRMat > tDispDotDisp = ( trans( tDisplacement ) * tDisplacement );
+        Matrix< DDRMat > tDispDotDisp = ( trans( tDisplacement ) * tDisplacement ) ;
+
+        // declare bedding threshold
+        real tBeddingThreshold = 2.0*1e-26;
 
         // compute the bedding IQI value
-        Matrix< DDRMat > tQI = 0.5 * tPropLeader->val() * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( tDispDotDisp( 0 ) );
+        Matrix< DDRMat > tQI = 0.5 * tPropLeader->val() * ( 1.0 - std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) )) * ( tDispDotDisp( 0 ) );
 
         // add the contribution
         mSet->get_QI()( tQIIndex ) += aWStar * tQI;
@@ -106,10 +103,6 @@ namespace moris::fem
         const std::shared_ptr< Property >& tPropLeader =
                 mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
 
-        // Get the parameter value for bedding threshold
-        const std::shared_ptr< Property >& tPropBeddingThreshold =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
-
         // get the number of leader dof type dependencies
         uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
@@ -131,20 +124,32 @@ namespace moris::fem
                         mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
                 // Get displacement
-                const Matrix< DDRMat >& tDisplacement = tDisplacementFI->val();
+                const Matrix< DDRMat >& tDisp = tDisplacementFI->val();
 
                 // Get basis functions
                 const Matrix< DDRMat >& tN = tDisplacementFI->N();
 
                 // Displacment transpose times displacement
-                Matrix< DDRMat > tDispDotDisp = trans( tDisplacement ) * tDisplacement;
+                Matrix< DDRMat > tDispTDisp = trans( tDisp ) * tDisp ;
+
+                // Declare bedding value
+                real tBeddingValue = tPropLeader->val()( 0 );
+                
+                // declare bedding threshold
+                real tBeddingThresholdValue = 2.0 * 1e-26;
+
+                // compute the residual
+                Matrix< DDRMat > tTerm1 = 2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * trans( tN ) * tDisp;
+                Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0 / ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) ) * tDispTDisp( 0 ) * trans( tN ) * tDisp;
 
                 // compute bedding contribution - displacements
 
                 mSet->get_residual()( tQIIndex )(
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * tPropLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( 2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ), 2 ) ) )
-                        + 2.0 * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( trans( tDisplacement ) * tN ) );
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * tBeddingValue * ( tTerm1 + tTerm2 );
+                ;
 
+                //trans(aWStar * 0.5 * tPropLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( -2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tBeddingThreshold ), 2 ) ) )
+                 //       + 2.0 * ( 1.0 - std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) ) ) * ( trans( tDisplacement ) * tN ) ));
             }
         }
     }
@@ -166,10 +171,6 @@ namespace moris::fem
         // get the bedding stabilization parameter
         const std::shared_ptr< Property >& tPropLeader =
                 mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
-        
-                // Get the parameter value for bedding threshold
-        const std::shared_ptr< Property >& tPropBeddingThreshold =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING_THRESHOLD ) );
 
         // initialize derivative
         adQIdu.fill( 0.0 );
@@ -182,18 +183,32 @@ namespace moris::fem
                     mLeaderFIManager->get_field_interpolators_for_type( aDofType( 0 ) );
 
             // Get displacement
-            const Matrix< DDRMat >& tDisplacement = tDisplacementFI->val();
+            const Matrix< DDRMat >& tDisp = tDisplacementFI->val();
 
             // Get basis functions
             const Matrix< DDRMat >& tN = tDisplacementFI->N();
 
             // Displacment transpose times displacement
-            Matrix< DDRMat > tDispDotDisp = trans( tDisplacement ) * tDisplacement;
+            Matrix< DDRMat > tDispTDisp = trans( tDisp ) * tDisp ;
 
-            // compute dQIdu
-            adQIdu = 0.5 * tPropLeader->val()( 0 ) * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( 2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ), 2 ) ) )
-                     + 2.0 * std::tanh( tDispDotDisp( 0 ) / ( tPropBeddingThreshold->val()( 0 ) ) ) * ( trans( tDisplacement ) * tN ) );
+            // // declare bedding threshold
+            // real tBeddingThreshold = 2.0*1e-26;
 
+            // // compute dQIdu
+            // adQIdu = trans(0.5 * tPropLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( -2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tBeddingThreshold ), 2 ) ) )
+            //          + 2.0 * ( 1.0 - std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) ) ) * ( trans( tDisplacement ) * tN ) ));
+
+            // Declare bedding value
+            real tBeddingValue = tPropLeader->val()( 0 );
+
+            // declare bedding threshold
+            real tBeddingThresholdValue = 2.0 * 1e-26;
+
+            // compute the residual
+            Matrix< DDRMat > tTerm1 = 2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * trans( tN ) * tDisp;
+            Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0 / ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) ) * tDispTDisp( 0 ) * trans( tN ) * tDisp;
+
+            adQIdu = 0.5 * tBeddingValue * ( tTerm1 + tTerm2 );
         }
 
     }

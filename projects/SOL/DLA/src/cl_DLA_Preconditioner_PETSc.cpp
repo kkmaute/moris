@@ -165,7 +165,7 @@ void Preconditioner_PETSc::build_icc_preconditioner( Linear_Problem *aLinearSyst
             mParameterList.get< moris::sint >( "CholeskyFill" ) );
 
     // Set PC type
-    PCSetType( mpc, "icc" );
+    PCSetType( mpc, "sor" );
 
     // Set operators
     PCSetOperators(
@@ -174,16 +174,16 @@ void Preconditioner_PETSc::build_icc_preconditioner( Linear_Problem *aLinearSyst
             aLinearSystem->get_matrix()->get_petsc_matrix() );
 
     // Set levels of fill for ILU
-    PCFactorSetLevels(
-            mpc,
-            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+    //PCFactorSetLevels(
+    //        mpc,
+    //        mParameterList.get< moris::sint >( "CholeskyFill" ) );
 
     // Set drop tolerance for Ilu
-    PCFactorSetDropTolerance(
-            mpc,
-            mParameterList.get< moris::real >( "CholeskyTol" ),
-            PETSC_DEFAULT,
-            PETSC_DEFAULT );
+    //PCFactorSetDropTolerance(
+    //        mpc,
+    //        mParameterList.get< moris::real >( "CholeskyTol" ),
+    //        PETSC_DEFAULT,
+    //        PETSC_DEFAULT );
 
     // Set preconditioner options from the options database
     PCSetFromOptions( mpc );
@@ -205,7 +205,7 @@ void Preconditioner_PETSc::build_icc_preconditioner( sol::Dist_Matrix *aMatrix, 
             mParameterList.get< moris::sint >( "CholeskyFill" ) );
 
     // Set PC type
-    PCSetType( mpc, "icc" );
+    PCSetType( mpc, "sor" );
 
     // Set operators
     PCSetOperators(
@@ -214,16 +214,16 @@ void Preconditioner_PETSc::build_icc_preconditioner( sol::Dist_Matrix *aMatrix, 
             aMatrix->get_petsc_matrix() );
 
     // Set levels of fill for ILU
-    PCFactorSetLevels(
-            mpc,
-            mParameterList.get< moris::sint >( "CholeskyFill" ) );
+    //PCFactorSetLevels(
+    //        mpc,
+    //        mParameterList.get< moris::sint >( "CholeskyFill" ) );
 
     // Set drop tolerance for Ilu
-    PCFactorSetDropTolerance(
-            mpc,
-            mParameterList.get< moris::real >( "CholeskyTol" ),
-            PETSC_DEFAULT,
-            PETSC_DEFAULT );
+    //PCFactorSetDropTolerance(
+    //        mpc,
+    //        mParameterList.get< moris::real >( "CholeskyTol" ),
+    //        PETSC_DEFAULT,
+    //        PETSC_DEFAULT );
 
     // Set preconditioner options from the options database
     PCSetFromOptions( mpc );

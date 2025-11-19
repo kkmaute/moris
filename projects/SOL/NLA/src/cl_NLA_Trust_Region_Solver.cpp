@@ -102,6 +102,16 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     // remapping strategy
     Solver_Nonconformal_Remapping tRemappingStrategy( mParameterListNonlinearSolver );
 
+    // initialize load control parameter
+    real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
+
+    gLogger.set_action_data(
+            "NonLinearAlgorithm",
+            "Trust Region Solver",
+            "Solve",
+            "LoadFactor",
+            tLoadFactor );
+
     // Zero out the initial guess
     mNonlinearProblem->get_full_vector()->vec_put_scalar( 0.0 );
 
@@ -164,9 +174,6 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
     // initialize convergence monitoring
     Convergence tConvergence( tRefIts );
-
-    // initialize load control parameter
-    real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
 
     // Declare jacobian matrix for preconditioner
     sol::Dist_Matrix* tJacPrec = tMatFactory.create_matrix( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_full_vector()->get_map(), true, true );
@@ -292,6 +299,11 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             this->solve_linear_system(It,tHardBreak);
             
         }
+
+        // Obtain condition number estimate from linear solver
+        real tCondEst = mNonlinearProblem->get_linearized_problem()->get_condition_number_estimate();
+        MORIS_LOG_SPEC( "Condition Number Estimate", tCondEst );
+
         Matrix< DDRMat > testResidual;
         mGlobalRHS->extract_copy(testResidual);
         Matrix< DDRMat > tSol;
@@ -375,8 +387,9 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             MORIS_LOG_SPEC( "Incremental Strain Energy", tIQI( 0 )( 0 ) - tInitIQIVal( 0 )( 0 ) );
             MORIS_LOG_SPEC( "Incremental External work", tIQI( 1 )( 0 ) - tInitIQIVal( 1 )( 0 ) );
             MORIS_LOG_SPEC( "Incremental Traction Potential Work", tIQI( 2 )( 0 ) - tInitIQIVal( 2 )( 0 ) );
+            //MORIS_LOG_SPEC( "Incremental Bedding Work", tIQI( 3 )( 0 ) - tInitIQIVal( 3 )( 0 ) );
             // Compute rho
-            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )))/(-tModelObjective( 0 ));
+            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) ))/(-tModelObjective( 0 ));
             //real tIQIVal = tIQI(0)(0) ;//+ tIQI(1)(0) + tIQI(2)(0);
             //real tRho = -(tIQIVal - (tInitialIQI( 0 )( 0 )))/(-tModelObjective(0));
             // if ( tRho < 0.0 )
@@ -388,7 +401,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
             // Update trust region size
             // Get convergence reason from KSP
-            //if ( ( tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ) ) - ( tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) ) > 0 && std::abs(( tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ) ) - ( tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) )) < 5e-06)
+            //if ( ( tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ) ) - ( tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) ) > 0 && std::abs(( tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ) ) - ( tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) )) < 1e-08)
             //{
             //    tRho = -tRho;
             //}
@@ -473,11 +486,11 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         MORIS_LOG("Trust region solver failed to converge. Try again");
     }
 
-    // mNonlinearProblem->get_solver_interface()->compute_IQI();
-    // Vector< Matrix< DDRMat > > tFinalIQIVal = mNonlinearProblem->get_solver_interface()->get_IQI();
-    // MORIS_LOG_INFO( "Final Objective 1 value: %f", ( tFinalIQIVal( 0 )( 0 ) ) );
-    // MORIS_LOG_INFO( "Final Objective 2 value: %f", ( tFinalIQIVal( 1 )( 0 ) ) );
-    // MORIS_LOG_INFO( "Final Objective 3 value: %f", ( tFinalIQIVal( 2 )( 0 ) ) );
+    mNonlinearProblem->get_solver_interface()->compute_IQI();
+    Vector< Matrix< DDRMat > > tFinalIQIVal = mNonlinearProblem->get_solver_interface()->get_IQI();
+    MORIS_LOG_INFO( "Final Objective 1 value: %f", ( tFinalIQIVal( 0 )( 0 ) ) );
+    MORIS_LOG_INFO( "Final Objective 2 value: %f", ( tFinalIQIVal( 1 )( 0 ) ) );
+    MORIS_LOG_INFO( "Final Objective 3 value: %f", ( tFinalIQIVal( 2 )( 0 ) ) );
     mNonlinearProblem->get_solver_interface()->set_trust_region_flag( false );
 
     // Compute IQI values at the end of the trust region solve

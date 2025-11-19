@@ -207,6 +207,13 @@ namespace moris
             {
                 return mRHSMatType;
             }
+            //------------------------------------------------------------------
+
+            real 
+            get_condition_number_estimate() const
+            {
+                return mCondEstimate;
+            };
         };
     }    // namespace dla
 }    // namespace moris

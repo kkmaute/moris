@@ -45,6 +45,7 @@ namespace moris::dla
       private:
         // Flag for deconstructor. If PetscFinalize should be called in linear solver or in nonlinear
         bool mNotCreatedByNonLinearSolver = false;
+        
 
       protected:
 

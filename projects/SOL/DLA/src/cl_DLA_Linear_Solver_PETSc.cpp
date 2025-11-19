@@ -114,7 +114,30 @@ Linear_Solver_PETSc::solve_linear_system(
         VecAssemblyEnd( tLHSVec );
 
         KSPSolve( mPetscKSPProblem,tRHSVec,tLHSVec );
-        
+
+        double init_val = 0.0;
+        double init_val_1 = 0.0;
+
+        PetscReal *min_singular_value;
+        min_singular_value = &init_val;
+
+
+        PetscReal *max_singular_value;
+        max_singular_value = &init_val_1;
+
+        // compute minimal and maximal singular values
+        //KSPComputeExtremeSingularValues( mPetscKSPProblem, min_singular_value, max_singular_value );
+
+        PetscErrorCode ierr = KSPComputeExtremeSingularValues( mPetscKSPProblem, max_singular_value, min_singular_value );
+        if ( ierr )
+        {
+            PetscPrintf( PETSC_COMM_WORLD, "KSPComputeExtremeSingularValues returned error %d\n", (int)ierr );
+        }
+
+        mCondEstimate = ( ( *max_singular_value ) / ( *min_singular_value ) );
+
+        std::cout << "Condition number estimate: " << *min_singular_value << std::endl;
+
         // Get reason for convergence
         KSPGetConvergedReason( mPetscKSPProblem, tReason );
         
@@ -260,6 +283,8 @@ void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *a
 
     // set convergence options
     this->set_solver_analysis_options();
+
+    KSPSetComputeSingularValues( mPetscKSPProblem, PETSC_TRUE );
 
     // finalize solver setup
     KSPSetFromOptions( mPetscKSPProblem );

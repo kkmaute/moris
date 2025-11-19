@@ -221,6 +221,22 @@ Linear_System_PETSc::solve_linear_system()
 
         KSPSolve( tPetscKSPProblem,tRHSVec,tLHSVec );
 
+        double init_val = 0.0;
+
+        PetscReal *min_singular_value;
+        min_singular_value = &init_val;
+
+
+        PetscReal *max_singular_value;
+        max_singular_value = &init_val;
+
+        // compute minimal and maximal singular values
+        KSPComputeExtremeSingularValues( tPetscKSPProblem, min_singular_value, max_singular_value );
+
+        mCondEstimate = (*max_singular_value) / (*min_singular_value);
+
+        std::cout << "Condition number estimate: " << mCondEstimate << std::endl;
+
         MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
         MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
     }
