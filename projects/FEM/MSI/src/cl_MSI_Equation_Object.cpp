@@ -653,132 +653,128 @@ namespace moris
         Equation_Object::get_equation_obj_off_diagonal_residual(
                 Vector< Matrix< DDRMat > >& aEqnObjRHS )
         {
-            if ( this->has_adofs() )
+            // get number of rhs
+            uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
+
+            // init elemental residual list
+            Vector< Matrix< DDRMat > > tElementalResidual( tNumRHS );
+
+            // FIXME this is a hack and will be changed in the next days
+            // if sensitivity analysis
+            if ( !mEquationSet->mEquationModel->is_forward_analysis() )
             {
-                // get number of rhs
-                uint tNumRHS = mEquationSet->mEquationModel->get_num_rhs();
+                // compute jacobian
+                this->compute_jacobian();
 
-                // init elemental residual list
-                Vector< Matrix< DDRMat > > tElementalResidual( tNumRHS );
-
-                // FIXME this is a hack and will be changed in the next days
-                // if sensitivity analysis
-                if ( !mEquationSet->mEquationModel->is_forward_analysis() )
+                // check for zero-size Jacobian
+                if ( mEquationSet->get_jacobian().numel() == 0 )
                 {
-                    // compute jacobian
-                    this->compute_jacobian();
+                    aEqnObjRHS.resize( 0 );
+                    return;
+                }
 
-                    // check for zero-size Jacobian
-                    if ( mEquationSet->get_jacobian().numel() == 0 )
+                // compute previous adjoint values
+                this->compute_my_previous_adjoint_values();
+
+                const Vector< enum MSI::Dof_Type >& tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+
+                // get leader dof type list from set
+                Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeList =
+                        mEquationSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
+
+                Matrix< DDSMat > tIdentifierMat( (uint)MSI::Dof_Type::END_ENUM, 1, -1 );
+
+                uint tCounter = 0;
+
+                for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                {
+                    // get the set index for the requested leader dof type
+                    sint tDofIndex = mEquationSet->get_dof_index_for_type(
+                            tRequestedDofTypes( Ik ),
+                            mtk::Leader_Follower::LEADER );
+
+                    // if the index was set (and is different from -1)
+                    if ( tDofIndex != -1 )
                     {
-                        aEqnObjRHS.resize( 0 );
-                        return;
+                        tIdentifierMat( tDofIndex ) = 1;
+
+                        uint tEndRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
+
+                        tCounter = std::max( tCounter, tEndRow + 1 );
                     }
+                }
 
-                    // compute previous adjoint values
-                    this->compute_my_previous_adjoint_values();
+                Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
+                for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                {
+                    tCoeff( Ik ).set_size( tCounter, 1, MORIS_REAL_MAX );
+                }
 
-                    const Vector< enum MSI::Dof_Type >& tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+                for ( uint Ik = 0; Ik < tLeaderDofTypeList.size(); Ik++ )
+                {
+                    // get the set index for the requested leader dof type
+                    sint tDofIndex = mEquationSet->get_dof_index_for_type(
+                            tLeaderDofTypeList( Ik )( 0 ),
+                            mtk::Leader_Follower::LEADER );
 
-                    // get leader dof type list from set
-                    Vector< Vector< MSI::Dof_Type > >& tLeaderDofTypeList =
-                            mEquationSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
-
-                    Matrix< DDSMat > tIdentifierMat( (uint)MSI::Dof_Type::END_ENUM, 1, -1 );
-
-                    uint tCounter = 0;
-
-                    for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                    if ( tIdentifierMat( tDofIndex ) == 1 )
                     {
-                        // get the set index for the requested leader dof type
-                        sint tDofIndex = mEquationSet->get_dof_index_for_type(
-                                tRequestedDofTypes( Ik ),
+                        // get the pdof values for the ith dof type group
+                        Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
+
+                        this->get_my_pdof_values(
+                                mEquationSet->mPreviousAdjointPdofValues,
+                                tLeaderDofTypeList( Ik ),
+                                tCoeff_Original,
                                 mtk::Leader_Follower::LEADER );
 
-                        // if the index was set (and is different from -1)
-                        if ( tDofIndex != -1 )
+                        // loop over the rhs
+                        for ( uint Ia = 0; Ia < tNumRHS; Ia++ )
                         {
-                            tIdentifierMat( tDofIndex ) = 1;
 
-                            uint tEndRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
+                            uint tCols = tCoeff_Original( Ia ).size();
+                            uint tRows = tCoeff_Original( Ia )( 0 ).numel();
 
-                            tCounter = std::max( tCounter, tEndRow + 1 );
-                        }
-                    }
+                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
+                            // uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
 
-                    Vector< Matrix< DDRMat > > tCoeff( tNumRHS );
-                    for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
-                    {
-                        tCoeff( Ik ).set_size( tCounter, 1, MORIS_REAL_MAX );
-                    }
-
-                    for ( uint Ik = 0; Ik < tLeaderDofTypeList.size(); Ik++ )
-                    {
-                        // get the set index for the requested leader dof type
-                        sint tDofIndex = mEquationSet->get_dof_index_for_type(
-                                tLeaderDofTypeList( Ik )( 0 ),
-                                mtk::Leader_Follower::LEADER );
-
-                        if ( tIdentifierMat( tDofIndex ) == 1 )
-                        {
-                            // get the pdof values for the ith dof type group
-                            Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
-
-                            this->get_my_pdof_values(
-                                    mEquationSet->mPreviousAdjointPdofValues,
-                                    tLeaderDofTypeList( Ik ),
-                                    tCoeff_Original,
-                                    mtk::Leader_Follower::LEADER );
-
-                            // loop over the rhs
-                            for ( uint Ia = 0; Ia < tNumRHS; Ia++ )
+                            for ( uint Ib = 0; Ib < tCols; Ib++ )
                             {
-
-                                uint tCols = tCoeff_Original( Ia ).size();
-                                uint tRows = tCoeff_Original( Ia )( 0 ).numel();
-
-                                uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
-                                // uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
-
-                                for ( uint Ib = 0; Ib < tCols; Ib++ )
+                                for ( uint Ii = 0; Ii < tRows; Ii++ )
                                 {
-                                    for ( uint Ii = 0; Ii < tRows; Ii++ )
-                                    {
-                                        tCoeff( Ia )( tStartRow++ ) = tCoeff_Original( Ia )( Ib )( Ii );
-                                    }
+                                    tCoeff( Ia )( tStartRow++ ) = tCoeff_Original( Ia )( Ib )( Ii );
                                 }
                             }
                         }
                     }
-
-                    // build transpose of Tmatrix
-                    Matrix< DDRMat > tJacobianTrans = trans( mEquationSet->get_jacobian() );
-
-                    // loop over the rhs
-                    for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
-                    {
-                        tElementalResidual( Ik ) = tJacobianTrans * tCoeff( Ik );
-                    }
                 }
-
-                // get the T matrix for eq obj
-                Matrix< DDRMat > tTMatrix;
-                this->build_PADofMap_1( tTMatrix );
-
-                // init
-                aEqnObjRHS.resize( tNumRHS );
 
                 // build transpose of Tmatrix
-                Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+                Matrix< DDRMat > tJacobianTrans = trans( mEquationSet->get_jacobian() );
 
-                // loop over rhs
+                // loop over the rhs
                 for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
-                    // project
-                    aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
+                    tElementalResidual( Ik ) = tJacobianTrans * tCoeff( Ik );
                 }
             }
-            
+
+            // get the T matrix for eq obj
+            Matrix< DDRMat > tTMatrix;
+            this->build_PADofMap_1( tTMatrix );
+
+            // init
+            aEqnObjRHS.resize( tNumRHS );
+
+            // build transpose of Tmatrix
+            Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+
+            // loop over rhs
+            for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
+            {
+                // project
+                aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
+            }
         }
 
         //-------------------------------------------------------------------------------------------------
@@ -1100,36 +1096,31 @@ namespace moris
         {
             Matrix< DDRMat > tTMatrix;
 
-            
-                // build T-matrix
-                this->build_PADofMap( tTMatrix );
+            // build T-matrix
+            this->build_PADofMap( tTMatrix );
 
-                Vector< Matrix< DDRMat > > tMyValues;
+            Vector< Matrix< DDRMat > > tMyValues;
 
-                // Extract this equation objects adof values from solution vector
-                mEquationSet->mEquationModel->get_solution_vector()->    //
-                        extract_my_values(
-                                tTMatrix.n_cols(),
-                                mUniqueAdofList,
-                                0,
-                                tMyValues );
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel->get_solution_vector()->    //
+                    extract_my_values(
+                            tTMatrix.n_cols(),
+                            mUniqueAdofList,
+                            0,
+                            tMyValues );
 
-                if ( mEquationSet->mPdofValues.size() != tMyValues.size() )
-                {
-                    mEquationSet->mPdofValues.resize( tMyValues.size() );
-                }
+            if ( mEquationSet->mPdofValues.size() != tMyValues.size() )
+            {
+                mEquationSet->mPdofValues.resize( tMyValues.size() );
+            }
 
-                // multiply t_matrix with adof values to get pdof values
-                for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
-                {
-                    mEquationSet->mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
-                }
+            // multiply t_matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mEquationSet->mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+            }
 
-                this->set_vector_entry_number_of_pdof();    // FIXME should not be in MSI. Should be in FEM
-            
-            
-
-            
+            this->set_vector_entry_number_of_pdof();    // FIXME should not be in MSI. Should be in FEM
         }
 
         //-------------------------------------------------------------------------------------------------
