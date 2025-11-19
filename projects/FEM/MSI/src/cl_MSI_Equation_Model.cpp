@@ -124,13 +124,41 @@ namespace moris::MSI
                     // loop over IQIs on model
                     for ( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                     {
-                        // if the IQI vector is empty (due to basis extension), continue
-                        if ( mFemSets( tSetIndex )->get_QI().size() == 0 )
-                        {
-                            mGlobalIQIVal( tIQIIndex ) += 0.0;
-                        }
+                        // // Check if solve flag is true ( set to true if IQI values requested during solver runtime)
+                        // if ( this->get_is_solve() )
+                        // {
+                        //     bool tIsSolverRequestedIQI = false;
+
+                        //     // Loop over solver requested IQI names and get their indices
+                        //     for ( uint iSolverReqIQIs = 0; iSolverReqIQIs < mSolverIQINames.size() ; iSolverReqIQIs++ )
+                        //     {
+                        //         // Get IQI
+                        //         std::string tSolReqIQI = mSolverIQINames( iSolverReqIQIs );
+
+                        //         // if the index matches current index, set flag to true
+                        //         if ( tSolReqIQI == this->get_requested_IQI_names()( tIQIIndex ) ) 
+                        //         {
+                        //             tIsSolverRequestedIQI = true;
+                        //             break;
+                        //         }
+
+                        //     }
+
+                        //     // If it is a solver-requesteed IQI then compute it
+                        //     if ( tIsSolverRequestedIQI )
+                        //     {
+                        //         // assemble QI values into global vector
+                        //         mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
+
+                        //     }
+                            
+                        // }
+                        // else // Not being called from solver. Compute all IQIs
+                        // {
                         // assemble QI values into global vector
                         mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
+                        //}
+                        
                     }
                 }
                 // free memory on treated equation set

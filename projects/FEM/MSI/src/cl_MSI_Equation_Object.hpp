@@ -557,24 +557,6 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
-            /**
-             * check whether there are any adofs associated with this equation object
-             * @return true if there are adofs, false otherwise
-             */
-            bool
-            has_adofs() const
-            {
-                if ( mUniqueAdofList.numel() > 0 )
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            //------------------------------------------------------------------------------
         };
     }    // namespace MSI
 }    // namespace moris
