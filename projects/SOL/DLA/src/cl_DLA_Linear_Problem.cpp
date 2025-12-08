@@ -36,6 +36,21 @@ namespace moris::dla
 
         return mFullVectorLHS;
     }
+    //----------------------------------------------------------------------------------------
+
+    sol::Dist_Vector*
+    Linear_Problem::get_full_solver_LHS( sol::Dist_Vector* aPointVectorLHS )
+    {
+        // zero out full LHS vec
+        mFullVectorLHS->vec_put_scalar( 0.0 );
+
+        mFreeVectorLHS->vec_plus_vec( 1.0, *aPointVectorLHS, 0.0 );
+
+        // Import free LHS to full LHS
+        mFullVectorLHS->import_local_to_global( *mFreeVectorLHS );
+
+        return mFullVectorLHS;
+    }
 
     //----------------------------------------------------------------------------------------
     void

@@ -240,19 +240,22 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         Vector< real > tNorm = mGlobalRHS->vec_norm2();
 
         // Declare Cauchy point dist vector and its norm
-        sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        //sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
         tCauchyPoint->vec_put_scalar(0.0);
 
         Vector< real > tCauchyPointNorm;
         real tCauchyPointNormSquared;
 
         // Declare Solution update
-        sol::Dist_Vector* tD = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        //sol::Dist_Vector* tD = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        sol::Dist_Vector* tD = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
         tD->vec_put_scalar( 0.0 );
         Matrix< DDRMat > tmatD;
 
         // Get hessian - gradient product (dist vec as well as matrix)
-        sol::Dist_Vector* tKg = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        //sol::Dist_Vector* tKg = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        sol::Dist_Vector* tKg = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
         tKg->vec_put_scalar( 0.0 );
 
         mJac->mat_vec_product( *mGlobalRHS, *tKg, false );
@@ -306,8 +309,8 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
         Matrix< DDRMat > testResidual;
         mGlobalRHS->extract_copy(testResidual);
-        Matrix< DDRMat > tSol;
-        (mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS())->extract_copy(tSol);
+        //Matrix< DDRMat > tSol;
+        //(mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS())->extract_copy(tSol);
 
         // Set preconditioner update flag to false - should be factorized only once per nonlinear solve - unless conv is slow.
         //mLinSolverManager->set_update_preconditioner_flag( false );
@@ -317,12 +320,16 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         while (tAcceptTrSize == false)
         {
             // Decide which update to use (Cauchy/Newton) based on Dogleg step -- check if full solver stays even after you rebuild system
-            tD = this->dogleg_step( (mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()), 
-            tCauchyPoint, tTrSize);
+            //tD = this->dogleg_step( (mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()), 
+            //tCauchyPoint, tTrSize);
+            tD = this->dogleg_step( ( mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS() ),
+                    tCauchyPoint,
+                    tTrSize );
             tD->extract_copy(tUpdateOld);
 
             // compute Jd, dJd, and modelObjective
-            sol::Dist_Vector* tJd = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+            //sol::Dist_Vector* tJd = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+            sol::Dist_Vector* tJd = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
             mJac->mat_vec_product(*tD, *tJd, false);
         
             Matrix< DDRMat > tmatJd;
@@ -334,28 +341,34 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             Matrix< DDRMat > tDJd = trans(tmatD) * tmatJd;
             Matrix< DDRMat > tModelObjective = trans(tmatGlobalRHS) * tmatD + 0.5*tDJd;
 
+            // Update full solver LHS with trust region step
+            mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( tD ); 
+
             // Update solution and Rebuild linear system
+            // ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
+            //    1.0,
+            //   *tD,
+            //    1.0 );
              ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
-                1.0,
-                *tD,
-                1.0 );
-            mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It);
+                     1.0,
+                     *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS( tD ),
+                     1.0 );
+             mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
 
-            bool tIsConverged = tConvergence.check_for_convergence(
-                this,
-                It,
-                tMaxIts,
-                tHardBreak );
+             bool tIsConverged = tConvergence.check_for_convergence(
+                     this,
+                     It,
+                     tMaxIts,
+                     tHardBreak );
 
-            
 
-            // exit if convergence criterion is met
-            if ( tIsConverged && tLoadFactor >= 1.0 )
-            {
-               MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
-               tConverged = tIsConverged;
-               break;
-            }
+             // exit if convergence criterion is met
+             if ( tIsConverged && tLoadFactor >= 1.0 )
+             {
+                 MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
+                 tConverged = tIsConverged;
+                 break;
+             }
 
             // if converged for the given load factor, reevaluate load factor and continue
             if ( tIsConverged && tLoadFactor < 1.0 )
@@ -389,7 +402,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             MORIS_LOG_SPEC( "Incremental Traction Potential Work", tIQI( 2 )( 0 ) - tInitIQIVal( 2 )( 0 ) );
             //MORIS_LOG_SPEC( "Incremental Bedding Work", tIQI( 3 )( 0 ) - tInitIQIVal( 3 )( 0 ) );
             // Compute rho
-            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) ))/(-tModelObjective( 0 ));
+            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )))/(-tModelObjective( 0 ));
             //real tIQIVal = tIQI(0)(0) ;//+ tIQI(1)(0) + tIQI(2)(0);
             //real tRho = -(tIQIVal - (tInitialIQI( 0 )( 0 )))/(-tModelObjective(0));
             // if ( tRho < 0.0 )
@@ -449,8 +462,13 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
                 // revert back to the previous iteration solution
                 ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
                 -1.0,
-                *tD,
+                *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS( tD ),
                 1.0 );
+
+                // ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
+                //-1.0,
+                //*tD,
+                //1.0 );
 
                 MORIS_LOG_INFO("Trust region solver iteration not accepted. Rebuilding linear system");
                 mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
@@ -486,11 +504,11 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         MORIS_LOG("Trust region solver failed to converge. Try again");
     }
 
-    mNonlinearProblem->get_solver_interface()->compute_IQI();
-    Vector< Matrix< DDRMat > > tFinalIQIVal = mNonlinearProblem->get_solver_interface()->get_IQI();
-    MORIS_LOG_INFO( "Final Objective 1 value: %f", ( tFinalIQIVal( 0 )( 0 ) ) );
-    MORIS_LOG_INFO( "Final Objective 2 value: %f", ( tFinalIQIVal( 1 )( 0 ) ) );
-    MORIS_LOG_INFO( "Final Objective 3 value: %f", ( tFinalIQIVal( 2 )( 0 ) ) );
+    // mNonlinearProblem->get_solver_interface()->compute_IQI();
+    // Vector< Matrix< DDRMat > > tFinalIQIVal = mNonlinearProblem->get_solver_interface()->get_IQI();
+    // MORIS_LOG_INFO( "Final Objective 1 value: %f", ( tFinalIQIVal( 0 )( 0 ) ) );
+    // MORIS_LOG_INFO( "Final Objective 2 value: %f", ( tFinalIQIVal( 1 )( 0 ) ) );
+    // MORIS_LOG_INFO( "Final Objective 3 value: %f", ( tFinalIQIVal( 2 )( 0 ) ) );
     mNonlinearProblem->get_solver_interface()->set_trust_region_flag( false );
 
     // Compute IQI values at the end of the trust region solve

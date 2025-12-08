@@ -75,6 +75,15 @@ namespace moris::MSI
             this->set_requested_IQI_names( mSolverIQINames );
             this->initialize_IQIs();
 
+            // get number of IQI on the model
+            uint tNumIQIsOnModel =
+                    this->get_requested_IQI_names().size();
+
+            // Initialize IQIs to zero
+            for ( uint iIQI = 0; iIQI < tNumIQIsOnModel; iIQI++ )
+            {
+                mGlobalIQIVal( iIQI ) = { { 0.0 } };
+            }
         }
         else 
         {
@@ -90,11 +99,7 @@ namespace moris::MSI
         // Print the IQI names
         PRINT(this->get_requested_IQI_names());
 
-        // Initialize IQIs to zero
-        for ( uint iIQI = 0; iIQI < tNumIQIsOnModel ; iIQI++ )
-        {
-            mGlobalIQIVal( iIQI ) = {{0.0}};
-        }
+        
 
         // get local number of equation sets
         uint tNumSets = mFemSets.size();
@@ -172,6 +177,7 @@ namespace moris::MSI
         }
 
         this->set_requested_IQI_names( mSavedIQINames );
+        
         
 
         if (mGlobalIQIVal.size() > 0)

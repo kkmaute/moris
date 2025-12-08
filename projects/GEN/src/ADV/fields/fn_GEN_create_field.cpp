@@ -86,7 +86,7 @@ namespace moris::gen
                 ADV tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
                 ADV tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
                 real tExponent = aFieldParameterList.get< real >( "exponent" );
-                tField = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 0.0 );
+                tField = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 0.0, tName );
                 break;
             }
             case Field_Type::PLANE:

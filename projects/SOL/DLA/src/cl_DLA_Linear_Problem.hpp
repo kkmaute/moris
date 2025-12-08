@@ -136,6 +136,10 @@ namespace moris
 
             //------------------------------------------------------------------
 
+            sol::Dist_Vector* get_full_solver_LHS( sol::Dist_Vector* aPointVectorLHS );
+
+            //------------------------------------------------------------------
+
             sol::Dist_Vector*
             get_solver_RHS()
             {
