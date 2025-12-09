@@ -156,8 +156,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Property::get_name()
+    const std::string&
+    Property::get_name() const
     {
         return Design_Field::get_name();
     }
@@ -220,7 +220,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Property::compute_GQI( gen::GQI_Type aGQIType )
+    real Property::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
     {
         // TO IMPLEMENT
         return 0.0;
@@ -228,10 +228,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Property::compute_GQI_sensitivities(
-            gen::GQI_Type     aGQIType,
-            sol::Dist_Vector* aGQISensitivities,
-            uint              aRequestIndex ) const
+    void Property::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
     {
         // TO IMPLEMENT
     }

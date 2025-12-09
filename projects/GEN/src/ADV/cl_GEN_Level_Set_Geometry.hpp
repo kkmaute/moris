@@ -177,7 +177,7 @@ namespace moris::gen
          *
          * @return Name
          */
-        std::string get_name() override;
+        const std::string& get_name() const final;
 
         /**
          * Gets the names of all the fields associated with this design
@@ -296,12 +296,9 @@ namespace moris::gen
         // Geometry Quantity of Interest (GQI) functions
         //------------------------------------------------------------------------------
 
-        virtual real compute_GQI( gen::GQI_Type aGQIType ) final;
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters ) final;
 
-        virtual void compute_GQI_sensitivities(
-                gen::GQI_Type     aGQIType,
-                sol::Dist_Vector* aGQISensitivities,
-                uint              aRequestIndex ) const final;
+        virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const final;
 
       private:
         /**

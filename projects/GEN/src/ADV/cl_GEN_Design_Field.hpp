@@ -153,7 +153,7 @@ namespace moris::gen
          *
          * @return Name
          */
-        std::string get_name();
+        const std::string& get_name() const;
 
         /**
          * Gets whether this field will be using multilinear interpolation to get derived node field values.

@@ -26,6 +26,7 @@ namespace moris::gen
             : Geometry( Design_Parameters(), 1e-12 )
             , mVoxelInput( std::move( aVoxelInput ) )
             , mIndex( aIndex )
+            , mName( mVoxelInput->get_file_name() + "_" + std::to_string( mIndex ) )
     {
     }
 
@@ -207,9 +208,9 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string Voxel_Geometry::get_name()
+    const std::string& Voxel_Geometry::get_name() const
     {
-        return mVoxelInput->get_file_name() + "_" + std::to_string( mIndex );
+        return mName;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -308,7 +309,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Voxel_Geometry::compute_GQI( gen::GQI_Type aGQIType )
+    real Voxel_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
     {
         MORIS_ERROR( false, "Voxel_Geometry::compute_GQI() - GQI not implemented for voxel geometry." );
         return 0.0;
@@ -316,10 +317,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Voxel_Geometry::compute_GQI_sensitivities(
-            gen::GQI_Type     aGQIType,
-            sol::Dist_Vector* aGQISensitivities,
-            uint              aRequestIndex ) const
+    void Voxel_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
     {
         MORIS_ERROR( false, "Voxel_Geometry::compute_GQI_sensitivities() - GQI sensitivities not implemented for voxel geometry." );
     }

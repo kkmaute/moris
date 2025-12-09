@@ -247,8 +247,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Design_Field::get_name()
+    const std::string&
+    Design_Field::get_name() const
     {
         return mField->get_name();
     }

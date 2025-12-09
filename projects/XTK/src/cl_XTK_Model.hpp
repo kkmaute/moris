@@ -243,7 +243,7 @@ namespace moris::xtk
         perform_enrichment();
 
         void
-        compute_XQIs();
+        compute_XQIs( std::shared_ptr< Library_IO > aLibrary );
 
         //--------------------------------------------------------------------------------
         /**

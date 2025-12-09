@@ -21,11 +21,9 @@ namespace moris::gen
      */
     struct Design_Parameters
     {
-        Vector< uint >        mNumberOfRefinements;        // The number of refinement steps to use for this field
-        Vector< uint >        mRefinementMeshIndices;      // Indices of meshes to perform refinement on
-        sint                  mRefinementFunctionIndex;    // Index of a user-defined refinement function (default = -1)
-        Vector< GQI_Type >    mRequestedGQIs;              // List of GQIs to be computed on this design
-        Vector< std::string > mRequestedGQINames;          // Names for the requested GQIs
+        Vector< uint > mNumberOfRefinements;        // The number of refinement steps to use for this field
+        Vector< uint > mRefinementMeshIndices;      // Indices of meshes to perform refinement on
+        sint           mRefinementFunctionIndex;    // Index of a user-defined refinement function (default = -1)
 
         /**
          * Constructor with a given parameter list
@@ -101,7 +99,7 @@ namespace moris::gen
          *
          * @return Design name
          */
-        virtual std::string get_name() = 0;
+        virtual const std::string& get_name() const = 0;
 
         /**
          * Gets the names of all the fields associated with this design
@@ -201,27 +199,33 @@ namespace moris::gen
         //------------------------------------------------------------------------------
 
       public:
-        const uint get_num_GQIs() const;
-
-        const Vector< std::string >& get_all_GQI_names() const;
-
         /**
          * Loops through all GQIs requested on this design, computes their values, and if requested,
          * computes their sensitivities and stores them in the given distributed vector.
          *
          * @param aGQISensitivities Distributed vector to store GQI sensitivities in. Contains all GQI sensitivities for all designs.
+         * @param aGQIParameters Vector of parameter lists for each GQI. Each GQI may have different parameters, so we pass them and let the Design use them as needed
          * @param aRequestIndices Vector indices in aGQISensitivities that this design's GQI sensitivities should be stored in. MORIS_UINT_MAX if the GQI is not requested.
          *
          * @return Vector< real > Values of ALL the GQIs for this design. NOTE: This is the size of mParameters.mRequestedGQIs
          */
-        Vector< real > compute_GQIs( sol::Dist_Vector* aGQISensitivities, const Vector< uint >& aRequestIndices );
+        Vector< real > compute_GQIs( sol::Dist_Vector*                   aGQISensitivities,
+                const Vector< std::shared_ptr< Parameter_List const > >& aGQIParameters,
+                const Vector< uint >&                                    aRequestIndices );
 
       protected:
         /**
          * Computes the value of a requested geometric quantity of interest (GQI) for this design.
+         * @param aGQIParameters Parameter list for this GQI
          */
-        virtual real compute_GQI( GQI_Type aGQIType ) = 0;
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters ) = 0;
 
-        virtual void compute_GQI_sensitivities( GQI_Type aGQIType, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const = 0;
+        /**
+         * Computest the PDV sensitivities of a requested geometric quantity of interest (GQI) for this design.
+         * @param aGQIParameters Parameter list for this GQI
+         * @param aGQISensitivities Distributed multivector to store GQI sensitivities. This stores ALL GQI sensitivities for ALL designs
+         * @param aRequestIndex Index in aGQISensitivities to store this design's GQI sensitivities. NOTE: This is NOT the index of the GQI, but rather where in the distributed vector to store the sensitivities
+         */
+        virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const = 0;
     };
 }    // namespace moris::gen

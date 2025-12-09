@@ -287,7 +287,7 @@ namespace moris::gen
          *
          * @return Name
          */
-        std::string get_name();
+        const std::string& get_name() const;
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh

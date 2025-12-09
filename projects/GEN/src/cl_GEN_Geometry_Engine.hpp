@@ -66,9 +66,10 @@ namespace moris::gen
         sol::Dist_Vector* mPrimitiveADVs = nullptr;
 
         // QIs
-        Vector< std::string >    mRequestedQIs;
-        Vector< Vector< uint > > mDesignGQIIndices;    // For each design, stores the index in mdGQIdADV that the GQIs need to be summed into. MORIS_UINT_MAX if the GQI is not requested
-        sol::Dist_Vector*        mdGQIdADV = nullptr;
+        Vector< std::string >                        mRequestedQIs;
+        Vector< Vector< uint > >                     mDesignGQIIndices;    // For each design, stores the index in mdGQIdADV that the GQIs need to be summed into. MORIS_UINT_MAX if the GQI is not requested
+        sol::Dist_Vector*                            mdGQIdADV = nullptr;
+        std::shared_ptr< Submodule_Parameter_Lists > mGQIParameterLists;
 
         size_t      mActiveGeometryIndex = 0;
         std::string mGeometryFieldFile;
@@ -152,10 +153,24 @@ namespace moris::gen
          * Creates QI objects in the PDV Host Manager, which can be used for output or as criteria in optimization.
          * If the QI is used for optimization, its sensitivities will be stored in mdGQIdADV. Thus, this function also builds the
          * mDesignGQIIndices map
+         *
+         * @param aQIParameterLists Third submodule in the GEN parameter list, which contains a list of GQI parameter list objects
          */
         void register_GQIs();
 
+        /**
+         * Determines which GQIs are requested for optimization and builds the mDesignGQIIndices map
+         * This is a vector for each geometry that has the indices of the mdGQIdADV multivector that correspond to that geometry's GQIs
+         */
         void build_GQI_data();
+
+        /**
+         * Gets all the GQI parameter lists for a given design name via a brute force search
+         *
+         * @param aDesignName Name of the design
+         * @return Vector of shared pointers to the parameter lists for the GQIs that belong to the design
+         */
+        Vector< std::shared_ptr< const Parameter_List > > get_design_GQI_parameter_lists( const std::string& aDesignName ) const;
 
         /**
          * Import a phase function pointer

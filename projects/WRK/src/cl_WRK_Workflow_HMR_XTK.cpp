@@ -422,9 +422,8 @@ namespace moris::wrk
         // Assign PDVs
         mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
 
-        // FIXME: perform_decomposition(), perform_enrichment() and compute_XQIs() are all executed in xtk::Model::perform(), which should be called here instead.
-        // These functions should be made private and kept out of the main workflow
-        tXTKPerformer->compute_XQIs();
+        // FIXME: This should likely be done inside xtk::Model::perform() and be made private and kept out of the main workflow
+        tXTKPerformer->compute_XQIs( mPerformerManager->mLibrary );
 
         if ( tDeleteXTK )
         {

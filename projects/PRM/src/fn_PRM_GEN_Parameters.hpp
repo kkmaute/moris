@@ -224,11 +224,7 @@ namespace moris::prm
         tDesignParameterList.insert( "refinement_mesh_index", Vector< uint >(),      // Refinement pattern
                 Entry_Type::LINKED_SIZE_VECTOR,
                 "number_of_refinements" );
-        tDesignParameterList.insert( "refinement_function_index", -1 );       // Index of user-defined refinement function (-1 = default)
-        tDesignParameterList.insert( "GQI_types", Vector< uint >() );         // Geometric quantities of interest (GQI) to compute on this design BRENDAN MAKE THIS AN ENUM
-        tDesignParameterList.insert( "GQI_names", Vector< std::string >(),    // Names for GQIs, used for identifying in optimization module
-                Entry_Type::LINKED_SIZE_VECTOR,
-                "GQI_types" );
+        tDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
 
         return tDesignParameterList;
     }
@@ -256,8 +252,13 @@ namespace moris::prm
                 break;
             case gen::GQI_Type::SHAPE_DIAMETER:
                 aGQIParameterList.set( "GQI_type", gen::GQI_Type::SHAPE_DIAMETER );
-                aGQIParameterList.insert( "number_of_rays_per_cone", 20, 1, 1000 );
-                aGQIParameterList.insert( "cone_angle", 30.0, 0.0, 179.9999999 );
+                aGQIParameterList.insert( "number_of_polar_rays", 20, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
+                aGQIParameterList.insert( "number_of_azimuth_rays", 0, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function
+                aGQIParameterList.insert( "cone_angle", 30.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+                aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_shift", -1.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );      // Shift value for the agglomeration function
+
                 break;
             default:
                 MORIS_ERROR( false, "GQI %s type not implemented.", gen::GQI_Type_String::values( static_cast< uint >( aGQIType ) ).c_str() );

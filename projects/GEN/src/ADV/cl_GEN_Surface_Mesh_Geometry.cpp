@@ -2077,8 +2077,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Surface_Mesh_Geometry::get_name()
+    const std::string&
+    Surface_Mesh_Geometry::get_name() const
     {
         return mParameters.mName;
     }
@@ -2170,9 +2170,11 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::compute_GQI( gen::GQI_Type aGQIType )
+    real Surface_Mesh_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
     {
-        switch ( aGQIType )
+        GQI_Type tGQIType = aGQIParameters->get< GQI_Type >( "GQI_type" );
+
+        switch ( tGQIType )
         {
             case GQI_Type::SHAPE_DIAMETER:
                 return Surface_Mesh::compute_global_shape_diameter( 30.0, 20 );    // BRENDAN FIXME: make parameters configurable
@@ -2188,26 +2190,27 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Surface_Mesh_Geometry::compute_GQI_sensitivities(
-            GQI_Type          aGQIType,
-            sol::Dist_Vector* aGQISensitivities,
-            uint              aRequestIndex ) const
+    void Surface_Mesh_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
     {
-        // Load function pointer to get dGQI_dvertex
-        using dGQI_dvertex_Function            = Matrix< DDRMat > ( mtk::Surface_Mesh::* )( const uint ) const;
-        dGQI_dvertex_Function get_dGQI_dvertex = nullptr;
+        // Get the GQI type
+        GQI_Type tGQIType = aGQIParameters->get< GQI_Type >( "GQI_type" );
 
-        switch ( aGQIType )
+        std::function< Matrix< DDRMat >( const uint ) > get_dGQI_dvertex;
+
+        // Load function pointer to get dGQI_dvertex based on the GQI type, forwarding to the appropriate function
+        switch ( tGQIType )
         {
             case GQI_Type::SHAPE_DIAMETER:
-                get_dGQI_dvertex = &mtk::Surface_Mesh::compute_ddiameter_dvertex;
-                break;
+            {
+                real tAgglomerationExponent = aGQIParameters->get< real >( "agglomeration_exponent" );
+                real tAgglomerationRef      = aGQIParameters->get< real >( "agglomeration_reference" );
+                real tAgglomerationShift    = aGQIParameters->get< real >( "agglomeration_shift" );
+                get_dGQI_dvertex            = this->get_GQI_sensitivity_function( tGQIType, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+            }
             case GQI_Type::VOLUME:
-                get_dGQI_dvertex = &mtk::Surface_Mesh::compute_dvolume_dvertex;
-                break;
-            default:
-                MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );
-                break;
+            {
+                get_dGQI_dvertex = this->get_GQI_sensitivity_function( tGQIType );
+            }
         }
 
         // Loop over surface mesh vertices
@@ -2216,7 +2219,7 @@ namespace moris::gen
             if ( this->facet_vertex_depends_on_advs( iVertexIndex ) )
             {
                 // Compute dGQI_dvertex
-                Matrix< DDRMat > tdGQIdvertex = ( this->*get_dGQI_dvertex )( iVertexIndex );
+                Matrix< DDRMat > tdGQIdvertex = get_dGQI_dvertex( iVertexIndex );
 
                 // Compute dGQI_dADV
                 Matrix< DDRMat > tdGQIdADVs = tdGQIdvertex * this->get_dvertex_dadv( iVertexIndex );

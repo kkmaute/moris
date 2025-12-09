@@ -20,16 +20,7 @@ namespace moris::gen
             : mNumberOfRefinements( aParameterList.get_vector< uint >( "number_of_refinements" ) )
             , mRefinementMeshIndices( aParameterList.get_vector< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
-            // , mRequestedGQIs( aParameterList.get_vector< GQI_Type >( "GQI_types" ) ) // brendan need to implement variants for Vectors of enums
-            , mRequestedGQINames( aParameterList.get_vector< std::string >( "GQI_names" ) )
     {
-        // Need to convert GQI types to enum for now
-        Vector< uint > tGQITypes = aParameterList.get_vector< uint >( "GQI_types" );
-        mRequestedGQIs.reserve( tGQITypes.size() );
-        for ( const auto& tGQI : tGQITypes )
-        {
-            mRequestedGQIs.push_back( static_cast< GQI_Type >( tGQI ) );
-        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -417,37 +408,26 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-
-    const uint Design::get_num_GQIs() const
-    {
-        return mParameters.mRequestedGQIs.size();
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Vector< std::string >& Design::get_all_GQI_names() const
-    {
-        return mParameters.mRequestedGQINames;
-    }
-
     //--------------------------------------------------------------------------------------------------------------
 
     Vector< real >
-    Design::compute_GQIs( sol::Dist_Vector* aGQISensitivities, const Vector< uint >& aRequestIndices )
+    Design::compute_GQIs( sol::Dist_Vector*                          aGQISensitivities,
+            const Vector< std::shared_ptr< Parameter_List const > >& aGQIParameters,
+            const Vector< uint >&                                    aRequestIndices )
     {
-        Tracer tTracer( "gen", this->get_name(), "compute_all_GQIs" );
+        Tracer tTracer( "GEN", this->get_name(), "compute_all_GQIs" );
 
-        Vector< real > tGQIValues( this->get_num_GQIs(), MORIS_REAL_MAX );
+        Vector< real > tGQIValues( aRequestIndices.size(), MORIS_REAL_MAX );
 
-        for ( uint iGQI = 0; iGQI < this->get_num_GQIs(); iGQI++ )
+        for ( uint iGQI = 0; iGQI < aRequestIndices.size(); iGQI++ )
         {
             // Compute the GQI value, store for output
-            tGQIValues( iGQI ) = this->compute_GQI( mParameters.mRequestedGQIs( iGQI ) );
+            tGQIValues( iGQI ) = this->compute_GQI( aGQIParameters( iGQI ) );
 
             // Check if the sensitivities are requested
             if ( aRequestIndices( iGQI ) != MORIS_UINT_MAX )
             {
-                this->compute_GQI_sensitivities( mParameters.mRequestedGQIs( iGQI ), aGQISensitivities, aRequestIndices( iGQI ) );
+                this->compute_GQI_sensitivities( aGQIParameters( iGQI ), aGQISensitivities, aRequestIndices( iGQI ) );
             }
         }
 

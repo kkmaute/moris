@@ -580,8 +580,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Level_Set_Geometry::get_name()
+    const std::string&
+    Level_Set_Geometry::get_name() const
     {
         return Design_Field::get_name();
     }
@@ -721,7 +721,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Level_Set_Geometry::compute_GQI( gen::GQI_Type aGQIType )
+    real Level_Set_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
     {
         // TO IMPLEMENT
         return 0.0;
@@ -729,10 +729,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Level_Set_Geometry::compute_GQI_sensitivities(
-            gen::GQI_Type     aGQIType,
-            sol::Dist_Vector* aGQISensitivities,
-            uint              aRequestIndex ) const
+    void Level_Set_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
     {
         MORIS_ERROR( false, "Level_Set_Geometry::compute_GQI_sensitivities() - GQI sensitivities not implemented for level set geometry." );
     }

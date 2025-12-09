@@ -190,7 +190,6 @@ namespace moris::xtk
     {
         bool tReturn = this->perform_decomposition();
         this->perform_enrichment();
-        this->compute_XQIs();
         return tReturn;
     }
 
@@ -575,7 +574,7 @@ namespace moris::xtk
     }
 
     void
-    Model::compute_XQIs()
+    Model::compute_XQIs( std::shared_ptr< Library_IO > aLibrary )
     {
         Tracer tTracer( "XTK", "Compute XQIs" );
 
@@ -601,8 +600,19 @@ namespace moris::xtk
                 // Create a surface mesh from the IG mesh for surface XQIs
                 // FIXME brendan construct from phase names
                 mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_1_b1_0", "SideSet_1_c_p1", "SideSet_2_c_p1", "SideSet_3_c_p1", "SideSet_4_c_p1", "SideSet_1_n_p1", "SideSet_2_n_p1", "SideSet_3_n_p1", "SideSet_4_n_p1" } );    // FIXME side set names make variable
-                // mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0" } );    // FIXME side set names make variable
+                // mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0", "SideSet_1_n_p0", "SideSet_2_n_p0", "SideSet_3_n_p0", "SideSet_4_n_p0" } );    // FIXME side set names make variable
                 mtk::Integration_Surface_Mesh tSurfaceMesh( tSurfaceMeshData );
+
+                // Brendan delete
+                tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
+                std::ofstream tNormalFile( "facet_normals_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+                tNormalFile.precision( 16 );
+                for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
+                {
+                    Matrix< DDRMat > tNormal = tSurfaceMesh.get_facet_normal( iF );
+                    tNormalFile << tNormal( 0 ) << " " << tNormal( 1 ) << "\n";
+                }
+                tNormalFile.close();
 
                 // Get the IG to PDV ID map for this surface mesh
                 Vector< Vector< moris_index > > tPDVIDs;
@@ -616,17 +626,38 @@ namespace moris::xtk
                 {
                     case ( XQI_Type::VOLUME ):
                         tXQIValue = tSurfaceMesh.compute_volume();
+                        tSurfaceMesh.compute_XQI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
                         break;
                     case ( XQI_Type::SHAPE_DIAMETER ):
-                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter( mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ), mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_rays_per_cone" ) );
+                    {
+                        real tAgglomerationExponent = mParameterList( 1 )( iXQI ).get< real >( "agglomeration_exponent" );
+                        real tAgglomerationRef      = mParameterList( 1 )( iXQI ).get< real >( "agglomeration_reference" );
+                        real tAgglomerationShift    = mParameterList( 1 )( iXQI ).get< real >( "agglomeration_shift" );
+
+                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter(
+                                mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
+                                static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) ),
+                                static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) ),
+                                tAgglomerationExponent,
+                                tAgglomerationRef,
+                                tAgglomerationShift );
+
+                        tSurfaceMesh.compute_XQI_sensitivities(
+                                tXQIType,
+                                tPDVIDs,
+                                tdXQIdPDV,
+                                iXQI,
+                                tAgglomerationExponent,
+                                tAgglomerationRef,
+                                tAgglomerationShift );
+
                         break;
+                    }
                     default:
                         MORIS_ERROR( false, "XTK::Model::compute_XQIs - XQI Type not implemented." );
                 }
 
                 tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue );
-
-                tSurfaceMesh.compute_XQI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
             }
 
             tdXQIdPDV->vector_global_assembly();

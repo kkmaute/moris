@@ -48,7 +48,7 @@ namespace moris::gen
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
             , mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
-    // , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager, aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" ) ) ) brendan delete
+            , mGQIParameterLists( std::make_shared< Submodule_Parameter_Lists >( std::as_const( aParameterLists( 3 ) ) ) )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
@@ -102,7 +102,7 @@ namespace moris::gen
             mPhaseTable.print();
         }
 
-        // Pass GQIs to PDV Host Manager
+        // Store GQI parameter list
         this->register_GQIs();
     }
 
@@ -117,6 +117,7 @@ namespace moris::gen
             , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
             , mADVManager( aParameters.mADVManager )
             , mInitialPrimitiveADVs( aParameters.mADVManager.mADVs )
+            , mGQIParameterLists( nullptr )
             , mTimeOffset( aParameters.mTimeOffset )
             , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager, aParameters.mRequestedQIs ) )
     {
@@ -163,24 +164,54 @@ namespace moris::gen
         mPrimitiveADVs->import_local_to_global( *mOwnedADVs );
 
         // Reset sensitivities
-        mdGQIdADV->vec_put_scalar( 0.0 );
-        
+        if ( mdGQIdADV != nullptr )
+        {
+            mdGQIdADV->vec_put_scalar( 0.0 );
+        }
+
+        // Lambda function to get GQI names from parameter lists
+        auto get_GQI_names = []( const std::shared_ptr< const Parameter_List >& aParamList ) {
+            return aParamList->get< std::string >( "GQI_name" );
+        };
+
         // Import ADVs into fields that need it
         for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
         {
             mGeometries( tGeometryIndex )->import_advs( mOwnedADVs );
 
+            // Get the GQI parameter lists for this geometry
+            Vector< std::shared_ptr< const Parameter_List > > tParameterLists = this->get_design_GQI_parameter_lists( mGeometries( tGeometryIndex )->get_name() );
+
+            // Get the GQI names
+            Vector< std::string > tGQINames( tParameterLists.size() );
+            std::transform(
+                    tParameterLists.cbegin(),
+                    tParameterLists.cend(),
+                    tGQINames.begin(),
+                    get_GQI_names );
+
             // Recompute the GQIs and their sensitivities, update these in the PDV host manager
-            Vector< real > tGeomGQIValues = mGeometries( tGeometryIndex )->compute_GQIs( mdGQIdADV, mDesignGQIIndices( tGeometryIndex ) );
-            this->update_GQIs( mGeometries( tGeometryIndex )->get_all_GQI_names(), tGeomGQIValues );
+            Vector< real > tGeomGQIValues = mGeometries( tGeometryIndex )->compute_GQIs( mdGQIdADV, tParameterLists, mDesignGQIIndices( tGeometryIndex ) );
+            this->update_GQIs( tGQINames, tGeomGQIValues );
         }
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
         {
             mProperties( tPropertyIndex )->import_advs( mOwnedADVs );
 
+            // Get the GQI parameter lists for this property
+            Vector< std::shared_ptr< const Parameter_List > > tParameterLists = this->get_design_GQI_parameter_lists( mProperties( tPropertyIndex )->get_name() );
+
+            // Get the GQI names
+            Vector< std::string > tGQINames( tParameterLists.size() );
+            std::transform(
+                    tParameterLists.begin(),
+                    tParameterLists.end(),
+                    tGQINames.begin(),
+                    get_GQI_names );
+
             // Recompute the GQIs and their sensitivities, update these in the PDV host manager
-            Vector< real > tPropGQIValues = mProperties( tPropertyIndex )->compute_GQIs( mdGQIdADV, mDesignGQIIndices( mGeometries.size() + tPropertyIndex ) );
-            this->update_GQIs( mProperties( tPropertyIndex )->get_all_GQI_names(), tPropGQIValues );
+            Vector< real > tPropGQIValues = mProperties( tPropertyIndex )->compute_GQIs( mdGQIdADV, tParameterLists, mDesignGQIIndices( mGeometries.size() + tPropertyIndex ) );
+            this->update_GQIs( tGQINames, tPropGQIValues );
         }
     }
 
@@ -1829,16 +1860,7 @@ namespace moris::gen
     Geometry_Engine::register_GQIs()
     {
         // Determine the total number of GQIs
-        uint tNumGQIs = 0;
-
-        for ( const auto& tGeom : mGeometries )
-        {
-            tNumGQIs += tGeom->get_num_GQIs();
-        }
-        for ( const auto& tProp : mProperties )
-        {
-            tNumGQIs += tProp->get_num_GQIs();
-        }
+        uint tNumGQIs = mGQIParameterLists->size();
 
         // Size vectors
         Vector< std::string > tGQINames( tNumGQIs );
@@ -1848,30 +1870,11 @@ namespace moris::gen
         // Get the GQI names from all the designs. Determine which ones are requested and fill mDesignGQIIndices accordingly
         tNumGQIs = 0;    // Reset counter to fill in the GQI names
 
-        // GQIs from geometries
-        for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
+        // Loop through the submodule parameter list and get all GQI names
+        for ( const auto& iGQIParameterList : *mGQIParameterLists )
         {
-            const Vector< std::string >& tGeomGQINames = mGeometries( iGeom )->get_all_GQI_names();
-
-            for ( uint iGQI = 0; iGQI < tGeomGQINames.size(); iGQI++ )
-            {
-                // Add to list of GQIs
-                tGQINames( tNumGQIs ) = tGeomGQINames( iGQI );
-                tNumGQIs++;    // Increment counter
-            }
-        }
-
-        // GQIs from properties
-        for ( uint iProp = 0; iProp < mProperties.size(); iProp++ )
-        {
-            const Vector< std::string >& tPropGQINames = mProperties( iProp )->get_all_GQI_names();
-
-            for ( uint iGQI = 0; iGQI < tPropGQINames.size(); iGQI++ )
-            {
-                // Add to list of GQIs
-                tGQINames( tNumGQIs ) = tPropGQINames( iGQI );
-                tNumGQIs++;    // Increment counter
-            }
+            // Get GQI name
+            tGQINames( tNumGQIs++ ) = iGQIParameterList.get< std::string >( "GQI_name" );
         }
 
         // Create QI objects in the PDV host manager
@@ -1884,54 +1887,136 @@ namespace moris::gen
 
     void Geometry_Engine::build_GQI_data()
     {
-        mDesignGQIIndices.resize( mGeometries.size() + mProperties.size() );    // Store for every design
+        // Initialize design GQI index storage for every design
+        mDesignGQIIndices.clear();
+        mDesignGQIIndices.resize( mGeometries.size() + mProperties.size() );
 
-        // Get all the requested QIs
-        Vector< std::string > tRequestedQIs = mPDVHostManager->get_requested_QIs< std::string >();
+        // Get all the requested QI names (not just GQIs) and make a map -> index
+        Vector< std::string >                   tRequestedQIs = mPDVHostManager->get_requested_QIs< std::string >();
+        std::unordered_map< std::string, uint > tRequestedQIsMap;
+        tRequestedQIsMap.reserve( tRequestedQIs.size() );
+        for ( uint i = 0; i < tRequestedQIs.size(); ++i )
+        {
+            tRequestedQIsMap.emplace( tRequestedQIs( i ), i );
+        }
 
+        // Build name -> index maps for geometries and properties
+        std::unordered_map< std::string, uint > tGeometryNameToIndex;
+        tGeometryNameToIndex.reserve( mGeometries.size() );
+        for ( uint i = 0; i < mGeometries.size(); ++i )
+        {
+            tGeometryNameToIndex.emplace( mGeometries( i )->get_name(), i );
+        }
+
+        std::unordered_map< std::string, uint > tPropertyNameToIndex;
+        tPropertyNameToIndex.reserve( mProperties.size() );
+        for ( uint i = 0; i < mProperties.size(); ++i )
+        {
+            tPropertyNameToIndex.emplace( mProperties( i )->get_name(), i );
+        }
+
+        // Loop through all configured GQIs (parameter lists) and assign their request index (or MORIS_UINT_MAX if not requested)
+        for ( uint iGQI = 0; iGQI < mGQIParameterLists->size(); ++iGQI )
+        {
+            const Parameter_List& tGQIParameterList = ( *mGQIParameterLists )( iGQI );
+
+            const std::string tGQIName    = tGQIParameterList.get< std::string >( "GQI_name" );
+            const std::string tDesignName = tGQIParameterList.get< std::string >( "design_name" );
+
+            // determine request index (MORIS_UINT_MAX means not requested)
+            uint tRequestIndex = MORIS_UINT_MAX;
+            auto tReqIt        = tRequestedQIsMap.find( tGQIName );
+            if ( tReqIt != tRequestedQIsMap.end() )
+            {
+                tRequestIndex = tReqIt->second;
+            }
+
+            // assign to geometry if present
+            auto tGeomIt = tGeometryNameToIndex.find( tDesignName );
+            if ( tGeomIt != tGeometryNameToIndex.end() )
+            {
+                mDesignGQIIndices( tGeomIt->second ).push_back( tRequestIndex );
+            }
+
+            // assign to property if present
+            auto tPropIt = tPropertyNameToIndex.find( tDesignName );
+            if ( tPropIt != tPropertyNameToIndex.end() )
+            {
+                mDesignGQIIndices( mGeometries.size() + tPropIt->second ).push_back( tRequestIndex );
+            }
+
+            MORIS_ERROR( tGeomIt != tGeometryNameToIndex.end() or tPropIt != tPropertyNameToIndex.end(),
+                    "Geometry_Engine::build_GQI_data - Design name '%s' for GQI '%s' not found among geometries or properties.",
+                    tDesignName.c_str(),
+                    tGQIName.c_str() );
+        }
+
+        // brendan delete
         // Get the GQI names from all the designs. Determine which ones are requested and fill mDesignGQIIndices accordingly
-        // GQIs from geometries
-        for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
+        // // GQIs from geometries
+        // for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
+        // {
+        //     const Vector< std::string >& tGeomGQINames = mGeometries( iGeom )->get_all_GQI_names();
+        //     Vector< uint >               tGeomRequestedGQIIndices( tGeomGQINames.size(), MORIS_UINT_MAX );
+
+        //     for ( uint iGQI = 0; iGQI < tGeomGQINames.size(); iGQI++ )
+        //     {
+        //         // Find the index of the GQI in the list of requested QIs
+        //         auto tIt = std::find( tRequestedQIs.begin(), tRequestedQIs.end(), tGeomGQINames( iGQI ) );
+
+        //         // Check if this GQI is requested
+        //         if ( tIt != tRequestedQIs.end() )
+        //         {
+        //             tGeomRequestedGQIIndices( iGQI ) = std::distance( tRequestedQIs.begin(), tIt );
+        //         }
+        //     }
+
+        //     // Store the requested GQI indices
+        //     mDesignGQIIndices( iGeom ) = tGeomRequestedGQIIndices;
+        // }
+
+        // // GQIs from properties
+        // for ( uint iProp = 0; iProp < mProperties.size(); iProp++ )
+        // {
+        //     const Vector< std::string >& tPropGQINames = mProperties( iProp )->get_all_GQI_names();
+        //     Vector< uint >               tPropRequestedGQIIndices( tPropGQINames.size(), MORIS_UINT_MAX );
+
+        //     for ( uint iGQI = 0; iGQI < tPropGQINames.size(); iGQI++ )
+        //     {
+        //         auto tIt = std::find( tRequestedQIs.begin(), tRequestedQIs.end(), tPropGQINames( iGQI ) );
+
+        //         // Check if this GQI is requested
+        //         if ( tIt != tRequestedQIs.end() )
+        //         {
+        //             tPropRequestedGQIIndices( iGQI ) = std::distance( tRequestedQIs.begin(), tIt );
+        //         }
+        //     }
+
+        //     // Store the requested GQI indices
+        //     mDesignGQIIndices( mGeometries.size() + iProp ) = tPropRequestedGQIIndices;
+        // }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::shared_ptr< const Parameter_List > > Geometry_Engine::get_design_GQI_parameter_lists( const std::string& aDesignName ) const
+    {
+        // Initialize output
+        Vector< std::shared_ptr< const Parameter_List > > tParameterLists;
+
+        // Loop through submodule parameter lists
+        for ( const auto& iParameterList : *mGQIParameterLists )
         {
-            const Vector< std::string >& tGeomGQINames = mGeometries( iGeom )->get_all_GQI_names();
-            Vector< uint >               tGeomRequestedGQIIndices( tGeomGQINames.size(), MORIS_UINT_MAX );
+            // Get the design name for this GQI
+            const std::string& tGQIName = iParameterList.get< std::string >( "design_name" );
 
-            for ( uint iGQI = 0; iGQI < tGeomGQINames.size(); iGQI++ )
+            // Add to output if the name matches
+            if ( tGQIName == aDesignName )
             {
-                // Find the index of the GQI in the list of requested QIs
-                auto tIt = std::find( tRequestedQIs.begin(), tRequestedQIs.end(), tGeomGQINames( iGQI ) );
-
-                // Check if this GQI is requested
-                if ( tIt != tRequestedQIs.end() )
-                {
-                    tGeomRequestedGQIIndices( iGQI ) = std::distance( tRequestedQIs.begin(), tIt );
-                }
+                tParameterLists.push_back( std::make_shared< const Parameter_List >( iParameterList ) );
             }
-
-            // Store the requested GQI indices
-            mDesignGQIIndices( iGeom ) = tGeomRequestedGQIIndices;
         }
-
-        // GQIs from properties
-        for ( uint iProp = 0; iProp < mProperties.size(); iProp++ )
-        {
-            const Vector< std::string >& tPropGQINames = mProperties( iProp )->get_all_GQI_names();
-            Vector< uint >               tPropRequestedGQIIndices( tPropGQINames.size(), MORIS_UINT_MAX );
-
-            for ( uint iGQI = 0; iGQI < tPropGQINames.size(); iGQI++ )
-            {
-                auto tIt = std::find( tRequestedQIs.begin(), tRequestedQIs.end(), tPropGQINames( iGQI ) );
-
-                // Check if this GQI is requested
-                if ( tIt != tRequestedQIs.end() )
-                {
-                    tPropRequestedGQIIndices( iGQI ) = std::distance( tRequestedQIs.begin(), tIt );
-                }
-            }
-
-            // Store the requested GQI indices
-            mDesignGQIIndices( mGeometries.size() + iProp ) = tPropRequestedGQIIndices;
-        }
+        return tParameterLists;
     }
 
     //--------------------------------------------------------------------------------------------------------------

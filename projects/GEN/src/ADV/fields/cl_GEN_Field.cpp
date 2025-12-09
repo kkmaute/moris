@@ -239,7 +239,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string Field::get_name()
+    const std::string& Field::get_name() const
     {
         return mName;
     }

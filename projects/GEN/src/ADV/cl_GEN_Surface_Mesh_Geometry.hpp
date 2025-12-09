@@ -203,12 +203,7 @@ namespace moris::gen
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Surface_Mesh_Geometry(
-                Surface_Mesh_Parameters       aParameters,
-                Node_Manager&                 aNodeManager,
-                const Vector< ADV >&          aADVs,
-                ADV_Manager&                  aADVManager,
-                std::shared_ptr< Library_IO > aLibrary = nullptr );
+        Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters, Node_Manager& aNodeManager, const Vector< ADV >& aADVs, ADV_Manager& aADVManager, std::shared_ptr< Library_IO > aLibrary = nullptr );
 
         // ----------------------------------------------------------------------------------------------------------------
         // FORWARD ANALYSIS FUNCTIONS
@@ -478,8 +473,8 @@ namespace moris::gen
          *
          * @return File name of the .obj file that this surface mesh was created with
          */
-        std::string
-        get_name() override;
+        const std::string&
+        get_name() const final;
 
         /**
          * Gets the names of all the fields associated with this design
@@ -592,12 +587,51 @@ namespace moris::gen
         // Geometry Quantity of Interest (GQI) functions
         // ----------------------------------------------------------------------------------------------------------------
 
-        virtual real compute_GQI( gen::GQI_Type aGQIType ) final;
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters ) final;
 
-        virtual void compute_GQI_sensitivities(
-                GQI_Type          aGQIType,
-                sol::Dist_Vector* aGQISensitivities,
-                uint              aRequestIndex ) const final;
+
+        virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const final;
+
+        template< typename... ExtraArgs >
+        std::function< Matrix< DDRMat >( uint ) > get_GQI_sensitivity_function(
+                GQI_Type aGQIType,
+                ExtraArgs&&... aExtra ) const
+        {
+            // Need a unified function that computes the sensitivity of the requested GQI wrt to a given vertex
+            // takes only the local vertex index as input and returns a (d x 1) matrix with the sensitivity components
+            std::function< Matrix< DDRMat >( uint ) > get_dGQI_dvertex = nullptr;
+
+            switch ( aGQIType )
+            {
+                case GQI_Type::VOLUME:
+                    // no extra args required
+                    get_dGQI_dvertex = [ this ]( uint aV ) -> Matrix< DDRMat > {
+                        return this->compute_dvolume_dvertex( aV );
+                    };
+                    break;
+
+                case GQI_Type::SHAPE_DIAMETER:
+                {
+                    // Capture extra args into a tuple
+                    auto tExtras     = std::make_tuple( std::forward< ExtraArgs >( aExtra )... );
+                    get_dGQI_dvertex = [ this, tExtras ]( uint aV ) -> Matrix< DDRMat > {
+                        // apply the tuple to a helper that calls the member function with the extra args
+                        return std::apply(
+                                [ this, aV ]( auto&&... args ) -> Matrix< DDRMat > {
+                                    return this->compute_ddiameter_dvertex( aV, std::forward< decltype( args ) >( args )... );
+                                },
+                                tExtras );
+                    };
+                }
+                break;
+
+                default:
+                    MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );
+                    break;
+            }
+
+            return get_dGQI_dvertex;
+        }
 
         //-----------------------------------------------
         // PRIVATE FUNCTIONS
