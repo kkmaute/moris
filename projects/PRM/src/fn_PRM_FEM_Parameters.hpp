@@ -248,9 +248,6 @@ namespace moris::prm
 
         tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
 
-        // BRENDAN everything below here is experimental for GQIs
-        tParameterList.insert( "geometry_name", "" );
-
         return tParameterList;
     }
 
