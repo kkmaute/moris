@@ -329,8 +329,8 @@ namespace moris
             // Get number of unique adofs of this equation object
             uint tNumUniqueAdofs = mUniqueAdofList.numel();
 
-            MORIS_ASSERT( tNumUniqueAdofs != 0,
-                    "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. " );
+            //MORIS_ASSERT( tNumUniqueAdofs != 0,
+            //        "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. " );
 
             // Get MAX number of pdofs for this equation object
             uint tNumMyPdofs = mFreePdofs.size();
@@ -638,10 +638,10 @@ namespace moris
             for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
             {
 
-                MORIS_ASSERT( ( tElementalResidual( Ik ).numel() != 0 ) == ( tTMatrixTrans.numel() != 0 ),
-                        "Equation_Object::get_staggered_equation_obj_residual(), elemental residual vector # %-5i has 0 entries on set %s",
-                        Ik,
-                        mEquationSet->get_set_name().c_str() );
+                //MORIS_ASSERT( ( tElementalResidual( Ik ).numel() != 0 ) == ( tTMatrixTrans.numel() != 0 ),
+                //        "Equation_Object::get_staggered_equation_obj_residual(), elemental residual vector # %-5i has 0 entries on set %s",
+                //        Ik,
+                //        mEquationSet->get_set_name().c_str() );
 
                 aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
             }

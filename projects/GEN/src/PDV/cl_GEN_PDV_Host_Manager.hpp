@@ -419,6 +419,7 @@ namespace moris::gen
 
         void create_design_extraction_operators();
         void write_design_extraction_operators_to_file( int aNumADVs, int aDim );
+        void write_design_extraction_operators_to_file_sparse( int aNumADVs, int aDim );
 
         //-------------------------------------------------------------------------------
 

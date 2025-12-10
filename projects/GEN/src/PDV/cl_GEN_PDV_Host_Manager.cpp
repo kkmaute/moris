@@ -1204,6 +1204,130 @@ namespace moris::gen
     //     fprintf( stdout, "\ntotal PDVs = %d\n", (int)mNumPDVs );
     }
 
+    void
+    PDV_Host_Manager::write_design_extraction_operators_to_file_sparse( int aNumADVs, int aDim )
+    {
+        // Store sparse COO representation: row indices, col indices, values
+        std::vector< uint >   rows;
+        std::vector< uint >   cols;
+        std::vector< double > vals;
+        std::vector< uint >   nodeIndices;
+        std::vector< uint >   mADVIndices;    // all adv ids encountered (not necessarily unique here)
+
+        Matrix< DDRMat > mNodeCoords;
+        mNodeCoords.resize( mNodeManager.get_total_number_of_nodes(), aDim );
+
+        sint   maxval            = 0;
+        double maxval_derivative = 0;
+        uint   mNumPDVs          = 0;
+        int    mNumCols          = aNumADVs;
+
+        // loop over intersection nodes and collect nonzeros
+        for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
+        {
+            auto mWeightAndLocn = tIgExtractionOperators( iNodeIndex );
+
+            if ( mWeightAndLocn == nullptr )
+            {
+                continue;
+            }
+
+            // count PDV
+            mNumPDVs++;
+
+            // store node coords
+            for ( int d = 0; d < aDim; ++d )
+            {
+                mNodeCoords( iNodeIndex, d ) = mNodeManager.get_node_coordinate_value( iNodeIndex, d );
+            }
+
+            nodeIndices.push_back( iNodeIndex );
+
+            // local and global adv vectors
+            Vector< sint >   mGlobalAdvIndexVec = mWeightAndLocn->mAdvIds;
+            Matrix< DDRMat > mDesExtOptWeights  = mWeightAndLocn->mWeights;
+
+            // append adv ids seen
+            for ( uint k = 0; k < mGlobalAdvIndexVec.size(); ++k )
+            {
+                mADVIndices.push_back( mGlobalAdvIndexVec( k ) );
+            }
+
+            // update maxima
+            if ( mGlobalAdvIndexVec.size() )
+            {
+                sint maxval_local = mGlobalAdvIndexVec.max();
+                if ( maxval_local > maxval ) maxval = maxval_local;
+            }
+            if ( mDesExtOptWeights.numel() )
+            {
+                double maxval_derivative_local = mDesExtOptWeights.max();
+                if ( maxval_derivative_local > maxval_derivative ) maxval_derivative = maxval_derivative_local;
+            }
+
+            // place nonzeros in COO
+            uint base_row = static_cast< uint >( aDim * iNodeIndex );
+            for ( uint adv_j = 0; adv_j < mGlobalAdvIndexVec.size(); ++adv_j )
+            {
+                uint globalAdv = static_cast< uint >( mGlobalAdvIndexVec( adv_j ) );
+                uint col       = ( globalAdv == 0 ) ? 0u : ( globalAdv - 1u );    // keep zero-based column
+
+                // values per coordinate
+                for ( int coord = 0; coord < aDim; ++coord )
+                {
+                    double w = mDesExtOptWeights( coord, adv_j );
+                    if ( w != 0.0 )
+                    {
+                        rows.push_back( base_row + static_cast< uint >( coord ) );
+                        cols.push_back( col );
+                        vals.push_back( w );
+                    }
+                }
+            }
+        }
+
+        // create HDF5 and save sparse COO arrays + metadata
+        hid_t  tFileID = create_hdf5_file( "Design_Extraction_Operator_New.hdf5" );
+        herr_t tStatus = 0;
+
+        // save COO arrays
+        save_vector_to_hdf5_file( tFileID, std::string( "T_D_rows" ), rows, tStatus );
+        save_vector_to_hdf5_file( tFileID, std::string( "T_D_cols" ), cols, tStatus );
+        save_vector_to_hdf5_file( tFileID, std::string( "T_D_vals" ), vals, tStatus );
+
+        // save dimensions / metadata
+        std::vector< uint > meta = { static_cast< uint >( aDim * mNodeManager.get_total_number_of_nodes() ), static_cast< uint >( mNumCols ) };
+        save_vector_to_hdf5_file( tFileID, std::string( "T_D_shape" ), meta, tStatus );
+
+        close_hdf5_file( tFileID );
+
+        hid_t tFileID1 = create_hdf5_file( "Node_Coordinates.hdf5" );
+        herr_t tStatus1 = 0;
+        save_matrix_to_hdf5_file( tFileID1, std::string("Nodes"), mNodeCoords , tStatus1 );
+
+        close_hdf5_file( tFileID1 );
+
+
+        hid_t  tFileID2 = create_hdf5_file( "Node_IDs.hdf5" );
+        herr_t tStatus2 = 0;
+        save_vector_to_hdf5_file( tFileID2, std::string("Indices"), nodeIndices , tStatus2 );
+
+        close_hdf5_file( tFileID2 );
+
+        hid_t  tFileID3 = create_hdf5_file( "ADV_Map.hdf5" );
+        herr_t tStatus3 = 0;
+        save_vector_to_hdf5_file( tFileID3, std::string("ADVIndices"), mADVIndices , tStatus3 );
+
+        close_hdf5_file( tFileID3 );
+
+        // print summary
+        fprintf( stdout, "\nSparse Design Extraction Operator written: nnz = %zu\n", vals.size() );
+        fprintf( stdout, "Max Relevant ADV value = %d\n", (sint)maxval );
+        fprintf( stdout, "Max PDV value = %d\n", (uint)mNumPDVs );
+        fprintf( stdout, "Max weight value = %f\n", maxval_derivative );
+        fprintf( stdout, "Total ADVs = %d\n", mNumCols );
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void

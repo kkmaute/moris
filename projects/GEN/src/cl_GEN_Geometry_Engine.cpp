@@ -706,7 +706,10 @@ namespace moris::gen
             mPDVHostManager.create_design_extraction_operators();
             
             // Write design extraction operators to file
-            mPDVHostManager.write_design_extraction_operators_to_file( tNumADVs ,tDim );
+            //mPDVHostManager.write_design_extraction_operators_to_file( tNumADVs ,tDim );
+
+            // Write design extraction operators to file in sparse format
+            mPDVHostManager.write_design_extraction_operators_to_file_sparse( tNumADVs ,tDim );
 
         }
         
