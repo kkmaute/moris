@@ -1014,7 +1014,7 @@ namespace moris::mtk
             mOutputMesh->mVertexIdList.push_back( iVertex->get_id() );
 
             // FIXME: owner is not implemented in the leader branch
-            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_index() );
+            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_owner() );
         }
     }
 

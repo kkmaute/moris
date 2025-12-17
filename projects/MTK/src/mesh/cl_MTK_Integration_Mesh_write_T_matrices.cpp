@@ -28,6 +28,7 @@
 #include "fn_join_horiz.hpp"
 #include "fn_trans.hpp"
 #include "fn_isempty.hpp"
+#include "cl_Communication_Tools.hpp"
 
 #include "HDF5_Tools.hpp"
 
@@ -198,9 +199,10 @@ namespace moris::mtk
             Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsZ;
 
             std::vector< int >         tIGNodeIDs;
+            std::unordered_map< moris_index, moris_id > tIGNodeIDMap;
 
             // get T-matrices mapping from IG nodes to IP nodes
-            this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPIdsX, tIGtoIPIdsY, tIGtoIPIdsZ, tIGtoIPWeights, tIGtoIPGradientWeightsX, tIGtoIPGradientWeightsY, tIGtoIPGradientWeightsZ, tIGNodeIDs, iSet );
+            this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPIdsX, tIGtoIPIdsY, tIGtoIPIdsZ, tIGtoIPWeights, tIGtoIPGradientWeightsX, tIGtoIPGradientWeightsY, tIGtoIPGradientWeightsZ, tIGNodeIDs, tIGNodeIDMap, iSet );
 
             // initialize cells containing info for T-matrices mapping (Background-BSp)-(IG-Vertices) for each IG vertex
             Vector< Matrix< IdMat > >  tIGtoBSIds;
@@ -235,7 +237,7 @@ namespace moris::mtk
             
 
             // combine everything
-            this->build_sparse_extraction_operator( tIGtoBSIds, tIGtoBSIdsX, tIGtoBSIdsY, tIGtoBSIdsZ, tIGtoBSWeights, tIGtoBSGradientWeightsX, tIGtoBSGradientWeightsY, tIGtoBSGradientWeightsZ, tSparseIndices, tSparseIndicesX, tSparseIndicesY, tSparseIndicesZ, tWeights, tGradientWeightsX, tGradientWeightsY, tGradientWeightsZ );
+            this->build_sparse_extraction_operator( tIGtoBSIds, tIGtoBSIdsX, tIGtoBSIdsY, tIGtoBSIdsZ, tIGtoBSWeights, tIGtoBSGradientWeightsX, tIGtoBSGradientWeightsY, tIGtoBSGradientWeightsZ, tSparseIndices, tSparseIndicesX, tSparseIndicesY, tSparseIndicesZ, tWeights, tGradientWeightsX, tGradientWeightsY, tGradientWeightsZ, tIGNodeIDMap );
 
             // -------------------------------------
             // write to file
@@ -472,6 +474,7 @@ namespace moris::mtk
             Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY,
             Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsZ,
             std::vector< int >             &aIGNodeIDs,
+            std::unordered_map< moris_index, moris_id > &aIGNodeIDMap,
             uint                        aSetIndex )
     {
         // trace this function
@@ -573,16 +576,31 @@ namespace moris::mtk
                 {                    
                     // get the current primary IG vertex ID
                     moris_id tPrimaryVertexID = tPrimaryIGVertices( iPrimaryIgVert )->get_id();   
-                    
+
+                    // get the current primary IG vertex index
+                    moris_index tPrimaryVertexIndex = tPrimaryIGVertices( iPrimaryIgVert )->get_index();
+
+                    // Get ownership rank of current IG vertex
+                    int tOwningProc = tPrimaryIGVertices( iPrimaryIgVert )->get_owner();
+
+                    // Only proceed if current processor owns the vertex
+                    if ( tOwningProc != par_rank() )
+                    {
+                        continue;
+                    }
+
                     // Check if it has already been looped over
                     if ( tIgVertexCount.count( tPrimaryVertexID ) == 0 )
                     {
                         // If not looped over, add to the list of IG node IDs, increment the count and set the vertex as treated
+                        
                         aIGNodeIDs.push_back( tPrimaryVertexID );
                         tIgVertexCount[ tPrimaryVertexID ] = 1;
+                        aIGNodeIDMap[ tPrimaryVertexIndex ] = tPrimaryVertexID;
                         tIgCount++;
+                    
+                        
                     }
-
 
                     // look for position of primary vertex in list of all vertices on cluster
                     auto tIter = tIgVertexMap.find( tPrimaryVertexID );
@@ -614,20 +632,36 @@ namespace moris::mtk
                     uint tNumSFs = tN.n_cols();
 
                     // initialize size of T-Matrix for current vertex
-                    aIGtoIPIds( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
-                    aIGtoIPIdsX( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
-                    aIGtoIPIdsY( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    // aIGtoIPIds( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    // aIGtoIPIdsX( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    // aIGtoIPIdsY( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    // if ( this->get_spatial_dim() == 3 )
+                    // {
+                    //     aIGtoIPIdsZ( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                    // }
+
+                    aIGtoIPIds( tPrimaryVertexIndex ).set_size( 1, tNumSFs, gNoID );
+                    aIGtoIPIdsX( tPrimaryVertexIndex ).set_size( 1, tNumSFs, gNoID );
+                    aIGtoIPIdsY( tPrimaryVertexIndex ).set_size( 1, tNumSFs, gNoID );
                     if ( this->get_spatial_dim() == 3 )
                     {
-                        aIGtoIPIdsZ( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                        aIGtoIPIdsZ( tPrimaryVertexIndex ).set_size( 1, tNumSFs, gNoID );
                     }
-                    
-                    aIGtoIPWeights( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
-                    aIGtoIPGradientWeightsX( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
-                    aIGtoIPGradientWeightsY( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+
+                    // aIGtoIPWeights( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    // aIGtoIPGradientWeightsX( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    // aIGtoIPGradientWeightsY( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    // if ( this->get_spatial_dim() == 3 )
+                    // {
+                    //     aIGtoIPGradientWeightsZ( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                    // }
+
+                    aIGtoIPWeights( tPrimaryVertexIndex ).set_size( 1, tNumSFs, -1.0 );
+                    aIGtoIPGradientWeightsX( tPrimaryVertexIndex ).set_size( 1, tNumSFs, -1.0 );
+                    aIGtoIPGradientWeightsY( tPrimaryVertexIndex ).set_size( 1, tNumSFs, -1.0 );
                     if ( this->get_spatial_dim() == 3 )
                     {
-                        aIGtoIPGradientWeightsZ( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
+                        aIGtoIPGradientWeightsZ( tPrimaryVertexIndex ).set_size( 1, tNumSFs, -1.0 );
                     }
                     // initialize counter
                     uint tCount = 0;
@@ -644,14 +678,18 @@ namespace moris::mtk
                     // loop over all T-Matrix entries
                     for ( uint iSF = 0; iSF < tNumSFs; iSF++ )
                     {
+                        
                         // ignore T-matrix entries which are zero close to machine precision
                         if ( std::abs( tN( iSF ) ) > 10.0 * MORIS_REAL_EPS )
                         {
+                        
                             // copy pointer of dof and convert to mtk::Vertex
-                            aIGtoIPIds( tPrimaryVertexID - 1 )( tCount ) = tIPVertices( iSF )->get_id();
+                            //aIGtoIPIds( tPrimaryVertexID - 1 )( tCount ) = tIPVertices( iSF )->get_id();
+                            aIGtoIPIds( tPrimaryVertexIndex )( tCount ) = tIPVertices( iSF )->get_id();
 
                             // copy entry of T-Matrix
-                            aIGtoIPWeights( tPrimaryVertexID - 1 )( tCount ) = tN( iSF );
+                            //aIGtoIPWeights( tPrimaryVertexID - 1 )( tCount ) = tN( iSF );
+                            aIGtoIPWeights( tPrimaryVertexIndex )( tCount ) = tN( iSF );
 
                             // increment counter
                             tCount++;
@@ -660,9 +698,11 @@ namespace moris::mtk
                         if ( std::abs( tdNdX( 0 , iSF ) ) > 10.0 * MORIS_REAL_EPS )
                         {
                             // copy pointer of dof and convert to mtk::Vertex
-                            aIGtoIPIdsX( tPrimaryVertexID - 1 )( tCountX ) = tIPVertices( iSF )->get_id();
+                            //aIGtoIPIdsX( tPrimaryVertexID - 1 )( tCountX ) = tIPVertices( iSF )->get_id();
+                            aIGtoIPIdsX( tPrimaryVertexIndex )( tCountX ) = tIPVertices( iSF )->get_id();
 
-                            aIGtoIPGradientWeightsX( tPrimaryVertexID - 1 )( tCountX ) = tdNdX( 0 , iSF );
+                            //aIGtoIPGradientWeightsX( tPrimaryVertexID - 1 )( tCountX ) = tdNdX( 0 , iSF );
+                            aIGtoIPGradientWeightsX( tPrimaryVertexIndex )( tCountX ) = tdNdX( 0, iSF );
 
                             // increment counter
                             tCountX++;
@@ -671,9 +711,11 @@ namespace moris::mtk
                         if ( std::abs( tdNdX( 1 , iSF ) ) > 10.0 * MORIS_REAL_EPS )
                         {
                             // copy pointer of dof and convert to mtk::Vertex
-                            aIGtoIPIdsY( tPrimaryVertexID - 1 )( tCountY ) = tIPVertices( iSF )->get_id();
+                            //aIGtoIPIdsY( tPrimaryVertexID - 1 )( tCountY ) = tIPVertices( iSF )->get_id();
+                            aIGtoIPIdsY( tPrimaryVertexIndex )( tCountY ) = tIPVertices( iSF )->get_id();
 
-                            aIGtoIPGradientWeightsY( tPrimaryVertexID - 1 )( tCountY ) = tdNdX( 1 , iSF ); 
+                            //aIGtoIPGradientWeightsY( tPrimaryVertexID - 1 )( tCountY ) = tdNdX( 1 , iSF );
+                            aIGtoIPGradientWeightsY( tPrimaryVertexIndex )( tCountY ) = tdNdX( 1, iSF ); 
 
                             // increment counter
                             tCountY++;
@@ -684,9 +726,11 @@ namespace moris::mtk
                             if ( std::abs( tdNdX( 2 , iSF ) ) > 10.0 * MORIS_REAL_EPS )
                             {
                                 // copy pointer of dof and convert to mtk::Vertex
-                                aIGtoIPIdsZ( tPrimaryVertexID - 1 )( tCountZ ) = tIPVertices( iSF )->get_id();
-
-                                aIGtoIPGradientWeightsZ( tPrimaryVertexID - 1 )( tCountZ ) = tdNdX( 2 , iSF ); 
+                                //aIGtoIPIdsZ( tPrimaryVertexID - 1 )( tCountZ ) = tIPVertices( iSF )->get_id();
+                                aIGtoIPIdsZ( tPrimaryVertexIndex )( tCountZ ) = tIPVertices( iSF )->get_id();
+                                
+                                //aIGtoIPGradientWeightsZ( tPrimaryVertexID - 1 )( tCountZ ) = tdNdX( 2 , iSF );
+                                aIGtoIPGradientWeightsZ( tPrimaryVertexIndex )( tCountZ ) = tdNdX( 2, iSF ); 
 
                                 // increment counter
                                 tCountZ++;
@@ -1385,7 +1429,8 @@ namespace moris::mtk
             Matrix< DDRMat >           &aWeights,
             Matrix< DDRMat >           &aGradientWeightsX,
             Matrix< DDRMat >           &aGradientWeightsY,
-            Matrix< DDRMat >           &aGradientWeightsZ )
+            Matrix< DDRMat >           &aGradientWeightsZ,
+            std::unordered_map< moris_index, moris_id >     &aIGNodeIDMap )
     {
         // trace this function
         Tracer tTracer( "MTK", "Build Sparse Extraction Operator Matrix" );
@@ -1460,7 +1505,8 @@ namespace moris::mtk
                     uint tBspId = aIGtoBSIds( iG )( iBsp );
 
                     // write IG/BS indices and weights to list
-                    aSparseIndices( tIndex, 0 ) = iG + 1;
+                    //aSparseIndices( tIndex, 0 ) = iG + 1;
+                    aSparseIndices( tIndex, 0 ) = aIGNodeIDMap.at( iG );
                     aSparseIndices( tIndex, 1 ) = tBspId;
                     aWeights( tIndex )          = aIGtoBSWeights( iG )( iBsp );
                     //aGradientWeightsX( tIndex ) = aIGtoBSGradientWeightsX( iG )( iBsp );
@@ -1481,7 +1527,8 @@ namespace moris::mtk
                     uint tBspId = aIGtoBSIdsX( iG )( iBsp );
 
                     // write IG/BS indices and weights to list
-                    aSparseIndicesX( tIndexX, 0 ) = iG + 1;
+                    //aSparseIndicesX( tIndexX, 0 ) = iG + 1;
+                    aSparseIndicesX( tIndexX, 0 ) = aIGNodeIDMap.at( iG );
                     aSparseIndicesX( tIndexX, 1 ) = tBspId;
                     aGradientWeightsX( tIndexX ) = aIGtoBSGradientWeightsX( iG )( iBsp );
 
@@ -1501,7 +1548,8 @@ namespace moris::mtk
                     uint tBspId = aIGtoBSIdsY( iG )( iBsp );
 
                     // write IG/BS indices and weights to list
-                    aSparseIndicesY( tIndexY, 0 ) = iG + 1;
+                    //aSparseIndicesY( tIndexY, 0 ) = iG + 1;
+                    aSparseIndicesY( tIndexY, 0 ) = aIGNodeIDMap.at( iG );
                     aSparseIndicesY( tIndexY, 1 ) = tBspId;
                     aGradientWeightsY( tIndexY ) = aIGtoBSGradientWeightsY( iG )( iBsp );
 
@@ -1522,7 +1570,8 @@ namespace moris::mtk
                         uint tBspId = aIGtoBSIdsZ( iG )( iBsp );
 
                         // write IG/BS indices and weights to list
-                        aSparseIndicesZ( tIndexZ, 0 ) = iG + 1;
+                        //aSparseIndicesZ( tIndexZ, 0 ) = iG + 1;
+                        aSparseIndicesZ( tIndexZ, 0 ) = aIGNodeIDMap.at( iG );
                         aSparseIndicesZ( tIndexZ, 1 ) = tBspId;
                         aGradientWeightsZ( tIndexZ )  = aIGtoBSGradientWeightsZ( iG )( iBsp );
 

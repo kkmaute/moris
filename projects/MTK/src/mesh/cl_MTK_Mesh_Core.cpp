@@ -935,6 +935,24 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Matrix< IdMat >
+    Mesh::get_element_ids_in_block_set2( uint aSetIndex )
+    {
+        // Get element indices
+        Matrix< IndexMat > tElementIndices = this->get_element_indices_in_block_set( aSetIndex );
+
+        // Get element IDs using indices
+        Matrix< IdMat > tElementIDs( tElementIndices.n_rows(), tElementIndices.n_cols() );
+        for ( uint tElementNumber = 0; tElementNumber < tElementIndices.length(); tElementNumber++ )
+        {
+            tElementIDs( tElementNumber ) = this->get_glb_entity_id_from_entity_loc_index2( tElementIndices( tElementNumber ), EntityRank::ELEMENT );
+        }
+
+        return tElementIDs;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     enum CellTopology
     Mesh::get_sideset_topology( const std::string& aSetName )
     {

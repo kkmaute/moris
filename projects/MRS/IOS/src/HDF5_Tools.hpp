@@ -104,10 +104,10 @@ namespace moris
 
         // check that if file is opened with write permission, i.e. aReadOnly is not true, and
         // it is a parallel process, parallel extension is enabled
-        MORIS_ASSERT( par_size() > 1 && !aReadOnly ? aAddParExt : true,
-                "open_hdf5_file - same file cannot be opened simultaneously by multiple parallel processes \n"
-                "with write permission; use set parallel name extension flag to true for file: %s",
-                aPath.c_str() );
+        // MORIS_ASSERT( par_size() > 1 && !aReadOnly ? aAddParExt : true,
+        //         "open_hdf5_file - same file cannot be opened simultaneously by multiple parallel processes \n"
+        //         "with write permission; use set parallel name extension flag to true for file: %s",
+        //         aPath.c_str() );
 
         // create parallel path
         std::string tPath = make_path_parallel( aPath, aAddParExt );

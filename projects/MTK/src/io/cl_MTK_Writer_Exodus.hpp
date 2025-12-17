@@ -86,8 +86,11 @@ namespace moris::mtk
         // number of total elements in exodus mesh
         uint mNumTotalExodusElements;
 
-        // flag for using MTK node and element ID maps versus ad-hod maps
+        // flag for using MTK element ID maps versus ad-hod maps
         bool mMtkIndexMap = true;
+
+        // Flag for using revised MTK node ID maps
+        bool mMtkIndexMapRevised = false;
 
         //------------------------------------------------------------------------------
 
@@ -307,6 +310,29 @@ namespace moris::mtk
         void write_global_variables(
                 Vector< std::string >&  aVariableNames,
                 const Matrix< DDRMat >& aVariableValues );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * Decide whether to use the MTK maps for element IDs or not
+         *
+         * @param aUseMtkIndexMap Flag to use MTK maps
+         */
+        void set_use_mtk_index_map( bool aUseMtkIndexMap )
+        {
+            mMtkIndexMap = aUseMtkIndexMap;
+        }
+
+        // ------------------------------------------------------------------------------
+        /**
+         * Decide whether to use the revised MTK maps for node IDs or not
+         *
+         * @param aUseMtkIndexMapRevised Flag to use revised MTK maps
+         */
+        void set_use_mtk_index_map_revised( bool aUseMtkIndexMapRevised )
+        {
+            mMtkIndexMapRevised = aUseMtkIndexMapRevised;
+        }
 
         //------------------------------------------------------------------------------
 

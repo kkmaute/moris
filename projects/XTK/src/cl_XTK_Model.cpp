@@ -1343,9 +1343,16 @@ namespace moris::xtk
     {
         // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
         // this->get_global_T_matrix_output_file_name() != "" ||
-        if ( this->get_elemental_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
+        if ( this->get_global_T_matrix_output_file_name() != "" || this->get_elemental_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
         {
-            return true;
+            if ( mParameterList.get< bool >( "is_interpolation_based_immersed_workflow" )) // if we are in an interpolation based immersed workflow then workflow should not stop
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         else    // otherwise don't kill the workflow
         {

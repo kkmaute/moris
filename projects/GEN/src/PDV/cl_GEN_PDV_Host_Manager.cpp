@@ -1225,65 +1225,71 @@ namespace moris::gen
         // loop over intersection nodes and collect nonzeros
         for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
         {
-            auto mWeightAndLocn = tIgExtractionOperators( iNodeIndex );
-
-            if ( mWeightAndLocn == nullptr )
+            // Check if the node is owned by this processor
+            if ( mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
             {
-                continue;
-            }
 
-            // count PDV
-            mNumPDVs++;
+                auto mWeightAndLocn = tIgExtractionOperators( iNodeIndex );
 
-            // store node coords
-            for ( int d = 0; d < aDim; ++d )
-            {
-                mNodeCoords( iNodeIndex, d ) = mNodeManager.get_node_coordinate_value( iNodeIndex, d );
-            }
-
-            nodeIndices.push_back( iNodeIndex );
-
-            // local and global adv vectors
-            Vector< sint >   mGlobalAdvIndexVec = mWeightAndLocn->mAdvIds;
-            Matrix< DDRMat > mDesExtOptWeights  = mWeightAndLocn->mWeights;
-
-            // append adv ids seen
-            for ( uint k = 0; k < mGlobalAdvIndexVec.size(); ++k )
-            {
-                mADVIndices.push_back( mGlobalAdvIndexVec( k ) );
-            }
-
-            // update maxima
-            if ( mGlobalAdvIndexVec.size() )
-            {
-                sint maxval_local = mGlobalAdvIndexVec.max();
-                if ( maxval_local > maxval ) maxval = maxval_local;
-            }
-            if ( mDesExtOptWeights.numel() )
-            {
-                double maxval_derivative_local = mDesExtOptWeights.max();
-                if ( maxval_derivative_local > maxval_derivative ) maxval_derivative = maxval_derivative_local;
-            }
-
-            // place nonzeros in COO
-            uint base_row = static_cast< uint >( aDim * iNodeIndex );
-            for ( uint adv_j = 0; adv_j < mGlobalAdvIndexVec.size(); ++adv_j )
-            {
-                uint globalAdv = static_cast< uint >( mGlobalAdvIndexVec( adv_j ) );
-                uint col       = ( globalAdv == 0 ) ? 0u : ( globalAdv - 1u );    // keep zero-based column
-
-                // values per coordinate
-                for ( int coord = 0; coord < aDim; ++coord )
+                if ( mWeightAndLocn == nullptr )
                 {
-                    double w = mDesExtOptWeights( coord, adv_j );
-                    if ( w != 0.0 )
+                    continue;
+                }
+
+                // count PDV
+                mNumPDVs++;
+
+                // store node coords
+                for ( int d = 0; d < aDim; ++d )
+                {
+                    mNodeCoords( iNodeIndex, d ) = mNodeManager.get_node_coordinate_value( iNodeIndex, d );
+                }
+
+                nodeIndices.push_back( iNodeIndex );
+
+                // local and global adv vectors
+                Vector< sint >   mGlobalAdvIndexVec = mWeightAndLocn->mAdvIds;
+                Matrix< DDRMat > mDesExtOptWeights  = mWeightAndLocn->mWeights;
+
+                // append adv ids seen
+                for ( uint k = 0; k < mGlobalAdvIndexVec.size(); ++k )
+                {
+                    mADVIndices.push_back( mGlobalAdvIndexVec( k ) );
+                }
+
+                // update maxima
+                if ( mGlobalAdvIndexVec.size() )
+                {
+                    sint maxval_local = mGlobalAdvIndexVec.max();
+                    if ( maxval_local > maxval ) maxval = maxval_local;
+                }
+                if ( mDesExtOptWeights.numel() )
+                {
+                    double maxval_derivative_local = mDesExtOptWeights.max();
+                    if ( maxval_derivative_local > maxval_derivative ) maxval_derivative = maxval_derivative_local;
+                }
+
+                // place nonzeros in COO
+                uint base_row = static_cast< uint >( aDim * mNodeManager.get_derived_node_id( iNodeIndex ) );
+                for ( uint adv_j = 0; adv_j < mGlobalAdvIndexVec.size(); ++adv_j )
+                {
+                    uint globalAdv = static_cast< uint >( mGlobalAdvIndexVec( adv_j ) );
+                    uint col       = ( globalAdv == 0 ) ? 0u : ( globalAdv - 1u );    // keep zero-based column
+
+                    // values per coordinate
+                    for ( int coord = 0; coord < aDim; ++coord )
                     {
-                        rows.push_back( base_row + static_cast< uint >( coord ) );
-                        cols.push_back( col );
-                        vals.push_back( w );
+                        double w = mDesExtOptWeights( coord, adv_j );
+                        if ( w != 0.0 )
+                        {
+                            rows.push_back( base_row + static_cast< uint >( coord ) );
+                            cols.push_back( col );
+                            vals.push_back( w );
+                        }
                     }
                 }
             }
+ 
         }
 
         // create HDF5 and save sparse COO arrays + metadata

@@ -143,6 +143,9 @@ namespace moris::prm
         tParameterList.insert( "volume_fraction", 1.0 );    // by default all the cut cells are considered bad
         tParameterList.insert( "activate_cell_agglomeration", false );
         tParameterList.insert( "visualize_cell_association", true );
+        
+        // flag to indicate that this is an interpolation based immersed workflow - that is FEM should run even if T matrices are outputted.
+        tParameterList.insert( "is_interpolation_based_immersed_workflow", false );
 
         return tParameterList;
     }

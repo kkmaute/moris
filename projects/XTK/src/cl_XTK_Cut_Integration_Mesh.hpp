@@ -989,6 +989,14 @@ namespace moris::xtk
                 moris_index     aDiscretizationIndex = 0 ) const override;
 
         // ----------------------------------------------------------------------------------
+        
+        moris_id
+        get_glb_entity_id_from_entity_loc_index2(
+                moris_index     aEntityIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
+
+        // ----------------------------------------------------------------------------------
 
         moris_index
         get_loc_entity_ind_from_entity_glb_id(

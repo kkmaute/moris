@@ -128,6 +128,7 @@ namespace moris::xtk
         Matrix< IndexMat >                          get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const override;
         Matrix< IndexMat >                          get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const override;
         moris_id                                    get_glb_entity_id_from_entity_loc_index( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
+        moris_id                                    get_glb_entity_id_from_entity_loc_index2( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
         std::unordered_map< moris_id, moris_index > get_vertex_glb_id_to_loc_vertex_ind_map() const override;
         moris_index                                 get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const override;
         Vector< mtk::Vertex const * >               get_all_vertices() const override;

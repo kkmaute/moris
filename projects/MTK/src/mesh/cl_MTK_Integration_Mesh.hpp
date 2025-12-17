@@ -367,6 +367,7 @@ namespace moris::mtk
                 Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY,
                 Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsZ,
                 std::vector< int >        &aIGNodeIDs,
+                std::unordered_map< moris_index, moris_id > &aIGNodeIDMap,
                 uint                        aSetIndex );
 
         // ----------------------------------------------------------------------------
@@ -445,7 +446,8 @@ namespace moris::mtk
                 Matrix< DDRMat >           &aWeights,
                 Matrix< DDRMat >           &aGradientWeightsX,
                 Matrix< DDRMat >           &aGradientWeightsY,
-                Matrix< DDRMat >           &aGradientWeightsZ );
+                Matrix< DDRMat >           &aGradientWeightsZ,
+                std::unordered_map< moris_index, moris_id > &aIGNodeIDMap );
 
         // ----------------------------------------------------------------------------
         /**

@@ -918,7 +918,14 @@ namespace moris::mtk
             // Get global ids for id map using either MTK or ad-hoc node ID map
             if ( mMtkIndexMap )
             {
-                tNodeMap( tNodeIndex ) = mMesh->get_glb_entity_id_from_entity_loc_index( tNodeIndex, EntityRank::NODE );
+                if ( mMtkIndexMapRevised )
+                {
+                    tNodeMap( tNodeIndex ) = mMesh->get_glb_entity_id_from_entity_loc_index2( tNodeIndex, EntityRank::NODE );
+                }
+                else
+                {
+                    tNodeMap( tNodeIndex ) = mMesh->get_glb_entity_id_from_entity_loc_index( tNodeIndex, EntityRank::NODE );
+                }
             }
             else
             {
@@ -1033,7 +1040,17 @@ namespace moris::mtk
 
             // Get local indices and IDs of elements in current block
             Matrix< IndexMat > tElementIndices = mMesh->get_element_indices_in_block_set( tBlockIndexInInputMesh );
-            Matrix< IdMat >    tElementIDs     = mMesh->get_element_ids_in_block_set( tBlockIndexInInputMesh );
+            Matrix< IdMat > tElementIDs;
+
+            if ( mMtkIndexMapRevised )
+            {
+                tElementIDs = mMesh->get_element_ids_in_block_set2( tBlockIndexInInputMesh );
+            }
+            else
+            {
+                tElementIDs = mMesh->get_element_ids_in_block_set( tBlockIndexInInputMesh );
+            }
+            
 
             MORIS_ASSERT( tElementIndices.length() == tElementIDs.length(),
                     "Writer_Exodus::write_blocks - Vector of element IDs must match vector of element indices for Exodus file writing." );

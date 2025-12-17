@@ -576,6 +576,18 @@ namespace moris
                     EntityRank  aEntityRank,
                     moris_index aDiscretizationIndex = 0 ) const = 0;
 
+            //-----------------------------------------------------------------------------
+
+            virtual moris_id
+            get_glb_entity_id_from_entity_loc_index2(
+                    moris_index aEntityIndex,
+                    EntityRank  aEntityRank,
+                    moris_index aDiscretizationIndex = 0 ) const
+            { 
+                MORIS_ERROR( false, "get_glb_entity_id_from_entity_loc_index(), Not implemented for this mesh type" );
+                return gNoID;
+            };
+
             // ----------------------------------------------------------------------------
 
             virtual std::unordered_map< moris_id, moris_index >
@@ -1350,6 +1362,10 @@ namespace moris
              * @return Element IDs in the set
              */
             virtual Matrix< IdMat > get_element_ids_in_block_set( uint aSetIndex );
+
+            // ----------------------------------------------------------------------------
+
+            virtual Matrix< IdMat > get_element_ids_in_block_set2( uint aSetIndex );
 
             // ----------------------------------------------------------------------------
 

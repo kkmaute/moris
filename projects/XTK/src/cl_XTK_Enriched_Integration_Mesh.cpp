@@ -383,6 +383,17 @@ namespace moris::xtk
         return mCutIgMesh->get_glb_entity_id_from_entity_loc_index( aEntityIndex, aEntityRank );
     }
 
+    // ------------------------------------------------------------------------------
+
+    moris_id
+    Enriched_Integration_Mesh::get_glb_entity_id_from_entity_loc_index2(
+            moris_index       aEntityIndex,
+            mtk::EntityRank   aEntityRank,
+            const moris_index aIndex ) const
+    {
+        return mCutIgMesh->get_glb_entity_id_from_entity_loc_index2( aEntityIndex, aEntityRank );
+    }
+
     //------------------------------------------------------------------------------
 
     std::unordered_map< moris_id, moris_index >
@@ -1156,6 +1167,8 @@ namespace moris::xtk
         // otherwise, proceed as usual and overwrite xtk_temp.exo each iteration
         else
         {
+            // Set use element maps to false to allow recombination later
+            tExodusWriter.set_use_mtk_index_map_revised( true );
             tExodusWriter.write_mesh( "", tOutputPath + tOutputFile, "", tOutputPath + "xtk_temp.exo" );
         }
 
