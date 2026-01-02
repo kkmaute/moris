@@ -754,53 +754,33 @@ namespace moris::hmr
                     }
                     else    // Basis function is fully supported within domain + padding
                     {
-                        // check if any element in the BF's support are neither active nor refined which also indicates irrelevance
-                        // TODO: for the truncation refactor the condition is that any element within the BF's support is active to be considered
-                        bool tHasDeactivatedElement = false;
+                        // for the truncation refactor: the condition is that any element within the BF's support is active to be considered
+                        bool tIsActive = false;
+
+                        // consider BF active if any of the elements in the basis function's support on its level are active
                         for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
                         {
                             Element* tElement = iBasisFunction->get_element( iElementIndex );
-                            if ( tElement->is_neither_active_nor_refined() )
+                            if ( tElement->is_active() )
                             {
-                                tHasDeactivatedElement = true;
+                                tIsActive = true;
+
+                                // break loop
                                 break;
                             }
                         }
 
-                        // if the basis function is not fully supported by active or refined elements, deactivate it
-                        if ( tHasDeactivatedElement )
+                        // the BF is supported by some active background element(s), therefore it remains active
+                        if ( tIsActive )
                         {
-                            iBasisFunction->unset_active_flag();
+                            // flag this basis as active
+                            iBasisFunction->set_active_flag();
                         }
-                        else
+                        else    // the BF interpolates only into refined or deactivated elements, hence it should be refined
                         {
-                            bool tIsActive = false;
-
-                            // consider BF active if any of the elements in the basis function's support on its level are active
-                            for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
-                            {
-                                Element* tElement = iBasisFunction->get_element( iElementIndex );
-                                if ( tElement->is_active() )
-                                {
-                                    tIsActive = true;
-
-                                    // break loop
-                                    break;
-                                }
-                            }
-
-                            // the BF is supported by some active background element(s), therefore it remains active
-                            if ( tIsActive )
-                            {
-                                // flag this basis as active
-                                iBasisFunction->set_active_flag();
-                            }
-                            else    // the BF interpolates only into de-activated elements, hence it must be refined and fully replaced by finer BFs
-                            {
-                                // flag this basis as refined
-                                iBasisFunction->set_refined_flag();
-                            }
-                        }    // end if: BF interpolates into de-activated element
+                            // flag this basis as refined
+                            iBasisFunction->set_refined_flag();
+                        }
                     }    // end if: BF is relevant and not outside the domain
                 }    // end if: BF is used on processor
             }    // end for: all basis functions parsed into function
