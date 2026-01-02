@@ -20,18 +20,12 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Vector.hpp"
-#include "fn_dot_Arma.hpp"
-#include "fn_inv.hpp"
-#include "fn_isfinite.hpp"
 #include "fn_assert.hpp"
 #include "cl_Matrix_Arma_Dynamic.hpp"
 #include "fn_trans.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include "fn_dot.hpp"
-#include "fn_eye.hpp"
-#include <iomanip>
-#include <iostream>
 #include <string>
 #include <memory>
 #include <utility>
@@ -44,6 +38,9 @@ namespace moris::fem
             : mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
             , mCMFunctionType( aCMFunctionType )
     {
+        // set time continuity flag
+        mTimeContinuity = true;
+
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
         mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -82,7 +79,7 @@ namespace moris::fem
         // set parameters
         mParameters = aParameters;
 
-        // Read consistency flag from input parameters
+        // Read consistency and pure penalty flag from input parameters
         if ( mParameters.size() > 0 )
         {
             MORIS_ERROR( mParameters.size() == 3 &&                  //
@@ -91,8 +88,10 @@ namespace moris::fem
                                  mParameters( 2 ).numel() == 1,
                     "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only three parameters possible." );
 
+            // parameter 0: consistency flag
             mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
 
+            // parameter 1: pure penalty flag
             // create penalty only formulation
             if ( mParameters( 1 )( 0 ) > 0.5 )
             {
@@ -127,8 +126,8 @@ namespace moris::fem
         const std::shared_ptr< Property >& tSelectFollower =
                 mFollowerProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
-        real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
-        real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
+        const real tImposeContactLeader   = ( tSelectLeader != nullptr ) ? tSelectLeader->val()( 0 ) : 1.0;
+        const real tImposeContactFollower = ( tSelectFollower != nullptr ) ? tSelectFollower->val()( 0 ) : 1.0;
 
         if ( tImposeContactLeader < MORIS_REAL_EPS || tImposeContactFollower < MORIS_REAL_EPS )
         {
@@ -139,19 +138,23 @@ namespace moris::fem
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
 
         // get leader index for residual dof type, indices for assembly
-        uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
-        uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-        uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+        const uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        const uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
         // get follower index for residual dof type, indices for assembly
-        uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
-        uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
-        uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
+        const uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+        const uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+        const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
-                mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
-                mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
+                mUseDeformedGeometryForGap,
+                mUseConsistentDeformedGeometryForGap,
+                tDisplDofTypes,
+                mLeaderFIManager,
+                mFollowerFIManager,
+                mGapData );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -161,6 +164,7 @@ namespace moris::fem
 
         // set integration point for follower side
         mFollowerFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+
 
         // get the elasticity constitutive models
         const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
@@ -179,6 +183,7 @@ namespace moris::fem
 
         // Nitsche parameter gamma
         const real tNitscheParam = tSPNitsche->val()( 0 );
+        const real tNitscheTangentialParam = tNitscheParam; // we choose the same nitsche parameter in normal and tangential direction for now
 
         // get Piola traction
         const Matrix< DDRMat > tTraction =
@@ -189,7 +194,7 @@ namespace moris::fem
                 tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, mCMFunctionType );
 
         // compute contact pressure using current normal
-        real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
+        const real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
 
         // compute variation of contact pressure
         Matrix< DDRMat > tTestContactPressuredUleader =
@@ -209,15 +214,171 @@ namespace moris::fem
             mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
                     0.5 * aWStar * (                                                    //
-                            +trans( mGapData->mdGapdu ) * tContactPressure              //
+                            trans( mGapData->mdGapdu ) * tContactPressure               //
                             + mTheta * tTestContactPressuredUleader * mGapData->mGap    //
                             + tNitscheParam * trans( mGapData->mdGapdu ) * mGapData->mGap );
 
             mSet->get_residual()( 0 )(
                     { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
                     0.5 * aWStar * (                                          //
-                            +trans( mGapData->mdGapdv ) * tContactPressure    //
+                            trans( mGapData->mdGapdv ) * tContactPressure     //
                             + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
+        }
+
+        // frictional mechanics -> tangential contributions
+        const real tFrictionCoefficient = 0.0; // hardcoded for now
+        if ( tFrictionCoefficient > 0.0 )
+        {
+            // make sure time continuity is set
+            MORIS_ERROR( get_time_continuity(),
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - time continuity flag not set.\n" );
+
+            // LEADER
+
+            // get residual dof type field interpolator for current time step
+            Field_Interpolator* tLeaderCurrentFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            MORIS_ERROR( tLeaderCurrentFI != nullptr,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - current time step leader field interpolator manager is not set.\n" );
+
+            // get residual dof type field interpolator for previous time step
+            Field_Interpolator* tLeaderPreviousFI = mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
+            mLeaderFIManager->set_field_interpolator_manager_previous( mLeaderPreviousFIManager );
+
+            // FOLLOWER
+
+            // get residual dof type field interpolator for current time step
+            Field_Interpolator* tFollowerCurrentFI = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            MORIS_ERROR( tFollowerCurrentFI != nullptr,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - current time step follower field interpolator manager is not set.\n" );
+
+            //  get residual dof type field interpolator for previous time step
+            Field_Interpolator* tFollowerPreviousFI = mFollowerPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
+            mFollowerFIManager->set_field_interpolator_manager_previous( mFollowerPreviousFIManager );
+
+            // for the Leader Previous FI manager, the space time is set from the local IG point (see above)
+            // it seems to be necessary for the Follower Previous FI manager as well
+            mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
+            // get IG geometry interpolator for leader and follower
+            Geometry_Interpolator* tLeaderCurrentIGGI    = mLeaderFIManager->get_IG_geometry_interpolator();
+            //Geometry_Interpolator* tFollowerCurrentIGGI  = mFollowerFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tLeaderPreviousIGGI   = mLeaderPreviousFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tFollowerPreviousIGGI = mFollowerPreviousFIManager->get_IG_geometry_interpolator();
+
+            // Poulios and Renard - 2015 - An unconstrained integral approximation of large sliding frictional contact between deformable solids
+            // define the simplified sliding velocity vector in eqn. (25) as:
+            // v(X) = 1/dt * ( phi_n(X_n+1) - phi_n(Y_n+1) + g_n+1 * n_n)
+
+            // dt: time step size
+            const real tDeltat = mLeaderFIManager->get_IG_geometry_interpolator()->get_time_step();
+
+            // get previous and current time from leader FI
+            const real tLeaderPreviousTime   = tLeaderPreviousIGGI->valt()( 0 );
+            const real tLeaderCurrentTime    = tLeaderCurrentIGGI->valt()( 0 );
+
+            // calculate the previous and current (time step) index
+            const int tPreviousIndex = std::floor( tLeaderPreviousTime / tDeltat + 1.0e-8 ); // +1.0e-8 to avoid numerical issues
+            const int tCurrentIndex  = std::floor( tLeaderCurrentTime / tDeltat + 1.0e-8 ); // +1.0e-8 to avoid numerical issues
+
+            // get displacements at previous time step
+            const Matrix< DDRMat > tLeaderPreviousDisp   = tLeaderPreviousFI->val();
+            const Matrix< DDRMat > tFollowerPreviousDisp = tFollowerPreviousFI->val();
+            // Xgp = global coordinates of quadrature points
+            const Matrix< DDRMat > tLeaderPreviousXgp    = tLeaderPreviousIGGI->valx();
+            const Matrix< DDRMat > tFollowerPreviousXgp  = tFollowerPreviousIGGI->valx();
+
+            // current gap measure
+            const real tCurrentGap = mGapData->mGap;
+
+            // computing the previous time-step leader normal
+            Matrix< DDRMat > tLeaderPreviousNormal;
+            Matrix< DDRMat > tLeaderPreviousdNormaldU;   // dummy
+            Matrix< DDRMat > tLeaderPreviousdNormal2dU2; // dummy
+            Matrix< DDRMat > tLeaderPreviousRefNormal;   // dummy
+            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry(tLeaderPreviousFI, tLeaderPreviousIGGI, tLeaderPreviousNormal, tLeaderPreviousRefNormal, tLeaderPreviousdNormaldU, tLeaderPreviousdNormal2dU2, false );
+
+            // get the normal for the current time step from the gap data
+            const Matrix< DDRMat > tLeaderCurrentNormal  = mGapData->mLeaderNormal;
+
+            // compute the current tangential plane projector from the normals
+            const Matrix< DDRMat > tCurrentTangentialPlaneProjector = GapData::compute_tangential_plane_projector( tLeaderCurrentNormal );
+
+            // tangential slip increment = dt * sliding velocity
+            const Matrix< DDRMat > tSlipIncrement = ( ( trans( tLeaderPreviousXgp ) + tLeaderPreviousDisp ) - ( trans( tFollowerPreviousXgp ) + tFollowerPreviousDisp ) + tCurrentGap * tLeaderPreviousNormal );
+
+            // simplified sliding velocity vector at current time step
+            //const Matrix< DDRMat > tSlidingVelocityCurrent = 1.0 / tDeltat * tSlipIncrement;
+
+            std::cout << "current slip increment  : " << tSlipIncrement << std::endl;
+            //std::cout << "current sliding velocity: " << tSlidingVelocityCurrent << std::endl;
+
+            // contact is active if augLagrTerm is negative
+            if ( tAugLagrTerm < 0 )
+            {
+                // This implementaion follows the outline in:
+                // Laursen - 2002 - Computational Contact and Impact Mechanics - Chapter 5.2.2 - Temporally Discrete Frictional Laws for the Penalty Regularized Case
+                const Matrix< DDRMat > tTempTrac = tNitscheTangentialParam * tCurrentTangentialPlaneProjector * tSlipIncrement; // same Nitsche parameter used in tangential direction as in normal
+
+                // NOTE: yes, I do know: this is not the propper way to implement this
+                //       it may be implemented using a history variable as in Bulk_Damage
+                //       or by adding a variable to the Field Interpolator Manager
+
+                // get the traction from the previous timestep
+                Matrix< DDRMat > tTractionOld(2, 1, 0.0);
+                if ( mTractionHistoryMap.find( tPreviousIndex ) != mTractionHistoryMap.end() ) // check if entry for previous time step exists
+                {
+                    tTractionOld = mTractionHistoryMap[ tPreviousIndex ];
+                }
+
+                // evaluate trial traction -> trial state -> stick slip decision
+                Matrix< DDRMat > tTrialTraction = tTractionOld + tTempTrac;
+
+                // evaluate L2-norm of the trial traction
+                const real tMagnitude = norm( tTrialTraction );
+
+                // evaluate maximal tangential traction due to Coulomb's friction law
+                const real tMaxTangentialTraction = - tFrictionCoefficient * tNitscheParam * tCurrentGap; // here the nitsche paerameter in normal direction is used
+
+                // check slip condition -> determine node is in stick or slip:
+                Matrix< DDRMat > tTanTraction;
+                if ( tMagnitude <= std::abs( tMaxTangentialTraction ) ) // stick
+                {
+                  tTanTraction = tTrialTraction;
+                }
+                else // ( tMagnitude > std::abs( tMaxTangentialTraction ) ) // slip
+                {
+                  // rescale the traction to the maximal tangential traction (return mapping algorithm)
+                  tTanTraction = tMaxTangentialTraction / tMagnitude * tTrialTraction;
+                }
+
+                // add tangential traction contribution to the residual
+                if ( mTractionScaling == 0.0 and mTheta == 0.0 )
+                {
+                    // contribution to Leader residual
+                    mSet->get_residual()( 0 )(
+                            { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
+                            0.5 * aWStar * (                                                    //
+                                    trans( mGapData->mdGapvecdu ) * tTanTraction );
+
+                    // contribution to Follower residual
+                    mSet->get_residual()( 0 )(
+                            { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
+                            0.5 * aWStar * (                                          //
+                                    trans( mGapData->mdGapvecdv ) * tTanTraction );
+                }
+                else
+                {
+                    std::cout << "NOTE: Full nitsche method not yet implemented for frictional contact, only penalty contribution available as of now." << std::endl;
+                }
+
+                // store the traction to the history map for the next time step
+                mTractionHistoryMap[ tCurrentIndex ] = tTanTraction;
+            }
         }
 
         // call debug function
@@ -259,19 +420,23 @@ namespace moris::fem
         Vector< MSI::Dof_Type > const tDisplDofTypes = mResidualDofType( 0 );
 
         // get leader index for residual dof type, indices for assembly
-        uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
-        uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
-        uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
+        const uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        const uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+        const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
         // get follower index for residual dof type, indices for assembly
-        uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
-        uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
-        uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
+        const uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+        const uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+        const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
-                mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ),
-                mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) ) );
+                mUseDeformedGeometryForGap,
+                mUseConsistentDeformedGeometryForGap,
+                tDisplDofTypes,
+                mLeaderFIManager,
+                mFollowerFIManager,
+                mGapData );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -309,10 +474,10 @@ namespace moris::fem
                 tConstitutiveModelLeader->testTraction_trans( mGapData->mLeaderRefNormal, tDisplDofTypes, mCMFunctionType );
 
         // compute contact pressure using current normal
-        real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
+        const real tContactPressure = mTractionScaling * dot( tTraction, mGapData->mLeaderNormal );
 
         // compute variation of contact pressure
-        Matrix< DDRMat > tTestContactPressuredUleader =
+        const Matrix< DDRMat > tTestContactPressuredUleader =
                 mTractionScaling * ( tTestTraction * mGapData->mLeaderNormal + trans( mGapData->mLeaderdNormaldu ) * tTraction );
 
         // compute augmented Lagrangian term
@@ -404,7 +569,7 @@ namespace moris::fem
         }
 
         // compute the Jacobian for indirect dof dependencies through follower constitutive models
-        uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+        const uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
         for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
         {
             // get dof type

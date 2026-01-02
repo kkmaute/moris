@@ -98,6 +98,117 @@ namespace moris::fem
 
         //----------------------------------------------------------------------------
 
+        void set_matrix_sizes( const uint aSpaceDim, const uint aNumDofs )
+        {
+            mdGapdu.set_size( 1, aNumDofs );
+            mdGapdv.set_size( 1, aNumDofs );
+            mdEtadu.set_size( 1, aNumDofs );
+            mdEtadv.set_size( 1, aNumDofs );
+
+            mLeaderdNormaldu.set_size( aSpaceDim, aNumDofs );
+            mdGapvecdu.set_size( aSpaceDim, aNumDofs );
+            mdGapvecdv.set_size( aSpaceDim, aNumDofs );
+
+            mdGap2du2.set_size( aNumDofs, aNumDofs );
+            mdGap2dv2.set_size( aNumDofs, aNumDofs );
+            mdGap2duv.set_size( aNumDofs, aNumDofs );
+            mdEta2du2.set_size( aNumDofs, aNumDofs );
+            mdEta2dv2.set_size( aNumDofs, aNumDofs );
+            mdEta2duv.set_size( aNumDofs, aNumDofs );
+
+            mLeaderdNormal2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2dv2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2duv.set_size( aSpaceDim, aNumDofs * aNumDofs );
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_first_order_derivatives(
+            const uint aSpaceDim,
+            const uint aNumNodes,
+            const Matrix< DDRMat >& adGapdu,
+            const Matrix< DDRMat >& adGapdv,
+            const Matrix< DDRMat >& adEtadu,
+            const Matrix< DDRMat >& adEtadv,
+            const Matrix< DDRMat >& aLeaderdNormaldU,
+            const Matrix< DDRMat >& adGapvecdu,
+            const Matrix< DDRMat >& adGapvecdv )
+        {
+            uint tIcounter = 0;
+
+            for ( uint idim = 0; idim < aSpaceDim; idim++ )
+            {
+                for ( uint in = 0; in < aNumNodes; in++ )
+                {
+                    mdGapdu( tIcounter ) = adGapdu( idim + in * aSpaceDim );
+                    mdGapdv( tIcounter ) = adGapdv( idim + in * aSpaceDim );
+                    mdEtadu( tIcounter ) = adEtadu( idim + in * aSpaceDim );
+                    mdEtadv( tIcounter ) = adEtadv( idim + in * aSpaceDim );
+
+                    mLeaderdNormaldu.get_column( tIcounter ) = aLeaderdNormaldU.get_column( idim + in * aSpaceDim );
+                    mdGapvecdu.get_column( tIcounter )       = adGapvecdu.get_column( idim + in * aSpaceDim );
+                    mdGapvecdv.get_column( tIcounter )       = adGapvecdv.get_column( idim + in * aSpaceDim );
+
+                    tIcounter++;
+                }
+            }
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_second_order_derivatives(
+            const uint aSpaceDim,
+            const uint tNumNodes,
+            const uint aNumDofs,
+            const Matrix< DDRMat >& tdGap2du2,
+            const Matrix< DDRMat >& tdGap2dv2,
+            const Matrix< DDRMat >& tdGap2duv,
+            const Matrix< DDRMat >& tdEta2du2,
+            const Matrix< DDRMat >& tdEta2dv2,
+            const Matrix< DDRMat >& tdEta2duv,
+            const Matrix< DDRMat >& tLeaderdNormal2dU2,
+            const Matrix< DDRMat >& tdGapvec2du2,
+            const Matrix< DDRMat >& tdGapvec2dv2,
+            const Matrix< DDRMat >& tdGapvec2duv )
+            {
+                uint tIcounter = 0;
+                uint tJcounter = 0;
+
+                for ( uint idim = 0; idim < aSpaceDim; idim++ )
+                {
+                    for ( uint in = 0; in < tNumNodes; in++ )
+                    {
+                        tJcounter = 0;
+                        for ( uint jdim = 0; jdim < aSpaceDim; jdim++ )
+                        {
+                            for ( uint jn = 0; jn < tNumNodes; jn++ )
+                            {
+                                mdGap2du2( tIcounter, tJcounter ) = tdGap2du2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdGap2dv2( tIcounter, tJcounter ) = tdGap2dv2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdGap2duv( tIcounter, tJcounter ) = tdGap2duv( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdEta2du2( tIcounter, tJcounter ) = tdEta2du2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdEta2dv2( tIcounter, tJcounter ) = tdEta2dv2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                                mdEta2duv( tIcounter, tJcounter ) = tdEta2duv( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+
+                                mLeaderdNormal2du2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                       tLeaderdNormal2dU2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                mdGapvec2du2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                       tdGapvec2du2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                mdGapvec2dv2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                       tdGapvec2dv2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                mdGapvec2duv.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                        tdGapvec2duv.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                                tJcounter++;
+                            }
+                        }
+                        tIcounter++;
+                    }
+                }
+            }
+
+        //----------------------------------------------------------------------------
+
         Matrix< DDRMat > multiply_leader_dnormal2du2( const Matrix< DDRMat >& tVector )
         {
             uint tSpaceDim = mLeaderdNormal2du2.n_rows();
@@ -115,6 +226,33 @@ namespace moris::fem
 
             return tResult;
         }
+
+        //----------------------------------------------------------------------------
+
+        static void compute_outward_normal_at_gp_for_linear_deformed_geometry(
+                Field_Interpolator*         aLeaderFieldInterpolatorManager,
+                Geometry_Interpolator*      aLeaderIGGI,
+                Matrix< DDRMat >&           aLeaderNormal,
+                Matrix< DDRMat >&           aLeaderRefNormal,
+                Matrix< DDRMat >&           aLeaderdNormaldU,
+                Matrix< DDRMat >&           aLeaderNormal2dU2,
+                const bool                  aEvaluateLinearization = true ) ;
+
+        //----------------------------------------------------------------------------
+
+        static void compute_outward_normal_at_gp_for_consistent_deformed_geometry(
+                Field_Interpolator*         aLeaderFieldInterpolatorManager,
+                Geometry_Interpolator*      aLeaderIGGI,
+                Matrix< DDRMat >&           aLeaderNormal,
+                Matrix< DDRMat >&           aLeaderRefNormal,
+                Matrix< DDRMat >&           aLeaderdNormaldU,
+                Matrix< DDRMat >&           aLeaderNormal2dU2,
+                const bool                  aEvaluateLinearization = true ) ;
+
+        //----------------------------------------------------------------------------
+
+        static const Matrix< DDRMat > compute_tangential_plane_projector( const Matrix< DDRMat > aNormal );
+
     };
 
     class Set;
@@ -168,6 +306,7 @@ namespace moris::fem
         Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
         Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
         Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
+        Field_Interpolator_Manager* mFollowerPreviousFIManager = nullptr;
 
         // leader and follower dv type lists
         Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
@@ -1125,18 +1264,28 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat > remap_nonconformal_rays(
-                Field_Interpolator* aLeaderFieldInterpolator,
-                Field_Interpolator* aFollowerFieldInterpolator );
+                const bool aUseDeformedGeometryForGap,
+                const bool aUseConsistentDeformedGeometryForGap,
+                const Vector< MSI::Dof_Type > aDisplDofTypes,
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >& aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_consistent_deformed_geometry(
-                Field_Interpolator* aLeaderFieldInterpolator,
-                Field_Interpolator* aFollowerFieldInterpolator );
+                const Vector< MSI::Dof_Type > aDisplDofTypes,
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >& aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_linear_deformed_geometry(
-                Field_Interpolator* aLeaderFieldInterpolator,
-                Field_Interpolator* aFollowerFieldInterpolator );
+                const Vector< MSI::Dof_Type > aDisplDofTypes,
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >& aGapData ) const;
 
-        Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry() const;
+        Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry(
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager ) const;
 
         const std::unique_ptr< GapData >& get_gap_data()
         {

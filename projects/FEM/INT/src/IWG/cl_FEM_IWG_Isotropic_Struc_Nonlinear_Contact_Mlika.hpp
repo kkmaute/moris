@@ -17,7 +17,6 @@
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris::fem
@@ -41,6 +40,9 @@ namespace moris::fem
 
         // flag to trigger debug output
         sint mDebugFlag = 0;
+
+        // variable to keep track of the old traction TODO: implement this properly
+        std::map< int, Matrix< DDRMat > > mTractionHistoryMap;
 
         // debug functions
         void debug_function();

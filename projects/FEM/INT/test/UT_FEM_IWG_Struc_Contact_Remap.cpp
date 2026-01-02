@@ -458,7 +458,13 @@ void Test_IWG_Struc_Contact_Remap(
                 // set integration point on follower side
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
 
-                Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
+                        tIWG->mUseDeformedGeometryForGap,
+                        tIWG->mUseConsistentDeformedGeometryForGap,
+                        tDispDofTypes( 0 ),
+                        tIWG->mSet->mLeaderFIManager,
+                        tIWG->mSet->mFollowerFIManager,
+                        tIWG->mGapData );
 
                 // get reference to current gap data
                 const std::unique_ptr< GapData >& tCurrentGapData = tIWG->get_gap_data();
@@ -480,19 +486,31 @@ void Test_IWG_Struc_Contact_Remap(
                         tLeaderDOFHatDisp( in, idir ) += tPerturbation;
                         tLeaderFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mGapData );
                         tPertGapData->copy( tCurrentGapData );
 
                         tLeaderDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                         tLeaderFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mGapData );
 
                         real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2du2 = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
 
-                        real tErrordGapdu   = 100.0 * std::abs( tFdGapdu - tNominalGapData->mdGapdu( tCounter ) ) / abs( tFdGapdu );
+                        real tErrordGapdu   = 100.0 * std::abs( tFdGapdu - tNominalGapData->mdGapdu( tCounter ) ) / std::abs( tFdGapdu );
                         real tErrordGap2du2 = 100.0 * norm( tFdGap2du2 - tNominalGapData->mdGap2du2.get_row( tCounter ) ) / norm( tFdGap2du2 );
                         real tErrordGap2duv = 100.0 * norm( tFdGap2duv - tNominalGapData->mdGap2duv.get_row( tCounter ) ) / norm( tFdGap2duv );
 
@@ -578,19 +596,31 @@ void Test_IWG_Struc_Contact_Remap(
                         tFollowerDOFHatDisp( in, idir ) += tPerturbation;
                         tFollowerFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mGapData );
                         tPertGapData->copy( tCurrentGapData );
 
                         tFollowerDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                         tFollowerFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerDOFHatDisp );
                         tIWG->reset_eval_flags();
-                        tIWG->remap_nonconformal_rays( tLeaderFIs( 0 ), tFollowerFIs( 0 ) );
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mGapData );
 
                         real             tFdGapdv   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2dv2 = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
 
-                        real tErrordGapdv   = 100.0 * std::abs( tFdGapdv - tNominalGapData->mdGapdv( tCounter ) ) / abs( tFdGapdv );
+                        real tErrordGapdv   = 100.0 * std::abs( tFdGapdv - tNominalGapData->mdGapdv( tCounter ) ) / std::abs( tFdGapdv );
                         real tErrordGap2dv2 = 100.0 * norm( tFdGap2dv2 - tNominalGapData->mdGap2dv2.get_row( tCounter ) ) / norm( tFdGap2dv2 );
                         real tErrordGap2duv = 100.0 * norm( tFdGap2duv - trans( tNominalGapData->mdGap2duv.get_column( tCounter ) ) ) / norm( tFdGap2duv );
 
