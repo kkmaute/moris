@@ -755,7 +755,7 @@ namespace moris::hmr
                     else    // Basis function is fully supported within domain + padding
                     {
                         // for the truncation refactor: the condition is that any element within the BF's support is active to be considered
-                        bool tIsActive = false;
+                        bool tHasActiveElement = false;
 
                         // consider BF active if any of the elements in the basis function's support on its level are active
                         for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
@@ -763,7 +763,7 @@ namespace moris::hmr
                             Element* tElement = iBasisFunction->get_element( iElementIndex );
                             if ( tElement->is_active() )
                             {
-                                tIsActive = true;
+                                tHasActiveElement = true;
 
                                 // break loop
                                 break;
@@ -771,12 +771,12 @@ namespace moris::hmr
                         }
 
                         // the BF is supported by some active background element(s), therefore it remains active
-                        if ( tIsActive )
+                        if ( tHasActiveElement )
                         {
                             // flag this basis as active
                             iBasisFunction->set_active_flag();
                         }
-                        else    // the BF interpolates only into refined or deactivated elements, hence it should be refined
+                        else    // the BF has no active elements in its support (only refined or deactivated), mark as refined
                         {
                             // flag this basis as refined
                             iBasisFunction->set_refined_flag();
