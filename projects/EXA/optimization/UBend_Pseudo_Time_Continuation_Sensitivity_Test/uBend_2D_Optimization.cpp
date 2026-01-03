@@ -15,16 +15,16 @@
 
 #include "AztecOO.h"
 
+/* ------------------------------------------------------------------------ */
+// interpolation order
+extern uint gInterpolationOrder;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 //------------------------------------------------------------------------------
 namespace moris
 {
-    /* ------------------------------------------------------------------------ */
-    // interpolation order
-    uint gInterpolationOrder = 1;
-
     std::string
     moris_to_string( real tValue )
     {

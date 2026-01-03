@@ -304,6 +304,9 @@ TEST_CASE( "UBend_Pseudo_Time_Continuation_Sensitivity_Test",
     MORIS_LOG_INFO( "UBend_Pseudo_Time_Continuation_Sensitivity_Test:%i Processors.", par_size() );
     MORIS_LOG_INFO( " " );
 
+    // set interpolation order
+    gInterpolationOrder = 1;
+
     if ( par_size() == 1 )
     {
         // set test case index
