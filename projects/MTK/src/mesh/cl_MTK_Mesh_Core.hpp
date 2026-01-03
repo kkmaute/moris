@@ -39,7 +39,7 @@ namespace moris
         class Vertex_Interpolation;
         class Interpolation_Mesh;
 
-        class Mesh : public std::enable_shared_from_this< Mesh >
+        class alignas( 16 ) Mesh : public std::enable_shared_from_this< Mesh >
         {
           protected:
             Vector< moris_index > mMesh_GEN_map;

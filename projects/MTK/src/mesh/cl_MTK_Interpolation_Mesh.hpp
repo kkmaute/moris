@@ -17,12 +17,12 @@
 
 namespace moris::mtk
 {
-    class Interpolation_Mesh : public virtual Mesh
+    class alignas(16) Interpolation_Mesh : public virtual Mesh
     {
       public:
-        Interpolation_Mesh(){};
+        Interpolation_Mesh() {};
 
-        ~Interpolation_Mesh() override{};
+        ~Interpolation_Mesh() override {};
 
         /**
          * Gets a background mesh of this interpolation mesh (could be this mesh itself)
