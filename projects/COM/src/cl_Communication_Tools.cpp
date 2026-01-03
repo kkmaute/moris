@@ -88,7 +88,7 @@ namespace moris
             char* cstr = strdup( aMessage.c_str() );
             MPI_Bcast( cstr, aMessage.length(), MPI_CHAR, 0, gMorisComm.get_comm() );
             aMessage.assign( cstr );
-            delete[] cstr;
+            free( cstr );    // use free and not delete as we used strdup
         }
     }
 
