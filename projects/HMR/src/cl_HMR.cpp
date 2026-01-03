@@ -109,33 +109,33 @@ namespace moris::hmr
 
     // -----------------------------------------------------------------------------
 
-//    HMR::HMR( const std::string& aPath )
-//    {
-//        // Create parameters
-//        mParameters = new Parameters;
-//
-//        // create file object
-//        File tHDF5;
-//
-//        // open file on disk
-//        tHDF5.open( aPath );
-//
-//        // load settings
-//        tHDF5.load_settings( mParameters );
-//
-//        // close file
-//        tHDF5.close();
-//
-//        // Create database
-//        mDatabase = std::make_shared< Database >( mParameters );
-//
-//        // set shared pointer of database to itself
-//        mDatabase->set_parameter_owning_flag();
-//
-//        this->create_input_and_output_meshes();
-//
-//        mDatabase->calculate_t_matrices_for_input();
-//    }
+    //    HMR::HMR( const std::string& aPath )
+    //    {
+    //        // Create parameters
+    //        mParameters = new Parameters;
+    //
+    //        // create file object
+    //        File tHDF5;
+    //
+    //        // open file on disk
+    //        tHDF5.open( aPath );
+    //
+    //        // load settings
+    //        tHDF5.load_settings( mParameters );
+    //
+    //        // close file
+    //        tHDF5.close();
+    //
+    //        // Create database
+    //        mDatabase = std::make_shared< Database >( mParameters );
+    //
+    //        // set shared pointer of database to itself
+    //        mDatabase->set_parameter_owning_flag();
+    //
+    //        this->create_input_and_output_meshes();
+    //
+    //        mDatabase->calculate_t_matrices_for_input();
+    //    }
 
     // -----------------------------------------------------------------------------
 
@@ -835,7 +835,7 @@ namespace moris::hmr
             uint aBsplinePattern )
     {
         // Create dummy B-spline mesh
-        Factory tFactory( mParameters );
+        Factory            tFactory( mParameters );
         BSpline_Mesh_Base* tDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
                 mDatabase->get_background_mesh(),
                 aBsplinePattern,
@@ -899,7 +899,7 @@ namespace moris::hmr
             uint aBsplinePattern )
     {
         // Create dummy B-spline mesh
-        Factory tFactory( mParameters );
+        Factory            tFactory( mParameters );
         BSpline_Mesh_Base* tDummyBSplineMesh = tFactory.create_dummy_bspline_mesh(
                 mDatabase->get_background_mesh(),
                 aBsplinePattern,
@@ -1237,6 +1237,7 @@ namespace moris::hmr
 
         // delete mesh pointer
         delete tMesh;
+        tMesh = nullptr;
 
         // return the pointer
         return aField;
@@ -1290,7 +1291,7 @@ namespace moris::hmr
     HMR::perform_initial_refinement()
     {
         Tracer tTracer( "HMR", "Perform initial refinement" );
-        uint tActivationPattern = mDatabase->get_activation_pattern();
+        uint   tActivationPattern = mDatabase->get_activation_pattern();
 
         for ( uint iPatternForInitRefine = 0; iPatternForInitRefine < mParameters->get_initial_refinement().size(); ++iPatternForInitRefine )
         {
@@ -1948,6 +1949,8 @@ namespace moris::hmr
         this->put_elements_on_refinement_queue( tRefinementList );
 
         delete tMesh;
+        tMesh = nullptr;
+        
         // return number of flagged elements
         return aElementCounter;
     }
@@ -2006,6 +2009,7 @@ namespace moris::hmr
         this->flag_elements_on_working_pattern( tRefinementList, 0 );
 
         delete tMesh;
+        tMesh = nullptr;
         // return number of flagged elements
         return aElementCounter;
     }
@@ -2117,6 +2121,7 @@ namespace moris::hmr
             this->put_elements_on_refinement_queue( tRefinementList );
 
             delete tMesh;
+            tMesh = nullptr;
         }
 
         // return number of flagged elements
@@ -2182,6 +2187,7 @@ namespace moris::hmr
             this->put_elements_on_refinement_queue( tRefinementList );
 
             delete tMesh;
+            tMesh = nullptr;
         }
 
         // return number of flagged elements
