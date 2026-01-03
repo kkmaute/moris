@@ -81,8 +81,6 @@ int main( int argc, char* argv[] )
     // print banner
     moris::print_banner( argc, argv );
 
-    fprintf( stdout, "par_rank() = %d \n", (int)par_rank() );
-
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // Kokkos::finalize_all();
