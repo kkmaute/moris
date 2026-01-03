@@ -36,7 +36,7 @@ namespace moris
         mCurrentEntity.resize( 1, "GlobalClock" );
 
         // initialize list of entity types
-        mCurrentType.resize( 1, LOGGER_NON_SPECIFIC_ENTITY_TYPE );
+        mCurrentType.resize( 1, "NoType" );
 
         // initialize list of Actions
         mCurrentAction.resize( 1, "Create" );
@@ -162,12 +162,11 @@ namespace moris
     GlobalClock::iterate()
     {
         // increment iteration counter of currently active action
-        mCurrentIteration[mIndentationLevel]++;
+        mCurrentIteration[ mIndentationLevel ]++;
 
         // renew time stamp at beginning of an iteration
-        mIterationTimeStamps[mIndentationLevel] = (real)std::clock();
+        mIterationTimeStamps[ mIndentationLevel ] = (real)std::clock();
     }
 
     // --------------------------------------------------------------------------------
 }    // namespace moris
-
