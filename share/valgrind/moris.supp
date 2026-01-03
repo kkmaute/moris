@@ -3931,3 +3931,21 @@ fun:start_thread
 fun:clone
 }
 
+
+{
+   openmpi_opal_asprintf_definite_leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:__vasprintf_internal
+   fun:opal_vasprintf
+   fun:opal_asprintf
+   fun:mca_base_component_to_string
+   fun:mca_pml_base_pml_check_selected_impl
+   fun:mca_pml_ob1_add_procs
+   fun:ompi_mpi_instance_init_common
+   fun:ompi_mpi_instance_init
+   fun:ompi_mpi_init
+   fun:PMPI_Init
+   ...
+}
