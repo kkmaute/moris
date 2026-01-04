@@ -21,6 +21,9 @@ using namespace moris;
 
 namespace moris::xtk
 {
+    using FacetKey = std::tuple< moris::moris_index, moris::moris_index, moris::moris_index >;
+    using FacetMap = Mini_Map< FacetKey, moris::moris_index >;
+
     struct Decomposition_Data
     {
         // ----------------------------------------------------------------------------------
@@ -69,7 +72,7 @@ namespace moris::xtk
         Vector< moris_index > tNewNodeParentIndex;
 
         // Parent entity secondary identifier
-        Vector< moris_index > tSecondaryIdentifiers;
+        Vector< FacetKey > tSecondaryIdentifiers;
 
         // Parent entity rank
         Vector< mtk::EntityRank > tNewNodeParentRank;
@@ -83,7 +86,7 @@ namespace moris::xtk
         // map from elements to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tElementIndexToNodeLoc;
 
-        Vector< IndexMap > mElementIndexToSecondaryIdAndNewNodeLoc;
+        Vector< FacetMap > mElementIndexToSecondaryIdAndNewNodeLoc;
 
         // map from face to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tFaceIndexToNodeLoc;
@@ -92,10 +95,10 @@ namespace moris::xtk
         // outer cell - Face index
         // inner map - iter->first  = secondary id
         //             iter->second = new node location
-        Vector< IndexMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
+        Vector< FacetMap > mFaceIndexToSecondaryIdAndNewNodeLoc;
 
         std::unordered_map< moris_index, moris_index > mEdgeIndexToNodeLoc;
-        Vector< IndexMap >                             mEdgeIndexToSecondaryIdAndNewNodeLoc;
+        Vector< FacetMap >                             mEdgeIndexToSecondaryIdAndNewNodeLoc;
 
         // map from edge to location in tNewNodeParentIndex
         std::unordered_map< moris_index, moris_index > tEdgeIndexToNodeLoc;
@@ -140,7 +143,9 @@ namespace moris::xtk
                 mtk::EntityRank aParentEntityRank,
                 moris_index&    aRequestLoc )
         {
-            MORIS_ASSERT( !mHasSecondaryIdentifier, "request_exists without a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
+            MORIS_ASSERT( !mHasSecondaryIdentifier,
+                    "request_exists without a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
+
             bool tRequestExists = false;
             aRequestLoc         = MORIS_INDEX_MAX;
             switch ( aParentEntityRank )
@@ -190,7 +195,7 @@ namespace moris::xtk
         bool
         request_exists(
                 moris_index     aParentEntityIndex,
-                moris_index     aParentSecondaryIdentifier,
+                FacetKey        aParentSecondaryIdentifier,
                 mtk::EntityRank aParentEntityRank,
                 moris_index&    aRequestLoc )
         {
@@ -305,7 +310,8 @@ namespace moris::xtk
                 mtk::Cell*                                 aNewVertexParentCell,
                 const std::shared_ptr< Matrix< DDRMat > >& aNewVertexLocalCoordinates )
         {
-            MORIS_ASSERT( !mHasSecondaryIdentifier, "register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
+            MORIS_ASSERT( !mHasSecondaryIdentifier,
+                    "register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases" );
 
             moris_index tRequestIndex = tNewNodeIndex.size();
 
@@ -368,7 +374,7 @@ namespace moris::xtk
         moris_index
         register_new_request(
                 moris_index                                aParentEntityIndex,
-                moris_index                                aSecondaryIdentifier,
+                FacetKey                                   aSecondaryIdentifier,
                 moris_index                                aParentEntityOwner,
                 mtk::EntityRank                            aParentEntityRank,
                 Matrix< DDRMat > const &                   aNewNodeCoord,
@@ -409,13 +415,14 @@ namespace moris::xtk
                         // cell where this parent entity is going to
                         moris::moris_index tParentEntityLoc          = mElementIndexToSecondaryIdAndNewNodeLoc.size();
                         tElementIndexToNodeLoc[ aParentEntityIndex ] = tParentEntityLoc;
-                        mElementIndexToSecondaryIdAndNewNodeLoc.push_back( IndexMap() );
+                        mElementIndexToSecondaryIdAndNewNodeLoc.push_back( FacetMap() );
                     }
 
                     moris_index tParentEntityLoc = tElementIndexToNodeLoc[ aParentEntityIndex ];
 
                     // check that the secondary id does not exist already
-                    MORIS_ASSERT( mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(), "New request being made which already exists" );
+                    MORIS_ASSERT( mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aSecondaryIdentifier ) == mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end(),
+                            "New request being made which already exists" );
 
                     // add to map
                     mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[ aSecondaryIdentifier ] = tRequestIndex;
@@ -433,7 +440,7 @@ namespace moris::xtk
 
                         tFaceIndexToNodeLoc[ aParentEntityIndex ] = tParentEntityLoc;
 
-                        mFaceIndexToSecondaryIdAndNewNodeLoc.push_back( IndexMap() );
+                        mFaceIndexToSecondaryIdAndNewNodeLoc.push_back( FacetMap() );
                     }
 
                     moris_index tParentEntityLoc = tFaceIndexToNodeLoc[ aParentEntityIndex ];
@@ -458,7 +465,7 @@ namespace moris::xtk
 
                         mEdgeIndexToNodeLoc[ aParentEntityIndex ] = tParentEntityLoc;
 
-                        mEdgeIndexToSecondaryIdAndNewNodeLoc.push_back( IndexMap() );
+                        mEdgeIndexToSecondaryIdAndNewNodeLoc.push_back( FacetMap() );
                     }
 
                     moris_index tParentEntityLoc = mEdgeIndexToNodeLoc[ aParentEntityIndex ];
@@ -510,7 +517,7 @@ namespace moris::xtk
                 oSS << i << ",";
                 oSS << par_rank() << ",";
                 oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) );
-                oSS << tSecondaryIdentifiers( i );
+                oSS << std::get< 0 >( tSecondaryIdentifiers( i ) ) << "," << std::get< 1 >( tSecondaryIdentifiers( i ) ) << "," << std::get< 2 >( tSecondaryIdentifiers( i ) );
                 oSS << get_enum_str( tNewNodeParentRank( i ) );
                 for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
                 {

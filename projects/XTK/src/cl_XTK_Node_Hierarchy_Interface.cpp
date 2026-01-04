@@ -246,7 +246,7 @@ namespace moris::xtk
                     moris_index tParentRank  = aIgEdgeAncestry->mEdgeParentEntityRank( iEdge );
 
                     // get unique edge id based on two end vertices of edge
-                    moris_index tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
+                    FacetKey tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
 
                     // initialize variable holding possible new node index
                     moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
@@ -373,7 +373,7 @@ namespace moris::xtk
         return true;
     }
 
-    moris_index
+    FacetKey
     Node_Hierarchy_Interface::hash_edge( Vector< mtk::Vertex* > const & aEdgeVertices )
     {
         MORIS_ERROR( aEdgeVertices.size() == 2, "Edge is expected to have two vertices" );
@@ -384,7 +384,10 @@ namespace moris::xtk
             tMinIdIndex = 1;
             tMaxIdIndex = 0;
         }
-        return xtk::cantor_pairing( aEdgeVertices( tMinIdIndex )->get_id(), aEdgeVertices( tMaxIdIndex )->get_id() );
+        return FacetKey(
+                aEdgeVertices( tMinIdIndex )->get_id(),
+                aEdgeVertices( tMaxIdIndex )->get_id(),
+                0 );
     }
 
     void

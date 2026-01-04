@@ -4270,12 +4270,12 @@ namespace moris::xtk
             //   r2 - Secondary id
             if ( tNumRequests > 0 )
             {
-                aOutwardRequests( i ) = Matrix< IndexMat >( 3, tNumRequests );
+                aOutwardRequests( i ) = Matrix< IndexMat >( 5, tNumRequests );
             }
 
             else
             {
-                aOutwardRequests( i ) = Matrix< IndexMat >( 3, 1, MORIS_INDEX_MAX );
+                aOutwardRequests( i ) = Matrix< IndexMat >( 5, 1, MORIS_INDEX_MAX );
             }
 
             // populate matrix to send;
@@ -4283,7 +4283,7 @@ namespace moris::xtk
             {
                 moris_index     tRequestIndex = aNotOwnedRequests( tIndexInData )( j );
                 moris_index     tParentIndex  = aDecompData.tNewNodeParentIndex( tRequestIndex );
-                moris_index     tSecondaryId  = aDecompData.tSecondaryIdentifiers( tRequestIndex );
+                FacetKey        tSecondaryId  = aDecompData.tSecondaryIdentifiers( tRequestIndex );
                 mtk::EntityRank tParentRank   = aDecompData.tNewNodeParentRank( tRequestIndex );
 
                 // swap out for hmr if needed (hmr calls edges in 2d faces)
@@ -4300,7 +4300,9 @@ namespace moris::xtk
 
                 aOutwardRequests( i )( 1, j ) = (moris_index)tParentRank;
                 aOutwardRequests( i )( 0, j ) = aBackgroundMesh->get_glb_entity_id_from_entity_loc_index( tParentIndex, tParentRank );
-                aOutwardRequests( i )( 2, j ) = tSecondaryId;
+                aOutwardRequests( i )( 2, j ) = std::get< 0 >( tSecondaryId );
+                aOutwardRequests( i )( 3, j ) = std::get< 1 >( tSecondaryId );
+                aOutwardRequests( i )( 4, j ) = std::get< 2 >( tSecondaryId );
             }
         }
     }
@@ -4334,10 +4336,11 @@ namespace moris::xtk
                 {
                     moris_id        tParentId      = aReceiveData( i )( 0, j );
                     mtk::EntityRank tParentRank    = (mtk::EntityRank)aReceiveData( i )( 1, j );
-                    moris_id        tSecondaryId   = aReceiveData( i )( 2, j );
                     moris_index     tParentInd     = aBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                     bool            tRequestExists = false;
                     moris_index     tRequestIndex  = MORIS_INDEX_MAX;
+
+                    FacetKey tSecondaryId( aReceiveData( i )( 2, j ), aReceiveData( i )( 3, j ), aReceiveData( i )( 4, j ) );
 
                     // swap out for hmr if needed (hmr calls edges in 2d faces)
                     if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
@@ -4413,10 +4416,11 @@ namespace moris::xtk
                 {
                     moris_id        tParentId      = aRequests( i )( 0, j );
                     mtk::EntityRank tParentRank    = (mtk::EntityRank)aRequests( i )( 1, j );
-                    moris_id        tSecondaryId   = aRequests( i )( 2, j );
                     moris_index     tParentInd     = aBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                     bool            tRequestExists = false;
                     moris_index     tRequestIndex  = MORIS_INDEX_MAX;
+
+                    FacetKey tSecondaryId( aRequests( i )( 2, j ), aRequests( i )( 3, j ), aRequests( i )( 4, j ) );
 
                     // swap out for hmr if needed (hmr calls edges in 2d faces)
                     if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
@@ -5363,7 +5367,7 @@ namespace moris::xtk
                     }
 
                     // --------------------------------
-                    // STEP 6: deduce the free void MSD indices wrt. each B-spline mesh
+                    // STEP 6: deduce the free void MSD indices wrt. to each B-spline mesh
 
                     // form the union multiset of the void MSD indices across all B-spline meshes
                     for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
