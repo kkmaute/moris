@@ -439,11 +439,14 @@ namespace moris::mdl
         // activate sensitivity analysis and set type of sensitivity analysis
         mEquationModel->set_sensitivity_analysis_type( tIsAdjointSensitivityAnalysis );
 
-        // initialize computation of dQdp
-        mEquationModel->initialize_explicit_and_implicit_dQIdp();
+        if ( mEquationModel->get_num_rhs() != 0 )
+        {
+            // initialize computation of dQdp
+            mEquationModel->initialize_explicit_and_implicit_dQIdp();
 
-        // compute sensitivities
-        mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+            // compute sensitivities
+            mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+        }
     }
 
     //------------------------------------------------------------------------------
