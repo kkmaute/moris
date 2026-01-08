@@ -251,8 +251,7 @@ namespace moris::fem
 
         //----------------------------------------------------------------------------
 
-        static const Matrix< DDRMat > compute_tangential_plane_projector( const Matrix< DDRMat > aNormal );
-
+        static Matrix< DDRMat > compute_tangential_plane_projector( const Matrix< DDRMat >& aNormal );
     };
 
     class Set;
@@ -1264,24 +1263,24 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat > remap_nonconformal_rays(
-                const bool aUseDeformedGeometryForGap,
-                const bool aUseConsistentDeformedGeometryForGap,
-                const Vector< MSI::Dof_Type > aDisplDofTypes,
-                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
-                std::unique_ptr< GapData >& aGapData ) const;
+                const bool                     aUseDeformedGeometryForGap,
+                const bool                     aUseConsistentDeformedGeometryForGap,
+                const Vector< MSI::Dof_Type >& aDisplDofTypes,
+                Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >&    aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_consistent_deformed_geometry(
-                const Vector< MSI::Dof_Type > aDisplDofTypes,
-                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
-                std::unique_ptr< GapData >& aGapData ) const;
+                const Vector< MSI::Dof_Type >& aDisplDofTypes,
+                Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >&    aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_linear_deformed_geometry(
-                const Vector< MSI::Dof_Type > aDisplDofTypes,
-                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
-                std::unique_ptr< GapData >& aGapData ) const;
+                const Vector< MSI::Dof_Type >& aDisplDofTypes,
+                Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+                std::unique_ptr< GapData >&    aGapData ) const;
 
         Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry(
                 Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,

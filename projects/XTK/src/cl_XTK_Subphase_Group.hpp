@@ -127,7 +127,7 @@ namespace moris::xtk
         }
 
         void
-        set_ig_cell_indices( Vector< moris_index > aIgCellIndicesInGroup )
+        set_ig_cell_indices( const Vector< moris_index >& aIgCellIndicesInGroup )
         {
             MORIS_ASSERT( aIgCellIndicesInGroup.size() > 0, "Subphase_Group::set_ig_cell_indices() - passing empty list of IG cells" );
             mIgCellIndicesInGroup = aIgCellIndicesInGroup;

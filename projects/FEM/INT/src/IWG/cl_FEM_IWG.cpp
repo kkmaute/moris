@@ -2515,12 +2515,12 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     Matrix< DDRMat > IWG::remap_nonconformal_rays(
-            const bool aUseDeformedGeometryForGap,
-            const bool aUseConsistentDeformedGeometryForGap,
-            const Vector< MSI::Dof_Type > aDisplDofTypes,
-            Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-            Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
-            std::unique_ptr< GapData >& aGapData ) const
+            const bool                     aUseDeformedGeometryForGap,
+            const bool                     aUseConsistentDeformedGeometryForGap,
+            const Vector< MSI::Dof_Type >& aDisplDofTypes,
+            Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+            std::unique_ptr< GapData >&    aGapData ) const
     {
         if ( aUseDeformedGeometryForGap )
         {
@@ -2552,10 +2552,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     Matrix< DDRMat > IWG::remap_nonconformal_rays_linear_deformed_geometry(
-            const Vector< MSI::Dof_Type > aDisplDofTypes,
-            Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-            Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
-            std::unique_ptr< GapData >& aGapData ) const
+            const Vector< MSI::Dof_Type >& aDisplDofTypes,
+            Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+            std::unique_ptr< GapData >&    aGapData ) const
     {
         Field_Interpolator* tLeaderFieldInterpolator   = aLeaderFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
         Field_Interpolator* tFollowerFieldInterpolator = aFollowerFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
@@ -3020,10 +3020,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     Matrix< DDRMat > IWG::remap_nonconformal_rays_consistent_deformed_geometry(
-            const Vector< MSI::Dof_Type > aDisplDofTypes,
-            Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-            Field_Interpolator_Manager* aFollowerFieldInterpolatorManager,
-            std::unique_ptr< GapData >& aGapData ) const
+            const Vector< MSI::Dof_Type >& aDisplDofTypes,
+            Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+            std::unique_ptr< GapData >&    aGapData ) const
     {
         Field_Interpolator* tLeaderFieldInterpolator   = aLeaderFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
         Field_Interpolator* tFollowerFieldInterpolator = aFollowerFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
@@ -5827,7 +5827,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    const Matrix< DDRMat > GapData::compute_tangential_plane_projector ( const Matrix< DDRMat > aNormal )
+    Matrix< DDRMat > GapData::compute_tangential_plane_projector( const Matrix< DDRMat >& aNormal )
     {
         // compute tangential plane projector
         const uint tSpaceDim = aNormal.numel();

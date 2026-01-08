@@ -165,7 +165,6 @@ namespace moris::fem
         // set integration point for follower side
         mFollowerFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
 
-
         // get the elasticity constitutive models
         const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
@@ -182,8 +181,8 @@ namespace moris::fem
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
         // Nitsche parameter gamma
-        const real tNitscheParam = tSPNitsche->val()( 0 );
-        const real tNitscheTangentialParam = tNitscheParam; // we choose the same nitsche parameter in normal and tangential direction for now
+        const real tNitscheParam           = tSPNitsche->val()( 0 );
+        const real tNitscheTangentialParam = tNitscheParam;    // we choose the same nitsche parameter in normal and tangential direction for now
 
         // get Piola traction
         const Matrix< DDRMat > tTraction =
@@ -226,7 +225,7 @@ namespace moris::fem
         }
 
         // frictional mechanics -> tangential contributions
-        const real tFrictionCoefficient = 0.0; // hardcoded for now
+        const real tFrictionCoefficient = 0.0;    // hardcoded for now
         if ( tFrictionCoefficient > 0.0 )
         {
             // make sure time continuity is set
@@ -265,8 +264,8 @@ namespace moris::fem
             // it seems to be necessary for the Follower Previous FI manager as well
             mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
             // get IG geometry interpolator for leader and follower
-            Geometry_Interpolator* tLeaderCurrentIGGI    = mLeaderFIManager->get_IG_geometry_interpolator();
-            //Geometry_Interpolator* tFollowerCurrentIGGI  = mFollowerFIManager->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tLeaderCurrentIGGI = mLeaderFIManager->get_IG_geometry_interpolator();
+            // Geometry_Interpolator* tFollowerCurrentIGGI  = mFollowerFIManager->get_IG_geometry_interpolator();
             Geometry_Interpolator* tLeaderPreviousIGGI   = mLeaderPreviousFIManager->get_IG_geometry_interpolator();
             Geometry_Interpolator* tFollowerPreviousIGGI = mFollowerPreviousFIManager->get_IG_geometry_interpolator();
 
@@ -278,32 +277,32 @@ namespace moris::fem
             const real tDeltat = mLeaderFIManager->get_IG_geometry_interpolator()->get_time_step();
 
             // get previous and current time from leader FI
-            const real tLeaderPreviousTime   = tLeaderPreviousIGGI->valt()( 0 );
-            const real tLeaderCurrentTime    = tLeaderCurrentIGGI->valt()( 0 );
+            const real tLeaderPreviousTime = tLeaderPreviousIGGI->valt()( 0 );
+            const real tLeaderCurrentTime  = tLeaderCurrentIGGI->valt()( 0 );
 
             // calculate the previous and current (time step) index
-            const int tPreviousIndex = std::floor( tLeaderPreviousTime / tDeltat + 1.0e-8 ); // +1.0e-8 to avoid numerical issues
-            const int tCurrentIndex  = std::floor( tLeaderCurrentTime / tDeltat + 1.0e-8 ); // +1.0e-8 to avoid numerical issues
+            const int tPreviousIndex = std::floor( tLeaderPreviousTime / tDeltat + 1.0e-8 );    // +1.0e-8 to avoid numerical issues
+            const int tCurrentIndex  = std::floor( tLeaderCurrentTime / tDeltat + 1.0e-8 );     // +1.0e-8 to avoid numerical issues
 
             // get displacements at previous time step
             const Matrix< DDRMat > tLeaderPreviousDisp   = tLeaderPreviousFI->val();
             const Matrix< DDRMat > tFollowerPreviousDisp = tFollowerPreviousFI->val();
             // Xgp = global coordinates of quadrature points
-            const Matrix< DDRMat > tLeaderPreviousXgp    = tLeaderPreviousIGGI->valx();
-            const Matrix< DDRMat > tFollowerPreviousXgp  = tFollowerPreviousIGGI->valx();
+            const Matrix< DDRMat > tLeaderPreviousXgp   = tLeaderPreviousIGGI->valx();
+            const Matrix< DDRMat > tFollowerPreviousXgp = tFollowerPreviousIGGI->valx();
 
             // current gap measure
             const real tCurrentGap = mGapData->mGap;
 
             // computing the previous time-step leader normal
             Matrix< DDRMat > tLeaderPreviousNormal;
-            Matrix< DDRMat > tLeaderPreviousdNormaldU;   // dummy
-            Matrix< DDRMat > tLeaderPreviousdNormal2dU2; // dummy
-            Matrix< DDRMat > tLeaderPreviousRefNormal;   // dummy
-            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry(tLeaderPreviousFI, tLeaderPreviousIGGI, tLeaderPreviousNormal, tLeaderPreviousRefNormal, tLeaderPreviousdNormaldU, tLeaderPreviousdNormal2dU2, false );
+            Matrix< DDRMat > tLeaderPreviousdNormaldU;      // dummy
+            Matrix< DDRMat > tLeaderPreviousdNormal2dU2;    // dummy
+            Matrix< DDRMat > tLeaderPreviousRefNormal;      // dummy
+            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry( tLeaderPreviousFI, tLeaderPreviousIGGI, tLeaderPreviousNormal, tLeaderPreviousRefNormal, tLeaderPreviousdNormaldU, tLeaderPreviousdNormal2dU2, false );
 
             // get the normal for the current time step from the gap data
-            const Matrix< DDRMat > tLeaderCurrentNormal  = mGapData->mLeaderNormal;
+            const Matrix< DDRMat > tLeaderCurrentNormal = mGapData->mLeaderNormal;
 
             // compute the current tangential plane projector from the normals
             const Matrix< DDRMat > tCurrentTangentialPlaneProjector = GapData::compute_tangential_plane_projector( tLeaderCurrentNormal );
@@ -312,25 +311,25 @@ namespace moris::fem
             const Matrix< DDRMat > tSlipIncrement = ( ( trans( tLeaderPreviousXgp ) + tLeaderPreviousDisp ) - ( trans( tFollowerPreviousXgp ) + tFollowerPreviousDisp ) + tCurrentGap * tLeaderPreviousNormal );
 
             // simplified sliding velocity vector at current time step
-            //const Matrix< DDRMat > tSlidingVelocityCurrent = 1.0 / tDeltat * tSlipIncrement;
+            // const Matrix< DDRMat > tSlidingVelocityCurrent = 1.0 / tDeltat * tSlipIncrement;
 
-            std::cout << "current slip increment  : " << tSlipIncrement << std::endl;
-            //std::cout << "current sliding velocity: " << tSlidingVelocityCurrent << std::endl;
+            std::cout << "current slip increment  : " << tSlipIncrement << '\n';
+            // std::cout << "current sliding velocity: " << tSlidingVelocityCurrent << std::endl;
 
             // contact is active if augLagrTerm is negative
             if ( tAugLagrTerm < 0 )
             {
                 // This implementaion follows the outline in:
                 // Laursen - 2002 - Computational Contact and Impact Mechanics - Chapter 5.2.2 - Temporally Discrete Frictional Laws for the Penalty Regularized Case
-                const Matrix< DDRMat > tTempTrac = tNitscheTangentialParam * tCurrentTangentialPlaneProjector * tSlipIncrement; // same Nitsche parameter used in tangential direction as in normal
+                const Matrix< DDRMat > tTempTrac = tNitscheTangentialParam * tCurrentTangentialPlaneProjector * tSlipIncrement;    // same Nitsche parameter used in tangential direction as in normal
 
                 // NOTE: yes, I do know: this is not the propper way to implement this
                 //       it may be implemented using a history variable as in Bulk_Damage
                 //       or by adding a variable to the Field Interpolator Manager
 
                 // get the traction from the previous timestep
-                Matrix< DDRMat > tTractionOld(2, 1, 0.0);
-                if ( mTractionHistoryMap.find( tPreviousIndex ) != mTractionHistoryMap.end() ) // check if entry for previous time step exists
+                Matrix< DDRMat > tTractionOld( 2, 1, 0.0 );
+                if ( mTractionHistoryMap.find( tPreviousIndex ) != mTractionHistoryMap.end() )    // check if entry for previous time step exists
                 {
                     tTractionOld = mTractionHistoryMap[ tPreviousIndex ];
                 }
@@ -342,18 +341,18 @@ namespace moris::fem
                 const real tMagnitude = norm( tTrialTraction );
 
                 // evaluate maximal tangential traction due to Coulomb's friction law
-                const real tMaxTangentialTraction = - tFrictionCoefficient * tNitscheParam * tCurrentGap; // here the nitsche paerameter in normal direction is used
+                const real tMaxTangentialTraction = -tFrictionCoefficient * tNitscheParam * tCurrentGap;    // here the nitsche paerameter in normal direction is used
 
                 // check slip condition -> determine node is in stick or slip:
                 Matrix< DDRMat > tTanTraction;
-                if ( tMagnitude <= std::abs( tMaxTangentialTraction ) ) // stick
+                if ( tMagnitude <= std::abs( tMaxTangentialTraction ) )    // stick
                 {
-                  tTanTraction = tTrialTraction;
+                    tTanTraction = tTrialTraction;
                 }
-                else // ( tMagnitude > std::abs( tMaxTangentialTraction ) ) // slip
+                else    // ( tMagnitude > std::abs( tMaxTangentialTraction ) ) // slip
                 {
-                  // rescale the traction to the maximal tangential traction (return mapping algorithm)
-                  tTanTraction = tMaxTangentialTraction / tMagnitude * tTrialTraction;
+                    // rescale the traction to the maximal tangential traction (return mapping algorithm)
+                    tTanTraction = tMaxTangentialTraction / tMagnitude * tTrialTraction;
                 }
 
                 // add tangential traction contribution to the residual
@@ -361,8 +360,8 @@ namespace moris::fem
                 {
                     // contribution to Leader residual
                     mSet->get_residual()( 0 )(
-                            { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                  //
-                            0.5 * aWStar * (                                                    //
+                            { tLeaderResStartIndex, tLeaderResStopIndex } ) +=    //
+                            0.5 * aWStar * (                                      //
                                     trans( mGapData->mdGapvecdu ) * tTanTraction );
 
                     // contribution to Follower residual
@@ -373,7 +372,7 @@ namespace moris::fem
                 }
                 else
                 {
-                    std::cout << "NOTE: Full nitsche method not yet implemented for frictional contact, only penalty contribution available as of now." << std::endl;
+                    std::cout << "NOTE: Full nitsche method not yet implemented for frictional contact, only penalty contribution available as of now." << '\n';
                 }
 
                 // store the traction to the history map for the next time step
