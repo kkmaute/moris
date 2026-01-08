@@ -93,12 +93,8 @@ namespace moris
     /* ------------------------------------------- Solver ------------------------------------------- */
     int tMaxIterations = 200;
 
-    real tRelResNormDrop     = 1e-8;
-    real tRelaxation         = 1.0;
-    //real tFDPerturbationSize = 1e-8;
-
-    //fem::Perturbation_Type tFDPerturbationStrategy = fem::Perturbation_Type::ABSOLUTE;
-    //fem::FDScheme_Type     tFDScheme               = fem::FDScheme_Type::POINT_3_CENTRAL;
+    real tRelResNormDrop      = 1e-8;
+    real tRelaxation          = 1.0;
 
     int  tLoadControlSteps    = 15;
     real tLoadControlFactor   = 0.1;
@@ -117,12 +113,11 @@ namespace moris
     /* ------------------------------------------- Contact ------------------------------------------ */
     std::string tContactType          = "mlika";
     std::string tContactBias          = "unsymmetric";
-    bool tUseAnalyticalJacbian        = true;
+    std::string tContactStabilization = "10.0";
+
     std::string tConsistentProjection = "1";
-    std::string tPenaltyOnly          = "1";
+    std::string tPenaltyOnly          = "0";
     std::string tDebugFlag            = "0";
-    //std::string tContactStabilization = "10.00/1.0";
-    std::string tContactStabilization = "10.00/0.0";
 
     /* -------------------------------------- Control Variables ------------------------------------- */
     bool tOnlyGenerateMesh   = false;
@@ -211,19 +206,6 @@ namespace moris
         aPropMatrix.set_size( 2, 2, 0.0 );
         aPropMatrix( 0, 0 ) = 1.0;
     }
-
-    //void Func_Body_Load( Matrix< DDRMat >   &aPropMatrix,
-    //        Vector< Matrix< DDRMat > >      &aParameters,
-    //        fem::Field_Interpolator_Manager *aFIManager )
-    //{
-
-    //    auto tXp    = aFIManager->get_IG_geometry_interpolator()->valx();
-    //    auto param  = aParameters( 0 )( 0 );
-    //    aPropMatrix = {
-    //        { 0.0 },
-    //        { param },
-    //    };
-    //}
 
     bool Output_Criterion( tsa::Time_Solver *aTimeSolver ) { return true; }
 
@@ -447,7 +429,7 @@ namespace moris
         pl.set( "properties",
                 "PropYoungsTop,YoungsModulus;"
                 "PropPoissonTop,PoissonRatio" );
-        pl.set( "model_type",  fem::Model_Type::PLANE_STRAIN ) ;
+        pl.set( "model_type", fem::Model_Type::PLANE_STRAIN );
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( pl );
 
         /* -------------------------------- Elastic Material Bottom ----------------------------------- */
@@ -460,7 +442,7 @@ namespace moris
         pl.set( "properties",
                 "PropYoungsBottom,YoungsModulus;"
                 "PropPoissonBottom,PoissonRatio" );
-        pl.set( "model_type",  fem::Model_Type::PLANE_STRAIN ) ;
+        pl.set( "model_type", fem::Model_Type::PLANE_STRAIN );
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list( pl );
 
         /* -------------------------------------------------------------------------------------------- */
@@ -656,14 +638,14 @@ namespace moris
             if ( tContactBias == "neutral" )
                 tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL;
         }
-        if ( tContactType == "mlika_frieder" )
+        if ( tContactType == "small" )
         {
             if ( tContactBias == "symmetric" )
-                tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC;
+                tContactIWGType = IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_SYMMETRIC_NITSCHE_UNBIASED;
             if ( tContactBias == "unsymmetric" )
-                tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC;
+                tContactIWGType = IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_UNSYMMETRIC_NITSCHE_UNBIASED;
             if ( tContactBias == "neutral" )
-                tContactIWGType = IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL;
+                tContactIWGType = IWG_Type::STRUC_LINEAR_CONTACT_NORMAL_NEUTRAL_NITSCHE_UNBIASED;
         }
 
         pl = prm::create_IWG_parameter_list();
@@ -679,7 +661,7 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceTop,NitscheInterface" );
-        pl.set( "analytical_jacobian", tUseAnalyticalJacbian );
+        pl.set( "analytical_jacobian", true );
         pl.set( "function_parameters", tConsistentProjection + "/" + tPenaltyOnly + "/" + tDebugFlag );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
@@ -696,7 +678,7 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceBottom,NitscheInterface" );
-        pl.set( "analytical_jacobian", tUseAnalyticalJacbian );
+        pl.set( "analytical_jacobian", true );
         pl.set( "function_parameters", tConsistentProjection + "/" + tPenaltyOnly + "/" + tDebugFlag );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
@@ -734,7 +716,7 @@ namespace moris
         /* -------------------------------------------------------------------------------------------- */
 
         Vector< std::pair< std::string, std::string > > tSides      = { { "Top", "Bottom" },
-                                                                        { "Bottom", "Top" } };
+                 { "Bottom", "Top" } };
         Vector< std::pair< int, std::string > >         tComponents = { { 0, "X" }, { 1, "Y" } };
         for ( auto const &[ tLeaderSide, tFollowerSide ] : tSides )
         {
@@ -782,24 +764,21 @@ namespace moris
             aParameterLists( FEM::IQI ).add_parameter_list( pl );
             */
 
-        //    // do not use IQI gap for now (maute, 22.09.2025)
-        //    //pl = prm::create_IQI_parameter_list();
-        //    //pl.set( "IQI_name", "IQIGap" + tLeaderSide );
-        //    //pl.set( "IQI_type", (uint)fem::IQI_Type::GAP );
-        //    //pl.set( "IQI_bulk_type", (uint)fem::Element_Type::NONCONFORMAL_SIDESET );
-        //    //pl.set( "leader_phase_name", "Phase" + tLeaderSide );
-        //    //pl.set( "neighbor_phases", "PhaseVoid" );
-        //    //pl.set( "follower_phase_name", "Phase" + tFollowerSide );
-        //    //aParameterLists( FEM::IQI ).add_parameter_list( pl );
+            //    // do not use IQI gap for now (maute, 22.09.2025)
+            //    //pl = prm::create_IQI_parameter_list();
+            //    //pl.set( "IQI_name", "IQIGap" + tLeaderSide );
+            //    //pl.set( "IQI_type", (uint)fem::IQI_Type::GAP );
+            //    //pl.set( "IQI_bulk_type", (uint)fem::Element_Type::NONCONFORMAL_SIDESET );
+            //    //pl.set( "leader_phase_name", "Phase" + tLeaderSide );
+            //    //pl.set( "neighbor_phases", "PhaseVoid" );
+            //    //pl.set( "follower_phase_name", "Phase" + tFollowerSide );
+            //    //aParameterLists( FEM::IQI ).add_parameter_list( pl );
         }
 
         /* -------------------------------------------------------------------------------------------- */
         /*                                   Computation Parameter List                                 */
         /* -------------------------------------------------------------------------------------------- */
         aParameterLists( FEM::COMPUTATION ).set( "is_analytical_forward", true );
-        //aParameterLists.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
-        //aParameterLists.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
-        //aParameterLists.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
         aParameterLists.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
         aParameterLists.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
         aParameterLists.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
@@ -913,17 +892,17 @@ namespace moris
             {
                 tFieldNames += ",STRESSBulk" + tSide + tComponent;
                 tFieldTypes += ",ELEMENTAL_AVG";    // ELEMENTAL_AVG
-                tIQINames   += ",IQIStress" + tSide + tComponent;
+                tIQINames += ",IQIStress" + tSide + tComponent;
 
                 // add the displacement components
                 tFieldNames += ",U" + tSide + tComponent;
                 tFieldTypes += ",NODAL";    // ELEMENTAL_AVG
-                tIQINames   += ",IQIDisp" + tSide + tComponent;
+                tIQINames += ",IQIDisp" + tSide + tComponent;
             }
 
             tFieldNames += ",STRESSVonMises" + tSide;
             tFieldTypes += ",NODAL";    // ELEMENTAL_AVG
-            tIQINames   += ",IQIVonMises" + tSide;
+            tIQINames += ",IQIVonMises" + tSide;
 
             // add the traction components
             /*tFieldNames += ",ContactPressure" + tSide;

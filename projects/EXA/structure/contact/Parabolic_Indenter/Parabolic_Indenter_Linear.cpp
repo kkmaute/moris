@@ -93,12 +93,8 @@ namespace moris
     /* ------------------------------------------- Solver ------------------------------------------- */
     int tMaxIterations = 200;
 
-    real tRelResNormDrop     = 1e-8;
-    real tRelaxation         = 1.0;
-    //real tFDPerturbationSize = 1e-8;
-
-    //fem::Perturbation_Type tFDPerturbationStrategy = fem::Perturbation_Type::ABSOLUTE;
-    //fem::FDScheme_Type     tFDScheme               = fem::FDScheme_Type::POINT_3_CENTRAL;
+    real tRelResNormDrop      = 1e-8;
+    real tRelaxation          = 1.0;
 
     int  tLoadControlSteps    = 15;
     real tLoadControlFactor   = 0.1;
@@ -117,8 +113,7 @@ namespace moris
     /* ------------------------------------------- Contact ------------------------------------------ */
     std::string tContactType          = "small";
     std::string tContactBias          = "unsymmetric";
-    //std::string tContactStabilization = "10.00/1.0";
-    std::string tContactStabilization = "10.00/0.0";
+    std::string tContactStabilization = "10.0";
 
     /* -------------------------------------- Control Variables ------------------------------------- */
     bool tOnlyGenerateMesh   = false;
@@ -207,19 +202,6 @@ namespace moris
         aPropMatrix.set_size( 2, 2, 0.0 );
         aPropMatrix( 0, 0 ) = 1.0;
     }
-
-    //void Func_Body_Load( Matrix< DDRMat >   &aPropMatrix,
-    //        Vector< Matrix< DDRMat > >      &aParameters,
-    //        fem::Field_Interpolator_Manager *aFIManager )
-    //{
-
-    //    auto tXp    = aFIManager->get_IG_geometry_interpolator()->valx();
-    //    auto param  = aParameters( 0 )( 0 );
-    //    aPropMatrix = {
-    //        { 0.0 },
-    //        { param },
-    //    };
-    //}
 
     bool Output_Criterion( tsa::Time_Solver *aTimeSolver ) { return true; }
 
@@ -778,9 +760,6 @@ namespace moris
         /*                                   Computation Parameter List                                 */
         /* -------------------------------------------------------------------------------------------- */
         aParameterLists( FEM::COMPUTATION ).set( "is_analytical_forward", true );
-        //aParameterLists.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
-        //aParameterLists.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
-        //aParameterLists.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
         aParameterLists.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
         aParameterLists.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
         aParameterLists.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
@@ -878,7 +857,7 @@ namespace moris
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         aParameterLists.set( "Mesh_Type", (uint)vis::VIS_Mesh_Type::STANDARD );
 
-        std::string tSetNames = tDomain + "," + tContactInterface;
+        std::string tSetNames   = tDomain + "," + tContactInterface;
         std::string tFieldNames = "GAP";
         std::string tFieldTypes = "FACETED_AVG";
         std::string tIQINames   = "IQIGap";
@@ -904,7 +883,7 @@ namespace moris
 
                 tFieldNames += ",STRESSBulk" + tSide + tComponent;
                 tFieldTypes += ",ELEMENTAL_AVG";    // ELEMENTAL_AVG
-                tIQINames   += ",IQIStress" + tSide + tComponent;
+                tIQINames += ",IQIStress" + tSide + tComponent;
             }
 
             // add the traction components
