@@ -14,6 +14,8 @@
 #include <iostream>
 #include <regex>
 
+#include <Kokkos_Core.hpp>
+
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Logger.hpp"                   // MRS/IOS/src
 #include "banner.hpp"                      // COR/src
@@ -33,6 +35,11 @@ int main( int argc, char *argv[] )
 
     // set severity level 0 - all outputs
     gLogger.initialize( 2 );
+
+    // explicitly initialize Kokkos if ArborX is enabled
+#ifdef MORIS_HAVE_ARBORX
+    Kokkos::initialize( argc, argv );
+#endif
 
     // print banner
     moris::print_banner( argc, argv );
@@ -57,6 +64,11 @@ int main( int argc, char *argv[] )
 
     // Run Tests
     int tRet = Catch::Session().run( argc, argv );
+
+    // finalize Kokkos if ArborX is enabled
+#ifdef MORIS_HAVE_ARBORX
+    Kokkos::finalize();
+#endif
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();
