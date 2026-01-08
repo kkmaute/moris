@@ -36,19 +36,28 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 //---------------------------------------------------------------
 
-extern "C" void check_results( const std::string &aLinearNonlinear )
+extern "C" void check_results()
 {
     // check that run is serial; parallel not implemented yet
     MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
 
     // derive case index from linear/nonlinear string
-    if ( aLinearNonlinear == "Linear" )
-        MORIS_ERROR( gCaseIndex == 0, "check_results: gCaseIndex needs to be 0 for linear case" );
-    else if ( aLinearNonlinear == "NonLinear" )
-        MORIS_ERROR( gCaseIndex == 1, "check_results: gCaseIndex needs to be 1 for nonlinear case" );
+    std::string tLinearNonlinear;
+
+    switch ( gCaseIndex )
+    {
+        case 0:
+            tLinearNonlinear = "Linear";
+            break;
+        case 1:
+            tLinearNonlinear = "NonLinear";
+            break;
+        default:
+            MORIS_ERROR( false, "check_results: gCaseIndex needs to be 0 or 1" );
+    }
 
     std::string tExoFileName =
-            "Parabolic_Indenter_" + aLinearNonlinear + "_Case_" + std::to_string( gCaseIndex ) + ".e-s.0000";
+            "Parabolic_Indenter_" + tLinearNonlinear + "_Case_" + std::to_string( gCaseIndex ) + ".e-s.0000";
 
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", gCaseIndex, par_size() );
@@ -59,7 +68,10 @@ extern "C" void check_results( const std::string &aLinearNonlinear )
 
     // define reference node IDs
     // test case                          0    1
-    Vector< uint > tReferenceNodeId = { 294, 294 };
+    Vector< uint > tReferenceNodeId = { 294, 104 };
+
+    const uint tDispXIndex = 2;    // gCaseIndex = 0: IQIDispX, gCaseIndex = 1: IQIDispTopX
+    const uint tDispYIndex = 3;    // gCaseIndex = 0: IQIDispY, gCaseIndex = 1: IQIDispTopY
 
     if ( gPrintReferenceValues )
     {
@@ -80,14 +92,16 @@ extern "C" void check_results( const std::string &aLinearNonlinear )
         std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << '\n';
 
         // solution of reference point at reference time step
-        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 2, 0 ) << "," << tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), 3, 0 ) << '\n';
+        std::cout << "Displacement at reference point: " << std::scientific << std::setprecision( 15 ) <<    //
+                tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), tDispXIndex, 0 ) << "," <<     //
+                tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), tDispYIndex, 0 ) << '\n';
 
         return;
     }
 
     // define reference values for dimension, number of nodes and number of elements
     // test case                            0    1
-    Vector< uint > tReferenceNumDims  = {   2,   2 };
+    Vector< uint > tReferenceNumDims  = { 2, 2 };
     Vector< uint > tReferenceNumNodes = { 313, 313 };
     Vector< uint > tReferenceNumElems = { 192, 192 };
 
@@ -109,15 +123,15 @@ extern "C" void check_results( const std::string &aLinearNonlinear )
             tNumElems,
             std::abs( ( tNumElems - tReferenceNumElems( gCaseIndex ) ) / tReferenceNumElems( gCaseIndex ) * 100.0 ) );
 
-    REQUIRE( tNumDims  == tReferenceNumDims( gCaseIndex ) );
+    REQUIRE( tNumDims == tReferenceNumDims( gCaseIndex ) );
     REQUIRE( tNumNodes == tReferenceNumNodes( gCaseIndex ) );
     REQUIRE( tNumElems == tReferenceNumElems( gCaseIndex ) );
 
     // define reference coordinates for node aNodeId
     Vector< Matrix< DDRMat > > tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { { +5.000000000000001e-01 }, { +5.025000000000001e-01 } } ); // test case 0
-    tReferenceCoordinate.push_back( { { +5.000000000000001e-01 }, { +5.025000000000001e-01 } } ); // test case 1
+    tReferenceCoordinate.push_back( { { +5.000000000000001e-01 }, { +5.025000000000001e-01 } } );    // test case 0
+    tReferenceCoordinate.push_back( { { +5.000000000000001e-01 }, { +5.034999999999999e-01 } } );    // test case 1
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId( gCaseIndex ) );
@@ -127,18 +141,18 @@ extern "C" void check_results( const std::string &aLinearNonlinear )
     MORIS_LOG_INFO( "Check nodal x-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceCoordinate( gCaseIndex )( 0 ),
             tActualCoordinate( 0 ),
-            tRelDiffNorm * 100.0 );
+            std::abs( tActualCoordinate( 0 ) - tReferenceCoordinate( gCaseIndex )( 0 ) ) / moris::norm( tReferenceCoordinate( gCaseIndex ) ) * 100.0 );
     MORIS_LOG_INFO( "Check nodal y-coordinates:  reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceCoordinate( gCaseIndex )( 1 ),
             tActualCoordinate( 1 ),
-            tRelDiffNorm * 100.0 );
+            std::abs( tActualCoordinate( 1 ) - tReferenceCoordinate( gCaseIndex )( 1 ) ) / moris::norm( tReferenceCoordinate( gCaseIndex ) ) * 100.0 );
 
     REQUIRE( tRelDiffNorm < 1.0e-5 );
 
     // check time value for time step index 0
     Vector< real > tReferenceTime;
-    tReferenceTime.push_back( 1.000000000000000e+01 ); // test case 0
-    tReferenceTime.push_back( 1.000000000000000e+01 ); // test case 1
+    tReferenceTime.push_back( 1.000000000000000e+01 );    // test case 0
+    tReferenceTime.push_back( 1.000000000000000e+01 );    // test case 1
 
     real tActualTime = tExoIO.get_time_value();
 
@@ -154,26 +168,8 @@ extern "C" void check_results( const std::string &aLinearNonlinear )
     // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
     Vector< Matrix< DDRMat > > tReferenceDisplacement;
 
-    tReferenceDisplacement.push_back( { { -1.931735576379704e-05 }, { -2.458041207903132e-02 } } ); // test case 0
-    tReferenceDisplacement.push_back( { {  1.405711563896450e-05 }, { -2.421205612420262e-02 } } ); // test case 1
-
-    uint tDispXIndex = 0;
-    uint tDispYIndex = 0;
-
-    if ( gCaseIndex == 0 ) // linear
-    {
-        // for the linear case we setup IQIDispX, IQIDispY
-        tDispXIndex = 2;
-        tDispYIndex = 3;
-    }
-    else if ( gCaseIndex == 1 ) // nonlinear
-    {
-        // for the nonlinear case we setup IQIDispTopX, IQIDispTopY, IQIDispBottomX, IQIDispBottomY
-        // therefore the displacement indices are different
-        tDispXIndex = 5;
-        tDispYIndex = 6;
-    }
-
+    tReferenceDisplacement.push_back( { { -1.931735576379704e-05 }, { -2.458041207903132e-02 } } );    // test case 0
+    tReferenceDisplacement.push_back( { { -1.159293612747665e-05 }, { -2.527716057948835e-02 } } );    // test case 1
 
     Matrix< DDRMat > tActualDisplacement = {
         { tExoIO.get_nodal_field_value( tReferenceNodeId( gCaseIndex ), tDispXIndex, 0 ) },
@@ -221,7 +217,7 @@ TEST_CASE( "Parabolic_Indenter_Linear",
     fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check results
-    check_results( "Linear" );
+    check_results();
 
 #else
     MORIS_LOG_INFO( " " );
@@ -231,40 +227,40 @@ TEST_CASE( "Parabolic_Indenter_Linear",
 }
 //---------------------------------------------------------------
 
-// TEST_CASE( "Parabolic_Indenter_NonLinear",
-//         "[moris],[example],[structure],[nonlinear]" )
-//{
-// #ifdef MORIS_HAVE_ARBORX
-//     // check that run is serial; parallel not implemented yet
-//     MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
-//
-//     // define command line call
-//     int argc = 2;
-//
-//     char tString1[] = "";
-//     char tString2[] = "./Parabolic_Indenter_NonLinear.so";
-//
-//     char *argv[ 2 ] = { tString1, tString2 };
-//
-//     // set interpolation order
-//     gInterpolationOrder = 1;
-//
-//     // set case index
-//     gCaseIndex = 1;
-//
-//     MORIS_LOG_INFO( " " );
-//     MORIS_LOG_INFO( "Executing Parabolic_Indenter_NonLinear: Interpolation order 1 - %i Processors.", par_size() );
-//     MORIS_LOG_INFO( " " );
-//
-//     // call to performance manager main interface
-//     fn_WRK_Workflow_Main_Interface( argc, argv );
-//
-//     // check results
-//     check_results( "NonLinear" );
-//
-// #else
-//     MORIS_LOG_INFO( " " );
-//     MORIS_LOG_INFO( "Parabolic_Indenter_NonLinear: Example skipped as Arborx not installed" );
-//     MORIS_LOG_INFO( " " );
-// #endif
-// }
+TEST_CASE( "Parabolic_Indenter_NonLinear",
+        "[moris],[example],[structure],[nonlinear]" )
+{
+#ifdef MORIS_HAVE_ARBORX
+    // check that run is serial; parallel not implemented yet
+    MORIS_ERROR( par_size() == 1, "Contact not implemented for parallel computation yet" );
+
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "./Parabolic_Indenter_NonLinear.so";
+
+    char *argv[ 2 ] = { tString1, tString2 };
+
+    // set interpolation order
+    gInterpolationOrder = 1;
+
+    // set case index
+    gCaseIndex = 1;
+
+    MORIS_LOG_INFO( " " );
+    MORIS_LOG_INFO( "Executing Parabolic_Indenter_NonLinear: Interpolation order 1 - %i Processors.", par_size() );
+    MORIS_LOG_INFO( " " );
+
+    // call to performance manager main interface
+    fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check results
+    check_results();
+
+#else
+    MORIS_LOG_INFO( " " );
+    MORIS_LOG_INFO( "Parabolic_Indenter_NonLinear: Example skipped as Arborx not installed" );
+    MORIS_LOG_INFO( " " );
+#endif
+}
