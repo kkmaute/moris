@@ -11,8 +11,8 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
 
-#include "moris_typedefs.hpp"                       //MRS/COR/src
-#include "cl_Vector.hpp"                            //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -62,42 +62,40 @@ namespace moris
 
         class Performer_Manager
         {
-                std::shared_ptr< Library_IO > mLibrary = nullptr;
+            std::shared_ptr< Library_IO > mLibrary = nullptr;
 
-                Vector< std::shared_ptr< mtk::Mesh_Manager > >        mMTKPerformer;
-                Vector< std::shared_ptr< hmr::HMR > >                 mHMRPerformer;
-                Vector< std::shared_ptr< gen::Geometry_Engine > >      mGENPerformer;
-                Vector< std::shared_ptr< xtk::Model > >               mXTKPerformer;
-                Vector< std::shared_ptr< mdl::Model > >               mMDLPerformer;
-                Vector< std::shared_ptr< opt::Manager > >             mOPTPerformer;
+            Vector< std::shared_ptr< mtk::Mesh_Manager > >    mMTKPerformer;
+            Vector< std::shared_ptr< hmr::HMR > >             mHMRPerformer;
+            Vector< std::shared_ptr< gen::Geometry_Engine > > mGENPerformer;
+            Vector< std::shared_ptr< xtk::Model > >           mXTKPerformer;
+            Vector< std::shared_ptr< mdl::Model > >           mMDLPerformer;
+            Vector< std::shared_ptr< opt::Manager > >         mOPTPerformer;
 
-                Vector< std::shared_ptr< wrk::Remeshing_Mini_Performer > > mRemeshingMiniPerformer;
-                Vector< std::shared_ptr< wrk::Reinitialize_Performer > >   mReinitializePerformer;
-                Vector< std::shared_ptr< wrk::DataBase_Performer > >       mDataBasePerformer;
+            Vector< std::shared_ptr< wrk::Remeshing_Mini_Performer > > mRemeshingMiniPerformer;
+            Vector< std::shared_ptr< wrk::Reinitialize_Performer > >   mReinitializePerformer;
+            Vector< std::shared_ptr< wrk::DataBase_Performer > >       mDataBasePerformer;
 
-                friend class wrk::Workflow;
-                friend class wrk::Workflow_HMR_XTK;
-                friend class wrk::Workflow_STK_XTK;
-                friend class wrk::Workflow_STK_FEM;
+            friend class wrk::Workflow;
+            friend class wrk::Workflow_HMR_XTK;
+            friend class wrk::Workflow_STK_XTK;
+            friend class wrk::Workflow_STK_FEM;
 
-            public:
+          public:
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             * @param[ in ] aMesh          mesh for this problem
+             */
+            Performer_Manager( std::shared_ptr< Library_IO > aLibrary );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 * @param[ in ] aMesh          mesh for this problem
-                 */
-                Performer_Manager( std::shared_ptr< Library_IO > aLibrary );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * destructor
-                 */
-                ~Performer_Manager();
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+            /**
+             * destructor
+             */
+            ~Performer_Manager();
+            //------------------------------------------------------------------------------
         };
-    } /* namespace mdl */
+    }    // namespace wrk
 } /* namespace moris */
 
 #endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_ */
-
