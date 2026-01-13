@@ -2177,7 +2177,17 @@ namespace moris::gen
         switch ( tGQIType )
         {
             case GQI_Type::SHAPE_DIAMETER:
-                return Surface_Mesh::compute_global_shape_diameter( 30.0, 20 );    // BRENDAN FIXME: make parameters configurable
+            {
+                real tConeAngle      = aGQIParameters->get< real >( "cone_angle" );
+                uint tNumPolarRays   = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_polar_rays" ) );
+                uint tNumAzimuthRays = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_azimuth_rays" ) );
+
+                real tAgglomerationExponent = aGQIParameters->get< real >( "agglomeration_exponent" );
+                real tAgglomerationRef      = aGQIParameters->get< real >( "agglomeration_reference" );
+                real tAgglomerationShift    = aGQIParameters->get< real >( "agglomeration_shift" );
+
+                return Surface_Mesh::compute_global_shape_diameter( tConeAngle, tNumPolarRays, tNumAzimuthRays, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+            }
             case GQI_Type::VOLUME:
                 return Surface_Mesh::compute_volume();
                 break;
