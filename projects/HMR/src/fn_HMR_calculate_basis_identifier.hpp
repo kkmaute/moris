@@ -29,7 +29,7 @@ namespace moris::hmr
             const luint* aDimensionOffset )
     {
         luint tIdentifier = 0;
-        for ( uint iDimension = 0; iDimension < N; iDimension++)
+        for ( uint iDimension = 0; iDimension < N; iDimension++ )
         {
             luint tOffsetTerm = aIJK[ iDimension ];
             for ( uint iPreviousDimension = 0; iPreviousDimension < iDimension; iPreviousDimension++ )
@@ -40,4 +40,4 @@ namespace moris::hmr
         }
         return tIdentifier;
     }
-}
+}    // namespace moris::hmr
