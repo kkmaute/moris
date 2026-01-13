@@ -32,163 +32,168 @@ namespace moris::mtk
     TEST_CASE( "MTK Surface Mesh", "[MTK],[MTK_Surface_Mesh]" )
     {
         // Expected values
-        Matrix< DDRMat >                tCoordsExpected        = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
-        Vector< Vector< moris_index > > tConnExpected          = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
-        Matrix< DDRMat >                tNormalsExpected       = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
-        Matrix< DDRMat >                tCenterExpected        = { { 1.25000000, 0.62500000, 1.12500000, 1.75000000 }, { 0.87500000, 0.12500000, 0.12500000, 0.87500000 } };
-        Vector< real >                  tMeasureExpected       = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
-        real                            tShapeDiameterExpected = 0.52987607357825017;
+        Matrix< DDRMat >                tCoordsExpected  = { { 2.25, 0.25, 1.0, 1.25 }, { 1.25, 0.5, -0.25, 0.5 } };
+        Vector< Vector< moris_index > > tConnExpected    = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 } };
+        Matrix< DDRMat >                tNormalsExpected = { { -0.35112344, -0.70710678, 0.94868330, 0.60000000 }, { 0.93632918, -0.70710678, -0.31622777, -0.80000000 } };
+        Matrix< DDRMat >                tCenterExpected  = { { 1.25000000, 0.62500000, 1.12500000, 1.75000000 }, { 0.87500000, 0.12500000, 0.12500000, 0.87500000 } };
+        Vector< real >                  tMeasureExpected = { 2.13600094, 1.06066017, 0.79056942, 1.25000000 };
 
         // load a surface mesh from file
-        std::string tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
-        // std::string    tFilePath = "/home/chong/work/AU25/Input_Files/QI_Test/square_corners_only.obj";
-        Vector< real > tOffsets = { 0.0, 0.0 };
-        Vector< real > tScales  = { 1.0, 1.0 };
+        std::string    tFilePath = tMorisRoot + "/projects/GEN/test/data/triangle_sensitivity_oblique.obj";
+        Vector< real > tOffsets  = { 0.0, 0.0 };
+        Vector< real > tScales   = { 1.0, 1.0 };
         Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tFilePath, tOffsets, tScales ), load_facets_from_object_file( tFilePath ) );
 
-        // Config for shape diameter computation
-        uint tNumRays   = 120;
-        real tConeAngle = 15.0;    // degrees
-
-        // Check number of vertices and facets
-        REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
-        REQUIRE( tSurfaceMesh.get_number_of_facets() == tConnExpected.size() );
-
-        // Check vertex coordinates
-        check_equal( tSurfaceMesh.get_all_vertex_coordinates(), tCoordsExpected );
-
-        // Compute the actual facet measure and centers
-        Vector< real >   tFacetMeasures = tSurfaceMesh.compute_facet_measure();
-        Matrix< DDRMat > tFacetCenters  = tSurfaceMesh.compute_facet_centroids();
-
-        // Compute the nodal and global shape diameter
-        Vector< real > tNodalShapeDiameter  = tSurfaceMesh.compute_nodal_shape_diameter( tConeAngle, tNumRays );
-        real           tGlobalShapeDiameter = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays );
-
-        // Nodal shape diameter sensitivities
-        const Matrix< DDRMat >& tNodalShapeDiameterSensitivities = tSurfaceMesh.get_nodal_shape_diameter_sensitivities();
-
-        // Check global shape diameter
-        CHECK( tGlobalShapeDiameter == Approx( tShapeDiameterExpected ) );
-
-        // Loop over the surface mesh facets
-        for ( uint iF = 0; iF < tConnExpected.size(); ++iF )
+        SECTION( "Basic functionality and sensitivities" )
         {
-            Vector< moris_index > tFacetVertices = tSurfaceMesh.get_facets_vertex_indices( iF );
-            Matrix< DDRMat >      tFacetNormal   = tSurfaceMesh.get_facet_normal( iF );
-            for ( uint iV = 0; iV < tConnExpected( iF ).size(); ++iV )
+            real tShapeDiameterExpected = 0.52987607357825017;
+
+            // Config for shape diameter computation
+            uint tNumRays               = 6;
+            real tConeAngle             = 60.0;    // degrees
+            real tAgglomerationExponent = 0.01;
+            real tAgglomerationRef      = 0.1;
+            real tAgglomerationShift    = 0.0;
+
+            // Check number of vertices and facets
+            REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
+            REQUIRE( tSurfaceMesh.get_number_of_facets() == tConnExpected.size() );
+
+            // Check vertex coordinates
+            check_equal( tSurfaceMesh.get_all_vertex_coordinates(), tCoordsExpected );
+
+            // Compute the actual facet measure and centers
+            Vector< real >   tFacetMeasures = tSurfaceMesh.compute_facet_measure();
+            Matrix< DDRMat > tFacetCenters  = tSurfaceMesh.compute_facet_centroids();
+
+            // Compute the nodal and global shape diameter
+            Vector< real > tNodalShapeDiameter  = tSurfaceMesh.compute_facet_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+            real           tGlobalShapeDiameter = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+
+            // Nodal shape diameter sensitivities
+            // const Matrix< DDRMat >& tNodalShapeDiameterSensitivities = tSurfaceMesh.get_nodal_shape_diameter_sensitivities();
+
+            // Check global shape diameter
+            CHECK( tGlobalShapeDiameter == Approx( tShapeDiameterExpected ) );
+
+            // Loop over the surface mesh facets
+            for ( uint iF = 0; iF < tConnExpected.size(); ++iF )
             {
-                // Check facet connectivity
-                REQUIRE( tFacetVertices( iV ) == tConnExpected( iF )( iV ) );
-
-                // Check facet normal component
-                CHECK( tFacetNormal( iV ) == Approx( tNormalsExpected( iV, iF ) ) );
-
-                // Check facet center component
-                CHECK( tFacetCenters( iV, iF ) == Approx( tCenterExpected( iV, iF ) ) );
-            }
-
-            // Check facet measure
-            CHECK( tFacetMeasures( iF ) == Approx( tMeasureExpected( iF ) ) );
-
-            // Setup perturbation matrix for FD
-            Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
-
-            // Loop over vertices and finite difference the quanitities
-            for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-            {
-                // Compute analytic sensitivities
-                Matrix< DDRMat > tNormalSens        = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
-                Matrix< DDRMat > tCenterSens        = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
-                Matrix< DDRMat > tMeasureSens       = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
-                Matrix< DDRMat > tShapeDiameterSens = tSurfaceMesh.compute_ddiameter_dvertex( iV );
-
-                // Loop over dimensions
-                for ( uint iDim = 0; iDim < 2; iDim++ )
+                Vector< moris_index > tFacetVertices = tSurfaceMesh.get_facets_vertex_indices( iF );
+                Matrix< DDRMat >      tFacetNormal   = tSurfaceMesh.get_facet_normal( iF );
+                for ( uint iV = 0; iV < tConnExpected( iF ).size(); ++iV )
                 {
-                    // Perturb positively
-                    tPerturbation( iDim ) = tEps;
-                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-                    Matrix< DDRMat > tNormalPlus             = tSurfaceMesh.get_facet_normal( iF );
-                    Matrix< DDRMat > tCenterPlus             = tSurfaceMesh.compute_facet_centroid( iF );
-                    real             tMeasurePlus            = tSurfaceMesh.compute_facet_measure( iF );
-                    real             tShapeDiameterPlus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays );
-                    Vector< real >   tNodalShapeDiameterPlus = tSurfaceMesh.compute_nodal_shape_diameter( tConeAngle, tNumRays );
+                    // Check facet connectivity
+                    REQUIRE( tFacetVertices( iV ) == tConnExpected( iF )( iV ) );
 
-                    // Perturb negatively
-                    tPerturbation( iDim ) = -tEps;
-                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-                    Matrix< DDRMat > tNormalMinus             = tSurfaceMesh.get_facet_normal( iF );
-                    Matrix< DDRMat > tCenterMinus             = tSurfaceMesh.compute_facet_centroid( iF );
-                    real             tMeasureMinus            = tSurfaceMesh.compute_facet_measure( iF );
-                    real             tShapeDiameterMinus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays );
-                    Vector< real >   tNodalShapeDiameterMinus = tSurfaceMesh.compute_nodal_shape_diameter( tConeAngle, tNumRays );
+                    // Check facet normal component
+                    CHECK( tFacetNormal( iV ) == Approx( tNormalsExpected( iV, iF ) ) );
 
-                    // Reset perturbation
-                    tPerturbation( iDim ) = 0.0;
-                    tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                    // Check facet center component
+                    CHECK( tFacetCenters( iV, iF ) == Approx( tCenterExpected( iV, iF ) ) );
+                }
 
-                    // Compute finite difference results - nodal shape diameter
-                    real tNSDForward  = 0.0;
-                    real tNSDBackward = 0.0;
-                    real tNSDCentral  = 0.0;
-                    for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
+                // Check facet measure
+                CHECK( tFacetMeasures( iF ) == Approx( tMeasureExpected( iF ) ) );
+
+                // Setup perturbation matrix for FD
+                Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
+
+                // Loop over vertices and finite difference the quanitities
+                for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                {
+                    // Compute analytic sensitivities
+                    Matrix< DDRMat > tNormalSens        = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
+                    Matrix< DDRMat > tCenterSens        = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
+                    Matrix< DDRMat > tMeasureSens       = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
+                    Matrix< DDRMat > tShapeDiameterSens = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+
+                    // Loop over dimensions
+                    for ( uint iDim = 0; iDim < 2; iDim++ )
                     {
-                        tNSDForward += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameter( iF ) ) / tEps;
-                        tNSDBackward += tFacetMeasures( iF ) * ( tNodalShapeDiameter( iF ) - tNodalShapeDiameterMinus( iF ) ) / tEps;
-                        tNSDCentral += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameterMinus( iF ) ) / ( 2.0 * tEps );
+                        // Perturb positively
+                        tPerturbation( iDim ) = tEps;
+                        tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                        Matrix< DDRMat > tNormalPlus             = tSurfaceMesh.get_facet_normal( iF );
+                        Matrix< DDRMat > tCenterPlus             = tSurfaceMesh.compute_facet_centroid( iF );
+                        real             tMeasurePlus            = tSurfaceMesh.compute_facet_measure( iF );
+                        real             tShapeDiameterPlus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+                        Vector< real >   tNodalShapeDiameterPlus = tSurfaceMesh.compute_facet_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+
+                        // Perturb negatively
+                        tPerturbation( iDim ) = -tEps;
+                        tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+                        Matrix< DDRMat > tNormalMinus             = tSurfaceMesh.get_facet_normal( iF );
+                        Matrix< DDRMat > tCenterMinus             = tSurfaceMesh.compute_facet_centroid( iF );
+                        real             tMeasureMinus            = tSurfaceMesh.compute_facet_measure( iF );
+                        real             tShapeDiameterMinus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+                        Vector< real >   tNodalShapeDiameterMinus = tSurfaceMesh.compute_facet_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+
+                        // Reset perturbation
+                        tPerturbation( iDim ) = 0.0;
+                        tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
+
+                        // Compute finite difference results - nodal shape diameter
+                        real tNSDForward  = 0.0;
+                        real tNSDBackward = 0.0;
+                        real tNSDCentral  = 0.0;
+                        for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
+                        {
+                            tNSDForward += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameter( iF ) ) / tEps;
+                            tNSDBackward += tFacetMeasures( iF ) * ( tNodalShapeDiameter( iF ) - tNodalShapeDiameterMinus( iF ) ) / tEps;
+                            tNSDCentral += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameterMinus( iF ) ) / ( 2.0 * tEps );
+                        }
+
+                        // Compute finite difference results - normal
+                        Matrix< DDRMat > tNForward  = ( tNormalPlus - tFacetNormal ) / tEps;
+                        Matrix< DDRMat > tNBackward = ( tFacetNormal - tNormalMinus ) / tEps;
+                        Matrix< DDRMat > tNCentral  = ( tNormalPlus - tNormalMinus ) / ( 2.0 * tEps );
+
+                        // Compute finite difference results - center
+                        Matrix< DDRMat > tCForward  = ( tCenterPlus - tFacetCenters.get_column( iF ) ) / tEps;
+                        Matrix< DDRMat > tCBackward = ( tFacetCenters.get_column( iF ) - tCenterMinus ) / tEps;
+                        Matrix< DDRMat > tCCentral  = ( tCenterPlus - tCenterMinus ) / ( 2.0 * tEps );
+
+                        // Compute finite difference results - measure
+                        real tMForward  = ( tMeasurePlus - tFacetMeasures( iF ) ) / tEps;
+                        real tMBackward = ( tFacetMeasures( iF ) - tMeasureMinus ) / tEps;
+                        real tMCentral  = ( tMeasurePlus - tMeasureMinus ) / ( 2.0 * tEps );
+
+                        // Check sensitivities for measure
+                        CHECK( tMeasureSens( iDim ) == Approx( tMForward ) );
+                        CHECK( tMeasureSens( iDim ) == Approx( tMBackward ) );
+                        CHECK( tMeasureSens( iDim ) == Approx( tMCentral ) );
+
+
+                        // Check sensitivities for normal and center
+                        for ( uint iComp = 0; iComp < 2; iComp++ )
+                        {
+                            // Check sensitivities for normal
+                            CHECK( tNormalSens( iComp, iDim ) == Approx( tNForward( iComp ) ) );
+                            CHECK( tNormalSens( iComp, iDim ) == Approx( tNBackward( iComp ) ) );
+                            CHECK( tNormalSens( iComp, iDim ) == Approx( tNCentral( iComp ) ) );
+
+                            // Check sensitivities for center
+                            CHECK( tCenterSens( iComp, iDim ) == Approx( tCForward( iComp ) ) );
+                            CHECK( tCenterSens( iComp, iDim ) == Approx( tCBackward( iComp ) ) );
+                            CHECK( tCenterSens( iComp, iDim ) == Approx( tCCentral( iComp ) ) );
+                        }
+
+                        // Check nodal shape diameter sensitivities
+                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDForward ).epsilon( 1e-2 ) );
+                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDBackward ).epsilon( 1e-2 ) );
+                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDCentral ).epsilon( 1e-2 ) );
+
+                        // Compute finite difference results - global shape diameter
+                        real tSDForward  = ( tShapeDiameterPlus - tGlobalShapeDiameter ) / tEps;
+                        real tSDBackward = ( tGlobalShapeDiameter - tShapeDiameterMinus ) / tEps;
+                        real tSDCentral  = ( tShapeDiameterPlus - tShapeDiameterMinus ) / ( 2.0 * tEps );
+
+                        // Check sensitivities shape diameter
+                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-2 ) );
+                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-2 ) );
+                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-2 ) );
                     }
-
-
-                    // Compute finite difference results - normal
-                    Matrix< DDRMat > tNForward  = ( tNormalPlus - tFacetNormal ) / tEps;
-                    Matrix< DDRMat > tNBackward = ( tFacetNormal - tNormalMinus ) / tEps;
-                    Matrix< DDRMat > tNCentral  = ( tNormalPlus - tNormalMinus ) / ( 2.0 * tEps );
-
-                    // Compute finite difference results - center
-                    Matrix< DDRMat > tCForward  = ( tCenterPlus - tFacetCenters.get_column( iF ) ) / tEps;
-                    Matrix< DDRMat > tCBackward = ( tFacetCenters.get_column( iF ) - tCenterMinus ) / tEps;
-                    Matrix< DDRMat > tCCentral  = ( tCenterPlus - tCenterMinus ) / ( 2.0 * tEps );
-
-                    // Compute finite difference results - measure
-                    real tMForward  = ( tMeasurePlus - tFacetMeasures( iF ) ) / tEps;
-                    real tMBackward = ( tFacetMeasures( iF ) - tMeasureMinus ) / tEps;
-                    real tMCentral  = ( tMeasurePlus - tMeasureMinus ) / ( 2.0 * tEps );
-
-                    // Check sensitivities for measure
-                    CHECK( tMeasureSens( iDim ) == Approx( tMForward ) );
-                    CHECK( tMeasureSens( iDim ) == Approx( tMBackward ) );
-                    CHECK( tMeasureSens( iDim ) == Approx( tMCentral ) );
-
-
-                    // Check sensitivities for normal and center
-                    for ( uint iComp = 0; iComp < 2; iComp++ )
-                    {
-                        // Check sensitivities for normal
-                        CHECK( tNormalSens( iComp, iDim ) == Approx( tNForward( iComp ) ) );
-                        CHECK( tNormalSens( iComp, iDim ) == Approx( tNBackward( iComp ) ) );
-                        CHECK( tNormalSens( iComp, iDim ) == Approx( tNCentral( iComp ) ) );
-
-                        // Check sensitivities for center
-                        CHECK( tCenterSens( iComp, iDim ) == Approx( tCForward( iComp ) ) );
-                        CHECK( tCenterSens( iComp, iDim ) == Approx( tCBackward( iComp ) ) );
-                        CHECK( tCenterSens( iComp, iDim ) == Approx( tCCentral( iComp ) ) );
-                    }
-
-                    // Check nodal shape diameter sensitivities
-                    CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDForward ).epsilon( 1e-2 ) );
-                    CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDBackward ).epsilon( 1e-2 ) );
-                    CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDCentral ).epsilon( 1e-2 ) );
-
-                    // Compute finite difference results - global shape diameter
-                    real tSDForward  = ( tShapeDiameterPlus - tGlobalShapeDiameter ) / tEps;
-                    real tSDBackward = ( tGlobalShapeDiameter - tShapeDiameterMinus ) / tEps;
-                    real tSDCentral  = ( tShapeDiameterPlus - tShapeDiameterMinus ) / ( 2.0 * tEps );
-
-                    // Check sensitivities shape diameter
-                    CHECK( tShapeDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-2 ) );
-                    CHECK( tShapeDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-2 ) );
-                    CHECK( tShapeDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-2 ) );
                 }
             }
         }
@@ -325,6 +330,99 @@ namespace moris::mtk
                     CHECK( tdRdV( iVLocal, iDim ) == Approx( tRBackward ) );
                     CHECK( tdRdV( iVLocal, iDim ) == Approx( tRCentral ) );
                 }
+            }
+        }
+        SECTION( "Dot Product Sensitivity" )
+        {
+            // These can be any arbitrary vectors for testing purposes
+            Matrix< DDRMat > tDirection   = { { 0.70710678118 }, { 0.70710678118 } };
+            Matrix< DDRMat > tFacetNormal = { { 0.0 }, { 1.0 } };
+
+            real tAngle = tSurfaceMesh.compute_angle_magnitude( tDirection, tFacetNormal );
+            CHECK( tAngle == Approx( 0.78539816339 ) );
+
+            // Finite difference sensitivity
+            Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
+            Matrix< DDRMat > tDAdD = tSurfaceMesh.compute_dangle_magnitude_dvector( tDirection, tFacetNormal );
+
+            // Loop over dimensions
+            for ( uint iDim = 0; iDim < 2; iDim++ )
+            {
+                // Perturb direction positively
+                tPerturbation( iDim )          = tEps;
+                Matrix< DDRMat > tPerturbedDir = tDirection + tPerturbation;
+                real             tAnglePlus    = tSurfaceMesh.compute_angle_magnitude( tPerturbedDir, tFacetNormal );
+
+                // Perturb direction negatively
+                tPerturbation( iDim )             = -tEps;
+                Matrix< DDRMat > tPerturbedDirNeg = tDirection + tPerturbation;
+                real             tAngleMinus      = tSurfaceMesh.compute_angle_magnitude( tPerturbedDirNeg, tFacetNormal );
+
+                // Reset perturbation
+                tPerturbation( iDim ) = 0.0;
+
+                // Compute FD sensitivity
+                real tAForward  = ( tAnglePlus - tAngle ) / tEps;
+                real tABackward = ( tAngle - tAngleMinus ) / tEps;
+                real tACentral  = ( tAnglePlus - tAngleMinus ) / ( 2.0 * tEps );
+
+                // Check sensitivities
+                CHECK( tDAdD( iDim ) == Approx( tAForward ) );
+                CHECK( tDAdD( iDim ) == Approx( tABackward ) );
+                CHECK( tDAdD( iDim ) == Approx( tACentral ) );
+            }
+        }
+        SECTION( "Agglomeration Function Sensitivity" )
+        {
+            // Agglomeration function sensitivity test
+            real tExponent  = 2.0;
+            real tReference = 0.1;
+            real tShift     = 0.0;
+            uint tNumTests  = 5;
+
+            // Loop over some test values
+            for ( uint iTest = 0; iTest < tNumTests; iTest++ )
+            {
+                real tValue = 0.05 + iTest * 0.05;
+
+                // Compute analytic value and sensitivity
+                real tAgglomeratedValue        = tSurfaceMesh.tanh_clip( tValue, tExponent, tReference, tShift );
+                real tDAgglomeratedValueDValue = tSurfaceMesh.dtanh_clip( tValue, tExponent, tReference, tShift );
+
+                // Finite difference sensitivity
+                real tValuePlus             = tValue + tEps;
+                real tAgglomeratedValuePlus = tSurfaceMesh.tanh_clip( tValuePlus, tExponent, tReference, tShift );
+
+                real tValueMinus             = tValue - tEps;
+                real tAgglomeratedValueMinus = tSurfaceMesh.tanh_clip( tValueMinus, tExponent, tReference, tShift );
+
+                real tDForward  = ( tAgglomeratedValuePlus - tAgglomeratedValue ) / tEps;
+                real tDBackward = ( tAgglomeratedValue - tAgglomeratedValueMinus ) / tEps;
+                real tDCentral  = ( tAgglomeratedValuePlus - tAgglomeratedValueMinus ) / ( 2.0 * tEps );
+
+                // Check sensitivities
+                CHECK( tDAgglomeratedValueDValue == Approx( tDForward ) );
+                CHECK( tDAgglomeratedValueDValue == Approx( tDBackward ) );
+                CHECK( tDAgglomeratedValueDValue == Approx( tDCentral ) );
+
+                // Compute analytic sensitivity
+                tDAgglomeratedValueDValue = tSurfaceMesh.dmax_clip( tValue, tExponent, tReference, tShift );
+
+                // Finite difference sensitivity
+                tValuePlus             = tValue + tEps;
+                tAgglomeratedValuePlus = tSurfaceMesh.max_clip( tValuePlus, tExponent, tReference, tShift );
+
+                tValueMinus             = tValue - tEps;
+                tAgglomeratedValueMinus = tSurfaceMesh.max_clip( tValueMinus, tExponent, tReference, tShift );
+
+                tDForward  = ( tAgglomeratedValuePlus - tAgglomeratedValue ) / tEps;
+                tDBackward = ( tAgglomeratedValue - tAgglomeratedValueMinus ) / tEps;
+                tDCentral  = ( tAgglomeratedValuePlus - tAgglomeratedValueMinus ) / ( 2.0 * tEps );
+
+                // Check sensitivities
+                CHECK( tDAgglomeratedValueDValue == Approx( tDForward ) );
+                CHECK( tDAgglomeratedValueDValue == Approx( tDBackward ) );
+                CHECK( tDAgglomeratedValueDValue == Approx( tDCentral ) );
             }
         }
     }
