@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN  Parabolic_Indenter)
-set(EXAMPLE_FILES Parabolic_Indenter_Linear)
+set(EXAMPLE_FILES Parabolic_Indenter_Linear Parabolic_Indenter_NonLinear)
 set(EXAMPLE_PROCS 1)
 
 # List source files

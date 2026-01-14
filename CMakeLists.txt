@@ -204,7 +204,7 @@ option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
 option(MORIS_HAVE_SLEPC
-    "Build MORIS with support for SLEPC." OFF )
+    "Build MORIS with support for SLEPC." ON )
 
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -216,7 +216,7 @@ option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
 option(MORIS_HAVE_ARBORX
-    "Build MORIS with support for ArborX." OFF )
+    "Build MORIS with support for ArborX." ON )
     
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
@@ -438,17 +438,17 @@ else(MORIS_USE_INTEL)
    link_libraries(${MORIS_LIB_Dl})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Dl})
 
-   find_library(MORIS_LIB_Ssl NAMES ssl HINTS $ENV{SSL_LIBRARY_DIR} ${LIB_SEARCH_PATH} )
+   find_library(MORIS_LIB_Ssl NAMES ssl HINTS ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_Ssl = ${MORIS_LIB_Ssl}")
    link_libraries(${MORIS_LIB_Ssl})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ssl})
 
-   find_library(MORIS_Lib_Crypto NAMES crypto HINTS $ENV{SSL_LIBRARY_DIR} ${LIB_SEARCH_PATH} )
+   find_library(MORIS_Lib_Crypto NAMES crypto HINTS ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_Lib_Crypto = ${MORIS_Lib_Crypto}")
    link_libraries(${MORIS_Lib_Crypto})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_Lib_Crypto})
 
-   find_library(MORIS_LIB_Z NAMES z HINTS $ENV{ZLIB_LIBRARY_DIR} ${LIB_SEARCH_PATH} )
+   find_library(MORIS_LIB_Z NAMES z HINTS ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_Z = ${MORIS_LIB_Z}")
    link_libraries(${MORIS_LIB_Z})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Z})

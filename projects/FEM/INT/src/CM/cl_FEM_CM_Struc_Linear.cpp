@@ -79,11 +79,8 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
-    CM_Struc_Linear::build_global_dof_type_list()
+    CM_Struc_Linear::initialize_spec_storage_vars_and_eval_flags()
     {
-        // build list from parent class
-        Constitutive_Model::build_global_dof_type_list();
-
         mGeometricStiffnessEval.set_size( mGlobalDofTypes.size(), 1, true );
     }
 
@@ -272,11 +269,8 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
-    CM_Struc_Linear::reset_eval_flags()
+    CM_Struc_Linear::reset_specific_eval_flags()
     {
-        // reset flag from parent class
-        Constitutive_Model::reset_eval_flags();
-
         mGeometricStiffnessEval.fill( true );
     }
 

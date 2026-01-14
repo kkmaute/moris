@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_EDGE_HPP_
-#define PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_EDGE_HPP_
+#pragma once
 
 #include "moris_typedefs.hpp"
 
@@ -82,6 +81,3 @@ namespace moris::hmr
 //-------------------------------------------------------------------------------
     };
 }
-
-#endif /* PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_EDGE_HPP_ */
-

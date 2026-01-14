@@ -11,10 +11,6 @@
 # Add source directory
 add_subdirectory(src)
 
-if( BUILD_TUTORIALS AND BUILD_HMR )
-    add_subdirectory(tutorials)
-endif()
-
 # Add test directory
 if(MORIS_USE_TESTS AND BUILD_HMR)
     add_subdirectory(test)

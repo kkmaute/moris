@@ -311,9 +311,9 @@ namespace moris
          * @return Cell of values
          */
         template< typename T >
-        Vector< T > get_cell( const std::string& aName ) const
+        Vector< T > get_vector( const std::string& aName ) const
         {
-            return string_to_vector< T >( this->get< std::string >( aName ) );
+            return get< Vector< T > >( aName );
         }
 
         /**

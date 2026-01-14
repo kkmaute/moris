@@ -7,8 +7,7 @@
  * fn_HMR_refinement_transition_locations.hpp  
  * 
  */
-#ifndef SRC_fn_HMR_refinement_transition_locations
-#define SRC_fn_HMR_refinement_transition_locations
+#pragma once
 
 #include "cl_Vector.hpp"
 
@@ -497,5 +496,3 @@ namespace moris::hmr
     //-----------------------------------------------------------------------------
 
 } // namespace moris
-
-#endif /* SRC_fn_HMR_refinement_transition_locations */

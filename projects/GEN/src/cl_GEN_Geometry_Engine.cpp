@@ -51,7 +51,7 @@ namespace moris::gen
         Tracer tTracer( "GEN", "Create geometry engine" );
 
         // Requested IQIs
-        mRequestedIQIs = aParameterLists( 0 )( 0 ).get< Vector< std::string > >( "IQI_types" );
+        mRequestedIQIs = aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" );
 
         // Geometries
         mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
@@ -77,7 +77,7 @@ namespace moris::gen
                 "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
 
         // Set requested PDVs
-        Vector< std::string > tRequestedPDVNames = aParameterLists( 0 )( 0 ).get< Vector< std::string > >( "PDV_types" );
+        Vector< std::string > tRequestedPDVNames = aParameterLists( 0 )( 0 ).get_vector< std::string >( "PDV_types" );
         Vector< PDV_Type >    tRequestedPDVTypes( tRequestedPDVNames.size() );
 
         map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();

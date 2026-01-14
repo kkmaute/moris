@@ -11,6 +11,7 @@
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -185,11 +186,15 @@ namespace moris::fem
         const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
+
         // compute the length scale
         real tHugn = this->length_scale();
 
         // compute linearized version of uTilde = u - cb2/sigma gradv
-        Matrix< DDRMat > tModVelocity = tCMSATurbulence->modified_velocity_linearized();
+        Matrix< DDRMat > tModVelocity = tCMSATurbulencePtr->modified_velocity_linearized();
 
         // compute norm( uTilde ) and threshold tNormA (for consistency with derivative computation)
         real tNormA = std::max( norm( tModVelocity ), mEpsilon );
@@ -198,7 +203,7 @@ namespace moris::fem
         real tTauA = 2.0 * tNormA / tHugn;
 
         // tau K
-        real tTauK = 4.0 * tCMSATurbulence->diffusion_coefficient()( 0 ) / std::pow( tHugn, 2.0 );
+        real tTauK = 4.0 * tCMSATurbulencePtr->diffusion_coefficient()( 0 ) / std::pow( tHugn, 2.0 );
 
         // evaluate tau
         real tTau = std::pow( tTauA, mExponent ) + std::pow( tTauK, mExponent );
@@ -207,8 +212,8 @@ namespace moris::fem
         if ( mHasReaction )
         {
             // compute tau S with linearized version of destruction term
-            real tTauS = 2.0 * tCMSATurbulence->wall_destruction_coefficient()( 0 )
-                       - tCMSATurbulence->production_coefficient()( 0 );
+            real tTauS = 2.0 * tCMSATurbulencePtr->wall_destruction_coefficient()( 0 )
+                       - tCMSATurbulencePtr->production_coefficient()( 0 );
 
             // compute the regularized absolute of source term
             real tTauSabs = std::max( std::abs( tTauS ), mEpsilon );
@@ -244,11 +249,15 @@ namespace moris::fem
         const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
+
         // compute the length scale
         real tHugn = this->length_scale();
 
         // evaluate linearized version of uTilde = u - 2/sigma cb2 gradv
-        Matrix< DDRMat > tModVelocity = tCMSATurbulence->modified_velocity_linearized();
+        Matrix< DDRMat > tModVelocity = tCMSATurbulencePtr->modified_velocity_linearized();
 
         // compute norm( uTilde ) and threshold tNormA (for consistency with derivative computation)
         real tNormA = std::max( norm( tModVelocity ), mEpsilon );
@@ -257,7 +266,7 @@ namespace moris::fem
         real tTauA = 2.0 * tNormA / tHugn;
 
         // tau K
-        real tTauK = 4.0 * tCMSATurbulence->diffusion_coefficient()( 0 ) / std::pow( tHugn, 2.0 );
+        real tTauK = 4.0 * tCMSATurbulencePtr->diffusion_coefficient()( 0 ) / std::pow( tHugn, 2.0 );
 
         // evaluate tau
         real tTau = std::pow( tTauA, mExponent ) + std::pow( tTauK, mExponent );
@@ -268,8 +277,8 @@ namespace moris::fem
         if ( mHasReaction )
         {
             // compute tau S with linearized version of destruction term
-            tTauS = 2.0 * tCMSATurbulence->wall_destruction_coefficient()( 0 )
-                  - tCMSATurbulence->production_coefficient()( 0 );
+            tTauS = 2.0 * tCMSATurbulencePtr->wall_destruction_coefficient()( 0 )
+                  - tCMSATurbulencePtr->production_coefficient()( 0 );
 
             // compute the regularized absolute of source term
             tTauSabs = std::max( std::abs( tTauS ), mEpsilon );
@@ -285,9 +294,10 @@ namespace moris::fem
         if ( tTau > mEpsilon )
         {
             // add contribution from the length scale derivative
-            mdPPdLeaderDof( tDofIndex ) = -this->dlengthscaledleaderu( aDofTypes )
-                                        * ( std::pow( tTauA, mExponent - 1.0 ) * 2.0 * tNormA / std::pow( tHugn, 2.0 )
-                                                + std::pow( tTauK, mExponent - 1.0 ) * 8.0 * tCMSATurbulence->diffusion_coefficient()( 0 ) / std::pow( tHugn, 3.0 ) );
+            mdPPdLeaderDof( tDofIndex ) =                                                             //
+                    -this->dlengthscaledleaderu( aDofTypes )                                          //
+                    * ( std::pow( tTauA, mExponent - 1.0 ) * 2.0 * tNormA / std::pow( tHugn, 2.0 )    //
+                            + std::pow( tTauK, mExponent - 1.0 ) * 8.0 * tCMSATurbulencePtr->diffusion_coefficient()( 0 ) / std::pow( tHugn, 3.0 ) );
 
             // if turbulence CM depends on dof type
             if ( tCMSATurbulence->check_dof_dependency( aDofTypes ) )
@@ -298,12 +308,12 @@ namespace moris::fem
                     // add contribution to mdPPdLeaderDof from linearized version of modified velocity
                     mdPPdLeaderDof( tDofIndex ) +=
                             std::pow( tTauA, mExponent - 1.0 ) * 2.0
-                            * trans( tModVelocity ) * tCMSATurbulence->dmodvelocitylinearizeddu( aDofTypes ) / ( tHugn * tNormA );
+                            * trans( tModVelocity ) * tCMSATurbulencePtr->dmodvelocitylinearizeddu( aDofTypes ) / ( tHugn * tNormA );
                 }
 
                 // compute tdtauKdu
                 mdPPdLeaderDof( tDofIndex ) +=
-                        std::pow( tTauK, mExponent - 1.0 ) * 4.0 * tCMSATurbulence->ddiffusioncoeffdu( aDofTypes ) / std::pow( tHugn, 2.0 );
+                        std::pow( tTauK, mExponent - 1.0 ) * 4.0 * tCMSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / std::pow( tHugn, 2.0 );
 
                 // if use reaction term
                 if ( mHasReaction )
@@ -314,7 +324,7 @@ namespace moris::fem
                         mdPPdLeaderDof( tDofIndex ) +=
                                 std::pow( tTauSabs, mExponent - 1.0 )
                                 * tTauS / tTauSabs
-                                * ( 2.0 * tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes ) - tCMSATurbulence->dproductioncoeffdu( aDofTypes ) );
+                                * ( 2.0 * tCMSATurbulencePtr->dwalldestructioncoeffdu( aDofTypes ) - tCMSATurbulencePtr->dproductioncoeffdu( aDofTypes ) );
                     }
                 }
             }
@@ -353,8 +363,12 @@ namespace moris::fem
         const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
+
         // compute and threshold the velocity norm (thresholding for consistency with derivatives)
-        const real tNorm = std::max( norm( tCMSATurbulence->modified_velocity_linearized() ), mEpsilon );
+        const real tNorm = std::max( norm( tCMSATurbulencePtr->modified_velocity_linearized() ), mEpsilon );
 
         // get the velocity type FI
         Field_Interpolator* tVelocityFI =
@@ -366,7 +380,7 @@ namespace moris::fem
 
         for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
         {
-            tAbs += std::abs( dot( tCMSATurbulence->modified_velocity_linearized(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
+            tAbs += std::abs( dot( tCMSATurbulencePtr->modified_velocity_linearized(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
         }
 
         // threshold tAbs
@@ -428,18 +442,22 @@ namespace moris::fem
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
+            // cast constitutive model base class pointer to SA constitutive model
+            CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
+                    dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
+
             // get the velocity FI
             Field_Interpolator* tVelocityFI =
                     mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofVelocity );
 
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
-            const real tNorm = std::max( norm( tCMSATurbulence->modified_velocity_linearized() ), mEpsilon );
+            const real tNorm = std::max( norm( tCMSATurbulencePtr->modified_velocity_linearized() ), mEpsilon );
 
             // compute derivative of the modified velocity norm (compute only derivative if not thresholded)
             Matrix< DDRMat > tdNormdu( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
             if ( tNorm > mEpsilon && tCMSATurbulence->check_dof_dependency( aDofTypes ) )
             {
-                tdNormdu += trans( tCMSATurbulence->modified_velocity_linearized() ) * tCMSATurbulence->dmodvelocitylinearizeddu( aDofTypes ) / tNorm;
+                tdNormdu += trans( tCMSATurbulencePtr->modified_velocity_linearized() ) * tCMSATurbulencePtr->dmodvelocitylinearizeddu( aDofTypes ) / tNorm;
             }
 
             // get the abs term
@@ -447,7 +465,7 @@ namespace moris::fem
             real       tAbs      = 0.0;
             for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
             {
-                tAbs += std::abs( dot( tCMSATurbulence->modified_velocity_linearized(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
+                tAbs += std::abs( dot( tCMSATurbulencePtr->modified_velocity_linearized(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
             }
 
             // threshold tAbs
@@ -460,13 +478,13 @@ namespace moris::fem
                 uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
                 for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
                 {
-                    real tAdd = dot( tCMSATurbulence->modified_velocity_linearized(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) );
+                    real tAdd = dot( tCMSATurbulencePtr->modified_velocity_linearized(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) );
 
                     // handle case that tAdd is smaller than threshold
                     if ( std::abs( tAdd ) > mEpsilon )
                     {
                         tdAbsdu += tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) )
-                                 * tCMSATurbulence->dmodvelocitylinearizeddu( aDofTypes ) / std::abs( tAdd );
+                                 * tCMSATurbulencePtr->dmodvelocitylinearizeddu( aDofTypes ) / std::abs( tAdd );
                     }
                 }
             }

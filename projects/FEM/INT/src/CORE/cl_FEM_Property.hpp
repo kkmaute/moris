@@ -83,8 +83,13 @@ namespace moris::fem
         // value function
         PropertyFunc mValFunction = Property_Function_Constant;
 
+        // space derivative info
+        uint             mMaxSpaceDerOrder = 1;    // max order allowed
+        bool             mSpaceDependency  = false;    // active order
+
         // space derivative functions
         Vector< PropertyFunc > mSpaceDerFunctions;
+        Vector< PropertyFunc > mSpaceDofDerFunctions;
 
         // dof and dv derivative functions
         Vector< PropertyFunc > mDofDerFunctions;
@@ -94,7 +99,8 @@ namespace moris::fem
         Matrix< DDRMat >           mProp;
         Vector< Matrix< DDRMat > > mPropDofDer;
         Vector< Matrix< DDRMat > > mPropDvDer;
-        Vector< Matrix< DDRMat > > mdPropdx;
+        Vector< Matrix< DDRMat > > mPropSpaceDer;
+        Vector< Vector< Matrix< DDRMat > > > mPropSpaceDofDer;
 
         // property name
         std::string mName;
@@ -102,14 +108,16 @@ namespace moris::fem
       private:
         // flag for evaluation
         bool                    mPropEval = true;
-        moris::Matrix< DDBMat > mdPropdxEval;
+        moris::Matrix< DDBMat > mPropSpaceDerEval;
+        moris::Matrix< DDBMat > mPropSpaceDofDerEval;
         moris::Matrix< DDBMat > mPropDofDerEval;
         moris::Matrix< DDBMat > mPropDvDerEval;
 
-        // flag for setting mValFunction, mSpaceDerFunction, mDofDerFunctions, mDvDerFunctions
+        // flag for setting functions
         bool                    mSetValFunction = false;
-        moris::Matrix< DDBMat > mSetSpaceDerFunctions;
+        bool                    mSetSpaceDerFunctions = false;
         bool                    mSetDofDerFunctions = false;
+        bool                    mSetSpaceDofDerFunctions = false;
         bool                    mSetDvDerFunctions  = false;
 
         //------------------------------------------------------------------------------
@@ -197,22 +205,24 @@ namespace moris::fem
          * @param[ in ] aValFunction function for property evaluation
          */
         void
-        set_val_function( PropertyFunc aValFunction )
-        {
-            // set the value function
-            mValFunction = std::move( aValFunction );
-
-            // set setting flag
-            mSetValFunction = true;
-        }
+        set_val_function(
+                PropertyFunc aValFunction );
 
         //------------------------------------------------------------------------------
         /**
          * set space derivative function
-         * @param[ in ] aSpaceDerFunctions cell of functions for dnPropdxn evaluation
+         * @param[ in ] aSpaceDerFunctions cell of functions for dPropdx evaluation
          */
-        void set_space_der_functions(
+        void set_space_derivative_functions(
                 const Vector< PropertyFunc >& aSpaceDerFunctions );
+
+        //------------------------------------------------------------------------------
+        /**
+         * set space derivative function
+         * @param[ in ] aSpaceDofDerFunctions cell of functions for dPropdxddof evaluation
+         */
+        void set_space_dof_derivative_functions(
+                const Vector< PropertyFunc >& aSpaceDofDerFunctions );
 
         //------------------------------------------------------------------------------
         /**
@@ -232,14 +242,7 @@ namespace moris::fem
          */
         void
         set_dof_derivative_functions(
-                const Vector< PropertyFunc >& aDofDerFunctions )
-        {
-            // set functions for derivatives wrt dof
-            mDofDerFunctions = aDofDerFunctions;
-
-            // set setting flag
-            mSetDofDerFunctions = true;
-        }
+                const Vector< PropertyFunc >& aDofDerFunctions );
 
         //------------------------------------------------------------------------------
         /**
@@ -255,18 +258,11 @@ namespace moris::fem
         //------------------------------------------------------------------------------
         /**
          * set dv derivative functions
-         * @param[ in ] aDofDerFunctions list function for property derivatives wrt dv
+         * @param[ in ] aDvDerFunctions list function for property derivatives wrt dv
          */
         void
         set_dv_derivative_functions(
-                const Vector< PropertyFunc >& aDvDerFunctions )
-        {
-            // set functions for derivatives wrt dv
-            mDvDerFunctions = aDvDerFunctions;
-
-            // set setting flag
-            mSetDvDerFunctions = true;
-        }
+                const Vector< PropertyFunc >& aDvDerFunctions );
 
         //------------------------------------------------------------------------------
         /**
@@ -321,14 +317,16 @@ namespace moris::fem
          * @param[ in ]  aDofType cell of dof type
          * @param[ out ] aBool    boolean, true if dependency on the dof type
          */
-        bool check_dof_dependency( const Vector< MSI::Dof_Type >& aDofType );
+        bool check_dof_dependency(
+                const Vector< MSI::Dof_Type >& aDofType );
 
         //------------------------------------------------------------------------------
         /**
          * set a list of dv types
          * @param[ in ] aDvTypes list of dv type
          */
-        void set_dv_type_list( const Vector< Vector< gen::PDV_Type > >& aDvTypes );
+        void set_dv_type_list(
+                const Vector< Vector< gen::PDV_Type > >& aDvTypes );
 
         //------------------------------------------------------------------------------
         /**
@@ -464,7 +462,7 @@ namespace moris::fem
          * @param[ in ]  aOrder   order of derivative wrt x
          * @param[ out ] aBool    boolean, true if dependency on the space order
          */
-        bool check_space_dependency( const uint& aOrder );
+        bool check_space_dependency();
 
         //------------------------------------------------------------------------------
         /**
@@ -472,14 +470,36 @@ namespace moris::fem
          * @param[ in ]  aOrder   order of derivative wrt x
          * @param[ out ] mdPropdx matrix with derivative wrt x
          */
-        const Matrix< DDRMat >& dnPropdxn( const uint& aOrder );
+        const Matrix< DDRMat >& dPropdx( const uint& aOrder );
 
         //------------------------------------------------------------------------------
         /**
          * evaluate property derivative wrt x
          * @param[ in ]  aOrder   order of derivative wrt x
          */
-        void eval_dnPropdxn( const uint& aOrder );
+        void eval_dPropdx( const uint& aOrder );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get property derivative wrt x wrt DOF
+         * @param[ in ]  aOrder       order of derivative wrt x
+         * @param[ in ]  aDofType     cell of dof type for derivative wrt DOF
+         * @param[ out ] mdPropdxdDOF matrix with derivative wrt x and DOF
+         */
+        const Matrix< DDRMat >&
+        dPropdxdDOF(
+                const Vector< MSI::Dof_Type >& aDofType,
+                const uint&                    aOrder );
+
+        //------------------------------------------------------------------------------
+        /**
+         * evaluate property derivative wrt x
+         * @param[ in ]  aOrder       order of derivative wrt x
+         * @param[ in ]  aDofType     cell of dof type for derivative wrt DOF
+         */
+        void eval_dPropdxdDOF(
+                const Vector< MSI::Dof_Type >& aDofType,
+                const uint&                    aOrder );
 
         //------------------------------------------------------------------------------
         /**

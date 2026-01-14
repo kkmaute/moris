@@ -61,7 +61,7 @@ namespace moris::mtk
         Vector< moris_index > mDobleSideSetToDoubleSidedClusterIndex;
         Vector< moris_index > mDobleSideSetToDoubleSidedClusterOffset;
 
-        // the map used in constrcution of the double sided clusters
+        // the map used in construction of the double sided clusters
         std::unordered_map< Cluster const *, moris_index > mPreviousSideClusterToNewSideCluster;
 
         // Double sided cluster connectivity

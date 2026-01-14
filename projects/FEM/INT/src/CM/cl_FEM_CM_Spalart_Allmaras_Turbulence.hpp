@@ -245,10 +245,18 @@ namespace moris::fem
                 const Vector< std::string >&             aDofStrings ) override;
 
         //------------------------------------------------------------------------------
-        /**
-         * create a global dof type list including constitutive and property dependencies
+        /*
+         * reset specific evaluation flag
+         * (child implementation)
          */
-        void build_global_dof_type_list() override;
+        void reset_specific_eval_flags() override;
+
+        //------------------------------------------------------------------------------
+        /*
+         * initialize specific storage and evaluation flag
+         * (child implementation)
+         */
+        void initialize_spec_storage_vars_and_eval_flags() override;
 
         //------------------------------------------------------------------------------
         /**
@@ -272,10 +280,183 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /**
-         * reset evaluation flags
+         * get the the production coefficient
+         * @param[ in ]  aCMFunctionType enum for specific production term if several
+         * @param[ out ] mProductionTerm production term
          */
-        void reset_eval_flags() override;
+        const Matrix< DDRMat >&
+        production_term(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the production term wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which production term
+         * @param[ out ] mdProductionTermdu derivative of the production term wrt dof types
+         */
+        const Matrix< DDRMat >& 
+        dproductiontermdu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+        
+        //------------------------------------------------------------------------------
+        /**
+         * get the the production coefficient
+         * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
+         *               if there are several
+         * @param[ out ] mProductionCoeff production coefficient
+         */
+        const Matrix< DDRMat >& 
+        production_coefficient(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+        
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the production coefficient wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which production coefficient
+         * @param[ out ] mdproductioncoeffdu derivative of the production coefficient wrt dof types
+         */
+        const Matrix< DDRMat >& 
+        dproductioncoeffdu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the the wall destruction term
+         * @param[ in ]  aCMFunctionType enum for specific wall destruction term if several
+         * @param[ out ] mWallDestructionTerm wall destruction term
+         */
+        const Matrix< DDRMat >& 
+        wall_destruction_term(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the wall destruction term wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which wall destruction term
+         * @param[ out ] mdwalldestructiontermdu derivative of the wall destruction term wrt dof types
+         */
+        const Matrix< DDRMat >&
+        dwalldestructiontermdu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the the wall destruction coefficient
+         * @param[ in ]  aCMFunctionType enum indicating which wall destruction coefficient
+         *               if there are several
+         * @param[ out ] mWallDestructionCoeff wall destruction coefficient
+         */
+        const Matrix< DDRMat >& 
+        wall_destruction_coefficient(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the wall destruction coefficient wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which wall destruction coefficient
+         * @param[ out ] mdwalldestructioncoeffdu derivative of the wall destruction coefficient wrt dof types
+         */
+        const Matrix< DDRMat >& 
+        dwalldestructioncoeffdu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+        
+        //------------------------------------------------------------------------------
+        /**
+         * get the diffusion coefficient
+         * @param[ in ]  aCMFunctionType enum for specific diffusion coefficient if several
+         * @param[ out ] mDiffusionCoeff diffusion coefficient
+         */
+        const Matrix< DDRMat >& 
+        diffusion_coefficient(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+        
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the diffusion coefficient wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+         * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
+         */
+        const Matrix< DDRMat >& 
+        ddiffusioncoeffdu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
+         * @param[ in ]  aCMFunctionType enum for modified velocity if several
+         * @param[ out ] mModVelocity modified velocity
+         */
+        const Matrix< DDRMat >& 
+        modified_velocity(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the modified velocity wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+         * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
+         */
+        const Matrix< DDRMat >& 
+        dmodvelocitydu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the linearized version of modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
+         * @param[ in ]  aCMFunctionType enum for modified velocity if several
+         * @param[ out ] mModVelocity modified velocity
+         */
+        const Matrix< DDRMat >& modified_velocity_linearized(
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the linearized version of the modified velocity wrt dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+         * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
+         */
+        const Matrix< DDRMat >& dmodvelocitylinearizeddu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of diffusion coefficient wrt space
+         * @param[ in ] aOrder order of the derivative
+         * @param[ in ] aCMFunctionType enum for specific type of diffusion coefficient
+         * @param[ out ] mdDiffusionCoeffdx derivative of the diffusion coefficient wrt space
+         */
+        const Matrix< DDRMat >& ddiffusioncoeffdx(
+                uint                  aOrder,
+                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the derivative of the diffusion coefficient wrt space and dof type
+         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+         * @param[ in ] aOrder order of the space derivative
+         * @param[ in ] aCMFunctionType enum for specific type of diffusion coefficient
+         * @param[ out ] mdDiffusionCoeffdxdu derivative of the diffusion coefficient wrt dof types
+         */
+        const Matrix< DDRMat >& ddiffusioncoeffdxdu(
+                const Vector< MSI::Dof_Type >& aDofType,
+                uint                           aOrder,
+                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+      private:
         //--------------------------------------------------------------------------------------------------------------
         /**
          * evaluate the traction
@@ -312,138 +493,6 @@ namespace moris::fem
                 const Vector< MSI::Dof_Type >& aDofTypes,
                 const Matrix< DDRMat >&        aNormal,
                 const Vector< MSI::Dof_Type >& aTestDofTypes ) override;
-
-        /**
-         * get the the production coefficient
-         * @param[ in ]  aCMFunctionType enum for specific production term if several
-         * @param[ out ] mProductionTerm production term
-         */
-        const Matrix< DDRMat >& production_term(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the production term wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which production term
-         * @param[ out ] mdProductionTermdu derivative of the production term wrt dof types
-         */
-        const Matrix< DDRMat >& dproductiontermdu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the the production coefficient
-         * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-         *               if there are several
-         * @param[ out ] mProductionCoeff production coefficient
-         */
-        const Matrix< DDRMat >& production_coefficient(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the production coefficient wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which production coefficient
-         * @param[ out ] mdproductioncoeffdu derivative of the production coefficient wrt dof types
-         */
-        const Matrix< DDRMat >& dproductioncoeffdu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the the wall destruction term
-         * @param[ in ]  aCMFunctionType enum for specific wall destruction term if several
-         * @param[ out ] mWallDestructionTerm wall destruction term
-         */
-        const Matrix< DDRMat >& wall_destruction_term(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the wall destruction term wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which wall destruction term
-         * @param[ out ] mdwalldestructiontermdu derivative of the wall destruction term wrt dof types
-         */
-        const Matrix< DDRMat >& dwalldestructiontermdu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the the wall destruction coefficient
-         * @param[ in ]  aCMFunctionType enum indicating which wall destruction coefficient
-         *               if there are several
-         * @param[ out ] mWallDestructionCoeff wall destruction coefficient
-         */
-        const Matrix< DDRMat >& wall_destruction_coefficient(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the wall destruction coefficient wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which wall destruction coefficient
-         * @param[ out ] mdwalldestructioncoeffdu derivative of the wall destruction coefficient wrt dof types
-         */
-        const Matrix< DDRMat >& dwalldestructioncoeffdu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the diffusion coefficient
-         * @param[ in ]  aCMFunctionType enum for specific diffusion coefficient if several
-         * @param[ out ] mDiffusionCoeff diffusion coefficient
-         */
-        const Matrix< DDRMat >& diffusion_coefficient(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the diffusion coefficient wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which diffusion
-         * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
-         */
-        const Matrix< DDRMat >& ddiffusioncoeffdu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
-         * @param[ in ]  aCMFunctionType enum for modified velocity if several
-         * @param[ out ] mModVelocity modified velocity
-         */
-        const Matrix< DDRMat >& modified_velocity(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the modified velocity wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which diffusion
-         * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
-         */
-        const Matrix< DDRMat >& dmodvelocitydu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the linearized version of modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
-         * @param[ in ]  aCMFunctionType enum for modified velocity if several
-         * @param[ out ] mModVelocity modified velocity
-         */
-        const Matrix< DDRMat >& modified_velocity_linearized(
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        /**
-         * get the derivative of the linearized version of the modified velocity wrt dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aCMFunctionType enum for specific type of which diffusion
-         * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
-         */
-        const Matrix< DDRMat >& dmodvelocitylinearizeddu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT ) override;
-
-        //--------------------------------------------------------------------------------------------------------------
-
-      private:
         //--------------------------------------------------------------------------------------------------------------
         /**
          * evaluate the divergence of the flux
@@ -462,15 +511,6 @@ namespace moris::fem
          */
         void eval_production_coefficient();
 
-        //                /**
-        //                 * get the the production coefficient
-        //                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-        //                 *               if there are several
-        //                 * @param[ out ] mProductionCoeff production coefficient
-        //                 */
-        //                const Matrix< DDRMat > & production_coefficient(
-        //                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
-
         //------------------------------------------------------------------------------
         /**
          * evaluate the production coefficient derivative wrt to dof type
@@ -478,30 +518,11 @@ namespace moris::fem
          */
         void eval_dproductioncoeffdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
-        //                /**
-        //                 * get the derivative of the production coefficient wrt dof type
-        //                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-        //                 * @param[ in ] aCMFunctionType enum for specific type of which production coefficient
-        //                 * @param[ out ] mdproductioncoeffdu derivative of the production coefficient wrt dof types
-        //                 */
-        //                const Matrix< DDRMat > & dproductioncoeffdu(
-        //                        const Vector< MSI::Dof_Type > & aDofType,
-        //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
-
         //------------------------------------------------------------------------------
         /**
          * evaluate the production term
          */
         void eval_production_term();
-
-        //                /**
-        //                 * get the the production term
-        //                 * @param[ in ]  aCMFunctionType  enum indicating which production term is called,
-        //                 *               if there are several
-        //                 * @param[ out ] mProductionTerm production term
-        //                 */
-        //                const Matrix< DDRMat > & production_term(
-        //                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**
@@ -510,30 +531,11 @@ namespace moris::fem
          */
         void eval_dproductiontermdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
-        //                /**
-        //                 * get the derivative of the production term wrt dof type
-        //                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-        //                 * @param[ in ] aCMFunctionType enum for specific type of which production term
-        //                 * @param[ out ] mdProductionTermdu derivative of the production term wrt dof types
-        //                 */
-        //                const Matrix< DDRMat > & dproductiontermdu(
-        //                        const Vector< MSI::Dof_Type > & aDofType,
-        //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
-
         //------------------------------------------------------------------------------
         /**
          * evaluate the wall destruction coefficient
          */
         void eval_wall_destruction_coefficient();
-
-        //                /**
-        //                 * get the the wall destruction coefficient
-        //                 * @param[ in ]  aCMFunctionType enum indicating which wall destruction coefficient
-        //                 *               if there are several
-        //                 * @param[ out ] mWallDestructionCoeff wall destruction coefficient
-        //                 */
-        //                const Matrix< DDRMat > & wall_destruction_coefficient(
-        //                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**
@@ -542,30 +544,11 @@ namespace moris::fem
          */
         void eval_dwalldestructioncoeffdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
-        //                /**
-        //                 * get the derivative of the wall destruction coefficient wrt dof type
-        //                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-        //                 * @param[ in ] aCMFunctionType enum for specific type of which wall destruction coefficient
-        //                 * @param[ out ] mdwalldestructioncoeffdu derivative of the wall destruction coefficient wrt dof types
-        //                 */
-        //                const Matrix< DDRMat > & dwalldestructioncoeffdu(
-        //                        const Vector< MSI::Dof_Type > & aDofType,
-        //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
-
         //------------------------------------------------------------------------------
         /**
          * evaluate the wall destruction term
          */
         void eval_wall_destruction_term();
-
-        //                /**
-        //                 * get the the wall destruction term
-        //                 * @param[ in ]  aCMFunctionType enum indicating which wall destruction term
-        //                 *               if there are several
-        //                 * @param[ out ] mWallDestructionTerm wall destruction term
-        //                 */
-        //                const Matrix< DDRMat > & wall_destruction_term(
-        //                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**
@@ -574,30 +557,11 @@ namespace moris::fem
          */
         void eval_dwalldestructiontermdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
-        //                /**
-        //                 * get the derivative of the wall destruction term wrt dof type
-        //                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-        //                 * @param[ in ] aCMFunctionType enum for specific type of which wall destruction term
-        //                 * @param[ out ] mdwalldestructiontermdu derivative of the wall destruction term wrt dof types
-        //                 */
-        //                const Matrix< DDRMat > & dwalldestructiontermdu(
-        //                        const Vector< MSI::Dof_Type > & aDofType,
-        //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
-
         //------------------------------------------------------------------------------
         /**
          * evaluate the diffusion coefficient
          */
         void eval_diffusion_coefficient();
-
-        //                /**
-        //                 * get the diffusion coefficient
-        //                 * @param[ in ]  aCMFunctionType  enum indicating which diffusion coefficient
-        //                 *               if there are several
-        //                 * @param[ out ] mDiffusionCoeff diffusion coefficient
-        //                 */
-        //                const Matrix< DDRMat > & diffusion_coefficient(
-        //                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**
@@ -606,32 +570,14 @@ namespace moris::fem
          */
         void eval_ddiffusioncoeffdu( const Vector< MSI::Dof_Type >& aDofTypes );
 
-        //                /**
-        //                 * get the derivative of the diffusion coefficient wrt dof type
-        //                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-        //                 * @param[ in ] aCMFunctionType enum for specific type of which diffusion
-        //                 * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
-        //                 */
-        //                const Matrix< DDRMat > & ddiffusioncoeffdu(
-        //                        const Vector< MSI::Dof_Type > & aDofType,
-        //                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
-
+        //------------------------------------------------------------------------------
         /**
          * evaluate the derivative of diffusion coeffcient wrt space
          * @param[ in ] aOrder order of the derivative
          */
         void eval_ddiffusioncoeffdx( uint aOrder );
 
-        /**
-         * get the derivative of diffusion coefficient wrt space
-         * @param[ in ] aOrder order of the derivative
-         * @param[ in ] aCMFunctionType enum for specific type of diffusion coefficient
-         * @param[ out ] mdDiffusionCoeffdx derivative of the diffusion coefficient wrt space
-         */
-        const Matrix< DDRMat >& ddiffusioncoeffdx(
-                uint                  aOrder,
-                enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
-
+        //------------------------------------------------------------------------------
         /**
          * evaluate the effective diffusion coefficient wrt to space and dof type
          * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
@@ -640,18 +586,6 @@ namespace moris::fem
         void eval_ddiffusioncoeffdxdu(
                 const Vector< MSI::Dof_Type >& aDofTypes,
                 uint                           aOrder );
-
-        /**
-         * get the derivative of the diffusion coefficient wrt space and dof type
-         * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-         * @param[ in ] aOrder order of the space derivative
-         * @param[ in ] aCMFunctionType enum for specific type of diffusion coefficient
-         * @param[ out ] mdDiffusionCoeffdxdu derivative of the diffusion coefficient wrt dof types
-         */
-        const Matrix< DDRMat >& ddiffusioncoeffdxdu(
-                const Vector< MSI::Dof_Type >& aDofType,
-                uint                           aOrder,
-                enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**

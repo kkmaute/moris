@@ -565,6 +565,9 @@ namespace moris::fem
                     tIWGParameter.get< std::string >( "function_parameters" ),
                     tFuncParameters );
 
+            // get the final time for integration
+            real tTimeFinal = tIWGParameter.get< real >( "time_final" );
+
             // get the treated IWG bulk type
             auto tIWGBulkType = tIWGParameter.get< fem::Element_Type >( "IWG_bulk_type" );
 
@@ -588,6 +591,11 @@ namespace moris::fem
             // set constant parameters
             mIWGs( iIWG )->set_parameters( tFuncParameters );
 
+            // set final time
+            mIWGs( iIWG )->set_time_final( tTimeFinal );
+            if ( tTimeFinal > -1.0 ) { mIWGs( iIWG )->set_time_boundary( true ); }
+
+            // set whether FD is used for computing jacobian
             mIWGs( iIWG )->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) );    // warning: this is a negation
 
             // initialize string for leader or follower
@@ -839,6 +847,9 @@ namespace moris::fem
                     tIQIParameter.get< std::string >( "function_parameters" ),
                     tFuncParameters );
 
+            // get the final time for integration
+            real tTimeFinal = tIQIParameter.get< real >( "time_final" );
+
             // get the treated IQI bulk type
             auto tIQIBulkType = tIQIParameter.get< fem::Element_Type  >( "IQI_bulk_type" );
 
@@ -862,6 +873,10 @@ namespace moris::fem
 
             // set constant parameters
             mIQIs( iIQI )->set_parameters( tFuncParameters );
+
+            // set final time
+            mIQIs( iIQI )->set_time_final( tTimeFinal );
+            if ( tTimeFinal > -1.0 ) { mIQIs( iIQI )->set_time_boundary( true ); }
 
             // init string for leader or follower
             std::string          tIsLeaderString = "leader";
@@ -1044,6 +1059,9 @@ namespace moris::fem
             // get time continuity flag
             bool tTimeContinuity = mIWGs( iIWG )->get_time_continuity();
 
+            // get final time
+            real tTimeFinal = mIWGs( iIWG )->get_time_final();
+
             // get time boundary flag
             bool tTimeBoundary = mIWGs( iIWG )->get_time_boundary();
 
@@ -1107,6 +1125,9 @@ namespace moris::fem
                     // set its time continuity flag
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
 
+                    // set its final time value
+                    aSetUserInfo.set_time_final( tTimeFinal );
+
                     // set its time boundary flag
                     aSetUserInfo.set_time_boundary( tTimeBoundary );
 
@@ -1169,6 +1190,9 @@ namespace moris::fem
             // get time continuity flag
             bool tTimeContinuity = mIQIs( iIQI )->get_time_continuity();
 
+            // get final time
+            real tTimeFinal = mIQIs( iIQI )->get_time_final();
+
             // get time boundary flag
             bool tTimeBoundary = mIQIs( iIQI )->get_time_boundary();
 
@@ -1226,6 +1250,9 @@ namespace moris::fem
 
                     // set its time continuity flag
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
+
+                    // set its final time value
+                    aSetUserInfo.set_time_final( tTimeFinal );
 
                     // set its time boundary flag
                     aSetUserInfo.set_time_boundary( tTimeBoundary );

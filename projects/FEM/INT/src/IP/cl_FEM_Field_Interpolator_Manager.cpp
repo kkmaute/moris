@@ -270,11 +270,13 @@ namespace moris::fem
         fem::Element_Type tElementType = reinterpret_cast< Set* >( mEquationSet )->mElementType;
 
         // bool true if time sideset
-        bool tIsTimeSide = ( tElementType == fem::Element_Type::TIME_SIDESET );
+        bool tIsTimeSide = ( tElementType == fem::Element_Type::TIME_SIDESET ) ||    //
+                           ( tElementType == fem::Element_Type::TIME_FINAL_SIDESET );
 
         // bool true if sideset or double sideset
-        bool tIsSide = ( tElementType != fem::Element_Type::BULK ) &&    //
-                       ( tElementType != fem::Element_Type::TIME_SIDESET );
+        bool tIsSide = ( tElementType != fem::Element_Type::BULK ) &&            //
+                       ( tElementType != fem::Element_Type::TIME_SIDESET ) &&    //
+                       ( tElementType != fem::Element_Type::TIME_FINAL_SIDESET );
 
         // create geometry interpolation rule for IP elements
         mtk::Interpolation_Rule tIPGeometryInterpolationRule(

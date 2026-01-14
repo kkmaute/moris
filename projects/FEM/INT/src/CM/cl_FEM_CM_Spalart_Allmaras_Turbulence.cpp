@@ -32,18 +32,15 @@ namespace moris::fem
         mPropertyMap[ "KinViscosity" ] = static_cast< uint >( CM_Property_Type::KINVISCOSITY );
         mPropertyMap[ "WallDistance" ] = static_cast< uint >( CM_Property_Type::WALL_DISTANCE );
 
-        // FIXME for now only 1st order allowed
-        uint tOrder = 1;
-
         // init storage for evaluation
-        mdChidx.resize( tOrder );
-        mdFndx.resize( tOrder );
-        mdDiffusionCoeffdx.resize( tOrder );
+        mdChidx.resize( mMaxSpaceDerOrder );
+        mdFndx.resize( mMaxSpaceDerOrder );
+        mdDiffusionCoeffdx.resize( mMaxSpaceDerOrder );
 
         // init flag for evaluation
-        mdChidxEval.set_size( tOrder, 1, true );
-        mdFndxEval.set_size( tOrder, 1, true );
-        mdDiffusionCoeffdxEval.set_size( tOrder, 1, true );
+        mdChidxEval.set_size( mMaxSpaceDerOrder, 1, true );
+        mdFndxEval.set_size( mMaxSpaceDerOrder, 1, true );
+        mdDiffusionCoeffdxEval.set_size( mMaxSpaceDerOrder, 1, true );
     }
 
     //------------------------------------------------------------------------------
@@ -51,7 +48,6 @@ namespace moris::fem
     void
     CM_Spalart_Allmaras_Turbulence::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
     {
-        // FIXME not necessary
         // set mParameters
         mParameters = aParameters;
 
@@ -146,11 +142,8 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
-    CM_Spalart_Allmaras_Turbulence::build_global_dof_type_list()
+    CM_Spalart_Allmaras_Turbulence::initialize_spec_storage_vars_and_eval_flags()
     {
-        // call parent implementation
-        Constitutive_Model::build_global_dof_type_list();
-
         // get number of dof types
         uint tNumGlobalDofTypes = mGlobalDofTypes.size();
 
@@ -184,11 +177,9 @@ namespace moris::fem
         mdFwduEval.set_size( tNumGlobalDofTypes, 1, true );
         mdFnduEval.set_size( tNumGlobalDofTypes, 1, true );
 
-        // FIXME for now only 1st order allowed
-        uint tOrder = 1;
-        mdChidxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
-        mdFndxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
-        mdDiffusionCoeffdxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
+        mdChidxduEval.set_size( mMaxSpaceDerOrder, tNumGlobalDofTypes, true );
+        mdFndxduEval.set_size( mMaxSpaceDerOrder, tNumGlobalDofTypes, true );
+        mdDiffusionCoeffdxduEval.set_size( mMaxSpaceDerOrder, tNumGlobalDofTypes, true );
 
         // init child specific storage
         mdProductionCoeffdu.resize( tNumGlobalDofTypes );
@@ -221,10 +212,10 @@ namespace moris::fem
 
         mdFndu.resize( tNumGlobalDofTypes );
 
-        mdFndxdu.resize( tOrder );
-        mdDiffusionCoeffdxdu.resize( tOrder );
-        mdChidxdu.resize( tOrder );
-        for ( uint iOrder = 0; iOrder < tOrder; iOrder++ )
+        mdFndxdu.resize( mMaxSpaceDerOrder );
+        mdDiffusionCoeffdxdu.resize( mMaxSpaceDerOrder );
+        mdChidxdu.resize( mMaxSpaceDerOrder );
+        for ( uint iOrder = 0; iOrder < mMaxSpaceDerOrder; iOrder++ )
         {
             mdChidxdu( iOrder ).resize( tNumGlobalDofTypes );
             mdDiffusionCoeffdxdu( iOrder ).resize( tNumGlobalDofTypes );
@@ -235,11 +226,8 @@ namespace moris::fem
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    CM_Spalart_Allmaras_Turbulence::reset_eval_flags()
+    CM_Spalart_Allmaras_Turbulence::reset_specific_eval_flags()
     {
-        // call parent implementation
-        Constitutive_Model::reset_eval_flags();
-
         // reset child specific eval flags for SA model
         mProductionCoeffEval = true;
         mdProductionCoeffduEval.fill( true );
@@ -1241,10 +1229,6 @@ namespace moris::fem
     void
     CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdx( uint aOrder )
     {
-        // FIXME work only for 1st order
-        MORIS_ERROR( aOrder == 1,
-                "CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdx - Works only for 1st order derivative for now." );
-
         // set matrix size
         mdDiffusionCoeffdx( aOrder - 1 ).set_size( mSpaceDim, 1 );
 
@@ -1262,9 +1246,12 @@ namespace moris::fem
             mdDiffusionCoeffdx( aOrder - 1 ) = tFIModViscosity->gradx( 1 ) / mSigma;
 
             // if kinematic viscosity depends on space
-            if ( mPropKinViscosity->check_space_dependency( 1 ) )
+            if ( mPropKinViscosity->check_space_dependency() )
             {
-                mdDiffusionCoeffdx( aOrder - 1 ) += mPropKinViscosity->dnPropdxn( 1 ) / mSigma;
+                // assume that kinematic viscosity prop does not depend on x
+                MORIS_ERROR( false,
+                        "CM_Diffusion_Linear_Isotropic_Turbulence::eval_ddiffusioncoeffdx -"    //
+                        "Dependence of kinematic viscosity on space not accounted for." );
             }
         }
         // if viscosity is negative
@@ -1275,9 +1262,12 @@ namespace moris::fem
                     ( tFIModViscosity->gradx( 1 ) * this->fn() + tFIModViscosity->val()( 0 ) * this->dfndx( 1 ) ) / mSigma;
 
             // if kinematic viscosity depends on space
-            if ( mPropKinViscosity->check_space_dependency( 1 ) )
+            if ( mPropKinViscosity->check_space_dependency() )
             {
-                mdDiffusionCoeffdx( aOrder - 1 ) += mPropKinViscosity->dnPropdxn( 1 ) / mSigma;
+                // assume that kinematic viscosity prop does not depend on x
+                MORIS_ERROR( false,
+                        "CM_Diffusion_Linear_Isotropic_Turbulence::eval_ddiffusioncoeffdx -"    //
+                        "Dependence of kinematic viscosity on space not accounted for." );
             }
         }
     }
@@ -1344,12 +1334,11 @@ namespace moris::fem
             if ( aDofTypes( 0 ) == mDofViscosity )
             {
                 // compute diffusion term
-                mdDiffusionCoeffdxdu( aOrder - 1 )( tDofIndex ) =
-                        tFIModViscosity->dnNdxn( 1 ) / mSigma;
+                mdDiffusionCoeffdxdu( aOrder - 1 )( tDofIndex ) = tFIModViscosity->dnNdxn( 1 ) / mSigma;
 
                 //                    //FIXME missing term aPropKinViscosity->dPropdxdu()
                 //                    // if kinematic viscosity depends on space
-                //                    if( mPropKinViscosity->check_space_dependency( 1 ) )
+                //                    if( mPropKinViscosity->check_space_dependency() )
                 //                    {
                 //                         mdDiffusionCoeffdxdu( aOrder - 1 )( tDofIndex ) += mPropKinViscosity->dPropdxdu / mSigma;
                 //                    }
@@ -1369,7 +1358,7 @@ namespace moris::fem
 
             // FIXME missing term aPropKinViscosity->dPropdxdu()
             //                     // if kinematic viscosity depends on space
-            //                     if( aPropKinViscosity->check_space_dependency( 1 ) )
+            //                     if( aPropKinViscosity->check_space_dependency( ) )
             //                     {
             //                         mdDiffusionCoeffdxdu( aOrder - 1 )( tDofIndex ) +=
             //                                 mPropKinViscosity->dPropdxdu() / mSigma;
@@ -1696,12 +1685,12 @@ namespace moris::fem
     {
         // check CM function type, base class only supports "DEFAULT"
         MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Fluid_Turbulence::dchidu - Only DEFAULT CM function type known in base class." );
+                "CM_Spalart_Allmaras_Turbulence::dchidu - Only DEFAULT CM function type known in base class." );
 
         // if aDofType is not an active dof type for the CM
         MORIS_ERROR(
                 this->check_dof_dependency( aDofType ),
-                "CM_Fluid_Turbulence::dchidu - no dependency in this dof type." );
+                "CM_Spalart_Allmaras_Turbulence::dchidu - no dependency in this dof type." );
 
         // get the dof index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -1734,10 +1723,10 @@ namespace moris::fem
     {
         // check CM function type, base class only supports "DEFAULT"
         MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Fluid_Turbulence::dchidx - Only DEFAULT CM function type known in base class." );
+                "CM_Spalart_Allmaras_Turbulence::dchidx - Only DEFAULT CM function type known in base class." );
 
         MORIS_ERROR( aOrder == 1,
-                "CM_Fluid_Turbulence::dchidx - Works only for 1st order derivative for now." );
+                "CM_Spalart_Allmaras_Turbulence::dchidx - Works only for 1st order derivative for now." );
 
         // if the derivative has not been evaluated yet
         if ( mdChidxEval( aOrder - 1 ) )
@@ -1767,10 +1756,10 @@ namespace moris::fem
     {
         // check CM function type, base class only supports "DEFAULT"
         MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                "CM_Fluid_Turbulence::dchidxdu - Only DEFAULT CM function type known in base class." );
+                "CM_Spalart_Allmaras_Turbulence::dchidxdu - Only DEFAULT CM function type known in base class." );
 
         MORIS_ERROR( aOrder == 1,
-                "CM_Fluid_Turbulence::dchidxdu - Works only for 1st order derivative for now." );
+                "CM_Spalart_Allmaras_Turbulence::dchidxdu - Works only for 1st order derivative for now." );
 
         // get the dof index
         uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );

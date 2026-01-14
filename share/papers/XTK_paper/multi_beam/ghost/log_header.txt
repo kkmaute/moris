@@ -1,5 +1,5 @@
 Global Clock Initialized ... 
-Memory usage in MB: total 76 | max 76 | min 76 || current 76 | max 76 | min 76
+Memory usage in MB: total 73 | max 73 | min 73 || current 73 | max 73 | min 73
 
             .___  ___.   ______   .______       __       _______.
             |   \/   |  /  __  \  |   _  \     |  |     /       |
@@ -12,20 +12,20 @@ Memory usage in MB: total 76 | max 76 | min 76 || current 76 | max 76 | min 76
                         Aerospace Mechanics Research Center
 
 
-     DEBUG flags are OFF.
+     DEBUG flags are ON.
 
      User/Host    : wunsch at mirage.colorado.edu ( linux / x86_64 )
      CPU Info     : AMD Ryzen 9 5950X 16-Core Processor 
      Procs Used   : 1 
 
-     Build Date   : Oct 24 2024 at 10:30:28
-     Date of Run  : Thu Oct 24 11:01:22 2024
+     Build Date   : Apr 21 2025 at 10:24:45
+     Date of Run  : Fri Apr 25 15:21:59 2025
  
      Matrix Lib   : Armadillo
 
      Executable   : /home/wunsch/codes/moris/build_opt/projects/mains/moris
      Arguments    : ./Multi_Beam.so
-     Run Dir      : /home/wunsch/work/XTK_Paper/multi_beam/sweep_with_fix_v2/Ghost_On/OffSet_-001
+     Run Dir      : /home/wunsch/work/XTK_Paper/multi_beam/new_ghost/Ghost_On/OffSet_120
 
      GIT branch   : refs/heads/main
-     GIT revision : f74fe5e8ac3616ce2dece1c87d70b7e56bb4b343
+     GIT revision : 464dc705c9e03d26d1f857df3f91098d7680030b

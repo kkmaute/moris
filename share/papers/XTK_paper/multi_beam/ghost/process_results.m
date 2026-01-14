@@ -6,7 +6,7 @@ clc;
 %% Input and Output values
 
 % offset values the simulations were performed with
-OffSetValsStr = ["-140" "-139" "-120" "-101" "-100" "-080" "-060" "-040" "-039" "-020" "-001" "000" "020" "040" "060" "061" "080" "099" "100" "120" "140" "160" "161" "180" "199" "200"];
+OffSetValsStr = ["040" "050" "060" "061" "062" "065" "070" "080" "090" "095" "098" "099" "100" "110" "120"];
 NumVals = length( OffSetValsStr );
 
 % initialize output values
@@ -22,7 +22,7 @@ for i = 1:NumVals
     
     % get the offset value
     OffSetStr = OffSetValsStr( i );
-    OffSetVal = str2double( OffSetStr ) / 10.0;
+    OffSetVal = str2double( OffSetStr ) / 100.0;
     OffSetVals( i ) = OffSetVal;
 
     % get the condition number for Ghost OFF
@@ -66,5 +66,11 @@ ylabel( "n_{DOF}" );
 legend( 'Ghost: Off', 'Ghost: On', "Location", "northwest" );
 
 
+%% Write to CSV for use in gnuplot
 
+WriteMat = zeros(NumVals:3);
+WriteMat(:,1) = OffSetVals;
+WriteMat(:,2) = CondNumsGhostOff;
+WriteMat(:,3) = CondNumsGhostOn;
 
+writematrix( WriteMat, 'multi_beam_cond.csv' );

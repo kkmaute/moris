@@ -61,7 +61,7 @@ if [ "$2" ];then
     builddir=$2
 
     if [ ! -d "$MORISROOT/$builddir" ];then
-       echo " Error: $workdir does not exist"
+       echo " Error: $MORISROOT/$builddir does not exist"
        echo ""
        exit
     fi
@@ -167,7 +167,7 @@ if [ "$dbgflag" = '0' ];then
         echo " restoring input_file.cpp from git repository"
         echo ""
     
-        cd "$MORISROOT/$builddir"
+        cd "$MORISROOT"
         git checkout -- "$MORISROOT/projects/mains/input_file.cpp"
     fi
 else

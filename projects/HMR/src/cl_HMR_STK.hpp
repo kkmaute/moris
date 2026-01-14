@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_STK_HPP_
-#define SRC_HMR_CL_HMR_STK_HPP_
+#pragma once
 
 #include <string>
 
@@ -153,6 +152,3 @@ class Lagrange_Mesh_Base;
     // ----------------------------------------------------------------------------
 
 } /* namespace moris */
-
-#endif /* SRC_HMR_CL_HMR_STK_HPP_ */
-

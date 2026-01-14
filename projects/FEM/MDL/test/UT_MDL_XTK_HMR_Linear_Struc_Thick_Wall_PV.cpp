@@ -293,10 +293,8 @@ namespace moris
 
             moris::ParameterList tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
-            tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
-            tParameters.set( "domain_offset", "0,0" );
-            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "number_of_elements_per_dimension", tNumX, tNumY );
+            tParameters.set( "domain_dimensions", tDomainLX, tDomainLY );
             tParameters.set( "lagrange_output_meshes", "0" );
 
             tParameters.set( "lagrange_orders", std::to_string( tOrder ) );
@@ -306,15 +304,9 @@ namespace moris
 
             tParameters.set( "lagrange_to_bspline", std::string( "0" ) );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 3 );
             tParameters.set( "staircase_buffer", 3 );
-            tParameters.set( "initial_refinement", "0" );
-            tParameters.set( "initial_refinement_pattern", "0" );
-
-            tParameters.set( "use_multigrid", 0 );
             tParameters.set( "severity_level", 2 );
-            tParameters.set( "use_number_aura", 1 );
 
             hmr::HMR tHMR( tParameters );
 

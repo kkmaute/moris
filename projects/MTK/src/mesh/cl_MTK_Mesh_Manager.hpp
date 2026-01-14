@@ -38,9 +38,6 @@ namespace moris
             // mesh pair to index map
             moris::map< std::string, moris_index > mMeshPairNameToIndexMap;
 
-            // pointer to HMR performer
-            std::weak_ptr< hmr::HMR > mHMRPerformer;
-
             // list of registered fields
             Vector< std::weak_ptr< mtk::Field > > mFields;
 
@@ -55,13 +52,6 @@ namespace moris
             //--------------------------------------------------------------------
 
             ~Mesh_Manager();
-
-            //--------------------------------------------------------------------
-
-            void set_performer( const std::shared_ptr< hmr::HMR >& aHMRPerformer )
-            {
-                mHMRPerformer = aHMRPerformer;
-            };
 
             //--------------------------------------------------------------------
 
@@ -109,10 +99,6 @@ namespace moris
              * @param aPairIndex Mesh pair name
              */
             void remove_mesh_pair( const std::string& aMeshPairName );
-
-            //-------------------------------------------------------------------------
-
-            void update_mesh_pairs( const Vector< std::string >& aMeshPairNames );
 
             //--------------------------------------------------------------------
 

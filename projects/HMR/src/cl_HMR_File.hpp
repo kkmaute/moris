@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_CL_HMR_FILE_HPP_
-#define SRC_HMR_CL_HMR_FILE_HPP_
+#pragma once
 
 #include <string>
 
@@ -42,11 +41,11 @@ namespace moris::hmr
 //-------------------------------------------------------------------------------
 
         // default constructor
-        File(){}
+        File() = default;
 
 //-------------------------------------------------------------------------------
         // default destructor
-        ~File(){}
+        ~File() = default;
 
 //-------------------------------------------------------------------------------
 
@@ -94,24 +93,16 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void save_refinement_pattern(
-                Background_Mesh_Base          * aBackgroundMesh,
-                const moris::Matrix< DDUMat > & tPatternToSave );
+                Background_Mesh_Base*   aBackgroundMesh,
+                const Matrix< DDUMat >& tPatternToSave );
 
         //-------------------------------------------------------------------------------
 
-        void save_refinement_pattern(
-                Lagrange_Mesh_Base * aLagrangeMesh,
-                const uint aDiscretizationMeshIndex,
-                Matrix< DDLUMat > & aElementCounterPerLevelAndPattern,
-                Vector< Matrix< DDLUMat > > & aElementPerPattern );
-
-        //-------------------------------------------------------------------------------
-
-        void save_refinement_pattern(
-                Background_Mesh_Base             * aBackgroundMesh,
-                const moris::Matrix< DDUMat >    & tPatternToSave,
-                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                Vector< Matrix< DDLUMat > > & aElementPerPattern);
+        static void save_refinement_pattern(
+                Background_Mesh_Base*        aBackgroundMesh,
+                const Matrix< DDUMat >&      aPatternToSave,
+                Matrix< DDLUMat >&           aElementCounterPerLevelAndPattern,
+                Vector< Matrix< DDLUMat > >& aElementPerPattern);
 
 //-------------------------------------------------------------------------------
 
@@ -123,13 +114,7 @@ namespace moris::hmr
          * @param[ in ]    aMode           false: input, true: output
          *
          */
-        void load_refinement_pattern(       Background_Mesh_Base * aMesh,
-                                      const bool                   aMode );
-
-        void load_refinement_pattern(
-                Background_Mesh_Base             * aMesh,
-                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                Vector< Matrix< DDLUMat > > & aElementPerPattern);
+        void load_refinement_pattern( Background_Mesh_Base * aMesh );
 
 //-------------------------------------------------------------------------------
 
@@ -138,16 +123,6 @@ namespace moris::hmr
          */
         void close();
 
-//-------------------------------------------------------------------------------
-    private:
-//-------------------------------------------------------------------------------
-
-        /**
-         * adds the proc number to the filename
-         */
-        std::string parralize_filename( const std::string & aPath );
-
-//-------------------------------------------------------------------------------
     };
 
 //-------------------------------------------------------------------------------
@@ -159,6 +134,3 @@ namespace moris::hmr
 
 //-------------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* SRC_HMR_CL_HMR_FILE_HPP_ */
-

@@ -48,12 +48,11 @@ namespace moris::xtk
             uint tLagrangeMeshIndex = 0;
 
             // HMR parameter list
-            moris::Parameter_List tParameters = moris::prm::create_hmr_parameter_list();
+            moris::Module_Parameter_Lists tParameters( Module_Type::HMR );
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 1" );
-            tParameters.set( "domain_dimensions", "2, 1" );
-            tParameters.set( "domain_offset", "0.0, 0.0" );
-            tParameters.set( "domain_sidesets", "1,2,3,4" );
+            tParameters.set( "number_of_elements_per_dimension", 2, 1 );
+            tParameters.set( "domain_dimensions", 2.0, 1.0 );
+            tParameters.set( "domain_offset", 0.0, 0.0 );
             tParameters.set( "lagrange_output_meshes", "0" );
 
             tParameters.set( "lagrange_orders", "2" );
@@ -63,14 +62,8 @@ namespace moris::xtk
 
             tParameters.set( "lagrange_to_bspline", "0" );
 
-            tParameters.set( "truncate_bsplines", 1 );
             tParameters.set( "refinement_buffer", 1 );
             tParameters.set( "staircase_buffer", 1 );
-            tParameters.set( "initial_refinement", "0" );
-            tParameters.set( "initial_refinement_pattern", "0" );
-
-            tParameters.set( "use_multigrid", 0 );
-            tParameters.set( "severity_level", 0 );
 
             // create the hmr mesh
             hmr::HMR tHMR( tParameters );

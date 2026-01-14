@@ -85,7 +85,6 @@ namespace moris
     real tBottomPois = 0.0;
 
     /* --------------------------------------- Domain Setting --------------------------------------- */
-    std::string tDomainOffset           = "0.0,0.0";    //
     std::string tInterpolationOrder     = std::to_string( gInterpolationOrder );
     std::string tDomainTop              = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tDomainBottom           = "HMR_dummy_n_p2,HMR_dummy_c_p2";
@@ -96,13 +95,15 @@ namespace moris
 
     /* ------------------------------------------ File I/O ------------------------------------------ */
     std::string tOutputFileName =
-            "Parabolic_Indenter_Case_" + std::to_string( gCaseIndex );
+            "Parabolic_Indenter_Linear_Case_" + std::to_string( gCaseIndex );
 
     /* ------------------------------------------- Solver ------------------------------------------- */
-    int                    tMaxIterations          = 200;
-    real                   tRelResNormDrop         = 1e-8;
-    real                   tRelaxation             = 1.0;
-    real                   tFDPerturbationSize     = 1e-8;
+    int tMaxIterations = 200;
+
+    real tRelResNormDrop     = 1e-8;
+    real tRelaxation         = 1.0;
+    real tFDPerturbationSize = 1e-8;
+
     fem::Perturbation_Type tFDPerturbationStrategy = fem::Perturbation_Type::ABSOLUTE;
     fem::FDScheme_Type     tFDScheme               = fem::FDScheme_Type::POINT_3_CENTRAL;
 
@@ -173,24 +174,24 @@ namespace moris
 
     /* ----------------------------------- Property Field Function ---------------------------------- */
 
-    void Func_Const( Matrix< DDRMat >         &aPropMatrix,
-            Vector< Matrix< DDRMat > > &aParameters,
-            fem::Field_Interpolator_Manager          *aFIManager )
+    void Func_Const( Matrix< DDRMat >       &aPropMatrix,
+            Vector< Matrix< DDRMat > >      &aParameters,
+            fem::Field_Interpolator_Manager *aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
-    void Func_Dirichlet( Matrix< DDRMat >     &aPropMatrix,
-            Vector< Matrix< DDRMat > > &aParameters,
-            fem::Field_Interpolator_Manager          *aFIManager )
+    void Func_Dirichlet( Matrix< DDRMat >   &aPropMatrix,
+            Vector< Matrix< DDRMat > >      &aParameters,
+            fem::Field_Interpolator_Manager *aFIManager )
     {
         real tLoadFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
         aPropMatrix      = aParameters( 0 ) * tLoadFactor;
     }
 
     void Func_Linear_Along_X( Matrix< DDRMat > &aPropMatrix,
-            Vector< Matrix< DDRMat > >  &aParameters,
-            fem::Field_Interpolator_Manager           *aFIManager )
+            Vector< Matrix< DDRMat > >         &aParameters,
+            fem::Field_Interpolator_Manager    *aFIManager )
     {
 
         real tLoadFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
@@ -205,17 +206,17 @@ namespace moris
         aPropMatrix = aPropMatrix * tLoadFactor;
     }
 
-    void Func_Select_X( Matrix< DDRMat > &aPropMatrix,
-            Vector< Matrix< DDRMat > >   &aParameters,
-            fem::Field_Interpolator_Manager     *aFIManager )
+    void Func_Select_X( Matrix< DDRMat >    &aPropMatrix,
+            Vector< Matrix< DDRMat > >      &aParameters,
+            fem::Field_Interpolator_Manager *aFIManager )
     {
         aPropMatrix.set_size( 2, 2, 0.0 );
         aPropMatrix( 0, 0 ) = 1.0;
     }
 
-    void Func_Body_Load( Matrix< DDRMat >     &aPropMatrix,
-            Vector< Matrix< DDRMat > > &aParameters,
-            fem::Field_Interpolator_Manager          *aFIManager )
+    void Func_Body_Load( Matrix< DDRMat >   &aPropMatrix,
+            Vector< Matrix< DDRMat > >      &aParameters,
+            fem::Field_Interpolator_Manager *aFIManager )
     {
 
         auto tXp    = aFIManager->get_IG_geometry_interpolator()->valx();
@@ -242,11 +243,8 @@ namespace moris
     void HMRParameterList( Module_Parameter_Lists &aParameterLists )
     {
         /* --------------------------------------- Domain Settings ------------------------------------ */
-        aParameterLists.set( "number_of_elements_per_dimension",
-                std::to_string( tNumElemsX ) + "," + std::to_string( tNumElemsY ) );
-        aParameterLists.set( "domain_dimensions", std::to_string( tWidth ) + "," + std::to_string( tHeight ) );
-        aParameterLists.set( "domain_offset", tDomainOffset );
-        aParameterLists.set( "domain_sidesets", "1,2,3,4" );
+        aParameterLists.set( "number_of_elements_per_dimension", tNumElemsX, tNumElemsY );
+        aParameterLists.set( "domain_dimensions", tWidth, tHeight );
 
         /* ---------------------------------------- Lagrange Mesh ------------------------------------- */
         aParameterLists.set( "lagrange_pattern", "0" );
@@ -257,18 +255,10 @@ namespace moris
         aParameterLists.set( "bspline_pattern", "0" );
         aParameterLists.set( "bspline_orders", tInterpolationOrder );
         aParameterLists.set( "lagrange_to_bspline", "0" );
-        aParameterLists.set( "truncate_bsplines", 1 );
 
         /* ----------------------------------------- Refinement --------------------------------------- */
         aParameterLists.set( "refinement_buffer", 0 );
         aParameterLists.set( "staircase_buffer", 0 );
-        aParameterLists.set( "initial_refinement", "0" );
-        aParameterLists.set( "initial_refinement_pattern", "0" );
-
-        /* ---------------------------------------- Miscellaneous ------------------------------------- */
-        aParameterLists.set( "use_number_aura", 1 );
-        aParameterLists.set( "use_multigrid", 0 );
-        aParameterLists.set( "severity_level", 0 );
     }
 
     /* ---------------------------------------------------------------------------------------------- */
@@ -278,8 +268,6 @@ namespace moris
     {
         aParameterLists.set( "decompose", true );
         aParameterLists.set( "decomposition_type", "conformal" );
-        aParameterLists.set( "enrich", true );
-        aParameterLists.set( "basis_rank", "bspline" );
         aParameterLists.set( "enrich_mesh_indices", "0" );
         aParameterLists.set( "ghost_stab", tUseGhost );
         aParameterLists.set( "multigrid", false );
@@ -312,7 +300,7 @@ namespace moris
             real tNormalY = std::sin( tInterfaceTopAngle + M_PI_2 );
 
             aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
-            aParameterLists.set( "plx", tTopXShift );
+            aParameterLists.set( "center_x", tTopXShift );
             aParameterLists.set( "center_y", tTopYShift );
             aParameterLists.set( "normal_x", tNormalX );
             aParameterLists.set( "normal_y", tNormalY );
@@ -359,7 +347,7 @@ namespace moris
     /* ---------------------------------------------------------------------------------------------- */
     /*                                           ### FEM ###                                          */
     /* ---------------------------------------------------------------------------------------------- */
-    void FEMParameterList( Module_Parameter_Lists& aParameterLists )
+    void FEMParameterList( Module_Parameter_Lists &aParameterLists )
     {
         /* -------------------------------------------------------------------------------------------- */
         /*                                            Phases                                            */
@@ -936,7 +924,7 @@ namespace moris
 
         // add stress components as STRESSX, STRESSY
         Vector< std::string >
-                                     tSides      = { "Top", "Bottom" };
+                              tSides      = { "Top", "Bottom" };
         Vector< std::string > tComponents = { "X", "Y" };
 
         for ( auto const &tSide : tSides )

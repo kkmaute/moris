@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_HMR_TOOLS_HPP_
-#define SRC_HMR_HMR_TOOLS_HPP_
+#pragma once
 
 #include <string>         // std::string
 #include <locale>         // std::locale, std::tolower
@@ -150,6 +149,3 @@ bool string_to_bool( const std::string & aString )
 
 // -----------------------------------------------------------------------------
 } /* namespace moris */
-
-#endif /* SRC_HMR_HMR_TOOLS_HPP_ */
-

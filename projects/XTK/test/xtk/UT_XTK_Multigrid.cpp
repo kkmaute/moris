@@ -64,7 +64,7 @@ namespace moris::xtk
 
             // create parameter object
             moris::hmr::Parameters tParameters;
-            tParameters.set_number_of_elements_per_dimension( { { 1 }, { 1 }, { 1 } } );
+            tParameters.set_number_of_elements_per_dimension( 1, 1, 1 );
             tParameters.set_verbose( false );
             tParameters.set_multigrid( true );
             tParameters.set_bspline_truncation( true );
@@ -179,8 +179,7 @@ namespace moris::xtk
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh( tOutputOptions );
 
-            // std::string tPrefix = std::getenv("MORISOUTPUT");
-            std::string tMeshOutputFile = "xtk_hmr_output.e";
+            std::string tMeshOutputFile = "./xtk_hmr_output.e";
             tCutMeshData->create_output_mesh( tMeshOutputFile );
             delete tCutMeshData;
             delete tMeshData;

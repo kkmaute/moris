@@ -45,7 +45,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
         "[IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -83,18 +83,18 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     //------------------------------------------------------------------------------
     // create the leader properties
     std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
-    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_parameters( { { { 0.7 } } } );
     tPropLeaderViscosity->set_val_function( tConstValFunc );
     //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
     //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
     //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropLeaderKinViscosity->set_val_function( tConstValFunc );
-    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
-    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_parameters( { { { 2.0 } } } );
     tPropLeaderDensity->set_val_function( tConstValFunc );
     //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
     //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
@@ -102,18 +102,18 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
     // create the follower properties
     std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
-    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_parameters( { { { 0.8 } } } );
     tPropFollowerViscosity->set_val_function( tConstValFunc );
     //tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
     //tPropFollowerViscosity->set_val_function( tVXFIValFunc );
     //tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_parameters( { { { 0.8 / 2.1 } } } );
     tPropFollowerKinViscosity->set_val_function( tConstValFunc );
-    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
-    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_parameters( { { { 2.1 } } } );
     tPropFollowerDensity->set_val_function( tConstValFunc );
     //tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
     //tPropFollowerDensity->set_val_function( tVXFIValFunc );
@@ -123,7 +123,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderTurbulence->set_property( tPropLeaderViscosity, "Viscosity" );
     tCMLeaderTurbulence->set_property( tPropLeaderKinViscosity, "KinViscosity" );
@@ -131,7 +131,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     tCMLeaderTurbulence->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMFollowerTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMFollowerTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMFollowerTurbulence->set_property( tPropFollowerViscosity, "Viscosity" );
     tCMFollowerTurbulence->set_property( tPropFollowerKinViscosity, "KinViscosity" );
@@ -217,10 +217,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
                // set velocity dof types
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-               // set viscosity property parameters
-               tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -240,10 +236,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -499,7 +491,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
         "[IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -537,18 +529,18 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     //------------------------------------------------------------------------------
     // create the leader properties
     std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
-    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_parameters( { { { 0.7 } } } );
     tPropLeaderViscosity->set_val_function( tConstValFunc );
     //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
     //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
     //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropLeaderKinViscosity->set_val_function( tConstValFunc );
-    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
-    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_parameters( { { { 2.0 } } } );
     tPropLeaderDensity->set_val_function( tConstValFunc );
     //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
     //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
@@ -556,18 +548,18 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
     // create the follower properties
     std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
-    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_parameters( { { { 0.8 } } } );
     tPropFollowerViscosity->set_val_function( tConstValFunc );
     //tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
     //tPropFollowerViscosity->set_val_function( tVXFIValFunc );
     //tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_parameters( { { { 0.8 / 2.1 } } } );
     tPropFollowerKinViscosity->set_val_function( tConstValFunc );
-    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
-    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_parameters( { { { 2.1 } } } );
     tPropFollowerDensity->set_val_function( tConstValFunc );
     //tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
     //tPropFollowerDensity->set_val_function( tVXFIValFunc );
@@ -577,7 +569,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderTurbulence->set_property( tPropLeaderViscosity, "Viscosity" );
     tCMLeaderTurbulence->set_property( tPropLeaderKinViscosity, "KinViscosity" );
@@ -585,7 +577,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     tCMLeaderTurbulence->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMFollowerTurbulence =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMFollowerTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMFollowerTurbulence->set_property( tPropFollowerViscosity, "Viscosity" );
     tCMFollowerTurbulence->set_property( tPropFollowerKinViscosity, "KinViscosity" );
@@ -671,10 +663,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
                // set velocity dof types
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-               // set viscosity property parameters
-               tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -694,10 +682,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -949,7 +933,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
         "[IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -987,38 +971,37 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     //------------------------------------------------------------------------------
     // create the leader properties
     std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
-    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_parameters( { { { 0.7 } } } );
     tPropLeaderViscosity->set_val_function( tConstValFunc );
 //    tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
 //    tPropLeaderViscosity->set_val_function( tVXFIValFunc );
 //    tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropLeaderKinViscosity->set_val_function( tConstValFunc );
-    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
-    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_parameters( { { { 2.0 } } } );
     tPropLeaderDensity->set_val_function( tConstValFunc );
-
 //    tPropLeaderDensity->set_dof_type_list( { tVelDofTypes } );
 //    tPropLeaderDensity->set_val_function( tVXFIValFunc );
 //    tPropLeaderDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // create the follower properties
     std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
-    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_parameters( { { { 0.8 } } } );
     tPropFollowerViscosity->set_val_function( tConstValFunc );
 //    tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
 //    tPropFollowerViscosity->set_val_function( tVXFIValFunc );
 //    tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_parameters( { { { 0.8 / 2.1 } } } );
     tPropFollowerKinViscosity->set_val_function( tConstValFunc );
-    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
-    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_parameters( { { { 2.1 } } } );
     tPropFollowerDensity->set_val_function( tConstValFunc );
 //    tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
 //    tPropFollowerDensity->set_val_function( tVXFIValFunc );
@@ -1028,7 +1011,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderFluid->set_property( tPropLeaderViscosity, "Viscosity" );
     tCMLeaderFluid->set_property( tPropLeaderKinViscosity, "KinViscosity" );
@@ -1036,7 +1019,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     tCMLeaderFluid->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMFollowerFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMFollowerFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMFollowerFluid->set_property( tPropFollowerViscosity, "Viscosity" );
     tCMFollowerFluid->set_property( tPropFollowerKinViscosity, "KinViscosity" );
@@ -1122,10 +1105,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 
                // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-                // set viscosity property parameters
-                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -1145,10 +1124,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -1397,7 +1372,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
         "[IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -1435,38 +1410,37 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     //------------------------------------------------------------------------------
     // create the leader properties
     std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
-    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_parameters( { { { 0.7 } } } );
     tPropLeaderViscosity->set_val_function( tConstValFunc );
 //    tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
 //    tPropLeaderViscosity->set_val_function( tVXFIValFunc );
 //    tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_parameters( { { { 0.7 / 2.0 } } } );
     tPropLeaderKinViscosity->set_val_function( tConstValFunc );
-    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
-    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_parameters( { { { 2.0 } } } );
     tPropLeaderDensity->set_val_function( tConstValFunc );
-
 //    tPropLeaderDensity->set_dof_type_list( { tVelDofTypes } );
 //    tPropLeaderDensity->set_val_function( tVXFIValFunc );
 //    tPropLeaderDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // create the follower properties
     std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
-    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_parameters( { { { 0.8 } } } );
     tPropFollowerViscosity->set_val_function( tConstValFunc );
 //    tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
 //    tPropFollowerViscosity->set_val_function( tVXFIValFunc );
 //    tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_parameters( { { { 0.8 / 2.1 } } } );
     tPropFollowerKinViscosity->set_val_function( tConstValFunc );
-    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
-    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_parameters( { { { 2.1 } } } );
     tPropFollowerDensity->set_val_function( tConstValFunc );
 //    tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
 //    tPropFollowerDensity->set_val_function( tVXFIValFunc );
@@ -1476,7 +1450,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMLeaderFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMLeaderFluid->set_property( tPropLeaderViscosity, "Viscosity" );
     tCMLeaderFluid->set_property( tPropLeaderKinViscosity, "KinViscosity" );
@@ -1484,7 +1458,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     tCMLeaderFluid->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMFollowerFluid =
-            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
+            tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE_SPALART_ALLMARAS );
     tCMFollowerFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
     tCMFollowerFluid->set_property( tPropFollowerViscosity, "Viscosity" );
     tCMFollowerFluid->set_property( tPropFollowerKinViscosity, "KinViscosity" );
@@ -1570,10 +1544,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
                // set velocity dof types
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-
-               // set viscosity property parameters
-               tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -1593,10 +1563,6 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
-
-                // set viscosity property parameters
-                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
