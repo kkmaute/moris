@@ -2760,10 +2760,10 @@ namespace moris::xtk
         for ( uint i = 0; i < tNumInterpCells; i++ )
         {
             // Get polynomial order
-            uint mOrder = mCutIgMesh->get_order();
+            uint tOrder = mCutIgMesh->get_order();
             
             // get dimension 
-            uint mDim = mCutIgMesh->get_spatial_dim();
+            uint tDim = mCutIgMesh->get_spatial_dim();
 
             // Get facet connectivity map
             auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
@@ -2817,13 +2817,13 @@ namespace moris::xtk
                 mCellClusters( tInterpCellIndex )->set_ig_vertex_group( tVertexGroupForCluster );
 
                 // Place quadrature points inside cluster
-                mCellClusters( tInterpCellIndex )->set_quadrature_points( mOrder , mDim );
+                mCellClusters( tInterpCellIndex )->set_quadrature_points( tOrder , tDim );
                 
                 // Identify subphase boundary facets
-                mCellClusters( tInterpCellIndex )->find_subphase_boundary_vertices( tSubphaseCells , tFacetConnectivity, mDim );
+                mCellClusters( tInterpCellIndex )->find_subphase_boundary_vertices( tSubphaseCells , tFacetConnectivity, tDim );
                 
                 // Compute Weights as per moment fitting
-                //mCellClusters( tInterpCellIndex )->compute_quadrature_weights_moment_fitting( mOrder , mDim );
+                //mCellClusters( tInterpCellIndex )->compute_quadrature_weights_moment_fitting( tOrder , tDim );
 
             }
 
@@ -2836,10 +2836,10 @@ namespace moris::xtk
                 tBaseInterpCell->get_cell_info()->get_loc_coords_of_cell( mCellClusters( tInterpCellIndex )->mLocalCoords );
                 
                 // generate tensor product weights -
-                mCellClusters( tInterpCellIndex )->set_quadrature_points( mOrder , mDim );
+                mCellClusters( tInterpCellIndex )->set_quadrature_points( tOrder , tDim );
                 
                 // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
-                mCellClusters( tInterpCellIndex )->set_quadrature_weights( mOrder , mDim );
+                mCellClusters( tInterpCellIndex )->set_quadrature_weights( tOrder , tDim );
 
             }
         }
@@ -2875,10 +2875,10 @@ namespace moris::xtk
         uint tNumBaseIpCells = mModel->mBackgroundMesh->get_num_elems();
 
         // Get polynomial order
-        //uint mOrder = mCutIgMesh->get_order();
+        //uint tOrder = mCutIgMesh->get_order();
             
         // get dimension 
-        uint mDim = mCutIgMesh->get_spatial_dim();
+        uint tDim = mCutIgMesh->get_spatial_dim();
 
         // get pointer to enr. IP mesh
         Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
@@ -2905,9 +2905,23 @@ namespace moris::xtk
         mtk::Interpolation_Order tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
         mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::POINT;
 
-        uint tOrder = 3;
+        mtk::Interpolation_Order tOrderMesh = tEnrichedInterpCells( 0 )->get_interpolation_order();
+        uint tOrder = 0;
+        
+        if ( tOrderMesh == mtk::Interpolation_Order::LINEAR )
+        {
+            tOrder = 1;
+        }
+        else if ( tOrderMesh == mtk::Interpolation_Order::QUADRATIC )   
+        {
+            tOrder = 2;
+        }
+        else if ( tOrderMesh == mtk::Interpolation_Order::CUBIC )   
+        {
+            tOrder = 3;
+        }   
 
-        if ( mDim == 2 )
+        if ( tDim == 2 )
         {
             tGeometryType = mtk::Geometry_Type::QUAD;
 
@@ -2927,7 +2941,7 @@ namespace moris::xtk
             }
             
         }
-        if ( mDim == 3 )
+        if ( tDim == 3 )
         {
             tGeometryType = mtk::Geometry_Type::HEX;
             
@@ -2959,7 +2973,7 @@ namespace moris::xtk
         mtk::Interpolation_Function_Base* tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
 
         // Create moment fitting LHS
-        uint tNmoments = std::pow( tOrder + 1 , mDim ); 
+        uint tNmoments = std::pow( tOrder + 1 , tDim ); 
         Matrix< DDRMat > tMomentFittingLHS ; 
         tMomentFittingLHS.reshape( tNmoments , tNmoments );
 
@@ -3027,7 +3041,7 @@ namespace moris::xtk
                     // Place quadrature points inside cluster if moment fitting active - Moved to MTK database IG mesh
                     //if ( mModel->mMomentFittingFlag )
                     //{
-                    //    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( tOrder , mDim );
+                    //    mCellClusters( tEnrIpCellIndex )->set_quadrature_points( tOrder , tDim );
                     //}
                     
                 
@@ -3072,7 +3086,7 @@ namespace moris::xtk
                         // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
                         if ( mModel->mMomentFittingFlag )
                         {
-                            mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( tOrder , mDim );
+                            mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( tOrder , tDim );
                         }
 
 
@@ -3110,10 +3124,10 @@ namespace moris::xtk
                     if ( mModel->mMomentFittingFlag )
                     {
                         // Identify subphase boundary facets
-                        mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , mDim );
+                        mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , tDim );
 
                         // Compute quadrature weights via moment fitting
-                        mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , mDim );
+                        mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , tDim );
                         
                     }
                                         

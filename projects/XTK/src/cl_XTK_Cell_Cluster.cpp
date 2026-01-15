@@ -1267,6 +1267,24 @@ namespace moris::xtk
                         mtk::Interpolation_Function_Base* tIGInterp = tIGInterpolationRule.create_space_interpolation_function();
 
                         mtk::Interpolation_Order tInterpOrder;
+
+                        // Determine the integration order to compute the antiderivative based on polynomial order of mesh
+                        mtk::Integration_Order tAntiDerivIntOrder = mtk::Integration_Order::BAR_1;
+
+                        if ( aOrder == 1 )
+                        {
+                            tAntiDerivIntOrder = mtk::Integration_Order::BAR_6;
+                        }
+                        if ( aOrder == 2 )
+                        {
+                            tAntiDerivIntOrder = mtk::Integration_Order::BAR_16;
+                        }
+                        if ( aOrder == 3 )
+                        {
+                            tAntiDerivIntOrder = mtk::Integration_Order::BAR_32;
+                        }
+
+
                         if ( aOrder == 1 )
                         {
                             tInterpOrder = mtk::Interpolation_Order::LINEAR;
@@ -1327,7 +1345,7 @@ namespace moris::xtk
                         tD = std::sqrt( std::pow(tCrossProdRxiReta( 0 ), 2) + std::pow(tCrossProdRxiReta( 1 ), 2) + std::pow(tCrossProdRxiReta( 2 ),2) ); 
                     
                         // Define 1D quadrature for evaluating the antiderivative
-                        mtk::Integration_Rule tIntObjAntiDeriv( mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_6 , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+                        mtk::Integration_Rule tIntObjAntiDeriv( mtk::Geometry_Type::LINE, mtk::Integration_Type::GAUSS, tAntiDerivIntOrder, mtk::Geometry_Type::LINE, mtk::Integration_Type::GAUSS, mtk::Integration_Order::BAR_1 );
                         mtk::Integrator tIntDataAntiDeriv( tIntObjAntiDeriv );
                     
                         // Get 1D quadrature points and weights

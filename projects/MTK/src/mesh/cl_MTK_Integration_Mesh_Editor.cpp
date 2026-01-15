@@ -1005,12 +1005,38 @@ namespace moris::mtk
             if ( mInputMesh->get_spatial_dim() == 2 )
             {
                 tGeometryType = Geometry_Type::QUAD;
-                tIntegrationOrder = Integration_Order::QUAD_4x4;
+
+                if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+                {
+                    tIntegrationOrder = Integration_Order::QUAD_2x2;
+                }
+                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+                {
+                     tIntegrationOrder = Integration_Order::QUAD_3x3;
+                }
+                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+                {
+                     tIntegrationOrder = Integration_Order::QUAD_4x4;
+                }
             }
+
             else if ( mInputMesh->get_spatial_dim() == 3 )
             {
                 tGeometryType = Geometry_Type::HEX;
-                tIntegrationOrder = Integration_Order::HEX_4x4x4;
+
+                if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+                {
+                    tIntegrationOrder = Integration_Order::HEX_2x2x2;
+                }
+                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+                {
+                     tIntegrationOrder = Integration_Order::HEX_3x3x3;
+                }
+                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+                {
+                     tIntegrationOrder = Integration_Order::HEX_4x4x4;
+                }
+            
             }
 
             Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
@@ -1074,7 +1100,7 @@ namespace moris::mtk
             mOutputMesh->mVertexIdList.push_back( iVertex->get_id() );
 
             // FIXME: owner is not implemented in the leader branch
-            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_index() );
+            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_owner() );
         }
     }
 
