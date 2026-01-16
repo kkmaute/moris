@@ -267,6 +267,8 @@ namespace moris::mtk
     Cell_Cluster_DataBase::compute_mapped_quadrature_weights_and_points( const Matrix< DDRMat > aIntegrationPoints , const Matrix< DDRMat> aIntegrationWeights, uint aDim )
     {   
         // if trivial, just get quadrature pts and weights for BG element
+
+        // TODO : Add serendipity element support for trivial and non trivial cell clusters
         if( this->is_trivial() )
         {
             mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::UNDEFINED; 
@@ -275,13 +277,48 @@ namespace moris::mtk
             // Define integration order
             if( aDim == 2 )
             {
-                tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
-                tGeometryType = mtk::Geometry_Type::QUAD; 
+                // Geometry type
+                tGeometryType = mtk::Geometry_Type::QUAD;
+
+                if (this->get_interpolation_cell().get_interpolation_order() == mtk::Interpolation_Order::LINEAR)
+                {
+                    tIntegrationOrder = mtk::Integration_Order::QUAD_2x2;
+                }
+                else if (this->get_interpolation_cell().get_interpolation_order() == mtk::Interpolation_Order::QUADRATIC)
+                {
+                    tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
+                }
+                else if (this->get_interpolation_cell().get_interpolation_order() == mtk::Interpolation_Order::CUBIC)
+                {
+                    tIntegrationOrder = mtk::Integration_Order::QUAD_4x4;
+                }
+                else
+                {
+                    MORIS_ERROR( false , "Unsupported interpolation order for trivial cell cluster." );
+                }         
             }
             else if ( aDim == 3 )
             {
-                tIntegrationOrder = mtk::Integration_Order::HEX_3x3x3;
+                // Geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
+
+                if (this->get_interpolation_cell().get_interpolation_order() == mtk::Interpolation_Order::LINEAR)
+                {
+                    tIntegrationOrder = mtk::Integration_Order::HEX_2x2x2;
+                }
+                else if (this->get_interpolation_cell().get_interpolation_order() == mtk::Interpolation_Order::QUADRATIC)
+                {
+                    tIntegrationOrder = mtk::Integration_Order::HEX_3x3x3;
+                }
+                else if (this->get_interpolation_cell().get_interpolation_order() == mtk::Interpolation_Order::CUBIC)
+                {
+                    tIntegrationOrder = mtk::Integration_Order::HEX_4x4x4;
+                }
+                else
+                {
+                    MORIS_ERROR( false , "Unsupported interpolation order for trivial cell cluster." );
+                }
+                
             }
 
             // Create integration rule

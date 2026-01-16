@@ -935,12 +935,35 @@ namespace moris::mtk
         if ( mInputMesh->get_spatial_dim() == 2 )
         {
             tGeometryType = Geometry_Type::TRI;
-            tIntegrationOrder = Integration_Order::TRI_6;
+            if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+            {
+                tIntegrationOrder = Integration_Order::TRI_6;
+            }
+            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+            {
+                 tIntegrationOrder = Integration_Order::TRI_12;
+            }
+            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+            {
+                 tIntegrationOrder = Integration_Order::TRI_16;
+            }
         }
         else if ( mInputMesh->get_spatial_dim() == 3 )
         {
             tGeometryType = Geometry_Type::TET;
-            tIntegrationOrder = Integration_Order::TET_11;
+            if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+            {
+                tIntegrationOrder = Integration_Order::TET_5;
+            }
+            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+            {
+                 tIntegrationOrder = Integration_Order::TET_11;
+            }
+            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+            {
+                 tIntegrationOrder = Integration_Order::TET_20;
+            }
+            //tIntegrationOrder = Integration_Order::TET_11;
         }
         
         mtk::Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
@@ -994,7 +1017,7 @@ namespace moris::mtk
         // Set value of moment fitting flag in database class IG mesh
         mOutputMesh->set_moment_fitting_flag( tMomentFittingFlag );
 
-        
+        // TODO: Add support for serendipity elements for moment fitting and non-moment-fitting points
         if( tMomentFittingFlag == true )
         {
             // Generate moment fitting points
@@ -1099,7 +1122,7 @@ namespace moris::mtk
             // add id and owner of the vertex
             mOutputMesh->mVertexIdList.push_back( iVertex->get_id() );
 
-            // FIXME: owner is not implemented in the leader branch
+            // Add owner of the vertex
             mOutputMesh->mVertexOwnerList.push_back( iVertex->get_owner() );
         }
     }
