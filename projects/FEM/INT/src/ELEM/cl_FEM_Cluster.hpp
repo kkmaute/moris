@@ -174,6 +174,16 @@ namespace moris::fem
         void set_quadrature_weights() ;
 
         //------------------------------------------------------------------------------
+        
+        /** inform if the cluster
+         *  has quadrature data */
+
+        bool has_quadrature_data() const
+        {
+             return mMeshCluster->has_quadrature_data();
+        }
+        
+        //------------------------------------------------------------------------------
         /**
          * get side ordinal information
          * @param[ out ] mMeshCluster a mesh cluster

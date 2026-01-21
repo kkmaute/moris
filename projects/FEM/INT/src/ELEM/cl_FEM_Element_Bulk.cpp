@@ -133,10 +133,9 @@ namespace moris::fem
     void
     Element_Bulk::compute_residual()
     {
-        
         // Get quadrature weights
         Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
-        
+
         // get number of IWGs
         uint tNumIWGs = mSet->get_number_of_requested_IWGs();
 
@@ -152,6 +151,12 @@ namespace moris::fem
         // loop over integration points
         uint tNumIntegPoints = tQuadratureWeights.numel();
 
+        if ( tNumIntegPoints == 0 )
+        {
+            tNumIntegPoints = mSet->get_number_of_integration_points();
+        }
+
+
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
             if ( mSet->get_moment_fitting_flag() )
@@ -161,18 +166,25 @@ namespace moris::fem
 
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
-                
+            }
+            else if ( mCluster->has_quadrature_data() )
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
+
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
             }
             else
             {
                 // Get Quadrature Points
-                const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
-    
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
                 // set evaluation point for interpolators (FIs and GIs)
-                mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
-    
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
             }
-                        
+
             // compute detJ of integration domain
             real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
 
@@ -186,7 +198,17 @@ namespace moris::fem
             }
 
             // compute integration point weight
-            real tWStar = tQuadratureWeights( iGP )*tDetJ ;
+            real tWStar = 0.0;
+
+            if ( tQuadratureWeights.numel() > 0 )
+            {
+                tWStar = tQuadratureWeights( iGP ) * tDetJ;
+            }
+            else
+            {
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                tWStar     = mSet->get_integration_weights()( iGP ) * tDetJ;
+            }
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -299,6 +321,11 @@ namespace moris::fem
         // loop over integration points
         uint tNumIntegPoints = tQuadratureWeights.numel();
 
+        if ( tNumIntegPoints == 0 )
+        {
+            tNumIntegPoints = mSet->get_number_of_integration_points();
+        }
+
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
             if ( mSet->get_moment_fitting_flag() )
@@ -310,14 +337,24 @@ namespace moris::fem
                 mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
                 
             }
-            else
+            else if ( mCluster->has_quadrature_data() )
             {
                 // Get Quadrature Points
                 const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
     
+              
                 // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
-    
+                
+            }
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                
             }
 
             // compute detJ of integration domain
@@ -330,7 +367,17 @@ namespace moris::fem
             }
 
             // compute integration point weight
-            real tWStar = tQuadratureWeights( iGP )*tDetJ ;
+            real tWStar = 0.0;
+
+            if ( tQuadratureWeights.numel() > 0 )
+            {
+                tWStar = tQuadratureWeights( iGP ) * tDetJ;
+            }
+            else
+            {
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                tWStar     = mSet->get_integration_weights()( iGP ) * tDetJ;
+            }
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -442,6 +489,11 @@ namespace moris::fem
         // loop over integration points
         uint tNumIntegPoints = tQuadratureWeights.numel();
 
+        if ( tNumIntegPoints == 0 )
+        {
+            tNumIntegPoints = mSet->get_number_of_integration_points();
+        }
+
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
             if ( mSet->get_moment_fitting_flag() )
@@ -453,13 +505,22 @@ namespace moris::fem
                 mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
                 
             }
-            else
+            else if ( mCluster->has_quadrature_data() )
             {
                 // Get Quadrature Points
                 const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
-    
+
+
+                // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
-    
+            }
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
             }
 
             // compute detJ of integration domain
@@ -472,7 +533,17 @@ namespace moris::fem
             }
 
             // compute integration point weight
-            real tWStar = tQuadratureWeights( iGP )*tDetJ;
+            real tWStar = 0.0;
+
+            if ( tQuadratureWeights.numel() > 0 )
+            {
+                tWStar = tQuadratureWeights( iGP ) * tDetJ;
+            }
+            else
+            {
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                tWStar     = mSet->get_integration_weights()( iGP ) * tDetJ;
+            }
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -705,7 +776,6 @@ namespace moris::fem
     {
         // Get quadrature weights
         Matrix< DDRMat > tQuadratureWeights = mCluster->get_quadrature_weights();
-        
 
         // get number of IQIs
         uint tNumIQIs = mSet->get_number_of_requested_IQIs();
@@ -721,6 +791,11 @@ namespace moris::fem
 
         // loop over integration points
         uint tNumIntegPoints = tQuadratureWeights.numel();
+
+        if ( tNumIntegPoints == 0 )
+        {
+            tNumIntegPoints = mSet->get_number_of_integration_points();
+        }
 
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
@@ -740,11 +815,12 @@ namespace moris::fem
                  }
                 
             }
-            else
+            else if ( mCluster->has_quadrature_data() )
             {
                 // Get Quadrature Points
                 const Matrix< DDRMat >& tLocalIntegPoint = mCluster->get_quadrature_points().get_column( iGP );
-    
+
+                // set evaluation point for interpolators (FIs and GIs)
                 mSet->get_field_interpolator_manager()->set_space_time( tLocalIntegPoint );
 
                  // if eigen vectors
@@ -755,32 +831,58 @@ namespace moris::fem
                  }
     
             }
-                   // compute detJ of integration domain
-                   real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
+            else
+            {
+                // Get Quadrature Points
+                const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
-                // skip if detJ smaller than threshold
-                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // if eigen vectors
+                if ( mSet->mNumEigenVectors > 0 )
                 {
-                   continue;
-                }
-
-                // compute integration point weight
-                real tWStar = tQuadratureWeights( iGP ) * tDetJ;
-
-                // loop over the IQIs
-                for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
-                {
-                    // get requested IQI
-                    const std::shared_ptr< IQI >& tReqIQI =
-                         mSet->get_requested_IQIs()( iIQI );
-
-                    // reset IQI
-                    tReqIQI->reset_eval_flags();
-
-                    // compute QI at evaluation point
-                    tReqIQI->compute_QI( tWStar );
+                    // set evaluation point for interpolators (FIs and GIs)
+                    mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tLocalIntegPoint );
                 }
             }
+            
+            // compute detJ of integration domain
+            real tDetJ = mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator()->det_J();
+
+            // skip if detJ smaller than threshold
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
+
+            // compute integration point weight
+            real tWStar = 0.0;
+
+            if ( tQuadratureWeights.numel() > 0 )
+            {
+                tWStar = tQuadratureWeights( iGP ) * tDetJ;
+            }
+            else
+            {
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+            }
+
+            // loop over the IQIs
+            for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+            {
+                // get requested IQI
+                const std::shared_ptr< IQI >& tReqIQI =
+                    mSet->get_requested_IQIs()( iIQI );
+
+                // reset IQI
+                tReqIQI->reset_eval_flags();
+
+                // compute QI at evaluation point
+                tReqIQI->compute_QI( tWStar );
+            }
+        }
                     
   
         /*else 
