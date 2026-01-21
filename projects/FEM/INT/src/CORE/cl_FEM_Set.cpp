@@ -366,90 +366,88 @@ namespace moris::fem
             tTimeIntegrationOrder = mtk::Integration_Order::POINT;
         }
 
-        // create an integration rule
-        if ( mIGGeometryType == mtk::Geometry_Type::HEX )
-        {
-                mtk::Integration_Rule tIntegrationRule(
-                mIGGeometryType,
-                mtk::Integration_Type::GAUSS,
-                mtk::Integration_Order::HEX_4x4x4,
-                tTimeGeometryType,
-                mtk::Integration_Type::GAUSS,
-                tTimeIntegrationOrder );
+        // // create an integration rule
+        // if ( mIGGeometryType == mtk::Geometry_Type::HEX )
+        // {
+        //         mtk::Integration_Rule tIntegrationRule(
+        //         mIGGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         mtk::Integration_Order::HEX_4x4x4,
+        //         tTimeGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         tTimeIntegrationOrder );
 
-                // create an integrator
-                mtk::Integrator tIntegrator( tIntegrationRule );
+        //         // create an integrator
+        //         mtk::Integrator tIntegrator( tIntegrationRule );
 
-                // get integration points
-                tIntegrator.get_points( mIntegPoints );
+        //         // get integration points
+        //         tIntegrator.get_points( mIntegPoints );
 
-                // get integration weights
-                tIntegrator.get_weights( mIntegWeights );
+        //         // get integration weights
+        //         tIntegrator.get_weights( mIntegWeights );
 
-        }
-        else if ( mIGGeometryType == mtk::Geometry_Type::TET )
-        {
-            mtk::Integration_Rule tIntegrationRule(
-                mIGGeometryType,
-                mtk::Integration_Type::GAUSS,
-                mtk::Integration_Order::TET_20,
-                tTimeGeometryType,
-                mtk::Integration_Type::GAUSS,
-                tTimeIntegrationOrder );
+        // }
+        // else if ( mIGGeometryType == mtk::Geometry_Type::TET )
+        // {
+        //     mtk::Integration_Rule tIntegrationRule(
+        //         mIGGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         mtk::Integration_Order::TET_20,
+        //         tTimeGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         tTimeIntegrationOrder );
 
-                // create an integrator
-                mtk::Integrator tIntegrator( tIntegrationRule );
+        //         // create an integrator
+        //         mtk::Integrator tIntegrator( tIntegrationRule );
 
-                // get integration points
-                tIntegrator.get_points( mIntegPoints );
+        //         // get integration points
+        //         tIntegrator.get_points( mIntegPoints );
 
-                // get integration weights
-                tIntegrator.get_weights( mIntegWeights );
+        //         // get integration weights
+        //         tIntegrator.get_weights( mIntegWeights );
 
-        }
-        else if ( mIGGeometryType == mtk::Geometry_Type::QUAD )
-        {
-                mtk::Integration_Rule tIntegrationRule(
-                mIGGeometryType,
-                mtk::Integration_Type::GAUSS,
-                mtk::Integration_Order::QUAD_4x4,
-                tTimeGeometryType,
-                mtk::Integration_Type::GAUSS,
-                tTimeIntegrationOrder );
+        // }
+        // else if ( mIGGeometryType == mtk::Geometry_Type::QUAD )
+        // {
+        //         mtk::Integration_Rule tIntegrationRule(
+        //         mIGGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         mtk::Integration_Order::QUAD_4x4,
+        //         tTimeGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         tTimeIntegrationOrder );
 
-                // create an integrator
-                mtk::Integrator tIntegrator( tIntegrationRule );
+        //         // create an integrator
+        //         mtk::Integrator tIntegrator( tIntegrationRule );
 
-                // get integration points
-                tIntegrator.get_points( mIntegPoints );
+        //         // get integration points
+        //         tIntegrator.get_points( mIntegPoints );
 
-                // get integration weights
-                tIntegrator.get_weights( mIntegWeights );
+        //         // get integration weights
+        //         tIntegrator.get_weights( mIntegWeights );
 
-        }
-        else if ( mIGGeometryType == mtk::Geometry_Type::TRI )
-        {
-            mtk::Integration_Rule tIntegrationRule(
-                mIGGeometryType,
-                mtk::Integration_Type::GAUSS,
-                mtk::Integration_Order::TRI_12,
-                tTimeGeometryType,
-                mtk::Integration_Type::GAUSS,
-                tTimeIntegrationOrder );
+        // }
+        // else if ( mIGGeometryType == mtk::Geometry_Type::TRI )
+        // {
+        //     mtk::Integration_Rule tIntegrationRule(
+        //         mIGGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         mtk::Integration_Order::TRI_12,
+        //         tTimeGeometryType,
+        //         mtk::Integration_Type::GAUSS,
+        //         tTimeIntegrationOrder );
 
-                // create an integrator
-                mtk::Integrator tIntegrator( tIntegrationRule );
+        //         // create an integrator
+        //         mtk::Integrator tIntegrator( tIntegrationRule );
 
-                // get integration points
-                tIntegrator.get_points( mIntegPoints );
+        //         // get integration points
+        //         tIntegrator.get_points( mIntegPoints );
 
-                // get integration weights
-                tIntegrator.get_weights( mIntegWeights );
+        //         // get integration weights
+        //         tIntegrator.get_weights( mIntegWeights );
 
-        }
-        else
-        {
-            mtk::Integration_Rule tIntegrationRule(
+        // }
+        mtk::Integration_Rule tIntegrationRule(
                 mIGGeometryType,
                 mtk::Integration_Type::GAUSS,
                 this->get_auto_integration_order(
@@ -460,18 +458,14 @@ namespace moris::fem
                 mtk::Integration_Type::GAUSS,
                 tTimeIntegrationOrder );
 
-                // create an integrator
-                mtk::Integrator tIntegrator( tIntegrationRule );
+        // create an integrator
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
-                // get integration points
-                tIntegrator.get_points( mIntegPoints );
+        // get integration points
+        tIntegrator.get_points( mIntegPoints );
 
-                // get integration weights
-                tIntegrator.get_weights( mIntegWeights );
-
-        }
-        
-        
+        // get integration weights
+        tIntegrator.get_weights( mIntegWeights );
     }
 
     //------------------------------------------------------------------------------

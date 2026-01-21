@@ -460,12 +460,22 @@ namespace moris::mtk
             return tDummyWeights;
         }
 
+        //------------------------------------------------------------------------------
+
         Matrix< DDRMat >
         get_quadrature_points(  ) const override
         {
             Matrix< DDRMat > tDummyPoints ;
             return tDummyPoints;
         }
+        //------------------------------------------------------------------------------
+
+        bool 
+        has_quadrature_data() const override
+        {
+            return false ;
+        }
+        //------------------------------------------------------------------------------
 
         // ##############################################
         //  Cell/Vertex Id Access

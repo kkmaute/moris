@@ -275,6 +275,21 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        /* inform if the cluster has quadrature data */
+
+        bool
+        has_quadrature_data() const override
+        {
+            if ( mQuadratureWeights.numel() > 0 ) 
+            {
+                return true ;
+            }
+            else
+            {
+                return false ;
+            }
+        }
+        //------------------------------------------------------------------------------
         /**
          * @brief return the memory of the cell cluster
          *
