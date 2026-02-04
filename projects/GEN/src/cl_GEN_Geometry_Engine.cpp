@@ -1404,6 +1404,7 @@ namespace moris::gen
             }
 
             // Loop over geometries
+            uint tFieldIndex = 0;
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
                 for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
@@ -1422,7 +1423,7 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( iGeometryFieldIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( tFieldIndex++ ), tFieldData );
                 }
             }
 
@@ -1446,7 +1447,7 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( tFieldIndex++ ), tFieldData );
                 }
             }
 
