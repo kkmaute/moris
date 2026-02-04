@@ -32,17 +32,15 @@ namespace moris::fem
 
       public:
         Model_Initializer(
-                const Module_Parameter_Lists                           &aParameterList,
-                std::shared_ptr< Library_IO >                           aLibrary,
-                mtk::Mesh_Pair const                                   *aMeshPair,
-                std::shared_ptr< const MSI::Design_Variable_Interface > aDesignVariableInterface,
-                uint                                                    aSpatialDimension,
-                bool                                                    aUseNewGhostSets,
-                std::unordered_map< MSI::Dof_Type, moris_index >        aDofTypeToBsplineMeshIndex )
+                const Module_Parameter_Lists                    &aParameterList,
+                std::shared_ptr< Library_IO >                    aLibrary,
+                mtk::Mesh_Pair const                            *aMeshPair,
+                uint                                             aSpatialDimension,
+                bool                                             aUseNewGhostSets,
+                std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
                 : mParameterList( aParameterList )
                 , mLibrary( std::move( aLibrary ) )
                 , mMeshPair( aMeshPair )
-                , mDesignVariableInterface( std::move( aDesignVariableInterface ) )
                 , mSpatialDimension( aSpatialDimension )
                 , mUseNewGhostSets( aUseNewGhostSets )
                 , mDofTypeToBsplineMeshIndex( std::move( aDofTypeToBsplineMeshIndex ) ) {};

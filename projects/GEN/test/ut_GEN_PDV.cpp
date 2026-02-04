@@ -589,14 +589,14 @@ namespace moris::gen
         tPDVHostManager.set_owned_adv_ids( { 2 * par_rank(), 2 * par_rank() + 1 } );
 
         // Add QIs
-        tPDVHostManager.register_QI( "TrickGQI1", Module_Type::GEN, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrickIQI3", Module_Type::FEM, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrickXQI1", Module_Type::XTK, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrivialIQI1", Module_Type::FEM, 0.0, nullptr );    // Requested for optimization
-        tPDVHostManager.register_QI( "TrickXQI2", Module_Type::XTK, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrivialIQI2", Module_Type::FEM, 0.0, nullptr );    // Requested for optimization
-        tPDVHostManager.register_QI( "TrickGQI2", Module_Type::GEN, 0.0, nullptr );      // Dummy to make sure indexing is correct
-        tPDVHostManager.register_QI( "TrickIQI4", Module_Type::FEM, 0.0, nullptr );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickGQI1", Module_Type::GEN, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickIQI3", Module_Type::FEM, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickXQI1", Module_Type::XTK, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrivialIQI1", Module_Type::FEM, 0.0 );    // Requested for optimization
+        tPDVHostManager.register_QI( "TrickXQI2", Module_Type::XTK, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrivialIQI2", Module_Type::FEM, 0.0 );    // Requested for optimization
+        tPDVHostManager.register_QI( "TrickGQI2", Module_Type::GEN, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickIQI4", Module_Type::FEM, 0.0 );      // Dummy to make sure indexing is correct
 
         // Full ADV IDs
         Vector< sint > tFullADVIds;

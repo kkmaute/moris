@@ -307,7 +307,6 @@ namespace moris::mdl
                     mMeshPairIndex,
                     mFEMParameterList,
                     mDesignVariableInterface );
-            // tDofTypeToBsplineMeshIndex );
 
             // build a map relating the dof types to their respective B-spline mesh indices and pass it to the FEM model
             std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToBsplineMeshIndex = this->build_dof_type_to_mesh_index();
@@ -318,12 +317,6 @@ namespace moris::mdl
 
             // initialize the Equation Model
             mEquationModel->initialize_from_inputfile( mLibrary );
-
-            // set the equation model if using design variables brendan delete
-            // if ( mDesignVariableInterface != nullptr )
-            // {
-            //     mDesignVariableInterface->set_equation_model( mEquationModel );
-            // }
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

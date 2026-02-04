@@ -36,7 +36,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-            // std::shared_ptr< MSI::Equation_Model > mModel         = nullptr; brendan delete
             bool              mdQIdpImported = false;
             sol::Dist_Vector* mdXQIdPDV      = nullptr;    // XTK module sensitivities
             sol::Dist_Vector* mdIQIdPDV      = nullptr;    // FEM module sensitivities
@@ -69,21 +68,8 @@ namespace moris
             virtual ~Design_Variable_Interface()
             {
                 delete mdXQIdPDV;
-                // delete mdGQIdADV; brendan delete
                 delete mdIQIdPDV;
             }
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * set model pointer
-             * @param[ in ] aModel Model pointer
-             */
-            // void
-            // set_equation_model( std::shared_ptr< MSI::Equation_Model > aModel )
-            // {
-            //     mModel = std::move( aModel ); brendan delete
-            // }
 
             //------------------------------------------------------------------------------
 
@@ -163,7 +149,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * Brendan documentation
+             * Gets the number of QIs that were requested to be used as optimization objectives or constraints
              */
             uint get_num_requested_QIs() const;
 
@@ -181,21 +167,19 @@ namespace moris
             //-----------------------------------------------------------------------------
 
             /**
-             * Brendan documentation
+             * Gets the value of the specific QI by name
              */
-            real get_QI( const std::string& aQIName )
-                    const;
+            real get_QI( const std::string& aQIName ) const;
 
+            /**
+             * Gets the value of the specific QI by the global index in mQIs
+             */
             real get_QI( uint aQIIndex ) const;
 
             /*
-             * Brendan documentation
+             * Sets the value of the speicific QI by name
              */
             void update_QI( const std::string& aQIName, real aValue );
-
-            void update_QI( const std::string& aQIName, sol::Dist_Vector* adQI );
-
-            void update_QI( const std::string& aQIName, real aValue, sol::Dist_Vector* adQI );
 
             /**
              * Updates all QIs for the given module.
@@ -304,7 +288,6 @@ namespace moris
              * @param[ in ] aDvType        List of Dv types
              * @param[ in ] aDvIds         List of Dv Ids
              */
-            // BRENDAN NEED THESE FOR XQIs TO GET SENSITIVITIE
             virtual void get_ip_dv_ids_for_type_and_ind(
                     const Matrix< IndexMat >&           aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
@@ -340,12 +323,6 @@ namespace moris
             virtual sol::Dist_Vector* get_dQIdp( Module_Type aModule );
 
             //------------------------------------------------------------------------------
-
-            // /**
-            //  * returns the dQIdp
-            //  * @param[ out ] dQIdp matrix filled with dQIdp
-            //  */
-            // void set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp );
 
             //------------------------------------------------------------------------------
 

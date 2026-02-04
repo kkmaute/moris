@@ -832,7 +832,6 @@ namespace moris::fem
                         mParameterList,
                         aLibrary,
                         tMeshPair,
-                        mDesignVariableInterface,
                         mSpaceDim,
                         mUseNewGhostSets,
                         mDofTypeToBsplineMeshIndex );
@@ -844,7 +843,6 @@ namespace moris::fem
                         mParameterList,
                         aLibrary,
                         tMeshPair,
-                        mDesignVariableInterface,
                         mSpaceDim,
                         mUseNewGhostSets,
                         mDofTypeToBsplineMeshIndex );

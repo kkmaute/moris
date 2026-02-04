@@ -148,18 +148,6 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    // const Matrix< DDRMat >
-    // Design_Variable_Interface::get_dQIdADV( const std::string& aQIName ) const
-    // {
-    //     MORIS_ASSERT( mQINameToIndexMap.key_exists( aQIName ),
-    //             "Design_Variable_Interface::get_dQIdADV - Quantity of interest with name %s not found.",
-    //             aQIName.c_str() );
-
-    //     return mQIs( mQINameToIndexMap[ aQIName ] ).sensitivity();
-    // }
-
-    //------------------------------------------------------------------------------
-
     void Design_Variable_Interface::update_QI( const std::string& aQIName, real aValue )
     {
         MORIS_ASSERT( mQINameToIndexMap.key_exists( aQIName ),
@@ -167,29 +155,6 @@ namespace moris::MSI
                 aQIName.c_str() );
 
         mQIs( mQINameToIndexMap[ aQIName ] ).set_val( aValue );
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Design_Variable_Interface::update_QI( const std::string& aQIName, real aValue, sol::Dist_Vector* adQI )
-    {
-        MORIS_ASSERT( mQINameToIndexMap.key_exists( aQIName ),
-                "Design_Variable_Interface::update_QI - Quantity of interest with name %s not found.",
-                aQIName.c_str() );
-
-        mQIs( mQINameToIndexMap[ aQIName ] ).set_val( aValue );
-        mQIs( mQINameToIndexMap[ aQIName ] ).set_sensitivity( adQI );
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Design_Variable_Interface::update_QI( const std::string& aQIName, sol::Dist_Vector* adQI )
-    {
-        MORIS_ASSERT( mQINameToIndexMap.key_exists( aQIName ),
-                "Design_Variable_Interface::update_QI - Quantity of interest with name %s not found.",
-                aQIName.c_str() );
-
-        mQIs( mQINameToIndexMap[ aQIName ] ).set_sensitivity( adQI );
     }
 
     //------------------------------------------------------------------------------
@@ -208,11 +173,6 @@ namespace moris::MSI
                 mdXQIdPDV = adQIdp;
                 break;
             }
-            // case Module_Type::GEN:
-            // {
-            //     // mdGQIdADV = adQIdp; brendan delete
-            //     break;
-            // }
             default:
             {
                 MORIS_ASSERT( false,
@@ -221,33 +181,6 @@ namespace moris::MSI
                 break;
             }
         }
-        // MORIS_ASSERT( mModuleToQIIndicesMap.key_exists( aModule ),
-        //         "Design_Variable_Interface::update_QI_sensitivity - No QIs found for module type %d.",
-        //         static_cast< int >( aModule ) );
-
-        // // Get the indices of the QIs associated with the module
-        // Vector< uint > tQIIndices = mModuleToQIIndicesMap[ aModule ];
-
-        // MORIS_ASSERT( adQIdp->get_num_vectors() == (sint)tQIIndices.size(),
-        //         "Design_Variable_Interface::update_QI_sensitivity - Number of QIs from module type %d (%lu) does not match the number of vectors in adQIdp (%d).",
-        //         static_cast< int >( aModule ),
-        //         tQIIndices.size(),
-        //         adQIdp->get_num_vectors() );
-
-        // // Loop over the QIs in adQIdp
-        // for ( uint iQI = 0; iQI < tQIIndices.size(); iQI++ )
-        // {
-        //     uint tQIIndex = tQIIndices( iQI );
-
-        //     // Loop over all entries in the Dist_Vector and set the sensitivity in the corresponding QI
-        //     int tGlobalLength = adQIdp->vec_global_length();
-
-        //     for ( int iDV = 0; iDV < tGlobalLength; iDV++ )
-        //     {
-        //         // Set the value in the sensitivity matrix
-        //         mQIs( tQIIndex ).set_sensitivity( iDV, ( *adQIdp )( iDV, iQI ) );
-        //     }
-        // }
     }
 
     //------------------------------------------------------------------------------
@@ -265,10 +198,6 @@ namespace moris::MSI
             {
                 return mdXQIdPDV;
             }
-            // case Module_Type::GEN:
-            // {
-            //     // return mdGQIdADV; brendan delete
-            // }
             default:
             {
                 MORIS_ASSERT( false,
@@ -279,12 +208,5 @@ namespace moris::MSI
         }
     }
     //------------------------------------------------------------------------------
-
-    // void
-    // Design_Variable_Interface::set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp )
-    // {
-    //     mdQIdpImported = true;
-    //     mdQIdp         = adQIdp;
-    // }
 
 }    // namespace moris::MSI

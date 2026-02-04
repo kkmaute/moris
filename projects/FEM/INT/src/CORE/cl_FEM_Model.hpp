@@ -29,7 +29,6 @@
 #include "GEN_Data_Types.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
-#include "cl_FEM_Phase_User_Info.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_Library_IO.hpp"
 
@@ -433,7 +432,6 @@ namespace moris
             {
                 if ( mDesignVariableInterface == nullptr )
                 {
-                    MORIS_LOG_WARNING( "FEM_Model::get_requested_IQI_names - design variable interface is nullptr, cannot get requested IQI names. Returning empty list!" );
                     static const Vector< std::string > tEmpty;
                     return tEmpty;
                 }
