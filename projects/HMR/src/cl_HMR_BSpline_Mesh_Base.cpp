@@ -13,7 +13,7 @@
 #include <fstream>
 #include <string>
 
-#include "HMR_Tools.hpp"       //HMR/src
+#include "HMR_Tools.hpp"    //HMR/src
 #include "cl_HMR_Basis.hpp"
 #include "cl_Stopwatch.hpp"    //CHR/src
 #include "cl_Matrix.hpp"       //LINALG/src
@@ -35,10 +35,10 @@ namespace moris::hmr
             uint                  aActivationPattern,
             uint                  aNumberOfBasesPerElement )
             : Mesh_Base( aParameters,
-                    aBackgroundMesh,
-                    aOrder,
-                    aActivationPattern,
-                    aNumberOfBasesPerElement )
+                      aBackgroundMesh,
+                      aOrder,
+                      aActivationPattern,
+                      aNumberOfBasesPerElement )
     {
     }
 
@@ -299,7 +299,7 @@ namespace moris::hmr
 
     void
     BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
-            uint              aLevel,
+            uint                aLevel,
             Vector< Element* >& aElements )
     {
         // cell containing background elements on this level
@@ -314,7 +314,7 @@ namespace moris::hmr
 
         for ( Background_Element_Base* tBackElement : tBackgroundElements )
         {
-            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) ) // is active or refined
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) )    // is active or refined
             {
                 tElementCount++;
             }
@@ -898,7 +898,7 @@ namespace moris::hmr
                                                                                    tReceiveIndex( p )( k ),
                                                                                    tReceivePedigree( p ),
                                                                                    tPedigreeCount )
-                                                                    ->get_memory_index() );
+                                    ->get_memory_index() );
 
                     // write index of requested basis into matrix
                     tSendIndex( p )( k ) = tElement->get_basis( tReceiveBasis( p )( k ) )
@@ -1001,7 +1001,7 @@ namespace moris::hmr
             MORIS_ERROR( tBasisIndex == 0, "%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n", proc_string().c_str(), (long unsigned int)tBasisIndex );
         }    // end if parallel
 
-             // insert parents if we are in multigrid
+        // insert parents if we are in multigrid
         if ( mParameters->use_multigrid() )
         {
             // get parents for each basis
@@ -1028,7 +1028,7 @@ namespace moris::hmr
                 MORIS_ERROR( tNumberOfActiveBasis == tNumberOfBSplines, "Number of Basis does not match" );
         #endif
         */
-    } // end function::BSpline_Mesh_Base::calculate_basis_indices()
+    }    // end function::BSpline_Mesh_Base::calculate_basis_indices()
 
     //------------------------------------------------------------------------------
 
@@ -1231,7 +1231,7 @@ namespace moris::hmr
                                                                                    tReceiveIndex( p )( k ),
                                                                                    tReceivePedigree( p ),
                                                                                    tPedigreeCount )
-                                                                    ->get_memory_index() );
+                                    ->get_memory_index() );
 
                     // now we flag this basis
                     tElement->get_basis( tReceiveBasis( p )( k ) )->flag();
@@ -1344,7 +1344,7 @@ namespace moris::hmr
 
         }    // end if: multi-grid is NOT used
 
-    }        // end function: hmr::BSpline_Mesh_Base::collect_active_and_refined_basis()
+    }    // end function: hmr::BSpline_Mesh_Base::collect_active_and_refined_basis()
 
     //------------------------------------------------------------------------------
     bool
