@@ -422,7 +422,8 @@ namespace moris::wrk
         // Assign PDVs
         mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
 
-        // FIXME: This should likely be done inside xtk::Model::perform() and be made private and kept out of the main workflow
+        // FIXME: This should likely be done inside xtk::Model::perform() and be made private and kept out of the main workflow,
+        // but we need to wait until the PDVs are created to be able to map XQI sensitivities to PDV IDs
         tXTKPerformer->compute_XQIs( mPerformerManager->mLibrary );
 
         if ( tDeleteXTK )
@@ -450,8 +451,6 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer( 0 )->set_use_new_ghost_mesh_sets( tUseNewGhostSets );
 
         mPerformerManager->mMDLPerformer( 0 )->initialize();
-
-        // mPerformerManager->mGENPerformer( 0 )->communicate_requested_QIs(); brendan delete
 
         // Build MDL components and solve
         mPerformerManager->mMDLPerformer( 0 )->perform();
@@ -502,8 +501,6 @@ namespace moris::wrk
     Matrix< DDRMat >
     Workflow_HMR_XTK::compute_dcriteria_dadv()
     {
-        // mPerformerManager->mGENPerformer( 0 )->communicate_requested_QIs(); brendan delete
-
         mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 
         Matrix< DDRMat > tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
