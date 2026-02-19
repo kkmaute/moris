@@ -1221,6 +1221,7 @@ namespace moris::gen
         double maxval_derivative = 0;
         uint   mNumPDVs          = 0;
         int    mNumCols          = aNumADVs;
+        int    tMaxID            = -1;
 
         // loop over intersection nodes and collect nonzeros
         for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
@@ -1230,6 +1231,13 @@ namespace moris::gen
             {
 
                 auto mWeightAndLocn = tIgExtractionOperators( iNodeIndex );
+
+                int tNodeID = mNodeManager.get_derived_node_id( iNodeIndex );
+                
+                if ( tNodeID > tMaxID )
+                {
+                    tMaxID = tNodeID;
+                }
 
                 if ( mWeightAndLocn == nullptr )
                 {
@@ -1270,7 +1278,7 @@ namespace moris::gen
                 }
 
                 // place nonzeros in COO
-                uint base_row = static_cast< uint >( aDim * mNodeManager.get_derived_node_id( iNodeIndex ) );
+                uint base_row = static_cast< uint >( aDim * (mNodeManager.get_derived_node_id( iNodeIndex ) - 1 ) );
                 for ( uint adv_j = 0; adv_j < mGlobalAdvIndexVec.size(); ++adv_j )
                 {
                     uint globalAdv = static_cast< uint >( mGlobalAdvIndexVec( adv_j ) );
@@ -1302,7 +1310,7 @@ namespace moris::gen
         save_vector_to_hdf5_file( tFileID, std::string( "T_D_vals" ), vals, tStatus );
 
         // save dimensions / metadata
-        std::vector< uint > meta = { static_cast< uint >( aDim * mNodeManager.get_total_number_of_nodes() ), static_cast< uint >( mNumCols ) };
+        std::vector< uint > meta = { static_cast< uint >( aDim * (tMaxID) ), static_cast< uint >( mNumCols ) };
         save_vector_to_hdf5_file( tFileID, std::string( "T_D_shape" ), meta, tStatus );
 
         close_hdf5_file( tFileID );
