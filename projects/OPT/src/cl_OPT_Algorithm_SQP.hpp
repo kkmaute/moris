@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_OPT_ALGORITHM_SQP_HPP_
-#define MORIS_CL_OPT_ALGORITHM_SQP_HPP_
+#pragma once
 
 #include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
@@ -58,7 +57,7 @@ namespace moris::opt
         /**
          * Constructor
          */
-        Algorithm_SQP( Parameter_List aParameterList );
+        Algorithm_SQP( Parameter_List aParameterList, std::shared_ptr< Problem > aProblem = nullptr );
 
         /**
          * Destructor
@@ -122,7 +121,4 @@ namespace moris::opt
             int*    leniu,
             double* ru,
             int*    lenru );
-    }
-
-#endif /* MORIS_CL_OPT_ALGORITHM_SQP_HPP_ */
-
+}    // namespace moris::opt

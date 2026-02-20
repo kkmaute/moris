@@ -24,7 +24,7 @@ namespace moris::opt
     // -------------------------------------------------------------------------------------------------------------
 
     Manager::Manager(
-            const Module_Parameter_Lists&              aParameterLists,
+            const Module_Parameter_Lists&                          aParameterLists,
             const Vector< std::shared_ptr< Criteria_Interface > >& aInterfaces )
             : Manager(
                       aParameterLists( 2 ),
@@ -40,15 +40,18 @@ namespace moris::opt
 
     Manager::Manager(
             const Submodule_Parameter_Lists& aAlgorithmParameterLists,
-            std::shared_ptr< Problem >      aProblem )
+            std::shared_ptr< Problem >       aProblem )
             : mProblem( std::move( aProblem ) )
     {
         // Construct Algorithm cell
         uint tNumAlgorithms = aAlgorithmParameterLists.size();
 
+        // initialize the problem
+        mProblem->initialize();
+
         for ( uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++ )
         {
-            mAlgorithms.push_back( create_algorithm( aAlgorithmParameterLists( tAlgorithmIndex ) ) );
+            mAlgorithms.push_back( create_algorithm( aAlgorithmParameterLists( tAlgorithmIndex ), mProblem ) );
         }
     }
 
@@ -64,9 +67,6 @@ namespace moris::opt
     {
         // Trace optimization
         Tracer tTracer( "OPT", "Manager", "Perform" );
-
-        // initialize the problem
-        mProblem->initialize();
 
         for ( uint i = 0; i < mAlgorithms.size(); i++ )
         {
@@ -116,4 +116,4 @@ namespace moris::opt
     }
 
     // -------------------------------------------------------------------------------------------------------------
-    }
+}    // namespace moris::opt

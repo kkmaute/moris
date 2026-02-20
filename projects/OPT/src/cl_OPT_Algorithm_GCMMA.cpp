@@ -25,8 +25,9 @@ using namespace moris;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-OptAlgGCMMA::OptAlgGCMMA( const Parameter_List& aParameterList )
-        : mMaxInnerIterations( aParameterList.get< moris::sint >( "max_inner_its" ) )
+OptAlgGCMMA::OptAlgGCMMA( const Parameter_List& aParameterList, std::shared_ptr< opt::Problem > aProblem )
+        : Algorithm( aProblem )
+        , mMaxInnerIterations( aParameterList.get< moris::sint >( "max_inner_its" ) )
         , mNormDrop( aParameterList.get< moris::real >( "norm_drop" ) )
         , mAsympAdapt0( aParameterList.get< moris::real >( "asymp_adapt0" ) )
         , mAsympShrink( aParameterList.get< moris::real >( "asymp_adaptb" ) )
@@ -52,8 +53,7 @@ OptAlgGCMMA::~OptAlgGCMMA()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-uint
-OptAlgGCMMA::solve(
+uint OptAlgGCMMA::solve(
         uint                                   aCurrentOptAlgInd,
         std::shared_ptr< moris::opt::Problem > aOptProb )
 {
@@ -103,8 +103,7 @@ OptAlgGCMMA::solve(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void
-OptAlgGCMMA::gcmma_solve()
+void OptAlgGCMMA::gcmma_solve()
 {
 #ifdef MORIS_HAVE_GCMMA
     mPrint = false;    // FIXME parameter list
@@ -155,8 +154,7 @@ OptAlgGCMMA::gcmma_solve()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void
-OptAlgGCMMA::printresult()
+void OptAlgGCMMA::printresult()
 {
     if ( mPrint )
     {
@@ -181,8 +179,7 @@ OptAlgGCMMA::printresult()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void
-opt_alg_gcmma_func_wrap(
+void opt_alg_gcmma_func_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
         int&         aIter,
         double*      aAdv,
@@ -218,8 +215,7 @@ opt_alg_gcmma_func_wrap(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void
-opt_alg_gcmma_grad_wrap(
+void opt_alg_gcmma_grad_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
         double*      aAdv,
         double*      aD_Obj,

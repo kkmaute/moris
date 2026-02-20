@@ -224,6 +224,8 @@ namespace moris::prm
         tParameterList.insert( "save", true );                             // Save the sweep evaluations in "hdf5_path"
         tParameterList.insert( "print", false );                           // Print the sweep evaluations to the screen with moris::print
         tParameterList.insert( "hdf5_path", "" );                          // Path and file name for saving if "save" is set to true
+        tParameterList.insert( "adv_evaluation_vector_file", "" );         // File defining the direction to perform ADV evaluations in. Must also provide a restart file to compute full vector
+        tParameterList.insert( "step_size", 1.0 );                         // Length of step in the sweep direction defined by "adv_evaluation_vector_file". Goes this length in +- directions
 
         return tParameterList;
     }

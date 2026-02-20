@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
-#define MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
+#pragma once
 
 #include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
@@ -23,7 +22,7 @@ namespace moris::opt
         /**
          * Constructor
          */
-        Algorithm_Sweep( const Parameter_List& aParameterList );
+        Algorithm_Sweep( const Parameter_List& aParameterList, std::shared_ptr< Problem > aProblem = nullptr );
 
         /**
          * Destructor
@@ -93,8 +92,7 @@ namespace moris::opt
          * @param aFullEvaluationName Full name to be output to the screen/hdf5
          */
         void output_variables( const Matrix< DDRMat >& aVariables, const std::string& aFullEvaluationName );
+
+        void load_evaluation_points_from_file( const std::string& aFileName, real aStepSize = 1.0 );
     };
-    }
-
-#endif /* MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_ */
-
+}    // namespace moris::opt

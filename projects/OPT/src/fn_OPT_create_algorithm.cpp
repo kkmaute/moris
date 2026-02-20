@@ -17,24 +17,24 @@
 namespace moris::opt
 {
     std::shared_ptr< Algorithm >
-    create_algorithm( const Parameter_List& aAlgorithmParameterList )
+    create_algorithm( const Parameter_List& aAlgorithmParameterList, std::shared_ptr< Problem > aProblem )
     {
         std::string tAlgorithmName = aAlgorithmParameterList.get< std::string >( "algorithm" );
         if ( tAlgorithmName == "gcmma" )
         {
-            return std::make_shared< OptAlgGCMMA >( aAlgorithmParameterList );
+            return std::make_shared< OptAlgGCMMA >( aAlgorithmParameterList, aProblem );
         }
         else if ( tAlgorithmName == "sqp" )
         {
-            return std::make_shared< Algorithm_SQP >( aAlgorithmParameterList );
+            return std::make_shared< Algorithm_SQP >( aAlgorithmParameterList, aProblem );
         }
         else if ( tAlgorithmName == "lbfgs" )
         {
-            return std::make_shared< Algorithm_LBFGS >( aAlgorithmParameterList );
+            return std::make_shared< Algorithm_LBFGS >( aAlgorithmParameterList, aProblem );
         }
         else if ( tAlgorithmName == "sweep" )
         {
-            return std::make_shared< Algorithm_Sweep >( aAlgorithmParameterList );
+            return std::make_shared< Algorithm_Sweep >( aAlgorithmParameterList, aProblem );
         }
         else
         {
