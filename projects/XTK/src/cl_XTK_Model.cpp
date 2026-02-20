@@ -604,15 +604,39 @@ namespace moris::xtk
                 mtk::Integration_Surface_Mesh tSurfaceMesh( tSurfaceMeshData );
 
                 // Brendan delete
-                tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
-                std::ofstream tNormalFile( "facet_normals_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
-                tNormalFile.precision( 16 );
-                for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
-                {
-                    Matrix< DDRMat > tNormal = tSurfaceMesh.get_facet_normal( iF );
-                    tNormalFile << tNormal( 0 ) << " " << tNormal( 1 ) << "\n";
-                }
-                tNormalFile.close();
+                // tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
+
+                // // brendan delete
+                // Vector< uint >           tADVs = { 2350, 2671, 2669, 2349, 2653 };
+                // Vector< Vector< uint > > tVerticesOfInterest( tADVs.size() );
+                // Vector< std::ifstream >  tVertexFiles( tADVs.size() );
+                // Vector< std::ofstream >  tVertexOutputFile( tADVs.size() );
+                // for ( uint iA = 0; iA < tADVs.size(); iA++ )
+                // {
+                //     tVertexFiles( iA )      = std::ifstream( "vertices_dependent_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+                //     tVertexOutputFile( iA ) = std::ofstream( "vertex_sensitivities_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+
+                //     if ( tVertexFiles( iA ).is_open() )
+                //     {
+                //         luint tID;
+                //         real  x, y, dx, dy;
+                //         while ( tVertexFiles( iA ) >> tID >> x >> y >> dx >> dy )
+                //         {
+                //             tVerticesOfInterest( iA ).push_back( static_cast< uint >( tID ) );
+                //         }
+                //         tVertexFiles( iA ).close();
+                //     }
+                // }
+
+                // brendan delete
+                // std::ofstream tNormalFile( "facet_normals_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+                // tNormalFile.precision( 16 );
+                // for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
+                // {
+                //     Matrix< DDRMat > tNormal = tSurfaceMesh.get_facet_normal( iF );
+                //     tNormalFile << tNormal( 0 ) << " " << tNormal( 1 ) << "\n";
+                // }
+                // tNormalFile.close();
 
                 // Get the IG to PDV ID map for this surface mesh
                 Vector< Vector< moris_index > > tPDVIDs;
@@ -630,26 +654,38 @@ namespace moris::xtk
                         break;
                     case ( XQI_Type::SHAPE_DIAMETER ):
                     {
-                        real tAgglomerationExponent = mParameterList( 1 )( iXQI ).get< real >( "agglomeration_exponent" );
-                        real tAgglomerationRef      = mParameterList( 1 )( iXQI ).get< real >( "agglomeration_reference" );
-                        real tAgglomerationShift    = mParameterList( 1 )( iXQI ).get< real >( "agglomeration_shift" );
+                        real                          tConeAngle      = mParameterList( 1 )( iXQI ).get< real >( "cone_angle" );
+                        uint                          tNumPolarRays   = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) );
+                        uint                          tNumAzimuthRays = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) );
+                        mtk::Agglomeration_Parameters tAgglom(
+                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_exponent" ),
+                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_reference" ),
+                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_shift" ) );
 
                         tXQIValue = tSurfaceMesh.compute_global_shape_diameter(
-                                mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
-                                static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) ),
-                                static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) ),
-                                tAgglomerationExponent,
-                                tAgglomerationRef,
-                                tAgglomerationShift );
+                                tAgglom,
+                                tConeAngle,
+                                tNumPolarRays,
+                                tNumAzimuthRays );
 
                         tSurfaceMesh.compute_XQI_sensitivities(
                                 tXQIType,
                                 tPDVIDs,
                                 tdXQIdPDV,
-                                iXQI,
-                                tAgglomerationExponent,
-                                tAgglomerationRef,
-                                tAgglomerationShift );
+                                iXQI );
+
+                        // // brendan delete
+                        // for ( uint iA = 0; iA < tVerticesOfInterest.size(); iA++ )
+                        // {
+                        //     for ( uint iV = 0; iV < tVerticesOfInterest( iA ).size(); iV++ )
+                        //     {
+                        //         uint             tLocalIndex = tSurfaceMeshData.mGlobalToLocalVertexIndex[ tVerticesOfInterest( iA )( iV ) ];
+                        //         Matrix< DDRMat > tCoords     = tSurfaceMesh.get_vertex_coordinates( tLocalIndex );
+                        //         Matrix< DDRMat > tSens       = tSurfaceMesh.compute_ddiameter_dvertex( tLocalIndex );
+
+                        //         tVertexOutputFile( iA ) << tLocalIndex << " " << tCoords( 0 ) << " " << tCoords( 1 ) << " " << tSens( 0 ) << " " << tSens( 1 ) << "\n";
+                        //     }
+                        // }
 
                         break;
                     }
@@ -658,6 +694,12 @@ namespace moris::xtk
                 }
 
                 tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue );
+
+                // // brendan delete
+                // for ( uint iA = 0; iA < tADVs.size(); iA++ )
+                // {
+                //     tVertexOutputFile( iA ).close();
+                // }
             }
 
             tdXQIdPDV->vector_global_assembly();
