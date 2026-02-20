@@ -25,7 +25,6 @@ namespace moris::mtk
     {
         Vector< Side_Set const * > tSideSets;
 
-
         auto tSideSetFromName = [ &aIGMesh ]( std::string const &aSideSetName ) {
             return dynamic_cast< Side_Set * >( aIGMesh->get_set_by_name( aSideSetName ) );
         };
@@ -146,13 +145,13 @@ namespace moris::mtk
             int                                        aCellOrdinal,
             moris_index                                aClusterIndex )
     {
-        MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
+        // MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
 
         auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
 
         // local index (on the surface mesh, from 0 to n_surfacemesh), global index (in the integration mesh, arbitrary numbers between 0 and n_igmesh)
         mLocalToGlobalCellIndex.push_back( aCell->get_index() );
-        mGlobalToLocalCellIndex[ aCell->get_index() ] = tCurrentLocalCellIndex;
+        // mGlobalToLocalCellIndex[ aCell->get_index() ] = tCurrentLocalCellIndex;
 
         // one cluster per cell but one cluster can have multiple cells
         mCellToClusterIndices.push_back( aClusterIndex );

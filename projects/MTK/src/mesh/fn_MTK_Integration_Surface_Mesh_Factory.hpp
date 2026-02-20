@@ -140,7 +140,7 @@ namespace moris::mtk
          * those cells (e.g. cells 3, 18, 5, 20, ...), the map will provide mappings from 3 to 0, 18 to 1, 5 to 2 and 20
          * to 3 (and so on). It is not ensured that the indices will map to cells in ascending order!
          */
-        moris::map< moris_index, moris_index > mGlobalToLocalCellIndex;
+        // moris::map< moris_index, moris_index > mGlobalToLocalCellIndex; // brendan delete and all other references to this variable
 
         /**
          * @brief The value at the n-th (local) index is the global index of the cell in the global mesh.

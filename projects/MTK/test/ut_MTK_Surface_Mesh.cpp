@@ -46,14 +46,12 @@ namespace moris::mtk
 
         SECTION( "Basic functionality and sensitivities" )
         {
-            real tShapeDiameterExpected = 0.52987607357825017;
+            real tShapeDiameterExpected = 2.2373905867;
 
             // Config for shape diameter computation
-            uint tNumRays               = 6;
-            real tConeAngle             = 60.0;    // degrees
-            real tAgglomerationExponent = 0.01;
-            real tAgglomerationRef      = 0.1;
-            real tAgglomerationShift    = 0.0;
+            uint                     tNumRays   = 6;
+            real                     tConeAngle = 60.0;    // degrees
+            Agglomeration_Parameters tAgglom( 4.0, 2.0, 0.0 );
 
             // Check number of vertices and facets
             REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
@@ -67,14 +65,17 @@ namespace moris::mtk
             Matrix< DDRMat > tFacetCenters  = tSurfaceMesh.compute_facet_centroids();
 
             // Compute the nodal and global shape diameter
-            Vector< real > tNodalShapeDiameter  = tSurfaceMesh.compute_facet_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
-            real           tGlobalShapeDiameter = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+            Vector< real > tNodalShapeDiameter  = tSurfaceMesh.compute_raycast_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
+            real           tGlobalShapeDiameter = tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
 
             // Nodal shape diameter sensitivities
             // const Matrix< DDRMat >& tNodalShapeDiameterSensitivities = tSurfaceMesh.get_nodal_shape_diameter_sensitivities();
 
             // Check global shape diameter
             CHECK( tGlobalShapeDiameter == Approx( tShapeDiameterExpected ) );
+
+            // Setup perturbation matrix for FD
+            Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
 
             // Loop over the surface mesh facets
             for ( uint iF = 0; iF < tConnExpected.size(); ++iF )
@@ -96,9 +97,6 @@ namespace moris::mtk
                 // Check facet measure
                 CHECK( tFacetMeasures( iF ) == Approx( tMeasureExpected( iF ) ) );
 
-                // Setup perturbation matrix for FD
-                Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
-
                 // Loop over vertices and finite difference the quanitities
                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
                 {
@@ -114,35 +112,35 @@ namespace moris::mtk
                         // Perturb positively
                         tPerturbation( iDim ) = tEps;
                         tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-                        Matrix< DDRMat > tNormalPlus             = tSurfaceMesh.get_facet_normal( iF );
-                        Matrix< DDRMat > tCenterPlus             = tSurfaceMesh.compute_facet_centroid( iF );
-                        real             tMeasurePlus            = tSurfaceMesh.compute_facet_measure( iF );
-                        real             tShapeDiameterPlus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
-                        Vector< real >   tNodalShapeDiameterPlus = tSurfaceMesh.compute_facet_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+                        Matrix< DDRMat > tNormalPlus        = tSurfaceMesh.get_facet_normal( iF );
+                        Matrix< DDRMat > tCenterPlus        = tSurfaceMesh.compute_facet_centroid( iF );
+                        real             tMeasurePlus       = tSurfaceMesh.compute_facet_measure( iF );
+                        real             tShapeDiameterPlus = tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
+                        // Vector< real >   tNodalShapeDiameterPlus = tSurfaceMesh.compute_facet_shape_diameter( tAgglom, tConeAngle, tNumRays, 1);
 
                         // Perturb negatively
                         tPerturbation( iDim ) = -tEps;
                         tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-                        Matrix< DDRMat > tNormalMinus             = tSurfaceMesh.get_facet_normal( iF );
-                        Matrix< DDRMat > tCenterMinus             = tSurfaceMesh.compute_facet_centroid( iF );
-                        real             tMeasureMinus            = tSurfaceMesh.compute_facet_measure( iF );
-                        real             tShapeDiameterMinus      = tSurfaceMesh.compute_global_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
-                        Vector< real >   tNodalShapeDiameterMinus = tSurfaceMesh.compute_facet_shape_diameter( tConeAngle, tNumRays, 1, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+                        Matrix< DDRMat > tNormalMinus        = tSurfaceMesh.get_facet_normal( iF );
+                        Matrix< DDRMat > tCenterMinus        = tSurfaceMesh.compute_facet_centroid( iF );
+                        real             tMeasureMinus       = tSurfaceMesh.compute_facet_measure( iF );
+                        real             tShapeDiameterMinus = tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
+                        // Vector< real >   tNodalShapeDiameterMinus = tSurfaceMesh.compute_facet_shape_diameter(tAgglom, tConeAngle, tNumRays, 1);
 
                         // Reset perturbation
                         tPerturbation( iDim ) = 0.0;
                         tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
 
-                        // Compute finite difference results - nodal shape diameter
-                        real tNSDForward  = 0.0;
-                        real tNSDBackward = 0.0;
-                        real tNSDCentral  = 0.0;
-                        for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
-                        {
-                            tNSDForward += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameter( iF ) ) / tEps;
-                            tNSDBackward += tFacetMeasures( iF ) * ( tNodalShapeDiameter( iF ) - tNodalShapeDiameterMinus( iF ) ) / tEps;
-                            tNSDCentral += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameterMinus( iF ) ) / ( 2.0 * tEps );
-                        }
+                        // // Compute finite difference results - nodal shape diameter
+                        // real tNSDForward  = 0.0;
+                        // real tNSDBackward = 0.0;
+                        // real tNSDCentral  = 0.0;
+                        // for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
+                        // {
+                        //     tNSDForward += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameter( iF ) ) / tEps;
+                        //     tNSDBackward += tFacetMeasures( iF ) * ( tNodalShapeDiameter( iF ) - tNodalShapeDiameterMinus( iF ) ) / tEps;
+                        //     tNSDCentral += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameterMinus( iF ) ) / ( 2.0 * tEps );
+                        // }
 
                         // Compute finite difference results - normal
                         Matrix< DDRMat > tNForward  = ( tNormalPlus - tFacetNormal ) / tEps;
@@ -180,9 +178,9 @@ namespace moris::mtk
                         }
 
                         // Check nodal shape diameter sensitivities
-                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDForward ).epsilon( 1e-2 ) );
-                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDBackward ).epsilon( 1e-2 ) );
-                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDCentral ).epsilon( 1e-2 ) );
+                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDForward ).epsilon( 1e-4 ) );
+                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDBackward ).epsilon( 1e-4 ) );
+                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDCentral ).epsilon( 1e-4 ) );
 
                         // Compute finite difference results - global shape diameter
                         real tSDForward  = ( tShapeDiameterPlus - tGlobalShapeDiameter ) / tEps;
@@ -190,9 +188,54 @@ namespace moris::mtk
                         real tSDCentral  = ( tShapeDiameterPlus - tShapeDiameterMinus ) / ( 2.0 * tEps );
 
                         // Check sensitivities shape diameter
-                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-2 ) );
-                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-2 ) );
-                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-2 ) );
+                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-4 ) );
+                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-4 ) );
+                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-4 ) );
+                    }
+                }
+            }
+
+            // Compute vertex normals and FD sensitivities
+            Matrix< DDRMat > tVertexNormals = tSurfaceMesh.compute_vertex_normals();
+
+            // Loop over the surface mesh vertices
+            for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+            {
+                // Loop over vertices again
+                for ( uint iVC = 0; iVC < tSurfaceMesh.get_number_of_vertices(); iVC++ )
+                {
+                    // Get the vertex normal sensitivity
+                    Matrix< DDRMat > tVertexNormalSens = tSurfaceMesh.compute_dvertex_normal_dvertex( iV, iVC );
+
+                    // Loop over dimensions
+                    for ( uint iDim = 0; iDim < 2; iDim++ )
+                    {
+                        // Perturb positively
+                        tPerturbation( iDim ) = tEps;
+                        tSurfaceMesh.set_vertex_displacement( iVC, tPerturbation );
+                        Matrix< DDRMat > tVertexNormalsPlus = tSurfaceMesh.compute_vertex_normals();
+
+                        // Perturb negatively
+                        tPerturbation( iDim ) = -tEps;
+                        tSurfaceMesh.set_vertex_displacement( iVC, tPerturbation );
+                        Matrix< DDRMat > tVertexNormalsMinus = tSurfaceMesh.compute_vertex_normals();
+
+                        // Reset perturbation
+                        tPerturbation( iDim ) = 0.0;
+                        tSurfaceMesh.set_vertex_displacement( iVC, tPerturbation );
+
+                        // Compute FD sensitivity
+                        Matrix< DDRMat > tVNSForward  = ( tVertexNormalsPlus.get_column( iV ) - tVertexNormals.get_column( iV ) ) / tEps;
+                        Matrix< DDRMat > tVNSBackward = ( tVertexNormals.get_column( iV ) - tVertexNormalsMinus.get_column( iV ) ) / tEps;
+                        Matrix< DDRMat > tVNSCentral  = ( tVertexNormalsPlus.get_column( iV ) - tVertexNormalsMinus.get_column( iV ) ) / ( 2.0 * tEps );
+
+                        // Check sensitivities for normal
+                        for ( uint iComp = 0; iComp < 2; iComp++ )
+                        {
+                            CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSForward( iComp ) ).epsilon( 1e-4 ) );
+                            CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSBackward( iComp ) ).epsilon( 1e-4 ) );
+                            CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSCentral( iComp ) ).epsilon( 1e-4 ) );
+                        }
                     }
                 }
             }
@@ -338,12 +381,12 @@ namespace moris::mtk
             Matrix< DDRMat > tDirection   = { { 0.70710678118 }, { 0.70710678118 } };
             Matrix< DDRMat > tFacetNormal = { { 0.0 }, { 1.0 } };
 
-            real tAngle = tSurfaceMesh.compute_angle_magnitude( tDirection, tFacetNormal );
-            CHECK( tAngle == Approx( 0.78539816339 ) );
+            real tAngle = tSurfaceMesh.compute_dot_absolute( tDirection, tFacetNormal );
+            CHECK( tAngle == Approx( 0.7071067812 ) );
 
             // Finite difference sensitivity
             Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
-            Matrix< DDRMat > tDAdD = tSurfaceMesh.compute_dangle_magnitude_dvector( tDirection, tFacetNormal );
+            Matrix< DDRMat > tDAdD = tSurfaceMesh.compute_ddot_absolute( tDirection, tFacetNormal );
 
             // Loop over dimensions
             for ( uint iDim = 0; iDim < 2; iDim++ )
@@ -351,12 +394,12 @@ namespace moris::mtk
                 // Perturb direction positively
                 tPerturbation( iDim )          = tEps;
                 Matrix< DDRMat > tPerturbedDir = tDirection + tPerturbation;
-                real             tAnglePlus    = tSurfaceMesh.compute_angle_magnitude( tPerturbedDir, tFacetNormal );
+                real             tAnglePlus    = tSurfaceMesh.compute_dot_absolute( tPerturbedDir, tFacetNormal );
 
                 // Perturb direction negatively
                 tPerturbation( iDim )             = -tEps;
                 Matrix< DDRMat > tPerturbedDirNeg = tDirection + tPerturbation;
-                real             tAngleMinus      = tSurfaceMesh.compute_angle_magnitude( tPerturbedDirNeg, tFacetNormal );
+                real             tAngleMinus      = tSurfaceMesh.compute_dot_absolute( tPerturbedDirNeg, tFacetNormal );
 
                 // Reset perturbation
                 tPerturbation( iDim ) = 0.0;
@@ -375,10 +418,8 @@ namespace moris::mtk
         SECTION( "Agglomeration Function Sensitivity" )
         {
             // Agglomeration function sensitivity test
-            real tExponent  = 2.0;
-            real tReference = 0.1;
-            real tShift     = 0.0;
-            uint tNumTests  = 5;
+            Agglomeration_Parameters tAgglom( 2.0, 0.5, 0.0 );
+            uint                     tNumTests = 5;
 
             // Loop over some test values
             for ( uint iTest = 0; iTest < tNumTests; iTest++ )
@@ -386,15 +427,15 @@ namespace moris::mtk
                 real tValue = 0.05 + iTest * 0.05;
 
                 // Compute analytic value and sensitivity
-                real tAgglomeratedValue        = tSurfaceMesh.tanh_clip( tValue, tExponent, tReference, tShift );
-                real tDAgglomeratedValueDValue = tSurfaceMesh.dtanh_clip( tValue, tExponent, tReference, tShift );
+                real tAgglomeratedValue        = tSurfaceMesh.tanh_clip( tValue, tAgglom );
+                real tDAgglomeratedValueDValue = tSurfaceMesh.dtanh_clip( tValue, tAgglom );
 
                 // Finite difference sensitivity
                 real tValuePlus             = tValue + tEps;
-                real tAgglomeratedValuePlus = tSurfaceMesh.tanh_clip( tValuePlus, tExponent, tReference, tShift );
+                real tAgglomeratedValuePlus = tSurfaceMesh.tanh_clip( tValuePlus, tAgglom );
 
                 real tValueMinus             = tValue - tEps;
-                real tAgglomeratedValueMinus = tSurfaceMesh.tanh_clip( tValueMinus, tExponent, tReference, tShift );
+                real tAgglomeratedValueMinus = tSurfaceMesh.tanh_clip( tValueMinus, tAgglom );
 
                 real tDForward  = ( tAgglomeratedValuePlus - tAgglomeratedValue ) / tEps;
                 real tDBackward = ( tAgglomeratedValue - tAgglomeratedValueMinus ) / tEps;
@@ -406,14 +447,15 @@ namespace moris::mtk
                 CHECK( tDAgglomeratedValueDValue == Approx( tDCentral ) );
 
                 // Compute analytic sensitivity
-                tDAgglomeratedValueDValue = tSurfaceMesh.dmax_clip( tValue, tExponent, tReference, tShift );
+                tAgglomeratedValue        = tSurfaceMesh.max_clip( tValue, tAgglom );
+                tDAgglomeratedValueDValue = tSurfaceMesh.dmax_clip( tValue, tAgglom );
 
                 // Finite difference sensitivity
                 tValuePlus             = tValue + tEps;
-                tAgglomeratedValuePlus = tSurfaceMesh.max_clip( tValuePlus, tExponent, tReference, tShift );
+                tAgglomeratedValuePlus = tSurfaceMesh.max_clip( tValuePlus, tAgglom );
 
                 tValueMinus             = tValue - tEps;
-                tAgglomeratedValueMinus = tSurfaceMesh.max_clip( tValueMinus, tExponent, tReference, tShift );
+                tAgglomeratedValueMinus = tSurfaceMesh.max_clip( tValueMinus, tAgglom );
 
                 tDForward  = ( tAgglomeratedValuePlus - tAgglomeratedValue ) / tEps;
                 tDBackward = ( tAgglomeratedValue - tAgglomeratedValueMinus ) / tEps;
@@ -628,4 +670,122 @@ namespace moris::mtk
             }
         }
     }
+    // TEST_CASE( "Sinusoid Shape Diameter Sweep - Cone Angle", "[MTK], [MTK_Surface_Mesh], [Raycast]" )    // brendan delete
+    // {
+    //     // real tAmp = 0.0;
+    //     // real tPeriod  = 17.5;
+    //     uint tHgt     = 50;
+    //     real tWid     = 10.0;
+    //     uint tNPoints = 90;
+
+    //     // // create surface mesh from object file
+    //     std::string tPath = "/home/chong/work/AU25/Input_Files/SD_tests/meshes/";
+    //     // std::string    tFile            = "sin_" + std::to_string( static_cast< int >( 10 * tAmp ) ) + "a_" + std::to_string( static_cast< int >( tPeriod ) ) + "p_" + std::to_string( static_cast< int >( 10 * tHgt ) ) + "h_" + std::to_string( static_cast< int >( 10 * tWid ) ) + "w_" + std::to_string( static_cast< int >( tNpoints ) ) + "np";
+    //     // std::string    tSurfaceMeshPath = tPath + tFile + ".obj";
+    //     Vector< real > tOffsets = { 0.0, 0.0, 0.0 };
+    //     Vector< real > tScales  = { 1.0, 1.0, 1.0 };
+    //     // Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tSurfaceMeshPath, tOffsets, tScales ), load_facets_from_object_file( tSurfaceMeshPath ) );
+
+    //     // Config for shape diameter computation
+    //     uint                     tNumRaysBash               = 30;
+    //     real                     tConeAngleBash             = 60.0;
+    //     real                     tAgglomerationExponentBash = 2.0;
+    //     real                     tAgglomerationRefBash      = 1.0;
+    //     real                     tAgglomerationShiftBash    = 0.0;
+    //     Agglomeration_Parameters tAgglom( tAgglomerationExponentBash, tAgglomerationRefBash, tAgglomerationShiftBash );
+
+    //     // Open file for printing
+    //     std::ofstream tSDFile;
+    //     tSDFile.open( tPath + "../data/apsweepsfine_maxsmoother.txt" );
+    //     tSDFile << "Amp Period Height Width Num_points Agglomeration_Exponent Agglomeration_Reference Agglomeration_Shift Num_rays Cone_Angle Shape_Diameter dSD_dVx dSD_dVy" << std::endl;
+
+    //     // for ( uint tCase = 0; tCase < tHgtValues.size(); tCase++ )
+    //     // {
+    //     //     real tHgt = tHgtValues( tCase );
+    //     //     real tWid = tWidValues( tCase );
+    //     // std::cout << "{ ";
+
+    //     // for ( uint tHgt = 2; tHgt <= 50; tHgt++ )
+    //     // {
+    //     //     for ( real tWid = 0.1; tWid < 10.0; tWid += 0.1 )
+    //     //     {
+    //     for ( uint tPeriod = 1700; tPeriod < 1800; tPeriod++ )
+    //     {
+    //         for ( uint tAmp = 300; tAmp <= 480; tAmp++ )
+    //         {
+    //             // for ( uint tNPoints = 80; tNPoints <= 200; tNPoints += 10 )
+    //             // {
+    //             //     // create surface mesh from object file
+    //             std::string  tFile            = "sin_" + std::to_string( tAmp ) + "a_" + std::to_string( tPeriod ) + "p_" + std::to_string( tHgt ) + "h_" + std::to_string( static_cast< int >( 10 * tWid ) ) + "w_" + std::to_string( static_cast< int >( tNPoints ) ) + "np";
+    //             std::string  tSurfaceMeshPath = tPath + tFile + ".obj";
+    //             Surface_Mesh tSurfaceMesh( load_vertices_from_object_file( tSurfaceMeshPath, tOffsets, tScales ), load_facets_from_object_file( tSurfaceMeshPath ) );
+
+    //             std::cout << "Processing: " << tFile << std::endl;
+
+    //             // for ( real tAgglomerationExponentBash = 2.0; tAgglomerationExponentBash <= 8.0; tAgglomerationExponentBash += 2.0 )
+    //             // {
+    //             // for ( real tAgglomerationRefBash = 4.8; tAgglomerationRefBash <= 6.2; tAgglomerationRefBash += 0.1 )
+    //             // {
+    //             //         for ( real tAgglomerationShiftBash = 0.0; tAgglomerationShiftBash <= 2.0; tAgglomerationShiftBash += 1.0 )
+    //             //         {
+    //             // for ( uint tNumRaysBash = 10; tNumRaysBash <= 70; tNumRaysBash += 2 )
+    //             // {
+    //             //     for ( real tConeAngleBash = 20.0; tConeAngleBash <= 150.0; tConeAngleBash += 1.0 )
+    //             //     {
+    //             // tAgglom.mExp = tAgglomerationExponentBash;
+    //             // tAgglom.mRef = tAgglomerationRefBash;
+    //             // tAgglom.mShift = tAgglomerationShiftBash;
+    //             // real tConeAngleBash = (real)tNumRaysBash * 2.0;
+
+    //             // Compute the nodal and global shape diameter
+    //             tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngleBash, tNumRaysBash, 1 );
+
+    //             // Print the results
+    //             tSDFile << tAmp << " " << tPeriod << " " << tHgt << " " << tWid << " " << tNPoints << " " << tAgglom.mRef << " " << tAgglom.mRef << " " << tAgglom.mShift << " " << tNumRaysBash << " " << tConeAngleBash << " " << tSurfaceMesh.get_facet_shape_diameter( 0 ) << " " << tSurfaceMesh.compute_ddiameter_dvertex( 0 )( 0 ) << " " << tSurfaceMesh.compute_ddiameter_dvertex( 0 )( 1 ) << std::endl;
+    //         }
+    //     }
+    //     // }
+
+    //     // std::cout << " };" << std::endl;
+    //     // }
+    //     //         }
+    //     //     }
+    //     // }
+    //     //     }
+    //     // }
+    //     tSDFile.close();
+    // }
+    // TEST_CASE( "raycast debug", "[MTK], [MTK_Surface_Mesh], [Raycast]" )    // brendan delete
+    // {
+    //     // real tAmp     = 0.1;
+    //     // real tPeriod  = 5;
+    //     // real tHgt     = 10.0;
+    //     // real tWid     = 1.5;
+    //     // uint tNpoints = 100;
+    //     // Processing: sin_1a_81p_21h_11w_90np
+
+    //     // // create surface mesh from object file
+    //     // std::string    tPath            = "/home/chong/codes/moris/build_dbg/projects/MTK/test/bin/";
+    //     std::string    tPath            = "/home/chong/work/SP26/Input_Files/Bar_SD/new/";
+    //     std::string    tFile            = "integ_mesh_iter_241";
+    //     std::string    tSurfaceMeshPath = tPath + tFile + ".obj";
+    //     Vector< real > tOffsets         = { 0.0, 0.0, 0.0 };
+    //     Vector< real > tScales          = { 1.0, 1.0, 1.0 };
+    //     Surface_Mesh   tSurfaceMesh( load_vertices_from_object_file( tSurfaceMeshPath, tOffsets, tScales ), load_facets_from_object_file( tSurfaceMeshPath ) );
+
+    //     // // Config for shape diameter computation
+    //     uint                     tNumRaysBash   = 30;
+    //     real                     tConeAngleBash = 120.0;
+    //     Agglomeration_Parameters tAgglom( 2.0, 1.5, 0.0 );
+
+    //     tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngleBash, tNumRaysBash, 1 );
+
+    //     std::ofstream tSDFile;
+    //     tSDFile.open( tPath + "../sd_data.txt" );
+
+    //     for ( uint i = 0; i < tSurfaceMesh.get_number_of_vertices(); i++ )
+    //     {
+    //         tSDFile << ( i > tSurfaceMesh.get_number_of_facets() ? std::numeric_limits< real >::quiet_NaN() : tSurfaceMesh.get_facet_shape_diameter( i ) ) << " " << tSurfaceMesh.compute_ddiameter_dvertex( i )( 0 ) << " " << tSurfaceMesh.compute_ddiameter_dvertex( i )( 1 ) << std::endl;
+    //     }
+    // }
 }    // namespace moris::mtk

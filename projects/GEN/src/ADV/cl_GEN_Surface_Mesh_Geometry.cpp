@@ -513,6 +513,21 @@ namespace moris::gen
         // If no intersection was found (but there should be one), loosen the intersection tolerance and try again
         Surface_Mesh::mIntersectionTolerance *= 10.0;
 
+        // brendan delete
+        if ( Surface_Mesh::mIntersectionTolerance >= 0.1 )
+        {
+            std::cout << "Increased intersection tolerance to " << Surface_Mesh::mIntersectionTolerance << std::endl;
+
+            this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+            this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+
+            std::cout << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
+            std::cout << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
+
+            std::cout << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
+            std::cout << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
+        }
+
         MORIS_ASSERT( Surface_Mesh::mIntersectionTolerance < 0.1, "Surface mesh intersection tolerance is too large. No valid intersection found." );
 
         // Recast the ray
@@ -2182,11 +2197,12 @@ namespace moris::gen
                 uint tNumPolarRays   = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_polar_rays" ) );
                 uint tNumAzimuthRays = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_azimuth_rays" ) );
 
-                real tAgglomerationExponent = aGQIParameters->get< real >( "agglomeration_exponent" );
-                real tAgglomerationRef      = aGQIParameters->get< real >( "agglomeration_reference" );
-                real tAgglomerationShift    = aGQIParameters->get< real >( "agglomeration_shift" );
+                mtk::Agglomeration_Parameters tAgglom(
+                        aGQIParameters->get< real >( "agglomeration_exponent" ),
+                        aGQIParameters->get< real >( "agglomeration_reference" ),
+                        aGQIParameters->get< real >( "agglomeration_shift" ) );
 
-                return Surface_Mesh::compute_global_shape_diameter( tConeAngle, tNumPolarRays, tNumAzimuthRays, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+                return Surface_Mesh::compute_global_shape_diameter( tAgglom, tConeAngle, tNumPolarRays, tNumAzimuthRays );
             }
             case GQI_Type::VOLUME:
                 return Surface_Mesh::compute_volume();
@@ -2212,16 +2228,16 @@ namespace moris::gen
         {
             case GQI_Type::SHAPE_DIAMETER:
             {
-                real tAgglomerationExponent = aGQIParameters->get< real >( "agglomeration_exponent" );
-                real tAgglomerationRef      = aGQIParameters->get< real >( "agglomeration_reference" );
-                real tAgglomerationShift    = aGQIParameters->get< real >( "agglomeration_shift" );
-                get_dGQI_dvertex            = this->get_GQI_sensitivity_function( tGQIType, tAgglomerationExponent, tAgglomerationRef, tAgglomerationShift );
+                get_dGQI_dvertex = this->get_GQI_sensitivity_function( tGQIType );
             }
             case GQI_Type::VOLUME:
             {
                 get_dGQI_dvertex = this->get_GQI_sensitivity_function( tGQIType );
             }
         }
+
+        // std::ofstream tSensFile;
+        // tSensFile.open( "dqi_dadv_gqi_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt", std::ios::out );
 
         // Loop over surface mesh vertices
         for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
@@ -2236,6 +2252,15 @@ namespace moris::gen
 
                 // Get the ADV IDs for this vertex
                 const Vector< sint >& tADVIds = this->get_vertex_adv_ids( iVertexIndex );
+
+                // // brendan delete
+                // uint tADVIdx = std::distance( tADVIds.cbegin(), std::find( tADVIds.cbegin(), tADVIds.cend(), 2350 ) );
+                // if ( tADVIdx < tADVIds.size() )
+                // {
+                //     Matrix< DDRMat > tCoords = Surface_Mesh::get_vertex_coordinates( iVertexIndex );
+
+                //     tSensFile << iVertexIndex << " " << tCoords( 0 ) << " " << tCoords( 1 ) << " " << tdGQIdADVs( tADVIdx ) << " " << tdGQIdADVs( tADVIdx ) << std::endl;
+                // }
 
                 // Add the sensitivities to the output vector
                 aGQISensitivities->sum_into_global_values( tADVIds, tdGQIdADVs, aRequestIndex );
