@@ -60,6 +60,8 @@ namespace moris::xtk
         Vector< Matrix< DDRMat > >                    mFacetNormals;
         Vector< Matrix< DDRMat > >                    mFacetVertexCoordinates;
         mtk::Interpolation_Function_Base*             mIPInterp; // Interpolation object to get the basis functions for moment fitting
+        Matrix< DDRMat >                              mBoundaryFacetElementOrdinals; // col 1: element ID, col 2: facet ordinal on the corresponding element
+                 
         
 
         //------------------------------------------------------------------------------
@@ -81,6 +83,7 @@ namespace moris::xtk
         Matrix< DDRMat >                           get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const override;
         Matrix< DDRMat >                           get_quadrature_points() const override;
         Matrix< DDRMat >                           get_quadrature_weights() const override;
+        const Matrix< DDRMat >&                    get_boundary_facet_element_ordinals() const override;
 
         //Vector< real >                             compute_quadrature_weights_moment_fitting( const uint, const uint ) ;
 

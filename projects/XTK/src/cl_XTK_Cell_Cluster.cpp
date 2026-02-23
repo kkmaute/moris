@@ -26,6 +26,7 @@
 #include "fn_det.hpp"
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
+#include "fn_print.hpp"
 
 
 // namespace moris
@@ -627,6 +628,9 @@ namespace moris::xtk
                 const uint aDim
                 )
     {
+        // Initialize counter to keep track of boundary facets
+        uint iBoundaryFacetCounter = 0;
+
         // Get the primary subphase IG cells first
         Vector< mtk::Cell* > tSubphaseIgCellsPtr = aSubphaseIGCells->mIgCellGroup;
 
@@ -646,6 +650,10 @@ namespace moris::xtk
             tSubphaseFacets.append(aFacetConnectivity->mCellToFacet( tCellIndexLocal ));
 
         }
+
+        // Preallocate the facet ordinal, element ID matrix
+        mBoundaryFacetElementOrdinals.reshape( tSubphaseFacets.size(), 2 );
+        mBoundaryFacetElementOrdinals.fill( -1 );
 
         // Now filter out the facets only belonging to one cell
         for (uint iFacetIndex =0; iFacetIndex < tSubphaseFacets.size(); iFacetIndex++ )
@@ -700,6 +708,10 @@ namespace moris::xtk
 
                 // Get ordinal corresponding to given subphase cell _and_ facet
                 moris_index tCellOrdinal = tFacetOrdinals( tCellIndexForFacet );
+
+                // Add the Cell ID and the ordinal to the matrix containing the cell facets ordinals and element IDs
+                mBoundaryFacetElementOrdinals( iBoundaryFacetCounter, 0 ) = tOwningElementsInSubphase( 0 )->get_id();
+                mBoundaryFacetElementOrdinals( iBoundaryFacetCounter, 1 ) = tCellOrdinal;
 
                 // Compute normal for this facet based on the side ordinal data
                 Matrix< DDRMat > tFacetNormal = tOwningElementsInSubphase( 0 )->compute_outward_side_normal( tCellOrdinal );
@@ -758,12 +770,19 @@ namespace moris::xtk
 
                 // Add the vertex coordinate matrix to the vector
                 //mFacetVertexCoordinates.push_back( tFacetVertexCoordinates );
+
+                // Increment counter for boundary facets
+                iBoundaryFacetCounter++;
                 
             }
 
             
 
         }  
+        
+        // Trim the boundary facet ordinal matrix to size
+        // FIXME: Check whether this is actually trimming the matrix or simply reshaping it.
+        mBoundaryFacetElementOrdinals.resize( iBoundaryFacetCounter, 2 );
 
         // Code below for testing the facet normal computation function. Not needed otherwise, but still kept.
         
@@ -1746,6 +1765,13 @@ namespace moris::xtk
         return mQuadratureWeights;
     }
 
+    //----------------------------------------------------------------
+    const Matrix< DDRMat >&
+    Cell_Cluster::get_boundary_facet_element_ordinals() const
+    {
+        return const_cast< Matrix< DDRMat > & >( mBoundaryFacetElementOrdinals );
+        
+    }
 
     //----------------------------------------------------------------
 
