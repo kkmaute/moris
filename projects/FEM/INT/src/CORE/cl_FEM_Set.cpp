@@ -461,6 +461,9 @@ namespace moris::fem
         // create an integrator
         mtk::Integrator tIntegrator( tIntegrationRule );
 
+        // create an integrator (assign to member)
+        mIntegrator = std::make_shared< mtk::Integrator >( tIntegrationRule, mMeshSet, mFemModel->get_moment_fitting_flag() );
+
         // get integration points
         tIntegrator.get_points( mIntegPoints );
 

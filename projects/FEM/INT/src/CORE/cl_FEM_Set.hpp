@@ -21,6 +21,8 @@
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
+#include "cl_MTK_Integrator.hpp"
+
 // FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Node_Base.hpp"
@@ -135,6 +137,9 @@ namespace moris
 
             // moment fitting integration points
             Matrix< DDRMat > mIntegPointsMomentFitting;
+
+            // Integrator class
+            std::shared_ptr< mtk::Integrator > mIntegrator;
 
             // map for the dof type
             Matrix< DDSMat > mUniqueDofTypeMap;
@@ -296,7 +301,15 @@ namespace moris
              */
             void create_integrator( MSI::Model_Solver_Interface* aModelSolverInterface );
 
-
+            //------------------------------------------------------------------------------
+            /**
+             * return the integrator
+             */
+            std::shared_ptr< mtk::Integrator > get_integrator()
+            {
+                return mIntegrator;
+            }
+            
             //------------------------------------------------------------------------------
 
             void set_custom_integration_rule( MSI::Model_Solver_Interface* aModelSolverInterface );
