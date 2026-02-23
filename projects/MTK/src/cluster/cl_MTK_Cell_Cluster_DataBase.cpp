@@ -230,7 +230,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     void
-    Cell_Cluster_DataBase::set_quadrature_weights( const Matrix< DDRMat > &aQuadratureWeights )
+    Cell_Cluster_DataBase::set_quadrature_weights( const Matrix< DDRMat > &aQuadratureWeights ) 
     {
         this->mQuadratureWeights = aQuadratureWeights;
     }
@@ -239,7 +239,7 @@ namespace moris::mtk
 
 
     void
-    Cell_Cluster_DataBase::set_quadrature_points( const Matrix< DDRMat > &aQuadraturePoints )
+    Cell_Cluster_DataBase::set_quadrature_points( const Matrix< DDRMat > &aQuadraturePoints ) 
     {
         this->mQuadraturePoints = aQuadraturePoints;
     }

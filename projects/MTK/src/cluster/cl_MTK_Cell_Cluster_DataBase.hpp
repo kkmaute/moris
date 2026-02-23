@@ -30,6 +30,7 @@ namespace moris::mtk
 
         moris_index mCellClusterIndex;    // cell cluster index
         mtk::Mesh*  mMesh;                // mesh pointer
+        Matrix< DDRMat > mBoundaryFacetElementOrdinals; // (ordinal, element ID) pairing of facet ordinals on the boundary of the subphase
 
       public:
         //------------------------------------------------------------------------------
@@ -241,7 +242,7 @@ namespace moris::mtk
         /* Modify the quadrature weights
          */
         void
-        set_quadrature_weights( const Matrix< DDRMat > &aQuadratureWeights );
+        set_quadrature_weights( const Matrix< DDRMat > &aQuadratureWeights ) ;
 
         //------------------------------------------------------------------------------
 
@@ -249,7 +250,7 @@ namespace moris::mtk
         /* Modify the quadrature points
          */
         void
-        set_quadrature_points( const Matrix< DDRMat > &aQuadraturePoints );
+        set_quadrature_points( const Matrix< DDRMat > &aQuadraturePoints ) ;
 
         //------------------------------------------------------------------------------
 
@@ -265,6 +266,26 @@ namespace moris::mtk
          */
         Matrix< DDRMat >
         get_quadrature_points( ) const override;
+
+        //------------------------------------------------------------------------------
+
+        /* Get the boundary facet ordinal, element ID pairing
+         */
+        const Matrix< DDRMat >&
+        get_boundary_facet_element_ordinals() const override
+        {
+            return const_cast< Matrix< DDRMat >& >( mBoundaryFacetElementOrdinals );
+        }
+
+        //------------------------------------------------------------------------------
+
+        /* Get the boundary facet ordinal, element ID pairing
+         */
+        void
+        set_boundary_facet_element_ordinals( const Matrix< DDRMat > &aBoundaryFacetElementOrdinals ) override
+        {
+            this->mBoundaryFacetElementOrdinals = aBoundaryFacetElementOrdinals;
+        }
 
         //------------------------------------------------------------------------------
 

@@ -1213,10 +1213,14 @@ namespace moris::mtk
 
                 // Set these quadrature weights in the database cell cluster
                 tCellCluster.set_quadrature_weights( tQuadWeights );
+                
+                // Set the boundary facet map
+                tCellCluster.set_boundary_facet_element_ordinals( mInputMesh->get_cell_cluster( iCell ).get_boundary_facet_element_ordinals() );
 
             }
             
-                // Get quadrature points and weights from each IG element and add it into cluster
+            // Get quadrature points and weights from each IG element and add it into cluster
+
                 
 
             
