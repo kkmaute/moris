@@ -258,6 +258,10 @@ opt_alg_gcmma_grad_wrap(
 
     // Get the constraint gradient as a MORIS Matrix
     Matrix< DDRMat > tD_Con = aOptAlgGCMMA->get_constraint_gradients();
+    hid_t  tFileID1 = create_hdf5_file( "Const_gradient.hdf5" );
+    herr_t tStatus1 = 0;
+    save_matrix_to_hdf5_file( tFileID1, std::string( "Obj" ), tD_Con, tStatus1 );
+    close_hdf5_file( tFileID1 );
 
     // Assign to array
     for ( moris::uint i = 0; i < aOptAlgGCMMA->mProblem->get_num_constraints(); ++i )
