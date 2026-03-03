@@ -927,50 +927,50 @@ namespace moris::mtk
     {
         mInputMesh->delete_visualization_sets();
 
-        // Generate points anfd weights for computing the 
-        Geometry_Type tGeometryType = Geometry_Type::UNDEFINED;
-        Integration_Order tIntegrationOrder = Integration_Order::BAR_1;
+        // // Generate points anfd weights for computing the 
+        // Geometry_Type tGeometryType = Geometry_Type::UNDEFINED;
+        // Integration_Order tIntegrationOrder = Integration_Order::BAR_1;
         
         
-        if ( mInputMesh->get_spatial_dim() == 2 )
-        {
-            tGeometryType = Geometry_Type::TRI;
-            if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-            {
-                tIntegrationOrder = Integration_Order::TRI_6;
-            }
-            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
-            {
-                 tIntegrationOrder = Integration_Order::TRI_12;
-            }
-            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
-            {
-                 tIntegrationOrder = Integration_Order::TRI_16;
-            }
-        }
-        else if ( mInputMesh->get_spatial_dim() == 3 )
-        {
-            tGeometryType = Geometry_Type::TET;
-            if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-            {
-                tIntegrationOrder = Integration_Order::TET_5;
-            }
-            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
-            {
-                 tIntegrationOrder = Integration_Order::TET_11;
-            }
-            else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
-            {
-                 tIntegrationOrder = Integration_Order::TET_20;
-            }
-            //tIntegrationOrder = Integration_Order::TET_11;
-        }
+        // if ( mInputMesh->get_spatial_dim() == 2 )
+        // {
+        //     tGeometryType = Geometry_Type::TRI;
+        //     if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+        //     {
+        //         tIntegrationOrder = Integration_Order::TRI_6;
+        //     }
+        //     else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+        //     {
+        //          tIntegrationOrder = Integration_Order::TRI_12;
+        //     }
+        //     else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+        //     {
+        //          tIntegrationOrder = Integration_Order::TRI_16;
+        //     }
+        // }
+        // else if ( mInputMesh->get_spatial_dim() == 3 )
+        // {
+        //     tGeometryType = Geometry_Type::TET;
+        //     if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+        //     {
+        //         tIntegrationOrder = Integration_Order::TET_5;
+        //     }
+        //     else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+        //     {
+        //          tIntegrationOrder = Integration_Order::TET_11;
+        //     }
+        //     else if ( mIPMeshDataBase->get_cell_info_sp( 0 )->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+        //     {
+        //          tIntegrationOrder = Integration_Order::TET_20;
+        //     }
+        //     //tIntegrationOrder = Integration_Order::TET_11;
+        // }
         
-        mtk::Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
-        mtk::Integrator tIntData( tIntObj );
+        // mtk::Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
+        // mtk::Integrator tIntData( tIntObj );
         
-        mQuadraturePoints  =  tIntData.get_points();
-        mQuadratureWeights =  tIntData.get_weights();
+        // mQuadraturePoints  =  tIntData.get_points();
+        // mQuadratureWeights =  tIntData.get_weights();
 
         // create the vertecies
         this->create_vertices();
@@ -1017,60 +1017,60 @@ namespace moris::mtk
         // Set value of moment fitting flag in database class IG mesh
         mOutputMesh->set_moment_fitting_flag( tMomentFittingFlag );
 
-        // TODO: Add support for serendipity elements for moment fitting and non-moment-fitting points
-        if( tMomentFittingFlag == true )
-        {
-            // Generate moment fitting points
-            Geometry_Type tGeometryType = Geometry_Type::UNDEFINED;
-            Integration_Order tIntegrationOrder = Integration_Order::BAR_1;
+        // // TODO: Add support for serendipity elements for moment fitting and non-moment-fitting points
+        // if( tMomentFittingFlag == true )
+        // {
+        //     // Generate moment fitting points
+        //     Geometry_Type tGeometryType = Geometry_Type::UNDEFINED;
+        //     Integration_Order tIntegrationOrder = Integration_Order::BAR_1;
 
 
-            if ( mInputMesh->get_spatial_dim() == 2 )
-            {
-                tGeometryType = Geometry_Type::QUAD;
+        //     if ( mInputMesh->get_spatial_dim() == 2 )
+        //     {
+        //         tGeometryType = Geometry_Type::QUAD;
 
-                if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-                {
-                    tIntegrationOrder = Integration_Order::QUAD_2x2;
-                }
-                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
-                {
-                     tIntegrationOrder = Integration_Order::QUAD_3x3;
-                }
-                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
-                {
-                     tIntegrationOrder = Integration_Order::QUAD_4x4;
-                }
-            }
+        //         if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+        //         {
+        //             tIntegrationOrder = Integration_Order::QUAD_2x2;
+        //         }
+        //         else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+        //         {
+        //              tIntegrationOrder = Integration_Order::QUAD_3x3;
+        //         }
+        //         else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+        //         {
+        //              tIntegrationOrder = Integration_Order::QUAD_4x4;
+        //         }
+        //     }
 
-            else if ( mInputMesh->get_spatial_dim() == 3 )
-            {
-                tGeometryType = Geometry_Type::HEX;
+        //     else if ( mInputMesh->get_spatial_dim() == 3 )
+        //     {
+        //         tGeometryType = Geometry_Type::HEX;
 
-                if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
-                {
-                    tIntegrationOrder = Integration_Order::HEX_2x2x2;
-                }
-                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
-                {
-                     tIntegrationOrder = Integration_Order::HEX_3x3x3;
-                }
-                else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
-                {
-                     tIntegrationOrder = Integration_Order::HEX_4x4x4;
-                }
+        //         if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR )
+        //         {
+        //             tIntegrationOrder = Integration_Order::HEX_2x2x2;
+        //         }
+        //         else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::QUADRATIC )
+        //         {
+        //              tIntegrationOrder = Integration_Order::HEX_3x3x3;
+        //         }
+        //         else if ( mIPMeshDataBase->get_cell_info_sp(0)->get_cell_interpolation_order() == mtk::Interpolation_Order::CUBIC )
+        //         {
+        //              tIntegrationOrder = Integration_Order::HEX_4x4x4;
+        //         }
             
-            }
+        //     }
 
-            Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
-            Integrator tIntData( tIntObj );
+        //     Integration_Rule tIntObj( tGeometryType , Integration_Type::GAUSS , tIntegrationOrder , Geometry_Type::LINE , Integration_Type::GAUSS , Integration_Order::BAR_1  );
+        //     Integrator tIntData( tIntObj );
 
-            Matrix< DDRMat > tIntegrationPoints =  tIntData.get_points();
+        //     Matrix< DDRMat > tIntegrationPoints =  tIntData.get_points();
 
-            // Set moment fitting integration points to the output (database IG) mesh
-            mOutputMesh->set_moment_fitting_points( tIntegrationPoints );
+        //     // Set moment fitting integration points to the output (database IG) mesh
+        //     mOutputMesh->set_moment_fitting_points( tIntegrationPoints );
 
-        }
+        //}
         
     }
 
@@ -1209,10 +1209,10 @@ namespace moris::mtk
             if ( mInputMesh->get_moment_fitting_flag() )
             {
                 // Get the quadrature points and weights from the input mesh
-                const Matrix< DDRMat >& tQuadWeights = mInputMesh->get_cell_cluster( iCell ).get_quadrature_weights();
+                //const Matrix< DDRMat >& tQuadWeights = mInputMesh->get_cell_cluster( iCell ).get_quadrature_weights();
 
                 // Set these quadrature weights in the database cell cluster
-                tCellCluster.set_quadrature_weights( tQuadWeights );
+                //tCellCluster.set_quadrature_weights( tQuadWeights );
                 
                 // Set the boundary facet map
                 tCellCluster.set_boundary_facet_element_ordinals( mInputMesh->get_cell_cluster( iCell ).get_boundary_facet_element_ordinals() );
@@ -1236,15 +1236,15 @@ namespace moris::mtk
             
         }
         // Perform another loop to compute the quadrature points and weights if moment fitting is false
-        for( uint iCellCluster = 0; iCellCluster < mOutputMesh->mCellClusters.size() ; iCellCluster++ )
-        {
-            if(mInputMesh->get_moment_fitting_flag() == false)
-            {
-                mOutputMesh->mCellClusters( iCellCluster ).compute_mapped_quadrature_weights_and_points( mQuadraturePoints , mQuadratureWeights ,
-                    mInputMesh->get_spatial_dim() );
-            }
+        // for( uint iCellCluster = 0; iCellCluster < mOutputMesh->mCellClusters.size() ; iCellCluster++ )
+        // {
+        //     if(mInputMesh->get_moment_fitting_flag() == false)
+        //     {
+        //         mOutputMesh->mCellClusters( iCellCluster ).compute_mapped_quadrature_weights_and_points( mQuadraturePoints , mQuadratureWeights ,
+        //             mInputMesh->get_spatial_dim() );
+        //     }
             
-        }
+        // }
     }
 
     //----------------------------------------------------------------------------

@@ -2900,102 +2900,102 @@ namespace moris::xtk
         // reference the enriched IP cells
         Vector< Interpolation_Cell_Unzipped * > const &tEnrichedInterpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
 
-        // Create space interpolator object and integrator object for generating the moments ( LHS ) and the quadrature points
-        mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
-        mtk::Interpolation_Order tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-        mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::POINT;
+        // // Create space interpolator object and integrator object for generating the moments ( LHS ) and the quadrature points
+        // mtk::Geometry_Type tGeometryType = mtk::Geometry_Type::UNDEFINED;
+        // mtk::Interpolation_Order tInterpolationOrder = mtk::Interpolation_Order::LINEAR;
+        // mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::POINT;
 
-        mtk::Interpolation_Order tOrderMesh = tEnrichedInterpCells( 0 )->get_interpolation_order();
-        uint tOrder = 0;
+        // mtk::Interpolation_Order tOrderMesh = tEnrichedInterpCells( 0 )->get_interpolation_order();
+        // uint tOrder = 0;
         
-        if ( tOrderMesh == mtk::Interpolation_Order::LINEAR )
-        {
-            tOrder = 1;
-        }
-        else if ( tOrderMesh == mtk::Interpolation_Order::QUADRATIC )   
-        {
-            tOrder = 2;
-        }
-        else if ( tOrderMesh == mtk::Interpolation_Order::CUBIC )   
-        {
-            tOrder = 3;
-        }   
+        // if ( tOrderMesh == mtk::Interpolation_Order::LINEAR )
+        // {
+        //     tOrder = 1;
+        // }
+        // else if ( tOrderMesh == mtk::Interpolation_Order::QUADRATIC )   
+        // {
+        //     tOrder = 2;
+        // }
+        // else if ( tOrderMesh == mtk::Interpolation_Order::CUBIC )   
+        // {
+        //     tOrder = 3;
+        // }   
 
-        if ( tDim == 2 )
-        {
-            tGeometryType = mtk::Geometry_Type::QUAD;
+        // if ( tDim == 2 )
+        // {
+        //     tGeometryType = mtk::Geometry_Type::QUAD;
 
-            if ( tOrder == 1 )
-            {
-               tIntegrationOrder = mtk::Integration_Order::QUAD_2x2;
-            }
-            if ( tOrder == 2 )
-            {
-               tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
-               tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
-            }
-            if ( tOrder == 3 )
-            {
-                tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
-                tIntegrationOrder = mtk::Integration_Order::QUAD_4x4;
-            }
+        //     if ( tOrder == 1 )
+        //     {
+        //        tIntegrationOrder = mtk::Integration_Order::QUAD_2x2;
+        //     }
+        //     if ( tOrder == 2 )
+        //     {
+        //        tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
+        //        tIntegrationOrder = mtk::Integration_Order::QUAD_3x3;
+        //     }
+        //     if ( tOrder == 3 )
+        //     {
+        //         tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
+        //         tIntegrationOrder = mtk::Integration_Order::QUAD_4x4;
+        //     }
             
-        }
-        if ( tDim == 3 )
-        {
-            tGeometryType = mtk::Geometry_Type::HEX;
+        // }
+        // if ( tDim == 3 )
+        // {
+        //     tGeometryType = mtk::Geometry_Type::HEX;
             
-            if ( tOrder == 1 )
-            {
-               tIntegrationOrder = mtk::Integration_Order::HEX_2x2x2;
-            }
-            if ( tOrder == 2 )
-            {
-               tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
-               tIntegrationOrder = mtk::Integration_Order::HEX_3x3x3;
-            }
-            if ( tOrder == 3 )
-            {
-                tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
-                tIntegrationOrder = mtk::Integration_Order::HEX_4x4x4;
-            }
+        //     if ( tOrder == 1 )
+        //     {
+        //        tIntegrationOrder = mtk::Integration_Order::HEX_2x2x2;
+        //     }
+        //     if ( tOrder == 2 )
+        //     {
+        //        tInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;
+        //        tIntegrationOrder = mtk::Integration_Order::HEX_3x3x3;
+        //     }
+        //     if ( tOrder == 3 )
+        //     {
+        //         tInterpolationOrder = mtk::Interpolation_Order::CUBIC;
+        //         tIntegrationOrder = mtk::Integration_Order::HEX_4x4x4;
+        //     }
             
-        } 
+        // } 
 
-        mtk::Integration_Rule tIntObj( tGeometryType , mtk::Integration_Type::GAUSS , tIntegrationOrder , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
-        const mtk::Integrator tIntData( tIntObj );
+        // mtk::Integration_Rule tIntObj( tGeometryType , mtk::Integration_Type::GAUSS , tIntegrationOrder , mtk::Geometry_Type::LINE , mtk::Integration_Type::GAUSS , mtk::Integration_Order::BAR_1  );
+        // const mtk::Integrator tIntData( tIntObj );
         
-        Matrix< DDRMat >  tQuadPoints;
-        tIntData.get_points( tQuadPoints );
+        // Matrix< DDRMat >  tQuadPoints;
+        // tIntData.get_points( tQuadPoints );
 
-        mtk::Interpolation_Rule tIPInterpolationRule( tGeometryType , mtk::Interpolation_Type::LAGRANGE , tInterpolationOrder , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
+        // mtk::Interpolation_Rule tIPInterpolationRule( tGeometryType , mtk::Interpolation_Type::LAGRANGE , tInterpolationOrder , mtk::Geometry_Type::LINE , mtk::Interpolation_Type::LAGRANGE , mtk::Interpolation_Order::LINEAR );
 
-        mtk::Interpolation_Function_Base* tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
+        // mtk::Interpolation_Function_Base* tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
 
-        // Create moment fitting LHS
-        uint tNmoments = std::pow( tOrder + 1 , tDim ); 
-        Matrix< DDRMat > tMomentFittingLHS ; 
-        tMomentFittingLHS.reshape( tNmoments , tNmoments );
+        // // Create moment fitting LHS
+        // uint tNmoments = std::pow( tOrder + 1 , tDim ); 
+        // Matrix< DDRMat > tMomentFittingLHS ; 
+        // tMomentFittingLHS.reshape( tNmoments , tNmoments );
 
-        // Generate moment fitting LHS
-        for (uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols() ; iQuadPointIndex++)
-        {
-            // Declare matrix for basis function values
-            Matrix< DDRMat > tN;
+        // // Generate moment fitting LHS
+        // for (uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols() ; iQuadPointIndex++)
+        // {
+        //     // Declare matrix for basis function values
+        //     Matrix< DDRMat > tN;
 
-            // Get quad point
-            Matrix< DDRMat > tXi = tQuadPoints.get_column( iQuadPointIndex );
+        //     // Get quad point
+        //     Matrix< DDRMat > tXi = tQuadPoints.get_column( iQuadPointIndex );
 
-            // Get value of basis functions at quad point
-            tIPInterp->eval_N( tXi , tN );
+        //     // Get value of basis functions at quad point
+        //     tIPInterp->eval_N( tXi , tN );
 
-            // Place it in LHS 
-            tMomentFittingLHS.set_column( iQuadPointIndex , trans( tN ) );
+        //     // Place it in LHS 
+        //     tMomentFittingLHS.set_column( iQuadPointIndex , trans( tN ) );
 
-        }
+        // }
 
-        Matrix< DDRMat > tMomentFittingLHSInv = inv( tMomentFittingLHS );
-        Matrix< DDRMat >& tMomFitLHSInv = tMomentFittingLHSInv ;
+        // Matrix< DDRMat > tMomentFittingLHSInv = inv( tMomentFittingLHS );
+        // Matrix< DDRMat >& tMomFitLHSInv = tMomentFittingLHSInv ;
                    
         // loop over all base IP cells
         for ( uint iIpCell = 0; iIpCell < tNumBaseIpCells; iIpCell++ )
@@ -3083,12 +3083,11 @@ namespace moris::xtk
                     {
                         mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
 
-                        // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
-                        if ( mModel->mMomentFittingFlag )
-                        {
-                            mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( tOrder , tDim );
-                        }
-
+                        // // Since this is a trivial case (volume fraction equals one), generate weights without moment fitting
+                        // if ( mModel->mMomentFittingFlag )
+                        // {
+                        //     mCellClusters( tEnrIpCellIndex )->set_quadrature_weights( tOrder , tDim );
+                        // }
 
                         // sanity check for this case
                         MORIS_ASSERT( mCellClusters( tEnrIpCellIndex )->is_full(),
@@ -3127,7 +3126,7 @@ namespace moris::xtk
                         mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , tDim );
 
                         // Compute quadrature weights via moment fitting
-                        mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , tDim );
+                        //mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , tDim );
                         
                     }
                                         
