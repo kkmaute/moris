@@ -538,12 +538,21 @@ namespace moris::fem
 
             if( mElementType == fem::Element_Type::BULK )
             {
+                // // Set quadrature points from the mesh cluster
+                // this->set_quadrature_points();
+
+                // // Set quadrature weights from the mesh cluster
+                // this->set_quadrature_weights();
+
+                // Compute quadrature points and weights using the integrator class
+                mSet->get_integrator()->compute_cluster_integration_points_and_weights( mMeshCluster );
+
                 // Set quadrature points from the mesh cluster
                 this->set_quadrature_points();
 
                 // Set quadrature weights from the mesh cluster
                 this->set_quadrature_weights();
-                
+
                 // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
                 mElements( 0 )->compute_jacobian_and_residual();
             }
@@ -676,12 +685,21 @@ namespace moris::fem
 
             if( mElementType == fem::Element_Type::BULK )
             {
+                // // Set quadrature points from the mesh cluster
+                // this->set_quadrature_points();
+
+                // // Set quadrature weights from the mesh cluster
+                // this->set_quadrature_weights();
+
+                // Compute quadrature points and weights using the integrator class
+                mSet->get_integrator()->compute_cluster_integration_points_and_weights( mMeshCluster );
+
                 // Set quadrature points from the mesh cluster
                 this->set_quadrature_points();
 
                 // Set quadrature weights from the mesh cluster
                 this->set_quadrature_weights();
-                
+
                 // No need to loop over the elements - the entire cluster is the IG element, so no need for repeated cell check either.
                 mElements( 0 )->compute_QI();
             }
