@@ -1034,6 +1034,9 @@ namespace moris::mtk
             case mtk::Integration_Order::QUAD_4x4:
                 return mtk::Integration_Order::QUAD_4x4;
 
+            case mtk::Integration_Order::QUAD_5x5:
+                return mtk::Integration_Order::QUAD_4x4;
+
             case mtk::Integration_Order::TET_11:
                 return mtk::Integration_Order::HEX_2x2x2;
 
