@@ -452,6 +452,8 @@ namespace moris::mtk
 
             return tVertexIndices;
         }
+        
+        //------------------------------------------------------------------------------
 
         Matrix< DDRMat >
         get_quadrature_weights(  ) const override 
@@ -468,6 +470,39 @@ namespace moris::mtk
             Matrix< DDRMat > tDummyPoints ;
             return tDummyPoints;
         }
+
+        //------------------------------------------------------------------------------
+        void 
+        set_quadrature_points( const Matrix< DDRMat > &aPoints ) override
+        {
+            MORIS_ERROR( false, "set_quadrature_points() not implemented for this class" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void 
+        set_quadrature_weights( const Matrix< DDRMat > &aWeights ) override
+        {
+            MORIS_ERROR( false, "set_quadrature_weights() not implemented for this class" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_boundary_facet_element_ordinals( const Matrix< DDRMat > &aBoundaryFacetElementOrdinals ) override
+        {
+            MORIS_ERROR( false, "set_boundary element_facet ordinals not implemented for this class" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat >&
+        get_boundary_facet_element_ordinals(  ) const override
+        {
+            static const Matrix< DDRMat > tDummyBoundaryFacetElementOrdinals;
+            return tDummyBoundaryFacetElementOrdinals;
+        }
+
         //------------------------------------------------------------------------------
 
         bool 

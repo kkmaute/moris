@@ -26,6 +26,8 @@ namespace moris::hmr
         Vector<moris::mtk::Cell const *>   mVoidIntegrationCells;
         Vector<moris::mtk::Vertex const *> mVerticesInCluster;
         moris::Matrix<moris::DDRMat>            mVertexParamCoords;
+        moris::Matrix<moris::DDRMat >                 mQuadratureWeights;
+        moris::Matrix<moris::DDRMat >                 mQuadraturePoints;
 
         // map from vertex id to local index
         std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;           // FIXME should be ordered map. about 1000 times faster
@@ -119,6 +121,38 @@ namespace moris::hmr
 
         moris_index
         get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+
+        //----------------------------------------------------------------
+        // Set quadrature points and weights for this cluster, override base class function
+        Matrix< DDRMat >
+        get_quadrature_weights() const override
+        {
+            return mQuadratureWeights;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        get_quadrature_points() const override
+        {
+            return mQuadraturePoints;
+        }
+
+        //------------------------------------------------------------------------------
+        void
+        set_quadrature_points( const Matrix< DDRMat > &aPoints ) override
+        {
+            mQuadraturePoints = aPoints;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_quadrature_weights( const Matrix< DDRMat > &aWeights ) override
+        {
+            mQuadratureWeights = aWeights;
+        }
+
 
         //----------------------------------------------------------------
         //##############################################

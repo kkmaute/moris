@@ -134,6 +134,40 @@ namespace moris::mtk
         }
 
         //----------------------------------------------------------------
+
+        virtual void
+        set_quadrature_weights( const Matrix< DDRMat > &aWeights ) 
+        {
+            MORIS_ERROR( false, "set_quadrature_weights() not implemented for this class" );
+        }
+
+        //----------------------------------------------------------------
+
+
+        virtual void
+        set_quadrature_points( const Matrix< DDRMat > &aPoints ) 
+        {
+            MORIS_ERROR( false, "set_quadrature_points() not implemented for this class" );
+        }
+
+        //----------------------------------------------------------------
+
+        virtual void
+        set_boundary_facet_element_ordinals( const Matrix< DDRMat > &aBoundaryFacetElementOrdinals )
+        {
+            MORIS_ERROR( false, "set_boundary element_facet ordinals not implemented for this class" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual const Matrix< DDRMat >&
+        get_boundary_facet_element_ordinals() const
+        {
+            static const Matrix< DDRMat > tDummyBoundaryFacetElementOrdinals;
+            return tDummyBoundaryFacetElementOrdinals;
+        }
+
+        //----------------------------------------------------------------
         virtual bool 
         has_quadrature_data() const
         {
