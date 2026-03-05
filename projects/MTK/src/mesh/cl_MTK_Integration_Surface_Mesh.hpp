@@ -156,7 +156,9 @@ namespace moris::mtk
                     };
                     break;
 
-                case xtk::XQI_Type::SHAPE_DIAMETER:
+                case xtk::XQI_Type::RAYCAST_SHAPE_DIAMETER:
+                case xtk::XQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
+                case xtk::XQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
                 {
                     // Capture extra args into a tuple
                     auto tExtras     = std::make_tuple( std::forward< ExtraArgs >( aExtra )... );

@@ -46,12 +46,18 @@ namespace moris::mtk
 
         SECTION( "Basic functionality and sensitivities" )
         {
-            real tShapeDiameterExpected = 2.2373905867;
+            real tRaycastDiameterExpected   = 2.220283351;
+            real tInscribedDiameterExpected = 0.1986737884;
+            real tShortestDiameterExpected  = 0.12377533;
 
             // Config for shape diameter computation
-            uint                     tNumRays   = 6;
-            real                     tConeAngle = 60.0;    // degrees
-            Agglomeration_Parameters tAgglom( 4.0, 2.0, 0.0 );
+            uint                     tNumRays            = 6;       // For raycast method
+            uint                     tNumSamples         = 1;       // For inscribed circle and shortest distance methods
+            real                     tRaycastConeAngle   = 60.0;    // degrees
+            real                     tRelativeChord      = 0.25;
+            real                     tInscribedConeAngle = 120.0;    // degrees
+            real                     tShortestConeAngle  = 40.0;     // degrees
+            Agglomeration_Parameters tAgglom( 4.0, 2.0, 0.0 );       // Same for all methods
 
             // Check number of vertices and facets
             REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
@@ -65,14 +71,7 @@ namespace moris::mtk
             Matrix< DDRMat > tFacetCenters  = tSurfaceMesh.compute_facet_centroids();
 
             // Compute the nodal and global shape diameter
-            Vector< real > tNodalShapeDiameter  = tSurfaceMesh.compute_raycast_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
-            real           tGlobalShapeDiameter = tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
-
-            // Nodal shape diameter sensitivities
-            // const Matrix< DDRMat >& tNodalShapeDiameterSensitivities = tSurfaceMesh.get_nodal_shape_diameter_sensitivities();
-
-            // Check global shape diameter
-            CHECK( tGlobalShapeDiameter == Approx( tShapeDiameterExpected ) );
+            Vector< real > tNodalShapeDiameter = tSurfaceMesh.compute_raycast_shape_diameter( tAgglom, tRaycastConeAngle, tNumRays, 1 );
 
             // Setup perturbation matrix for FD
             Matrix< DDRMat > tPerturbation( 2, 1, 0.0 );
@@ -101,10 +100,22 @@ namespace moris::mtk
                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
                 {
                     // Compute analytic sensitivities
-                    Matrix< DDRMat > tNormalSens        = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
-                    Matrix< DDRMat > tCenterSens        = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
-                    Matrix< DDRMat > tMeasureSens       = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
-                    Matrix< DDRMat > tShapeDiameterSens = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                    Matrix< DDRMat > tNormalSens  = tSurfaceMesh.compute_dfacet_normal_dvertex( iF, iV );
+                    Matrix< DDRMat > tCenterSens  = tSurfaceMesh.compute_dfacet_centroid_dvertex( iF, iV );
+                    Matrix< DDRMat > tMeasureSens = tSurfaceMesh.compute_dfacet_measure_dvertex( iF, iV );
+
+                    // Compute different shape diameters and their sensitivities. Have to recompute the forward solve as it stores intermediate values that are needed for the sensitivity computations. Yes this is expensive, but it's just a test to verify the sensitivities are correct.
+                    real             tRaycastGlobalDiameter   = tSurfaceMesh.compute_global_shape_diameter_raycast( tAgglom, tRaycastConeAngle, tNumRays, (uint)1 );
+                    Matrix< DDRMat > tRaycastDiameterSens     = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                    real             tInscribedGlobalDiameter = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle( tAgglom, tInscribedConeAngle, tRelativeChord, tNumSamples );
+                    Matrix< DDRMat > tInscribedDiameterSens   = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                    real             tShortestGlobalDiameter  = tSurfaceMesh.compute_global_shape_diameter_shortest_distance( tAgglom, tShortestConeAngle, tNumSamples );
+                    Matrix< DDRMat > tShortestDiameterSens    = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+
+                    // Check global shape diameter
+                    CHECK( tRaycastGlobalDiameter == Approx( tRaycastDiameterExpected ) );
+                    CHECK( tInscribedGlobalDiameter == Approx( tInscribedDiameterExpected ) );
+                    CHECK( tShortestGlobalDiameter == Approx( tShortestDiameterExpected ) );
 
                     // Loop over dimensions
                     for ( uint iDim = 0; iDim < 2; iDim++ )
@@ -112,35 +123,26 @@ namespace moris::mtk
                         // Perturb positively
                         tPerturbation( iDim ) = tEps;
                         tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-                        Matrix< DDRMat > tNormalPlus        = tSurfaceMesh.get_facet_normal( iF );
-                        Matrix< DDRMat > tCenterPlus        = tSurfaceMesh.compute_facet_centroid( iF );
-                        real             tMeasurePlus       = tSurfaceMesh.compute_facet_measure( iF );
-                        real             tShapeDiameterPlus = tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
-                        // Vector< real >   tNodalShapeDiameterPlus = tSurfaceMesh.compute_facet_shape_diameter( tAgglom, tConeAngle, tNumRays, 1);
+                        Matrix< DDRMat > tNormalPlus    = tSurfaceMesh.get_facet_normal( iF );
+                        Matrix< DDRMat > tCenterPlus    = tSurfaceMesh.compute_facet_centroid( iF );
+                        real             tMeasurePlus   = tSurfaceMesh.compute_facet_measure( iF );
+                        real             tRaycastPlus   = tSurfaceMesh.compute_global_shape_diameter_raycast( tAgglom, tRaycastConeAngle, tNumRays, 1 );
+                        real             tInscribedPlus = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle( tAgglom, tInscribedConeAngle, tRelativeChord, tNumSamples );
+                        real             tShortestPlus  = tSurfaceMesh.compute_global_shape_diameter_shortest_distance( tAgglom, tShortestConeAngle, tNumSamples );
 
                         // Perturb negatively
                         tPerturbation( iDim ) = -tEps;
                         tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-                        Matrix< DDRMat > tNormalMinus        = tSurfaceMesh.get_facet_normal( iF );
-                        Matrix< DDRMat > tCenterMinus        = tSurfaceMesh.compute_facet_centroid( iF );
-                        real             tMeasureMinus       = tSurfaceMesh.compute_facet_measure( iF );
-                        real             tShapeDiameterMinus = tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngle, tNumRays, 1 );
-                        // Vector< real >   tNodalShapeDiameterMinus = tSurfaceMesh.compute_facet_shape_diameter(tAgglom, tConeAngle, tNumRays, 1);
+                        Matrix< DDRMat > tNormalMinus    = tSurfaceMesh.get_facet_normal( iF );
+                        Matrix< DDRMat > tCenterMinus    = tSurfaceMesh.compute_facet_centroid( iF );
+                        real             tMeasureMinus   = tSurfaceMesh.compute_facet_measure( iF );
+                        real             tRaycastMinus   = tSurfaceMesh.compute_global_shape_diameter_raycast( tAgglom, tRaycastConeAngle, tNumRays, 1 );
+                        real             tInscribedMinus = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle( tAgglom, tInscribedConeAngle, tRelativeChord, tNumSamples );
+                        real             tShortestMinus  = tSurfaceMesh.compute_global_shape_diameter_shortest_distance( tAgglom, tShortestConeAngle, tNumSamples );
 
                         // Reset perturbation
                         tPerturbation( iDim ) = 0.0;
                         tSurfaceMesh.set_vertex_displacement( iV, tPerturbation );
-
-                        // // Compute finite difference results - nodal shape diameter
-                        // real tNSDForward  = 0.0;
-                        // real tNSDBackward = 0.0;
-                        // real tNSDCentral  = 0.0;
-                        // for ( uint iF = 0; iF < tSurfaceMesh.get_number_of_facets(); iF++ )
-                        // {
-                        //     tNSDForward += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameter( iF ) ) / tEps;
-                        //     tNSDBackward += tFacetMeasures( iF ) * ( tNodalShapeDiameter( iF ) - tNodalShapeDiameterMinus( iF ) ) / tEps;
-                        //     tNSDCentral += tFacetMeasures( iF ) * ( tNodalShapeDiameterPlus( iF ) - tNodalShapeDiameterMinus( iF ) ) / ( 2.0 * tEps );
-                        // }
 
                         // Compute finite difference results - normal
                         Matrix< DDRMat > tNForward  = ( tNormalPlus - tFacetNormal ) / tEps;
@@ -177,20 +179,35 @@ namespace moris::mtk
                             CHECK( tCenterSens( iComp, iDim ) == Approx( tCCentral( iComp ) ) );
                         }
 
-                        // Check nodal shape diameter sensitivities
-                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDForward ).epsilon( 1e-4 ) );
-                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDBackward ).epsilon( 1e-4 ) );
-                        // CHECK( tNodalShapeDiameterSensitivities( iV, iDim ) == Approx( tNSDCentral ).epsilon( 1e-4 ) );
-
                         // Compute finite difference results - global shape diameter
-                        real tSDForward  = ( tShapeDiameterPlus - tGlobalShapeDiameter ) / tEps;
-                        real tSDBackward = ( tGlobalShapeDiameter - tShapeDiameterMinus ) / tEps;
-                        real tSDCentral  = ( tShapeDiameterPlus - tShapeDiameterMinus ) / ( 2.0 * tEps );
+                        real tSDForward  = ( tRaycastPlus - tRaycastGlobalDiameter ) / tEps;
+                        real tSDBackward = ( tRaycastGlobalDiameter - tRaycastMinus ) / tEps;
+                        real tSDCentral  = ( tRaycastPlus - tRaycastMinus ) / ( 2.0 * tEps );
 
-                        // Check sensitivities shape diameter
-                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-4 ) );
-                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-4 ) );
-                        CHECK( tShapeDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-4 ) );
+                        // Check sensitivities - raycast shape diameter
+                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-6 ) );
+                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-6 ) );
+                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-6 ) );
+
+                        // Compute finite difference results - inscribed circle shape diameter
+                        tSDForward  = ( tInscribedPlus - tInscribedGlobalDiameter ) / tEps;
+                        tSDBackward = ( tInscribedGlobalDiameter - tInscribedMinus ) / tEps;
+                        tSDCentral  = ( tInscribedPlus - tInscribedMinus ) / ( 2.0 * tEps );
+
+                        // Check sensitivities - inscribed circle shape diameter
+                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-6 ) );
+                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-6 ) );
+                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-6 ) );
+
+                        // Compute finite difference results - shortest distance shape diameter
+                        tSDForward  = ( tShortestPlus - tShortestGlobalDiameter ) / tEps;
+                        tSDBackward = ( tShortestGlobalDiameter - tShortestMinus ) / tEps;
+                        tSDCentral  = ( tShortestPlus - tShortestMinus ) / ( 2.0 * tEps );
+
+                        // Check sensitivities - shortest distance shape diameter
+                        CHECK( tShortestDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-6 ) );
+                        CHECK( tShortestDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-6 ) );
+                        CHECK( tShortestDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-6 ) );
                     }
                 }
             }
@@ -232,9 +249,12 @@ namespace moris::mtk
                         // Check sensitivities for normal
                         for ( uint iComp = 0; iComp < 2; iComp++ )
                         {
-                            CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSForward( iComp ) ).epsilon( 1e-4 ) );
-                            CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSBackward( iComp ) ).epsilon( 1e-4 ) );
-                            CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSCentral( iComp ) ).epsilon( 1e-4 ) );
+                            if ( std::abs( tVNSCentral( iComp ) ) > 1e-8 )
+                            {
+                                CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSForward( iComp ) ).epsilon( 1e-6 ) );
+                                CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSBackward( iComp ) ).epsilon( 1e-6 ) );
+                                CHECK( tVertexNormalSens( iComp, iDim ) == Approx( tVNSCentral( iComp ) ).epsilon( 1e-6 ) );
+                            }
                         }
                     }
                 }

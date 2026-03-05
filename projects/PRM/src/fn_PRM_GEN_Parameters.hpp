@@ -245,21 +245,35 @@ namespace moris::prm
 
     static void insert_GQI_parameters( Parameter_List& aGQIParameterList, gen::GQI_Type aGQIType )
     {
+        aGQIParameterList.set( "GQI_type", aGQIType );
+
         switch ( aGQIType )
         {
-            case gen::GQI_Type::VOLUME:
-                aGQIParameterList.set( "GQI_type", gen::GQI_Type::VOLUME );
-                break;
-            case gen::GQI_Type::SHAPE_DIAMETER:
-                aGQIParameterList.set( "GQI_type", gen::GQI_Type::SHAPE_DIAMETER );
+            case gen::GQI_Type::RAYCAST_SHAPE_DIAMETER:
                 aGQIParameterList.insert( "number_of_polar_rays", 20, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
                 aGQIParameterList.insert( "number_of_azimuth_rays", 0, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function
                 aGQIParameterList.insert( "cone_angle", 30.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
                 aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
-                aGQIParameterList.insert( "agglomeration_shift", -1.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );      // Shift value for the agglomeration function
-
+                aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
                 break;
+
+            case gen::GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
+                aGQIParameterList.insert( "number_of_samples", 1, 1, 1000 );                                   // Number of rays to be cast in the polar direction for the shape diameter function
+                aGQIParameterList.insert( "cone_angle", 120.0, 0.0, 179.9999999 );                             // Cone angle in degrees for the shape diameter function
+                aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                break;
+
+            case gen::GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
+                aGQIParameterList.insert( "number_of_samples", 1, 1, 1000 );                                   // Number of rays to be cast in the polar direction for the shape diameter function
+                aGQIParameterList.insert( "cone_angle", 20.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+                aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                break;
+
             default:
                 MORIS_ERROR( false, "GQI %s type not implemented.", gen::GQI_Type_String::values( static_cast< uint >( aGQIType ) ).c_str() );
                 break;

@@ -1401,6 +1401,7 @@ namespace moris::mtk
         // Open file for writing
         std::ofstream tFile;
         tFile.open( aFilePath );
+        tFile << std::fixed << std::setprecision( 8 );
 
         // Write vertices
         for ( uint iVertex = 0; iVertex < this->get_number_of_vertices(); iVertex++ )
@@ -2204,7 +2205,7 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    Vector< real > Surface_Mesh::compute_inscribed_circle_shape_diameter( const Agglomeration_Parameters& aAgglom, uint aNumCircles, real aAngle )
+    Vector< real > Surface_Mesh::compute_inscribed_circle_shape_diameter( const Agglomeration_Parameters& aAgglom, real aAngle, real aRelativeChord, uint aNumCircles )
     {
         MORIS_ERROR( this->get_spatial_dimension() == 2, "Inscribed circle shape diameter is only implemented for 2D surface meshes." );
 
@@ -2243,7 +2244,7 @@ namespace moris::mtk
                     // Compute the radius of the inscribed circle between these two points
                     real tDiameter = dot( tChord, tChord ) / dot( tChord, tVertexNormals.get_column( iVO ) );
 
-                    if ( tDiameter > 0 )
+                    if ( tDiameter > 0 && tChordNorm / tDiameter > aRelativeChord )
                     {
                         // Check if the valid diameter should replace a minimum
                         for ( uint iMin = 0; iMin < aNumCircles; iMin++ )
@@ -2323,7 +2324,7 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    Vector< real > Surface_Mesh::compute_closest_point_shape_diameter( const Agglomeration_Parameters& aAgglom, uint aNumDist, real aAngle )
+    Vector< real > Surface_Mesh::compute_shortest_distance_shape_diameter( const Agglomeration_Parameters& aAgglom, real aAngle, uint aNumDist )
     {
         MORIS_ERROR( this->get_spatial_dimension() == 2, "Closest point diameter is only implemented for 2D surface meshes." );
 
@@ -2465,17 +2466,8 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::compute_global_shape_diameter(
-            const Agglomeration_Parameters& aAgglom,
-            real                            aConeAngle,
-            uint                            aNumPolarRays,
-            uint                            aNumAzimuthRays )
+    real Surface_Mesh::integrate_shape_diameter_over_surface()
     {
-        // Compute the shape diameter for every vertex in the surface mesh
-        // mShapeDiameters = this->compute_raycast_shape_diameter( aAgglom, aConeAngle, aNumPolarRays, this->get_spatial_dimension() == 2 ? 1 : aNumAzimuthRays );
-        // mShapeDiameters = this->compute_inscribed_circle_shape_diameter( aAgglom, 1, aConeAngle );    // brendan make parameters configurable
-        mShapeDiameters = this->compute_closest_point_shape_diameter( aAgglom, 1, aConeAngle );    // brendan make parameters configurable
-
         // Compute the area of every facet in the surface mesh
         Vector< real > tFacetMeasure = this->compute_facet_measure();
 
@@ -2489,6 +2481,40 @@ namespace moris::mtk
 
         // Store the agglomeration before we take the power(need it for sensitivities later)
         return mIntegratedShapeDiameter;
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+    real Surface_Mesh::compute_global_shape_diameter_raycast(
+            const Agglomeration_Parameters& aAgglom,
+            real                            aConeAngle,
+            uint                            aNumPolarRays,
+            uint                            aNumAzimuthRays )
+    {
+        mShapeDiameters = this->compute_raycast_shape_diameter( aAgglom, aConeAngle, aNumPolarRays, aNumAzimuthRays );
+        return this->integrate_shape_diameter_over_surface();
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::compute_global_shape_diameter_inscribed_circle(
+            const Agglomeration_Parameters& aAgglom,
+            real                            aAngle,
+            real                            aRelativeChord,
+            uint                            aNumCircles )
+    {
+        mShapeDiameters = this->compute_inscribed_circle_shape_diameter( aAgglom, aAngle, aRelativeChord, aNumCircles );
+        return this->integrate_shape_diameter_over_surface();
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
+    real Surface_Mesh::compute_global_shape_diameter_shortest_distance(
+            const Agglomeration_Parameters& aAgglom,
+            real                            aAngle,
+            uint                            aNumDistances )
+    {
+        mShapeDiameters = this->compute_shortest_distance_shape_diameter( aAgglom, aAngle, aNumDistances );
+        return this->integrate_shape_diameter_over_surface();
     }
 
     // --------------------------------------------------------------------------------------------------------------

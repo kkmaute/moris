@@ -62,8 +62,9 @@ namespace moris::gen
 
     // Geometric quantities of interest (GQI) enum
     ENUM_MACRO( GQI_Type,
-            VOLUME, // TODO BRENDAN remove this since the method is not robust
-            SHAPE_DIAMETER )
+            RAYCAST_SHAPE_DIAMETER,
+            INSCRIBED_CIRCLE_SHAPE_DIAMETER,
+            SHORTEST_DISTANCE_SHAPE_DIAMETER )
 
     // Surface mesh regularization type enum
     ENUM_MACRO( Regularization_Type,

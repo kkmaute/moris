@@ -603,24 +603,12 @@ namespace moris::gen
 
             switch ( aGQIType )
             {
-                case GQI_Type::VOLUME:
-                    // no extra args required
-                    get_dGQI_dvertex = [ this ]( uint aV ) -> Matrix< DDRMat > {
-                        return this->compute_dvolume_dvertex( aV );
-                    };
-                    break;
-
-                case GQI_Type::SHAPE_DIAMETER:
+                case GQI_Type::RAYCAST_SHAPE_DIAMETER:
+                case GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
+                case GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
                 {
-                    // Capture extra args into a tuple
-                    auto tExtras     = std::make_tuple( std::forward< ExtraArgs >( aExtra )... );
-                    get_dGQI_dvertex = [ this, tExtras ]( uint aV ) -> Matrix< DDRMat > {
-                        // apply the tuple to a helper that calls the member function with the extra args
-                        return std::apply(
-                                [ this, aV ]( auto&&... args ) -> Matrix< DDRMat > {
-                                    return this->compute_ddiameter_dvertex( aV, std::forward< decltype( args ) >( args )... );
-                                },
-                                tExtras );
+                    get_dGQI_dvertex = [ this ]( uint aV ) -> Matrix< DDRMat > {
+                        return this->compute_ddiameter_dvertex( aV );
                     };
                 }
                 break;

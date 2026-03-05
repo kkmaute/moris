@@ -106,6 +106,9 @@ namespace moris
 
         ENUM_MACRO( XQI_Type,
                 VOLUME,
-                SHAPE_DIAMETER )
+                RAYCAST_SHAPE_DIAMETER,
+                INSCRIBED_CIRCLE_SHAPE_DIAMETER,
+                SHORTEST_DISTANCE_SHAPE_DIAMETER )
+
     }    // namespace xtk
 }    // namespace moris

@@ -122,6 +122,13 @@ namespace moris::mtk
         }
     };
 
+    enum class Shape_Diameter_Method
+    {
+        RAYCAST,              // Use a weighted average of all ray intersections to compute the shape diameter
+        INSCRIBED_CIRCLE,     // Use the diameter of the inscribed circle as the shape diameter (only for 2D meshes)
+        SHORTEST_DISTANCE,    // Only use the closest ray intersection to compute the shape diameter
+    };
+
     /**
      * @brief This class is used to extract a surface mesh from a given mesh.
      * This class does not store any vertex or cell data but only provides the necessary information to access the data in the mesh.
@@ -422,8 +429,9 @@ namespace moris::mtk
          */
         Vector< real > compute_inscribed_circle_shape_diameter(
                 const Agglomeration_Parameters& aAgglomeration,
-                uint                            aNumCircles = 1,
-                real                            aAngle      = 120.0 );
+                real                            aAngle         = 120.0,
+                real                            aRelativeChord = 0.25,
+                uint                            aNumCircles    = 1 );
 
         /**
          * Computes the shape diameter for each surface mesh node
@@ -435,22 +443,63 @@ namespace moris::mtk
          *
          * @return Vector< real > Shape diameter for each facet
          */
-        Vector< real > compute_closest_point_shape_diameter(
+        Vector< real > compute_shortest_distance_shape_diameter(
                 const Agglomeration_Parameters& aAgglomeration,
-                uint                            aNumCircles = 1,
-                real                            aAngle      = 120.0 );
+                real                            aAngle        = 40.0,
+                uint                            aNumDistances = 1 );
 
         /**
-         * Computes the agglomeration of the shape diameter for every surface mesh facet
-         * The shape diameter is computed by casting a cone of rays from each node and taking the minimum ray length of all the rays
+         * Takes the shape diameter values computed on the facets and integrates them over the surface to get a global shape diameter violation
          *
-         * @return real Norm of the shape diameter for each node
+         * Requires that the facet shape diameters are computed and stored in mShapeDiameterValues
+         * @return real Integrated shape diameter violation over the surface mesh
+         * */
+        real integrate_shape_diameter_over_surface();
+
+        /**
+         * Computes a global shape diameter violation by integrating the shape diameter values computed on the facets with a raycast method
+         * Rays are cast from the facet centers and the shape diameter is computed by a weighted average of the ray distances, and then integrated over the surface to get a global value
+         *
+         * @param aAgglom Agglomeration parameters struct to control the agglomeration function applied to the shape diameter values
+         * @param aConeAngle Angle of the cone in degrees
+         * @param aNumPolarRays Number of rays in the polar direction (θ)
+         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
+         * @return real Integrated shape diameter violation over the surface mesh
          */
-        real compute_global_shape_diameter(
+        real compute_global_shape_diameter_raycast(
                 const Agglomeration_Parameters& aAgglom,
                 real                            aConeAngle,
                 uint                            aNumPolarRays,
-                uint                            aNumAzimuthRays );
+                uint                            aNumAzimuthRays = 1 );
+
+        /**
+         * Computes a global shape diameter violation by integrating the shape diameter values computed on the facets with an inscribed circle method
+         * The smallest inscribed circle is computed for each vertex, and the shape diameter is computed by a weighted average of these distances, and then integrated over the surface to get a global value
+         *
+         * @param aAgglom Agglomeration parameters struct to control the agglomeration function applied to the shape diameter values
+         * @param aConeAngle Angle of the cone in degrees
+         * @param aRelativeChord Relative chord length to be used in inscribed circle computation
+         * @return real Integrated shape diameter violation over the surface mesh
+         */
+        real compute_global_shape_diameter_inscribed_circle(
+                const Agglomeration_Parameters& aAgglom,
+                real                            aAngle         = 120.0,
+                real                            aRelativeChord = 0.25,
+                uint                            aNumCircles    = 1 );
+
+        /**
+         * Computes a global shape diameter violation by integrating the shape diameter values computed on the facets with a shortest distance method
+         * The closet point to another part of the surface mesh within a cone is found for each vertex, and the shape diameter is computed by a weighted average of these distances, and then integrated over the surface to get a global value
+         *
+         * @param aAgglom Agglomeration parameters struct to control the agglomeration function applied to the shape diameter values
+         * @param aConeAngle Angle of the cone in degrees
+         * @param aNumDistances Number of closest distances to take the average of for each facet
+         * @return real Integrated shape diameter violation over the surface mesh
+         */
+        real compute_global_shape_diameter_shortest_distance(
+                const Agglomeration_Parameters& aAgglom,
+                real                            aAngle        = 40.0,
+                uint                            aNumDistances = 1 );
 
         /**
          * Computes the centroids of a single facet in the surface mesh
