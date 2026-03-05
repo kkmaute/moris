@@ -36,7 +36,11 @@ namespace moris::opt
         mIncludeBounds              = aParameterList.get< bool >( "include_bounds" );
         mNumEvaluations             = string_to_matrix< DDUMat >( aParameterList.get< std::string >( "num_evaluations_per_adv" ) );
         std::string tEvalVectorFile = aParameterList.get< std::string >( "adv_evaluation_vector_file" );
-        if ( not tEvalVectorFile.empty() )
+        if ( aParameterList.get< bool >( "random_direction_vector" ) )
+        {
+            this->load_random_evaluation_points( aParameterList.get< real >( "step_size" ) );
+        }
+        else if ( not tEvalVectorFile.empty() )
         {
             this->load_evaluation_points_from_file( tEvalVectorFile, aParameterList.get< real >( "step_size" ) );
         }
@@ -467,6 +471,49 @@ namespace moris::opt
     //--------------------------------------------------------------------------------------------------------------
 
     void
+    Algorithm_Sweep::setup_evaluation_points_from_direction( const Vector< real >& aDirection, real aStepSize )
+    {
+        // Get the ADV values from the Problem
+        const Vector< real >& tCurrentADVs = mProblem->get_advs();
+        const Vector< real >& tLBs         = mProblem->get_lower_bounds();
+        const Vector< real >& tUBs         = mProblem->get_upper_bounds();
+
+        // Compute norm of the direction vector to ensure the direction is unit
+        real tNorm = 1.0;
+        for ( uint iADV = 0; iADV < aDirection.size(); iADV++ )
+        {
+            tNorm += aDirection( iADV ) * aDirection( iADV );
+        }
+        tNorm = std::sqrt( tNorm );
+
+        MORIS_ASSERT( mNumEvaluations.numel() == 1, "Algorithm_Sweep::setup_evaluation_points_from_direction - When providing a direction vector, num_evaluations_per_adv should be a single number." );
+
+        // Build the step size vector from the number of steps and the step size
+        uint tNSteps    = mNumEvaluations( 0 );
+        real tIncrement = 2.0 * aStepSize / ( tNSteps - 1 );
+
+        MORIS_ERROR( tNSteps < (real)MORIS_UINT_MAX,
+                "Algorithm_Sweep::set_up_evaluation_points - Number of evaluations exceeds MORIS_UINT_MAX." );
+        MORIS_ASSERT( tNSteps > 1, "Algorithm_Sweep::setup_evaluation_points_from_direction - Number of steps must be larger than 1 if a direction vector is specified." );
+
+        // Compute the ADV values along the direction defined by the input vector
+        mEvaluationPoints.set_size( aDirection.size(), tNSteps );
+        for ( uint iStep = 0; iStep < tNSteps; iStep++ )
+        {
+            real tStep = (real)iStep * tIncrement - aStepSize;    // step goes from -step_size to +step_size
+            tStep /= tNorm;                                       // normalize step by the norm of the direction vector
+
+            for ( uint iADV = 0; iADV < aDirection.size(); iADV++ )
+            {
+                // Compute the evaluation point in the direction of the next step, normalized by the ADV bounds
+                mEvaluationPoints( iADV, iStep ) = tCurrentADVs( iADV ) + tStep * aDirection( iADV ) / ( tUBs( iADV ) - tLBs( iADV ) );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
     Algorithm_Sweep::load_evaluation_points_from_file( const std::string& aFileName, real aStepSize )
     {
         // Open vector file
@@ -474,9 +521,7 @@ namespace moris::opt
         hid_t tFileID = open_hdf5_file( aFileName, false );
 
         // Define matrix in which to read direction ADVs
-        Vector< real >        tDirectionADVs;
-        const Vector< real >& tLBs = mProblem->get_lower_bounds();
-        const Vector< real >& tUBs = mProblem->get_upper_bounds();
+        Vector< real > tDirectionADVs;
 
         // Read ADVS from restart file
         herr_t tStatus = 0;
@@ -498,28 +543,24 @@ namespace moris::opt
         tDirections.reserve( tDirectionADVs.size() );
         std::transform( tCurrentADVs.begin(), tCurrentADVs.end(), tDirectionADVs.begin(), std::back_inserter( tDirections ), std::minus< double >() );
 
-        MORIS_ASSERT( mNumEvaluations.numel() == 1, "Algorithm_Sweep::load_evaluation_points_from_file - When providing a direction vector, num_evaluations_per_adv should be a single number." );
+        // Set evaluation points along this direction
+        this->setup_evaluation_points_from_direction( tDirections, aStepSize );
+    }
 
-        // Build the step size vector from the number of steps and the step size
-        uint tNSteps    = mNumEvaluations( 0 );
-        real tIncrement = 2.0 * aStepSize / ( tNSteps - 1 );
+    //--------------------------------------------------------------------------------------------------------------
 
-        MORIS_ERROR( tNSteps < (real)MORIS_UINT_MAX,
-                "Algorithm_Sweep::set_up_evaluation_points - Number of evaluations exceeds MORIS_UINT_MAX." );
-        MORIS_ASSERT( tNSteps > 1, "Algorithm_Sweep::load_evaluation_points_from_file - Number of steps must be larger than 1 if a direction vector is specified." );
-
-        // Compute the ADV values along the direction defined by the input vector
-        mEvaluationPoints.set_size( tCurrentADVs.size(), tNSteps );
-        for ( uint iStep = 0; iStep < tNSteps; iStep++ )
+    void
+    Algorithm_Sweep::load_random_evaluation_points( real aStepSize )
+    {
+        // Setup vector of random directions
+        Vector< real > tRandomDirection( mProblem->get_num_advs() );
+        for ( uint iADV = 0; iADV < tRandomDirection.size(); iADV++ )
         {
-            real tStep = (real)iStep * tIncrement - aStepSize;    // step goes from -step_size to +step_size
-
-            for ( uint iADV = 0; iADV < tCurrentADVs.size(); iADV++ )
-            {
-                // Compute the evaluation point in the direction of the next step, normalized by the ADV bounds
-                mEvaluationPoints( iADV, iStep ) = tCurrentADVs( iADV ) + tStep * tDirections( iADV ) / ( tUBs( iADV ) - tLBs( iADV ) );
-            }
+            tRandomDirection( iADV ) = ( (real)std::rand() / (real)RAND_MAX ) * 2 - 1;    // random number between -1 and 1
         }
+
+        // Set evaluation points to go along this random direction
+        this->setup_evaluation_points_from_direction( tRandomDirection, aStepSize );
     }
 
     //--------------------------------------------------------------------------------------------------------------

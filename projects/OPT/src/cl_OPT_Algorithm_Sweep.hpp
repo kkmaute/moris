@@ -93,6 +93,19 @@ namespace moris::opt
          */
         void output_variables( const Matrix< DDRMat >& aVariables, const std::string& aFullEvaluationName );
 
+        /**
+         * Given a direction vector, sets up the evaluation points for all ADVs along this direction based on the number of evaluations and step size
+         */
+        void setup_evaluation_points_from_direction( const Vector< real >& aDirection, real aStepSize );
+
+        /**
+         * Gets the direction vector between the current ADVs and the ADV values from the HDF5 file, and then sets up mNumEvaluationPoints based on this direction vector
+         */
         void load_evaluation_points_from_file( const std::string& aFileName, real aStepSize = 1.0 );
+
+        /**
+         * Generates a random direction vector, and then sets up mNumEvaluationPoints to be values of the ADVs along the vector
+         */
+        void load_random_evaluation_points( real aStepSize = 1.0 );
     };
 }    // namespace moris::opt
