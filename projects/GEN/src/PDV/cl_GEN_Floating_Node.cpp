@@ -50,7 +50,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     uint
-    Floating_Node::get_num_pdvs()
+    Floating_Node::get_num_pdvs() const
     {
         return this->get_global_coordinates().numel();
     }
@@ -66,7 +66,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id
-    Floating_Node::get_starting_pdv_id()
+    Floating_Node::get_starting_pdv_id() const
     {
         return mPDVStartingID;
     }
@@ -98,7 +98,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Floating_Node::get_owner()
+    Floating_Node::get_owner() const
     {
         return mNodeOwner;
     }

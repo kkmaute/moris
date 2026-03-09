@@ -101,7 +101,7 @@ namespace moris::gen
          *
          * @return Number of PDVs
          */
-        virtual uint get_num_pdvs();
+        virtual uint get_num_pdvs() const;
 
         /**
          * Sets the starting index to be able to use the coordinates of this node as PDVs
@@ -115,7 +115,7 @@ namespace moris::gen
          *
          * @return The global index of the first PDV on the host
          */
-        virtual moris_id get_starting_pdv_id();
+        virtual moris_id get_starting_pdv_id() const;
 
         /**
          * Set the node ID for this node.
@@ -143,7 +143,7 @@ namespace moris::gen
          *
          * @return Owning processor
          */
-        virtual moris_index get_owner();
+        virtual moris_index get_owner() const;
 
         /**
          * Sets the flag for overriding linear interpolation, for when multilinear intersections are being used.

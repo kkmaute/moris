@@ -24,9 +24,9 @@ namespace moris::gen
     class Floating_Node : public Derived_Node
     {
       private:
-        moris_id             mPDVStartingID;
-        moris_id             mNodeID    = -1;
-        moris_index          mNodeOwner = -1;
+        moris_id    mPDVStartingID;
+        moris_id    mNodeID    = -1;
+        moris_index mNodeOwner = -1;
 
       public:
         /**
@@ -67,7 +67,7 @@ namespace moris::gen
          *
          * @return Number of PDVs
          */
-        uint get_num_pdvs() override;
+        uint get_num_pdvs() const override;
 
         /**
          * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
@@ -81,7 +81,7 @@ namespace moris::gen
          *
          * @return The global index of the first PDV on the host
          */
-        moris_id get_starting_pdv_id() override;
+        moris_id get_starting_pdv_id() const override;
 
         /**
          * Set the node ID for this node.
@@ -109,7 +109,7 @@ namespace moris::gen
          *
          * @return Owning processor
          */
-        moris_index get_owner() override;
+        moris_index get_owner() const override;
 
       protected:
         /**

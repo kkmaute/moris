@@ -107,7 +107,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     uint
-    Intersection_Node::get_num_pdvs()
+    Intersection_Node::get_num_pdvs() const
     {
         return this->get_global_coordinates().numel();
     }
@@ -123,7 +123,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id
-    Intersection_Node::get_starting_pdv_id()
+    Intersection_Node::get_starting_pdv_id() const
     {
         return mPDVStartingID;
     }
@@ -155,7 +155,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Intersection_Node::get_owner()
+    Intersection_Node::get_owner() const
     {
         return mNodeOwner;
     }

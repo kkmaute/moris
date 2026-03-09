@@ -114,7 +114,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Derived_Node::get_num_pdvs()
+    uint Derived_Node::get_num_pdvs() const
     {
         return 0;
     }
@@ -127,7 +127,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_id Derived_Node::get_starting_pdv_id()
+    moris_id Derived_Node::get_starting_pdv_id() const
     {
         return -1;
     }
@@ -153,7 +153,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_index Derived_Node::get_owner()
+    moris_index Derived_Node::get_owner() const
     {
         return par_rank();
     }

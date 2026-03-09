@@ -29,7 +29,7 @@ namespace moris::gen
 
       private:
         Vector< Background_Node > mBackgroundNodes;
-        Vector< Derived_Node* > mDerivedNodes;
+        Vector< Derived_Node* >   mDerivedNodes;
 
       public:
         /**
@@ -56,14 +56,14 @@ namespace moris::gen
          *
          * @return Number of background nodes
          */
-        uint get_number_of_background_nodes();
+        uint get_number_of_background_nodes() const;
 
         /**
          * Gets the total number of nodes stored by the node manager.
          *
          * @return Total number of nodes
          */
-        uint get_total_number_of_nodes();
+        uint get_total_number_of_nodes() const;
 
         /**
          * Gets a node stored in this manager.
@@ -71,7 +71,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Node pointer
          */
-        const Node& get_node( uint aNodeIndex );
+        const Node& get_node( uint aNodeIndex ) const;
 
         /**
          * Gets if the given node index refers to a background node.
@@ -89,6 +89,14 @@ namespace moris::gen
         Background_Node& get_background_node( uint aBackgroundNodeIndex );
 
         /**
+         * Gets a background node stored in this manager, const version.
+         *
+         * @param aBackgroundNodeIndex background node index
+         * @return Node pointer
+         */
+        const Background_Node& get_background_node( uint aBackgroundNodeIndex ) const;
+
+        /**
          * Creates a new derived node and adds it to this manager with the given parameters.
          *
          * @param aBackgroundNodes Background nodes
@@ -98,9 +106,9 @@ namespace moris::gen
          */
         void create_derived_node(
                 const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&  aParametricCoordinates,
-                mtk::Geometry_Type       aGeometryType,
-                mtk::Interpolation_Order aInterpolationOrder );
+                const Matrix< DDRMat >&           aParametricCoordinates,
+                mtk::Geometry_Type                aGeometryType,
+                mtk::Interpolation_Order          aInterpolationOrder );
 
         /**
          * Adds a derived node to this manager.
@@ -138,7 +146,7 @@ namespace moris::gen
          */
         real get_node_coordinate_value(
                 uint aNodeIndex,
-                uint aCoordinateIndex );
+                uint aCoordinateIndex ) const;
 
         /**
          * Gets if a stored derived node depends on ADVs
@@ -146,7 +154,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Dependency on ADVs
          */
-        bool node_depends_on_advs( uint aNodeIndex );
+        bool node_depends_on_advs( uint aNodeIndex ) const;
 
         /**
          * Gets the nubmer of PDVs contained by a stored derived node.
@@ -154,7 +162,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Number of PDVs on the node
          */
-        uint get_number_of_derived_node_pdvs( uint aNodeIndex );
+        uint get_number_of_derived_node_pdvs( uint aNodeIndex ) const;
 
         /**
          * Sets the starting PDV ID of a stored derived node.
@@ -172,7 +180,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Starting PDV ID
          */
-        moris_id get_derived_node_starting_pdv_id( uint aNodeIndex );
+        moris_id get_derived_node_starting_pdv_id( uint aNodeIndex ) const;
 
         /**
          * Gets the ID of a stored derived node, or -1 if it has not been set.
@@ -180,7 +188,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Node ID (not PDV ID)
          */
-        moris_id get_derived_node_id( uint aNodeIndex );
+        moris_id get_derived_node_id( uint aNodeIndex ) const;
 
         /**
          * Gets the owning processor index of a stored derived node.
@@ -188,7 +196,7 @@ namespace moris::gen
          * @param aNodeIndex Node index
          * @return Owning processor
          */
-        moris_index get_derived_node_owner( uint aNodeIndex );
+        moris_index get_derived_node_owner( uint aNodeIndex ) const;
 
         /**
          * Appends the sensitivities of the given node's global coordinates with respect to ADVs.
@@ -200,7 +208,7 @@ namespace moris::gen
         void append_dcoordinate_dadv_from_derived_node(
                 uint                    aNodeIndex,
                 Matrix< DDRMat >&       aCoordinateSensitivities,
-                const Matrix< DDRMat >& aSensitivityFactor );
+                const Matrix< DDRMat >& aSensitivityFactor ) const;
 
         /**
          * Gets the ADV IDs that determine the coordinates of a derived node
@@ -219,7 +227,6 @@ namespace moris::gen
         static Node_Manager& get_trivial_instance();
 
       private:
-
         /**
          * Gets a derived node from this manager. Helper function for getting references in this class.
          *
@@ -233,4 +240,4 @@ namespace moris::gen
          */
         void delete_all_nodes();
     };
-}
+}    // namespace moris::gen
