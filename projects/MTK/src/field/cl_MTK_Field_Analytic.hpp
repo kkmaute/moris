@@ -83,10 +83,10 @@ namespace moris
              * @brief child class implementation: computes derivatives of nodal values
              */
             void compute_derivatives_of_field_value(
-                    Matrix< DDRMat >   &aDerivatives,
-                    Matrix< IndexMat > &aCoefIndices,
-                    uint const         &aNodeIndex,
-                    uint const         &aFieldIndex ) override;
+                    Matrix< DDRMat >      &aDerivatives,
+                    Vector< moris_index > &aCoefIndices,
+                    uint const            &aNodeIndex,
+                    uint const            &aFieldIndex ) const override;
 
             // ----------------------------------------------------------------------------------------------
         };

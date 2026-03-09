@@ -108,10 +108,10 @@ namespace moris::mtk
          *  @param[out] aCoefIndices - vector coefficient indices
          */
         virtual void compute_derivatives_of_field_value(
-                Matrix< DDRMat >   &aDerivatives,
-                Matrix< IndexMat > &aCoefIndices,
-                uint const         &aNodeIndex,
-                uint const         &aFieldIndex )
+                Matrix< DDRMat >      &aDerivatives,
+                Vector< moris_index > &aCoefIndices,
+                uint const            &aNodeIndex,
+                uint const            &aFieldIndex ) const
         {
             MORIS_ERROR( false, "mtk::Field::compute_derivatives_of_field_value - function not implemented.\n" );
         }
@@ -345,10 +345,10 @@ namespace moris::mtk
          *  @param[out] aCoefIndices - vector coefficient indices
          */
         void get_derivatives_of_field_value(
-                Matrix< DDRMat >   &aDerivatives,
-                Matrix< IndexMat > &aCoefIndices,
-                uint const         &aNodeIndex,
-                uint const         &aFieldIndex )
+                Matrix< DDRMat >      &aDerivatives,
+                Vector< moris_index > &aCoefIndices,
+                uint const            &aNodeIndex,
+                uint const            &aFieldIndex ) const
         {
             // call to child implementation
             this->compute_derivatives_of_field_value(

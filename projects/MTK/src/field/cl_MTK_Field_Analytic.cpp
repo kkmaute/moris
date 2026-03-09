@@ -115,10 +115,10 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------------------
 
     void Field_Analytic::compute_derivatives_of_field_value(
-            Matrix< DDRMat >   &aDerivatives,
-            Matrix< IndexMat > &aCoefIndices,
-            uint const         &aNodeIndex,
-            uint const         &aFieldIndex )
+            Matrix< DDRMat >      &aDerivatives,
+            Vector< moris_index > &aCoefIndices,
+            uint const            &aNodeIndex,
+            uint const            &aFieldIndex ) const
     {
         // check that function pointer is set
         MORIS_ASSERT( mAnalyticDerivativeFunction( aFieldIndex ) != nullptr,
@@ -129,7 +129,7 @@ namespace moris::mtk
                 "mtk::Field_Analytic::compute_nodal_values - coefficient vector not set.\n" );
 
         // assume that analytic function depends on all coefficients
-        aCoefIndices.set_size( mNumberOfCoefficients, 1 );
+        aCoefIndices.resize( mNumberOfCoefficients );
 
         for ( uint i = 0; i < mCoefficients.n_rows(); ++i )
         {
