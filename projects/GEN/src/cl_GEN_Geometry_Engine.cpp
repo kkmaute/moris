@@ -135,8 +135,7 @@ namespace moris::gen
         // Distribute ADVs
         this->distribute_advs( tMeshPair );
 
-        // Pass GQIs to PDV Host Manager
-        this->register_GQIs();
+        // No GQIs to register in this constructor, as it's only used for testing purposes with no designs/properties
     }
 
     //--------------------------------------------------------------------------------------------------------------
