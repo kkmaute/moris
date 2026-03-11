@@ -66,8 +66,8 @@ namespace moris
          * Vector copy constructor
          */
         Vector( const Vector< T >& aVector )
+                : mVector( aVector.data() )
         {
-            mVector = aVector.data();
         }
 
         //------------------------------------------------------------------
