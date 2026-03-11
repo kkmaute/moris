@@ -10,9 +10,8 @@
 
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Background_Node.hpp"
-#include "cl_GEN_Basis_Node.hpp"
+#include "cl_GEN_Node_Manager.hpp"
 #include "cl_MTK_Interpolation_Function_Factory.hpp"
-#include "cl_MTK_Interpolation_Function.hpp"
 #include "cl_Communication_Tools.hpp"
 
 namespace moris::gen
@@ -21,53 +20,31 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Derived_Node::Derived_Node(
-            uint                              aIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aGeometryType,
-            mtk::Interpolation_Order          aInterpolationOrder )
+            uint aIndex,
+            // const Vector< Background_Node* >& aBackgroundNodes, brendan delete
+            const mtk::Cell&        aBackgroundElement,
+            const Node_Manager&     aNodeManager,
+            const Matrix< DDRMat >& aParametricCoordinates )
             : Node( aIndex )
+            , mBackgroundElement( aBackgroundElement )
+            , mNodeManager( aNodeManager )
             , mParametricCoordinates( aParametricCoordinates )
     {
-        // Check that at least one background node was given
-        MORIS_ASSERT( aBackgroundNodes.size() > 0, "A derived GEN node must have at least one basis node." );
-
-        // Override linear interpolation if desired
-        if ( gOverrideLinearInterpolation )
-        {
-            aInterpolationOrder = mtk::Interpolation_Order::LINEAR;
-        }
-
-        // Create interpolator
-        mtk::Interpolation_Function_Factory tInterpolationFactory;
-        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
-                aGeometryType,
-                mtk::Interpolation_Type::LAGRANGE,
-                aInterpolationOrder );
-
-        // Perform interpolation using parametric coordinates
-        Matrix< DDRMat > tBasis;
-        tInterpolation->eval_N( mParametricCoordinates, tBasis );
-
-        // Get number of bases
-        uint tNumberOfBases = tInterpolation->get_number_of_bases();
-
-        // Create background nodes
-        mBackgroundNodes.reserve( tNumberOfBases );
-        for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
-        {
-            mBackgroundNodes.emplace_back( *aBackgroundNodes( iBasisIndex ), tBasis( iBasisIndex ) );
-        }
-
         // Size global coordinates based on first locator
-        mGlobalCoordinates = Matrix< DDRMat >( 1, mBackgroundNodes( 0 ).get_global_coordinates().length(), 0.0 );
-        delete tInterpolation;
+        mGlobalCoordinates = Matrix< DDRMat >( 1, aBackgroundElement.get_cell_info()->get_loc_coord_dim(), 0 );
+        // delete tInterpolation;
 
         // Add contributions from all locators
-        for ( auto iBasisNode : mBackgroundNodes )
+        for ( auto iBasisNode : this->get_locator_nodes() )
         {
             mGlobalCoordinates += iBasisNode.get_global_coordinates() * iBasisNode.get_basis();
         }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Derived_Node::~Derived_Node()
+    {
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -86,16 +63,59 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Basis_Node >& Derived_Node::get_background_nodes() const
+    Vector< const Background_Node* > Derived_Node::get_background_nodes() const
     {
-        return mBackgroundNodes;
+        // Get the cell indices of the background element
+        Matrix< IndexMat > tBackgroundElementNodeIndices = mBackgroundElement.get_vertex_inds();
+        uint               tNumNodes                     = tBackgroundElementNodeIndices.length();
+
+        // Initialize background nodes
+        Vector< const Background_Node* > tBackgroundNodes( tNumNodes );
+        tBackgroundNodes.reserve( tNumNodes );
+        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+        {
+            tBackgroundNodes( iNode ) = &mNodeManager.get_background_node( tBackgroundElementNodeIndices( iNode ) );
+        }
+
+        return tBackgroundNodes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Basis_Node >& Derived_Node::get_locator_nodes() const
+    Vector< Basis_Node > Derived_Node::get_locator_nodes() const
     {
-        return mBackgroundNodes;
+        // Create interpolator
+        mtk::Interpolation_Function_Factory tInterpolationFactory;
+        mtk::Interpolation_Function_Base*   tInterpolator = tInterpolationFactory.create_interpolation_function(
+                mBackgroundElement.get_geometry_type(),
+                mtk::Interpolation_Type::LAGRANGE,
+                gOverrideLinearInterpolation ? mtk::Interpolation_Order::LINEAR : mBackgroundElement.get_interpolation_order() );
+
+
+        // Evaluate the basis functions at the parametric coordinates
+        Matrix< DDRMat > tBasis;
+        tInterpolator->eval_N( mParametricCoordinates, tBasis );
+        uint tNumNodes = tInterpolator->get_number_of_bases();
+
+        // Get the cell indices of the background element
+        Matrix< IndexMat > tBackgroundElementNodeIndices = mBackgroundElement.get_vertex_inds();
+
+        // Initialize background nodes
+        Vector< Basis_Node > tLocatorNodes;
+        tLocatorNodes.reserve( tNumNodes );
+        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+        {
+            tLocatorNodes.emplace_back( mNodeManager.get_background_node( tBackgroundElementNodeIndices( iNode ) ), tBasis( iNode ) );
+        }
+
+        return tLocatorNodes;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< Basis_Node > Derived_Node::get_field_basis_nodes() const
+    {
+        return this->get_locator_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------

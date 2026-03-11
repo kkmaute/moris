@@ -13,6 +13,8 @@
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
+#include "cl_MTK_Cell_Proxy.hpp"
+#include "cl_MTK_Cell_Info_Quad4.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Design_Factory.hpp"
@@ -382,8 +384,12 @@ namespace moris::gen
                 tPDVHostManager.mIGVertexIdtoIndMap[ 3 ] = 1;
             }
 
+            // Create dummy mtk cell to assign to intersection nodes
+            mtk::Cell_Proxy tCell;
+
             // Loop over all node indices
-            Vector< Background_Node* > tTemporaryBackgroundNodes;
+            Vector< Background_Node* >
+                    tTemporaryBackgroundNodes;
             for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIdsPerSet.length(); tNodeIndex++ )
             {
                 // Go around a circle to create parent coordinates
@@ -407,11 +413,10 @@ namespace moris::gen
                 // Create intersection node
                 auto tIntersectionNode = new Intersection_Node_Linear(
                         tNodeIndex,
-                        tBackgroundNodes,
+                        tCell,
+                        tNodeManager,
                         tFirstParentNode,
                         tSecondParentNode,
-                        mtk::Geometry_Type::LINE,
-                        mtk::Interpolation_Order::LINEAR,
                         *tCircleGeometry );
 
                 // Add to node manager

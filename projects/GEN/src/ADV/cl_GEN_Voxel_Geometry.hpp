@@ -67,29 +67,26 @@ namespace moris::gen
          * @return Voxel intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager& aNodeManager,
+                const mtk::Cell&    aBackgroundElement,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode ) override;
 
         /**
          * Creates a floating node based on the given information.
          *
+         * brendan documentation
          * @param aNodeIndex Node index to be assigned to the new floating node
          * @param aBackgroundNodes Background nodes of the element where the floating node lies
          * @param aParametricCoordinates Parametric coordinates inside the background element
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New floating node
          */
         Floating_Node* create_floating_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager&     aNodeManager,
+                const mtk::Cell&        aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates ) override;
+
+        bool compute_sensitivity_along_edges() final;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -100,9 +97,9 @@ namespace moris::gen
          * @return Parent edge local coordinate, between -1 and 1
          */
         real compute_intersection_local_coordinate(
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode );
+                const mtk::Cell&   aBackgroundElement,
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
 
         /**
          * A voxel geometry has no relevant MTK fields for remeshing, so this returns an empty vector.

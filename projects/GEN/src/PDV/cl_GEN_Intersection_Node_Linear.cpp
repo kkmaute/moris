@@ -18,29 +18,26 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Linear::Intersection_Node_Linear(
-            uint                     aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&       aFirstParentNode,
-            const Parent_Node&       aSecondParentNode,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder,
-            Level_Set_Geometry&      aInterfaceGeometry )
+            uint                aNodeIndex,
+            const mtk::Cell&    aBackgroundElement,
+            const Node_Manager& aNodeManager,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode,
+            Level_Set_Geometry& aInterfaceGeometry )
             : Intersection_Node_Level_Set(
-                    aNodeIndex,
-                    aBackgroundNodes,
-                    aFirstParentNode,
-                    aSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
-                    aInterfaceGeometry )
+                      aNodeIndex,
+                      aBackgroundElement,
+                      aNodeManager,
+                      aFirstParentNode,
+                      aSecondParentNode,
+                      aInterfaceGeometry )
     {
     }
-
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Basis_Node >& Intersection_Node_Linear::get_field_basis_nodes() const
+    Vector< Basis_Node > Intersection_Node_Linear::get_field_basis_nodes() const
     {
-        return this->get_locator_nodes();
+        return this->get_parent_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -69,7 +66,7 @@ namespace moris::gen
         mInterfaceGeometry.get_dfield_dcoordinates(
                 this->get_first_parent_node(),
                 tCoordinateSensitivities );
-                
+
         return this->get_dxi_dfield_from_ancestor( 0 ) * tCoordinateSensitivities;
     }
 
@@ -89,4 +86,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

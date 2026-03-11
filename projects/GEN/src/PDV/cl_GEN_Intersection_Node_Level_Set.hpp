@@ -35,13 +35,12 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Level_Set(
-                uint                     aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder,
-                Level_Set_Geometry&      aInterfaceGeometry );
+                uint                aNodeIndex,
+                const mtk::Cell&    aBackgroundElement,
+                const Node_Manager& aNodeManager,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode,
+                Level_Set_Geometry& aInterfaceGeometry );
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -63,7 +62,6 @@ namespace moris::gen
         Vector< sint > get_coordinate_determining_adv_ids() const override;
 
       protected:
-
         /**
          * Gets the geometry that this intersection node was created on its interface.
          *
@@ -79,15 +77,6 @@ namespace moris::gen
         const Geometry& get_interface_geometry() const override;
 
       private:
-
-        /**
-         * Gets the basis nodes that provided the field values for this level set intersection node to be created;
-         * Either its parents or the background nodes.
-         *
-         * @return Basis nodes for interpolating sensitivities
-         */
-        virtual const Vector< Basis_Node >& get_field_basis_nodes() const = 0;
-
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
          * values on each of its ancestors.
@@ -97,4 +86,4 @@ namespace moris::gen
          */
         virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) const = 0;
     };
-}
+}    // namespace moris::gen

@@ -18,7 +18,6 @@ namespace moris::gen
     {
       private:
         Matrix< DDRMat > mCoordinates;
-        static Vector< Basis_Node > mDummyLocatorNodes;
 
       public:
         /**
@@ -53,6 +52,8 @@ namespace moris::gen
          *
          * @return Locator nodes (empty)
          */
-        const Vector< Basis_Node >& get_locator_nodes() const override;
+        Vector< Basis_Node > get_locator_nodes() const override;
+
+        Vector< Basis_Node > get_field_basis_nodes() const override;
     };
-}
+}    // namespace moris::gen

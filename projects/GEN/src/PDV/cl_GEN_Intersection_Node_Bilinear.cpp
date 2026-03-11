@@ -22,30 +22,28 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-            Level_Set_Geometry&               aInterfaceGeometry )
+            uint                aNodeIndex,
+            const mtk::Cell&    aBackgroundElement,
+            const Node_Manager& aNodeManager,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode,
+            Level_Set_Geometry& aInterfaceGeometry )
             : Intersection_Node_Level_Set(
-                    aNodeIndex,
-                    aBackgroundNodes,
-                    aFirstParentNode,
-                    aSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
-                    aInterfaceGeometry )
+                      aNodeIndex,
+                      aBackgroundElement,
+                      aNodeManager,
+                      aFirstParentNode,
+                      aSecondParentNode,
+                      aInterfaceGeometry )
             , mParametricParentVector( aSecondParentNode.get_parametric_coordinates() - aFirstParentNode.get_parametric_coordinates() )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Basis_Node >& Intersection_Node_Bilinear::get_field_basis_nodes() const
+    Vector< Basis_Node > Intersection_Node_Bilinear::get_field_basis_nodes() const
     {
-        return this->get_background_nodes();
+        return this->get_locator_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -119,7 +117,7 @@ namespace moris::gen
         Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
         // get level set values of corner nodes
-        const Vector< Basis_Node >& tBackgroundNodes = this->get_background_nodes();
+        Vector< Basis_Node > tBackgroundNodes = this->get_locator_nodes();
         for ( uint iBackgroundNodeIndex = 0; iBackgroundNodeIndex < tNumBases; ++iBackgroundNodeIndex )
         {
             tPhiBCNodes( iBackgroundNodeIndex ) = mInterfaceGeometry.get_field_value(

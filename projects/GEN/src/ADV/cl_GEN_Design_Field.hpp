@@ -23,11 +23,12 @@ namespace moris::gen
      */
     struct Field_Parameters
     {
-        sint mDiscretizationIndex;            // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
-        real mDiscretizationLowerBound;       // Lower bound for the B-spline coefficients in this field
-        real mDiscretizationUpperBound;       // Upper bound for the B-spline coefficients in this field
-        bool mUseMultilinearInterpolation;    // Whether to use multilinear interpolation for all derived node field values
-        bool mDelaunay;                       // If the field is to be delaunay triangulated
+        sint mDiscretizationIndex;               // Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        real mDiscretizationLowerBound;          // Lower bound for the B-spline coefficients in this field
+        real mDiscretizationUpperBound;          // Upper bound for the B-spline coefficients in this field
+        bool mUseMultilinearInterpolation;       // Whether to use multilinear interpolation for all derived node field values
+        bool mDelaunay;                          // If the field is to be delaunay triangulated
+        bool mComputeSensitivitiesAlongEdges;    // Whether to compute sensitivities along mesh edges or along the level set gradient direction
 
         /**
          * Constructor with a given parameter list
@@ -89,6 +90,14 @@ namespace moris::gen
                 sol::Dist_Vector*                    aOwnedADVs,
                 const Vector< sint >&                aSharedADVIds,
                 uint                                 aADVOffsetID );
+
+        /**
+         * Given a node, returns the field value.
+         *
+         * @param aNode Node to get the field value at
+         * @return Field value
+         */
+        real get_field_value( const Node& aNode ) const;
 
         /**
          * Given a node index or coordinate, returns the field value.

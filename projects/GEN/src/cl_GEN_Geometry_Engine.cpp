@@ -136,6 +136,7 @@ namespace moris::gen
         this->distribute_advs( tMeshPair );
 
         // No GQIs to register in this constructor, as it's only used for testing purposes with no designs/properties
+        mDesignGQIIndices.resize( mGeometries.size() + mProperties.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -342,30 +343,21 @@ namespace moris::gen
 
     bool
     Geometry_Engine::queue_intersection(
-            uint                     aEdgeFirstNodeIndex,
-            uint                     aEdgeSecondNodeIndex,
-            const Matrix< DDRMat >&  aEdgeFirstNodeParametricCoordinates,
-            const Matrix< DDRMat >&  aEdgeSecondNodeParametricCoordinates,
-            const Matrix< DDUMat >&  aBackgroundElementNodeIndices,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            uint                    aEdgeFirstNodeIndex,
+            uint                    aEdgeSecondNodeIndex,
+            const Matrix< DDRMat >& aEdgeFirstNodeParametricCoordinates,
+            const Matrix< DDRMat >& aEdgeSecondNodeParametricCoordinates,
+            const mtk::Cell&        aBackgroundElement )
     {
         // If previous intersection node was not admitted, this will delete it
         delete mQueuedIntersectionNode;
-
-        // Get background nodes
-        Vector< Background_Node* > tBackgroundNodes( aBackgroundElementNodeIndices.length() );
-        for ( uint iNode = 0; iNode < tBackgroundNodes.size(); iNode++ )
-        {
-            tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( aBackgroundElementNodeIndices( iNode ) ) );
-        }
 
         // Create parent nodes
         Parent_Node tFirstParentNode( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
         Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
         // Have the active geometry create a new intersection node
-        mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager.get_total_number_of_nodes(), tBackgroundNodes, tFirstParentNode, tSecondParentNode, aBackgroundGeometryType, aBackgroundInterpolationOrder );
+        mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager, aBackgroundElement, tFirstParentNode, tSecondParentNode );
 
         // Return if queued intersected node is on the parent edge
         return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -457,27 +449,14 @@ namespace moris::gen
 
     void
     Geometry_Engine::create_floating_node(
-            moris_index              aGeometryIndex,
-            const mtk::Cell&         aParentCell,
-            const Matrix< DDRMat >&  aParametricCoordinates,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            moris_index             aGeometryIndex,
+            const mtk::Cell&        aParentCell,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
-        // Get vertex indices from parent cell
-        Matrix< IdMat >            tVertexIndices = aParentCell.get_vertex_inds();
-        Vector< Background_Node* > tBackgroundNodes( tVertexIndices.length() );
-        for ( uint iNode = 0; iNode < tVertexIndices.numel(); iNode++ )
-        {
-            // Get the associated GEN background nodes from the node manager
-            tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode ) ) );
-        }
-
         Floating_Node* tNewNode = mGeometries( aGeometryIndex )->create_floating_node(    //
-                mNodeManager.get_total_number_of_nodes(),
-                tBackgroundNodes,
-                aParametricCoordinates,
-                aParentCell.get_geometry_type(),
-                aParentCell.get_interpolation_order() );
+                mNodeManager,
+                aParentCell,
+                aParametricCoordinates );
 
         // Add new derived node to the node manager
         mNodeManager.add_derived_node( tNewNode );
@@ -487,7 +466,7 @@ namespace moris::gen
 
     void
     Geometry_Engine::create_new_derived_nodes(
-            Vector< mtk::Cell* >&                                aNewNodeParentCell,
+            const Vector< mtk::Cell* >&                          aNewNodeParentCell,
             const Vector< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates )
     {
         // This function can't be traced; Right now XTK does not always call it from all processors.
@@ -496,52 +475,10 @@ namespace moris::gen
         uint tNumberOfNewDerivedNodes = aNewNodeParentCell.size();
 
         // Get vertex indices from parent cell and change parametric coordinate type
-        Vector< Matrix< IndexMat > > tVertexIndices( tNumberOfNewDerivedNodes );
-        Vector< Matrix< DDRMat > >   tParametricCoordinates( tNumberOfNewDerivedNodes );
+        Vector< Matrix< DDRMat > > tParametricCoordinates( tNumberOfNewDerivedNodes );
         for ( uint iCellIndex = 0; iCellIndex < tNumberOfNewDerivedNodes; iCellIndex++ )
         {
-            tVertexIndices( iCellIndex )         = aNewNodeParentCell( iCellIndex )->get_vertex_inds();
-            tParametricCoordinates( iCellIndex ) = *aParametricCoordinates( iCellIndex );
-        }
-
-        // Call overloaded function
-        if ( tNumberOfNewDerivedNodes > 0 )
-        {
-            this->create_new_derived_nodes(
-                    tVertexIndices,
-                    tParametricCoordinates,
-                    aNewNodeParentCell( 0 )->get_geometry_type(),
-                    aNewNodeParentCell( 0 )->get_interpolation_order() );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Geometry_Engine::create_new_derived_nodes(
-            const Vector< Matrix< IndexMat > >& aVertexIndices,
-            const Vector< Matrix< DDRMat > >&   aParametricCoordinates,
-            mtk::Geometry_Type                  aBackgroundGeometryType,
-            mtk::Interpolation_Order            aBackgroundInterpolationOrder )
-    {
-        // This function can't be traced; Right now XTK does not always call it from all processors.
-
-        // Loop over nodes
-        for ( uint iNode = 0; iNode < aVertexIndices.size(); iNode++ )
-        {
-            // Create basis nodes
-            Vector< Background_Node* > tBackgroundNodes( aVertexIndices( iNode ).length() );
-            for ( uint iBaseNode = 0; iBaseNode < aVertexIndices( iNode ).length(); iBaseNode++ )
-            {
-                tBackgroundNodes( iBaseNode ) = &( mNodeManager.get_background_node( aVertexIndices( iNode )( iBaseNode ) ) );
-            }
-
-            // Create new derived node
-            mNodeManager.create_derived_node(
-                    tBackgroundNodes,
-                    aParametricCoordinates( iNode ),
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder );
+            mNodeManager.create_derived_node( *aNewNodeParentCell( iCellIndex ), *aParametricCoordinates( iCellIndex ) );
         }
     }
 
@@ -2005,15 +1942,18 @@ namespace moris::gen
         Vector< std::shared_ptr< const Parameter_List > > tParameterLists;
 
         // Loop through submodule parameter lists
-        for ( const auto& iParameterList : *mGQIParameterLists )
+        if ( mGQIParameterLists )
         {
-            // Get the design name for this GQI
-            const std::string& tGQIName = iParameterList.get< std::string >( "design_name" );
-
-            // Add to output if the name matches
-            if ( tGQIName == aDesignName )
+            for ( const auto& iParameterList : *mGQIParameterLists )
             {
-                tParameterLists.push_back( std::make_shared< const Parameter_List >( iParameterList ) );
+                // Get the design name for this GQI
+                const std::string& tGQIName = iParameterList.get< std::string >( "design_name" );
+
+                // Add to output if the name matches
+                if ( tGQIName == aDesignName )
+                {
+                    tParameterLists.push_back( std::make_shared< const Parameter_List >( iParameterList ) );
+                }
             }
         }
         return tParameterLists;

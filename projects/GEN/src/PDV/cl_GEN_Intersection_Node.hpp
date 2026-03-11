@@ -12,7 +12,6 @@
 
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
-
 namespace moris::gen
 {
     // Forward declare necessary classes
@@ -41,13 +40,12 @@ namespace moris::gen
          * @param aBackgroundInterpolationOrder Background element interpolation order
          */
         Intersection_Node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                real                              aLocalCoordinate,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder );
+                uint                aNodeIndex,
+                const mtk::Cell&    aBackgroundElement,
+                const Node_Manager& aNodeManager,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode,
+                real                aLocalCoordinate );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
@@ -57,12 +55,11 @@ namespace moris::gen
         bool depends_on_advs() const override;
 
         /**
-         * Gets the locator nodes of this derived node.
-         * For intersection nodes, these are its parents.
+         * Gets the parent nodes of this intersection node.
          *
-         * @return Locator nodes
+         * @return Parent nodes
          */
-        const Vector< Basis_Node >& get_locator_nodes() const override;
+        const Vector< Basis_Node >& get_parent_nodes() const;
 
         /**
          * Gets if this intersection node can be determined that it is on a specific interface without any field evaluation.

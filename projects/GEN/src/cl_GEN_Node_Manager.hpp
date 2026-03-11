@@ -101,14 +101,10 @@ namespace moris::gen
          *
          * @param aBackgroundNodes Background nodes
          * @param aParametricCoordinates Parametric coordinates inside the background element
-         * @param aGeometryType Geometry type of the background element
-         * @param aInterpolationOrder Interpolation order of the background element
          */
         void create_derived_node(
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aGeometryType,
-                mtk::Interpolation_Order          aInterpolationOrder );
+                const mtk::Cell&        aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
          * Adds a derived node to this manager.

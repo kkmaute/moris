@@ -116,12 +116,10 @@ namespace moris::gen
          * @return New intersection node
          */
         virtual Intersection_Node* create_intersection_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) = 0;
+                const Node_Manager& aNodeManager,
+                const mtk::Cell&    aBackgroundElement,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode ) = 0;
 
         /**
          * Creates a floating node based on the given information.
@@ -134,11 +132,15 @@ namespace moris::gen
          * @return New floating node
          */
         virtual Floating_Node* create_floating_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) = 0;
+                const Node_Manager&     aNodeManager,
+                const mtk::Cell&        aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates ) = 0;
+
+        /**
+         * Used to tell intersection nodes whether to compute sensitivities along their parent vector (default), or in the direction normal to the interface
+         * EXPERIMENTAL: Sensitivities along interface normals are a test function brendan
+         */
+        virtual bool compute_sensitivity_along_edges() = 0;
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh

@@ -240,13 +240,11 @@ namespace moris::gen
          * @return If the edge is intersected and a node has been queued
          */
         bool queue_intersection(
-                uint                     aEdgeFirstNodeIndex,
-                uint                     aEdgeSecondNodeIndex,
-                const Matrix< DDRMat >&  aEdgeFirstNodeParametricCoordinates,
-                const Matrix< DDRMat >&  aEdgeSecondNodeParametricCoordinates,
-                const Matrix< DDUMat >&  aBackgroundElementNodeIndices,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder );
+                uint                    aEdgeFirstNodeIndex,
+                uint                    aEdgeSecondNodeIndex,
+                const Matrix< DDRMat >& aEdgeFirstNodeParametricCoordinates,
+                const Matrix< DDRMat >& aEdgeSecondNodeParametricCoordinates,
+                const mtk::Cell&        aBackgroundElement );
 
         /**
          * Returns if the queued intersection has the first parent node on the active geometry interface.
@@ -335,25 +333,9 @@ namespace moris::gen
          */
         void
         create_floating_node(
-                moris_index              aGeometryIndex,
-                const mtk::Cell&         aParentCell,
-                const Matrix< DDRMat >&  aParametricCoordinates,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder );
-
-        /**
-         * Creates and registers new derived nodes based on the given information.
-         *
-         * @param aVertexIndices Indices of the parent cell
-         * @param aParametricCoordinates Parametric coordinates of each new derived node to create
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
-         */
-        void create_new_derived_nodes(
-                const Vector< Matrix< IndexMat > >& aVertexIndices,
-                const Vector< Matrix< DDRMat > >&   aParametricCoordinates,
-                mtk::Geometry_Type                  aBackgroundGeometryType,
-                mtk::Interpolation_Order            aBackgroundInterpolationOrder );
+                moris_index             aGeometryIndex,
+                const mtk::Cell&        aParentCell,
+                const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
          * Overloaded version of creating derived nodes. Calls other version internally.
@@ -362,7 +344,7 @@ namespace moris::gen
          * @param aParametricCoordinates Parametric coordinates for creating the derived node
          */
         void create_new_derived_nodes(
-                Vector< mtk::Cell* >&                                aNewNodeParentCell,
+                const Vector< mtk::Cell* >&                          aNewNodeParentCell,
                 const Vector< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
 
         /**

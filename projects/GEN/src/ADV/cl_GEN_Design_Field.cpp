@@ -26,6 +26,7 @@ namespace moris::gen
             , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
             , mUseMultilinearInterpolation( aParameterList.get< bool >( "use_multilinear_interpolation" ) )
             , mDelaunay( aParameterList.get< bool >( "delaunay" ) )
+            , mComputeSensitivitiesAlongEdges( aParameterList.get< bool >( "compute_sensitivities_along_edges" ) )
     {
     }
 
@@ -111,6 +112,42 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    real Design_Field::get_field_value( const Node& aNode ) const
+    {
+        const uint              tIndex       = aNode.get_index();
+        const Matrix< DDRMat >& tCoordinates = aNode.get_global_coordinates();
+
+        if ( mNodeManager->is_background_node( tIndex ) )
+        {
+            // Get background node field value
+            return mField->get_field_value( tIndex, tCoordinates );
+        }
+        else
+        {
+            // Get derived node
+            const Node_Manager& tNodeManager = *mNodeManager;
+            const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( tIndex );
+
+            // Determine how to perform interpolation
+            if ( mParameters.mUseMultilinearInterpolation )
+            {
+                // If we use multilinear interpolation, it is needed for all derived nodes
+                return mField->get_interpolated_field_value(
+                        tDerivedNode.get_locator_nodes(),
+                        tNodeManager );
+            }
+            else
+            {
+                // Let field decide the value
+                return mField->get_field_value(
+                        tDerivedNode,
+                        tNodeManager );
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Design_Field::get_field_value(
             const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates ) const
@@ -131,7 +168,7 @@ namespace moris::gen
             {
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 return mField->get_interpolated_field_value(
-                        tDerivedNode.get_background_nodes(),
+                        tDerivedNode.get_locator_nodes(),
                         tNodeManager );
             }
             else
@@ -170,7 +207,7 @@ namespace moris::gen
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 mField->append_interpolated_dfield_dadvs(
                         mInterpolatedSensitivities,
-                        tDerivedNode.get_background_nodes(),
+                        tDerivedNode.get_locator_nodes(),
                         tNodeManager );
             }
             else
@@ -213,7 +250,7 @@ namespace moris::gen
                 // If we use multilinear interpolation, it is needed for all derived nodes
                 mField->append_interpolated_determining_adv_ids(
                         mInterpolatedADVIDs,
-                        tDerivedNode.get_background_nodes(),
+                        tDerivedNode.get_locator_nodes(),
                         tNodeManager );
             }
             else

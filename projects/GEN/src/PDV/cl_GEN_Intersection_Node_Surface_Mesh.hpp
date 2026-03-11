@@ -43,14 +43,13 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Intersection_Node_Surface_Mesh(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                std::pair< uint, real >           aLocalCoordinate,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-                Surface_Mesh_Geometry&            aInterfaceGeometry );
+                uint                    aNodeIndex,
+                const mtk::Cell&        aBackgroundElement,
+                const Node_Manager&     aNodeManager,
+                const Parent_Node&      aFirstParentNode,
+                const Parent_Node&      aSecondParentNode,
+                std::pair< uint, real > aLocalCoordinate,
+                Surface_Mesh_Geometry&  aInterfaceGeometry );
 
       protected:
         /**

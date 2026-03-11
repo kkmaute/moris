@@ -35,20 +35,19 @@ namespace moris::gen
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * @param aBackgroundNodes Background nodes of the element where this node resides
+         * brendan documentation, like everywhere
          * @param aParametricCoordinates Parametric coordinates inside the background element
          * @param aBackgroundGeometryType Background element geometry type
          * @param aBackgroundInterpolationOrder Background element interpolation order
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Floating_Node_Surface_Mesh(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                uint                              aParentVertex,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-                Surface_Mesh_Geometry&            aInterfaceGeometry );
+                uint                    aNodeIndex,
+                const mtk::Cell&        aBackgroundElement,
+                const Node_Manager&     aNodeManager,
+                const Matrix< DDRMat >& aParametricCoordinates,
+                uint                    aParentVertex,
+                Surface_Mesh_Geometry&  aInterfaceGeometry );
 
       protected:
         /**

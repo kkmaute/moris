@@ -8,6 +8,7 @@
  *
  */
 
+#include "cl_GEN_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
 #include "cl_GEN_Parent_Node.hpp"
 
@@ -57,9 +58,16 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Basis_Node >& Basis_Node::get_locator_nodes() const
+    Vector< Basis_Node > Basis_Node::get_locator_nodes() const
     {
         return mNode.get_locator_nodes();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< Basis_Node > Basis_Node::get_field_basis_nodes() const
+    {
+        return mNode.get_field_basis_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -87,4 +95,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

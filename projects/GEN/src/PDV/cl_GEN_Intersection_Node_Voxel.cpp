@@ -18,21 +18,19 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node_Voxel::Intersection_Node_Voxel(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-            Voxel_Geometry&                   aInterfaceGeometry )
+            uint                aNodeIndex,
+            const mtk::Cell&    aBackgroundElement,
+            const Node_Manager& aNodeManager,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode,
+            Voxel_Geometry&     aInterfaceGeometry )
             : Intersection_Node(
-                    aNodeIndex,
-                    aBackgroundNodes,
-                    aFirstParentNode,
-                    aSecondParentNode,
-                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder )
+                      aNodeIndex,
+                      aBackgroundElement,
+                      aNodeManager,
+                      aFirstParentNode,
+                      aSecondParentNode,
+                      aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundElement, aFirstParentNode, aSecondParentNode ) )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }

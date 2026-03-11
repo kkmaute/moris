@@ -11,6 +11,10 @@
 #pragma once
 
 #include "cl_GEN_Node.hpp"
+#include "cl_GEN_Basis_Node.hpp"
+
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Interpolation_Function.hpp"
 
 namespace moris::mtk
 {
@@ -24,14 +28,17 @@ namespace moris::gen
     class Background_Node;
     class Basis_Node;
     class Geometry;
+    class Node_Manager;
 
     class Derived_Node : public Node
     {
       private:
-        Vector< Basis_Node > mBackgroundNodes;
-        Matrix< DDRMat >     mGlobalCoordinates;
-        Matrix< DDRMat >     mParametricCoordinates;
-        static inline bool   gOverrideLinearInterpolation = false;
+        // Vector< Basis_Node > mBackgroundNodes; // brendan delete
+        const mtk::Cell&    mBackgroundElement;
+        const Node_Manager& mNodeManager;
+        Matrix< DDRMat >    mGlobalCoordinates;
+        Matrix< DDRMat >    mParametricCoordinates;
+        static inline bool  gOverrideLinearInterpolation = false;
 
       public:
         /**
@@ -44,11 +51,15 @@ namespace moris::gen
          * @param aInterpolationOrder Interpolation order of the background element
          */
         Derived_Node(
-                uint                              aIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aGeometryType,
-                mtk::Interpolation_Order          aInterpolationOrder );
+                uint                    aIndex,
+                const mtk::Cell&        aBackgroundElement,
+                const Node_Manager&     aNodeManager,
+                const Matrix< DDRMat >& aParametricCoordinates );
+
+        /**
+         * Destructor
+         */
+        ~Derived_Node();
 
         /**
          * Gets the global coordinates of this node
@@ -77,7 +88,7 @@ namespace moris::gen
          *
          * @return Basis nodes
          */
-        const Vector< Basis_Node >& get_background_nodes() const;
+        Vector< const Background_Node* > get_background_nodes() const;
 
         /**
          * Gets the locator nodes of this derived node.
@@ -86,7 +97,13 @@ namespace moris::gen
          *
          * @return Locator nodes
          */
-        const Vector< Basis_Node >& get_locator_nodes() const override;
+        Vector< Basis_Node > get_locator_nodes() const override;
+
+        /**
+         * Gets the nodes that provided the field values for this basis node to be created. By default, these is the locator nodes.
+         * For linear intersection nodes, these are the parent nodes
+         */
+        Vector< Basis_Node > get_field_basis_nodes() const override;
 
         /**
          * Gets if this derived node can be determined that it is on a specific interface without any field evaluation.

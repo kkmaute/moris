@@ -108,18 +108,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Node_Manager::create_derived_node(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aGeometryType,
-            mtk::Interpolation_Order          aInterpolationOrder )
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         mDerivedNodes.push_back(
                 new Derived_Node(
                         this->get_total_number_of_nodes(),
-                        aBackgroundNodes,
-                        aParametricCoordinates,
-                        aGeometryType,
-                        aInterpolationOrder ) );
+                        aBackgroundElement,
+                        *this,
+                        aParametricCoordinates ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------

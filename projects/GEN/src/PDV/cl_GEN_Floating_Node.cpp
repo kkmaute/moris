@@ -19,17 +19,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node::Floating_Node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            uint                    aNodeIndex,
+            const mtk::Cell&        aBackgroundElement,
+            const Node_Manager&     aNodeManager,
+            const Matrix< DDRMat >& aParametricCoordinates )
             : Derived_Node(
                       aNodeIndex,
-                      aBackgroundNodes,
-                      aParametricCoordinates,
-                      aBackgroundGeometryType,
-                      aBackgroundInterpolationOrder )
+                      aBackgroundElement,
+                      aNodeManager,
+                      aParametricCoordinates )
     {
     }
 

@@ -11,12 +11,10 @@
 #pragma once
 
 #include "cl_Matrix.hpp"
+#include "cl_GEN_Basis_Node.hpp"
 
 namespace moris::gen
 {
-    // Forward declare basis node
-    class Basis_Node;
-
     class Node
     {
       private:
@@ -63,7 +61,13 @@ namespace moris::gen
          *
          * @return Locator nodes
          */
-        virtual const Vector< Basis_Node >& get_locator_nodes() const = 0;
+        virtual Vector< Basis_Node > get_locator_nodes() const = 0;
+
+        /**
+         * Gets the nodes that provided the field values for this basis node to be created. By default, these is the locator nodes.
+         * For linear intersection nodes, these are the parent nodes
+         */
+        virtual Vector< Basis_Node > get_field_basis_nodes() const = 0;
 
         /**
          * Gets if this node's position depends on ADVs.
@@ -89,4 +93,4 @@ namespace moris::gen
          */
         virtual Vector< sint > get_coordinate_determining_adv_ids() const;
     };
-}
+}    // namespace moris::gen

@@ -128,31 +128,26 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Voxel_Geometry::create_intersection_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager& aNodeManager,
+            const mtk::Cell&    aBackgroundElement,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode )
     {
         return new Intersection_Node_Voxel(
-                aNodeIndex,
-                aBackgroundNodes,
+                aNodeManager.get_total_number_of_nodes(),
+                aBackgroundElement,
+                aNodeManager,
                 aFirstParentNode,
                 aSecondParentNode,
-                aBackgroundGeometryType,
-                aBackgroundInterpolationOrder,
                 *this );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node* Voxel_Geometry::create_floating_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager&     aNodeManager,
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         MORIS_ERROR( false, "Voxel_Geometry::create_floating_node - Floating nodes not yet implemented for voxel geometry." );
         return nullptr;
@@ -160,10 +155,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Voxel_Geometry::compute_sensitivity_along_edges()
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Voxel_Geometry::compute_intersection_local_coordinate(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode )
+            const mtk::Cell&   aBackgroundElement,
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode )
     {
         // Get parent geometric regions
         Geometric_Region tFirstParentGeometricRegion  = this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );

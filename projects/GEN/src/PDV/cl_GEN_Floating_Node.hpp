@@ -33,19 +33,16 @@ namespace moris::gen
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * @param aBackgroundNodes Background nodes of the element where this node resides
-         * @param aFirstParentNode First parent node information
-         * @param aSecondParentNode Second parent node information
+         * brendan documentation, like everywhere
          * @param aBackgroundGeometryType Background element geometry type
          * @param aBackgroundInterpolationOrder Background element interpolation order
          * @param aInterfaceGeometry Interface geometry
          */
         Floating_Node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aGeometryType,
-                mtk::Interpolation_Order          aInterpolationOrder );
+                uint                    aNodeIndex,
+                const mtk::Cell&        aBackgroundElement,
+                const Node_Manager&     aNodeManager,
+                const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.

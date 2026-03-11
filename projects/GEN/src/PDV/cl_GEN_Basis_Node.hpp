@@ -9,19 +9,20 @@
  */
 
 #pragma once
-
-#include "cl_GEN_Node.hpp"
+#include "cl_Matrix.hpp"
+#include "cl_Vector.hpp"
 
 namespace moris::gen
 {
     // Forward declare parent node
     class Parent_Node;
+    class Node;
 
     class Basis_Node
     {
       private:
         const Node& mNode;
-        real mBasis;
+        real        mBasis;
 
       public:
         /**
@@ -66,11 +67,18 @@ namespace moris::gen
         real get_basis() const;
 
         /**
-         * Gets the locator nodes of the underlying node.
+         * Gets the locator nodes of the underlying node. These are all nodes from the background element that are used to locate the node.
+         * For bilinear intersection nodes, these are only the corner nodes, no matter the background element's interpolation order.
          *
          * @return Locator nodes
          */
-        const Vector< Basis_Node >& get_locator_nodes() const;
+        Vector< Basis_Node > get_locator_nodes() const;
+
+        /**
+         * Gets the nodes that provided the field values for this basis node to be created. By default, these is the locator nodes.
+         * For linear intersection nodes, these are the parent nodes
+         */
+        Vector< Basis_Node > get_field_basis_nodes() const;
 
         /**
          * Gets if the underlying node's position depends on ADVs.
@@ -96,4 +104,4 @@ namespace moris::gen
          */
         Vector< sint > get_coordinate_determining_adv_ids() const;
     };
-}
+}    // namespace moris::gen

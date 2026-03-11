@@ -94,7 +94,7 @@ namespace moris::gen
             else
             {
                 // Get locators
-                const Vector< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
+                const Vector< Basis_Node >& tLocators = tDerivedNode.get_field_basis_nodes();
 
                 // If we only have 2 locators, can use special logic if at least one node is on the interface
                 if ( tLocators.size() == 2 )
@@ -139,35 +139,31 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager& aNodeManager,
+            const mtk::Cell&    aBackgroundElement,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode )
     {
         if ( this->use_multilinear_interpolation() )
         {
             // Create multilinear intersection node
             return new Intersection_Node_Bilinear(
-                    aNodeIndex,
-                    aBackgroundNodes,
+                    aNodeManager.get_total_number_of_nodes(),
+                    aBackgroundElement,
+                    aNodeManager,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
                     *this );
         }
         else
         {
             // Create linear intersection node
             return new Intersection_Node_Linear(
-                    aNodeIndex,
-                    aBackgroundNodes,
+                    aNodeManager.get_total_number_of_nodes(),
+                    aBackgroundElement,
+                    aNodeManager,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
                     *this );
         }
     }
@@ -175,11 +171,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node* Level_Set_Geometry::create_floating_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager&     aNodeManager,
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         MORIS_ERROR( false, "Level_Set_Geometry::create_floating_node - Floating nodes not yet implemented for level set geometry." );
         return nullptr;
@@ -187,10 +181,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Level_Set_Geometry::compute_sensitivity_along_edges()
+    {
+        return mParameters.mComputeSensitivitiesAlongEdges;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Level_Set_Geometry::compute_intersection_local_coordinate(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode )
+            const mtk::Cell&   aBackgroundElement,
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode )
     {
         // If either parent node is on the interface, we can skip the entire intersection procedure and return the local coordinates of the parent nodes
         bool tFirstParentOnInterface  = ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
@@ -260,12 +261,12 @@ namespace moris::gen
             // allocate matrix for level set values at background cell nodes
             Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
+            Matrix< IndexMat > tBackgroundNodeIndices = aBackgroundElement.get_vertex_inds();
+
             // get level set values of corner nodes
             for ( uint iBackgroundNode = 0; iBackgroundNode < tNumBases; ++iBackgroundNode )
             {
-                tPhiBCNodes( iBackgroundNode ) = this->get_field_value(
-                        aBackgroundNodes( iBackgroundNode )->get_index(),
-                        aBackgroundNodes( iBackgroundNode )->get_global_coordinates() );
+                tPhiBCNodes( iBackgroundNode ) = this->get_field_value( mNodeManager->get_background_node( tBackgroundNodeIndices( iBackgroundNode ) ) );
             }
 
             // Scale element level set field such that norm equals 1.0
@@ -455,7 +456,7 @@ namespace moris::gen
             // print debug information
             // for ( uint in = 0; in < tNumBases; ++in )
             // {
-            //     std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
+            //     std::string tStrg = "Ancestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
             //     print( aAncestorNodeCoordinates( in ), tStrg );
             // }
 
@@ -508,7 +509,7 @@ namespace moris::gen
         else
         {
             // Get parents
-            const Vector< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
+            Vector< Basis_Node > tParentNodes = aParentNode.get_field_basis_nodes();
 
             MORIS_ASSERT( tParentNodes.size() == 2,
                     "Level_Set_Geometry::get_dfield_dcoordinates - Linear interpolation expects 2 parent nodes, but got %ld.",
@@ -532,6 +533,86 @@ namespace moris::gen
             {
                 aSensitivities( tCoordinateIndex ) = tDeltaPhi * tParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
             }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::get_dfield_dcoordinates(
+            const Derived_Node& aDerivedNode,
+            Matrix< DDRMat >&   aSensitivities )
+    {
+        // Matrix< DDRMat >      tGradients;
+        // Vector< moris_index > tCoefficients;
+
+        // this->get_mtk_field()->get_derivatives_of_field_value( tGradients, tCoefficients, aDerivedNode.get_index(), 0 );
+
+        // Get the background nodes (they are Basis_Node objects because this is a derived node, the basis just stores the basis value)
+        Vector< const Background_Node* > tBackgroundNodes = aDerivedNode.get_background_nodes();
+
+        // Get the parametric coordinates of the derived node within its background element
+        const Matrix< DDRMat >& tParametricCoords = aDerivedNode.get_parametric_coordinates();
+        uint                    tNumDims          = tParametricCoords.length();
+
+        // Compute the spatial jacobian
+        Matrix< DDRMat > tJacobian( tNumDims, tNumDims );
+
+        // Build interpolator
+        mtk::Interpolation_Function_Factory tFactory;
+        mtk::Interpolation_Function_Base*   tInterpolation;
+
+        // create interpolation function based on spatial dimension of problem
+        switch ( tNumDims )
+        {
+            case 2:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::QUAD,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+
+                tJacobian( 0, 0 ) = 2.0 * tBackgroundNodes( 2 )->get_global_coordinates()( 0 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 0 );
+                tJacobian( 1, 1 ) = 2.0 * tBackgroundNodes( 2 )->get_global_coordinates()( 1 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 1 );
+                break;
+            }
+            case 3:
+            {
+                tInterpolation = tFactory.create_interpolation_function(
+                        mtk::Geometry_Type::HEX,
+                        mtk::Interpolation_Type::LAGRANGE,
+                        mtk::Interpolation_Order::LINEAR );
+
+                tJacobian( 0, 0 ) = 2.0 * tBackgroundNodes( 0 )->get_global_coordinates()( 0 ) - tBackgroundNodes( 2 )->get_global_coordinates()( 0 );
+                tJacobian( 1, 1 ) = 2.0 * tBackgroundNodes( 2 )->get_global_coordinates()( 1 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 1 );
+                tJacobian( 2, 2 ) = 2.0 * tBackgroundNodes( 4 )->get_global_coordinates()( 2 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 2 );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false,
+                        "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
+            }
+        }
+
+        // Get the derivative of all the basis functions
+        Matrix< DDRMat > tBasisGradXi;
+        tInterpolation->eval_dNdXi( tParametricCoords, tBasisGradXi );
+        uint tNumBases = tBasisGradXi.n_cols();
+
+        // Initialize output
+        aSensitivities.resize( tNumDims, 1 );
+        aSensitivities.fill( 0.0 );
+
+        // Loop through the bases
+        for ( uint iBasis = 0; iBasis < tNumBases; iBasis++ )
+        {
+            // Get the field value at this node
+            real tPhiBasis = this->get_field_value( tBackgroundNodes( iBasis )->get_index(), tBackgroundNodes( iBasis )->get_global_coordinates() );
+
+            // Get the background node coordinates
+            Matrix< DDRMat > tCoords = tBackgroundNodes( iBasis )->get_global_coordinates();
+
+            aSensitivities += tJacobian * tBasisGradXi.get_column( iBasis ) * tPhiBasis;
         }
     }
 

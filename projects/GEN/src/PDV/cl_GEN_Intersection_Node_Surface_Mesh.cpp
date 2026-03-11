@@ -21,22 +21,20 @@
 namespace moris::gen
 {
     Intersection_Node_Surface_Mesh::Intersection_Node_Surface_Mesh(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            std::pair< uint, real >           aIntersection,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-            Surface_Mesh_Geometry&            aInterfaceGeometry )
+            uint                    aNodeIndex,
+            const mtk::Cell&        aBackgroundElement,
+            const Node_Manager&     aNodeManager,
+            const Parent_Node&      aFirstParentNode,
+            const Parent_Node&      aSecondParentNode,
+            std::pair< uint, real > aIntersection,
+            Surface_Mesh_Geometry&  aInterfaceGeometry )
             : Intersection_Node(
                       aNodeIndex,
-                      aBackgroundNodes,
+                      aBackgroundElement,
+                      aNodeManager,
                       aFirstParentNode,
                       aSecondParentNode,
-                      aIntersection.second,
-                      aBackgroundGeometryType,
-                      aBackgroundInterpolationOrder )
+                      aIntersection.second )
             , mParentFacet( aIntersection.first )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
@@ -127,42 +125,38 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Surface_Mesh::compute_dxi_dfacet() const
     {
-        // Get the parent vector and its norm from the intersection node
-        Matrix< DDRMat > tParentVector     = this->get_second_parent_node().get_global_coordinates() - this->get_first_parent_node().get_global_coordinates();
-        real             tParentVectorNorm = norm( tParentVector );
+        const Matrix< DDRMat >& tFirstParentCoords  = this->get_first_parent_node().get_global_coordinates();
+        const Matrix< DDRMat >& tSecondParentCoords = this->get_second_parent_node().get_global_coordinates();
 
-        // Get the rotation matrix from the intersection node
-        Matrix< DDRMat > tRotationMatrix = this->get_rotation_matrix();
-
-        // Get the facet vertices
-        Matrix< DDRMat > tVertexCoordinates = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet );
-
-        // get the normal vector rotated in the local coordinate frame
-        Matrix< DDRMat > tNormalPrime = tRotationMatrix * mInterfaceGeometry.get_facet_normal( mParentFacet );
-
-        // get the center vector in the local coordinate frame
-        Matrix< DDRMat > tCenterPrime = 2.0 / tParentVectorNorm * tRotationMatrix * ( mInterfaceGeometry.get_facet_center( mParentFacet ) - trans( this->get_first_parent_node().get_global_coordinates() ) );
-
-        // get the jacobian of the center vector wrt to the facet vertices (same for all vertices)
-        Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_spatial_dimension() * tParentVectorNorm ) * tRotationMatrix;
-
-        // get the jacobians of the normal vector wrt to the facet vertices
-        Vector< Matrix< DDRMat > > tNormalVectorSensitivities( mInterfaceGeometry.get_spatial_dimension() );
         switch ( mInterfaceGeometry.get_spatial_dimension() )
         {
-            case 2:    // 2D surface mesh
+            case 2:
             {
-                // magnitude of the normal vector
-                real tNormalVectorNorm = norm( tVertexCoordinates.get_column( 1 ) - tVertexCoordinates.get_column( 0 ) );
-
-                tNormalVectorSensitivities( 0 ) = { { ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ), -1.0 * std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
-                tNormalVectorSensitivities( 1 ) = { { ( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ) ) * ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ), std::pow( tVertexCoordinates( 0, 1 ) - tVertexCoordinates( 0, 0 ), 2.0 ) }, { -1.0 * std::pow( tVertexCoordinates( 1, 1 ) - tVertexCoordinates( 1, 0 ), 2.0 ), ( tVertexCoordinates( 0, 0 ) - tVertexCoordinates( 0, 1 ) ) * ( tVertexCoordinates( 1, 0 ) - tVertexCoordinates( 1, 1 ) ) } };
-                tNormalVectorSensitivities( 0 ) = tRotationMatrix / std::pow( tNormalVectorNorm, 3.0 ) * tNormalVectorSensitivities( 0 );
-                tNormalVectorSensitivities( 1 ) = tRotationMatrix / std::pow( tNormalVectorNorm, 3.0 ) * tNormalVectorSensitivities( 1 );
-                break;
+                return mInterfaceGeometry.compute_draycast_dvertices( tFirstParentCoords, tSecondParentCoords - tFirstParentCoords, mParentFacet );
             }
-            case 3:    // 3D surface mesh
+            case 3:
             {
+                // Get the parent vector and its norm from the intersection node
+                Matrix< DDRMat > tParentVector     = tSecondParentCoords - tFirstParentCoords;
+                real             tParentVectorNorm = norm( tParentVector );
+
+                // Get the rotation matrix from the intersection node
+                Matrix< DDRMat > tRotationMatrix = this->get_rotation_matrix();
+
+                // Get the facet vertices
+                Matrix< DDRMat > tVertexCoordinates = mInterfaceGeometry.get_all_vertex_coordinates_of_facet( mParentFacet );
+
+                // get the normal vector rotated in the local coordinate frame
+                Matrix< DDRMat > tNormalPrime = tRotationMatrix * mInterfaceGeometry.get_facet_normal( mParentFacet );
+
+                // get the center vector in the local coordinate frame
+                Matrix< DDRMat > tCenterPrime = 2.0 / tParentVectorNorm * tRotationMatrix * ( mInterfaceGeometry.get_facet_center( mParentFacet ) - trans( this->get_first_parent_node().get_global_coordinates() ) );
+
+                // get the jacobian of the center vector wrt to the facet vertices (same for all vertices)
+                Matrix< DDRMat > tdCenterdVertices = 2.0 / ( (real)mInterfaceGeometry.get_spatial_dimension() * tParentVectorNorm ) * tRotationMatrix;
+
+                // get the jacobians of the normal vector wrt to the facet vertices
+                Vector< Matrix< DDRMat > > tNormalVectorSensitivities( mInterfaceGeometry.get_spatial_dimension() );
                 Vector< Matrix< DDRMat > > tNormalVectorNormSensitivity( mInterfaceGeometry.get_spatial_dimension() );
 
                 // Compute the normal vector (not unit)
@@ -187,21 +181,25 @@ namespace moris::gen
                 {
                     tNormalVectorSensitivities( iDimension ) = tRotationMatrix * tInverseNormalVectorNorm * ( tNormalVectorSensitivities( iDimension ) - mInterfaceGeometry.get_facet_normal( mParentFacet ) * tInverseNormalVectorNorm * tNormalVectorNormSensitivity( iDimension ) );
                 }
-                break;
+
+                // Compute the local coordinate sensitivity wrt the facet vertices
+                Matrix< DDRMat > tdXidFacet( mInterfaceGeometry.get_spatial_dimension(), mInterfaceGeometry.get_spatial_dimension() );
+                for ( uint iDimension = 0; iDimension < mInterfaceGeometry.get_spatial_dimension(); iDimension++ )
+                {
+                    tdXidFacet.set_column( iDimension,
+                            trans( tNormalVectorSensitivities( iDimension ) ) * tCenterPrime / tNormalPrime( 0 )
+                                    + trans( tdCenterdVertices ) * tNormalPrime / tNormalPrime( 0 )
+                                    - dot( tCenterPrime, tNormalPrime ) * trans( tNormalVectorSensitivities( iDimension ).get_row( 0 ) ) / std::pow( tNormalPrime( 0 ), 2.0 ) );
+                }
+
+                return tdXidFacet;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Intersection_Node_Surface_Mesh::compute_dxi_dfacet: Unsupported spatial dimension." );
+                return Matrix< DDRMat >( 0, 0 );
             }
         }
-
-        // Compute the local coordinate sensitivity wrt the facet vertices
-        Matrix< DDRMat > tdXidFacet( mInterfaceGeometry.get_spatial_dimension(), mInterfaceGeometry.get_spatial_dimension() );
-        for ( uint iDimension = 0; iDimension < mInterfaceGeometry.get_spatial_dimension(); iDimension++ )
-        {
-            tdXidFacet.set_column( iDimension,
-                    trans( tNormalVectorSensitivities( iDimension ) ) * tCenterPrime / tNormalPrime( 0 )
-                            + trans( tdCenterdVertices ) * tNormalPrime / tNormalPrime( 0 )
-                            - dot( tCenterPrime, tNormalPrime ) * trans( tNormalVectorSensitivities( iDimension ).get_row( 0 ) ) / std::pow( tNormalPrime( 0 ), 2.0 ) );
-        }
-
-        return tdXidFacet;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -228,8 +226,8 @@ namespace moris::gen
         {
             if ( mInterfaceGeometry.facet_vertex_depends_on_advs( iParentFacetVertexIndex ) )
             {
-                Matrix< DDRMat > tSensitivitiesToAdd = .5 * aSensitivityFactor * tParentVector *    //
-                                                       ( trans( tLocalCoordinateFacetVertexSensitivities.get_column( tLocalFacetVertexIndex ) ) * mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex ) );
+                Matrix< DDRMat > tSensitivitiesToAdd = aSensitivityFactor * tParentVector *    //
+                                                       ( tLocalCoordinateFacetVertexSensitivities.get_row( tLocalFacetVertexIndex ) * mInterfaceGeometry.get_dvertex_dadv( iParentFacetVertexIndex ) );
 
                 // Resize sensitivities
                 uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();

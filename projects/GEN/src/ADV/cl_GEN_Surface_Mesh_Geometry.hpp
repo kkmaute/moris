@@ -154,7 +154,7 @@ namespace moris::gen
         bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
-        Node_Manager*           mNodeManager;
+        const Node_Manager*     mNodeManager;
 
         // Optimization variables
         ADV_Handler                    mADVHandler;
@@ -203,7 +203,12 @@ namespace moris::gen
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Surface_Mesh_Geometry( Surface_Mesh_Parameters aParameters, Node_Manager& aNodeManager, const Vector< ADV >& aADVs, ADV_Manager& aADVManager, std::shared_ptr< Library_IO > aLibrary = nullptr );
+        Surface_Mesh_Geometry(
+                Surface_Mesh_Parameters       aParameters,
+                const Node_Manager&           aNodeManager,
+                const Vector< ADV >&          aADVs,
+                ADV_Manager&                  aADVManager,
+                std::shared_ptr< Library_IO > aLibrary = nullptr );
 
         // ----------------------------------------------------------------------------------------------------------------
         // FORWARD ANALYSIS FUNCTIONS
@@ -250,12 +255,10 @@ namespace moris::gen
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager& aNodeManager,
+                const mtk::Cell&    aBackgroundElement,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode ) override;
 
         /**
          * Creates a floating node based on the given information.
@@ -268,11 +271,15 @@ namespace moris::gen
          * @return New floating node
          */
         Floating_Node* create_floating_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager&     aNodeManager,
+                const mtk::Cell&        aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates ) override;
+
+        /**
+         * Flag to tell intersection nodes whether to compute sensitivities along their parent vector (default), or in the direction normal to the interface. This is an experimental function that is being tested by brendan.
+         * EXPERIMENTAL: Sensitivities along interface normals are a test function brendan
+         */
+        bool compute_sensitivity_along_edges() override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
@@ -285,9 +292,9 @@ namespace moris::gen
          */
         std::pair< uint, real >
         compute_intersection_local_coordinate(
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode );
+                const mtk::Cell&   aBackgroundElement,
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
 
         /**
          * Takes a ray and its intersections and determines what the local coordinate of the intersection is.
@@ -660,7 +667,7 @@ namespace moris::gen
          * @param aBasis Return value. The basis functions at the point.
          */
         Matrix< DDRMat > compute_vertex_basis(
-                const mtk::Cell*        aBackgroundElement,
+                const mtk::Cell&        aBackgroundElement,
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**

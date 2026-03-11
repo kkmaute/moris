@@ -150,11 +150,8 @@ namespace moris::gen
             {
                 // Node indices per element
                 Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( iElementIndex );
-                Matrix< DDUMat >   tNodeIndices( 4, 1 );
-                for ( uint iNode = 0; iNode < 4; iNode++ )
-                {
-                    tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
-                }
+
+                mtk::Cell& tCell = tMesh->get_mtk_cell( iElementIndex );
 
                 for ( uint iNodeNumber = 0; iNodeNumber < 4; iNodeNumber++ )
                 {
@@ -173,9 +170,7 @@ namespace moris::gen
                                 tSignedNodeIndices( ( iNodeNumber + 1 ) % 4 ),
                                 tQuadParametricCoordinates( iNodeNumber ),
                                 tQuadParametricCoordinates( ( iNodeNumber + 1 ) % 4 ),
-                                tNodeIndices,
-                                mtk::Geometry_Type::QUAD,
-                                mtk::Interpolation_Order::LINEAR );
+                                tCell );
 
                         // Check that the query was successful
                         CHECK( tQueryIntersected == tIsEdgeIntersected( iElementIndex )( iNodeNumber ) );
@@ -282,11 +277,8 @@ namespace moris::gen
         {
             // Node indices per element
             Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( iElementIndex );
-            Matrix< DDUMat >   tNodeIndices( 8, 1 );
-            for ( uint iNode = 0; iNode < 8; iNode++ )
-            {
-                tNodeIndices( iNode ) = tSignedNodeIndices( iNode );
-            }
+
+            mtk::Cell& tCell = tMesh->get_mtk_cell( iElementIndex );
 
             for ( uint iEdgeNumber = 0; iEdgeNumber < 12; iEdgeNumber++ )
             {
@@ -306,9 +298,7 @@ namespace moris::gen
                             tSignedNodeIndices( tEdgeOrder( iEdgeNumber )( 1 ) ),
                             tHexParametricCoordinates( tEdgeOrder( iEdgeNumber )( 0 ) ),
                             tHexParametricCoordinates( tEdgeOrder( iEdgeNumber )( 1 ) ),
-                            tNodeIndices,
-                            mtk::Geometry_Type::HEX,
-                            mtk::Interpolation_Order::LINEAR );
+                            tCell );
 
                     // Check that the query was successful
                     CHECK( tQueryIntersected == tIsEdgeIntersected( iElementIndex )( iEdgeNumber ) );
