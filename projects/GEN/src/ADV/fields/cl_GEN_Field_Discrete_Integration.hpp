@@ -21,7 +21,6 @@ namespace moris::gen
         mtk::Mesh_Pair mMeshPair;
 
       public:
-
         /**
          * Constructor using created ADVs.
          *
@@ -124,7 +123,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Vector< sint >&   aDeterminingADVIDs,
+                Vector< sint >&     aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) final;
 
@@ -156,4 +155,4 @@ namespace moris::gen
          */
         std::shared_ptr< mtk::Field > get_mtk_field() override;
     };
-}
+}    // namespace moris::gen
