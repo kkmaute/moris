@@ -203,12 +203,12 @@ namespace moris::prm
     static void insert_design_field_parameters( Parameter_List& aDesignParameterList, gen::Field_Type aFieldType )
     {
         insert_field_parameters( aDesignParameterList, aFieldType );
-        aDesignParameterList.insert( "discretization_mesh_index", -2 );               // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
-        aDesignParameterList.insert( "discretization_lower_bound", -1.0 );            // Lower bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );             // Upper bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "use_multilinear_interpolation", false );        // Whether to use multilinear interpolation for derived node field values
-        aDesignParameterList.insert( "compute_sensitivities_along_edges", false );    // Whether sensitivities are computed along mesh edges or along the LS gradient direction
-        aDesignParameterList.insert( "delaunay", false );                             // Whether to use Delaunay triangulation for geometry
+        aDesignParameterList.insert( "discretization_mesh_index", -2 );              // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
+        aDesignParameterList.insert( "discretization_lower_bound", -1.0 );           // Lower bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );            // Upper bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "use_multilinear_interpolation", false );       // Whether to use multilinear interpolation for derived node field values
+        aDesignParameterList.insert( "compute_sensitivities_along_edges", true );    // Whether sensitivities are computed along mesh edges or along the LS gradient direction
+        aDesignParameterList.insert( "delaunay", false );                            // Whether to use Delaunay triangulation for geometry
     }
 
     /**
