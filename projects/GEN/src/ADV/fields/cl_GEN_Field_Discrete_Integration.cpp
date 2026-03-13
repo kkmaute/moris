@@ -112,7 +112,7 @@ namespace moris::gen
             const Matrix< DDRMat >& aCoordinates,
             Matrix< DDRMat >&       aSensitivities )
     {
-        MORIS_ERROR( false, "Discrete dfield_dcoordinates is right now only handled by the level set geometry." );
+        MORIS_ERROR( false, "Discrete dfield_dcoordinates is currently only implemented for derived nodes." );
     }
 
     //--------------------------------------------------------------------------------------------------------------

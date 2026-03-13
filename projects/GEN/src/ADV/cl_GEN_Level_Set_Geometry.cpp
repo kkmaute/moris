@@ -93,7 +93,7 @@ namespace moris::gen
             }
             else
             {
-                // Get locators
+                // Get locators (parent nodes if this node is an intersection node, corner nodes otherwise)
                 const Vector< Basis_Node >& tLocators = tDerivedNode.get_field_basis_nodes();
 
                 // If we only have 2 locators, can use special logic if at least one node is on the interface
