@@ -117,7 +117,7 @@ namespace moris::gen
                         tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
 
                 // Compute the sensitivities to add for this ancestor
-                tSensitivitiesToAdd = tBasis * tInvGradxMag2 * tGradx * tFieldSensitivities;
+                tSensitivitiesToAdd = -tBasis * tInvGradxMag2 * tGradx * tFieldSensitivities;
 
                 // Resize sensitivities
                 uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
