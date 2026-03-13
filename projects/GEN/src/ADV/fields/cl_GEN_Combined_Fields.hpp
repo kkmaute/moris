@@ -92,6 +92,17 @@ namespace moris::gen
                 Matrix< DDRMat >&       aSensitivities ) override;
 
         /**
+         * Given a derived node, returns a vector of the field derivatives with respect to the nodal coordinates.
+         * Used for computing sensitivities at intersection nodes if we choose not to compute them along edges
+         *
+         * @param aDerivedNode Derived node
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        virtual void get_dfield_dcoordinates(
+                const Derived_Node& aDerivedNode,
+                Matrix< DDRMat >&   aSensitivities ) override;
+
+        /**
          * Gets the IDs of ADVs which this field depends on for evaluations.
          *
          * @param aNodeIndex Node index
@@ -110,7 +121,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Vector< sint >&   aDeterminingADVIDs,
+                Vector< sint >&     aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) override;
 

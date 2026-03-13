@@ -71,5 +71,10 @@ namespace moris::gen
          * @return Local coordinate sensitivity
          */
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
+
+        /**
+         * Override the locator node interpolation order to be bilinear for intersection nodes, even if the background element has a higher interpolation order
+         */
+        mtk::Interpolation_Order get_locator_interpolation_order() const override;
     };
 }    // namespace moris::gen

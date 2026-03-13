@@ -48,45 +48,6 @@ namespace moris::gen
 
         if ( mInterfaceGeometry.compute_sensitivity_along_edges() )
         {
-            MORIS_ERROR( false, "append_dcoordinate_dadv is not implemented for edge-based sensitivities yet." );
-
-            // Compute the level set gradient at the intersection node
-            Matrix< DDRMat > tGradx;
-            mInterfaceGeometry.get_dfield_dcoordinates( *this, tGradx );
-            real tInvGradxMag2 = 1.0 / dot( tGradx, tGradx );
-
-            // Get level set/ancestor node sensitivity values from ancestors
-            for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
-            {
-                // Get the basis
-                real tBasis = tFieldBasisNodes( iFieldBasisNode ).get_basis();
-
-                // Get geometry field sensitivity with respect to ADVs
-                const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs(
-                        tFieldBasisNodes( iFieldBasisNode ).get_index(),
-                        tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
-
-                // Compute the sensitivities to add for this ancestor
-                tSensitivitiesToAdd = tBasis * tFieldSensitivities * tInvGradxMag2 * tGradx;
-
-                // Resize sensitivities
-                uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
-                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
-
-                // Join sensitivities
-                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
-                {
-                    for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
-                    {
-                        aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
-                                tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
-                    }
-                }
-            }
-        }
-        else
-        {
             // Get parent nodes
             const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
             const Basis_Node& tSecondParentNode = this->get_second_parent_node();
@@ -137,6 +98,43 @@ namespace moris::gen
                 tSecondParentNode.append_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
             }
         }
+        else
+        {
+            // Compute the level set gradient at the intersection node
+            Matrix< DDRMat > tGradx;
+            mInterfaceGeometry.get_dfield_dcoordinates( *this, tGradx );
+            real tInvGradxMag2 = 1.0 / dot( tGradx, tGradx );
+
+            // Get level set/ancestor node sensitivity values from ancestors
+            for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+            {
+                // Get the basis
+                real tBasis = tFieldBasisNodes( iFieldBasisNode ).get_basis();
+
+                // Get geometry field sensitivity with respect to ADVs
+                const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs(
+                        tFieldBasisNodes( iFieldBasisNode ).get_index(),
+                        tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
+
+                // Compute the sensitivities to add for this ancestor
+                tSensitivitiesToAdd = tBasis * tInvGradxMag2 * tGradx * tFieldSensitivities;
+
+                // Resize sensitivities
+                uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
+                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
+                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+
+                // Join sensitivities
+                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
+                {
+                    for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
+                    {
+                        aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
+                                tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
+                    }
+                }
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -165,7 +163,7 @@ namespace moris::gen
         const Basis_Node& tSecondParentNode = this->get_second_parent_node();
 
         // Add parent IDs
-        if ( not mInterfaceGeometry.compute_sensitivity_along_edges() )
+        if ( mInterfaceGeometry.compute_sensitivity_along_edges() )
         {
             if ( tFirstParentNode.depends_on_advs() )
             {

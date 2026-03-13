@@ -453,19 +453,19 @@ namespace moris::gen
                 }
             }
 
-            // print debug information
+            // // print debug information
             // for ( uint in = 0; in < tNumBases; ++in )
             // {
-            //     std::string tStrg = "Ancestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
+            //     std::string tStrg = "Ancestor_Node_" + std::to_string( ( in ) );
             //     print( aAncestorNodeCoordinates( in ), tStrg );
             // }
 
-            // print( tPhiBCNodes, "tPhiBCNodes" );
+            // PRINT( tPhiBCNodes );
 
             // fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
 
-            // print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
-            // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
+            // PRINT( aFirstParentNode.get_parametric_coordinates() );
+            // PRINT( aSecondParentNode.get_parametric_coordinates() );
 
             MORIS_ERROR( false,
                     "Intersection_Node_Bilinear::compute_intersection - Newton did not converge: %s %e %s %e %s %e",
@@ -542,78 +542,8 @@ namespace moris::gen
             const Derived_Node& aDerivedNode,
             Matrix< DDRMat >&   aSensitivities )
     {
-        // Matrix< DDRMat >      tGradients;
-        // Vector< moris_index > tCoefficients;
-
-        // this->get_mtk_field()->get_derivatives_of_field_value( tGradients, tCoefficients, aDerivedNode.get_index(), 0 );
-
-        // Get the background nodes (they are Basis_Node objects because this is a derived node, the basis just stores the basis value)
-        Vector< const Background_Node* > tBackgroundNodes = aDerivedNode.get_background_nodes();
-
-        // Get the parametric coordinates of the derived node within its background element
-        const Matrix< DDRMat >& tParametricCoords = aDerivedNode.get_parametric_coordinates();
-        uint                    tNumDims          = tParametricCoords.length();
-
-        // Compute the spatial jacobian
-        Matrix< DDRMat > tJacobian( tNumDims, tNumDims );
-
-        // Build interpolator
-        mtk::Interpolation_Function_Factory tFactory;
-        mtk::Interpolation_Function_Base*   tInterpolation;
-
-        // create interpolation function based on spatial dimension of problem
-        switch ( tNumDims )
-        {
-            case 2:
-            {
-                tInterpolation = tFactory.create_interpolation_function(
-                        mtk::Geometry_Type::QUAD,
-                        mtk::Interpolation_Type::LAGRANGE,
-                        mtk::Interpolation_Order::LINEAR );
-
-                tJacobian( 0, 0 ) = 2.0 * tBackgroundNodes( 2 )->get_global_coordinates()( 0 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 0 );
-                tJacobian( 1, 1 ) = 2.0 * tBackgroundNodes( 2 )->get_global_coordinates()( 1 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 1 );
-                break;
-            }
-            case 3:
-            {
-                tInterpolation = tFactory.create_interpolation_function(
-                        mtk::Geometry_Type::HEX,
-                        mtk::Interpolation_Type::LAGRANGE,
-                        mtk::Interpolation_Order::LINEAR );
-
-                tJacobian( 0, 0 ) = 2.0 * tBackgroundNodes( 0 )->get_global_coordinates()( 0 ) - tBackgroundNodes( 2 )->get_global_coordinates()( 0 );
-                tJacobian( 1, 1 ) = 2.0 * tBackgroundNodes( 2 )->get_global_coordinates()( 1 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 1 );
-                tJacobian( 2, 2 ) = 2.0 * tBackgroundNodes( 4 )->get_global_coordinates()( 2 ) - tBackgroundNodes( 0 )->get_global_coordinates()( 2 );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false,
-                        "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
-            }
-        }
-
-        // Get the derivative of all the basis functions
-        Matrix< DDRMat > tBasisGradXi;
-        tInterpolation->eval_dNdXi( tParametricCoords, tBasisGradXi );
-        uint tNumBases = tBasisGradXi.n_cols();
-
-        // Initialize output
-        aSensitivities.resize( tNumDims, 1 );
-        aSensitivities.fill( 0.0 );
-
-        // Loop through the bases
-        for ( uint iBasis = 0; iBasis < tNumBases; iBasis++ )
-        {
-            // Get the field value at this node
-            real tPhiBasis = this->get_field_value( tBackgroundNodes( iBasis )->get_index(), tBackgroundNodes( iBasis )->get_global_coordinates() );
-
-            // Get the background node coordinates
-            Matrix< DDRMat > tCoords = tBackgroundNodes( iBasis )->get_global_coordinates();
-
-            aSensitivities += tJacobian * tBasisGradXi.get_column( iBasis ) * tPhiBasis;
-        }
+        aSensitivities.resize( aDerivedNode.get_parametric_coordinates().length(), 1 );
+        mField->get_dfield_dcoordinates( aDerivedNode, aSensitivities );
     }
 
     //--------------------------------------------------------------------------------------------------------------

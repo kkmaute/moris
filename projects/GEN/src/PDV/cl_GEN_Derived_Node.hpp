@@ -163,8 +163,24 @@ namespace moris::gen
         virtual moris_index get_owner() const;
 
         /**
-         * Sets the flag for overriding linear interpolation, for when multilinear intersections are being used.
+         * Gets the background element's nodal coordinates
          */
-        static void set_override_linear_interpolation();
+        Matrix< DDRMat > get_background_element_nodal_coordinates() const;
+
+        /**
+         * Gets the geometry type of the background element for this derived node.
+         */
+        mtk::Geometry_Type get_background_element_geometry_type() const;
+
+        /**
+         * Gets the interpolation order of the background element for this derived node.
+         */
+        mtk::Interpolation_Order get_background_element_interpolation_order() const;
+
+        /**
+         * Gets the interpolation order of the locator nodes for this derived node. By default, this is the same as the background element,
+         *  but for some derived nodes such as multilinear intersection nodes, this is linear even if the background element is higher order.
+         */
+        virtual mtk::Interpolation_Order get_locator_interpolation_order() const;
     };
 }    // namespace moris::gen

@@ -89,7 +89,7 @@ namespace moris::gen
         mtk::Interpolation_Function_Base*   tInterpolator = tInterpolationFactory.create_interpolation_function(
                 mBackgroundElement.get_geometry_type(),
                 mtk::Interpolation_Type::LAGRANGE,
-                gOverrideLinearInterpolation ? mtk::Interpolation_Order::LINEAR : mBackgroundElement.get_interpolation_order() );
+                get_locator_interpolation_order() );
 
 
         // Evaluate the basis functions at the parametric coordinates
@@ -180,9 +180,30 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Derived_Node::set_override_linear_interpolation()
+    Matrix< DDRMat > Derived_Node::get_background_element_nodal_coordinates() const
     {
-        gOverrideLinearInterpolation = true;
+        return mBackgroundElement.get_vertex_coords();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    mtk::Geometry_Type Derived_Node::get_background_element_geometry_type() const
+    {
+        return mBackgroundElement.get_geometry_type();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    mtk::Interpolation_Order Derived_Node::get_background_element_interpolation_order() const
+    {
+        return mBackgroundElement.get_interpolation_order();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    mtk::Interpolation_Order Derived_Node::get_locator_interpolation_order() const
+    {
+        return mBackgroundElement.get_interpolation_order();
     }
 
     //--------------------------------------------------------------------------------------------------------------

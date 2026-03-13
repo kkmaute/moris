@@ -167,4 +167,11 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    mtk::Interpolation_Order Intersection_Node_Bilinear::get_locator_interpolation_order() const
+    {
+        return mtk::Interpolation_Order::LINEAR;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }    // namespace moris::gen

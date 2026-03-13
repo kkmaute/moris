@@ -96,6 +96,16 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Scaled_Field::get_dfield_dcoordinates(
+            const Derived_Node& aDerivedNode,
+            Matrix< DDRMat >&   aSensitivities )
+    {
+        mField->get_dfield_dcoordinates( aDerivedNode, aSensitivities );
+        aSensitivities = aSensitivities * mADVHandler.get_variable( 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Scaled_Field::update_dependencies( const Vector< std::shared_ptr< Field > >& aUpdatedFields )
     {
         for ( const auto& iField : aUpdatedFields )
