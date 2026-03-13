@@ -533,7 +533,7 @@ namespace moris::mtk
                 "Space determinate (2D) close to zero or negative: %e\n",
                 this->space_det_J() );
 
-        // compute inverse of 3x3 matrix
+        // compute inverse of 2x2 matrix
         real tInvDet = 1.0 / ( this->space_det_J() );
 
         // compute inverse
