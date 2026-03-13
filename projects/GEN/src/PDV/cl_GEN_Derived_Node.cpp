@@ -203,9 +203,14 @@ namespace moris::gen
 
     mtk::Interpolation_Order Derived_Node::get_locator_interpolation_order() const
     {
-        return mBackgroundElement.get_interpolation_order();
+        return gOverrideLinearInterpolation ? mtk::Interpolation_Order::LINEAR : mBackgroundElement.get_interpolation_order();
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    void Derived_Node::override_linear_interpolation( bool aOverride )
+    {
+        gOverrideLinearInterpolation = aOverride;
+    }
 
 }    // namespace moris::gen

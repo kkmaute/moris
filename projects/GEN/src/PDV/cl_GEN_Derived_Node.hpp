@@ -182,5 +182,13 @@ namespace moris::gen
          *  but for some derived nodes such as multilinear intersection nodes, this is linear even if the background element is higher order.
          */
         virtual mtk::Interpolation_Order get_locator_interpolation_order() const;
+
+        /**
+         * Sets whether to override the locator interpolation order to linear for all derived nodes. This is used for multilinear intersection nodes, which need to have linear interpolation between their locator nodes
+         * even if the background element is higher order, in order to be able to use multilinear interpolation for field values.
+         *
+         * @param aOverride If true, the locator interpolation order will be overridden to linear for all derived nodes
+         */
+        static void override_linear_interpolation( bool aOverride = true );
     };
 }    // namespace moris::gen
