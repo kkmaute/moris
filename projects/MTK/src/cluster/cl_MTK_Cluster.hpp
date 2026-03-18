@@ -150,6 +150,22 @@ namespace moris::mtk
             MORIS_ERROR( false, "set_quadrature_points() not implemented for this class" );
         }
 
+        //------------------------------------------------------------------------------
+        virtual void
+        set_has_void_cells( bool aHasVoidCells )
+        {
+            MORIS_ERROR( false, "set_has_void_cells() not implemented for this class" );
+        }
+
+        // ---------------------------------------------------------------
+
+        virtual bool
+        has_void_cells() const
+        {
+            MORIS_ERROR( false, "has_void_cells() not implemented for this class" );
+            return false;
+        }
+
         //----------------------------------------------------------------
 
         virtual void

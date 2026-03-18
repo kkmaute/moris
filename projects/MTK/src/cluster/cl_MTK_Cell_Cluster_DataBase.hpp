@@ -31,6 +31,7 @@ namespace moris::mtk
         moris_index mCellClusterIndex;    // cell cluster index
         mtk::Mesh*  mMesh;                // mesh pointer
         Matrix< DDRMat > mBoundaryFacetElementOrdinals; // (ordinal, element ID) pairing of facet ordinals on the boundary of the subphase
+        bool             mHasVoidCells = true;
 
       public:
         //------------------------------------------------------------------------------
@@ -285,6 +286,22 @@ namespace moris::mtk
         set_boundary_facet_element_ordinals( const Matrix< DDRMat > &aBoundaryFacetElementOrdinals ) override
         {
             this->mBoundaryFacetElementOrdinals = aBoundaryFacetElementOrdinals;
+        }
+
+        //------------------------------------------------------------------------------
+        /* inform if the cluster has any void integration cells*/
+        bool
+        has_void_cells() const override
+        {            
+            return mHasVoidCells;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_has_void_cells( bool aHasVoidCells ) override
+        {
+            mHasVoidCells = aHasVoidCells;
         }
 
         //------------------------------------------------------------------------------

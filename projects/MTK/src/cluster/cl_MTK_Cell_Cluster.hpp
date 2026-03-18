@@ -488,6 +488,23 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        void 
+        set_has_void_cells( bool aHasVoidCells )
+        {
+            MORIS_ERROR( false, "set_has_void_cells() not implemented for this class" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool
+        has_void_cells() const override
+        {
+            MORIS_ERROR( false, "has_void_cells() not implemented for this class" );
+            return false;
+        }
+
+        //------------------------------------------------------------------------------
+
         void
         set_boundary_facet_element_ordinals( const Matrix< DDRMat > &aBoundaryFacetElementOrdinals ) override
         {
