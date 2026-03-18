@@ -19,6 +19,8 @@
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Interpolation_Rule.hpp"
+
+// Linalg
 #include "fn_linsolve.hpp"
 #include "fn_inv.hpp"
 #include "fn_dot.hpp"
@@ -28,6 +30,8 @@
 #include "fn_norm.hpp"
 #include "fn_print.hpp"
 
+// miscellaneous
+#include "cl_BoostBitset.hpp"
 
 // namespace moris
 // {
@@ -628,7 +632,34 @@ namespace moris::xtk
                 const uint aDim
                 )
     {
-        // Initialize counter to keep track of boundary facets
+        if ( mVoidIntegrationCells.size() == 0 )
+        {
+            this->set_has_void_cells( false );
+            return;
+        }
+        else if (mVoidIntegrationCells.size() < 3 )
+        {
+            // Compute volume of IP cell
+            real tIPCellVolume = this->get_interpolation_cell().compute_cell_measure();
+
+            real tVoidIntegrationCellVolumes = 0.0;
+
+            // Get void integration cell volumes
+            for (uint iVoidIGCells = 0; iVoidIGCells < mVoidIntegrationCells.size() ; iVoidIGCells ++ )
+            {
+                real tVoidCellVolume = mVoidIntegrationCells( iVoidIGCells )->compute_cell_measure();
+                tVoidIntegrationCellVolumes += tVoidCellVolume;
+
+            }
+
+            if ( tVoidIntegrationCellVolumes / tIPCellVolume < 0.01 )
+            {
+                this->set_has_void_cells( false );
+                return;
+            }
+        }
+        
+        // Initialize counter to keep track of boundary facets 
         uint iBoundaryFacetCounter = 0;
 
         // Get the primary subphase IG cells first
@@ -714,41 +745,41 @@ namespace moris::xtk
                 mBoundaryFacetElementOrdinals( iBoundaryFacetCounter, 1 ) = tCellOrdinal;
 
                 // Compute normal for this facet based on the side ordinal data
-                Matrix< DDRMat > tFacetNormal = tOwningElementsInSubphase( 0 )->compute_outward_side_normal( tCellOrdinal );
+                //Matrix< DDRMat > tFacetNormal = tOwningElementsInSubphase( 0 )->compute_outward_side_normal( tCellOrdinal );
 
                 // Add to vector containing facet normals
-                mFacetNormals.push_back( tFacetNormal );
+                //mFacetNormals.push_back( tFacetNormal );
 
                 // Get the (ordered) vertices for this facet
-                Vector< moris::mtk::Vertex const * > tVerticesOnFacet = tOwningElementsInSubphase( 0 )->get_vertices_on_side_ordinal( tCellOrdinal );
+                //Vector< moris::mtk::Vertex const * > tVerticesOnFacet = tOwningElementsInSubphase( 0 )->get_vertices_on_side_ordinal( tCellOrdinal );
 
-                Matrix< DDRMat > tVertexCoordinatesFacetOrdered;
+                //Matrix< DDRMat > tVertexCoordinatesFacetOrdered;
 
-                if ( aDim == 2 )
-                {
-                    tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 2 );
-                }
-                else if ( aDim == 3 )
-                {
-                    tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 3 );
-                }
+                //if ( aDim == 2 )
+                //{
+                //    tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 2 );
+                //}
+                //else if ( aDim == 3 )
+                //{
+                //    tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 3 );
+                //}
                 
 
                 // Get the vertex local coordinates and add to mFacetCoordinates
-                for ( uint iVertex = 0; iVertex < tVerticesOnFacet.size(); iVertex++ )
-                {
-                    // Get vertex
-                    moris::mtk::Vertex const * tVertexInFacet = tVerticesOnFacet( iVertex );
+                //for ( uint iVertex = 0; iVertex < tVerticesOnFacet.size(); iVertex++ )
+                //{
+                //    // Get vertex
+                //    moris::mtk::Vertex const * tVertexInFacet = tVerticesOnFacet( iVertex );
 
-                    // Get local coordinates
-                    Matrix< DDRMat > tVertexCoords = get_vertex_local_coordinate_wrt_interp_cell( tVertexInFacet );
+                //    // Get local coordinates
+                //    Matrix< DDRMat > tVertexCoords = get_vertex_local_coordinate_wrt_interp_cell( tVertexInFacet );
 
-                    // Add to Matrix
-                    tVertexCoordinatesFacetOrdered.set_row( iVertex , tVertexCoords.get_row( 0 ) );
+                //    // Add to Matrix
+                //    tVertexCoordinatesFacetOrdered.set_row( iVertex , tVertexCoords.get_row( 0 ) );
 
-                }
+                //}
 
-                mFacetVertexCoordinates.push_back( tVertexCoordinatesFacetOrdered );
+                //mFacetVertexCoordinates.push_back( tVertexCoordinatesFacetOrdered );
 
                 // get the vertex coordinates
                 //moris::Matrix< moris::DDRMat > tVertexCoords = tOwningElementsInSubphase( 0 )->get_vertex_coords();
@@ -924,6 +955,326 @@ namespace moris::xtk
 
         
 
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Cell_Cluster::find_subphase_boundary_vertices_new(
+            const std::shared_ptr< IG_Cell_Group >            aSubphaseIGCells,
+            const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
+            const uint                                        aDim,
+            const moris_index                                 aMaxIndex)
+    {
+        // //Don't find boundary facets if there are no void cells/ if volume fraction of void cells is less than 0.01
+        // if ( mVoidIntegrationCells.size() == 0 )
+        // {
+        //     this->set_has_void_cells( false );
+        //     return;
+        // }
+        // else if ( mVoidIntegrationCells.size() < 3 )
+        // {
+        //     // Compute volume of IP cell
+        //     real tIPCellVolume = this->get_interpolation_cell().compute_cell_measure();
+
+        //     real tVoidIntegrationCellVolumes = 0.0;
+
+        //     // Get void integration cell volumes
+        //     for ( uint iVoidIGCells = 0; iVoidIGCells < mVoidIntegrationCells.size(); iVoidIGCells++ )
+        //     {
+        //         real tVoidCellVolume = mVoidIntegrationCells( iVoidIGCells )->compute_cell_measure();
+        //         tVoidIntegrationCellVolumes += tVoidCellVolume;
+        //     }
+
+        //     if ( tVoidIntegrationCellVolumes / tIPCellVolume < 0.01 )
+        //     {
+        //         this->set_has_void_cells( false );
+        //         return;
+        //     }
+        //  }
+        // Initialize counter to keep track of boundary facets
+        uint iBoundaryFacetCounter = 0;
+
+        // Get the primary subphase IG cells first
+        Vector< mtk::Cell* > tSubphaseIgCellsPtr = aSubphaseIGCells->mIgCellGroup;
+
+        // Initialize the vector containing the facets
+        Vector< moris_index > tSubphaseFacets;
+
+        // Unordered set to hold subphase cell indices
+        std::unordered_set< moris_index > tSubphaseCellIndexSet;
+        tSubphaseCellIndexSet.reserve( 2 * tSubphaseIgCellsPtr.size() );    // reduce rehashes
+
+        // Now run a for loop to extract the facets corresponding to the subphase
+        for ( uint iCellIndex = 0; iCellIndex < tSubphaseIgCellsPtr.size(); iCellIndex++ )
+        {
+            // Get the global cell index
+            moris_index tCellIndexGlobal = tSubphaseIgCellsPtr( iCellIndex )->get_index();
+
+            // Get facet connectivity specific cell index
+            moris_index tCellIndexLocal = aFacetConnectivity->get_cell_ordinal( tCellIndexGlobal );
+
+            // Get facets attached to this cell
+            tSubphaseFacets.append( aFacetConnectivity->mCellToFacet( tCellIndexLocal ) );
+
+            // Populate unordered set to hold cell indices
+            tSubphaseCellIndexSet.insert( tSubphaseIgCellsPtr( iCellIndex )->get_index() );
+        }
+
+        // Preallocate the facet ordinal, element ID matrix
+        mBoundaryFacetElementOrdinals.reshape( tSubphaseFacets.size(), 2 );
+        mBoundaryFacetElementOrdinals.fill( -1 );
+
+        // Now filter out the facets only belonging to one cell
+        for ( uint iFacetIndex = 0; iFacetIndex < tSubphaseFacets.size(); iFacetIndex++ )
+        {
+            // Get facet
+            moris_index tSingleFacet = tSubphaseFacets( iFacetIndex );
+
+            // Now check how many elements does the facet belong to
+            Vector< mtk::Cell* > tOwningElements = aFacetConnectivity->mFacetToCell( tSingleFacet );
+
+            // Only retain cells in the subphase from the facet to cell map
+            Vector< mtk::Cell* > tOwningElementsInSubphase;
+
+            // For facet to cell edge ordinal map
+            uint tCellIndexForFacet = 0;
+
+            // Now check if the facet belongs to only one cell in the subphase
+            for ( uint iOwningCells = 0; iOwningCells < tOwningElements.size(); iOwningCells++ )
+            {
+                // Check if subphase cell part of facet owning cells
+                if ( tSubphaseCellIndexSet.find( tOwningElements( iOwningCells )->get_index() ) != tSubphaseCellIndexSet.end() )
+                {
+                    // Add to vector containing only subphase cells sharing facet
+                    tOwningElementsInSubphase.push_back( tOwningElements( iOwningCells ) );
+
+                    // Get cell index value for facet to cell ordinal map
+                    tCellIndexForFacet = iOwningCells;
+                }
+
+            }
+            
+
+            // If belonging to one cell then add it into the vector containing pointer to facet indices.
+            if ( tOwningElementsInSubphase.size() == 1 )
+            {
+                mFacetVerticesOnSubphaseBoundary.push_back( aFacetConnectivity->mFacetVertices( tSingleFacet ) );
+
+                // Get all possible cell ordinals for this facet
+                Vector< moris_index > tFacetOrdinals = aFacetConnectivity->mFacetToCellEdgeOrdinal( tSingleFacet );
+
+                // Get ordinal corresponding to given subphase cell _and_ facet
+                moris_index tCellOrdinal = tFacetOrdinals( tCellIndexForFacet );
+
+                // Add the Cell ID and the ordinal to the matrix containing the cell facets ordinals and element IDs
+                mBoundaryFacetElementOrdinals( iBoundaryFacetCounter, 0 ) = tOwningElementsInSubphase( 0 )->get_id();
+                mBoundaryFacetElementOrdinals( iBoundaryFacetCounter, 1 ) = tCellOrdinal;
+
+                // Compute normal for this facet based on the side ordinal data
+                // Matrix< DDRMat > tFacetNormal = tOwningElementsInSubphase( 0 )->compute_outward_side_normal( tCellOrdinal );
+
+                // Add to vector containing facet normals
+                // mFacetNormals.push_back( tFacetNormal );
+
+                // Get the (ordered) vertices for this facet
+                // Vector< moris::mtk::Vertex const * > tVerticesOnFacet = tOwningElementsInSubphase( 0 )->get_vertices_on_side_ordinal( tCellOrdinal );
+
+                // Matrix< DDRMat > tVertexCoordinatesFacetOrdered;
+
+                // if ( aDim == 2 )
+                //{
+                //     tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 2 );
+                // }
+                // else if ( aDim == 3 )
+                //{
+                //     tVertexCoordinatesFacetOrdered.reshape( tVerticesOnFacet.size() , 3 );
+                // }
+
+
+                // Get the vertex local coordinates and add to mFacetCoordinates
+                // for ( uint iVertex = 0; iVertex < tVerticesOnFacet.size(); iVertex++ )
+                //{
+                //    // Get vertex
+                //    moris::mtk::Vertex const * tVertexInFacet = tVerticesOnFacet( iVertex );
+
+                //    // Get local coordinates
+                //    Matrix< DDRMat > tVertexCoords = get_vertex_local_coordinate_wrt_interp_cell( tVertexInFacet );
+
+                //    // Add to Matrix
+                //    tVertexCoordinatesFacetOrdered.set_row( iVertex , tVertexCoords.get_row( 0 ) );
+
+                //}
+
+                // mFacetVertexCoordinates.push_back( tVertexCoordinatesFacetOrdered );
+
+                // get the vertex coordinates
+                // moris::Matrix< moris::DDRMat > tVertexCoords = tOwningElementsInSubphase( 0 )->get_vertex_coords();
+
+                // Get the nodes which need to be used
+                // moris::Matrix< moris::IndexMat > tEdgeNodesForNormal = tOwningElementsInSubphase( 0 )->get_cell_info()->get_node_map_outward_normal( tCellOrdinal );
+
+                // Declare node matrix
+                // Matrix < DDRMat > tFacetVertexCoordinates;
+                // tFacetVertexCoordinates.reshape( 2 , 2 );
+
+                // Order the nodes
+                // moris_index tFirstNode  = tEdgeNodesForNormal( 0 );
+                // moris_index tSecondNode = tEdgeNodesForNormal( 1 );
+                // tFacetVertexCoordinates( 0 , 0 ) = tVertexCoords( tFirstNode, 0 );
+                // tFacetVertexCoordinates( 1 , 0 ) = tVertexCoords( tSecondNode, 0 );
+                // tFacetVertexCoordinates( 0 , 1 ) = tVertexCoords( tFirstNode, 1 );
+                // tFacetVertexCoordinates( 1 , 1 ) = tVertexCoords( tSecondNode, 1 );
+
+                // Add the vertex coordinate matrix to the vector
+                // mFacetVertexCoordinates.push_back( tFacetVertexCoordinates );
+
+                // Increment counter for boundary facets
+                iBoundaryFacetCounter++;
+            }
+        }
+
+        // Trim the boundary facet ordinal matrix to size
+        // FIXME: Check whether this is actually trimming the matrix or simply reshaping it.
+        mBoundaryFacetElementOrdinals.resize( iBoundaryFacetCounter, 2 );
+
+        // Code below for testing the facet normal computation function. Not needed otherwise, but still kept.
+
+        /*Matrix < DDRMat > tFacetNormals;
+
+        if ( aDim == 2 )
+        {
+            tFacetNormals.reshape( mFacetNormals.size() , 2 );
+        }
+        else if ( aDim == 3 )
+        {
+            tFacetNormals.reshape( mFacetNormals.size() , 3 );
+        }
+
+
+
+
+
+        for (uint iFacetNormalIndex = 0; iFacetNormalIndex < mFacetNormals.size(); iFacetNormalIndex++ )
+        {
+            Matrix < DDRMat > tFacetNormal = mFacetNormals( iFacetNormalIndex );
+
+            Matrix < DDRMat > tFacetNormalReshaped  = trans( tFacetNormal );
+
+            tFacetNormals.set_row( iFacetNormalIndex , tFacetNormalReshaped );
+
+        }
+
+        Matrix < DDRMat > tFacetCoords;
+
+        if ( aDim == 2 )
+        {
+            tFacetCoords.reshape( 2*mFacetVertexCoordinates.size() , 2 );
+        }
+        else if ( aDim == 3 )
+        {
+            tFacetCoords.reshape( 3*mFacetVertexCoordinates.size() , 3 );
+        }
+
+
+
+        for (uint iFacetNormalIndex = 0; iFacetNormalIndex < mFacetVertexCoordinates.size(); iFacetNormalIndex++ )
+        {
+            Matrix < DDRMat > tFacetCoord = mFacetVertexCoordinates( iFacetNormalIndex );
+
+            if ( aDim == 2 )
+            {
+                tFacetCoords.set_row( 2*iFacetNormalIndex , tFacetCoord.get_row( 0 ) );
+
+                tFacetCoords.set_row( 2*iFacetNormalIndex + 1 , tFacetCoord.get_row( 1 ) );
+
+            }
+            else if ( aDim == 3 )
+            {
+                tFacetCoords.set_row( 3*iFacetNormalIndex , tFacetCoord.get_row( 0 ) );
+
+                tFacetCoords.set_row( 3*iFacetNormalIndex + 1 , tFacetCoord.get_row( 1 ) );
+
+                tFacetCoords.set_row( 3*iFacetNormalIndex + 2 , tFacetCoord.get_row( 2 ) );
+
+            }
+
+
+        }
+
+
+
+        // The code below was all for testing the facet filtering function. Not needed otherwise, but still kept.
+
+        std::vector< double > tFacetCoordinatesFileVectorX;
+
+        std::vector< double > tFacetCoordinatesFileVectorY;
+
+        std::vector< double > tFacetCoordinatesFileVectorZ;
+
+
+
+        for(uint iVertInd = 0; iVertInd < mFacetVerticesOnSubphaseBoundary.size(); iVertInd++)
+        {
+             // Get vertex
+
+             moris::Vector< moris::mtk::Vertex* > tFacetIndexBdry = mFacetVerticesOnSubphaseBoundary( iVertInd ) ;
+
+             for (uint iFacetVertInd = 0; iFacetVertInd < tFacetIndexBdry.size() ; iFacetVertInd++ )
+
+             {
+                // Get one facet vertex
+                moris::mtk::Vertex* tBdryFacet = tFacetIndexBdry( iFacetVertInd );
+
+                // Get coords
+                Matrix<DDRMat> tBdryCoords = tBdryFacet->get_coords();
+
+                tFacetCoordinatesFileVectorX.push_back(tBdryCoords( 0 , 0 ));
+
+                tFacetCoordinatesFileVectorY.push_back(tBdryCoords( 0 , 1 ));
+
+                if ( aDim == 3 )
+                {
+                    tFacetCoordinatesFileVectorZ.push_back(tBdryCoords( 0 , 2 ));;
+                }
+
+             }
+
+
+
+
+        }  */
+
+        /*hid_t  tFileID = create_hdf5_file( "FacetVertices_X.hdf5" );
+        herr_t tStatus = 0;
+        save_vector_to_hdf5_file( tFileID, std::string("Coords"), tFacetCoordinatesFileVectorX, tStatus );
+
+        close_hdf5_file( tFileID );
+
+
+        hid_t  tFileID1 = create_hdf5_file( "FacetVertices_Y.hdf5" );
+        herr_t tStatus1 = 0;
+        save_vector_to_hdf5_file( tFileID1, std::string("Coords"), tFacetCoordinatesFileVectorY, tStatus1 );
+
+        close_hdf5_file( tFileID1 );
+
+        hid_t  tFileID2 = create_hdf5_file( "FacetNormals_new.hdf5" );
+        herr_t tStatus2 = 0;
+        save_matrix_to_hdf5_file( tFileID2, std::string("Coords"), tFacetNormals, tStatus2 );
+
+        close_hdf5_file( tFileID2 );
+
+        hid_t  tFileID3 = create_hdf5_file( "FacetVertices_New.hdf5" );
+        herr_t tStatus3 = 0;
+        save_matrix_to_hdf5_file( tFileID3, std::string("Coords"), tFacetCoords, tStatus3 );
+
+        close_hdf5_file( tFileID3 );
+
+        hid_t  tFileID4 = create_hdf5_file( "FacetVertices_Z.hdf5" );
+        herr_t tStatus4 = 0;
+        save_vector_to_hdf5_file( tFileID4, std::string("Coords"), tFacetCoordinatesFileVectorZ, tStatus4 );
+
+        close_hdf5_file( tFileID4 );*/
     }
 
     //----------------------------------------------------------------

@@ -61,6 +61,7 @@ namespace moris::xtk
         Vector< Matrix< DDRMat > >                    mFacetVertexCoordinates;
         mtk::Interpolation_Function_Base*             mIPInterp; // Interpolation object to get the basis functions for moment fitting
         Matrix< DDRMat >                              mBoundaryFacetElementOrdinals; // col 1: element ID, col 2: facet ordinal on the corresponding element
+        bool                                          mHasVoidCells = true;
                  
         
 
@@ -144,7 +145,23 @@ namespace moris::xtk
         set_cluster_group(
                 const moris_index                            aDiscretizationMeshIndex,
                 const std::shared_ptr< mtk::Cluster_Group >& aClusterGroupPtr ) override;
-        
+
+        // ------------------------------------------------------------------------------
+
+        void 
+        set_has_void_cells( bool aHasVoidCells ) override
+        {
+            mHasVoidCells = aHasVoidCells;
+        }
+
+        // ------------------------------------------------------------------------------
+
+        bool
+        has_void_cells() const override
+        {
+            return mHasVoidCells;
+        }
+
         //-------------------------------------------------------------------------------
 
         void 
@@ -153,6 +170,15 @@ namespace moris::xtk
                 const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
                 const uint aDim
         );
+
+        // ------------------------------------------------------------------------------
+
+        void
+        find_subphase_boundary_vertices_new(
+                const std::shared_ptr< IG_Cell_Group >            aSubphaseIGCells,
+                const std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
+                const uint                                        aDim,
+                const moris_index                                 aMaxIndex );
 
         // ------------------------------------------------------------------------------
 
