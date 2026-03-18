@@ -92,11 +92,18 @@ namespace moris::mtk
         mTimeCoeffs->get_weights( mTimeWeights );
 
 
-        if ( aMeshSet->get_set_type() == mtk::SetType::BULK && aUseMomentFitting )
+        if ( aMeshSet->get_set_type() == mtk::SetType::BULK && aUseMomentFitting && !aMeshSet->get_clusters_on_set()( 0 )->is_trivial() )
         {
             // If using moment fitting compute the value of the moment fitting LHS beforehand
             // Define interpolation rule to get moment fitting polynomials
-            mtk::Interpolation_Rule tIPInterpolationRule( aMeshSet->get_interpolation_cell_geometry_type(), mtk::Interpolation_Type::LAGRANGE, aMeshSet->get_interpolation_cell_interpolation_order(),
+            mtk::Interpolation_Order tInterpOrder = aMeshSet->get_interpolation_cell_interpolation_order();
+            tInterpOrder                          = tInterpOrder == mtk::Interpolation_Order::SERENDIPITY ? mtk::Interpolation_Order::LINEAR
+                                                  : tInterpOrder == mtk::Interpolation_Order::LINEAR      ? mtk::Interpolation_Order::QUADRATIC
+                                                  : tInterpOrder == mtk::Interpolation_Order::QUADRATIC   ? mtk::Interpolation_Order::CUBIC
+                                                                                                          : aMeshSet->get_interpolation_cell_interpolation_order();
+
+
+            mtk::Interpolation_Rule tIPInterpolationRule( aMeshSet->get_interpolation_cell_geometry_type(), mtk::Interpolation_Type::LAGRANGE, tInterpOrder,
                                                          mtk::Geometry_Type::LINE, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR );
 
             // Create interpolation function to evaluate moment fitting polynomials at quadrature points
@@ -111,10 +118,10 @@ namespace moris::mtk
             mMomentFittingQuadPoints = this->get_points( tMomentFittingIntegrationRule );
 
             // Get the number of vertices on each IP cell
-            uint tNumVertices = aMeshSet->get_clusters_on_set()( 0 )->get_interpolation_cell().get_cell_info()->get_num_verts();
+            uint tNumBases = tIPInterp->get_number_of_bases();
 
             // Initialize the moment fitting LHS matrix
-            Matrix< DDRMat > tMomentFittingLHS( tNumVertices , mMomentFittingQuadPoints.n_cols(), 0.0 );
+            Matrix< DDRMat > tMomentFittingLHS( tNumBases , mMomentFittingQuadPoints.n_cols(), 0.0 );
 
             for ( uint iQuadPointIndex = 0; iQuadPointIndex < tMomentFittingLHS.n_cols(); iQuadPointIndex++ )
             {
@@ -379,9 +386,23 @@ namespace moris::mtk
             tCellCluster->set_quadrature_weights( this->get_weights() );
             return;
         }
+
+        // if cluster has no void cells in it, that means it is cut but occupied wholly by one phase, even then pass the standard quadrature points and weights since moment fitting is not needed
+        if ( !tCellCluster->has_void_cells() )
+        {
+            // assign quadrature weights and points
+            tCellCluster->set_quadrature_points( this->get_points() );
+            tCellCluster->set_quadrature_weights( this->get_weights() );
+            return;
+        }
         
         // Get the interpolation order and spatial dimension from the cluster
         Interpolation_Order tInterpOrder = tCellCluster->get_interpolation_cell().get_interpolation_order();
+        tInterpOrder                     = tInterpOrder == mtk::Interpolation_Order::SERENDIPITY ? mtk::Interpolation_Order::QUADRATIC
+                                         : tInterpOrder == mtk::Interpolation_Order::LINEAR      ? mtk::Interpolation_Order::QUADRATIC
+                                         : tInterpOrder == mtk::Interpolation_Order::QUADRATIC   ? mtk::Interpolation_Order::CUBIC
+                                                                                                 : tCellCluster->get_interpolation_cell().get_interpolation_order();
+
         uint tDim = mSpaceCoeffs->get_number_of_dimensions();
 
         uint tOrder = tInterpOrder == Interpolation_Order::LINEAR ? 1 : tInterpOrder == Interpolation_Order::QUADRATIC ? 2 : tInterpOrder == Interpolation_Order::CUBIC ? 3 : 0;
@@ -417,6 +438,14 @@ namespace moris::mtk
         // Obtain boundary facet element ordinals from cluster
         const Matrix< DDRMat >& tBoundaryFacetElementOrdinals = tCellCluster->get_boundary_facet_element_ordinals();
 
+        // Build an unordered map of the IDs of the cluster's primary cells in the cluster's list of primary cells for quick access to the cell pointers when looping through the boundary facets
+        std::unordered_map< moris_id, const mtk::Cell* > tCellIdToPrimaryCellIndexMap;
+        const Vector< moris::mtk::Cell const * > &tPrimaryCells = tCellCluster->get_primary_cells_in_cluster();
+        for ( uint iCell = 0; iCell < tPrimaryCells.size(); iCell++ )
+        {
+            tCellIdToPrimaryCellIndexMap[ tPrimaryCells( iCell )->get_id() ] = tPrimaryCells( iCell );
+        }
+
         // Compute the RHS
         for ( uint iFacetIndex = 0; iFacetIndex < tBoundaryFacetElementOrdinals.n_rows(); iFacetIndex++ )
         {
@@ -430,15 +459,25 @@ namespace moris::mtk
             Matrix< DDRMat > tFacetVertexCoordinates( tDim, tDim, 0.0 );
 
             // Find the element with the given ID in the list of primary cells in the cluster
-            const Vector< moris::mtk::Cell const * > &tPrimaryCells = tCellCluster->get_primary_cells_in_cluster();
+            //const Vector< moris::mtk::Cell const * > &tPrimaryCells = tCellCluster->get_primary_cells_in_cluster();
             const moris::mtk::Cell *tCell = nullptr;
-            for ( uint iCell = 0; iCell < tPrimaryCells.size(); iCell++ )
+            // for ( uint iCell = 0; iCell < tPrimaryCells.size(); iCell++ )
+            // {
+            //     if ( tPrimaryCells( iCell )->get_id() == tCellId )
+            //     {
+            //         tCell = tPrimaryCells( iCell );
+            //         break;
+            //     }   
+            // }
+
+            // Use the unordered map to find the cell pointer corresponding to the cell ID            auto it = tCellIdToPrimaryCellIndexMap.find( tCellId );
+            if ( tCellIdToPrimaryCellIndexMap.find( tCellId ) != tCellIdToPrimaryCellIndexMap.end() )
             {
-                if ( tPrimaryCells( iCell )->get_id() == tCellId )
-                {
-                    tCell = tPrimaryCells( iCell );
-                    break;
-                }   
+                tCell = tCellIdToPrimaryCellIndexMap[ tCellId ];
+            }
+            else
+            {
+                MORIS_ERROR( false, "Integrator::compute_bulk_cluster_integration_points_and_weights_moment_fitting: cell ID not found in cluster's primary cells" );
             }
 
             // Get node-to-facet map for the cell 
@@ -1017,10 +1056,10 @@ namespace moris::mtk
         switch ( tIntegrationOrder )
         {
             case mtk::Integration_Order::TRI_7:
-                return mtk::Integration_Order::QUAD_2x2;
+                return mtk::Integration_Order::QUAD_3x3;
             
             case mtk::Integration_Order::TRI_12:
-                return mtk::Integration_Order::QUAD_3x3;
+                return mtk::Integration_Order::QUAD_4x4;
             
             case mtk::Integration_Order::TRI_25:
                 return mtk::Integration_Order::QUAD_4x4;
@@ -1038,10 +1077,10 @@ namespace moris::mtk
                 return mtk::Integration_Order::QUAD_4x4;
 
             case mtk::Integration_Order::TET_11:
-                return mtk::Integration_Order::HEX_2x2x2;
+                return mtk::Integration_Order::HEX_3x3x3;
 
             case mtk::Integration_Order::TET_35:
-                return mtk::Integration_Order::HEX_3x3x3;
+                return mtk::Integration_Order::HEX_4x4x4;
 
             case mtk::Integration_Order::TET_56:
                 return mtk::Integration_Order::HEX_4x4x4;
