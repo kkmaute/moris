@@ -3117,19 +3117,7 @@ namespace moris::xtk
                     mCellClusters( tEnrIpCellIndex )->set_primary_integration_cell_group( tIgCellGroupsInCluster );
 
                     // Get facet connectivity map
-                    auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();
-
-                    // If moment fitting active then find subphase boundary facets and compute the moments
-                    if ( mModel->mMomentFittingFlag )
-                    {
-                        // Identify subphase boundary facets
-                        mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices( tIgCellGroupsInCluster , tFacetConnectivity , tDim );
-
-                        // Compute quadrature weights via moment fitting
-                        //mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , tDim );
-                        
-                    }
-                                        
+                    auto tFacetConnectivity = mCutIgMesh->get_face_connectivity();              
                     //fprintf( stdout,"Subphase_Index %d\n", (moris_index)tPrimarySpIndex );
 
                     // get the subphases in the void region
@@ -3144,6 +3132,18 @@ namespace moris::xtk
                     // store the void IG cells with the cluster
                     mCellClusters( tEnrIpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
 
+                    // If moment fitting active then find subphase boundary facets and compute the moments
+                    if ( mModel->mMomentFittingFlag )
+                    {
+                        // Find max IG cell index
+                        const moris_index tMaxIgCellIndex = this->mCutIgMesh->get_number_of_IG_cells() - 1;
+
+                        // Identify subphase boundary facets
+                        mCellClusters( tEnrIpCellIndex )->find_subphase_boundary_vertices_new( tIgCellGroupsInCluster, tFacetConnectivity, tDim, tMaxIgCellIndex );
+
+                        // Compute quadrature weights via moment fitting
+                        // mCellClusters( tEnrIpCellIndex )->compute_quadrature_weights( tOrder , tMomFitLHSInv , tDim );
+                    }
                 }    // end: construction of valid clusters
             }    // end: loop over enriched IP cells associated with the IP cell
         }    // end: loop over base IP cells
