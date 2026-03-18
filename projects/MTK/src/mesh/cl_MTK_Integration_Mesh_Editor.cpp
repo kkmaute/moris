@@ -1216,6 +1216,7 @@ namespace moris::mtk
                 
                 // Set the boundary facet map
                 tCellCluster.set_boundary_facet_element_ordinals( mInputMesh->get_cell_cluster( iCell ).get_boundary_facet_element_ordinals() );
+                tCellCluster.set_has_void_cells( mInputMesh->get_cell_cluster( iCell ).has_void_cells() );  
 
             }
             
