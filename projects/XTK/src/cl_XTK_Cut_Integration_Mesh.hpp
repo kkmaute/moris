@@ -1383,6 +1383,10 @@ namespace moris::xtk
         set_face_connectivity( std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
 
         // ----------------------------------------------------------------------------------
+        const moris_index 
+        get_number_of_IG_cells() const;
+        
+        // ----------------------------------------------------------------------------------
 
         void
         set_face_ancestry( std::shared_ptr< Facet_Based_Ancestry > aFaceAncestry );

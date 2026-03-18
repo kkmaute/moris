@@ -1443,6 +1443,14 @@ namespace moris::xtk
         mIgCellFaceConnectivity = std::move( aFaceConnectivity );
     }
 
+    //-----------------------------------------------------------------------------------
+
+    const moris_index
+    Cut_Integration_Mesh::get_number_of_IG_cells() const
+    {
+        return mIntegrationCells.size();
+    }
+
     // ----------------------------------------------------------------------------------
 
     std::shared_ptr< Facet_Based_Ancestry >
