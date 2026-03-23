@@ -74,9 +74,24 @@ namespace moris::gen
             const Matrix< DDRMat >& aCoordinates,
             Matrix< DDRMat >&       aSensitivities )
     {
-        MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for sphere field." );
+        // Get variables
+        real tXCenter = mADVHandler.get_variable( 0 );
+        real tYCenter = mADVHandler.get_variable( 1 );
+        real tZCenter = mADVHandler.get_variable( 2 );
+
+        // Compute level set value
+        real tLevelSet = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 ) + pow( aCoordinates( 1 ) - tYCenter, 2 ) + pow( aCoordinates( 2 ) - tZCenter, 2 ) );
+
+        if ( tLevelSet < MORIS_REAL_EPS )
+        {
+            tLevelSet = MORIS_REAL_EPS;
+        }
+
+        aSensitivities( 0 ) = ( aCoordinates( 0 ) - tXCenter ) / tLevelSet;
+        aSensitivities( 1 ) = ( aCoordinates( 1 ) - tYCenter ) / tLevelSet;
+        aSensitivities( 2 ) = ( aCoordinates( 2 ) - tZCenter ) / tLevelSet;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-}    // namespace ge
+}    // namespace moris::gen
