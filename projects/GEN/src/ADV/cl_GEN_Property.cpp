@@ -179,7 +179,7 @@ namespace moris::gen
 
     bool Property::depends_on_advs() const
     {
-        return false;    // brendan ????
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
