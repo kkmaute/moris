@@ -385,7 +385,9 @@ namespace moris::gen
             }
 
             // Create dummy mtk cell to assign to intersection nodes
-            mtk::Cell_Proxy tCell;
+            std::shared_ptr< mtk::Cell_Info > tCellInfo = std::make_shared< mtk::Cell_Info_Quad4 >();
+            mtk::Cell_Proxy                   tCell;
+            tCell.set_mtk_cell_info( tCellInfo );
 
             // Loop over all node indices
             Vector< Background_Node* >
@@ -617,9 +619,6 @@ namespace moris::gen
         sol::Matrix_Vector_Factory tDistributedFactory;
         sol::Dist_Map*             tADVMap = tDistributedFactory.create_map( tFullADVIds );
         sol::Dist_Vector*          tdADV   = tDistributedFactory.create_vector( tADVMap, 2, false, true );
-
-        // brendan delete
-        tPDVHostManager.get_dQIdp( Module_Type::FEM )->print();
 
         tPDVHostManager.set_requested_QIs( { "TrivialIQI1", "TrivialIQI2" } );
 
