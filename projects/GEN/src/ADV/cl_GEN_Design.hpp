@@ -195,7 +195,7 @@ namespace moris::gen
 
 
         //------------------------------------------------------------------------------
-        // Geometry Quantity of Interest (GQI) functions brendan document all
+        // Geometry Quantity of Interest (GQI) functions
         //------------------------------------------------------------------------------
 
       public:

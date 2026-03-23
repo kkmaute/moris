@@ -53,7 +53,7 @@ namespace moris::gen
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
 
-        // Requested IQIs brendan delete maybe
+        // Requested IQIs
         mRequestedQIs = aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" );
 
         mPDVHostManager = std::make_shared< PDV_Host_Manager >( mNodeManager, mRequestedQIs );
@@ -1887,51 +1887,6 @@ namespace moris::gen
                     tDesignName.c_str(),
                     tGQIName.c_str() );
         }
-
-        // brendan delete
-        // Get the GQI names from all the designs. Determine which ones are requested and fill mDesignGQIIndices accordingly
-        // // GQIs from geometries
-        // for ( uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
-        // {
-        //     const Vector< std::string >& tGeomGQINames = mGeometries( iGeom )->get_all_GQI_names();
-        //     Vector< uint >               tGeomRequestedGQIIndices( tGeomGQINames.size(), MORIS_UINT_MAX );
-
-        //     for ( uint iGQI = 0; iGQI < tGeomGQINames.size(); iGQI++ )
-        //     {
-        //         // Find the index of the GQI in the list of requested QIs
-        //         auto tIt = std::find( tRequestedQIs.begin(), tRequestedQIs.end(), tGeomGQINames( iGQI ) );
-
-        //         // Check if this GQI is requested
-        //         if ( tIt != tRequestedQIs.end() )
-        //         {
-        //             tGeomRequestedGQIIndices( iGQI ) = std::distance( tRequestedQIs.begin(), tIt );
-        //         }
-        //     }
-
-        //     // Store the requested GQI indices
-        //     mDesignGQIIndices( iGeom ) = tGeomRequestedGQIIndices;
-        // }
-
-        // // GQIs from properties
-        // for ( uint iProp = 0; iProp < mProperties.size(); iProp++ )
-        // {
-        //     const Vector< std::string >& tPropGQINames = mProperties( iProp )->get_all_GQI_names();
-        //     Vector< uint >               tPropRequestedGQIIndices( tPropGQINames.size(), MORIS_UINT_MAX );
-
-        //     for ( uint iGQI = 0; iGQI < tPropGQINames.size(); iGQI++ )
-        //     {
-        //         auto tIt = std::find( tRequestedQIs.begin(), tRequestedQIs.end(), tPropGQINames( iGQI ) );
-
-        //         // Check if this GQI is requested
-        //         if ( tIt != tRequestedQIs.end() )
-        //         {
-        //             tPropRequestedGQIIndices( iGQI ) = std::distance( tRequestedQIs.begin(), tIt );
-        //         }
-        //     }
-
-        //     // Store the requested GQI indices
-        //     mDesignGQIIndices( mGeometries.size() + iProp ) = tPropRequestedGQIIndices;
-        // }
     }
 
     //--------------------------------------------------------------------------------------------------------------

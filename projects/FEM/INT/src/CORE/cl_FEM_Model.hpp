@@ -440,17 +440,9 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief build a map for the mIQIs, fills in the mIQINameToIndexMap values
+             * @brief Adds the IQIs stored in mIQIs to the design variable interface
              */
-            //     void create_IQI_map() override;brendan delete
-
             void register_iqis();
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief Initialize the IQI with the correct size
-             */
-            // void initialize_IQIs() override; brendan delete
 
             //------------------------------------------------------------------------------
             /**

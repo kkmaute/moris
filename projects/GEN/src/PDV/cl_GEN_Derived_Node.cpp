@@ -20,8 +20,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Derived_Node::Derived_Node(
-            uint aIndex,
-            // const Vector< Background_Node* >& aBackgroundNodes, brendan delete
+            uint                    aIndex,
             const mtk::Cell&        aBackgroundElement,
             const Node_Manager&     aNodeManager,
             const Matrix< DDRMat >& aParametricCoordinates )

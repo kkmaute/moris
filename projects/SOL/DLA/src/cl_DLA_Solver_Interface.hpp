@@ -493,7 +493,7 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------
 
-        virtual void    // brendan delete
+        virtual void
         set_requested_IQI_names( const Vector< std::string >& aIQINames ) = 0;
 
         //------------------------------------------------------------------------------

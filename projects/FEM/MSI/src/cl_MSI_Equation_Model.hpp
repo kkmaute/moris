@@ -322,11 +322,6 @@ namespace moris
              */
             sol::Dist_Vector* get_dQIdp();
 
-            /**
-             * Gives the design variable interface new values for dIQI/dp for all FEM IQIs
-             */
-            void update_dIQIdp();
-
             //------------------------------------------------------------------------------
             /**
              * @brief set time for current time slab
@@ -407,14 +402,6 @@ namespace moris
              */
             virtual const Vector< std::string >
             get_requested_IQI_names() = 0;
-
-            //------------------------------------------------------------------------------
-            // /**
-            //  * @brief set requested IQI names
-            //  * @param[ in ] aRequestedIQINames List of requested IQI names
-            //  */
-            // virtual void
-            // create_IQI_map() = 0; brendan delete
 
             //------------------------------------------------------------------------------
             /**
@@ -522,10 +509,6 @@ namespace moris
             void compute_explicit_and_implicit_dQIdp();
 
             //------------------------------------------------------------------------------
-            /**
-             * @brief initialize QI brendan delete maybe
-             */
-            // virtual void initialize_IQIs() = 0;
 
             /**
              * @brief Computes the IQIs that are being used for optimization ONLY.

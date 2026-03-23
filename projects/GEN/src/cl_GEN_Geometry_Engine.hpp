@@ -322,14 +322,11 @@ namespace moris::gen
                 mtk::Cell* aCell );
 
         /**
-         * Creates a new floating node based on the given information.
+         * Creates a floating node based on the given information.
          *
-         * @param aGeometryIndex Geometry with the surface point
-         * @param aNodeIndex Node index assigned to the new floating node
-         * @param aBackgroundNodes Background nodes of the element where the floating node lies
-         * @param aParametricCoordinates Parametric coordinates of the floating node inside its background element
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
+         * @param aGeometryIndex Geometry to create this floating node
+         * @param aParentCell Background element where the floating node lies
+         * @param aParametricCoordinates Parametric coordinates inside the background element
          */
         void
         create_floating_node(
@@ -340,8 +337,8 @@ namespace moris::gen
         /**
          * Overloaded version of creating derived nodes. Calls other version internally.
          *
-         * @param aNewNodeParentCell MTK cells
-         * @param aParametricCoordinates Parametric coordinates for creating the derived node
+         * @param aNewNodeParentCell MTK cells where the derived nodes lie
+         * @param aParametricCoordinates Parametric coordinates of the derived nodes inside their parent cells
          */
         void create_new_derived_nodes(
                 const Vector< mtk::Cell* >&                          aNewNodeParentCell,

@@ -409,8 +409,6 @@ namespace moris::mdl
     {
         mEquationModel->set_is_forward_analysis();
 
-        // mEquationModel->initialize_IQIs(); brendan delete
-
         mSolverWarehouse->get_main_time_solver()->solve();
     }
 

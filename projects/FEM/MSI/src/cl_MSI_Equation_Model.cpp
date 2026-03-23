@@ -101,7 +101,6 @@ namespace moris::MSI
                     for ( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                     {
                         // assemble QI values into global vector
-                        // mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex ); brendan delete
                         mDesignVariableInterface->update_QI( tRequestedIQINames( tIQIIndex ),
                                 mDesignVariableInterface->get_QI( tRequestedIQINames( tIQIIndex ) ) + mFemSets( tSetIndex )->get_QI()( tIQIIndex )( 0, 0 ) );
                     }
@@ -185,6 +184,9 @@ namespace moris::MSI
 
         // global assembly to switch entries to the right processor
         mImplicitdQidp->vector_global_assembly();
+
+        // Update the dQIdp within the design variable interface
+        mDesignVariableInterface->update_QI_sensitivity( Module_Type::FEM, this->get_dQIdp() );
     }
 
     //------------------------------------------------------------------------------
@@ -288,11 +290,4 @@ namespace moris::MSI
         // return dQIdp
         return mdQIdp;
     }
-
-    void
-    Equation_Model::update_dIQIdp()
-    {
-        mDesignVariableInterface->update_QI_sensitivity( Module_Type::FEM, this->get_dQIdp() );
-    }
-
 }    // namespace moris::MSI

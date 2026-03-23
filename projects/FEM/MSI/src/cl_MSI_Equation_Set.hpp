@@ -354,16 +354,6 @@ namespace moris
 
             //-------------------------------------------------------------------------------------------------
             /**
-             * set GEN/MSI interface
-             * @param[ in ] aDesignVariableInterface a GEN/MSI interface pointer
-             *
-             * brendan useless function
-             */
-            // virtual void
-            // set_dv_interface( MSI::Design_Variable_Interface* aDesignVariableInterface ) = 0;
-
-            //-------------------------------------------------------------------------------------------------
-            /**
              * get residual
              */
             Vector< Matrix< DDRMat > >&

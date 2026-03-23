@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-//#include "cl_MatrixPETSc.hpp"
+// #include "cl_MatrixPETSc.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
@@ -97,18 +97,18 @@ namespace moris
 
         void import_local_to_global(
                 sol::Dist_Vector& aSourceVec ) override;
-        
+
         //-----------------------------------------------------------------------------
         /**
          * @brief function to add owned source vector to
          * the full vector of the destination vector, used in slepc
-         * 
-         * @param aSourceVec 
+         *
+         * @param aSourceVec
          */
         void import_local_to_global( Vec aSourceVec, uint aVecIndex, Dist_Map_Custom* tSourceMap );
 
         //-----------------------------------------------------------------------------
-        
+
         void vec_put_scalar( const moris::real& aValue ) override;
 
         void random() override;
@@ -123,19 +123,19 @@ namespace moris
 
         void extract_copy( Vector< real >& aVector ) override;
 
-        void extract_my_values( const moris::uint&      aNumIndices,
-                const moris::Matrix< DDSMat >&          aGlobalBlockRows,
-                const moris::uint&                      aBlockRowOffsets,
+        void extract_my_values( const moris::uint& aNumIndices,
+                const moris::Matrix< DDSMat >&     aGlobalBlockRows,
+                const moris::uint&                 aBlockRowOffsets,
                 Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
 
-        void extract_my_values( const moris::uint&      aNumIndices,
-        const Vector< sint >&           aGlobalBlockRows,
-        const moris::uint&                      aBlockRowOffsets,
-        Vector< moris::Matrix< DDRMat > >& LHSValues ) override; // brendan format
+        void extract_my_values( const moris::uint& aNumIndices,
+                const Vector< sint >&              aGlobalBlockRows,
+                const moris::uint&                 aBlockRowOffsets,
+                Vector< moris::Matrix< DDRMat > >& LHSValues ) override;
 
         void print() const override;
 
-        void save_vector_to_matrix_market_file( const char* aFilename ) override{};
+        void save_vector_to_matrix_market_file( const char* aFilename ) override {};
 
         void save_vector_to_matlab_file( const char* aFilename ) override;
 

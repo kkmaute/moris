@@ -101,12 +101,10 @@ namespace moris::gen
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.
          *
-         * @param aNodeIndex Node index of the new intersection node
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aNodeManager Reference to the node manager to access GEN nodes associated with the background element
+         * @param aBackgroundElement Background element where the intersection node lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
@@ -114,14 +112,13 @@ namespace moris::gen
                 const mtk::Cell&    aBackgroundElement,
                 const Parent_Node&  aFirstParentNode,
                 const Parent_Node&  aSecondParentNode ) override;
+
         /**
          * Creates a floating node based on the given information.
          *
-         * @param aNodeIndex Node index to be assigned to the new floating node
-         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aNodeManager Reference to the node manager to access GEN nodes associated with the background element
+         * @param aBackgroundElement Background element where the floating node lies
          * @param aParametricCoordinates Parametric coordinates inside the background element
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New floating node
          */
         Floating_Node* create_floating_node(
@@ -130,15 +127,14 @@ namespace moris::gen
                 const Matrix< DDRMat >& aParametricCoordinates ) override;
 
         /**
-         *  Flag to tell intersection nodes whether to compute sensitivities along their parent vector (default), or in the direction normal to the interface. This is an experimental function that is being tested by brendan.
-         * EXPERIMENTAL: Sensitivities along interface normals are a test function brendan
+         *  Flag to tell intersection nodes whether to compute sensitivities along their parent vector (default), or in the direction normal to the interface.
          */
         bool compute_sensitivity_along_edges() final;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
          *
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aBackgroundElement Background element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @return Parent edge local coordinate, between -1 and 1

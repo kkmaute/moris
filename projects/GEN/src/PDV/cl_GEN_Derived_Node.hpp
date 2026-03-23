@@ -33,7 +33,6 @@ namespace moris::gen
     class Derived_Node : public Node
     {
       private:
-        // Vector< Basis_Node > mBackgroundNodes; // brendan delete
         const mtk::Cell&    mBackgroundElement;
         const Node_Manager& mNodeManager;
         Matrix< DDRMat >    mGlobalCoordinates;
