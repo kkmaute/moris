@@ -12,6 +12,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
+#include "cl_MTK_Shape_Diameter_Data.hpp"
 
 #if MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
@@ -46,7 +47,6 @@ namespace moris::mtk
 
 namespace moris::mtk
 {
-
     // helper function for 2d raycast
     real cross_2d( const Matrix< DDRMat >& aVector1, const Matrix< DDRMat >& aVector2 );
 
@@ -54,55 +54,6 @@ namespace moris::mtk
 
     using Agglomeration_Function             = real ( * )( const real );    // Pointer to agglomeration function that takes a nodal shape diameter and returns an agglomerated value
     using Agglomeration_Sensitivity_Function = real ( * )( const real );    // Pointer to agglomeration sensitivity function that takes a nodal shape diameter and returns the sensitivity of the function wrt to the shape diameter
-
-    struct Ray_Cones
-    {
-        Vector< real > mDirectionWeights;    // Weight for each ray direction
-        Vector< real > mTheta;               // Angle from the normal for each ray direction (in radians)
-        Vector< real > mPhi;                 // Angle from the vertical for each ray direction (in radians)
-
-        Vector< Matrix< DDRMat > > mRayDirections;    // Each entry in the vector corresponds to a vertex. Each Matrix contains the ray directions as columns.
-
-        /**
-         * Constructor to size the data structures
-         */
-        Ray_Cones( uint aNumFacets, uint aNumRays, uint aDim )
-                : mDirectionWeights( aNumRays )
-                , mTheta( aNumRays )
-                , mPhi( aDim == 3 ? aNumRays : 0 )
-                , mRayDirections( aNumFacets, Matrix< DDRMat >( aDim, aNumRays ) )
-        {
-        }
-    };
-
-    struct Shape_Diameter_Distances
-    {
-        Ray_Cones mRayCones;    // FIXME brendan avoid copy
-
-        // Each entry in the vector corresponds to a vertex.
-        // Each vertex has a number of rays( aNumPolarRays* aNumAzimuthRays ) associated with it.
-        // Each ray only stores its nearest intersection (facet index, distance)
-        // Usage: Input( vertex index, ray index ) -> Output( facet index, distance )
-        Vector< Intersection_Vector > mDistances;
-
-        /**
-         * Constructor to size the data structures
-         */
-        Shape_Diameter_Distances( Ray_Cones& aRayCones, uint aNumVertices, uint aNumRays )
-                : mRayCones( aRayCones )
-                , mDistances( aNumVertices, Intersection_Vector( aNumRays ) )
-        {
-            // Check that the number of rays matches
-            MORIS_ERROR( aRayCones.mRayDirections( 0 ).n_cols() == aNumRays,
-                    "Shape_Diameter_Distances::Constructor - Number of rays does not match between Ray_Cones and input parameter." );
-
-            // Check that all weights are positive
-            for ( const auto& tWeight : mRayCones.mDirectionWeights )
-            {
-                MORIS_ERROR( tWeight > 0.0, "Shape_Diameter_Distances::Constructor - All direction weights must be positive." );
-            }
-        }
-    };
 
     struct Agglomeration_Parameters
     {
@@ -326,8 +277,8 @@ namespace moris::mtk
          */
         Vector< Vector< Intersection_Vector > >
         cast_batch_of_rays(
-                Matrix< DDRMat >&         aOrigins,
-                Matrix< DDRMat >&         aDirections,
+                const Matrix< DDRMat >&   aOrigins,
+                const Matrix< DDRMat >&   aDirections,
                 Vector< Vector< bool > >& aWarnings,
                 bool                      aIgnoreWarnings = true ) const;
 
@@ -344,10 +295,10 @@ namespace moris::mtk
          */
         Vector< Vector< Intersection_Vector > >
         cast_batch_of_rays(
-                Matrix< DDRMat >&           aOrigins,
-                Vector< Matrix< DDRMat > >& aDirections,
-                Vector< Vector< bool > >&   aWarnings,
-                bool                        aIgnoreWarnings = true ) const;
+                const Matrix< DDRMat >&           aOrigins,
+                const Vector< Matrix< DDRMat > >& aDirections,
+                Vector< Vector< bool > >&         aWarnings,
+                bool                              aIgnoreWarnings = true ) const;
 
         //-------------------------------------------------------------------------------
         // Quantities of interest
@@ -367,38 +318,14 @@ namespace moris::mtk
         Matrix< DDRMat > compute_dvolume_dvertex( const uint aVertexIndex ) const;
 
         /**
-         * Constructs a cone of rays for each vertex, centered around the vertex normal
-         * @param aConeAngle Angle of the cone in degrees
-         * @param aNumPolarRays Number of rays in the polar direction (θ)
-         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
-         * @return Ray_Cones struct which holds the weights and the ray directions for each vertex
-         */
-        Ray_Cones build_ray_cone_angles( const real aConeAngle, const uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
-
-        /**
-         * Computes the inward ray direction given the polar and azimuthal angles in a cone centered around the normal.
-         * Assumes the normal is outward facing, meaning the angle between the resulting direction and the normal will be greater than 90 degrees.
-         */
-        Matrix< DDRMat > compute_cone_direction_from_angle( const Matrix< DDRMat >& aNormal, real aTheta, real aPhi = MORIS_REAL_MAX ) const;
-
-        /**
          * Casts a cone of rays from each node, centered around the vertex normal, and gets the distances for each ray-facet intersection
          *
          * @param aConeAngle Angle of the cone in degrees
          * @param aNumPolarRays Number of rays in the polar direction (θ)
          * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
-         * @return Shape_Diameter_Distances struct which holds the weights and the intersection distances for each ray at each vertex
+         * @return Shape_Diameter_Data struct which holds the weights and the intersection distances for each ray at each vertex
          */
-        Shape_Diameter_Distances cast_shape_diameter_ray_cones( const real aConeAngle, const uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
-
-        /**
-         * @brief For each raycast result, determines the nearest intersection that is not part of the originating vertex's facets
-         * Used for shape diameter computation
-         *
-         * @param aAllDistances Raycast results for ray for each vertex - result of a batch raycast
-         * @return Vector< Intersection_Vector > Nearest non-trivial intersection for each ray at each vertex. Size: <number of vertices> x <number of rays per vertex>
-         */
-        Vector< Intersection_Vector > determine_nearest_nontrivial_intersections( Vector< Vector< Intersection_Vector > >& aAllIntersections ) const;
+        Shape_Diameter_Data cast_shape_diameter_ray_cones( const real aConeAngle, const uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
 
         /**
          * Computes the shape diameter for each surface mesh node
@@ -655,7 +582,6 @@ namespace moris::mtk
          */
         Matrix< DDRMat > compute_ddiameter_dvertex( uint aVertexIndex ) const;
 
-        // brendan experimental
         static real tanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom );
 
         static real dtanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom );
@@ -860,9 +786,9 @@ namespace moris::mtk
          */
         template< typename MemorySpace, typename ExecutionSpace >
         static arborx::QueryRays< MemorySpace > build_arborx_ray_batch(
-                ExecutionSpace const &      aExecutionSpace,
-                Matrix< DDRMat >&           aOrigins,
-                Vector< Matrix< DDRMat > >& aDirections );
+                ExecutionSpace const &            aExecutionSpace,
+                const Matrix< DDRMat >&           aOrigins,
+                const Vector< Matrix< DDRMat > >& aDirections );
 
         /**
          * Constructs the ArborX rays for the given points and directions
@@ -876,9 +802,9 @@ namespace moris::mtk
          */
         template< typename MemorySpace, typename ExecutionSpace >
         static arborx::QueryRays< MemorySpace > build_arborx_ray_batch(
-                ExecutionSpace const & aExecutionSpace,
-                Matrix< DDRMat >&      aOrigins,
-                Matrix< DDRMat >&      aDirections );
+                ExecutionSpace const &  aExecutionSpace,
+                const Matrix< DDRMat >& aOrigins,
+                const Matrix< DDRMat >& aDirections );
 
         /**
          * @brief Uses ArborX bounding volume hierarchy to determine which facets may be intersected by the ray
@@ -901,8 +827,8 @@ namespace moris::mtk
          * @return Vector< Vector< Vector< uint > > > Innermost vector is the indices of the facets that the ray hit. Middle vector is for each direction for each origin point. Outer vector is for origin points
          */
         Vector< Vector< Vector< uint > > > batch_preselect_with_arborx(
-                Matrix< DDRMat >&           aOrigins,
-                Vector< Matrix< DDRMat > >& aDirections ) const;
+                const Matrix< DDRMat >&           aOrigins,
+                const Vector< Matrix< DDRMat > >& aDirections ) const;
 
         /**
          * @brief Uses ArborX bounding volume hierarchy to determine which facets may be intersected by the ray
@@ -913,8 +839,8 @@ namespace moris::mtk
          * @return Vector< Vector< Vector< uint > > > Innermost vector is the indices of the facets that the ray hit. Middle vector is for each direction for each origin point. Outer vector is for origin points
          */
         Vector< Vector< Vector< uint > > > batch_preselect_with_arborx(
-                Matrix< DDRMat >& aOrigins,
-                Matrix< DDRMat >& aDirections ) const;
+                const Matrix< DDRMat >& aOrigins,
+                const Matrix< DDRMat >& aDirections ) const;
 
       protected:
         /**

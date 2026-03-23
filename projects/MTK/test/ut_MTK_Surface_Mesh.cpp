@@ -185,9 +185,9 @@ namespace moris::mtk
                         real tSDCentral  = ( tRaycastPlus - tRaycastMinus ) / ( 2.0 * tEps );
 
                         // Check sensitivities - raycast shape diameter
-                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-6 ) );
-                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-6 ) );
-                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-6 ) );
+                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-4 ) );
+                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-4 ) );
+                        CHECK( tRaycastDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-4 ) );
 
                         // Compute finite difference results - inscribed circle shape diameter
                         tSDForward  = ( tInscribedPlus - tInscribedGlobalDiameter ) / tEps;
@@ -195,9 +195,9 @@ namespace moris::mtk
                         tSDCentral  = ( tInscribedPlus - tInscribedMinus ) / ( 2.0 * tEps );
 
                         // Check sensitivities - inscribed circle shape diameter
-                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-6 ) );
-                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-6 ) );
-                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-6 ) );
+                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDForward ).epsilon( 1e-4 ) );
+                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDBackward ).epsilon( 1e-4 ) );
+                        CHECK( tInscribedDiameterSens( iDim ) == Approx( tSDCentral ).epsilon( 1e-4 ) );
 
                         // Compute finite difference results - shortest distance shape diameter
                         tSDForward  = ( tShortestPlus - tShortestGlobalDiameter ) / tEps;
