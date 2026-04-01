@@ -324,12 +324,17 @@ namespace moris::MSI
 
         //------------------------------------------------------------------------------
 
-        void set_requested_QIs( const Vector< std::string >& aRequestedIQINames );
-
         virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const final
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_requested_GQI() - not implemented in the child class" );
             return 0.0;
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool is_gen_workflow() const final
+        {
+            return true;
         }
     };
 }    // namespace moris::MSI

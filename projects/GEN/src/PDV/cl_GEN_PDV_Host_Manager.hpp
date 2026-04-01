@@ -406,5 +406,12 @@ namespace moris::gen
         void build_local_to_global_maps();
 
         //-------------------------------------------------------------------------------
+        /**
+         * Tells FEM to ensure we create PDV IDs for GEN nodes for optimization
+         * FIXME @bc: There should be a cleaner way to handle this through inheritance - the FEM model, relies on knowing this info
+         * to avoid creating PDV IDs for nodes if we are doing STK. Thus if body fitted shape optimization was implemented this would
+         * be unnecessary.
+         */
+        virtual bool is_gen_workflow() const final;
     };
 }    // namespace moris::gen

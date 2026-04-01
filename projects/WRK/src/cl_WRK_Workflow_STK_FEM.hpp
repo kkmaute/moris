@@ -12,7 +12,7 @@
 
 #include "cl_WRK_Workflow.hpp"
 #include "cl_Module_Parameter_Lists.hpp"
-#include "moris_typedefs.hpp"                       //MRS/COR/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"
 
 #include "cl_Matrix.hpp"
@@ -24,7 +24,7 @@ namespace moris
     {
         class Interpolation_Mesh;
         class Integration_Mesh;
-    }
+    }    // namespace mtk
     namespace wrk
     {
         class Performer_Manager;
@@ -32,53 +32,53 @@ namespace moris
         // Naming convention here means the background mesh is constructed by STK and the integration mesh is constructed by XTK
         class Workflow_STK_FEM : public Workflow
         {
-            private:
-                std::shared_ptr<mtk::Interpolation_Mesh> mIpMesh;
-                std::shared_ptr<mtk::Integration_Mesh>   mIgMesh;
-            public:
+          private:
+            std::shared_ptr< mtk::Interpolation_Mesh > mIpMesh;
+            std::shared_ptr< mtk::Integration_Mesh >   mIgMesh;
+            Vector< std::string >                      mRequestedQIs;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 */
-                Workflow_STK_FEM( wrk::Performer_Manager * aPerformerManager );
+          public:
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             */
+            Workflow_STK_FEM( wrk::Performer_Manager* aPerformerManager );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * destructor
-                 */
-                ~Workflow_STK_FEM() override{};
+            //------------------------------------------------------------------------------
+            /**
+             * destructor
+             */
+            ~Workflow_STK_FEM() override {};
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Initializes the vectors of ADV values, lower bounds, and upper bounds
-                 */
-                void initialize(
-                        Vector< real >& aADVs,
-                        Vector< real >& aLowerBounds,
-                        Vector< real >& aUpperBounds,
-                        Matrix< IdMat >& aIjklIDs ) override;
+            //------------------------------------------------------------------------------
+            /**
+             * Initializes the vectors of ADV values, lower bounds, and upper bounds
+             */
+            void initialize(
+                    Vector< real >&  aADVs,
+                    Vector< real >&  aLowerBounds,
+                    Vector< real >&  aUpperBounds,
+                    Matrix< IdMat >& aIjklIDs ) override;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Gets the criteria values given a new set of ADVs
-                 *
-                 * @return vector of criteria
-                 */
-                Vector< real > perform( Vector< real >& aNewADVs ) override;
+            //------------------------------------------------------------------------------
+            /**
+             * Gets the criteria values given a new set of ADVs
+             *
+             * @return vector of criteria
+             */
+            Vector< real > perform( Vector< real >& aNewADVs ) override;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Gets the derivative of the criteria with respect to the advs
-                 *
-                 * @return matrix d(criteria)_i/d(adv)_j
-                 */
-                Matrix< DDRMat > compute_dcriteria_dadv() override;
+            //------------------------------------------------------------------------------
+            /**
+             * Gets the derivative of the criteria with respect to the advs
+             *
+             * @return matrix d(criteria)_i/d(adv)_j
+             */
+            Matrix< DDRMat > compute_dcriteria_dadv() override;
 
-                void
-                create_stk( Module_Parameter_Lists & aParameterLists);
-
+            void
+            create_stk( Module_Parameter_Lists& aParameterLists );
         };
         //------------------------------------------------------------------------------
-    } /* namespace mdl */
+    }    // namespace wrk
 } /* namespace moris */

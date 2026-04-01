@@ -124,7 +124,7 @@ namespace moris::fem
         this->set_design_variable_interface( aDesignVariableInterface );
 
         // if no design variables have been stipulated, skip
-        if ( aDesignVariableInterface == nullptr )
+        if ( aDesignVariableInterface == nullptr or not aDesignVariableInterface->is_gen_workflow() )
         {
             mFEMOnly = true;
             MORIS_LOG( "Skipping GEN, FEM Only" );
@@ -212,7 +212,7 @@ namespace moris::fem
         this->set_design_variable_interface( aDesignVariableInterface );
 
         // if no design variables have been stipulated, skip
-        if ( aDesignVariableInterface == nullptr )
+        if ( aDesignVariableInterface == nullptr or not aDesignVariableInterface->is_gen_workflow() )
         {
             mFEMOnly = true;
             MORIS_LOG( "Skipping GEN, FEM Only" );

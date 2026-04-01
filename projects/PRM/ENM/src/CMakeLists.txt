@@ -23,6 +23,7 @@ set(HEADERS
     cl_TSA_Time_Solver_Enums.hpp
     cl_VIS_Output_Enums.hpp
     cl_XTK_Enums.hpp
+    cl_STK_Enums.hpp
     fn_enum_macros.hpp
     fn_enum_macros_generated.hpp
     enums.hpp

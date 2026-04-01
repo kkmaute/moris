@@ -691,7 +691,7 @@ namespace moris::gen
                     // remove sensitivities wrt unused variables
                     this->remove_sensitivities_of_unused_variables( tADVIds, tHostADVSensitivities );
 
-                    // loop overall coordinate directions
+                    // loop over all coordinate directions
                     for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
                     {
                         // get PDV ID
@@ -700,7 +700,7 @@ namespace moris::gen
                         // Loop over requested QIs for this module
                         for ( uint iModuleQIIndex = 0; iModuleQIIndex < tModuleRequestedQIIndices.size(); iModuleQIIndex++ )
                         {
-                            // Get the index in the full requested list
+                            // Get the index in the full requested list FIXME annoying find
                             uint tQIIndex = std::distance( tRequestedQIIndices.cbegin(), std::find( tRequestedQIIndices.cbegin(), tRequestedQIIndices.cend(), tModuleRequestedQIIndices( iModuleQIIndex ) ) );
 
                             Matrix< DDRMat > tIndividualSensitivity =
@@ -1490,47 +1490,11 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    // void
-    // PDV_Host_Manager::set_dQIdp(
-    //         const Vector< Matrix< DDRMat >* >& adQIdp,
-    //         Matrix< DDSMat >*                  aMap )
-    // {
-    //     // Number
-    //     sint tNumIQIs = adQIdp.size();
+    bool PDV_Host_Manager::is_gen_workflow() const
+    {
+        return true;
+    }
 
-    //     // Create factory for resulting distributed vector
-    //     sol::Matrix_Vector_Factory tDistributedFactory;
+    //--------------------------------------------------------------------------------------------------------------
 
-    //     // node map from
-    //     sol::Dist_Map* tMap = tDistributedFactory.create_map( this->get_my_local_global_map() );
-
-    //     // allocate dist vector
-    //     sol::Dist_Vector* tdQIDp = tDistributedFactory.create_vector( tMap, tNumIQIs, false, true );
-
-    //     for ( uint iIQI = 0; iIQI < (uint)tNumIQIs; iIQI++ )
-    //     {
-    //         // iterate through intersection vertices
-    //         for ( uint iNodeIndex = mNodeManager.get_number_of_background_nodes(); iNodeIndex < mNodeManager.get_total_number_of_nodes(); iNodeIndex++ )
-    //         {
-    //             if ( mNodeManager.node_depends_on_advs( iNodeIndex ) )
-    //             {
-    //                 // Get number of PDVs and starting ID
-    //                 moris_id tStartingPDVId = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
-    //                 uint     tNumberOfPDVs  = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
-
-    //                 moris::Matrix< DDSMat > tPDVIds( 1, tNumberOfPDVs );
-    //                 for ( moris::uint iPDV = 0; iPDV < tNumberOfPDVs; iPDV++ )
-    //                 {
-    //                     tPDVIds( iPDV ) = tStartingPDVId + iPDV;
-    //                 }
-
-    //                 Matrix< DDRMat > tIndividualSensitivity = adQIdp( iIQI )->get_row( iNodeIndex );
-
-    //                 tdQIDp->sum_into_global_values( tPDVIds, tIndividualSensitivity, iIQI );
-    //             }
-    //         }
-    //     }
-
-    //     this->set_dQIdp_dist_vect( tdQIDp );
-    // }
 }    // namespace moris::gen

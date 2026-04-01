@@ -20,6 +20,7 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
+#include "cl_MSI_QI_Manager_STK.hpp"
 
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
@@ -52,6 +53,7 @@ namespace moris::wrk
 
         // load the STK parameter list
         Module_Parameter_Lists tSTKParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Module_Type::STK );
+        mRequestedQIs                            = tSTKParameterList( 0 )( 0 ).get_vector< std::string >( "requested_QIs" );
 
         // load the meshes
         mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -82,6 +84,9 @@ namespace moris::wrk
     {
 
         // Stage 1: MDL perform ---------------------------------------------------------------------
+        std::shared_ptr< MSI::QI_Manager_STK > tQIManager = std::make_shared< MSI::QI_Manager_STK >( mRequestedQIs );
+
+        mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface( tQIManager );
 
         mPerformerManager->mMDLPerformer( 0 )->initialize();
 
