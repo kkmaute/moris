@@ -85,10 +85,9 @@ namespace moris
             LAGRANGE_MESHES,
             BSPLINE_MESHES )
 
-    enum class STK_Submodule
-    {
-        GENERAL
-    };
+    ENUM_MACRO( STK_Submodule,
+            GENERAL,
+            SQI )
 
     ENUM_MACRO( XTK_Submodule,
             GENERAL,

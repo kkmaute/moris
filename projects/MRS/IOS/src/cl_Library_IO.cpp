@@ -1153,7 +1153,15 @@ namespace moris
                 return prm::create_hmr_parameter_list();
 
             case Module_Type::STK:
-                return prm::create_stk_parameter_list();
+                switch ( aChild )
+                {
+                    case 0:
+                        return prm::create_stk_parameter_list();
+                    case 1:
+                        return prm::create_SQI_parameter_list( (sqi::SQI_Type)aSubChild );
+                    default:
+                        break;
+                }
 
             case Module_Type::XTK:
                 switch ( aChild )

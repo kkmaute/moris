@@ -73,6 +73,9 @@ namespace moris
             case Module_Type::HMR:
                 return HMR_Submodule_String::values;
 
+            case Module_Type::STK:
+                return STK_Submodule_String::values;
+
             case Module_Type::XTK:
                 return XTK_Submodule_String::values;
 
@@ -126,12 +129,13 @@ namespace moris
                 tNames = { "General", "LagrangeMeshes", "BSplineMeshes" };
                 break;
 
-            case Module_Type::STK:
-                break;    // standard name
-
             case Module_Type::XTK:
                 tNames = { "General", "XQI" };
-                break;    // standard name
+                break;
+
+            case Module_Type::STK:
+                tNames = { "General", "SQI" };
+                break;
 
             case Module_Type::GEN:
                 tNames = { "General", "Geometry", "Property", "GQI" };

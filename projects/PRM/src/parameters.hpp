@@ -30,6 +30,7 @@ namespace moris
 {
     typedef OPT_Submodule OPT;
     typedef HMR_Submodule HMR;
+    typedef STK_Submodule STK;
     typedef XTK_Submodule XTK;
     typedef GEN_Submodule GEN;
     typedef FEM_Submodule FEM;
