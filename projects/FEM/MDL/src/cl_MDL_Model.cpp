@@ -452,6 +452,14 @@ namespace moris::mdl
     }
 
     //------------------------------------------------------------------------------
+
+    const std::shared_ptr< MSI::Design_Variable_Interface > Model::get_design_variable_interface()
+    {
+        return mDesignVariableInterface;
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     Model::set_weak_bcs( const Matrix< DDRMat >& aWeakBCs )
     {

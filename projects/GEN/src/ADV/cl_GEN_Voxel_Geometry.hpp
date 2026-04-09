@@ -230,7 +230,7 @@ namespace moris::gen
         // Geometry Quantity of Interest (GQI) functions
         //------------------------------------------------------------------------------
 
-        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters ) final;
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary ) final;
 
         virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const final;
     };

@@ -51,13 +51,13 @@ namespace moris::mtk
             real tShortestDiameterExpected  = 0.12377533;
 
             // Config for shape diameter computation
-            uint                     tNumRays            = 6;       // For raycast method
-            uint                     tNumSamples         = 1;       // For inscribed circle and shortest distance methods
-            real                     tRaycastConeAngle   = 60.0;    // degrees
-            real                     tRelativeChord      = 0.25;
-            real                     tInscribedConeAngle = 120.0;    // degrees
-            real                     tShortestConeAngle  = 40.0;     // degrees
-            Agglomeration_Parameters tAgglom( 4.0, 2.0, 0.0 );       // Same for all methods
+            uint                              tNumRays            = 6;       // For raycast method
+            uint                              tNumSamples         = 1;       // For inscribed circle and shortest distance methods
+            real                              tRaycastConeAngle   = 60.0;    // degrees
+            real                              tRelativeChord      = 0.25;
+            real                              tInscribedConeAngle = 120.0;    // degrees
+            real                              tShortestConeAngle  = 40.0;     // degrees
+            Agglomeration_Parameters_Constant tAgglom( 4.0, 2.0, 0.0 );       // Same for all methods
 
             // Check number of vertices and facets
             REQUIRE( tSurfaceMesh.get_number_of_vertices() == tCoordsExpected.n_cols() );
@@ -438,8 +438,9 @@ namespace moris::mtk
         SECTION( "Agglomeration Function Sensitivity" )
         {
             // Agglomeration function sensitivity test
-            Agglomeration_Parameters tAgglom( 2.0, 0.5, 0.0 );
-            uint                     tNumTests = 5;
+            Agglomeration_Parameters_Constant tAgglom( 2.0, 0.5, 0.0 );
+            uint                              tNumTests = 5;
+            Matrix< DDRMat >                  tDummy;
 
             // Loop over some test values
             for ( uint iTest = 0; iTest < tNumTests; iTest++ )
@@ -447,15 +448,15 @@ namespace moris::mtk
                 real tValue = 0.05 + iTest * 0.05;
 
                 // Compute analytic value and sensitivity
-                real tAgglomeratedValue        = tSurfaceMesh.tanh_clip( tValue, tAgglom );
-                real tDAgglomeratedValueDValue = tSurfaceMesh.dtanh_clip( tValue, tAgglom );
+                real tAgglomeratedValue        = tSurfaceMesh.tanh_clip( tValue, tAgglom, tDummy );
+                real tDAgglomeratedValueDValue = tSurfaceMesh.dtanh_clip( tValue, tAgglom, tDummy );
 
                 // Finite difference sensitivity
                 real tValuePlus             = tValue + tEps;
-                real tAgglomeratedValuePlus = tSurfaceMesh.tanh_clip( tValuePlus, tAgglom );
+                real tAgglomeratedValuePlus = tSurfaceMesh.tanh_clip( tValuePlus, tAgglom, tDummy );
 
                 real tValueMinus             = tValue - tEps;
-                real tAgglomeratedValueMinus = tSurfaceMesh.tanh_clip( tValueMinus, tAgglom );
+                real tAgglomeratedValueMinus = tSurfaceMesh.tanh_clip( tValueMinus, tAgglom, tDummy );
 
                 real tDForward  = ( tAgglomeratedValuePlus - tAgglomeratedValue ) / tEps;
                 real tDBackward = ( tAgglomeratedValue - tAgglomeratedValueMinus ) / tEps;
@@ -467,15 +468,15 @@ namespace moris::mtk
                 CHECK( tDAgglomeratedValueDValue == Approx( tDCentral ) );
 
                 // Compute analytic sensitivity
-                tAgglomeratedValue        = tSurfaceMesh.max_clip( tValue, tAgglom );
-                tDAgglomeratedValueDValue = tSurfaceMesh.dmax_clip( tValue, tAgglom );
+                tAgglomeratedValue        = tSurfaceMesh.max_clip( tValue, tAgglom, tDummy );
+                tDAgglomeratedValueDValue = tSurfaceMesh.dmax_clip( tValue, tAgglom, tDummy );
 
                 // Finite difference sensitivity
                 tValuePlus             = tValue + tEps;
-                tAgglomeratedValuePlus = tSurfaceMesh.max_clip( tValuePlus, tAgglom );
+                tAgglomeratedValuePlus = tSurfaceMesh.max_clip( tValuePlus, tAgglom, tDummy );
 
                 tValueMinus             = tValue - tEps;
-                tAgglomeratedValueMinus = tSurfaceMesh.max_clip( tValueMinus, tAgglom );
+                tAgglomeratedValueMinus = tSurfaceMesh.max_clip( tValueMinus, tAgglom, tDummy );
 
                 tDForward  = ( tAgglomeratedValuePlus - tAgglomeratedValue ) / tEps;
                 tDBackward = ( tAgglomeratedValue - tAgglomeratedValueMinus ) / tEps;
@@ -712,7 +713,7 @@ namespace moris::mtk
     //     real                     tAgglomerationExponentBash = 2.0;
     //     real                     tAgglomerationRefBash      = 1.0;
     //     real                     tAgglomerationShiftBash    = 0.0;
-    //     Agglomeration_Parameters tAgglom( tAgglomerationExponentBash, tAgglomerationRefBash, tAgglomerationShiftBash );
+    //     Agglomeration_Parameters_Constant tAgglom( tAgglomerationExponentBash, tAgglomerationRefBash, tAgglomerationShiftBash );
 
     //     // Open file for printing
     //     std::ofstream tSDFile;
@@ -796,7 +797,7 @@ namespace moris::mtk
     //     // // Config for shape diameter computation
     //     uint                     tNumRaysBash   = 30;
     //     real                     tConeAngleBash = 120.0;
-    //     Agglomeration_Parameters tAgglom( 2.0, 1.5, 0.0 );
+    //     Agglomeration_Parameters_Constant tAgglom( 2.0, 1.5, 0.0 );
 
     //     tSurfaceMesh.compute_global_shape_diameter( tAgglom, tConeAngleBash, tNumRaysBash, 1 );
 

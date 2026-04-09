@@ -238,7 +238,7 @@ namespace moris::prm
     static Parameter_List create_GQI_parameter_list()
     {
         Parameter_List tGQIParameterList( "GQI" );
-        tGQIParameterList.insert( "design_name", "" );    // todo brendan verify against geometry/property names
+        tGQIParameterList.insert( "design_name", "", Entry_Type::SELECTION, "name", Module_Type::GEN, 1 );
         tGQIParameterList.insert( "GQI_name", "" );
         tGQIParameterList.insert_enum( "GQI_type", gen::GQI_Type_String::values );
         return tGQIParameterList;
@@ -257,6 +257,7 @@ namespace moris::prm
                 aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
                 break;
 
             case gen::GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
@@ -265,6 +266,7 @@ namespace moris::prm
                 aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
                 break;
 
             case gen::GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
@@ -273,6 +275,7 @@ namespace moris::prm
                 aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
                 break;
 
             default:

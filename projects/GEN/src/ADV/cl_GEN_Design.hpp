@@ -13,6 +13,7 @@
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_ADV_Handler.hpp"
 #include "cl_GEN_Field.hpp"
+#include "cl_Library_IO.hpp"
 namespace moris::gen
 {
     /**
@@ -211,14 +212,16 @@ namespace moris::gen
          */
         Vector< real > compute_GQIs( sol::Dist_Vector*                   aGQISensitivities,
                 const Vector< std::shared_ptr< Parameter_List const > >& aGQIParameters,
-                const Vector< uint >&                                    aRequestIndices );
+                const Vector< uint >&                                    aRequestIndices,
+                const std::shared_ptr< Library_IO >                      aLibrary );
 
       protected:
         /**
          * Computes the value of a requested geometric quantity of interest (GQI) for this design.
          * @param aGQIParameters Parameter list for this GQI
+         * @param aLibrary Library IO object to load agglomeration reference function
          */
-        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters ) = 0;
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary ) = 0;
 
         /**
          * Computest the PDV sensitivities of a requested geometric quantity of interest (GQI) for this design.

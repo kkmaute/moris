@@ -598,7 +598,7 @@ namespace moris
 
     //------------------------------------------------------------------------------------------------------------------
 
-    Module_Parameter_Lists
+    const Module_Parameter_Lists&
     Library_IO::get_parameters_for_module( Module_Type aParamListType ) const
     {
         // check that the parameter lists are complete
@@ -609,6 +609,7 @@ namespace moris
 
         // get the parameter list for the module and return it
         uint tParamListIndex = (uint)( aParamListType );
+
         return mParameterLists( tParamListIndex );
     }
 
@@ -1158,7 +1159,7 @@ namespace moris
                     case 0:
                         return prm::create_stk_parameter_list();
                     case 1:
-                        return prm::create_SQI_parameter_list( (sqi::SQI_Type)aSubChild );
+                        return prm::create_SQI_parameter_list( (mtk::QI_Type)aSubChild );
                     default:
                         break;
                 }
@@ -1169,7 +1170,7 @@ namespace moris
                     case 0:
                         return prm::create_xtk_parameter_list();
                     case 1:
-                        return prm::create_XQI_parameter_list( (xtk::XQI_Type)aSubChild );
+                        return prm::create_XQI_parameter_list( (mtk::QI_Type)aSubChild );
                     default:
                         break;
                 }

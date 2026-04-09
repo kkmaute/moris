@@ -11,6 +11,7 @@
 #include "cl_GEN_Level_Set_Geometry.hpp"
 
 #include <utility>
+#include "cl_Library_IO.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Derived_Node.hpp"
@@ -319,9 +320,9 @@ namespace moris::gen
             real tResidual          = 0.0;
 
             // compute initial guess: location of intersection point along edge in edge CS
-            real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
-                                 / ( tSecondParentPhi - tFirstParentPhi );
-            Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
+            real             tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
+                                             / ( tSecondParentPhi - tFirstParentPhi );
+            Matrix< DDRMat > tInitialGuess   = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
 
             // loop over initial guess trials
             for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
@@ -732,7 +733,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Level_Set_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
+    real Level_Set_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
     {
         // TO IMPLEMENT
         return 0.0;

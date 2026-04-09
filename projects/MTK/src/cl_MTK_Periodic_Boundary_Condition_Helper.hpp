@@ -21,7 +21,7 @@ namespace moris::mtk
       public:
         Periodic_Boundary_Condition_Helper( std::shared_ptr< Mesh_Manager > aMeshManager,
                 moris_index                                                 aMeshIndex,
-                moris::Parameter_List                                      &aParameterList );
+                const moris::Parameter_List&                                aParameterList );
 
         void
         setup_periodic_boundary_conditions();
@@ -31,6 +31,6 @@ namespace moris::mtk
         moris_index                     mMeshIndex;
         Vector< Vector< std::string > > mMeshSideSetPairs;
     };
-    }
+}    // namespace moris::mtk
 
 #endif

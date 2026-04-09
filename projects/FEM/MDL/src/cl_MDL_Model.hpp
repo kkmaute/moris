@@ -216,6 +216,8 @@ namespace moris
 
             virtual void set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
 
+            const std::shared_ptr< MSI::Design_Variable_Interface > get_design_variable_interface();
+
             //------------------------------------------------------------------------------
             /**
              * initialize the set - build FEM, MSI, VIS and SOL

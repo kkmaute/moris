@@ -311,7 +311,7 @@ namespace moris::gen
     // Geometry Quantity of Interest (GQI) functions
     //--------------------------------------------------------------------------------------------------------------
 
-    real Voxel_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
+    real Voxel_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
     {
         MORIS_ERROR( false, "Voxel_Geometry::compute_GQI() - GQI not implemented for voxel geometry." );
         return 0.0;

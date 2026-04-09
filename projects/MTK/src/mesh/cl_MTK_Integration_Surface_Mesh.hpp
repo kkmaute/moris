@@ -13,7 +13,7 @@
 #include "fn_MTK_Integration_Surface_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
-#include "cl_XTK_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_Json_Object.hpp"
@@ -136,8 +136,8 @@ namespace moris::mtk
          * @param aExtra Extra arguments that may be required for specific XQI types (e.g., agglomeration functions).
          */
         template< typename... ExtraArgs >
-        void compute_XQI_sensitivities(
-                const xtk::XQI_Type                    aType,
+        void compute_QI_sensitivities(
+                const QI_Type                          aType,
                 const Vector< Vector< moris_index > > &aVertexPDVIDs,
                 sol::Dist_Vector                      *aSensitivities,
                 const uint                             aRequestIndex,
@@ -149,16 +149,16 @@ namespace moris::mtk
 
             switch ( aType )
             {
-                case xtk::XQI_Type::VOLUME:
+                case QI_Type::VOLUME:
                     // no extra args required
                     get_dXQI_dvertex = [ this ]( uint aV ) -> Matrix< DDRMat > {
                         return this->compute_dvolume_dvertex( aV );
                     };
                     break;
 
-                case xtk::XQI_Type::RAYCAST_SHAPE_DIAMETER:
-                case xtk::XQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
-                case xtk::XQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
+                case QI_Type::RAYCAST_SHAPE_DIAMETER:
+                case QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
+                case QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
                 {
                     // Capture extra args into a tuple
                     auto tExtras     = std::make_tuple( std::forward< ExtraArgs >( aExtra )... );

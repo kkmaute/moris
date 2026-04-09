@@ -573,16 +573,16 @@ namespace moris::xtk
     }
 
     void
-    Model::compute_XQIs( std::shared_ptr< Library_IO > aLibrary )
+    Model::compute_XQIs( const std::shared_ptr< Library_IO > aLibrary )
     {
         Tracer tTracer( "XTK", "Compute XQIs" );
 
-        // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface)
+        // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
         std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mGeometryEngine->get_design_variable_interface();
 
         uint tNumXQIs = mParameterList( 1 ).size();
 
-        if ( tNumXQIs > 0 )
+        if ( tNumXQIs > 0 )    // todo brendan be more elegant
         {
             // Create a dist vector to store the sensitivities
             sol::Matrix_Vector_Factory tDistFactory;
@@ -593,14 +593,41 @@ namespace moris::xtk
             for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
             {
                 // Get the XQI name and type
-                std::string tXQIName = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
-                XQI_Type    tXQIType = static_cast< XQI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
+                std::string  tXQIName = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
+                mtk::QI_Type tXQIType = static_cast< mtk::QI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
 
                 // Create a surface mesh from the IG mesh for surface XQIs
-                // FIXME actually construct from phase names
+                // FIXME brendan construct from phase names
                 mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_1_b1_0", "SideSet_1_c_p1", "SideSet_2_c_p1", "SideSet_3_c_p1", "SideSet_4_c_p1", "SideSet_1_n_p1", "SideSet_2_n_p1", "SideSet_3_n_p1", "SideSet_4_n_p1" } );    // FIXME side set names make variable
                 // mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0", "SideSet_1_n_p0", "SideSet_2_n_p0", "SideSet_3_n_p0", "SideSet_4_n_p0" } );    // FIXME side set names make variable
                 mtk::Integration_Surface_Mesh tSurfaceMesh( tSurfaceMeshData );
+
+                // Brendan delete
+                tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
+
+                // // brendan delete
+                // std::ofstream tSensitivityFile( "dqi_dpdv_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+                // Vector< Vector< uint > > tVerticesOfInterest( tADVs.size() );
+                // Vector< std::ifstream >  tVertexFiles( tADVs.size() );
+                // Vector< std::ofstream >  tVertexOutputFile( tADVs.size() );
+                // for ( uint iA = 0; iA < tADVs.size(); iA++ )
+                // {
+                //     tVertexFiles( iA )      = std::ifstream( "vertices_dependent_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+                //     tVertexOutputFile( iA ) = std::ofstream( "vertex_sensitivities_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+
+                //     if ( tVertexFiles( iA ).is_open() )
+                //     {
+                //         luint tID;
+                //         real  x, y, dx, dy;
+                //         while ( tVertexFiles( iA ) >> tID >> x >> y >> dx >> dy )
+                //         {
+                //             tVerticesOfInterest( iA ).push_back( static_cast< uint >( tID ) );
+                //         }
+                //         tVertexFiles( iA ).close();
+                //     }
+                // }
+                std::ofstream tMapFile( "vertex_map_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+
 
                 // Get the IG to PDV ID map for this surface mesh
                 Vector< Vector< moris_index > > tPDVIDs;
@@ -612,72 +639,90 @@ namespace moris::xtk
                 real tXQIValue = MORIS_REAL_MAX;
                 switch ( tXQIType )
                 {
-                    case ( XQI_Type::VOLUME ):
+                    case ( mtk::QI_Type::VOLUME ):
                         tXQIValue = tSurfaceMesh.compute_volume();
-                        tSurfaceMesh.compute_XQI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
+                        tSurfaceMesh.compute_QI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
                         break;
-                    case ( XQI_Type::RAYCAST_SHAPE_DIAMETER ):
+                    case ( mtk::QI_Type::RAYCAST_SHAPE_DIAMETER ):
                     {
-                        real                          tConeAngle      = mParameterList( 1 )( iXQI ).get< real >( "cone_angle" );
-                        uint                          tNumPolarRays   = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) );
-                        uint                          tNumAzimuthRays = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) );
-                        mtk::Agglomeration_Parameters tAgglom(
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_exponent" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_reference" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_shift" ) );
+                        real                                             tConeAngle      = mParameterList( 1 )( iXQI ).get< real >( "cone_angle" );
+                        uint                                             tNumPolarRays   = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) );
+                        uint                                             tNumAzimuthRays = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) );
+                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom         = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
 
                         tXQIValue = tSurfaceMesh.compute_global_shape_diameter_raycast(
-                                tAgglom,
+                                *tAgglom,
                                 tConeAngle,
                                 tNumPolarRays,
                                 tNumAzimuthRays );
 
-                        tSurfaceMesh.compute_XQI_sensitivities(
+                        tSurfaceMesh.compute_QI_sensitivities(
                                 tXQIType,
                                 tPDVIDs,
                                 tdXQIdPDV,
                                 iXQI );
 
+                        // brendan delete
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+
+                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+                        }
+
                         break;
                     }
-                    case ( XQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
+                    case ( mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
                     {
-                        mtk::Agglomeration_Parameters tAgglom(
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_exponent" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_reference" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_shift" ) );
+                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
 
                         tXQIValue = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle(
-                                tAgglom,
+                                *tAgglom,
                                 mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
                                 mParameterList( 1 )( iXQI ).get< real >( "minimum_relative_chord_length" ),
                                 mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
 
-                        tSurfaceMesh.compute_XQI_sensitivities(
+                        tSurfaceMesh.compute_QI_sensitivities(
                                 tXQIType,
                                 tPDVIDs,
                                 tdXQIdPDV,
                                 iXQI );
+
+                        // brendan delete
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+
+                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+                        }
 
                         break;
                     }
-                    case ( XQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
+                    case ( mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
                     {
-                        mtk::Agglomeration_Parameters tAgglom(
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_exponent" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_reference" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "agglomeration_shift" ) );
+                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
 
                         tXQIValue = tSurfaceMesh.compute_global_shape_diameter_shortest_distance(
-                                tAgglom,
+                                *tAgglom,
                                 mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
                                 mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
 
-                        tSurfaceMesh.compute_XQI_sensitivities(
+                        tSurfaceMesh.compute_QI_sensitivities(
                                 tXQIType,
                                 tPDVIDs,
                                 tdXQIdPDV,
                                 iXQI );
+
+                        // brendan delete
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+
+                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+                        }
 
                         break;
                     }

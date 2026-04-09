@@ -200,6 +200,7 @@ set(HEADERS
         mesh/cl_MTK_Mesh_Pair.hpp
         mesh/cl_MTK_Mesh_Tools.hpp
         mesh/cl_MTK_Surface_Mesh.hpp
+        mesh/cl_MTK_Agglomeration_Parameters.hpp
         mesh/cl_MTK_Shape_Diameter_Data.hpp
         mesh/cl_MTK_Integration_Surface_Mesh.hpp
         mesh/fn_MTK_Load_External_Surface_Mesh.hpp
@@ -306,6 +307,7 @@ set(LIB_SOURCES
         mesh/cl_MTK_Mesh_Manager.cpp
         mesh/cl_MTK_Mesh_Pair.cpp
         mesh/cl_MTK_Surface_Mesh.cpp
+        mesh/cl_MTK_Agglomeration_Parameters.cpp
         mesh/cl_MTK_Shape_Diameter_Data.cpp
         mesh/cl_MTK_Integration_Surface_Mesh.cpp
         mesh/fn_MTK_Load_External_Surface_Mesh.cpp

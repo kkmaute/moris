@@ -2186,7 +2186,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters )
+    real Surface_Mesh_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
     {
         GQI_Type tGQIType = aGQIParameters->get< GQI_Type >( "GQI_type" );
 
@@ -2198,12 +2198,9 @@ namespace moris::gen
                 uint tNumPolarRays   = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_polar_rays" ) );
                 uint tNumAzimuthRays = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_azimuth_rays" ) );
 
-                mtk::Agglomeration_Parameters tAgglom(
-                        aGQIParameters->get< real >( "agglomeration_exponent" ),
-                        aGQIParameters->get< real >( "agglomeration_reference" ),
-                        aGQIParameters->get< real >( "agglomeration_shift" ) );
+                std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( *aGQIParameters, aLibrary );
 
-                return Surface_Mesh::compute_global_shape_diameter_raycast( tAgglom, tConeAngle, tNumPolarRays, tNumAzimuthRays );
+                return Surface_Mesh::compute_global_shape_diameter_raycast( *tAgglom, tConeAngle, tNumPolarRays, tNumAzimuthRays );
             }
             case GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
             {
@@ -2211,24 +2208,18 @@ namespace moris::gen
                 real tRelativeChord = aGQIParameters->get< real >( "minimum_relative_chord_length" );
                 uint tNumSamples    = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_samples" ) );
 
-                mtk::Agglomeration_Parameters tAgglom(
-                        aGQIParameters->get< real >( "agglomeration_exponent" ),
-                        aGQIParameters->get< real >( "agglomeration_reference" ),
-                        aGQIParameters->get< real >( "agglomeration_shift" ) );
+                std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( *aGQIParameters, aLibrary );
 
-                return Surface_Mesh::compute_global_shape_diameter_inscribed_circle( tAgglom, tConeAngle, tRelativeChord, tNumSamples );
+                return Surface_Mesh::compute_global_shape_diameter_inscribed_circle( *tAgglom, tConeAngle, tRelativeChord, tNumSamples );
             }
             case GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
             {
                 real tConeAngle  = aGQIParameters->get< real >( "cone_angle" );
                 uint tNumSamples = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_samples" ) );
 
-                mtk::Agglomeration_Parameters tAgglom(
-                        aGQIParameters->get< real >( "agglomeration_exponent" ),
-                        aGQIParameters->get< real >( "agglomeration_reference" ),
-                        aGQIParameters->get< real >( "agglomeration_shift" ) );
+                std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( *aGQIParameters, aLibrary );
 
-                return Surface_Mesh::compute_global_shape_diameter_shortest_distance( tAgglom, tConeAngle, tNumSamples );
+                return Surface_Mesh::compute_global_shape_diameter_shortest_distance( *tAgglom, tConeAngle, tNumSamples );
             }
             default:
                 MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );

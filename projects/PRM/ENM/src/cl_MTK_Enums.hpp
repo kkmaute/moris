@@ -15,6 +15,7 @@
 #include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Vector.hpp"
+#include "fn_enum_macros.hpp"
 
 namespace moris::mtk
 {
@@ -314,7 +315,7 @@ namespace moris::mtk
 
     /**
      * @brief Possible regions for surface meshes
-     * 
+     *
      */
     enum Mesh_Region
     {
@@ -324,6 +325,12 @@ namespace moris::mtk
         UNDEFINED,
         END_ENUM
     };
+
+    ENUM_MACRO( QI_Type,
+            VOLUME,
+            RAYCAST_SHAPE_DIAMETER,
+            INSCRIBED_CIRCLE_SHAPE_DIAMETER,
+            SHORTEST_DISTANCE_SHAPE_DIAMETER )
 
     /**
      * Gets the map that can be used to go from a parameter list value to the internal enum Field_Entity_Type

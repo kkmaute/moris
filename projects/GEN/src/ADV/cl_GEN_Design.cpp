@@ -413,7 +413,8 @@ namespace moris::gen
     Vector< real >
     Design::compute_GQIs( sol::Dist_Vector*                          aGQISensitivities,
             const Vector< std::shared_ptr< Parameter_List const > >& aGQIParameters,
-            const Vector< uint >&                                    aRequestIndices )
+            const Vector< uint >&                                    aRequestIndices,
+            const std::shared_ptr< Library_IO >                      aLibrary )
     {
         Tracer tTracer( "GEN", this->get_name(), "compute_all_GQIs" );
 
@@ -422,7 +423,7 @@ namespace moris::gen
         for ( uint iGQI = 0; iGQI < aRequestIndices.size(); iGQI++ )
         {
             // Compute the GQI value, store for output
-            tGQIValues( iGQI ) = this->compute_GQI( aGQIParameters( iGQI ) );
+            tGQIValues( iGQI ) = this->compute_GQI( aGQIParameters( iGQI ), aLibrary );
 
             // Check if the sensitivities are requested
             if ( aRequestIndices( iGQI ) != MORIS_UINT_MAX )

@@ -70,6 +70,7 @@ namespace moris::gen
         Vector< Vector< uint > >                     mDesignGQIIndices;    // For each design, stores the index in mdGQIdADV that the GQIs need to be summed into. MORIS_UINT_MAX if the GQI is not requested
         sol::Dist_Vector*                            mdGQIdADV = nullptr;
         std::shared_ptr< Submodule_Parameter_Lists > mGQIParameterLists;
+        std::shared_ptr< Library_IO >                mLibrary = nullptr;
 
         size_t      mActiveGeometryIndex = 0;
         std::string mGeometryFieldFile;

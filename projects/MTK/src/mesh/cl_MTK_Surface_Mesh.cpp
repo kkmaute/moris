@@ -1049,35 +1049,32 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::tanh_clip( real aValue, const Agglomeration_Parameters& aAgglom )
+    real Surface_Mesh::tanh_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
     {
-        return std::pow( aValue - aAgglom.mRef, aAgglom.mExp ) * ( 1.0 - std::tanh( 10.0 * ( aValue - aAgglom.mRef ) ) );
+        return std::pow( aValue - aAgglom.get_ref( aCoords, aIndex ), aAgglom.get_exp() ) * ( 1.0 - std::tanh( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::dtanh_clip( real aValue, const Agglomeration_Parameters& aAgglom )
+    real Surface_Mesh::dtanh_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
     {
-        return aAgglom.mExp * std::pow( aValue - aAgglom.mRef, aAgglom.mExp - 1.0 ) * ( 1.0 - std::tanh( 10.0 * ( aValue - aAgglom.mRef ) ) )
-             - 10.0 * std::pow( aValue - aAgglom.mRef, aAgglom.mExp ) * Surface_Mesh::sech( 10.0 * ( aValue - aAgglom.mRef ) ) * Surface_Mesh::sech( 10.0 * ( aValue - aAgglom.mRef ) );
+        return aAgglom.get_exp() * std::pow( aValue - aAgglom.get_ref( aCoords, aIndex ), aAgglom.get_exp() - 1.0 ) * ( 1.0 - std::tanh( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) ) )
+             - 10.0 * std::pow( aValue - aAgglom.get_ref( aCoords, aIndex ), aAgglom.get_exp() ) * Surface_Mesh::sech( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) ) * Surface_Mesh::sech( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::max_clip( real aValue, const Agglomeration_Parameters& aAgglom )
+    real Surface_Mesh::max_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
     {
-        return std::pow( std::max( 1.0 - ( ( aValue - aAgglom.mShift ) / aAgglom.mRef ), 0.0 ), aAgglom.mExp );
+        return std::pow( std::max( 1.0 - ( ( aValue - aAgglom.get_shift() ) / aAgglom.get_ref( aCoords, aIndex ) ), 0.0 ), aAgglom.get_exp() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::dmax_clip( real aValue, const Agglomeration_Parameters& aAgglom )
+    real Surface_Mesh::dmax_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
     {
-        return ( ( 1.0 - ( ( aValue - aAgglom.mShift ) / aAgglom.mRef ) ) > 0.0 ) ? aAgglom.mExp * std::pow( 1.0 - ( ( aValue - aAgglom.mShift ) / aAgglom.mRef ), aAgglom.mExp - 1.0 ) / -aAgglom.mRef : 0.0;
+        return ( ( 1.0 - ( ( aValue - aAgglom.get_shift() ) / aAgglom.get_ref( aCoords, aIndex ) ) ) > 0.0 ) ? aAgglom.get_exp() * std::pow( 1.0 - ( ( aValue - aAgglom.get_shift() ) / aAgglom.get_ref( aCoords, aIndex ) ), aAgglom.get_exp() - 1.0 ) / -aAgglom.get_ref( aCoords, aIndex ) : 0.0;
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1416,6 +1413,18 @@ namespace moris::mtk
         tFile.close();
     }
 
+    void Surface_Mesh::write_shape_diameters_to_file( const std::string& aFilePath ) const
+    {
+        std::ofstream tFile( aFilePath );
+        tFile << std::fixed << std::setprecision( 8 );
+
+        for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
+        {
+            tFile << mShapeDiameters( iF ) << "\n";
+        }
+        tFile.close();
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh::build_vertex_connectivity()
@@ -1688,26 +1697,6 @@ namespace moris::mtk
         // Get the facet measures for sensitivity calculations
         Vector< real > tFacetMeasures = this->compute_facet_measure();
 
-        // // brendan delete
-        // std::ofstream  tSensFile = std::ofstream( "shape_sensitivities.txt" );
-        // Vector< uint > tFoi      = { 786, 847, 851, 852 };
-        // for ( uint iF : tFoi )
-        // {
-        //     Vector< moris_index > tVertexIndices = this->get_facets_vertex_indices( iF );
-
-        //     for ( moris_index iV : tVertexIndices )
-        //     {
-        //         Matrix< DDRMat > tdodv = this->compute_dfacet_centroid_dvertex( iF, iV, true );
-        //         Matrix< DDRMat > tdndv = this->compute_dfacet_normal_dvertex( iF, iV, true );
-
-        //         tSensFile << iF << " " << iV << " " << tFacetMeasures( iF ) << " " << tdodv( 0, 0 ) << " " << tdodv( 0, 1 ) << " " << tdodv( 1, 0 ) << " " << tdodv( 1, 1 ) << " " << tdndv( 0, 0 ) << " " << tdndv( 0, 1 ) << " " << tdndv( 1, 0 ) << " " << tdndv( 1, 1 ) << "\n";
-        //     }
-        // }
-
-        // brendan delete
-        // std::ofstream tOriginFile = std::ofstream( "node_850_origin_sensitivities.txt" );
-        // std::ofstream tTargetFile = std::ofstream( "node_850_target_sensitivities.txt" );
-
         // Loop through every facet in this surface mesh
         for ( uint iF = 0; iF < tNumFacets; iF++ )
         {
@@ -1717,6 +1706,10 @@ namespace moris::mtk
             const Intersection_Vector& tRaysOnFacet = tDiameterData.get_distances()( iF );
 
             Intersection_Vector tSortedRaysOnFacet = tRaysOnFacet;    // FIXME annoying copy
+
+            // Get the vertex indices for the origin facet, these vertices need their sensitivities updated
+            const Vector< moris_index >& tFacetVertices          = this->get_facets_vertex_indices( iF );
+            Matrix< DDRMat >             tFacetVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
 
             // Compute the median ray distance for this facet
             std::sort( tSortedRaysOnFacet.begin(), tSortedRaysOnFacet.end(), []( const std::pair< moris_index, real >& aR1, const std::pair< moris_index, real >& aR2 ) { return aR1.second < aR2.second; } );
@@ -1764,7 +1757,7 @@ namespace moris::mtk
 
                     // Sum the weights and the weighted shape diameter values
                     tSumOfValidWeights += tAugmentedWeight;
-                    tDiamWeightedSum += tAugmentedWeight * this->max_clip( tDiameterData.get_distances()( iF )( iR ).second, aAgglom );
+                    tDiamWeightedSum += tAugmentedWeight * this->max_clip( tDiameterData.get_distances()( iF )( iR ).second, aAgglom, tFacetVertexCoordinates, iF );
                 }
             }
 
@@ -1782,9 +1775,6 @@ namespace moris::mtk
             // We compute the derivative of the shape diameter to the vertices and store the accumulation of sensitivity for all vertices
             // For each vertex ddiameter/dv = dr/dx * weight / sum_of_weights
 
-            // Get the vertex indices for the origin facet, these vertices need their sensitivities updated
-            const Vector< moris_index >& tFacetVertices = this->get_facets_vertex_indices( iF );
-
             for ( uint iR = 0; iR < tNumRays; iR++ )
             {
                 if ( !tRayDropping or std::abs( tRaysOnFacet( iR ).second - tMedian ) <= tStdDeviation )
@@ -1794,12 +1784,12 @@ namespace moris::mtk
                     real             tAngle                  = Surface_Mesh::compute_dot_absolute( tDiameterData.get_ray_direction( iF, iR ), tIntersectedFacetNormal );
                     real             tAugmentedWeight        = tDiameterData.get_ray_weight( iR ) * std::pow( tAngle, tAlphaPower );    // Weight augmented by angle factor
                     real             tDistance               = tDiameterData.get_distance( iF, iR ).second;
-                    real             tAgglomeratedDistance   = this->max_clip( tDistance, aAgglom );
+                    real             tAgglomeratedDistance   = this->max_clip( tDistance, aAgglom, tFacetVertexCoordinates, iF );
 
                     // Compute the sensitivity factor components
-                    real tAgglomerationTerm = this->dmax_clip( tDistance, aAgglom );                      // derivative of tanh clipping function
-                    real tWeightTerm        = tAugmentedWeight / tSumOfValidWeights;                      // Weighted contribution of this ray
-                    real tSensitivityFactor = tFacetMeasures( iF ) * tWeightTerm * tAgglomerationTerm;    // Full sensitivity factor for this ray
+                    real tAgglomerationTerm = this->dmax_clip( tDistance, aAgglom, tFacetVertexCoordinates, iF );    // derivative of tanh clipping function
+                    real tWeightTerm        = tAugmentedWeight / tSumOfValidWeights;                                 // Weighted contribution of this ray
+                    real tSensitivityFactor = tFacetMeasures( iF ) * tWeightTerm * tAgglomerationTerm;               // Full sensitivity factor for this ray
 
                     // Origin facets vertices
                     for ( uint iV : tFacetVertices )
@@ -1809,8 +1799,8 @@ namespace moris::mtk
                         // Raycast distance is a function of the origin and the normal, which are both influenced by these vertices
                         Matrix< DDRMat > tCentroidSens = this->compute_draycast_dorigin( tCentroids.get_column( iF ), tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first )
                                                        * this->compute_dfacet_centroid_dvertex( iF, iV, true );
-                        Matrix< DDRMat > tNormalSens = this->compute_draycast_ddirection( tCentroids.get_column( iF ), tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first )
-                                                     * tRotation * this->compute_dfacet_normal_dvertex( iF, iV, true );
+                        Matrix< DDRMat > tNormalSens   = this->compute_draycast_ddirection( tCentroids.get_column( iF ), tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first )
+                                                       * tRotation * this->compute_dfacet_normal_dvertex( iF, iV, true );
 
                         // Weight sensitivity is a function of the normal only for these vertices (rotation since the ray direction is the rotated origin facet normal)
                         Matrix< DDRMat > tWeightSens = tFacetMeasures( iF ) * tAlphaPower * std::pow( tAngle, tAlphaPower - 1 ) * this->compute_ddot_absolute( tDiameterData.get_ray_direction( iF, iR ), tIntersectedFacetNormal )
@@ -1835,23 +1825,12 @@ namespace moris::mtk
 
                         Matrix< DDRMat > tVertexSensitivity = tSensitivityFactor * tVertexSens.get_row( iV ) + tWeightSens * ( tAgglomeratedDistance - tShapeDiameterValues( iF ) );
 
-                        // if ( iV == 788 or iV == 789 or iV == 790 or iV == 850 or iV == 851 or iV == 854 )    // brendan delete temporary for debugging
-                        // {
-                        //     real             tNan  = std::numeric_limits< real >::quiet_NaN();
-                        //     Matrix< DDRMat > tdadv = tAlphaPower * std::pow( tAngle, tAlphaPower - 1 ) * this->compute_ddot_absolute( tIntersectedFacetNormal,tDiameterData.get_ray_direction( iF, iR ) );
-                        //     Matrix< DDRMat > tdrdv = -this->compute_draycast_dvertices( tCentroids.get_column( iF ),tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first );
-
-                        //     tOriginFile << iF << " " << iV << " " << iR << " " << tRaysOnFacet( iR ).first << " " << tDiameterData.mRayCones.mTheta( iR ) << " " << tAngle << " " << tAugmentedWeight << " " << tNan << " " << tNan << " " << tdadv( 0 ) << " " << tdadv( 1 ) << " " << tDistance << " " << tAgglomeratedDistance << " " << tAgglomerationTerm << " " << tNan << " " << tNan << " " << tNan << " " << tNan << " " << tdrdv( 0, 0 ) << " " << tdrdv( 0, 1 ) << " " << tdrdv( 1, 0 ) << " " << tdrdv( 1, 1 ) << "\n";
-                        // }
-
                         // Raycast distance is a function of the facets vertices explicitly for these vertices. Computed for all vertices at once above
                         mdShapeDiameterdVertex.set_row( tIntersectedFacetVertices( iV ), mdShapeDiameterdVertex.get_row( tIntersectedFacetVertices( iV ) ) + tVertexSensitivity );
                     }
                 }
             }
         }
-
-        // tOriginFile.close();    // brendan delete temporary for debugging
 
         return tShapeDiameterValues;
     }
@@ -1883,6 +1862,10 @@ namespace moris::mtk
             Vector< real > tCircleDistances( aNumCircles, MORIS_REAL_MAX );    // To compute average of closest aNumDist distances
             Vector< uint > tHitVertices( aNumCircles, MORIS_INDEX_MAX );       // needed for sensitivities
             uint           tNumValidCircles = 0;                               /// In case there are not aNumDist valid distances within the cone
+
+            // Get the facets connected to this vertex, needed for sensitivities
+            Vector< moris_index > tFacetsConnectedToOriginVertex = this->get_vertexs_facet_indices( iVO );
+            Matrix< DDRMat >      tVertexCoordinates             = this->get_vertex_coordinates( iVO );
 
             // Loop over vertices to check inscribed circle against
             for ( uint iVC = 0; iVC < this->get_number_of_vertices(); iVC++ )
@@ -1924,14 +1907,11 @@ namespace moris::mtk
 
             tNumValidCircles = std::min( tNumValidCircles, aNumCircles );
 
-            // Get the facets connected to this vertex, needed for sensitivities
-            Vector< moris_index > tFacetsConnectedToOriginVertex = this->get_vertexs_facet_indices( iVO );
-
             // Loop over valid circles, take agglomerated mean, and compute sensitivities
             real tMeanViolation = 0.0;
             for ( uint iC = 0; iC < tNumValidCircles; iC++ )
             {
-                tMeanViolation += this->max_clip( tCircleDistances( iC ), aAgglom );
+                tMeanViolation += this->max_clip( tCircleDistances( iC ), aAgglom, tVertexCoordinates, iVO );
 
                 // Sensitivity calculations for this circle, each circle has sensitivity to the origin vertex and the hit vertex
                 uint iVC = tHitVertices( iC );
@@ -1939,7 +1919,7 @@ namespace moris::mtk
                 Matrix< DDRMat > tChord = this->get_vertex_coordinates( iVC ) - this->get_vertex_coordinates( iVO );
 
                 // Agglomeration derivative and other scaling terms
-                real tSensitivityFactor = 0.5 * this->dmax_clip( tCircleDistances( iC ), aAgglom ) / (real)tNumValidCircles;
+                real tSensitivityFactor = 0.5 * this->dmax_clip( tCircleDistances( iC ), aAgglom, tVertexCoordinates, iVO ) / (real)tNumValidCircles;
 
                 // Derivative of radius wrt chord is given by the quotient rule, with the numerator and denominator as follows
                 real tRadiusNumerator   = dot( tChord, tChord );
@@ -2011,6 +1991,10 @@ namespace moris::mtk
             uint                       tNumValidDistances = 0;                                                                            // In case there are not aNumDist valid distances within the cone
             real                       tBottomDist        = tDistances( aNumDist - 1 );                                                   // Initialize upper bound on minima
 
+            // Get the facets connected to this vertex, needed for sensitivities
+            Vector< moris_index > tFacetsConnectedToOriginVertex = this->get_vertexs_facet_indices( iV );
+            Matrix< DDRMat >      tVertexCoordinates             = this->get_vertex_coordinates( iV );
+
             // Loop over facets to get distance to
             for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
             {
@@ -2072,9 +2056,6 @@ namespace moris::mtk
 
             tNumValidDistances = std::min( tNumValidDistances, aNumDist );
 
-            // Get the facets connected to this vertex, needed for sensitivities
-            Vector< moris_index > tFacetsConnectedToOriginVertex = this->get_vertexs_facet_indices( iV );
-
             // Loop over valid circles, take agglomerated mean, and compute sensitivities
             real tMeanViolation = 0.0;
             for ( uint iD = 0; iD < tNumValidDistances; iD++ )
@@ -2082,10 +2063,10 @@ namespace moris::mtk
                 // Get the vertices of the facet that we hit
                 const Vector< moris_index >& tVerticesOnFacet = this->get_facets_vertex_indices( tHitFacets( iD ) );
 
-                tMeanViolation += this->max_clip( tDistances( iD ), aAgglom );
+                tMeanViolation += this->max_clip( tDistances( iD ), aAgglom, tVertexCoordinates, iV );
 
                 // Agglomeration derivative and other scaling terms
-                real tSensitivityFactor = 0.5 * this->dmax_clip( tDistances( iD ), aAgglom ) / (real)tNumValidDistances;
+                real tSensitivityFactor = 0.5 * this->dmax_clip( tDistances( iD ), aAgglom, tVertexCoordinates, iV ) / (real)tNumValidDistances;
 
                 // Derivative of distance wrt my vertex is given by the normalized direction vector
                 real tLengthSum = tFacetMeasures( tFacetsConnectedToOriginVertex( 0 ) ) + tFacetMeasures( tFacetsConnectedToOriginVertex( 1 ) );
@@ -2144,6 +2125,7 @@ namespace moris::mtk
             uint                            aNumAzimuthRays )
     {
         mShapeDiameters = this->compute_raycast_shape_diameter( aAgglom, aConeAngle, aNumPolarRays, aNumAzimuthRays );
+        this->write_shape_diameters_to_file( "raycast_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
         return this->integrate_shape_diameter_over_surface();
     }
 
@@ -2156,6 +2138,7 @@ namespace moris::mtk
             uint                            aNumCircles )
     {
         mShapeDiameters = this->compute_inscribed_circle_shape_diameter( aAgglom, aAngle, aRelativeChord, aNumCircles );
+        this->write_shape_diameters_to_file( "inscribed_circle_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
         return this->integrate_shape_diameter_over_surface();
     }
 
@@ -2167,6 +2150,7 @@ namespace moris::mtk
             uint                            aNumDistances )
     {
         mShapeDiameters = this->compute_shortest_distance_shape_diameter( aAgglom, aAngle, aNumDistances );
+        this->write_shape_diameters_to_file( "shortest_distance_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
         return this->integrate_shape_diameter_over_surface();
     }
 

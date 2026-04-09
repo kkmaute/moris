@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
+#pragma once
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
@@ -18,10 +17,10 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Communication_Tools.hpp"
+#include "cl_Library_IO.hpp"
 
 namespace moris
 {
-    class Library_IO;
     //------------------------------------------------------------------------------
     namespace hmr
     {
@@ -97,5 +96,3 @@ namespace moris
         };
     }    // namespace wrk
 } /* namespace moris */
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_ */

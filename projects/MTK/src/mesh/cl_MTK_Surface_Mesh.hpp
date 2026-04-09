@@ -13,6 +13,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 #include "cl_MTK_Shape_Diameter_Data.hpp"
+#include "cl_MTK_Agglomeration_Parameters.hpp"
 
 #if MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
@@ -51,27 +52,6 @@ namespace moris::mtk
     real cross_2d( const Matrix< DDRMat >& aVector1, const Matrix< DDRMat >& aVector2 );
 
     typedef Vector< std::pair< uint, real > > Intersection_Vector;    // pair of (facet index, distance)
-
-    using Agglomeration_Function             = real ( * )( const real );    // Pointer to agglomeration function that takes a nodal shape diameter and returns an agglomerated value
-    using Agglomeration_Sensitivity_Function = real ( * )( const real );    // Pointer to agglomeration sensitivity function that takes a nodal shape diameter and returns the sensitivity of the function wrt to the shape diameter
-
-    struct Agglomeration_Parameters
-    {
-        real mExp;      // Exponent controls sharpness of agglomeration
-        real mRef;      // Reference value to cut off any values greater than this
-        real mShift;    // Shifts the value by this much
-
-        Agglomeration_Parameters(
-                real aAgglomerationExponent  = 2.0,
-                real aAgglomerationReference = 1.0,
-                real aAgglomerationShift     = 0.0 )
-                : mExp( aAgglomerationExponent )
-                , mRef( aAgglomerationReference )
-                , mShift( aAgglomerationShift )
-        {
-            MORIS_ASSERT( (uint)mExp % 2 == 0, "Agglomeration_Parameters - Exponent must be even to ensure violation value is positive" );
-        }
-    };
 
     enum class Shape_Diameter_Method
     {
@@ -582,17 +562,15 @@ namespace moris::mtk
          */
         Matrix< DDRMat > compute_ddiameter_dvertex( uint aVertexIndex ) const;
 
-        static real tanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom );
+        static real tanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
 
-        static real dtanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom );
+        static real dtanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
 
-        static real max_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom );
+        static real max_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
 
-        static real dmax_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom );
+        static real dmax_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
 
         static real sech( real aValue );
-
-        static real normal( real aValue, real aStdDev );    // assumes 0 mean
 
         static real dnormal_dsigma( real aValue, real aStdDev );    // assumes 0 mean
 
@@ -649,6 +627,8 @@ namespace moris::mtk
         // -------------------------------------------------------------------------------
 
         void write_to_file( const std::string& aFilePath ) const;
+
+        void write_shape_diameters_to_file( const std::string& aFilePath ) const;
 
         //-------------------------------------------------------------------------------
         // Mesh modification methods

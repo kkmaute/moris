@@ -49,6 +49,7 @@ namespace moris::gen
             : mNodeManager( aMesh )
             , mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
             , mGQIParameterLists( std::make_shared< Submodule_Parameter_Lists >( std::as_const( aParameterLists( 3 ) ) ) )
+            , mLibrary( aLibrary )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
@@ -191,7 +192,7 @@ namespace moris::gen
                     get_GQI_names );
 
             // Recompute the GQIs and their sensitivities, update these in the PDV host manager
-            Vector< real > tGeomGQIValues = mGeometries( tGeometryIndex )->compute_GQIs( mdGQIdADV, tParameterLists, mDesignGQIIndices( tGeometryIndex ) );
+            Vector< real > tGeomGQIValues = mGeometries( tGeometryIndex )->compute_GQIs( mdGQIdADV, tParameterLists, mDesignGQIIndices( tGeometryIndex ), mLibrary );
             this->update_GQIs( tGQINames, tGeomGQIValues );
         }
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
@@ -210,7 +211,7 @@ namespace moris::gen
                     get_GQI_names );
 
             // Recompute the GQIs and their sensitivities, update these in the PDV host manager
-            Vector< real > tPropGQIValues = mProperties( tPropertyIndex )->compute_GQIs( mdGQIdADV, tParameterLists, mDesignGQIIndices( mGeometries.size() + tPropertyIndex ) );
+            Vector< real > tPropGQIValues = mProperties( tPropertyIndex )->compute_GQIs( mdGQIdADV, tParameterLists, mDesignGQIIndices( mGeometries.size() + tPropertyIndex ), mLibrary );
             this->update_GQIs( tGQINames, tPropGQIValues );
         }
     }
