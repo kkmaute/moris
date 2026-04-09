@@ -124,29 +124,19 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Submodule_Parameter_Lists::add_parameter_list( xtk::XQI_Type aXQI )
+    void Submodule_Parameter_Lists::add_parameter_list( mtk::QI_Type aXQI )
     {
         if ( mType == XTK_Submodule_String::values( static_cast< uint >( XTK::XQI ) ) )
         {
             mParameterLists.push_back( prm::create_XQI_parameter_list( aXQI ) );
         }
+        else if ( mType == STK_Submodule_String::values( static_cast< uint >( STK::SQI ) ) )
+        {
+            mParameterLists.push_back( prm::create_SQI_parameter_list( aXQI ) );
+        }
         else
         {
             MORIS_ERROR( false, "A %s submodule cannot create a XQI parameter list.", mType.c_str() );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Submodule_Parameter_Lists::add_parameter_list( sqi::SQI_Type aSQI )
-    {
-        if ( mType == STK_Submodule_String::values( static_cast< uint >( STK::SQI ) ) )
-        {
-            mParameterLists.push_back( prm::create_SQI_parameter_list( aSQI ) );
-        }
-        else
-        {
-            MORIS_ERROR( false, "A %s submodule cannot create a SQI parameter list.", mType.c_str() );
         }
     }
 

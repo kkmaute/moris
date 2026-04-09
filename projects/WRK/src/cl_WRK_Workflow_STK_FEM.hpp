@@ -76,8 +76,15 @@ namespace moris
              */
             Matrix< DDRMat > compute_dcriteria_dadv() override;
 
-            void
-            create_stk( Module_Parameter_Lists& aParameterLists );
+            /**
+             * Creates the integration and interpolation meshes for FEM
+             */
+            void create_stk( const Submodule_Parameter_Lists& aParameterLists );
+
+            /**
+             * Computes quantities of interest on the mesh
+             */
+            void compute_sqis( const std::shared_ptr< Library_IO > aLibrary );
         };
         //------------------------------------------------------------------------------
     }    // namespace wrk

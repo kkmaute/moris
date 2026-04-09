@@ -11,9 +11,8 @@
 #pragma once
 
 #include "cl_Parameter_List.hpp"
-#include "cl_XTK_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "GEN_Data_Types.hpp"
-#include "fn_STK_Enums.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "fn_PRM_OPT_Parameters.hpp"
 
@@ -75,16 +74,7 @@ namespace moris
          *
          * @param aXQIType Type of XQI to be computed
          */
-        void add_parameter_list( xtk::XQI_Type aXQI );
-
-        /**
-         * Adds a new SQI parameter list to be stored in this class.
-         * Used to add specific parameters to the list based on the SQI type.
-         * Will throw an error if this is not a SQI submodule.
-         *
-         * @param aSQIType Type of SQI to be computed
-         */
-        void add_parameter_list( sqi::SQI_Type aSQI );
+        void add_parameter_list( mtk::QI_Type aXQI );
 
         /**
          * Adds a new geometry parameter list to be stored in this class.

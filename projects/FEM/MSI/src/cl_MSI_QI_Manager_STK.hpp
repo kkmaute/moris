@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris
 {
@@ -22,6 +23,8 @@ namespace moris
 
           private:
             Matrix< DDSMat > mDummyMap;
+            uint             mNumNodes = 0;
+            Matrix< DDSMat > mPDVIds;
             //------------------------------------------------------------------------------
 
           public:
@@ -30,8 +33,7 @@ namespace moris
             /**
              * trivial constructor
              */
-            QI_Manager_STK( Vector< std::string >& aRequestedQIs )
-                    : Design_Variable_Interface( aRequestedQIs ) {};
+            QI_Manager_STK( std::shared_ptr< mtk::Integration_Mesh > aIgMesh, Vector< std::string >& aRequestedQIs );
 
             //------------------------------------------------------------------------------
 
@@ -40,8 +42,7 @@ namespace moris
              * @param[ in ] aIntegrationMeshSetIndex
              * @param[ in ] aDvTypes
              */
-            virtual void
-            get_ip_unique_dv_types_for_set(
+            virtual void get_ip_unique_dv_types_for_set(
                     const moris_index             aIntegrationMeshSetIndex,
                     Vector< enum gen::PDV_Type >& aDvTypes ) const override;
 

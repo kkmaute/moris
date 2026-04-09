@@ -173,6 +173,11 @@ namespace moris::MSI
                 mdXQIdPDV = adQIdp;
                 break;
             }
+            case Module_Type::STK:
+            {
+                mdSQIdPDV = adQIdp;
+                break;
+            }
             default:
             {
                 MORIS_ASSERT( false,

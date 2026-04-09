@@ -37,10 +37,10 @@ namespace moris
                 mSubmoduleParameterLists( index( HMR::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_hmr_parameter_list() );
                 break;
             case Module_Type::STK:
-                mSubmoduleParameterLists( index( STK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_stk_parameter_list() );
+                mSubmoduleParameterLists( index( STK::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_stk_parameter_list() );
                 break;
             case Module_Type::XTK:
-                mSubmoduleParameterLists( index( XTK_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_xtk_parameter_list() );
+                mSubmoduleParameterLists( index( XTK::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_xtk_parameter_list() );
                 break;
             case Module_Type::GEN:
                 mSubmoduleParameterLists( index( GEN::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_gen_parameter_list() );

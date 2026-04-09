@@ -39,6 +39,7 @@ namespace moris
             bool              mdQIdpImported = false;
             sol::Dist_Vector* mdXQIdPDV      = nullptr;    // XTK module sensitivities
             sol::Dist_Vector* mdIQIdPDV      = nullptr;    // FEM module sensitivities
+            sol::Dist_Vector* mdSQIdPDV      = nullptr;    // STK module sensitivities
 
           protected:
             // QI Values that were requested to be used for optimization objectives or constraints
