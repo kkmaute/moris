@@ -673,6 +673,7 @@ namespace moris::mtk
       private:
         /**
          * Computes the intersection location of a ray with a given facet.
+         * reference: https://dl.acm.org/doi/abs/10.1145/1198555.1198746
          *
          * @param aFacet local facet index to compute intersection location
          * @param aPoint origin point of the ray
