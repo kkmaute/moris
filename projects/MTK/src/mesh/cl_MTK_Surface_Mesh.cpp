@@ -2125,8 +2125,15 @@ namespace moris::mtk
             uint                            aNumAzimuthRays )
     {
         mShapeDiameters = this->compute_raycast_shape_diameter( aAgglom, aConeAngle, aNumPolarRays, aNumAzimuthRays );
+        // brendan delete
         this->write_shape_diameters_to_file( "raycast_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
-        return this->integrate_shape_diameter_over_surface();
+        real          tGlobalDiameter = this->integrate_shape_diameter_over_surface();
+        std::ofstream tGlobalFile( "global_diameter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+        tGlobalFile << tGlobalDiameter << std::endl;    // brendan delete temporary for debugging
+        tGlobalFile.close();
+        return tGlobalDiameter;
+        // brendan end delete
+        // return this->integrate_shape_diameter_over_surface();
     }
 
     // --------------------------------------------------------------------------------------------------------------
@@ -2138,8 +2145,12 @@ namespace moris::mtk
             uint                            aNumCircles )
     {
         mShapeDiameters = this->compute_inscribed_circle_shape_diameter( aAgglom, aAngle, aRelativeChord, aNumCircles );
+        // brendan delete
+        real tGlobalDiameter = this->integrate_shape_diameter_over_surface();
         this->write_shape_diameters_to_file( "inscribed_circle_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
-        return this->integrate_shape_diameter_over_surface();
+        return tGlobalDiameter;
+        // brendan end delete
+        // return this->integrate_shape_diameter_over_surface();
     }
 
     // --------------------------------------------------------------------------------------------------------------
@@ -2150,8 +2161,15 @@ namespace moris::mtk
             uint                            aNumDistances )
     {
         mShapeDiameters = this->compute_shortest_distance_shape_diameter( aAgglom, aAngle, aNumDistances );
+        // brendan delete
         this->write_shape_diameters_to_file( "shortest_distance_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
-        return this->integrate_shape_diameter_over_surface();
+        real          tGlobalDiamater = this->integrate_shape_diameter_over_surface();
+        std::ofstream tGlobalFile( "global_diameter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+        tGlobalFile << tGlobalDiamater << std::endl;    // brendan delete temporary for debugging
+        tGlobalFile.close();
+        return tGlobalDiamater;
+        // brendan end delete
+        // return this->integrate_shape_diameter_over_surface();
     }
 
     // --------------------------------------------------------------------------------------------------------------
