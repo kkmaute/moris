@@ -423,6 +423,24 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    void
+    Cluster::set_quadrature_points( Matrix< DDRMat > const &aQuadraturePoints )
+    {
+        // Set quadrature points
+        mQuadraturePoints = aQuadraturePoints;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Cluster::set_quadrature_weights( Matrix< DDRMat > const &aQuadratureWeights )
+    {
+        // Set quad weights
+        mQuadratureWeights = aQuadratureWeights;
+    }
+
+    //------------------------------------------------------------------------------
+
     const Matrix< DDRMat >& 
     Cluster::get_quadrature_points(  ) const
     {
@@ -439,6 +457,19 @@ namespace moris::fem
 
     // ------------------------------------------------------------------------------
 
+    void
+    Cluster::set_cluster_local_pdv_assembly_indices( const Matrix< DDSMat > &aGeoPdvLocalAssembly )
+    {
+        mClusterLocalPdvAssemblyIndices = aGeoPdvLocalAssembly;
+    }
+
+    // ------------------------------------------------------------------------------
+
+    Matrix< DDSMat >
+    Cluster::get_cluster_local_pdv_assembly_indices() const
+    {
+        return mClusterLocalPdvAssemblyIndices;
+    }
 
     //------------------------------------------------------------------------------
 
@@ -513,13 +544,6 @@ namespace moris::fem
                     }
                 }
             }
-        
-
-        
-        
-
-        
-
           
     }
 
@@ -592,14 +616,45 @@ namespace moris::fem
         // reset cluster measures derivatives
         this->reset_cluster_measure_derivatives();
 
-        // loop over the IG elements
-        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        if ( mElementType == fem::Element_Type::BULK && mSet->get_moment_fitting_flag() )
         {
-            // check whether to compute derivative of residual
-            if ( mComputeResidualAndIQI( iElem ) )
+            // // Set quadrature points from the mesh cluster
+            // this->set_quadrature_points();
+
+            // // Set quadrature weights from the mesh cluster
+            // this->set_quadrature_weights();
+
+            // Compute quadrature points and weights using the integrator class
+            mSet->get_integrator()->compute_cluster_integration_points_and_weights( mMeshCluster );
+
+            // Set quadrature points from the mesh cluster
+            this->set_quadrature_points();
+
+            // Set quadrature weights from the mesh cluster
+            this->set_quadrature_weights();
+
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
             {
-                // compute dRdp for the IG element
-                mElements( iElem )->compute_dRdp();
+                // check whether to compute derivative of residual
+                if ( mComputeResidualAndIQI( iElem ) )
+                {
+                    // compute dRdp for the IG element
+                    mElements( iElem )->compute_dRdp();
+                }
+            }
+        }
+        else
+        {
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // check whether to compute derivative of residual
+                if ( mComputeResidualAndIQI( iElem ) )
+                {
+                    // compute dRdp for the IG element
+                    mElements( iElem )->compute_dRdp();
+                }
             }
         }
     }
@@ -632,20 +687,85 @@ namespace moris::fem
     void
     Cluster::compute_dRdp_and_dQIdp()
     {
+        // // reset cluster measures
+        // this->reset_cluster_measure();
+
+        // // reset cluster measures derivatives
+        // this->reset_cluster_measure_derivatives();
+
+        // // loop over the IG elements
+        // for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        // {
+        //     // check whether to compute derivative of residual and QI
+        //     if ( mComputeResidualAndIQI( iElem ) )
+        //     {
+        //         // compute dRdp and dQIdp for the IG element
+        //         mElements( iElem )->compute_dRdp_and_dQIdp();
+        //     }
+        // }
+
         // reset cluster measures
         this->reset_cluster_measure();
 
         // reset cluster measures derivatives
         this->reset_cluster_measure_derivatives();
 
-        // loop over the IG elements
-        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        if ( mElementType == fem::Element_Type::BULK && mSet->get_moment_fitting_flag() )
         {
-            // check whether to compute derivative of residual and QI
-            if ( mComputeResidualAndIQI( iElem ) )
+            // // Set quadrature points from the mesh cluster
+            // this->set_quadrature_points();
+
+            // // Set quadrature weights from the mesh cluster
+            // this->set_quadrature_weights();
+
+            // Compute quadrature points and weights using the integrator class
+            mSet->get_integrator()->compute_cluster_integration_points_and_weights( mMeshCluster );
+
+            // Set quadrature points from the mesh cluster
+            this->set_quadrature_points();
+
+            // Set quadrature weights from the mesh cluster
+            this->set_quadrature_weights();
+
+            // Get the vertex indices of this FEM cluster
+            Matrix< IndexMat > tVertexIndices = mMeshCluster->get_vertex_indices_in_cluster( );
+
+            if ( mSet->get_geo_pdv_assembly_flag() )
+            {    // Get the requested PDV types
+                Vector< enum gen::PDV_Type > tGeoPdvType;
+                mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
+
+                // Get geometric PDV local assembly indices
+                Matrix< DDSMat > tGeoLocalAssembly;
+                mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
+                        tVertexIndices,
+                        tGeoPdvType,
+                        tGeoLocalAssembly );
+
+                // Set the local assembly indices for the cluster
+                this->set_cluster_local_pdv_assembly_indices( tGeoLocalAssembly );
+            }
+
+
+            // check whether to compute derivative of residual
+            if ( mComputeResidualAndIQI( 0 ) )
             {
-                // compute dRdp and dQIdp for the IG element
-                mElements( iElem )->compute_dRdp_and_dQIdp();
+                // compute dRdp for the IG element
+                mElements( 0 )->compute_dRdp_and_dQIdp();
+            }
+            
+        }
+        else
+        {
+            // loop over the IG elements
+            for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+            {
+                // check whether to compute derivative of residual
+                if ( mComputeResidualAndIQI( iElem ) )
+                {
+                    // compute dRdp for the IG element
+                    mElements( iElem )->compute_dRdp_and_dQIdp();
+                }
             }
         }
     }

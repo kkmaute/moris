@@ -53,6 +53,9 @@ namespace moris::mtk
         // Function pointer for computing integration points and weights for each cluster. Currently moment fitting only works for bulk clusters, not for side clusters
         void ( Integrator::* m_compute_cluster_integration_points_and_weights )( const mtk::Cluster* ) = nullptr;
 
+        // Function pointer for computing integration points and weights for each cluster for computing dRdP and dQIdP. Currently moment fitting only works for bulk clusters, not for side clusters
+        void ( Integrator::*m_compute_cluster_integration_points_and_weights_perturbed )( const mtk::Cluster *, const moris_index, const Matrix< DDRMat > , const Matrix< DDRMat > ) = nullptr;
+
         // Moment fitting LHS inverse, so that moments need to be hit by this inverse to generate weights
         Matrix< DDRMat > mMomentFittingLHSinv;
 
@@ -139,13 +142,19 @@ namespace moris::mtk
 
         void compute_bulk_cluster_integration_points_and_weights_moment_fitting( const Cluster* aCluster );
         //------------------------------------------------------------------------------
-
         /**
          * Compute the integration points and weights for a bulk cluster using moment fitting
          **/
 
-        void compute_bulk_cluster_integration_points_and_weights_standard( const Cluster *aCluster );
+        void compute_bulk_cluster_integration_points_and_weights_moment_fitting_perturbed( const Cluster *aCluster, const moris_index aNodeIndex, const Matrix< DDRMat > aPerturbation, const Matrix< DDRMat > aPhysicalPerturbation );
+        //------------------------------------------------------------------------------
 
+        /**
+         * Compute the integration points and weights for a bulk cluster using standard quadrature
+         **/
+
+        void compute_bulk_cluster_integration_points_and_weights_standard( const Cluster *aCluster );
+        
         //------------------------------------------------------------------------------
 
         /**
@@ -178,6 +187,20 @@ namespace moris::mtk
         {
             ( this->*m_compute_cluster_integration_points_and_weights )( aCluster );
         }
+        
+        //------------------------------------------------------------------------------
+
+        /*
+         *  Compute the integration points and weights for a cluster when an IG node is perturbed for computing dRdP and dQIdP
+         */
+        void compute_cluster_integration_points_and_weights( const Cluster *aCluster, const moris_index aNodeIndex, const Matrix< DDRMat > aPerturbation, const Matrix< DDRMat > aPhysicalPerturbation )
+        {
+            ( this->*m_compute_cluster_integration_points_and_weights_perturbed )( aCluster, aNodeIndex, aPerturbation, aPhysicalPerturbation );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void restore_quadrature_weights_and_points( const Cluster *aCluster, Matrix< DDRMat > &aQuadraturePoints, Matrix< DDRMat > &aQuadratureWeights );
 
         //------------------------------------------------------------------------------
 

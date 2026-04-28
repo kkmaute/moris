@@ -972,7 +972,7 @@ namespace moris::xtk
         //     this->set_has_void_cells( false );
         //     return;
         // }
-        // else if ( mVoidIntegrationCells.size() < 3 )
+        // if ( mVoidIntegrationCells.size() < 3 )
         // {
         //     // Compute volume of IP cell
         //     real tIPCellVolume = this->get_interpolation_cell().compute_cell_measure();

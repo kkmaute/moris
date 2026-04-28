@@ -48,6 +48,9 @@ namespace moris::fem
         // time sideset information
         Matrix< IndexMat > mListOfTimeOrdinals;
 
+        // list of indices, geometric PDV indices, and whether dRdP and dQIdP have been computed
+        moris::Vector< std::tuple< moris_index, Matrix< DDSMat > , bool > > mDerEvalData;
+       
         // list of pointers to the leader and follower mesh integration cells
         Vector< const mtk::Cell * > mLeaderIntegrationCells;
         Vector< const mtk::Cell * > mFollowerIntegrationCells;
@@ -59,6 +62,8 @@ namespace moris::fem
         Matrix< DDRMat > mQuadraturePoints;
 
         Matrix< DDRMat > mQuadratureWeights;
+
+        Matrix< DDSMat > mClusterLocalPdvAssemblyIndices;
 
         // list of pointers to element
         Vector< fem::Element * > mElements;
@@ -172,6 +177,22 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         void set_quadrature_weights() ;
+
+        //------------------------------------------------------------------------------
+
+        void set_quadrature_points( Matrix< DDRMat > const &aQuadraturePoints );
+
+        //------------------------------------------------------------------------------
+
+        void set_quadrature_weights(  Matrix< DDRMat > const &aQuadratureWeights );
+
+        //------------------------------------------------------------------------------
+
+        void set_cluster_local_pdv_assembly_indices( const Matrix< DDSMat > &aGeoPdvLocalAssembly );
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDSMat > get_cluster_local_pdv_assembly_indices() const;
 
         //------------------------------------------------------------------------------
         

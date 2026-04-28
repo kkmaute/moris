@@ -158,7 +158,8 @@ namespace moris::fem
             {
                 m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
                 m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
-                m_compute_dRdp_FD_geometry = &IWG::select_dRdp_FD_geometry_bulk;
+                m_compute_dRdp_FD_geometry = mSet->get_moment_fitting_flag() ? &IWG::select_dRdp_FD_geometry_bulk_moment_fitting : &IWG::select_dRdp_FD_geometry_bulk;
+                // MORIS_LOG_INFO( "IWG::set_function_pointers - using %s for geometry FD.", mSet->get_moment_fitting_flag() ? "moment fitting" : "standard" );
                 break;
             }
             case fem::Element_Type::SIDESET:
@@ -3134,6 +3135,206 @@ namespace moris::fem
         tIGGI->set_space_coeff( tCoeff );
         tIGGI->set_space_param_coeff( tParamCoeff );
         mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
+
+        // reset the value of the residual
+        mSet->get_residual()( 0 ) = tResidualStore;
+
+        // add contribution of cluster measure to dRdp
+        if ( mActiveCMEAFlag )
+        {
+            // add their contribution to dQIdp
+            this->add_cluster_measure_dRdp_FD_geometry(
+                    aWStar,
+                    aPerturbation,
+                    aFDSchemeType );
+        }
+
+        // check for nan, infinity
+        MORIS_ASSERT( isfinite( mSet->get_drdpgeo() ),
+                "IWG::compute_dRdp_FD_geometry - dRdp contains NAN or INF, exiting!" );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IWG::select_dRdp_FD_geometry_bulk_moment_fitting(
+            moris::real                   aWStar,
+            moris::real                   aPerturbation,
+            fem::FDScheme_Type            aFDSchemeType,
+            Matrix< DDSMat >&             aGeoLocalAssembly,
+            Vector< Matrix< IndexMat > >& aVertexIndices )
+    {
+        // get the GI for the IG element considered
+        Geometry_Interpolator* tIPGI =
+                mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
+
+        // get the residual dof type index in the set
+        uint tResDofIndex         = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+        uint tResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 0 );
+        uint tResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tResDofIndex )( 0, 1 );
+
+        // Get unperturbed quadrature points and weights
+        Matrix< DDRMat > tUnperturbedQuadPoints  = mCluster->get_quadrature_points();
+        Matrix< DDRMat > tUnperturbedQuadWeights = mCluster->get_quadrature_weights();
+
+        // Get the IG geometry interpolator
+        Geometry_Interpolator* tIGGI =
+                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+
+        // Store original IG geometry coefficients
+        Matrix< DDRMat > tOriginalCoeff      = tIGGI->get_space_coeff();
+        Matrix< DDRMat > tOriginalParamCoeff = tIGGI->get_space_param_coeff();
+
+        // reset, evaluate and store the residual for unperturbed case
+        mSet->get_residual()( 0 ).fill( 0.0 );
+        Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+
+        for ( uint iG = 0; iG < mCluster->get_quadrature_weights().numel(); iG++ )
+        {
+            mSet->get_field_interpolator_manager()->set_space_time( mCluster->get_quadrature_points().get_column( iG ) );
+
+            // reset properties, CM and SP for IWG
+            this->reset_eval_flags();
+
+            mSet->get_residual()( 0 ).fill( 0.0 );
+            real tWStarG = tIPGI->det_J() * mCluster->get_quadrature_weights()( iG );
+            this->compute_residual( tWStarG );
+            tResidual += mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+        }
+
+        // storage residual value
+        Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
+
+        // get number of leader GI bases and space dimensions
+        //uint tDerNumBases      = tIPGI->get_number_of_space_bases();
+        //uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
+
+        // init perturbation
+        real tDeltaH = 0.0;
+
+        // init FD scheme
+        Vector< Vector< real > > tFDScheme;
+
+        // loop over the spatial directions
+        for ( uint iCoeffRow = 0; iCoeffRow < aGeoLocalAssembly.n_rows(); iCoeffRow++ )
+        {
+            // Obtain the index of the vertex being perturbed
+            //moris_index tVertexIndex = aVertexIndices( iCoeffRow );
+
+            // Get the physical coordinates of the vertex being perturbed from the cluster
+            Matrix< DDRMat > tCoeff = ( mCluster->get_mesh_cluster()->get_vertices_in_cluster() )( iCoeffRow )->get_coords();
+
+            // Get active vertex
+            const mtk::Vertex* tVertex = ( mCluster->get_mesh_cluster()->get_vertices_in_cluster() )( iCoeffRow );
+
+            // Get coordinates of the cluster in the coordinate space of the cluster
+            Matrix< DDRMat > tXiCoordsOriginal = mCluster->get_mesh_cluster()->get_vertex_local_coordinate_wrt_interp_cell( tVertex );
+
+            // loop over the IG nodes
+            for ( uint iCoeffCol = 0; iCoeffCol < aGeoLocalAssembly.n_cols(); iCoeffCol++ )
+            {
+                // get the geometry pdv assembly index
+                sint tPdvAssemblyIndex = aGeoLocalAssembly( iCoeffRow, iCoeffCol );
+
+                // if pdv is active
+                if ( tPdvAssemblyIndex != -1 )
+                {
+                    // provide adapted perturbation and FD scheme considering ip element boundaries
+                    fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
+
+                    // compute step size and change FD scheme if needed
+                    tDeltaH = this->check_ig_coordinates_inside_ip_element(
+                            aPerturbation,
+                            tCoeff( iCoeffCol ),
+                            iCoeffCol,
+                            tUsedFDSchemeType );
+
+                    // finalize FD scheme
+                    fd_scheme( tUsedFDSchemeType, tFDScheme );
+                    uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if ( ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                            ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed residual contribution to dRdp
+                        mSet->get_drdpgeo()(
+                                { tResDofAssemblyStart, tResDofAssemblyStop },
+                                { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                tFDScheme( 1 )( 0 ) * tResidual / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over point of FD scheme
+                    for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients, i.e. the nodal coordinate of integration element
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient, i.e. the nodal coordinate of integration element
+                        tCoeffPert( iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // update natural coordinates of IG nodes in IP element
+                        Matrix< DDRMat > tXCoords  = tCoeffPert;
+                        Matrix< DDRMat > tXiCoords = tXiCoordsOriginal;    // start from unperturbed local coordinates
+                        tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
+
+                        //tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                        // Compute the new pertubed moment fitting quadrature points
+                        mSet->get_integrator()->compute_cluster_integration_points_and_weights( mCluster->get_mesh_cluster(), tVertex->get_index(), tXiCoords, tXCoords );
+
+                        // Set quadrature points and weights inside the cluster
+                        mCluster->set_quadrature_points();
+                        mCluster->set_quadrature_weights();
+
+                        // Loop over newly constructed moment fitting quadrature points
+                        for( uint iGPm = 0; iGPm < mCluster->get_quadrature_weights().numel(); iGPm++ )
+                        {
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->set_space_time( mCluster->get_quadrature_points().get_column( iGPm ) );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset and evaluate the residual plus
+                            mSet->get_residual()( 0 ).fill( 0.0 );
+                            real tWStarPert = mCluster->get_quadrature_weights()( iGPm ) * tIPGI->det_J();
+                            this->compute_residual( tWStarPert );
+
+                            // evaluate dRdpGeo
+                            mSet->get_drdpgeo()(
+                                    { tResDofAssemblyStart, tResDofAssemblyStop },
+                                    { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            Matrix< DDRMat > tResidualTest = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) ;
+                        }
+                        // reset the coefficients values
+                        mSet->get_integrator()->restore_quadrature_weights_and_points( mCluster->get_mesh_cluster(), tUnperturbedQuadPoints, tUnperturbedQuadWeights );
+                        mCluster->set_quadrature_points();
+                        mCluster->set_quadrature_weights();
+                        // reset the value of the residual
+                        mSet->get_residual()( 0 ) = tResidualStore;
+                    }
+                }
+                
+            }
+           
+        }
+
+        // Restore IG geometry and field interpolator manager state
+        tIGGI->set_space_coeff( tOriginalCoeff );
+        tIGGI->set_space_param_coeff( tOriginalParamCoeff );
+        mSet->get_field_interpolator_manager()->set_space_time( tUnperturbedQuadPoints.get_column( 0 ) );
+        
 
         // reset the value of the residual
         mSet->get_residual()( 0 ) = tResidualStore;

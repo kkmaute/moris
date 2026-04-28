@@ -741,49 +741,78 @@ namespace moris::fem
         Matrix< DDSMat > tGeoLocalAssembly;
         this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
-        // loop over integration points
-        uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
-        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        if ( mSet->get_moment_fitting_flag() )
         {
-            // get the ith integration point in the IG param space
-            const Matrix< DDRMat >& tLocalIntegPoint =
-                    mSet->get_integration_points().get_column( iGP );
+                // loop over the IWGs
+                for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // set quadrature weight to zero.
+                    real tWStar = 0.0;
+                    
+                    // get requested IWG
+                    const std::shared_ptr< IWG >& tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
 
-            // set evaluation point for interpolators (FIs and GIs)
-            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+                    // reset IWG
+                    tReqIWG->reset_eval_flags();
 
-            // compute detJ of integration domain
-            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+                    // FIXME set nodal weak BCs
+                    tReqIWG->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
 
-            // skip if detJ smaller than threshold
-            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            {
-                continue;
-            }
-
-            // compute integration point weight
-            real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
-
-            // loop over the IWGs
-            for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
-            {
-                // get requested IWG
-                const std::shared_ptr< IWG >& tReqIWG =
-                        mSet->get_requested_IWGs()( iIWG );
-
-                // reset IWG
-                tReqIWG->reset_eval_flags();
-
-                // FIXME set nodal weak BCs
-                tReqIWG->set_nodal_weak_bcs(
-                        mCluster->mInterpolationElement->get_weak_bcs() );
-
-                // compute dRdp at evaluation point
-                Vector< Matrix< IndexMat > > tVertexIndices( 0 );
-                ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
-            }
+                    // compute dRdp at evaluation point
+                    Vector< Matrix< IndexMat > > tVertexIndices;
+                    tVertexIndices.push_back( mLeaderCell->get_vertex_inds() );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
         }
+        else
+        {
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                const Matrix< DDRMat >& tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // loop over the IWGs
+                for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // get requested IWG
+                    const std::shared_ptr< IWG >& tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
+
+                    // reset IWG
+                    tReqIWG->reset_eval_flags();
+
+                    // FIXME set nodal weak BCs
+                    tReqIWG->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // compute dRdp at evaluation point
+                    Vector< Matrix< IndexMat > > tVertexIndices;
+                    tVertexIndices.push_back( mLeaderCell->get_vertex_inds() );
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
+            }
+        }  
     }
 
     //------------------------------------------------------------------------------
@@ -1050,6 +1079,8 @@ namespace moris::fem
         // get number of IQIs
         uint tNumIQIs = mSet->get_number_of_requested_IQIs();
 
+        
+
         // check for active IWGs and IQIs
         if ( tNumIWGs == 0 && tNumIQIs == 0 )
         {
@@ -1060,33 +1091,17 @@ namespace moris::fem
         Matrix< IndexMat > tVertexIndices = mLeaderCell->get_vertex_inds();
 
         // set physical and parametric space and time coefficients for IG element
+        Matrix< DDSMat > tGeoLocalAssemblyCluster = this->mCluster->get_cluster_local_pdv_assembly_indices();
         Matrix< DDSMat > tGeoLocalAssembly;
         this->init_ig_geometry_interpolator( tGeoLocalAssembly );
 
-        // loop over integration points
-        uint tNumIntegPoints = mSet->get_number_of_integration_points();
+        // access the cluster vertices
+        Matrix< IndexMat > tVertexInds = this->mCluster->get_mesh_cluster()->get_vertex_indices_in_cluster();
 
-        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        if ( mSet->get_moment_fitting_flag() )
         {
-            // get the ith integration point in the IG param space
-            const Matrix< DDRMat >& tLocalIntegPoint =
-                    mSet->get_integration_points().get_column( iGP );
-
-            // set evaluation point for interpolators (FIs and GIs)
-            mSet->get_field_interpolator_manager()->    //
-                    set_space_time_from_local_IG_point( tLocalIntegPoint );
-
-            // compute detJ of integration domain
-            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
-
-            // skip if detJ smaller than threshold
-            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
-            {
-                continue;
-            }
-
-            // compute integration point weight
-            real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+            // set quadrature weight to zero.
+            real tWStar = 0.0;
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -1103,11 +1118,10 @@ namespace moris::fem
                         mCluster->mInterpolationElement->get_weak_bcs() );
 
                 // compute dRdp at evaluation point
-                Vector< Matrix< IndexMat > > tVertexIndices( 0 );
-                ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                Vector< Matrix< IndexMat > > tVertexIndices;
+                tVertexIndices.push_back( tVertexInds );
+                ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssemblyCluster, tVertexIndices );
             }
-
-            // loop over the IQIs
             for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
             {
                 // get requested IQI
@@ -1118,10 +1132,78 @@ namespace moris::fem
                 tReqIQI->reset_eval_flags();
 
                 // compute dQIdp at evaluation point
-                Vector< Matrix< IndexMat > > tVertexIndices( 0 );
-                ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
+                Vector< Matrix< IndexMat > > tVertexIndices;
+                tVertexIndices.push_back( tVertexInds );
+                ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssemblyCluster, tVertexIndices );
+            }
+
+        }
+        else
+        {
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                const Matrix< DDRMat >& tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->    //
+                        set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // loop over the IWGs
+                for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
+                {
+                    // get requested IWG
+                    const std::shared_ptr< IWG >& tReqIWG =
+                            mSet->get_requested_IWGs()( iIWG );
+
+                    // reset IWG
+                    tReqIWG->reset_eval_flags();
+
+                    // FIXME set nodal weak BCs
+                    tReqIWG->set_nodal_weak_bcs(
+                            mCluster->mInterpolationElement->get_weak_bcs() );
+
+                    // compute dRdp at evaluation point
+                    Vector< Matrix< IndexMat > > tVertexIndices(0);
+                    ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
+
+                for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                            mSet->get_requested_IQIs()( iIQI );
+
+                    // reset IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // compute dQIdp at evaluation point
+                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
+                }
             }
         }
+
+        
+
+
+           
     }
 
     //------------------------------------------------------------------------------
