@@ -3188,6 +3188,7 @@ namespace moris::fem
         // reset, evaluate and store the residual for unperturbed case
         mSet->get_residual()( 0 ).fill( 0.0 );
         Matrix< DDRMat > tResidual = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+        Matrix< DDRMat > tResidualFull = mSet->get_residual()(0);
 
         for ( uint iG = 0; iG < mCluster->get_quadrature_weights().numel(); iG++ )
         {
@@ -3200,10 +3201,8 @@ namespace moris::fem
             real tWStarG = tIPGI->det_J() * mCluster->get_quadrature_weights()( iG );
             this->compute_residual( tWStarG );
             tResidual += mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } );
+            tResidualFull += mSet->get_residual()( 0 );
         }
-
-        // storage residual value
-        Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
 
         // get number of leader GI bases and space dimensions
         //uint tDerNumBases      = tIPGI->get_number_of_space_bases();
@@ -3314,15 +3313,14 @@ namespace moris::fem
                                     tFDScheme( 1 )( iPoint ) *                                                                //
                                     mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
-
-                            Matrix< DDRMat > tResidualTest = mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) ;
                         }
                         // reset the coefficients values
                         mSet->get_integrator()->restore_quadrature_weights_and_points( mCluster->get_mesh_cluster(), tUnperturbedQuadPoints, tUnperturbedQuadWeights );
                         mCluster->set_quadrature_points();
                         mCluster->set_quadrature_weights();
+
                         // reset the value of the residual
-                        mSet->get_residual()( 0 ) = tResidualStore;
+                        mSet->get_residual()( 0 ) = tResidualFull;
                     }
                 }
                 
@@ -3337,7 +3335,7 @@ namespace moris::fem
         
 
         // reset the value of the residual
-        mSet->get_residual()( 0 ) = tResidualStore;
+        mSet->get_residual()( 0 )= tResidualFull;
 
         // add contribution of cluster measure to dRdp
         if ( mActiveCMEAFlag )

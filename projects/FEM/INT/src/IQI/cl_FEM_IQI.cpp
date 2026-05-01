@@ -101,7 +101,8 @@ namespace moris::fem
             {
                 m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                 m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
-                m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_bulk;
+                //m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_bulk;
+                m_compute_dQIdp_FD_geometry = mSet->get_moment_fitting_flag() ? &IQI::select_dQIdp_FD_geometry_bulk_moment_fitting : &IQI::select_dQIdp_FD_geometry_bulk;
                 break;
             }
             case fem::Element_Type::DOUBLE_SIDESET:
@@ -2401,6 +2402,9 @@ namespace moris::fem
 
         // get the IQI index
         uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
+        
+        //get unmodified IQI
+        Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
 
         // get the GI for the IP element considered
         Geometry_Interpolator* tIPGI =
@@ -2436,9 +2440,6 @@ namespace moris::fem
             this->compute_QI( tWStarG );
             tQI += mSet->get_QI()( tIQIAssemblyIndex );
         }
-
-        // storage QI value
-        Matrix< DDRMat > tQIStore = mSet->get_QI()( tIQIAssemblyIndex );
 
         // get number of leader GI bases and space dimensions
         // uint tDerNumBases      = tIPGI->get_number_of_space_bases();
@@ -2551,7 +2552,7 @@ namespace moris::fem
                         mCluster->set_quadrature_points();
                         mCluster->set_quadrature_weights();
                         // reset the value of the residual
-                        mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
+                        mSet->get_QI()( tIQIAssemblyIndex ) = tQI;
                     }
                 }
             }
