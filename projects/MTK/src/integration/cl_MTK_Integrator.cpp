@@ -109,7 +109,7 @@ namespace moris::mtk
 
 
             mtk::Interpolation_Rule tIPInterpolationRule( aMeshSet->get_interpolation_cell_geometry_type(), mtk::Interpolation_Type::LAGRANGE, tInterpOrder,
-                                                         mtk::Geometry_Type::POINT, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR );
+                                                         aIntegrationRule.get_time_geometry_type(), mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR );
 
             // Create interpolation function to evaluate moment fitting polynomials at quadrature points
             mtk::Interpolation_Function_Base *tIPInterp = tIPInterpolationRule.create_space_interpolation_function();
@@ -117,7 +117,7 @@ namespace moris::mtk
             // Get integration rule for moment fitting (cut phases will have triangle/tet interpolation rule, moment fitting integration rule alweays defined over the IP cell)
             mtk::Integration_Rule tMomentFittingIntegrationRule( aMeshSet->get_interpolation_cell_geometry_type(), mtk::Integration_Type::GAUSS,
                                                                 this->get_ip_integration_order_from_cut_cell( aMeshSet->get_interpolation_cell_geometry_type(), aIntegrationRule ), 
-                                                                mtk::Geometry_Type::POINT, mtk::Integration_Type::GAUSS, aIntegrationRule.get_time_integration_order() );
+                                                                aIntegrationRule.get_time_geometry_type(), aIntegrationRule.get_time_integration_type(), aIntegrationRule.get_time_integration_order() );
 
             // Get quadrature points for moment fitting
             mMomentFittingQuadPoints = this->get_points( tMomentFittingIntegrationRule );
@@ -438,7 +438,7 @@ namespace moris::mtk
         Matrix< DDRMat > tMomentFittingRHS;
 
         // Allocate memory for RHS
-        tMomentFittingRHS.reshape( tNmoments, 1 );
+        tMomentFittingRHS.set_size( tNmoments, 1, 0.0 );
 
         // Obtain boundary facet element ordinals from cluster
         const Matrix< DDRMat >& tBoundaryFacetElementOrdinals = tCellCluster->get_boundary_facet_element_ordinals();
