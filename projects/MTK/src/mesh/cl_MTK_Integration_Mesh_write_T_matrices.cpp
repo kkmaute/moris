@@ -180,6 +180,12 @@ namespace moris::mtk
             // -------------------------------------
             // get T-Matrices
 
+            // Only write the t-matrices to file for set 0
+            if (this->get_set_by_index(iSet)->get_set_name() != "HMR_dummy_c_p0")
+            {
+                continue;
+            }
+
             // initialize cells containing info for T-matrices mapping (Background-BSp)-(Background-Lag) for each IP vertex
             Vector< Matrix< IdMat > >  tIPtoBSIds;
             Vector< Matrix< DDRMat > > tIPtoBSWeights;
@@ -442,7 +448,7 @@ namespace moris::mtk
                         // get the vertex index inside the cluster
                         auto tIter                 = tIgVertexMap.find( tVertexIndex );
                         uint tVertexIndexInCluster = tIter->second;
-                        MORIS_ASSERT( tIter != tIgVertexMap.end(),
+                        MORIS_ERROR( tIter != tIgVertexMap.end(),
                                 "Integration_Mesh::get_IG_element_to_IP_T_matrices() - "
                                 "Vertex index not found in list of IG vertices on the current IG cell." );
 

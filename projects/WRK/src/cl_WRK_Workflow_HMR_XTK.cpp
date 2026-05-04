@@ -17,7 +17,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_WRK_GEN_Performer.hpp"
-
+#include "HDF5_Tools.hpp"
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
@@ -517,6 +517,20 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 
         Matrix< DDRMat > tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
+
+        // Write to hdf5 file - needed in interpolation-based immersed TO workflow
+        if ( par_rank() == 0 )
+        {
+            
+            // Implementation for writing to hdf5 file
+            std::string tFileName = "dcriteria_dadv_iter_" + std::to_string( mIter ) + ".hdf5";
+            hid_t       tFileID1  = create_hdf5_file( tFileName );
+            herr_t      tStatus1  = 0;
+            save_matrix_to_hdf5_file( tFileID1, std::string( "dqdADV" ), tDCriteriaDAdv, tStatus1 );
+       
+            close_hdf5_file( tFileID1 );
+            MORIS_LOG_INFO( "Gradients of design criteria written to file" );
+        }
 
         if ( par_rank() == 0 )
         {

@@ -795,7 +795,7 @@ namespace moris::gen
                         // pack sensitivities
                         this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
-                        fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
+                        //fprintf( stdout, "\nInterpolation PDVIndex = %d\n", (sint)tPDVID );
                         // print( tADVIds, "tADVIds for interpolation PDVs" );
                         // print( tHostADVSensitivities, "tHostADVSensitivities for interpolation PDVs" );
 
@@ -818,7 +818,7 @@ namespace moris::gen
             if ( mNodeManager.node_depends_on_advs( iNodeIndex ) and mNodeManager.get_derived_node_owner( iNodeIndex ) == par_rank() )
             {
                 // Get starting ID and number of coordinates
-                uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
+                //uint tStartingGlobalIndex = mNodeManager.get_derived_node_starting_pdv_id( iNodeIndex );
                 uint tNumCoordinates      = mNodeManager.get_number_of_derived_node_pdvs( iNodeIndex );
 
                 // Parent sensitivities and ADV IDs
@@ -834,15 +834,15 @@ namespace moris::gen
                 this->pack_sensitivities( tADVIds, tHostADVSensitivities );
 
                 // loop overall coordinate directions
-                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
-                {
-                    // get PDV ID
-                    moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
+                // for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumCoordinates; tCoordinateIndex++ )
+                // {
+                //     // get PDV ID
+                //     moris_id tPDVID = tStartingGlobalIndex + tCoordinateIndex;
 
-                    fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
-                    // print( tADVIds, "tADVIds for integration PDVs" );
-                    // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
-                }
+                //     fprintf( stdout, "\nIntegration PDVIndex = %d for tCoordinateIndex %d\n", (sint)tPDVID, (sint)tCoordinateIndex );
+                //     // print( tADVIds, "tADVIds for integration PDVs" );
+                //     // print( tHostADVSensitivities.get_row( tCoordinateIndex ), "tHostADVSensitivities for integration PDVs" );
+                // }
 
                 tIgExtractionOperators( iNodeIndex ) = std::make_shared< Design_Extraction_Operator >( tADVIds, tHostADVSensitivities );
             }
