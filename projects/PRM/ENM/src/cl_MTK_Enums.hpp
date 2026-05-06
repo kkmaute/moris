@@ -220,6 +220,7 @@ namespace moris::mtk
         QUADRATIC,
         SERENDIPITY,
         CUBIC,
+        QUARTIC,
         UNDEFINED
     };
 

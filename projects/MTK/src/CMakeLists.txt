@@ -159,6 +159,7 @@ set(HEADERS
         interpolation/cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp
         interpolation/cl_MTK_Interpolation_Function_Lagrange_Hex64.hpp
         interpolation/cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp
+        interpolation/cl_MTK_Interpolation_Function_Lagrange_Quad25.hpp
         interpolation/cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp
         interpolation/cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp
         interpolation/cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp

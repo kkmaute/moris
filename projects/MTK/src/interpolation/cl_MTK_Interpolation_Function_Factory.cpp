@@ -22,7 +22,8 @@
 #include "cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp"     //MTK/src
 #include "cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp"     //MTK/src
 #include "cl_MTK_Interpolation_Function_Lagrange_Quad9.hpp"     //MTK/src
-#include "cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp"    //MTK/src
+#include "cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp"
+#include "cl_MTK_Interpolation_Function_Lagrange_Quad25.hpp"    //MTK/src
 #include "cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp"      //MTK/src
 #include "cl_MTK_Interpolation_Function_Lagrange_Hex20.hpp"     //MTK/src
 #include "cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp"     //MTK/src
@@ -147,6 +148,11 @@ namespace moris::mtk
             case ( Interpolation_Order::CUBIC ):
             {
                 return new Interpolation_Function< Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 16 >();
+                break;
+            }
+            case ( Interpolation_Order::QUARTIC ):
+            {
+                return new Interpolation_Function< Geometry_Type::QUAD, Interpolation_Type::LAGRANGE, 2, 25 >();
                 break;
             }
             default:
