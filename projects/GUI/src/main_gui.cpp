@@ -11,7 +11,6 @@
 
 #include "main_gui.hpp"
 
-
 // Comm_Manager gMorisComm;
 // Logger       gLogger;
 namespace moris
@@ -509,6 +508,7 @@ namespace moris
                 // {
 
                 connect_name_binding(mTreeWidgetSubChildren[tRoot][tChild].last(), tRoot, tChild);
+                rebind_subform_parameters(tRoot, tChild);
             }
             else
             {
@@ -561,10 +561,24 @@ namespace moris
                     mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ]->set_form_visible( true );
                 }
 
-                // Removing the sub-form from the layout and deleting the associated objects
-                delete mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ];
-                delete mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ];
-                mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).erase( tCurrentIndex[ 2 ] );
+
+                uint tRoot = tCurrentIndex[0];
+                uint tChild = tCurrentIndex[1];
+                uint tSub = tCurrentIndex[2];
+
+                delete mQTreeWidgetSubChildren[ tRoot ][ tChild ][ tSub ];
+                delete mTreeWidgetSubChildren[ tRoot ][ tChild ][ tSub ];
+
+                mQTreeWidgetSubChildren[ tRoot ][ tChild ].removeAt(tSub);
+                mTreeWidgetSubChildren[ tRoot ][ tChild ].removeAt(tSub);
+
+                mLibrary.get_parameter_lists()( tRoot )( tChild ).erase( tSub );
+
+                rebind_subform_parameters(tRoot, tChild);
+                // // Removing the sub-form from the layout and deleting the associated objects
+                // delete mQTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ];
+                // delete mTreeWidgetSubChildren[ tCurrentIndex[ 0 ] ][ tCurrentIndex[ 1 ] ][ tCurrentIndex[ 2 ] ];
+                // mLibrary.get_parameter_lists()( tCurrentIndex[ 0 ] )( tCurrentIndex[ 1 ] ).erase( tCurrentIndex[ 2 ] );
             }
             else
             {
@@ -751,10 +765,104 @@ namespace moris
             }
         }
     }
+ 
+
+    void Moris_Gui::rebind_form_widgets( Moris_Tree_Widget_Item *aForm, Parameter_List &aParameterList)
+    {
+        if( !aForm)
+        {
+            return;
+        }
+
+        for( QWidget *tWidget : aForm->mWidget )
+        {
+            if( !tWidget ) continue;
+        
+            const std::string tName = tWidget->objectName().toStdString();
+
+            for ( auto &tEntry : aParameterList )
+            {
+
+                // qDebug() << "[rebind_form_widgets]"
+                //     << "form =" << aForm
+                //     << "widget =" << tWidget
+                //     << "objectName =" << QString::fromStdString(tName)
+                //     << "Parameter* =" << &tEntry.get_parameter();
+                if ( tEntry.get_name() != tName )
+                {
+                    continue;
+                }
+
+                if( auto *tLineEdit = qobject_cast<Moris_Line_Edit *>( tWidget ) )
+                {
+                    tLineEdit->setParameter( tEntry.get_parameter() );
+                }
+                else if ( auto *tComboBox = qobject_cast< Moris_Combo_Box * >( tWidget ) )
+                {
+                    tComboBox->setParameter( tEntry.get_parameter() );
+                }
+                else if ( auto *tBoolComboBox = qobject_cast< Moris_Bool_Combo_Box * >( tWidget ) )
+                {
+                    tBoolComboBox->setParameter( tEntry.get_parameter() );
+                }
+                else if ( auto *tIntSpinBox = qobject_cast< Moris_Int_Spin_Box * >( tWidget ) )
+                {
+                    tIntSpinBox->setParameter( tEntry.get_parameter() );
+                }
+                else if ( auto *tDoubleSpinBox = qobject_cast< Moris_Double_Spin_Box * >( tWidget ) )
+                {
+                    tDoubleSpinBox->setParameter( tEntry.get_parameter() );
+                }
+                else if ( auto *tGroupBox = qobject_cast< Moris_Group_Box * >( tWidget ) )
+                {
+                    tGroupBox->setParameter( tEntry.get_parameter() );
+                }
+                else if (auto *tPairBox = qobject_cast< Moris_Pair_Box * >( tWidget ) )
+                {
+                    tPairBox->setParameter( tEntry.get_parameter() );
+                }
+                break;
+
+            }
+        }
+    }
+
+
+    void Moris_Gui::reindex_subforms(uint aRoot, uint aChild)
+    {
+        for ( uint i = 0; i < mTreeWidgetSubChildren[ aRoot ][ aChild ].size(); ++i )
+        {
+            if( mTreeWidgetSubChildren[aRoot][aChild][i] )
+            {
+                mTreeWidgetSubChildren[ aRoot ][ aChild ][ i ]->setIndex( { aRoot, aChild, i } );
+            }
+        }
+    }
+
+
+    void Moris_Gui::rebind_subform_parameters( uint aRoot, uint aChild)
+    {
+        reindex_subforms(aRoot, aChild);
+
+        auto &tParameterLists = mLibrary.get_parameter_lists()( aRoot )( aChild );
+
+        uint tCount = std::min((uint)mTreeWidgetSubChildren[aRoot][aChild].size(),
+                             (uint)tParameterLists.size());
+
+        for ( uint i = 0; i < tCount; ++i )
+        {
+            Moris_Tree_Widget_Item *tForm = mTreeWidgetSubChildren[ aRoot ][ aChild ][ i ];
+            if ( tForm )
+            {
+                rebind_form_widgets(tForm, tParameterLists( i ));
+            }
+        }
+    }
+
 
     void Moris_Gui::connect_name_binding(Moris_Tree_Widget_Item *aContainer, uint aRoot, uint aChild)
     {
-        
+
         QWidget* tNameLineWidget = nullptr; // QLineEdit name
         QWidget* tPhaseComboWidget = nullptr; // QComboBox phase name
 

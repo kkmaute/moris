@@ -35,6 +35,9 @@ namespace moris
         // - parameter: Reference to a Parameter object to be linked with this widget.
         void setParameter( Parameter &parameter );
 
+        // Refresh the widget text/data from the current parameter
+        void refreshDataParameter();
+
       signals:
         // Signal emitted when the text changes.
         // Inputs:
@@ -57,7 +60,7 @@ namespace moris
         // void onItemChanged();
 
       private:
-        Parameter &mParameter;    // Reference to the associated Parameter object
+        Parameter *mParameter;    // Pointer to the associated Parameter object
         template<typename T>
         void mTrySetParameter(const std::string& aParameterName, const T& aValue, const QString& aNewText);
     };

@@ -27,6 +27,15 @@ namespace moris
     {
     }
 
+
+    //--------------------------------------------------------------------------------------------------------------
+    
+    template< typename Map_Type >
+    Parameter_Iterator< Map_Type >& Parameter_Iterator< Map_Type >::operator*()
+    {
+        return *this;
+    }
+    
     //--------------------------------------------------------------------------------------------------------------
 
     template< typename Map_Type >

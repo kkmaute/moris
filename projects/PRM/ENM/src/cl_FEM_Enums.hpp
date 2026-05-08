@@ -218,7 +218,6 @@ namespace moris::fem
             DIFF_LIN_ISO_TURBULENCE,
             STRUC_LIN_ISO,
             STRUC_LIN_MT,
-            STRUC_LIN_ISO_PRESSURE,
             STRUC_LIN_ISO_DAMAGE,
             STRUC_NON_LIN_ISO,
             STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
@@ -230,7 +229,7 @@ namespace moris::fem
             FLUID_COMPRESSIBLE_VDW,
             FLUID_COMPRESSIBLE_NEWTONIAN,
             SPALART_ALLMARAS_TURBULENCE,
-            END_CONSTITUTIVE_TYPE )
+            END_CONSTITUTIVE_TYPE ) // Maybe delete END_CONSTITUTIVE_TYPE
 
     ENUM_MACRO( Material_Type,
             PERFECT_GAS,

@@ -1,0 +1,43 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/moris_gui.dir/link.d"
+  "CMakeFiles/moris_gui_autogen.dir/AutogenUsed.txt"
+  "CMakeFiles/moris_gui_autogen.dir/ParseCache.txt"
+  "moris_gui_autogen"
+  "CMakeFiles/moris_gui.dir/TestWindow.cpp.o"
+  "CMakeFiles/moris_gui.dir/TestWindow.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_bool_combo_box.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_bool_combo_box.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_combo_box.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_combo_box.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_double_spin_box.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_double_spin_box.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_group_box.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_group_box.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_int_spin_box.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_int_spin_box.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_line_edit.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_line_edit.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_pair_box.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_pair_box.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/cl_tree_widget_item.cpp.o"
+  "CMakeFiles/moris_gui.dir/cl_tree_widget_item.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/fn_read_file_dialog.cpp.o"
+  "CMakeFiles/moris_gui.dir/fn_read_file_dialog.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/fn_write_file_dialog.cpp.o"
+  "CMakeFiles/moris_gui.dir/fn_write_file_dialog.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/main.cpp.o"
+  "CMakeFiles/moris_gui.dir/main.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/main_gui.cpp.o"
+  "CMakeFiles/moris_gui.dir/main_gui.cpp.o.d"
+  "CMakeFiles/moris_gui.dir/moris_gui_autogen/mocs_compilation.cpp.o"
+  "CMakeFiles/moris_gui.dir/moris_gui_autogen/mocs_compilation.cpp.o.d"
+  "moris_gui"
+  "moris_gui.pdb"
+  "moris_gui_autogen/mocs_compilation.cpp"
+  "moris_gui_autogen/timestamp"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/moris_gui.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

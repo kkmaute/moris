@@ -1,5 +1,5 @@
 #include "cl_line_edit.hpp"
-
+#include <QSignalBlocker>
 namespace moris
 {
     // Constructor for Moris_Line_Edit
@@ -8,28 +8,29 @@ namespace moris
     // - parameter: Reference to a Parameter object to be linked with this widget.
     Moris_Line_Edit::Moris_Line_Edit( QWidget *parent, Parameter &parameter )
             : QLineEdit( parent )
-            , mParameter( parameter )
+            , mParameter( &parameter )
     {
-        if ( mParameter.index() == variant_index< std::string >() )
+        if ( mParameter && mParameter->index() == variant_index< std::string >() )
         {
-            setText( QString::fromStdString( mParameter.get_value< std::string >() ) );
+            setText( QString::fromStdString( mParameter->get_value< std::string >() ) );
         }
-        else
+        else if (mParameter)
         {
-            setText( QString::fromStdString( mParameter.get_string() ) );
+            setText( QString::fromStdString( mParameter->get_string() ) );
         }
 
         // If parameter is not null, set the initial text from the parameter value
 
         // Connect the textChanged signal of QLineEdit to the onTextChanged slot
-        if ( mParameter.is_locked() )
+        if ( mParameter && mParameter->is_locked() )
         {
             setReadOnly( true );
         }
         else
         {
-            connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
+            setReadOnly( false );
         }
+        connect( this, &QLineEdit::textChanged, this, &Moris_Line_Edit::onTextChanged );
     }
 
     // Destructor for Moris_Line_Edit
@@ -41,7 +42,9 @@ namespace moris
     // - Reference to the Parameter object linked with this widget.
     Parameter &Moris_Line_Edit::getParameter()
     {
-        return mParameter;
+        // Defensive: return a reference, but check pointer
+        MORIS_ERROR(mParameter, "Moris_Line_Edit::getParameter() called with null mParameter.");
+        return *mParameter;
     }
 
     // Setter for the associated Parameter object
@@ -49,7 +52,27 @@ namespace moris
     // - parameter: Reference to a Parameter object to be linked with this widget.
     void Moris_Line_Edit::setParameter( Parameter &parameter )
     {
-        mParameter = parameter;
+        // qDebug() << "[IntSpinBox::setParameter]"
+        //         << "widget =" << this
+        //         << "name =" << objectName()
+        //         << "old mParameter =" << mParameter
+        //         << "new mParameter =" << &parameter;
+        mParameter = &parameter;
+        refreshDataParameter();
+        
+        if( mParameter && mParameter->is_locked() )
+        {
+            setReadOnly(true);
+        }
+        else
+        {
+            setReadOnly(false);
+        }
+
+        // qDebug() << "[setParameter]"
+        //  << "widget =" << this
+        //  << "objectName =" << objectName()
+        //  << "new Parameter* =" << mParameter;
     }
 
     // Template function to set the parameter value based on its type
@@ -60,8 +83,10 @@ namespace moris
     template<typename T>
     void Moris_Line_Edit::mTrySetParameter(const std::string& aParameterName, const T& aValue, const QString& aNewText)
     {
-        mParameter.set_value(aParameterName, aValue, false);
-        emit textChanged(objectName(), aNewText);
+        if (mParameter) {
+            mParameter->set_value(aParameterName, aValue, false);
+            emit textChanged(objectName(), aNewText);
+        }
     }
 
     // Slot to handle text changes
@@ -71,19 +96,19 @@ namespace moris
     void Moris_Line_Edit::onTextChanged( const QString &new_text )
     {   
         // early escape if the parameter is locked
-        if(mParameter.is_locked()) return;
+        if(!mParameter || mParameter->is_locked()) return;
 
         // convert to string so to avoid unnecessary conversions later
         const std::string tParameterName = objectName().toStdString();
         const std::string tNewTextString = new_text.toStdString();
 
-        if(mParameter.index() == variant_index<std::string>())
+        if(mParameter->index() == variant_index<std::string>())
         {
            mTrySetParameter(tParameterName, tNewTextString, new_text);
            return;
         }
         
-        if(mParameter.index() == variant_index<std::pair< std::string, std::string > >())
+        if(mParameter->index() == variant_index<std::pair< std::string, std::string > >())
         {
             Vector< std::string > tVec = split_string( tNewTextString, "," );
             if ( tVec.size() < 2 ) return;
@@ -92,7 +117,7 @@ namespace moris
             return;
         }
 
-        if(mParameter.index() == variant_index< Vector< uint > >() )
+        if(mParameter->index() == variant_index< Vector< uint > >() )
         {
             auto tVec = string_to_vector< uint >( tNewTextString );
             if(tVec.empty()) return;
@@ -100,7 +125,7 @@ namespace moris
             return;
         }
 
-        if(mParameter.index() == variant_index< Vector< sint > >() )
+        if(mParameter->index() == variant_index< Vector< sint > >() )
         {
             auto tVec = string_to_vector< sint >( tNewTextString );
             if(tVec.empty()) return;
@@ -108,7 +133,7 @@ namespace moris
             return;
         }
 
-        if(mParameter.index() == variant_index< Vector< real > >() )
+        if(mParameter->index() == variant_index< Vector< real > >() )
         {
             auto tVec = string_to_vector< real >( tNewTextString );
             if(tVec.empty()) return;
@@ -116,22 +141,62 @@ namespace moris
             return;
         }
 
-        if(mParameter.index() == variant_index< Vector< std::string > >() )
+        if(mParameter->index() == variant_index< Vector< std::string > >() )
         {
             auto tVec = string_to_vector< std::string >( tNewTextString );
             if(tVec.empty()) return;
             mTrySetParameter(tParameterName, tVec, new_text);
             return;
         }
-
         
+        if ( mParameter->index() == variant_index < Design_Variable >() )
         {
-            // Geometry center_x variable spazzes out when empty
-            Vector< real >  tVec      = string_to_vector< real >( tNewTextString );
+            Vector< real > tVec = string_to_vector< real >( tNewTextString );
             if ( tVec.empty() ) return;
+
+            // qDebug() << "[onTextChanged]"
+            //     << "widget =" << this
+            //     << "objectName =" << objectName()
+            //     << "mParameter =" << mParameter
+            //     << "index =" << (mParameter ? (int)mParameter->index() : -1)
+            //     << "text =" << new_text;
+                
             Design_Variable tDesign_Variable = Design_Variable( tVec( 0 ) );
-            mTrySetParameter(tParameterName, tDesign_Variable, new_text);
+            mTrySetParameter( tParameterName, tDesign_Variable, new_text );
+            return;
         }
 
+
+        qWarning() << "Moris_Line_Edit::onTextChanged: Unsupported parameter type" << QString::fromStdString(tParameterName);
+
+
+        // {
+        //     // Geometry center_x variable spazzes out when empty
+        //     Vector< real >  tVec      = string_to_vector< real >( tNewTextString );
+        //     if ( tVec.empty() ) return;
+        //     Design_Variable tDesign_Variable = Design_Variable( tVec( 0 ) );
+        //     mTrySetParameter(tParameterName, tDesign_Variable, new_text);
+        // }
+
+    }
+
+    void Moris_Line_Edit::refreshDataParameter()
+    {
+        QSignalBlocker tBlocker( this ); // block signals to prevent
+
+        if ( !mParameter )
+        {
+            clear();
+            return;
+        }
+
+        if( mParameter->index() == variant_index< std::string >() )
+        {
+            setText( QString::fromStdString( mParameter->get_value< std::string >() ) );
+        }
+        else
+        {
+            setText( QString::fromStdString( mParameter->get_string() ) );
+        }
     }
 }    // namespace moris

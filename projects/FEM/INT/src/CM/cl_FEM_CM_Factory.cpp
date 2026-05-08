@@ -27,6 +27,7 @@
 #include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp"
 #include "cl_FEM_CM_Struc_Linear_MoriTanaka.hpp"
+#include "cl_FEM_CM_Struc_Linear.hpp"
 
 namespace moris::fem
 {
@@ -53,6 +54,9 @@ namespace moris::fem
 
             case Constitutive_Type::STRUC_LIN_MT:
                 return std::make_shared< CM_Struc_Linear_MoriTanaka >();
+                
+            case Constitutive_Type::STRUC_NON_LIN_ISO:
+                return std::make_shared< CM_Struc_Nonlinear_Isotropic >();
 
             case Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF:
                 return std::make_shared< CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff >();
@@ -80,7 +84,6 @@ namespace moris::fem
 
             case Constitutive_Type::FLUID_COMPRESSIBLE_VDW:
                 return std::make_shared< CM_Fluid_Compressible_Van_der_Waals >();
-
             default:
                 MORIS_ERROR( false, " CM_Factory::create_CM - No constitutive type specified. " );
                 return nullptr;

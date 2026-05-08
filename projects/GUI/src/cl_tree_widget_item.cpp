@@ -2,12 +2,23 @@
 
 namespace moris
 {
+    /**
+     * @brief Constructor for Moris_Tree_Widget_Item
+     * @param QWidget* parent
+     * @return NONE
+     * @note This constructor initializes the Moris_Tree_Widget_Item object by calling the base class QWidget constructor with the provided parent widget.
+     */
     Moris_Tree_Widget_Item::Moris_Tree_Widget_Item( QWidget *parent )
             : QWidget( parent )
 
     {
     }
-
+    /**
+     * @brief Destructor for Moris_Tree_Widget_Item
+     * @param NONE
+     * @return NONE
+     * @note The destructor is defaulted as there are no specific cleanup requirements for the Moris_Tree_Widget_Item class.
+     */
     Moris_Tree_Widget_Item::~Moris_Tree_Widget_Item() = default;
 
     void Moris_Tree_Widget_Item::setupScrollArea()

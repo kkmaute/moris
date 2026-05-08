@@ -13,7 +13,7 @@ namespace moris
         auto *layout        = new QVBoxLayout( centralWidget );
 
         // Iterate over each parameter in the parameter list to initialize GUI elements
-        for ( auto paramEntry : parameterList )
+        for ( auto &paramEntry : parameterList )
         {
             std::string paramName = paramEntry.get_name();
 
@@ -136,7 +136,7 @@ namespace moris
         xmlParser.set( "UserInputs", "" );
 
         // Iterate over each parameter in the parameter list and save the values to XML
-        for ( auto paramEntry : parameterList )
+        for ( auto &paramEntry : parameterList )
         {
             std::string paramName = paramEntry.get_name();
 
@@ -203,7 +203,7 @@ namespace moris
         // Print saved inputs to the terminal
         qDebug() << "Saved Input Set:";
 
-        for ( auto paramEntry : parameterList )
+        for ( auto &paramEntry : parameterList )
         {
             std::string paramName = paramEntry.get_name();
 

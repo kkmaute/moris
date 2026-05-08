@@ -28,6 +28,7 @@
 #include <QTreeWidget>
 #include <QList>
 #include <QSet>
+#include <QDebug>
 
 #include "cl_tree_widget_item.hpp"
 #include "fn_read_file_dialog.hpp"
@@ -231,6 +232,13 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void update_phase_tree_widget_name( Moris_Tree_Widget_Item *aItem, const QString &aText );
+
+
+        void rebind_subform_parameters ( uint aRow, uint aChild);
+
+        void rebind_form_widgets( Moris_Tree_Widget_Item *aForm, Parameter_List &aParameterList );
+
+        void reindex_subforms( uint aRoot, uint aChild );
     };
 
 }    // namespace moris

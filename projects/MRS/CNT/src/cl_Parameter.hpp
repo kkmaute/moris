@@ -42,7 +42,7 @@ namespace moris
         Variant            mValue;
         Entry_Type         mEntryType       = Entry_Type::FREE;
         uint               mNumberOfEntries = 1;
-        Validator*         mValidator;
+        Validator*         mValidator = nullptr;
         bool               mNeedsLinking = false;
         External_Validator mExternalValidator;
 

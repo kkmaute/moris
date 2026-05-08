@@ -9,6 +9,8 @@
 #include <QLineEdit>
 #include <QStringList>
 #include <QHBoxLayout>
+#include <QString>
+#include <QSignalBlocker>
 
 namespace moris
 {
@@ -33,12 +35,26 @@ namespace moris
 
         // explicit Moris_Pair_Box( QWidget *a_parent, Parameter &a_param, const QStringList &a_options = {} );
         explicit Moris_Pair_Box( QWidget *a_parent, Parameter &a_param );
+        
+        ~Moris_Pair_Box() override; // Virtual to ensure proper cleanup in derived classes
+
+        Parameter &get_parameter();
+        
+        void refreshDataParameter();
+
+        void setParameter( Parameter &a_parameter );
+
 
         // Public member variables
-        // QComboBox *moris_pair_combo_box;
         QLineEdit *moris_pair_line_edit;
         QLineEdit *moris_pair_line_edit_2;
-
+      signals:
+        // Custom signals emitted after both line edit values are combined
+        // and written back into parameter.
+        void pair_changed(
+          const QString &a_name,
+          const QString &a_first,
+          const QString &a_second );
       public slots:
 
         // Slot to handle text changes in the line edit
@@ -50,7 +66,7 @@ namespace moris
         // void set_parameter();
 
       private:
-        Parameter                            &mParameter;    // Reference to the Parameter object
+        Parameter  *mParameter = nullptr;    // Reference to the Parameter object
         std::pair< std::string, std::string > mPairValue;
     };
 

@@ -36,6 +36,14 @@ namespace moris
         // - Reference to the Parameter object.
         Parameter &get_parameter();
 
+        // Setter for the associated Parameter object.
+        // Inputs:
+        // - parameter: Reference to a Parameter object to be linked with this widget.
+        void setParameter(Parameter &parameter );
+
+        // Refresh the data in the linked Parameter object.
+        void refreshDataParameter();
+
       signals:
         // Signal emitted when the index changes
         // Inputs:
@@ -53,7 +61,7 @@ namespace moris
         void on_index_changed( int a_index );
 
       private:
-        Parameter &m_Parameter;    // Reference to the associated Parameter object
+        Parameter *mParameter = nullptr;    // Pointer to the associated Parameter object
     };
 
 }    // namespace moris

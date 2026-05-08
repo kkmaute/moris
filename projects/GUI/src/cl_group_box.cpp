@@ -2,72 +2,132 @@
 
 namespace moris
 {
-    // Constructor for Moris_Group_Box.
-    // Inputs:
-    // - a_parent: Pointer to the parent widget (default is nullptr).
-    // - a_param: Reference to a Parameter object to be linked with this widget.
-    // - a_options: QStringList containing options for the combo box.
-    Moris_Group_Box::Moris_Group_Box( QWidget *a_parent, Parameter &a_param, QStringList &a_options )
+
+    Moris_Group_Box::Moris_Group_Box( QWidget *a_parent, Parameter &a_param,const QStringList &a_options )
             : QWidget( a_parent )
-            , m_parameter( a_param )
-            , m_options( a_options )
+            , mParameter( &a_param )
+            , mOptions( a_options )
+            , mFormLayout( new QFormLayout() )
     {
-        // Set up the combo box with provided options
-        // moris_pair_combo_box->addItems( a_options );
-        // connect( moris_pair_combo_box, &QComboBox::currentTextChanged, this, &Moris_Pair_Box::on_combo_box_text_changed );
         setLayout( mFormLayout );
-        if ( m_parameter.get_value< std::string >().empty() )
+        refresh_data_parameter();
+        }
+        
+
+        Parameter &Moris_Group_Box::get_parameter()
+        {
+            MORIS_ERROR(mParameter, "Moris_Group_Box::get_parameter() called with null mParameter.");
+            return *mParameter;
+        }
+        
+
+        void Moris_Group_Box::setParameter( Parameter &a_parameter )
+        {
+            mParameter = &a_parameter;
+            refresh_data_parameter();
+        }
+        
+
+        void Moris_Group_Box::set_property_list(const QStringList &a_options)
+        {
+            mOptions = a_options;
+            refresh_data_parameter();
+        }
+        
+
+        void Moris_Group_Box::clear_rows()
+        {
+            while ( mFormLayout && mFormLayout->rowCount() > 0 )
+            {
+                mFormLayout->removeRow( 0 );
+            }
+            mWidget.clear();
+        }
+        
+
+        void Moris_Group_Box::add_row( const std::string &a_key, const QString &a_selectedText)
+        {
+            QComboBox *tComboBox = new QComboBox( this );
+            {
+                QSignalBlocker blocker( tComboBox );
+                tComboBox->addItems( mOptions );
+
+                if (!a_selectedText.isEmpty() )
+                {
+                    int tIndex = tComboBox->findText( a_selectedText );
+                    if ( tIndex >= 0 )
+                    {
+                        tComboBox->setCurrentIndex( tIndex );
+                    }
+                    else{
+                        tComboBox->addItem( a_selectedText );
+                        tComboBox->setCurrentIndex( tComboBox->count() - 1 );
+                    }
+                }
+                else if(tComboBox->count() > 0)
+                {
+                    tComboBox->setCurrentIndex( 0 );
+                }
+            }
+
+            if ( mParameter &&mParameter->is_locked() )
+            {
+                tComboBox->setDisabled( true );
+            }
+
+            connect(
+                    tComboBox, 
+                    QOverload< int>::of(&QComboBox::currentIndexChanged), 
+                    this, 
+                    &Moris_Group_Box::on_property_selection_changed );
+            mWidget[ a_key ] = tComboBox;
+            mFormLayout->addRow( QString::fromStdString( a_key ), tComboBox );
+        }
+
+        
+        void Moris_Group_Box::build_default_rows()
         {
             fem::CM_Factory tCMFactory;
 
-            // Error in cl_MTK_Mesh_Manager when try to create_CM;
-            std::shared_ptr< fem::Constitutive_Model > tCM  = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            std::map< std::string, uint >             &tMap = tCM->get_property_map();
-            // std::map< std::string, uint > tMap;
+            std::shared_ptr< fem::Constitutive_Model > tCM  = 
+                    tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+
+            std::map<std::string, uint> tMap = tCM->get_property_map();
+
             for ( const auto &iMap : tMap )
             {
-                const std::string &tKey = iMap.first;
-
-                QComboBox *tComboBox = new QComboBox();
-                tComboBox->addItems( m_options );
-                // Add the key and the QLineEdit pointer to tRows
-                mWidget[ tKey ] = tComboBox;
-
-                connect( mWidget[ tKey ], &QComboBox::currentIndexChanged, this, &Moris_Group_Box::on_property_selection_changed );
-
-                // Add the key and the QLineEdit to the QFormLayout
-                mFormLayout->addRow( QString::fromStdString( tKey ), tComboBox );
+                add_row (iMap.first);
             }
         }
-        else
+        
+
+        void Moris_Group_Box::build_rows_from_serialized( const std::string &a_serialized )
         {
-            std::stringstream ss( m_parameter.get_value< std::string >() );
-            std::string       pair;
-            while ( std::getline( ss, pair, ';' ) )
+            std::stringstream tStream( a_serialized );
+            std::string       tPair;
+            while ( std::getline( tStream, tPair, ';' ) )
             {
-                std::stringstream pairStream( pair );
+                std::stringstream tPairStream( tPair );
                 std::string       tKey, tValue;
 
-                // Split each pair by comma
-                if ( std::getline( pairStream, tValue, ',' ) && std::getline( pairStream, tKey ) )
+                // stored format is value,key
+                if ( std::getline( tPairStream, tValue, ',' ) && std::getline( tPairStream, tKey ) )
                 {
-                    // Create a new QComboBox
-                    QComboBox *tComboBox = new QComboBox();
-                    tComboBox->addItems( m_options );
-                    // Add the key and the QLineEdit pointer to tRows
-                    mWidget[ tKey ] = tComboBox;
-
-                    connect( mWidget[ tKey ], &QComboBox::currentIndexChanged, this, &Moris_Group_Box::on_property_selection_changed );
-
-                    // Add the key and the QLineEdit to the QFormLayout
-                    mFormLayout->addRow( QString::fromStdString( tKey ), tComboBox );
+                    add_row( tKey, QString::fromStdString( tValue ) );
                 }
             }
+        }
+        
+
+        std::string Moris_Group_Box::serialize_current_state() const
+        {
             std::string tResult;
+
             for ( auto it = mWidget.begin(); it != mWidget.end(); ++it )
             {
                 // Append the value
-                tResult += it->second->currentText().toStdString() + ",";
+                tResult += it->second->currentText().toStdString();
+                tResult += ",";
 
                 // Append the text from the key
                 tResult += it->first;
@@ -78,77 +138,81 @@ namespace moris
                     tResult += ";";
                 }
             }
-            //m_parameter.set_value( objectName().toStdString(), tResult, false );
+
+            return tResult;
         }
-    }
+        
 
-    Moris_Group_Box::~Moris_Group_Box()
-    {
-        // Clean up the dynamically allocated QFormLayout
-        delete mFormLayout;
-
-        // Clean up each QComboBox in the mWidget map
-        for (auto &pair : mWidget)
+        void Moris_Group_Box::refresh_data_parameter()
         {
-            delete pair.second;
-        }
+            clear_rows();
 
-        // Clear the mWidget map to avoid dangling pointers
-        mWidget.clear();
-    }
-
-    void Moris_Group_Box::on_property_selection_changed( const int a_index )
-    {
-        std::string tResult;
-        for ( auto it = mWidget.begin(); it != mWidget.end(); ++it )
-        {
-            // Append the value
-            tResult += it->second->currentText().toStdString() + ",";
-
-            // Append the text from the key
-            tResult += it->first;
-
-            // If it's not the last element, add a semicolon
-            if ( std::next( it ) != mWidget.end() )
+            if ( !mParameter )
             {
-                tResult += ";";
+                setDisabled( true );
+                return;
+            }
+
+            setDisabled( false );
+
+            const std::string tSerialized = mParameter->get_string();
+
+            if ( tSerialized.empty() )
+            {
+                build_default_rows();
+            }
+            else
+            {
+                build_rows_from_serialized( tSerialized );
+            }
+
+            if ( mParameter->is_locked() )
+            {
+                setDisabled( true );
             }
         }
-        m_parameter.set_value( objectName().toStdString(), tResult, false );
-    }
+        
 
-    void Moris_Group_Box::on_combo_box_selection_changed( const int a_index )
-    {
-        // Clear the form layout
-        for ( auto it = mWidget.begin(); it != mWidget.end(); ++it )
+        void Moris_Group_Box::on_property_selection_changed(int a_index )
         {
-            mFormLayout->removeRow( mFormLayout->rowCount() - 1 );
+            Q_UNUSED (a_index);
+
+            if ( !mParameter || mParameter->is_locked() )
+            {
+                return;
+            }
+
+            mParameter->set_value( objectName().toStdString(), 
+                                    serialize_current_state(), 
+                                    false );
+
         }
-        mWidget.clear();
-
-        fem::CM_Factory tCMFactory;
-
-        // Error in cl_MTK_Mesh_Manager when try to create_CM;
-        // Some constitutive_types are not available in the create_CM function. Throws runtime error.
-        std::shared_ptr< fem::Constitutive_Model > tCM  = tCMFactory.create_CM( (fem::Constitutive_Type)a_index );
-        std::map< std::string, uint >             &tMap = tCM->get_property_map();
-        // std::map< std::string, uint > tMap;
-        for ( const auto &iMap : tMap )
+        
+        
+        void Moris_Group_Box::on_combo_box_selection_changed( int a_index )
         {
-            const std::string &tKey = iMap.first;
+            Q_UNUSED (a_index);
 
-            // Create a new QComboBox
-            QComboBox *tComboBox = new QComboBox();
-            tComboBox->addItems( m_options );
+            if ( !mParameter || mParameter->is_locked() )
+            {
+                return;
+            }
 
-            // Add the key and the QLineEdit pointer to tRows
-            mWidget[ tKey ] = tComboBox;
+            clear_rows();
 
-            connect( mWidget[ tKey ], &QComboBox::currentIndexChanged, this, &Moris_Group_Box::on_property_selection_changed );
+            fem::CM_Factory tCMFactory;
+            std::shared_ptr< fem::Constitutive_Model > tCM  = 
+                    tCMFactory.create_CM( (fem::Constitutive_Type)a_index);
 
-            // Add the key and the QLineEdit to the QFormLayout
-            mFormLayout->addRow( QString::fromStdString( tKey ), tComboBox );
+            std::map<std::string, uint> tMap = tCM->get_property_map();
+
+            for ( const auto &iMap : tMap )
+            {
+                add_row (iMap.first);
+            }
+
+            mParameter->set_value( objectName().toStdString(), 
+                                    serialize_current_state(), 
+                                    false );
         }
     }
-
-}    // namespace moris

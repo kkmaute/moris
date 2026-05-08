@@ -31,15 +31,13 @@ namespace moris
             : mValue( aParameter.mValue )
             , mEntryType( aParameter.mEntryType )
             , mNumberOfEntries( aParameter.mNumberOfEntries )
+            , mValidator(nullptr)
+            , mNeedsLinking( aParameter.mNeedsLinking )
             , mExternalValidator( aParameter.mExternalValidator )
     {
         if ( aParameter.mValidator )
         {
             mValidator = aParameter.mValidator->copy();
-        }
-        else
-        {
-            mValidator = nullptr;
         }
     }
 

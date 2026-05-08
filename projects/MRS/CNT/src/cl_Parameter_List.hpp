@@ -52,6 +52,7 @@ namespace moris
          *
          * @return Parameter iterator by const reference
          */
+        Parameter_Iterator& operator*();
         const Parameter_Iterator& operator*() const;
 
         /**

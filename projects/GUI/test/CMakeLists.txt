@@ -15,14 +15,15 @@ set(TEST_SOURCES
     ut_cl_combo_box.cpp
     ut_cl_bool_combo_box.cpp
 )
-
-add_executable(${GUI}-test  ${TEST_SOURCES})
+add_executable(gui_demo_test ${TEST_SOURCES})
+# add_executable(${GUI}-test  ${TEST_SOURCES})
 # target_compile_options(${GUI}-test PRIVATE -fno-qt-genetrate-moc)
 
 # set_property(SOURCE ut_gui_startup.cpp
 #     PROPERTY SKIP_AUTOMOC ON)
 
-target_link_libraries(${GUI}-test
+# target_link_libraries(${GUI}-test
+target_link_libraries(gui_demo_test
     PRIVATE
         gui_core
         Qt6::Test # could update this such that it is able to detect the major version and chose that
@@ -33,7 +34,11 @@ target_link_libraries(${GUI}-test
 )
 
 
-enable_testing()
+# enable_testing()
 
-add_test(NAME ${GUI}-test
-         COMMAND $<TARGET_FILE:${GUI}-test>)
+# add_test(NAME ${GUI}-test
+#          COMMAND $<TARGET_FILE:${GUI}-test>)
+add_test(NAME gui_demo_test
+         COMMAND $<TARGET_FILE:gui_demo_test>)
+
+

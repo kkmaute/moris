@@ -14,6 +14,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+# find_package(Qt6 REQUIRED COMPONENTS OpenGL) #add back later
+
 message("QT version: ${QT_VERSION_MAJOR}")
 
 
@@ -81,13 +83,15 @@ add_library(gui_core STATIC ${GUI_CORE_SOURCES})
 target_link_libraries(gui_core
         PUBLIC
         Qt${QT_VERSION_MAJOR}::Widgets
+        # Qt${QT_VERSION_MAJOR}::OpenGL # add back later
         ${MAIN_DEPENDENCIES}
+
 )
 
 
 
 
-if(${QT_VERSION_MAJOR}_FOUND AND ${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+if(QT_VERSION_MAJOR GREATER_EQUAL 6)
     qt_add_executable(moris_gui
         MANUAL_FINALIZATION
         ${MAIN_GUI_SOURCES}
