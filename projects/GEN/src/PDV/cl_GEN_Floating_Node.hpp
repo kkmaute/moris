@@ -122,5 +122,13 @@ namespace moris::gen
          * @return Const geometry reference
          */
         virtual const Geometry& get_interface_geometry() const = 0;
+
+        /**
+         * Gets if the sensitivities for this node should be geometrically consistent with the mesh (true) or normal to the geometry isocontour (false)
+         * This implementation should always return false, as floating nodes are not along foreground mesh edges
+         *
+         * @return Sensitivity flag
+         */
+        bool compute_sensitivity_along_edges() const override;
     };
 }    // namespace moris::gen

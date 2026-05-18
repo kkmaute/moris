@@ -95,4 +95,11 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Basis_Node::compute_sensitivity_along_edges() const
+    {
+        return mNode.compute_sensitivity_along_edges();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }    // namespace moris::gen

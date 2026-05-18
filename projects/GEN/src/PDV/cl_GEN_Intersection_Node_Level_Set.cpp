@@ -43,11 +43,13 @@ namespace moris::gen
             Matrix< DDRMat >&       aCoordinateSensitivities,
             const Matrix< DDRMat >& aSensitivityFactor ) const
     {
-        Matrix< DDRMat >     tSensitivitiesToAdd;
-        Vector< Basis_Node > tFieldBasisNodes = this->get_field_basis_nodes();
+        Matrix< DDRMat > tSensitivitiesToAdd;
 
-        if ( mInterfaceGeometry.compute_sensitivity_along_edges() )
+        // Node sensitivity must be consistent if any I am consistent and any parent nodes are consistent
+        if ( this->compute_sensitivity_along_edges() )
         {
+            Vector< Basis_Node > tFieldBasisNodes = this->get_field_basis_nodes();
+
             // Get parent nodes
             const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
             const Basis_Node& tSecondParentNode = this->get_second_parent_node();
@@ -103,37 +105,61 @@ namespace moris::gen
             // Compute the level set gradient at the intersection node
             Matrix< DDRMat > tGradx;
             mInterfaceGeometry.get_dfield_dcoordinates( *this, tGradx );
-            real tInvGradxMag2 = 1.0 / dot( tGradx, tGradx );
+            real tInvGradxMag2 = -1.0 / dot( tGradx, tGradx );
 
-            // Get level set/ancestor node sensitivity values from ancestors
-            for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+            // Get geometry field sensitivity with respect to ADVs
+            const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs( this->get_index(), this->get_global_coordinates() );
+
+            // Compute the sensitivities to add for this ancestor
+            tSensitivitiesToAdd = tInvGradxMag2 * aSensitivityFactor * tGradx * tFieldSensitivities;
+
+            // Resize sensitivities
+            uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
+            aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
+                    tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+
+            // Join sensitivities
+            for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
             {
-                // Get the basis
-                real tBasis = tFieldBasisNodes( iFieldBasisNode ).get_basis();
-
-                // Get geometry field sensitivity with respect to ADVs
-                const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs(
-                        tFieldBasisNodes( iFieldBasisNode ).get_index(),
-                        tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
-
-                // Compute the sensitivities to add for this ancestor
-                tSensitivitiesToAdd = -tBasis * tInvGradxMag2 * tGradx * tFieldSensitivities;
-
-                // Resize sensitivities
-                uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
-                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
-                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
-
-                // Join sensitivities
-                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
+                for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
                 {
-                    for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
-                    {
-                        aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
-                                tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
-                    }
+                    aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
+                            tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
                 }
             }
+
+            //     // Compute the sensitivities to add for this ancestor
+            //     tSensitivitiesToAdd = -tBasis * tInvGradxMag2 * aSensitivityFactor * tGradx * tFieldSensitivities;
+
+            // // Get level set/ancestor node sensitivity values from ancestors
+            // for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+            // {
+            //     // Get the basis
+            //     real tBasis = tFieldBasisNodes( iFieldBasisNode ).get_basis();
+
+            //     // Get geometry field sensitivity with respect to ADVs
+            //     const Matrix< DDRMat >& tFieldSensitivities = mInterfaceGeometry.get_dfield_dadvs(
+            //             tFieldBasisNodes( iFieldBasisNode ).get_index(),
+            //             tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
+
+            //     // Compute the sensitivities to add for this ancestor
+            //     tSensitivitiesToAdd = -tBasis * tInvGradxMag2 * aSensitivityFactor * tGradx * tFieldSensitivities;
+
+            //     // Resize sensitivities
+            //     uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
+            //     aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
+            //             tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
+
+            //     // Join sensitivities
+            //     for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
+            //     {
+            //         for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
+            //         {
+            //             aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
+            //                     tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
+            //         }
+            //     }
+            // }
         }
     }
 
@@ -142,29 +168,29 @@ namespace moris::gen
     Vector< sint >
     Intersection_Node_Level_Set::get_coordinate_determining_adv_ids() const
     {
-        // Initialize ADV IDs
-        Vector< sint > tCoordinateDeterminingADVIDs;
-
-        // Get sensitivity values from other ancestors
-        Vector< Basis_Node > tFieldBasisNodes = this->get_field_basis_nodes();
-        for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+        if ( this->compute_sensitivity_along_edges() )
         {
-            // Get geometry field sensitivity with respect to ADVs
-            const Vector< sint >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
-                    tFieldBasisNodes( iFieldBasisNode ).get_index(),
-                    tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
+            // Initialize ADV IDs
+            Vector< sint > tCoordinateDeterminingADVIDs;
 
-            // Join IDs
-            Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
-        }
+            // Get sensitivity values from other ancestors
+            Vector< Basis_Node > tFieldBasisNodes = this->get_field_basis_nodes();
+            for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
+            {
+                // Get geometry field sensitivity with respect to ADVs
+                const Vector< sint >& tAncestorADVIDs = mInterfaceGeometry.get_determining_adv_ids(
+                        tFieldBasisNodes( iFieldBasisNode ).get_index(),
+                        tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
 
-        // Get parent nodes
-        const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
-        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+                // Join IDs
+                Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tAncestorADVIDs );
+            }
 
-        // Add parent IDs
-        if ( mInterfaceGeometry.compute_sensitivity_along_edges() )
-        {
+            // Get parent nodes
+            const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
+            const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
+            // Add parent IDs
             if ( tFirstParentNode.depends_on_advs() )
             {
                 Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tFirstParentNode.get_coordinate_determining_adv_ids() );
@@ -173,10 +199,14 @@ namespace moris::gen
             {
                 Intersection_Node::join_adv_ids( tCoordinateDeterminingADVIDs, tSecondParentNode.get_coordinate_determining_adv_ids() );
             }
-        }
 
-        // Return joined ADV IDs
-        return tCoordinateDeterminingADVIDs;
+            // Return joined ADV IDs
+            return tCoordinateDeterminingADVIDs;
+        }
+        else
+        {
+            return mInterfaceGeometry.get_determining_adv_ids( this->get_index(), this->get_global_coordinates() );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -191,6 +221,18 @@ namespace moris::gen
     const Geometry& Intersection_Node_Level_Set::get_interface_geometry() const
     {
         return mInterfaceGeometry;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Intersection_Node_Level_Set::compute_sensitivity_along_edges() const
+    {
+        const Basis_Node& tFirstParentNode  = this->get_first_parent_node();
+        const Basis_Node& tSecondParentNode = this->get_second_parent_node();
+
+        return mInterfaceGeometry.compute_sensitivity_along_edges()
+            or ( tFirstParentNode.compute_sensitivity_along_edges() )
+            or ( tSecondParentNode.compute_sensitivity_along_edges() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

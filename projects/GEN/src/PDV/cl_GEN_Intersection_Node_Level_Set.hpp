@@ -76,6 +76,13 @@ namespace moris::gen
          */
         const Geometry& get_interface_geometry() const override;
 
+        /**
+         * Gets if the sensitivities for this node should be geometrically consistent with the mesh (true) or normal to the geometry isocontour (false)
+         *
+         * @return Sensitivity flag
+         */
+        bool compute_sensitivity_along_edges() const override;
+
       private:
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
