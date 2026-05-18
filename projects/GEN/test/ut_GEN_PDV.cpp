@@ -401,9 +401,9 @@ namespace moris::gen
 
                 // Create parent nodes
                 auto        tFirstNode = new Background_Node( 0, tFirstParentCoordinates );
-                Parent_Node tFirstParentNode( *tFirstNode, { { -1.0 } } );
+                Parent_Node tFirstParentNode( *tFirstNode, { { -1.0, 0.0 } } );
                 auto        tSecondNode = new Background_Node( 0, tSecondParentCoordinates );
-                Parent_Node tSecondParentNode( *tSecondNode, { { 1.0 } } );
+                Parent_Node tSecondParentNode( *tSecondNode, { { 1.0, 0.0 } } );
 
                 // Background nodes need to be deleted later
                 tTemporaryBackgroundNodes.push_back( tFirstNode );
