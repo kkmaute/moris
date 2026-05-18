@@ -643,7 +643,6 @@ namespace moris::MSI
 
         for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
         {
-
             MORIS_ASSERT( ( tElementalResidual( Ik ).numel() != 0 ) == ( tTMatrixTrans.numel() != 0 ),
                     "Equation_Object::get_staggered_equation_obj_residual(), elemental residual vector # %-5i has 0 entries on set %s",
                     Ik,

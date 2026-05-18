@@ -328,7 +328,7 @@ namespace moris
             /**
              * Gets whether this design variable interface was created via a gen workflow or not.
              * If not, no pdvs are created, and this is just used to store QI values
-             * FIXME @bc: There should be a cleaner way to handle this through inheritance - the FEM model, relies on knowing this info
+             * FIXME @bc: There should be a cleaner way to handle this through inheritance - the FEM model relies on knowing this info
              * to avoid creating PDV IDs for nodes if we are doing STK. Thus if body fitted shape optimization was implemented this would
              * be unnecessary.
              */
