@@ -593,14 +593,13 @@ namespace moris::xtk
             for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
             {
                 // Get the XQI name and type
-                std::string  tXQIName = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
-                mtk::QI_Type tXQIType = static_cast< mtk::QI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
+                std::string                  tXQIName      = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
+                mtk::QI_Type                 tXQIType      = static_cast< mtk::QI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
+                const Vector< std::string > &tMeshSetNames = mParameterList( 1 )( iXQI ).get_vector< std::string >( "mesh_set_names" );    // FIXME brendan, make this able to be retrieved by phase name
 
                 // Create a surface mesh from the IG mesh for surface XQIs
-                // FIXME brendan construct from phase names
-                mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_1_b1_0", "SideSet_1_c_p1", "SideSet_2_c_p1", "SideSet_3_c_p1", "SideSet_4_c_p1", "SideSet_1_n_p1", "SideSet_2_n_p1", "SideSet_3_n_p1", "SideSet_4_n_p1" } );    // FIXME side set names make variable
-                // mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), { "iside_b0_0_b1_1", "SideSet_1_c_p0", "SideSet_2_c_p0", "SideSet_3_c_p0", "SideSet_4_c_p0", "SideSet_1_n_p0", "SideSet_2_n_p0", "SideSet_3_n_p0", "SideSet_4_n_p0" } );    // FIXME side set names make variable
-                mtk::Integration_Surface_Mesh tSurfaceMesh( tSurfaceMeshData );
+                mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), tMeshSetNames );
+                mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
 
                 // Brendan delete
                 tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
@@ -627,7 +626,6 @@ namespace moris::xtk
                 //     }
                 // }
                 std::ofstream tMapFile( "vertex_map_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
-
 
                 // Get the IG to PDV ID map for this surface mesh
                 Vector< Vector< moris_index > > tPDVIDs;
@@ -671,6 +669,16 @@ namespace moris::xtk
                             tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
                         }
 
+                        // brendan delete
+                        std::ofstream tSensFile( "sens_raycast_" + std::to_string( (uint)tConeAngle ) + ".txt" );
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+                        }
+                        tSensFile.close();
+
+
                         break;
                     }
                     case ( mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
@@ -698,6 +706,15 @@ namespace moris::xtk
                             tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
                         }
 
+                        // brendan delete
+                        std::ofstream tSensFile( "sens_inscribed_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+                        }
+                        tSensFile.close();
+
                         break;
                     }
                     case ( mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
@@ -723,6 +740,15 @@ namespace moris::xtk
 
                             tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
                         }
+
+                        // brendan delete
+                        std::ofstream tSensFile( "sens_shortest_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+                        }
+                        tSensFile.close();
 
                         break;
                     }

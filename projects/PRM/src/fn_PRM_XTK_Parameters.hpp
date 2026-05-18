@@ -27,6 +27,7 @@ namespace moris::prm
 
         tParameterList.insert( "leader_phase_name", "" );                         // Name of the phase on the leader side of the interface TODO BRENDAN VERIFY AGAINST PHASE NAMES
         tParameterList.insert( "follower_phase_name", "" );                       // Name of the phase on the follower side of the interface TODO BRENDAN VERIFY AGAINST PHASE NAMES
+        tParameterList.insert( "mesh_set_names", Vector< std::string >() );       // Mesh set names to compute the XQI on. Must form an entire closed boundary
         tParameterList.insert_enum( "XQI_type", mtk::QI_Type_String::values );    // Type of XQI to be computed
         tParameterList.insert( "XQI_name", "" );                                  // Name of the XQI, used for choosing design criteria for OPT or for output
 
