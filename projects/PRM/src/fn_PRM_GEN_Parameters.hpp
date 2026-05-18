@@ -251,9 +251,9 @@ namespace moris::prm
         switch ( aGQIType )
         {
             case gen::GQI_Type::RAYCAST_SHAPE_DIAMETER:
-                aGQIParameterList.insert( "number_of_polar_rays", 20, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
-                aGQIParameterList.insert( "number_of_azimuth_rays", 0, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function
-                aGQIParameterList.insert( "cone_angle", 30.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+                aGQIParameterList.insert( "number_of_polar_rays", 30, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
+                aGQIParameterList.insert( "number_of_azimuth_rays", 1, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function
+                aGQIParameterList.insert( "cone_angle", 60.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
                 aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
@@ -266,6 +266,7 @@ namespace moris::prm
                 aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
                 aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aGQIParameterList.insert( "minimum_relative_chord_length", 0.25, 1e-6, 1.0 );                  // Exclude diameters if the chord between the two vertices is less than this fraction of the diameter, to avoid very high sensitivities for edges that are nearly parallel to the surface
                 aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
                 break;
 
