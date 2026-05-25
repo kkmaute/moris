@@ -14,7 +14,7 @@
 #include "cl_HMR_Parameters.hpp"    //HMR/src
 #include "HMR_Globals.hpp"          //HMR/src
 #include "assert.hpp"
-#include "moris_typedefs.hpp"           //COR/src
+#include "moris_typedefs.hpp"     //COR/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
@@ -337,6 +337,14 @@ namespace moris::hmr
         virtual void refine_element(
                 Background_Element_Base* aElement,
                 const bool               aKeepState ) = 0;
+
+        //--------------------------------------------------------------------------------
+        /**
+         * @brief Adds children to the element and marks them as "candidates". Does not alter active or refined states of existing elements.
+         *
+         * @param aElement element which candidate children are to be created for
+         */
+        virtual void refine_element_for_candidate_buffer( Background_Element_Base* aElement ) = 0;
 
         //--------------------------------------------------------------------------------
 
@@ -687,7 +695,7 @@ namespace moris::hmr
          * @return       void
          */
         void collect_elements_on_level_including_aura(
-                uint                              aLevel,
+                uint                                aLevel,
                 Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -702,7 +710,7 @@ namespace moris::hmr
          * @return       void
          */
         void collect_elements_on_level_within_proc_domain(
-                uint                              aLevel,
+                uint                                aLevel,
                 Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -719,8 +727,8 @@ namespace moris::hmr
          *  @param[out]  aElementList     cell with element pointers on aura
          */
         void collect_active_elements_from_aura(
-                uint                              aProcNeighbor,
-                uint                              aMode,
+                uint                                aProcNeighbor,
+                uint                                aMode,
                 Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -881,7 +889,7 @@ namespace moris::hmr
          */
         void unite_patterns(
                 const Vector< uint >& aSourcePattern,
-                uint                       aTarget );
+                uint                  aTarget );
 
         // -----------------------------------------------------------------------------
 
@@ -932,7 +940,7 @@ namespace moris::hmr
          * @return       void
          */
         void collect_elements_on_level(
-                uint                              aLevel,
+                uint                                aLevel,
                 Vector< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -1012,7 +1020,7 @@ namespace moris::hmr
          *        One check can be saved if the refinement step is performed
          *        within this function.
          */
-        bool collect_refinement_queue();
+        bool collect_refinement_queue( bool aAddBufferInPadding = true );
 
         //------------------------------------------------------------------------------
 
@@ -1031,9 +1039,10 @@ namespace moris::hmr
          * Collect background elements on side set.
          * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
          */
-        void collect_side_set_elements(
-                uint                              aPattern,
-                uint                              aSideOrdinal,
+        void
+        collect_side_set_elements(
+                uint                                aPattern,
+                uint                                aSideOrdinal,
                 Vector< Background_Element_Base* >& aElements );
         //------------------------------------------------------------------------------
 
@@ -1055,7 +1064,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        virtual void get_element_in_bounding_box_memory_index(
+        virtual void
+        get_element_in_bounding_box_memory_index(
                 uint                           aPattern,
                 const moris::Matrix< DDRMat >& aPoint,
                 const moris::Matrix< DDRMat >& aBoundingBoxSize,
@@ -1071,7 +1081,8 @@ namespace moris::hmr
          * @param aIJK
          */
 
-        virtual void calc_ijk_from_global_id(
+        virtual void
+        calc_ijk_from_global_id(
                 const uint&  aLevel,
                 const luint& aID,
                 luint*       aIJK ) const = 0;
@@ -1096,7 +1107,8 @@ namespace moris::hmr
          *
          * @return       luint    local ID on sub-mesh of proc
          */
-        virtual luint calc_subdomain_id_from_global_id(
+        virtual luint
+        calc_subdomain_id_from_global_id(
                 uint  aLevel,
                 luint aID ) const = 0;
 
@@ -1168,9 +1180,9 @@ namespace moris::hmr
          * @return void
          */
         /* void
-    calc_pedigree_tree_from_pedigree_id(
-            luint aPedigreeID,
-            Matrix< DDUMat >   & aPedigreeTree); */
+            calc_pedigree_tree_from_pedigree_id(
+                    luint aPedigreeID,
+                    Matrix< DDUMat >   & aPedigreeTree); */
 
         //--------------------------------------------------------------------------------
         /**
@@ -1182,7 +1194,8 @@ namespace moris::hmr
          * @return uint child index (0-3) of element
          *
          */
-        uint calc_child_index( luint aI );
+        uint
+        calc_child_index( luint aI );
 
         //--------------------------------------------------------------------------------
 
@@ -1196,7 +1209,8 @@ namespace moris::hmr
          * @return uint child index (0-3) of element
          *
          */
-        uint calc_child_index(
+        uint
+        calc_child_index(
                 luint aI,
                 luint aJ );
 
@@ -1213,7 +1227,8 @@ namespace moris::hmr
          * @return uint child index (0-3) of element
          *
          */
-        uint calc_child_index(
+        uint
+        calc_child_index(
                 luint aI,
                 luint aJ,
                 luint aK );
@@ -1277,7 +1292,8 @@ namespace moris::hmr
          * @return luint global ID of element
          *
          */
-        virtual luint calc_domain_id_of_element(
+        virtual luint
+        calc_domain_id_of_element(
                 uint  aLevel,
                 luint aI ) const = 0;
 
@@ -1293,7 +1309,8 @@ namespace moris::hmr
          * @return luint global ID of element
          *
          */
-        virtual luint calc_domain_id_of_element(
+        virtual luint
+        calc_domain_id_of_element(
                 uint  aLevel,
                 luint aI,
                 luint aJ ) const = 0;
@@ -1311,7 +1328,8 @@ namespace moris::hmr
          * @return luint global ID of element
          *
          */
-        virtual luint calc_domain_id_of_element(
+        virtual luint
+        calc_domain_id_of_element(
                 uint  aLevel,
                 luint aI,
                 luint aJ,
@@ -1323,8 +1341,9 @@ namespace moris::hmr
          * subroutine for collect_side_set that collects elements on coarsest
          * level for a side
          */
-        virtual void collect_coarsest_elements_on_side(
-                uint                              aSideOrdinal,
+        virtual void
+        collect_coarsest_elements_on_side(
+                uint                                aSideOrdinal,
                 Vector< Background_Element_Base* >& aCoarsestElementsOnSide ) = 0;
 
         //--------------------------------------------------------------------------------
@@ -1368,6 +1387,8 @@ namespace moris::hmr
          */
         void create_staircase_buffer();
 
+        //------------------------------------------------------------------------------
+
         /**
          * calculates a staircase buffer for element.
          * Collects the neighbors of the parent element. Checks the IJK distance of the parent element and these neighbors.
@@ -1379,13 +1400,47 @@ namespace moris::hmr
          * @param[in] aHalfBuffer         The buffer size. We input only haf the buffer size, because we only have to check these neighbors
          *
          */
-        void create_staircase_buffer_for_element(
+        void
+        create_staircase_buffer_for_element(
                 Background_Element_Base* aElement,
                 luint&                   aElementCounter,
                 uint                     aHalfBuffer );
 
         //------------------------------------------------------------------------------
-    }; // class Background_Mesh_Base
+
+        /**
+         * TODO: complete this description
+         * @brief Create a candidate buffer for element object
+         *
+         * @param aElement
+         * @param aElementCounter
+         * @param aHalfBuffer
+         */
+        void
+        expand_candidate_buffer_from_parent_element(
+                Background_Element_Base* aParentElement,
+                luint&                   aElementCounter,
+                uint                     aHalfBuffer );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * TODO: complete this description
+         * @brief Create a candidate buffer for element object
+         *
+         * @param aElement
+         * @param aElementCounter
+         * @param aHalfBuffer
+         */
+        void
+        create_candidate_buffer_for_element(
+                Background_Element_Base* aElement,
+                luint&                   aElementCounter,
+                uint                     aHalfBuffer );
+
+        //------------------------------------------------------------------------------
+
+    };    // class Background_Mesh_Base
 
     //--------------------------------------------------------------------------------
 

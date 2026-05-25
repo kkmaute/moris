@@ -948,6 +948,85 @@ namespace moris::hmr
         mMesh->get_my_elements_in_basis_support( aMeshIndex, aBasisIndex, aElementIndices );
     }
 
+    //-----------------------------------------------------------------------------
+
+    void
+    Mesh::get_elements_in_support_of_candidate_basis_function(
+            const uint          aMeshIndex,
+            const uint          aBasisFunctionCandidateIndex,
+            Matrix< IndexMat >& aElementIndices )
+    {
+        mMesh->get_my_elements_in_candidate_basis_function_support( aMeshIndex, aBasisFunctionCandidateIndex, aElementIndices );
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void
+    Mesh::unset_all_BF_flags( const uint aMeshIndex )
+    {
+        mMesh->unset_all_BF_flags( aMeshIndex );
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void
+    Mesh::set_candidate_BFs_flags( 
+            const uint                      aMeshIndex, 
+            Vector< moris_index > const &   aListOfCandBfIndices, 
+            const bool                      aState )
+    {
+        mMesh->set_candidate_BFs_flags( aMeshIndex, aListOfCandBfIndices, aState );
+    }
+
+    //-----------------------------------------------------------------------------
+
+    uint
+    Mesh::get_candidate_basis_function_level(
+            const uint aMeshIndex,
+            const uint aBasisFunctionCandidateIndex ) const
+    {
+        return mMesh->get_candidate_basis_function_level( aMeshIndex, aBasisFunctionCandidateIndex );
+    }
+
+    void
+    Mesh::print_candidate_basis_function(
+            const uint aMeshIndex,
+            const uint aBasisFunctionCandidateIndex ) const
+    {
+        return mMesh->print_candidate_basis_function( aMeshIndex, aBasisFunctionCandidateIndex );
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris_id 
+    Mesh::get_ID_and_owner_of_candidate_BF( 
+            const uint        aCandidateBFIndex, 
+            const moris_index aEnrichmentDataIndex, 
+            moris_index &     aOwner ) const
+    {
+        return mMesh->get_candidate_basis_function_owner_and_ID( (uint)aEnrichmentDataIndex, aCandidateBFIndex, aOwner );
+    }
+
+    //-----------------------------------------------------------------------------
+
+    uint
+    Mesh::get_background_element_level( const moris_index aElementIndex ) const
+    {
+        return mMesh->get_element_level( aElementIndex );
+    }
+
+    //-----------------------------------------------------------------------------
+
+    void 
+    Mesh::eval_THEB_basis_on_element( 
+            const moris_index aBsplineMeshIndex, 
+            const moris_index aElementIndex, 
+            Vector< moris_index > const & aSupportedCandidateBfIndices, 
+            Vector< Matrix< DDRMat > > & tNodalTMatrixWeights )
+    {
+        mMesh->eval_THEB_basis_on_element( aBsplineMeshIndex, aElementIndex, aSupportedCandidateBfIndices, tNodalTMatrixWeights );
+    }
+
     //-------------------------------------------------------------------------------
 
     uint
@@ -958,6 +1037,23 @@ namespace moris::hmr
         if ( tMesh != nullptr )
         {
             return tMesh->get_number_of_indexed_basis();
+        }
+        else
+        {
+            return this->get_num_nodes();
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+
+    uint
+    Mesh::get_num_candidate_basis_functions( const uint aMeshIndex )
+    {
+        BSpline_Mesh_Base* tMesh = mMesh->get_bspline_mesh( aMeshIndex );
+
+        if ( tMesh != nullptr )
+        {
+            return tMesh->get_number_of_candidate_basis_functions();
         }
         else
         {
@@ -1744,6 +1840,7 @@ namespace moris::hmr
     }
 
     //-----------------------------------------------------------------------------
+
     void
     Mesh::get_processors_whom_share_entity(
             moris_index      aEntityIndex,

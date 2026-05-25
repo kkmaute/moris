@@ -357,6 +357,11 @@ namespace moris::hmr
          */
         void refine_element( Background_Element_Base* aElement, const bool aKeepState ) override;
 
+
+        //--------------------------------------------------------------------------------
+
+        void refine_element_for_candidate_buffer( Background_Element_Base* aElement ) override;
+
         //--------------------------------------------------------------------------------
 
         /**
@@ -1392,6 +1397,15 @@ namespace moris::hmr
     Background_Mesh< N >::refine_element( Background_Element_Base* aElement, const bool aKeepState )
     {
         MORIS_ERROR( false, "Don't know how to refine element." );
+    }
+
+    //--------------------------------------------------------------------------------
+
+    template< uint N >
+    inline void 
+    Background_Mesh< N >::refine_element_for_candidate_buffer( Background_Element_Base* aElement ) 
+    {
+        MORIS_ERROR( false, "Background_Mesh< N >::refine_element_for_candidate_buffer() - Not implemented for arbitrary number of dimensions." );
     }
 
     //--------------------------------------------------------------------------------

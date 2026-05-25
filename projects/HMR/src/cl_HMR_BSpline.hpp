@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_HMR_Basis.hpp"    //HMR/src
+#include "fn_HMR_bspline_shape.hpp"
 
 namespace moris::hmr
 {
@@ -50,6 +51,9 @@ namespace moris::hmr
 
         //! flag telling if the basis is refined
         bool mRefinedFlag = false;
+
+        //! flag telling if the basis is part of the list of candidate basis functions for the hierarchical enriched basis
+        bool mCandidateFlag = false;
 
         //! flag that tells if the Neighbor array is allocated
         bool mNeighborsFlag = false;
@@ -147,6 +151,20 @@ namespace moris::hmr
         };
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        /**
+         * tells if a Basis is active
+         *
+         * @return bool   true if active
+         */
+        bool
+        is_active() const override
+        {
+            return mActiveFlag;
+        }
+
+        //------------------------------------------------------------------------------
 
         /**
          * Sets the state of this basis to "active".
@@ -159,25 +177,8 @@ namespace moris::hmr
             // set active flag on
             mActiveFlag = true;
 
-            // an active element can not be refined at the same time
-            mRefinedFlag = false;
-        }
-
-        //------------------------------------------------------------------------------
-
-        /**
-         *Sets the state of this basis to "refined".
-         *
-         * @return void
-         */
-        void
-        set_refined_flag() override
-        {
-            // a refined element is not active
-            mActiveFlag = false;
-
-            // set element as refined
-            mRefinedFlag = true;
+            // an active basis function can not be refined at the same time
+            mRefinedFlag = false;  
         }
 
         //------------------------------------------------------------------------------
@@ -198,18 +199,31 @@ namespace moris::hmr
         }
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        /**
-         * tells if a Basis is active
-         *
-         * @return bool   true if active
-         */
         bool
-        is_active() const override
+        is_candidate() const override
         {
-            return mActiveFlag;
+            return mCandidateFlag;
         }
 
+        //------------------------------------------------------------------------------
+
+        void
+        set_candidate_flag() override
+        {
+            mCandidateFlag = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        unset_candidate_flag() override
+        {
+            mCandidateFlag = false;
+        }
+
+        //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         /**
@@ -221,6 +235,31 @@ namespace moris::hmr
         is_refined() override
         {
             return mRefinedFlag;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         *Sets the state of this basis to "refined".
+         *
+         * @return void
+         */
+        void
+        set_refined_flag() override
+        {
+            // a refined basis function is not active
+            mActiveFlag = false;
+
+            // set basis function as refined
+            mRefinedFlag = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        unset_refined_flag() override
+        {
+            mRefinedFlag = false;
         }
 
         //------------------------------------------------------------------------------
@@ -705,6 +744,22 @@ namespace moris::hmr
             return mActiveIndex;
         }
 
+        // -----------------------------------------------------------------------------
+
+        void
+        set_candidate_index( luint aIndex ) override
+        {
+            mCandidateIndex = aIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
+        luint
+        get_candidate_index() const override
+        {
+            return mCandidateIndex;
+        }
+
         //------------------------------------------------------------------------------
 
         void
@@ -739,6 +794,63 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        real 
+        eval_trunc( 
+                const uint aElementLevel, 
+                const luint* aElementIJK, 
+                const Matrix< DDRMat > &aXi ) const override
+        {
+            real tVal = eval( N, P, this->get_level(), this->get_ijk(), aElementLevel, aElementIJK, aXi );
+            if ( mChildrenFlag )
+            {
+                for ( uint iChild = 0; iChild < C; iChild++ )
+                {
+                    const Basis * tChild = this->mChildren[ iChild ];
+                    if ( tChild != nullptr )
+                    {
+                        // TODO!: where to get the truncation weights from?
+                        real tTruncationWeight = 0.0;
+                        tVal -= tTruncationWeight * tChild->eval_truncated_children_at_point( aElementLevel, aElementIJK, aXi );
+                    }
+                }
+            }
+            return tVal;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real
+        eval_truncated_children_at_point( 
+                const uint aElementLevel, 
+                const luint* aElementIJK, 
+                const Matrix< DDRMat > &aXi ) const override
+        {
+            if ( this->mFlag )
+            {
+                return eval( N, P, this->get_level(), this->get_ijk(), aElementLevel, aElementIJK, aXi );
+            }
+            else
+            {
+                real tVal = 0.0;
+                if ( mChildrenFlag )
+                {
+                    for ( uint iChild = 0; iChild < C; iChild++ )
+                    {
+                        const Basis * tChild = this->mChildren[ iChild ];
+                        if ( tChild != nullptr )
+                        {
+                            // TODO!: where to get the truncation weights from?
+                            real tTruncationWeight = 0.0;
+                            tVal += tTruncationWeight * tChild->eval_truncated_children_at_point( aElementLevel, aElementIJK, aXi );
+                        }
+                    }
+                }
+                return tVal;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         virtual void
         print() const override
         {
@@ -747,17 +859,22 @@ namespace moris::hmr
             // basic identifying information
             std::cout << "B-spline basis function..." << "\n";
             std::cout << "Memory Index: " << mMemoryIndex << "\n";
-            std::cout << "Local Index: " << this->get_index() << "\n";
-            std::cout << "Domain Index: " << mDomainIndex << "\n";
-            std::cout << "Domain ID: " << mDomainID << "\n\n";
+            std::cout << "Active Index: " << mActiveIndex << "\n";
+            std::cout << "Local Index (local index): " << this->get_index() << "\n";
+            std::cout << "Domain Index (global index): " << mDomainIndex << "\n";
+            std::cout << "Candidate Index (local candidate index): " << mCandidateIndex << "\n";
+            std::cout << "Candidate ID (global candidate index): " << mCandidateId << "\n";
+            std::cout << "Domain ID (location-based identifier): " << mDomainID << "\n\n";
 
             // print the flags
             std::cout << "Used: " << mUsedFlag << "\n";
             std::cout << "Active: " << mActiveFlag << "\n";
-            std::cout << "Refined: " << mRefinedFlag << "\n\n";
+            std::cout << "Refined: " << mRefinedFlag << "\n";
+            std::cout << "Candidate: " << mCandidateFlag << "\n";
+            std::cout << "Flag: " << mFlag << "\n\n";
 
             // print the level
-            std::cout << "Level: " << mLevel << "\nn";
+            std::cout << "Level: " << mLevel << "\n";
 
             // print basis IJK
             std::cout << "IJK: [ " << mIJK[ 0 ];

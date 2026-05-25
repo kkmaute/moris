@@ -536,14 +536,16 @@ namespace moris::wrk
                 aHMR->perform_refinement( tLagrangeMeshPattern );
                 aHMR->update_refinement_pattern( tLagrangeMeshPattern ); // update the B-spline and Lagrange meshes
 
-                // TODO: ?
+                // update containers of active elements, indexing, neighbor information, etc. // TODO: this also seems redundant as it is called at the end of "perform_refinement"
                 tBackgroundMesh->update_database();
+
+                // TODO: why do we call the update mesh calls here again after these were already called in the HMR::update_refinement_pattern()?
                 tDataBase->update_bspline_meshes();
                 tDataBase->update_lagrange_meshes();
 
             }    // end for: each refinement step
 
-            // TODO: ?
+            // unflag the elements which were previously marked for refinement
             tBackgroundMesh->clear_refinement_queue();
 
         }    // end for: each pattern which is listed for local (geometric) refinement
@@ -606,7 +608,7 @@ namespace moris::wrk
 
         }    // end for: each mesh // TODO: what kind of meshes?
 
-        // TODO: ?
+        // update B-spline and Lagrange meshes in case there were any additional intersected elements which were not refined
         tDataBase->update_bspline_meshes();
         tDataBase->update_lagrange_meshes();
 

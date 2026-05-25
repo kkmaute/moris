@@ -565,11 +565,14 @@ namespace moris::hmr
 
         void
         preprocess_bases_from_level(
-                Vector< Element* >& aElements,
+                Vector< Element* >& aElementsOnCurrentLevel, // these are elements on one level, currently processed by calling this function
                 Vector< Basis* >&   aBasisFunctions ) override
         {
+            // ======================
+            // 1.) reset all BFs: unflag and mark as non-used
+
             // reset flags for basis
-            for ( Element* tElement : aElements )
+            for ( Element* tElement : aElementsOnCurrentLevel )
             {
                 // loop over all basis from this element
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
@@ -598,13 +601,13 @@ namespace moris::hmr
             moris_id tMyRank = par_rank();
 
             // ======================
-            // go over all elements on the current level and mark the basis functions interpolating into them for usage and count them
-            for ( Element* tElement : aElements )
+            // 2.) go over all elements on the current level and mark the basis functions supported on them for usage and count them
+            for ( Element* tElement : aElementsOnCurrentLevel )
             {
-                // loop over all basis from this element
+                // loop over all basis functions supported in this element
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
-                    // get pointer to basis
+                    // get pointer to basis function
                     Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
 
                     if ( tBasis != nullptr )
@@ -635,17 +638,17 @@ namespace moris::hmr
                         }
                     }
                 }
-            }    // end for: each element on current level
+            } // end for: each element on current level
 
-            // assign memory for basis container
+            // assign memory for basis function container: collect all basis functions supported in active or refined elements of the current level (which are stored in aElements)
             aBasisFunctions.resize( tBasisCount, nullptr );
 
             // reset counter
             tBasisCount = 0;
 
             // ======================
-            // go over all elements on the current level and initialize the neighbor containers of the BFs interpolating into the refined elements
-            for ( Element* iElement : aElements )
+            // 3.) go over all elements on the current level and initialize the neighbor containers of the BFs supported on these refined elements
+            for ( Element* iElement : aElementsOnCurrentLevel )
             {
                 // loop over all basis from this element and un-flag them again
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
@@ -667,44 +670,45 @@ namespace moris::hmr
                     }
                 }
 
-                // initialize basis neighbor container on basis functions interpolating into refined elements
-                if ( iElement->is_refined() )
+                // initialize the basis functions' neighbor container on basis functions supported by refined elements  // TODO: replace first half with ( iElement->is_active() || iElement->is_candidate() ) ? ==> probably not needed...
+                bool tHasDummyChildren = iElement->is_active() && iElement->get_background_element()->has_children();
+                if ( iElement->is_refined() || tHasDummyChildren ) // TODO: is the second half of this if necessary? ==> likely, yes!
                 {
-                    // loop over all basis
+                    // loop over all basis functions
                     for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                     {
                         // get pointer to basis
-                        Basis* tBasis = iElement->get_basis( iBasisIndexInElement );
+                        Basis* tBasisFunction = iElement->get_basis( iBasisIndexInElement );
 
-                        if ( tBasis != nullptr )
+                        if ( tBasisFunction != nullptr )
                         {
                             // assign memory of neighbor container for this basis
-                            tBasis->init_neighbor_container();
+                            tBasisFunction->init_neighbor_container();
                         }
                     }
                 }
             }    // end for: each element on current level
 
             // ======================
-            // link elements back to basis functions
+            // 4.) link elements back to basis functions
             for ( auto iBF : aBasisFunctions )
             {
                 // initialize element container
-                iBF->init_element_container();
+                iBF->init_element_container(); // TODO: check if this works with the above change
             }
 
             // loop over all elements
-            for ( Element* tElement : aElements )
+            for ( Element* iElement : aElementsOnCurrentLevel )
             {
                 // loop over all basis from this element
                 for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < B; iBasisIndexInElement++ )
                 {
-                    Basis* tBasis = tElement->get_basis( iBasisIndexInElement );
+                    Basis* tBasis = iElement->get_basis( iBasisIndexInElement );
 
                     if ( tBasis != nullptr )
                     {
                         // insert this element into basis
-                        tBasis->insert_element( tElement );
+                        tBasis->insert_element( iElement );
                     }
                 }
             }
@@ -713,14 +717,15 @@ namespace moris::hmr
             // this->delete_unused_bases( aLevel, aBackgroundElements, aBasisFunctions );              // FIXME Saves Memory
 
             // ======================
-            // link basis functions with neighboring BFs
-            for ( Element* tElement : aElements )
+            // 5.) link basis functions with neighboring BFs
+            for ( Element* iElement : aElementsOnCurrentLevel )
             {
-                // calculate basis neighbors
-                if ( tElement->is_refined() )
+                // calculate basis neighbors  // TODO: replace first half with ( iElement->is_active() || iElement->is_candidate() ) ?
+                bool tHasDummyChildren = iElement->is_active() && iElement->get_background_element()->has_children();
+                if ( iElement->is_refined() || tHasDummyChildren ) // TODO: is the second half of this if necessary?
                 {
                     // determine the BF's neighboring BFs
-                    tElement->link_basis_with_neighbors( mAllElementsOnProc );
+                    iElement->link_basis_with_neighbors( mAllElementsOnProc );
                 }
             }
 
@@ -735,10 +740,10 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         void
-        determine_basis_state( Vector< Basis* >& aBases ) override
+        determine_basis_state( Vector< Basis* >& aBasisFunctions ) override
         {
-            // loop over all basis functions parsed into this function and flag them as (de-)activated and as (non-)refined
-            for ( Basis* iBasisFunction : aBases )
+            // loop over all basis functions passed into this function and flag them as (de-)activated and as (non-)refined
+            for ( Basis* iBasisFunction : aBasisFunctions )
             {
                 // only process basis that are used by this proc (unused basis functions, in this case, are those solely supported in the padding)
                 if ( iBasisFunction->is_used() )
@@ -746,63 +751,108 @@ namespace moris::hmr
                     // test number of elements in basis function's support
                     uint tNumberOfElements = iBasisFunction->get_element_counter();
 
-                    // if the basis function's support extends beyond the padding (i.e. it is not fully supported on any level) it is irrelevant
+                    // if the basis function's support extends beyond the padding (i.e. it is not fully supported on any level) it is irrelevant 
+                    // (recall that the padding is refined such that the support of any finer BFs adjacent to it can be represented in full by a list of BG elements) 
+                    // ?: in what situation can we have used BFs whose support cannot be expressed fully using existing BG elements? --> on refined levels only the necessary elements are constructed, so BFs on these levels that are partially outside of their nested domain can exist
                     if ( tNumberOfElements < B )
                     {
                         // mark this basis as de-activated
-                        iBasisFunction->unset_active_flag();
+                        iBasisFunction->unset_active_flag(); iBasisFunction->unset_candidate_flag(); iBasisFunction->unset_refined_flag();
                     }
-                    else    // Basis function is fully supported within domain + padding
+                    else    // Basis function is fully supported within current nested domain (+ padding)
                     {
-                        // check if any element in the BF's support is neither active nor refined which also indicates irrelevance
-                        bool tHasDeactivatedElement = false;
+                        // if any element in the BF's support is neither active, nor refined, nor a candidate
+                        bool tBfIsInvalid = false;
+
+                        // check for these conditions in a loop over all elements in the BF's support
+                        bool tBfHasAtLeastOneActiveElementInSupport = false;
+                        bool tBfHasAtLeastOneCandidateElementInSupport = false;
+                        bool tBfHasOnlyRefinedElementsInSupport = true;
+
+                        // check that the support is fully expressed as active and refined (and candidate) elements
                         for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
                         {
                             Element* tElement = iBasisFunction->get_element( iElementIndex );
-                            if ( tElement->is_neither_active_nor_refined() )
+
+                            if ( tElement->is_active() )
                             {
-                                tHasDeactivatedElement = true;
+                                tBfHasAtLeastOneActiveElementInSupport = true;
+                                tBfHasOnlyRefinedElementsInSupport = false;
+                            }
+                            else if ( tElement->is_candidate() ) // candidate elements are never active
+                            {
+                                tBfHasAtLeastOneCandidateElementInSupport = true;
+                                tBfHasOnlyRefinedElementsInSupport = false;
+                            }
+                            else if ( !tElement->is_refined() ) // element is neither active, nor candidate, nor refined
+                            {
+                                tBfIsInvalid = true;
+                                tBfHasOnlyRefinedElementsInSupport = false;
                                 break;
                             }
-                        }
 
-                        // if the basis function is not fully supported by active or refined elements, deactivate it
-                        if ( tHasDeactivatedElement )
+                        } // end for: loop over elements in support checking for element states
+
+                        // simplest case: there is an invalid element in support ==> switch off flags and skip the rest
+                        if ( tBfIsInvalid )
                         {
                             iBasisFunction->unset_active_flag();
+                            iBasisFunction->unset_candidate_flag();
+                            iBasisFunction->unset_refined_flag();
                         }
-                        else // Basis function is fully supported on its level: supp(\beta) \subseteq \Omega^{l}, \beta \in \mathcal{B}^{l}
+
+                        // treat the other cases
+                        else
                         {
-                            bool tIsActive = false;
 
-                            // consider BF active if any of the elements in the basis function's support on its level are active: supp(\beta) \nsubseteq \Omega^{l+1}, \beta \in \mathcal{B}^{l}
-                            for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
+                            // the case of a BF with a candidate element but no active elements in its support should not occur
+                            if ( tBfHasAtLeastOneCandidateElementInSupport )
                             {
-                                Element* tElement = iBasisFunction->get_element( iElementIndex );
-                                if ( tElement->is_active() )
-                                {
-                                    tIsActive = true;
+                                MORIS_ERROR( tBfHasAtLeastOneActiveElementInSupport, 
+                                        "HMR::BSpline_Mesh::determine_basis_state() - "
+                                        "Basis function with candidate element(s) but no active element(s) in its support. "
+                                        "This case should not occur, there is a bug." );
+                            }
 
-                                    // break loop
-                                    break;
+                            // both active and candidate BFs have at least one active element in their support
+                            if ( tBfHasAtLeastOneActiveElementInSupport )
+                            {
+                                // basis function is certainly not refined
+                                iBasisFunction->unset_refined_flag();
+                                
+                                // basis function is a candidate
+                                iBasisFunction->set_candidate_flag();
+
+                                // if there are no candidate elements in the support, it is also active
+                                if ( !tBfHasAtLeastOneCandidateElementInSupport )
+                                {
+                                    iBasisFunction->set_active_flag();
+                                }
+                                else // ... otherwise it is a pure candidate
+                                {
+                                    iBasisFunction->unset_active_flag();
                                 }
                             }
 
-                            // the BF is supported by some active background element(s), therefore it remains active
-                            if ( tIsActive )
+                            // otherwise, the basis function is refined 
+                            else 
                             {
-                                // flag this basis as active
-                                iBasisFunction->set_active_flag();
-                            }
-                            else    // the BF interpolates only into de-activated elements, hence it must be refined and fully replaced by finer BFs: supp(\beta) \subseteq \Omega^{l+1}, \beta \in \mathcal{B}^{l}
-                            {
-                                // flag this basis as refined
+                                // but basis function is still refined, as it is fully supported within its level: supp(\beta) \subseteq \Omega^{l}, \beta \in \mathcal{B}^{l}
                                 iBasisFunction->set_refined_flag();
+                                iBasisFunction->unset_active_flag();
+                                iBasisFunction->unset_candidate_flag();
+
+                                // all elements in the BF's support should be refined
+                                MORIS_ERROR( tBfHasOnlyRefinedElementsInSupport,
+                                        "HMR::BSpline_Mesh::determine_basis_state() - "
+                                        "Basis function with no active elements in its support is not refined, although it should be. "
+                                        "This case should not occur, there is a bug." );
                             }
-                        }    // end if: BF interpolates into de-activated element
+                        }    // end if: BF is fully supported within domain + padding
+
                     }    // end if: BF is relevant and not outside the domain
                 }    // end if: BF is used on processor
-            }    // end for: all basis functions parsed into function
+            }    // end for: all basis functions passed into function
         }    // end function: BSpline_Mesh::determine_basis_state()
 
         //------------------------------------------------------------------------------

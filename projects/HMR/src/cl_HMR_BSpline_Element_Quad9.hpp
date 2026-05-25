@@ -665,7 +665,7 @@ namespace moris::hmr
         return tBasisCounter;
     }
 
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
 
     /**
      * Refines this element.
@@ -680,7 +680,7 @@ namespace moris::hmr
         luint tBasisCounter = 0;
         
         // refine basis if they have not been refined already
-        for( uint k=0; k<9; ++k )
+        for( uint k = 0; k < 9; ++k )
         {
             tBasisCounter += this->refine_basis( k );
         }

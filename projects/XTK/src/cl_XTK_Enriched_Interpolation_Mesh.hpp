@@ -84,7 +84,7 @@ namespace moris::xtk
         Vector< std::unordered_map< moris_id, moris_index > > mGlobalToLocalBasisMaps;    // input: DMI || output: map ordered by global BF IDs with corresponding local BF index
 
         // basis ownership
-        Vector< Matrix< IdMat > > mEnrichCoeffOwnership;    // input: DMI, enriched BF index || output: ?
+        Vector< Matrix< IdMat > > mEnrichCoeffOwnership;    // input: DMI, enriched BF index || output: owning processor
 
         // basis bulk phase
         Vector< Matrix< IdMat > > mEnrichCoeffBulkPhase;    // input: DMI, enriched BF index || output: bulk phase the BF interpolates into
@@ -597,6 +597,9 @@ namespace moris::xtk
         finalize_setup();
 
         void
+        finalize_setup_with_THEB_basis();
+
+        void
         finalize_setup_new();
 
         //------------------------------------------------------------------------------
@@ -613,7 +616,9 @@ namespace moris::xtk
         void setup_cell_maps();
         void setup_basis_maps();
         void setup_basis_ownership();
+        void setup_basis_ownership_using_candidate_basis();
         void setup_basis_to_bulk_phase();
+        void setup_THEB_BFs_to_bulk_phase();
         void setup_mesh_index_map();
 
         //------------------------------------------------------------------------------

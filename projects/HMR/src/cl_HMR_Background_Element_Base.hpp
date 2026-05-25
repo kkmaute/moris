@@ -48,7 +48,7 @@ namespace moris::hmr
         //! Global ID of an element. Unique and not to be changed after
         //! element is created.
         //! Domain: all possible elements over all procs
-        //! acces using get_hmr_id()  //FIXME change to HMR_ID
+        //! access using get_hmr_id()  //FIXME change to HMR_ID
         const luint mDomainID;
 
         //! Level on which element is defined. Can not be changed after element is created.
@@ -64,6 +64,9 @@ namespace moris::hmr
 
         //! Tells if an element is refined
         Bitset< gNumberOfPatterns > mRefinedFlags;
+
+        //! Tells if an element is a child of an active element which has been created to express the support of a candidate basis functions 
+        Bitset< gNumberOfPatterns > mCandidateFlags;
 
         //! Special flag for padding elements
         bool mPaddingFlag = false;
@@ -85,6 +88,9 @@ namespace moris::hmr
 
         //! minimum refinement level, special feature
         uint mMinRefinementLevel = 0;
+
+        //! all-purpose flag
+        bool mFlag = false;
 
         //--------------------------------------------------------------------------------
 
@@ -127,6 +133,39 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
+         * functions setting and returning flag status on elements
+         */
+
+        void set_flag() 
+        { 
+            mFlag = true; 
+        }
+        
+        void unset_flag() 
+        { 
+            mFlag = false; 
+        }
+        
+        bool is_flagged() const 
+        { 
+            return mFlag; 
+        }
+
+        void unset_flag_for_all_parents()
+        {
+            if ( mParent != nullptr )
+            {
+                if ( mParent->is_flagged() )
+                {
+                    mParent->unset_flag();
+                    mParent->unset_flag_for_all_parents();
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------
+
+        /**
          * returns a unique system wide ID of the element
          *
          * @return    luint global ID of element
@@ -157,6 +196,7 @@ namespace moris::hmr
             MORIS_ERROR( false, "get_num_children(); not implemented" );
             return 0;
         };
+
         //--------------------------------------------------------------------------------
         /**
          * Needed for the initialization process of the coarsest elements.
@@ -175,6 +215,9 @@ namespace moris::hmr
             // an active element can not be refined at the same time
             mRefinedFlags.reset( aPattern );
 
+            // an active element is not a candidate
+            mCandidateFlags.reset( aPattern );
+
             // an active element is not a padding element
             mPaddingFlag = false;
 
@@ -186,6 +229,32 @@ namespace moris::hmr
                     mParent->set_refined_flag( aPattern );
                 }
             }
+        }
+
+        //--------------------------------------------------------------------------------
+
+        void
+        set_candidate_flag( uint aPattern )
+        {
+            // set candidate flag on
+            mCandidateFlags.set( aPattern );
+
+            // refine parents ( this is safe but not necessary )
+            if ( mLevel > 0 )
+            {
+                MORIS_ERROR( !mParent->is_refined( aPattern ) && mParent->is_active( aPattern ),
+                        "Background_Element_Base::set_candidate_flag() - "
+                        "The parent element of a 'candidate' element should always be active (at least in the current implementation - FIXME!)." );
+            }
+        }
+
+        //--------------------------------------------------------------------------------
+
+        void
+        unset_candidate_flag( uint aPattern )
+        {
+            // reset candidate flag
+            mCandidateFlags.reset( aPattern );
         }
 
         //--------------------------------------------------------------------------------
@@ -327,6 +396,20 @@ namespace moris::hmr
                     gNumberOfPatterns,
                     aPattern );
             return mActiveFlags.test( aPattern );
+        }
+
+        //--------------------------------------------------------------------------------
+
+        bool
+        is_candidate( uint aPattern ) const
+        {
+            MORIS_ASSERT(
+                    aPattern < gNumberOfPatterns,
+                    "hmr::Background_Element_Base::is_candidate() - "
+                    "Only %-2i pattern are created. Requested pattern is %-2i",
+                    gNumberOfPatterns,
+                    aPattern );
+            return mCandidateFlags.test( aPattern );
         }
 
         //--------------------------------------------------------------------------------

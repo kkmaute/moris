@@ -245,7 +245,7 @@ namespace moris::hmr
         void
         collect_descendants(
                 Vector< Background_Element_Base* >& aElementList,
-                luint&                            aElementCount ) override;
+                luint&                              aElementCount ) override;
 
         //--------------------------------------------------------------------------------
 

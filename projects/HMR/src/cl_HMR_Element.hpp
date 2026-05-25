@@ -228,6 +228,14 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        bool
+        is_candidate() const
+        {
+            return mElement->is_candidate( mActivationPattern );
+        }
+
+        //------------------------------------------------------------------------------
+
         // /**
         //  * tells if an element is not active (irrespective of refinement status)
         //  *

@@ -21,6 +21,7 @@
 #include "cl_Tracer.hpp"
 
 #include "cl_Matrix.hpp"
+#include "fn_assert.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_all_true.hpp"
@@ -459,9 +460,9 @@ namespace moris::hmr
                                         tMemoryCounter );
                             }
                         }
-                    }
-                }
-            } /* end loop over all procs */
+                    } // end if: list of elements is not empty
+                } // end if: neighboring processor is not empty
+            } // end for: each neighboring processor (information is sent to)
 
             // initialize matrices for receiving
             Vector< Matrix< DDLUMat > > tAncestorListReceive;
@@ -496,15 +497,16 @@ namespace moris::hmr
 
                     // flag this element for refinement
                     tElement->put_on_refinement_queue();
-                }
-            }
-        }
-    }
+
+                } // end for: each received element
+            } // end for: each neighboring processor (information is received from)
+        } // end if: parallel ( n_p > 1 )
+    } // function: Background_Mesh_Base::synchronize_refinement_queue()
 
     //-------------------------------------------------------------------------------
 
     bool
-    Background_Mesh_Base::collect_refinement_queue()
+    Background_Mesh_Base::collect_refinement_queue( bool aAddBufferInPadding )
     {
         // synchronize with other procs ( this must be called twice )
         this->synchronize_refinement_queue();
@@ -520,7 +522,7 @@ namespace moris::hmr
         // reset counter
         luint tCount = 0;
 
-        for ( luint iActiveElem = 0; iActiveElem < tNumActiveElementsOnProc; ++iActiveElem )
+        for ( luint iActiveElem = 0; iActiveElem < tNumActiveElementsOnProc; ++iActiveElem ) // TODO: what is this loop needed for?
         {
             // check if element is flagged
             if ( mActiveElementsIncludingAura( iActiveElem )->is_queued_for_refinement() )
@@ -528,48 +530,54 @@ namespace moris::hmr
                 // increment counter
                 ++tCount;
 
-                // perform padding test
-                this->check_queued_element_for_padding( mActiveElementsIncludingAura( iActiveElem ) );
+                if ( aAddBufferInPadding )
+                {
+                    // perform padding test
+                    this->check_queued_element_for_padding( mActiveElementsIncludingAura( iActiveElem ) );
+                }
             }
         }
 
         // step 2:  count flagged elements from padding list
-        // get number of padding elements
-        luint tNumberOfCoarsestPaddingElements = mCoarsestPaddingElements.size();
-
-        // initialize padding counter
+        Vector< Background_Element_Base* > tAllPaddingElements;
         luint tPaddingCount = 0;
 
-        // loop over all coarsest padding elements
-        for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
+        if ( aAddBufferInPadding )
         {
-            // count descendants
-            mCoarsestPaddingElements( iPaddingElem )->get_number_of_descendants( tPaddingCount );
-        }
+            // get number of padding elements
+            luint tNumberOfCoarsestPaddingElements = mCoarsestPaddingElements.size();
 
-        // array for padding elements
-        Vector< Background_Element_Base* > tAllPaddingElements( tPaddingCount, nullptr );
-
-        // reset counter
-        tPaddingCount = 0;
-
-        // collect array
-        for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
-        {
-            // count descendants
-            mCoarsestPaddingElements( iPaddingElem )->collect_descendants( tAllPaddingElements, tPaddingCount );
-        }
-
-        // loop over all padding elements
-        for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
-        {
-            // test if element is flagged for refinement
-            if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
+            // loop over all coarsest padding elements
+            for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
             {
-                // increment counter
-                ++tCount;
+                // count descendants
+                mCoarsestPaddingElements( iPaddingElem )->get_number_of_descendants( tPaddingCount );
             }
-        }
+
+            // array for padding elements
+            tAllPaddingElements.resize( tPaddingCount, nullptr );
+
+            // reset counter
+            tPaddingCount = 0;
+
+            // store padding elements in a list
+            for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
+            {
+                // count descendants
+                mCoarsestPaddingElements( iPaddingElem )->collect_descendants( tAllPaddingElements, tPaddingCount );
+            }
+
+            // count number of padding elements in refinement queue and add it to tCount
+            for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
+            {
+                // test if element is flagged for refinement
+                if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
+                {
+                    // increment counter
+                    ++tCount;
+                }
+            }
+        } // end if: identify buffer in padding
 
         // assign memory for queue
         mRefinementQueue.resize( tCount, nullptr );
@@ -587,17 +595,19 @@ namespace moris::hmr
         }
 
         // step 4: add flagged elements from padding list
-
-        // loop over all padding elements
-        for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
+        if ( aAddBufferInPadding )
         {
-            // test if element is flagged for refinement
-            if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
+            // loop over all padding elements
+            for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
             {
-                // copy pointer to queue
-                mRefinementQueue( tCount++ ) = tAllPaddingElements( iPaddingElem );
+                // test if element is flagged for refinement
+                if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
+                {
+                    // copy pointer to queue
+                    mRefinementQueue( tCount++ ) = tAllPaddingElements( iPaddingElem );
+                }
             }
-        }
+        } // end if: add buffer in padding
 
         if ( par_size() == 1 )
         {
@@ -676,7 +686,7 @@ namespace moris::hmr
             mActivePattern = aPattern;
         }
 
-        bool aFlag = false;
+        bool tWereAnyElementsRefined = false;
 
         if ( mBufferSize > 0 )
         {
@@ -684,13 +694,15 @@ namespace moris::hmr
             this->collect_refinement_queue();
         }
 
+        // ------------------------------------------------------------------
+
         while ( true )
         {
-            // create buffer,if set
+            // create buffer, if set
             this->create_staircase_buffer();
 
             // update refinement queue. Refinement queue changes after creating the staircase buffer. so it has to be called again
-            aFlag = aFlag || this->collect_refinement_queue();
+            tWereAnyElementsRefined = tWereAnyElementsRefined || this->collect_refinement_queue();
 
             // update number of elements on queue
             tNumberOfElementsToBeRefined = mRefinementQueue.size();
@@ -724,6 +736,57 @@ namespace moris::hmr
         // empty queue
         mRefinementQueue.clear();
 
+        // -----------
+        // add layer of un-used elements constituting the support of candidate basis functions whose support extends beyond their respective domains
+
+        // the below algorithm assumes that a staircase buffer of sufficient width is being formed; this assumption applies throughout HMR at this point, but throw an error in case this changes
+        MORIS_ERROR( mBufferSize >= mParameters->get_max_polynomial(),
+                "HMR::Background_Mesh_Base::perform_refinement() - "
+                "Algorithm to construct candidate buffer assumes staircase buffer of sufficient size, which it is not." );
+
+        // TODO!: only tested for linear and quadratic B-splines which only require a buffer of one parent element. Still need to figure out whether bigger Buffer sizes work with the current setup.
+
+        // update refinement queue. Refinement queue changes after creating the staircase buffer; so it has to be called again. Also, collect active elements after applying staircase buffer.
+        this->collect_refinement_queue();
+
+        // support size of basis functions is p+1 elements, hence, candidate basis functions can extend p elements beyond their respective domains; report on this operation with a log
+        MORIS_LOG_INFO( "Creating candidate buffer of width %u.", (uint)mParameters->get_max_polynomial() );
+
+        // from the perspective of the coarser level (which are the elements being marked for refinement) this is half the number of elements
+        uint tCandidateBufferSizeOnLevelL = std::ceil( (real) mParameters->get_max_polynomial() / 2.0 );
+
+        // create staircase buffer; note: mActiveElementsIncludingAura is being updated as part of the "this->collect_refinement_queue()" call a view lines above
+        luint tElementCounter = 0;
+        for ( Background_Element_Base* iElement : mActiveElementsIncludingAura )
+        {
+            this->create_candidate_buffer_for_element( 
+                    iElement,
+                    tElementCounter,
+                    tCandidateBufferSizeOnLevelL );
+        }
+
+        // update refinement queue. Refinement queue changes after creating the staircase buffer. so it has to be called again
+        this->collect_refinement_queue( false );
+
+        // update number of elements on queue
+        tNumberOfElementsToBeRefined = mRefinementQueue.size();
+
+        // perform candidate refinement
+        for ( luint iElemToBeRefined = 0; iElemToBeRefined < tNumberOfElementsToBeRefined; ++iElemToBeRefined )
+        {
+            // refine elements in a way that does not flag them as in-active or refined, but flags them for having (dummy) children
+            // this->refine_element( mRefinementQueue( iElemToBeRefined ), true );
+            this->refine_element_for_candidate_buffer( mRefinementQueue( iElemToBeRefined ) );
+        }
+
+        // report if refinement has happened
+        tWereAnyElementsRefined = tWereAnyElementsRefined || ( tNumberOfElementsToBeRefined > 0 );
+
+        // empty queue
+        mRefinementQueue.clear();
+
+        // -----------
+
         if ( tPatternChange )
         {
             mActivePattern = tOldPattern;
@@ -733,7 +796,7 @@ namespace moris::hmr
         this->update_database();
 
         // return flag
-        return aFlag;
+        return tWereAnyElementsRefined;
     }
 
     //-------------------------------------------------------------------------------
@@ -992,7 +1055,7 @@ namespace moris::hmr
 
     void
     Background_Mesh_Base::collect_elements_on_level_including_aura(
-            uint                              aLevel,
+            uint                                aLevel,
             Vector< Background_Element_Base* >& aElementList )
     {
         // get number of elements from lookup table
@@ -1083,9 +1146,9 @@ namespace moris::hmr
         }
 
         // sets memory index for all elements
-        for ( luint iActiveElem = 0; iActiveElem < tCount; ++iActiveElem )
+        for ( luint iActiveOrRefinedElem = 0; iActiveOrRefinedElem < tCount; ++iActiveOrRefinedElem )
         {
-            aElementList( iActiveElem )->set_memory_index( iActiveElem );
+            aElementList( iActiveOrRefinedElem )->set_memory_index( iActiveOrRefinedElem );
         }
     }
 
@@ -1411,7 +1474,7 @@ namespace moris::hmr
                 Background_Element_Base* tNeighbor = tNeighbors( iElem );
 
                 // test all neighbors
-                // test if neighbor is active and was not flagged
+                // test if neighbor is active and has not been flagged for refinement yet
                 if ( tNeighbor->is_active( mActivePattern ) && !tNeighbor->is_queued_for_refinement() )
                 {
                     // test position of neighbor
@@ -1454,14 +1517,81 @@ namespace moris::hmr
                         ++aElementCounter;
 
                         // create staircase buffer for neighbor
-                        this->create_staircase_buffer_for_element( tNeighbor,
+                        this->create_staircase_buffer_for_element( 
+                                tNeighbor,
                                 aElementCounter,
-                                aHalfBuffer );
+                                aHalfBuffer ); // TODO: shouldn't it be "aHalfBuffer - 1" here?
                     }
                 }
             } // end for: each neighboring element
         } // end if: is refined level
     } // end function: Background_Mesh_Base::create_staircase_buffer_for_element()
+
+    //--------------------------------------------------------------------------------
+
+    void
+    Background_Mesh_Base::expand_candidate_buffer_from_parent_element(
+            Background_Element_Base* aParentElement,
+            luint&                   aElementCounter,
+            uint                     aHalfBuffer )
+    {
+        // terminate this recursive function if the half buffer size is 0
+        if ( aHalfBuffer == 0 )
+        {
+            return;
+        } 
+        
+        // collect the neighbors of the input parent element
+        Vector< Background_Element_Base* > tParentNeighbors;
+        aParentElement->get_neighbors_from_same_level( aHalfBuffer, tParentNeighbors );
+
+        // get the number of neighbor parent elements to loop over
+        uint tNumberOfNeighbors = tParentNeighbors.size();
+
+        // check neighbors of parent element
+        for ( uint iElem = 0; iElem < tNumberOfNeighbors; ++iElem )
+        {
+            // get neighbor
+            Background_Element_Base* tParentNeighbor = tParentNeighbors( iElem );
+
+            // only refine neighboring element if it is active and has not been flagged for refinement yet // TODO: is this check provably save? can it happen that the element has children that are not marked as "candidates"? - or does this not matter, as they can still be used to express the support of the candidate basis functions later on?
+            if ( tParentNeighbor->is_active( mActivePattern ) && !tParentNeighbor->is_queued_for_refinement() && !tParentNeighbor->has_children() )
+            {
+                // flag this neighbor for refinement
+                tParentNeighbor->put_on_refinement_queue();
+
+                // increment counter for elements to be refined
+                ++aElementCounter;
+
+                // recursively refine neighbors of neighbor if buffer is greater than one parent element
+                this->expand_candidate_buffer_from_parent_element( tParentNeighbor, aElementCounter, aHalfBuffer - 1 );
+
+            } // end if: neighbor parent element is not refined or does not yet have candidate children
+        } // end for: each neighboring element
+    } // end function: Background_Mesh_Base::expand_candidate_buffer_from_parent_element()
+
+    //--------------------------------------------------------------------------------
+
+    void
+    Background_Mesh_Base::create_candidate_buffer_for_element(
+            Background_Element_Base* aElement,
+            luint&                   aElementCounter,
+            uint                     aHalfBuffer )
+    {
+        // get level of this element
+        auto tLevel = aElement->get_level();
+
+        // only do something if level > 0 - operation does not work for non-refined elements
+        if ( tLevel > 0 )
+        {
+            // get neighbors one level up
+            Background_Element_Base* tParent = aElement->get_parent();
+
+            // recursively create the refinement buffer
+            this->expand_candidate_buffer_from_parent_element( tParent, aElementCounter, aHalfBuffer );
+
+        } // end if: is refined level
+    } // end function: Background_Mesh_Base::create_candidate_buffer_for_element()
 
     //--------------------------------------------------------------------------------
 
@@ -2210,7 +2340,7 @@ namespace moris::hmr
     Background_Mesh_Base::update_database()
     {
         // report this operation
-        MORIS_LOG_INFO( "Updating HMR Database" );
+        MORIS_LOG_INFO( "Updating Background Mesh" );
         //Tracer tTracer( "HMR", "Database", "Update" );
 
         this->collect_active_elements();

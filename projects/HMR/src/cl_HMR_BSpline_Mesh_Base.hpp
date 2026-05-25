@@ -26,16 +26,18 @@ namespace moris::hmr
         //! Cell containing all basis this proc knows about
         Vector< Basis* > mAllCoarsestBasisOnProc;
 
-        //! Cell of basis that are assigned an HMR index ( moris ID );
+        //! Cell of basis that are assigned an HMR index (aka. "Domain Index") ( moris ID );
         Vector< Basis* > mIndexedBasis;
 
         //! number of all basis (including unused on padding)
         luint mNumberOfAllBasis = 0;
 
-        luint          mNumberOfActiveBasisOnProc  = 0;
-        luint          mNumberOfRefinedBasisOnProc = 0;
+        luint          mNumberOfActiveBasisOnProc    = 0;
+        luint          mNumberOfRefinedBasisOnProc   = 0;
+        luint          mNumberOfCandidateBasisOnProc = 0;
         Vector< Basis* > mActiveBasisOnProc;
         Vector< Basis* > mRefinedBasisOnProc;
+        Vector< Basis* > mCandidateBasisOnProc;
 
         Matrix< DDRMat > mChildStencil;
 
@@ -146,10 +148,27 @@ namespace moris::hmr
         }
 
         // ----------------------------------------------------------------------------
+
+        Basis*
+        get_basis_function_by_candidate_index( luint aIndex )
+        {
+            return mCandidateBasisOnProc( aIndex );
+        }
+
+        // ----------------------------------------------------------------------------
+
         uint
         get_number_of_indexed_basis() const
         {
             return mIndexedBasis.size();
+        }
+
+        // ----------------------------------------------------------------------------
+        
+        uint
+        get_number_of_candidate_basis_functions() const
+        {
+            return mCandidateBasisOnProc.size();
         }
 
         // ----------------------------------------------------------------------------
@@ -163,6 +182,17 @@ namespace moris::hmr
                 -> decltype( mNumberOfActiveBasisOnProc )
         {
             return mNumberOfActiveBasisOnProc;
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        unset_all_BF_flags()
+        {
+            for ( Basis* iBF : mAllBasisOnProc ) 
+            {
+                iBF->unflag();
+            }
         }
 
         // ----------------------------------------------------------------------------
@@ -181,6 +211,13 @@ namespace moris::hmr
          * recalculates the domain indices based on flagged basis
          */
         void calculate_basis_indices( const Matrix< IdMat >& aCommTable );
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * communicates and sets the candidate basis function's IDs
+         */
+        void calculate_candidate_ids( const Matrix< IdMat >& aCommTable );
 
         // ----------------------------------------------------------------------------
 
@@ -251,8 +288,9 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void collect_active_and_refined_elements_from_level(
-                uint              aLevel,
-                Vector< Element* >& aElements );
+                uint                aLevel,
+                Vector< Element* >& aElements,
+                const bool          aIncludeCandidates = false );
 
         /**
          *

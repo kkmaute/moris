@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_HMR_Background_Mesh.hpp"    //HMR/src
+#include "fn_assert.hpp"
 
 namespace moris::hmr
 {
@@ -1035,6 +1036,16 @@ namespace moris::hmr
             }
         }
     }
+
+    //-------------------------------------------------------------------------------
+
+    // TODO!
+    // template<>
+    // inline void
+    // Background_Mesh< 3 >::refine_element_for_candidate_buffer( Background_Element_Base* aElement )
+    // {
+    //     MORIS_ERROR( false, "Background_Mesh< 3 >::refine_element_for_candidate_buffer() - Not implemented yet." );
+    // }
 
     //-------------------------------------------------------------------------------
 

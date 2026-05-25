@@ -35,7 +35,8 @@ namespace moris::prm
 
         // enrichment and enrichment related parameters
         tParameterList.insert( "enrich", true );
-        tParameterList.insert( "use_SPG_based_enrichment", false );
+        tParameterList.insert( "use_SPG_based_enrichment", false ); // needed for basis extension and multi-physics/-mesh ghost scheme
+        tParameterList.insert( "construct_THEB_basis", false ); // canNOT be used with basis extension of multi-mesh ghost scheme
         tParameterList.insert( "basis_rank", "bspline" );
         tParameterList.insert( "enrich_mesh_indices", "0" );
         tParameterList.insert( "sort_basis_enrichment_levels", false );

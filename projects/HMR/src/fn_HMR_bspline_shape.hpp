@@ -11,6 +11,7 @@
 #pragma once
 
 #include "moris_typedefs.hpp"
+#include "cl_Matrix.hpp"
 
 namespace moris::hmr
 {
@@ -27,6 +28,8 @@ namespace moris::hmr
             uint aBasisNumber,
             real aXi );
 
+    //-------------------------------------------------------------------------------------
+    
     /**
      * Calculates an extended B-spline shape function at a given point
      *
@@ -39,4 +42,25 @@ namespace moris::hmr
             uint aOrder,
             uint aBasisNumber,
             real aXi );
+
+    //-------------------------------------------------------------------------------------
+
+    real
+    eval_spline(
+            const uint aNumDims, // d
+            const uint aOrder,   // p
+            Vector< moris_index > const & aRelativeIJK,
+            Matrix< DDRMat > const & aXi );
+
+    real
+    eval( 
+            const uint aNumDims,
+            const uint aOrder,
+            const uint aBfLevel,
+            const luint* aBfIJK,
+            const uint aElementLevel,
+            const luint* aElementIJK,
+            const Matrix< DDRMat > & aXi );
+
+    //-------------------------------------------------------------------------------------
 }

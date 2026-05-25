@@ -53,14 +53,20 @@ namespace moris::hmr
         //! ID of basis on global domain
         luint mDomainID = gNoEntityID;
 
-        //! global index in whole domain
+        //! processor-global index of active (?) basis functions
         luint mDomainIndex = gNoEntityID;
+
+        //! proc.-global index of candidate basis functions which are passed/reported through MTK
+        luint mCandidateId = gNoEntityID;
 
         //! index in local memory
         luint mMemoryIndex = gNoEntityID;
 
-        //! index on local proc for MTK
+        //! proc.-local index of active basis functions which are passed/reported through MTK
         luint mLocalIndex = gNoEntityID;
+
+        //! proc.-local index of candidate basis functions which are passed/reported through MTK
+        luint mCandidateIndex = gNoEntityID;
 
         //! flag telling if node is used by owned elements
         bool mUsedFlag = false;
@@ -166,6 +172,7 @@ namespace moris::hmr
                 return false;
             }
         }
+
         // -----------------------------------------------------------------------------
         /**
          * MTK Interface: returns a domain wide id of the vertex
@@ -175,9 +182,19 @@ namespace moris::hmr
         {
             // fixme: add +1 and check against MTK output
             return mDomainIndex + 1;    // < -- this is correct
-            // HMR's domain index is MTK's domain id +1
+            // HMR's domain index is MTK's domain id -1
+        }
 
-            // return mDomainID;
+        // -----------------------------------------------------------------------------
+        /**
+         * MTK Interface: returns a domain wide id of the vertex
+         */
+        moris_id
+        get_mtk_candidate_id() const override
+        {
+            // fixme: add +1 and check against MTK output
+            return mCandidateId + 1;    // < -- this is correct
+            // MTK's IDs start at 1, HMR's at 0
         }
 
         // -----------------------------------------------------------------------------
@@ -189,6 +206,17 @@ namespace moris::hmr
         get_index() const override
         {
             return mLocalIndex;
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * MTK Interface: returns a local proc index of the candidate basis function for enrichment
+         */
+        moris_index
+        get_mtk_candidate_index() const override
+        {
+            return mCandidateIndex;
         }
 
         //------------------------------------------------------------------------------
@@ -414,6 +442,23 @@ namespace moris::hmr
         set_domain_index( luint aIndex )
         {
             mDomainIndex = aIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
+        auto
+        get_candidate_id() const
+                -> decltype( mCandidateId )
+        {
+            return mCandidateId;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_candidate_id( luint aIndex )
+        {
+            mCandidateId = aIndex;
         }
 
         //------------------------------------------------------------------------------
@@ -825,19 +870,21 @@ namespace moris::hmr
         }
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        virtual void
-        set_active_flag()
+        virtual bool
+        is_active() const
         {
-            MORIS_ERROR( false, "set_active_flag() not available for selected basis type." );
+            MORIS_ERROR( false, "HMR::Basis::is_active() - not available for selected basis function type." );
+            return false;
         }
 
         //------------------------------------------------------------------------------
 
         virtual void
-        set_refined_flag()
+        set_active_flag()
         {
-            MORIS_ERROR( false, "set_refined_flag() not available for selected basis type." );
+            MORIS_ERROR( false, "HMR::Basis::set_active_flag() - not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -845,25 +892,59 @@ namespace moris::hmr
         virtual void
         unset_active_flag()
         {
-            MORIS_ERROR( false, "unset_active_flag() not available for selected basis type." );
+            MORIS_ERROR( false, "HMR::Basis::unset_active_flag() - not available for selected basis function type." );
+        }
+
+        //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        virtual bool
+        is_candidate() const
+        {
+            MORIS_ERROR( false, "HMR::Basis::is_candidate() - not available for selected basis function type." );
+            return false;
         }
 
         //------------------------------------------------------------------------------
 
-        virtual bool
-        is_active() const
+        virtual void
+        set_candidate_flag()
         {
-            MORIS_ERROR( false, "is_active() not available for selected basis type." );
-            return false;
+            MORIS_ERROR( false, "HMR::Basis::set_candidate_flag() - not available for selected basis function type." );
         }
 
+        //------------------------------------------------------------------------------
+
+        virtual void
+        unset_candidate_flag()
+        {
+            MORIS_ERROR( false, "HMR::Basis::unset_candidate_flag() - not available for selected basis function type." );
+        }
+
+        //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         virtual bool
         is_refined()
         {
-            MORIS_ERROR( false, "is_refined() not available for selected basis type." );
+            MORIS_ERROR( false, "HMR::Basis::is_refined() - not available for selected basis function type." );
             return false;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual void
+        set_refined_flag()
+        {
+            MORIS_ERROR( false, "HMR::Basis::set_refined_flag() - not available for selected basis function type." );
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual void
+        unset_refined_flag()
+        {
+            MORIS_ERROR( false, "HMR::Basis::unset_refined_flag() - not available for selected basis function type." );
         }
 
         //------------------------------------------------------------------------------
@@ -1048,6 +1129,23 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        virtual void
+        set_candidate_index( luint aIndex )
+        {
+            MORIS_ERROR( false, "HMR::Basis::set_active_index() - not available for selected basis type." );
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual luint
+        get_candidate_index() const
+        {
+            MORIS_ERROR( false, "HMR::Basis::get_active_index() - not available for selected basis type." );
+            return gNoEntityID;
+        }
+
+        //------------------------------------------------------------------------------
+
         mtk::Vertex_Interpolation*
         get_interpolation( const uint aBSplineMeshIndex ) override
         {
@@ -1177,6 +1275,30 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        virtual real 
+        eval_trunc( 
+                const uint aElementLevel, 
+                const luint* aElementIJK, 
+                const Matrix< DDRMat > &aXi ) const
+        {
+            MORIS_ERROR( false, "HMR::Basis::eval_trunc() - Only implemented for B-Spline specialization." );
+            return 0.0;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual real
+        eval_truncated_children_at_point( 
+                const uint aElementLevel, 
+                const luint* aElementIJK, 
+                const Matrix< DDRMat > &aXi ) const
+        {
+            MORIS_ERROR( false, "HMR::Basis::eval_truncated_children_at_point() - Only implemented for B-Spline specialization." );
+            return 0.0;
+        }
+
+        //------------------------------------------------------------------------------
+
         virtual void
         print() const
         {
@@ -1201,6 +1323,28 @@ namespace moris::hmr
         {
             std::cout << "\nBF #" << i << ":";
             aBasisList( i )->print();
+        }
+        std::cout << "\n===================================================\n" << std::endl;
+    }
+
+    //------------------------------------------------------------------------------
+
+    inline void
+    print_relevant_basis_functions(
+            const Vector< Basis* >& aBasisList,
+            const std::string&      aListName )
+    {
+        std::cout << "\n===================================================\n";
+        std::cout << "Printing only relevant basis functions from list: '" << aListName << "' of size " << aBasisList.size() << "\n";
+
+        for ( uint i = 0; i < aBasisList.size(); ++i )
+        {
+            const Basis* tBasis = aBasisList( i );
+            if ( tBasis->is_used() || tBasis->is_active() || tBasis->is_candidate() )
+            {
+                std::cout << "\nBF #" << i << ":";
+                tBasis->print();
+            }
         }
         std::cout << "\n===================================================\n" << std::endl;
     }

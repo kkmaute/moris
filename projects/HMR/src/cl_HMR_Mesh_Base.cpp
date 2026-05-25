@@ -105,7 +105,7 @@ namespace moris::hmr
     void Mesh_Base::collect_coarsest_elements()
     {
         // count number of coarsest elements
-        luint tNumberOfElements = mBackgroundMesh ->get_number_of_coarsest_elements_on_proc_including_aura();
+        luint tNumberOfElements = mBackgroundMesh->get_number_of_coarsest_elements_on_proc_including_aura();
 
         // reset cell
         mAllCoarsestElementsOnProc.clear();
@@ -292,9 +292,9 @@ namespace moris::hmr
             for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
             {
                 // get rank of neighbor
-                moris_id tNeihgborRank = tProcNeighbors( p );
+                moris_id tNeighborRank = tProcNeighbors( p );
 
-                if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
+                if ( tNeighborRank != tMyRank && tNeighborRank != gNoProcNeighbor )
                 {
                     // cell containing basis pointers
                     Vector< Basis* > tBasisInAura;
@@ -304,7 +304,7 @@ namespace moris::hmr
 
                     // calculate addresses of basis to ask for
                     this->encode_foreign_basis_path( tBasisInAura,
-                            tNeihgborRank,
+                            tNeighborRank,
                             tSendAncestor( p ),
                             tSendPedigree( p ),
                             tSendBasisIndex( p ) );
@@ -400,9 +400,9 @@ namespace moris::hmr
             for ( uint p = 0; p < tNumberOfProcNeighbors; ++p )
             {
                 // get rank of neighbor
-                moris_id tNeihgborRank = tProcNeighbors( p );
+                moris_id tNeighborRank = tProcNeighbors( p );
 
-                if ( tNeihgborRank != tMyRank && tNeihgborRank != gNoProcNeighbor )
+                if ( tNeighborRank != tMyRank && tNeighborRank != gNoProcNeighbor )
                 {
                     // cell containing basis pointers
                     Vector< Basis* > tBasisInAura;
@@ -416,7 +416,7 @@ namespace moris::hmr
                     // count number of basis suspected to be owned by neighbor
                     for( auto tBasis : tBasisInAura )
                     {
-                        if ( tBasis->get_owner() == tNeihgborRank )
+                        if ( tBasis->get_owner() == tNeighborRank )
                         {
                             // set ownership from received matrix
                             tBasis->set_owner( tReceiveOwner( p )( tCount++ ) );

@@ -460,71 +460,71 @@ namespace moris::hmr
                 uint tOwner = aElement->get_owner();
 
                 // get level of new element
-                uint tLevel = aElement->get_level() + 1;
+                uint tChildLevel = aElement->get_level() + 1;
 
                 // get ijk positions of children
-                Matrix< DDLUMat > tIJK;
-                aElement->get_ijk_of_children( tIJK );
+                Matrix< DDLUMat > tChildrenIJK;
+                aElement->get_ijk_of_children( tChildrenIJK );
 
                 // ask background mesh for IDs of children
-                Matrix< DDLUMat > tIDs;
+                Matrix< DDLUMat > tChildrenIDs;
                 this->calc_element_ids(
-                        tLevel,
-                        tIJK,
-                        tIDs );
+                        tChildLevel,
+                        tChildrenIJK,
+                        tChildrenIDs );
 
                 // temporary array for ijk position
                 luint tCIJK[ 2 ];
 
                 // child 0
-                tCIJK[ 0 ] = tIJK( 0, 0 );
-                tCIJK[ 1 ] = tIJK( 1, 0 );
+                tCIJK[ 0 ] = tChildrenIJK( 0, 0 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 0 );
                 aElement->insert_child(
                         new Background_Element< 2 >(
                                 aElement,
                                 mActivePattern,
                                 tCIJK,
-                                tIDs( 0 ),
-                                tLevel,
+                                tChildrenIDs( 0 ),
+                                tChildLevel,
                                 (uint)0,
                                 tOwner ) );
 
                 // child 1
-                tCIJK[ 0 ] = tIJK( 0, 1 );
-                tCIJK[ 1 ] = tIJK( 1, 1 );
+                tCIJK[ 0 ] = tChildrenIJK( 0, 1 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 1 );
                 aElement->insert_child(
                         new Background_Element< 2 >(
                                 aElement,
                                 mActivePattern,
                                 tCIJK,
-                                tIDs( 1 ),
-                                tLevel,
+                                tChildrenIDs( 1 ),
+                                tChildLevel,
                                 (uint)1,
                                 tOwner ) );
 
                 // child 2
-                tCIJK[ 0 ] = tIJK( 0, 2 );
-                tCIJK[ 1 ] = tIJK( 1, 2 );
+                tCIJK[ 0 ] = tChildrenIJK( 0, 2 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 2 );
                 aElement->insert_child(
                         new Background_Element< 2 >(
                                 aElement,
                                 mActivePattern,
                                 tCIJK,
-                                tIDs( 2 ),
-                                tLevel,
+                                tChildrenIDs( 2 ),
+                                tChildLevel,
                                 (uint)2,
                                 tOwner ) );
 
                 // child 3
-                tCIJK[ 0 ] = tIJK( 0, 3 );
-                tCIJK[ 1 ] = tIJK( 1, 3 );
+                tCIJK[ 0 ] = tChildrenIJK( 0, 3 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 3 );
                 aElement->insert_child(
                         new Background_Element< 2 >(
                                 aElement,
                                 mActivePattern,
                                 tCIJK,
-                                tIDs( 3 ),
-                                tLevel,
+                                tChildrenIDs( 3 ),
+                                tChildLevel,
                                 (uint)3,
                                 tOwner ) );
 
@@ -554,27 +554,153 @@ namespace moris::hmr
                     }
                 }
             }    // end if: element does NOT have children
-            else    // element has children
+            else    // element already has children
             {
-                // activate children if they are inactive
-                for ( uint k = 0; k < 4; ++k )
+// TODO:
+// debug: check whether this if statement is correct/needed (added it because I think this was missing, might be wrong about this)
+                // activate children if they are inactive - unless keep state is requested
+                if ( !aKeepState )
                 {
-                    // get child
-                    auto tChild = aElement->get_child( k );
-
-                    // test if child is deactivated
-                    if ( tChild->is_neither_active_nor_refined( mActivePattern ) )
+                    for ( uint k = 0; k < 4; ++k )
                     {
-                        // activate child
-                        tChild->set_active_flag( mActivePattern );
-                    }
-                }
+                        // get child
+                        auto tChild = aElement->get_child( k );
 
-                // refine element
-                aElement->set_refined_flag( mActivePattern );
+                        // test if child is deactivated
+                        if ( tChild->is_neither_active_nor_refined( mActivePattern ) )
+                        {
+                            // activate child
+                            tChild->set_active_flag( mActivePattern );
+                        }
+                    }
+
+                    // TODO: check whether this statement belongs outside the "keep state" check -- I changed this but am unsure if it is correct
+                    // refine element
+                    aElement->set_refined_flag( mActivePattern );
+                }
             }
         }    // end if: element is
-    }
+    } // end function: Background_Mesh< 2 >::refine_element()
+
+    //-------------------------------------------------------------------------------
+
+    template<>
+    inline void
+    Background_Mesh< 2 >::refine_element_for_candidate_buffer( Background_Element_Base* aElement )
+    {
+        // only perform if element is not refined already
+        // and element is below max defined level
+        if ( aElement->get_level() < gMaxNumberOfLevels - 1 )    // FIXME perhaps go rid of this check for speed
+        {
+            if ( !aElement->has_children() )
+            {
+                // get owner of element
+                uint tOwner = aElement->get_owner();
+
+                // get level of new element
+                uint tChildLevel = aElement->get_level() + 1;
+
+                // get ijk positions of children
+                Matrix< DDLUMat > tChildrenIJK;
+                aElement->get_ijk_of_children( tChildrenIJK );
+
+                // ask background mesh for IDs of children
+                Matrix< DDLUMat > tChildrenIDs;
+                this->calc_element_ids(
+                        tChildLevel,
+                        tChildrenIJK,
+                        tChildrenIDs );
+
+                // temporary array for ijk position
+                luint tCIJK[ 2 ];
+
+                // child 0
+                tCIJK[ 0 ] = tChildrenIJK( 0, 0 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 0 );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tChildrenIDs( 0 ),
+                                tChildLevel,
+                                (uint)0,
+                                tOwner ) );
+
+                // child 1
+                tCIJK[ 0 ] = tChildrenIJK( 0, 1 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 1 );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tChildrenIDs( 1 ),
+                                tChildLevel,
+                                (uint)1,
+                                tOwner ) );
+
+                // child 2
+                tCIJK[ 0 ] = tChildrenIJK( 0, 2 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 2 );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tChildrenIDs( 2 ),
+                                tChildLevel,
+                                (uint)2,
+                                tOwner ) );
+
+                // child 3
+                tCIJK[ 0 ] = tChildrenIJK( 0, 3 );
+                tCIJK[ 1 ] = tChildrenIJK( 1, 3 );
+                aElement->insert_child(
+                        new Background_Element< 2 >(
+                                aElement,
+                                mActivePattern,
+                                tCIJK,
+                                tChildrenIDs( 3 ),
+                                tChildLevel,
+                                (uint)3,
+                                tOwner ) );
+
+                // unset active flags of newly created children -- since they are not active but just candidates (will be set below)
+                for ( uint k = 0; k < 4; ++k )
+                {
+                    // get pointer to child and deactivate element
+                    aElement->get_child( k )->deactivate( mActivePattern );
+                }
+
+                // test if this is a padding element
+                if ( aElement->is_padding() )
+                {
+                    // loop over all children
+                    for ( uint k = 0; k < 4; ++k )
+                    {
+                        // get pointer to child and set refinement flag
+                        aElement->get_child( k )->set_padding_flag();
+                    }
+                }
+            }    // end if: element does NOT have children
+
+            // mark all children as candidates
+            for ( uint k = 0; k < 4; ++k )
+            {
+                // get child
+                auto tChild = aElement->get_child( k );
+
+                // debug
+                MORIS_ERROR( tChild->is_neither_active_nor_refined( mActivePattern ), 
+                        "Background_Mesh< 2 >::refine_element_for_candidate_buffer() - Child element already exists and is marked active or refined. This is not behaving as intended." );
+
+                // set child as candidate
+                tChild->set_candidate_flag( mActivePattern );
+            }
+            
+        }    // end if: element is
+    } // end function: Background_Mesh< 2 >::refine_element_for_candidate_buffer()
 
     //-------------------------------------------------------------------------------
 

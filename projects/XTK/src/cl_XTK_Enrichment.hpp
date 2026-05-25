@@ -80,7 +80,8 @@ namespace moris::xtk
         Enrichment_Data(
                 moris_index aNumSubphases )
                 : mSubphaseBGBasisIndices( aNumSubphases )
-                , mSubphaseBGBasisEnrLev( aNumSubphases ){};
+                , mSubphaseBGBasisEnrLev( aNumSubphases )
+                , mSubphaseHebBasisFunctionIndices( aNumSubphases ){};
 
         // FIXME: this needs to go once everything is moved over to SPG bases Enrichment
         void
@@ -101,10 +102,10 @@ namespace moris::xtk
         Vector< Vector< moris_index > > mElementEnrichmentLevel;    // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
         // For each enriched basis function, the subphase indices in support
-        // input: enriched BF index || output: list of subphase indices in which enriched BF is active
-        Vector< Matrix< IndexMat > > mSubphaseIndsInEnrichedBasis;
+        Vector< Matrix< IndexMat > > mSubphaseIndsInEnrichedBasis;  // input: enriched BF index || output: list of subphase indices in which enriched BF is active
+        Vector< Vector< moris_index > > mSubphaseIndsInHebBf;       //*NEW* input: enriched BF index in (T)HEB basis || output: list of subphase indices in BF's support //! NEW
 
-        // FIXME: for SPG based enrichment, the above needs to go eventually
+        // ... and the same for SPG-based enrichment
         Vector< Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
         Matrix< IdMat >              mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: bulk phase basis function interpolates into
 
@@ -112,10 +113,13 @@ namespace moris::xtk
         Vector< Vector< moris_index > > mEnrichedBasisInSubphaseGroup;    // input: SPG index || output: list of enriched BF indices active in the SPG
 
         // Basis enrichment level indices
-        Vector< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
-        Matrix< IdMat >              mEnrichedBasisIndexToId;    // input: enriched BF index || output: global ID of that enriched BF
-        Vector< moris_index >        mNonEnrBfIndForEnrBfInd;    // input: enriched BF index || output: non-enriched BF index which the enr. BF is enriched from
-        Vector< moris_index >        mEnrLvlOfEnrBf;             // input: enriched BF index || output: enrichment level of this enr. BF wrt. the underlying non-enriched BF
+        Vector< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched (candidate) BF index, input2: enrichment level || output: enriched BF index in (T)HEB basis //! updated
+        Matrix< IdMat >              mEnrichedBasisIndexToId;    // input: enriched BF index (in (T)HEB basis) || output: global ID of that enriched BF (in (T)HEB basis) //! updated
+        Vector< moris_index >        mNonEnrBfIndForEnrBfInd;    //*NEW* input: enriched BF index in (T)HEB basis || output: non-enriched BF index which the enr. BF is enriched from
+        Vector< moris_index >        mEnrLvlOfEnrBf;             //*NEW* input: enriched BF index in (T)HEB basis || output: enrichment level of this enr. BF wrt. the underlying non-enriched BF
+
+        // store owners of candidate BFs as that information would otherwise need to be requested multiple times throughout the process
+        Vector< moris_id > mCandidateBfOwners; // input: (non-enriched) candidate BF index || output: owning processor
 
         // list of owned and non-owned enriched basis functions
         Vector< moris_index > mOwnedEnrBasisIndices;
@@ -124,15 +128,17 @@ namespace moris::xtk
         // non-intersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
         // outer cell corresponds to interp cell index
         // inner cell corresponds to basis/enr-lev in interp cell
-        Vector< Vector< moris_index > > mSubphaseBGBasisIndices;    // input: subphase index || output: list of non-enriched BF indices active on given subphase
-        Vector< Vector< moris_index > > mSubphaseBGBasisEnrLev;     // input: subphase index || output: list of enrichment levels for the respective BFs active on the given subphase
+        Vector< Vector< moris_index > > mSubphaseBGBasisIndices;    // input: subphase index || output: list of non-enriched BF (candidate) indices on given subphase
+        Vector< Vector< moris_index > > mSubphaseBGBasisEnrLev;     // input: subphase index || output: list of enrichment levels for the respective (candidate) BFs on the given subphase
+        Vector< Vector< moris_index > > mSubphaseHebBasisFunctionIndices; //*NEW* input: subphase index || output: list of enriched basis functions in the (T)HEB basis supported on this subphase (using their indices in the (T)HEB basis) //! NEW
 
-        // FIXME: for SPG based enrichment, the above needs to go eventually
+        // ... and same for SPG-based enrichment
         Vector< Vector< moris_index > > mSubphaseGroupBGBasisIndices;    // input: SPG index || output: list of non-enriched BF indices active on given subphase group
         Vector< Vector< moris_index > > mSubphaseGroupBGBasisEnrLev;     // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
         // total number of basis enrichment levels (i.e. number of enriched Basis functions)
-        uint mNumEnrichedBasisFunctions;
+        uint mNumEnrichedBasisFunctions; // candidates
+        uint mNumBFsInHEBBasis;
 
         // Vertex interpolations for this enrichment ordered by background vertex index
         Vector< mtk::Vertex_Interpolation* > mBGVertexInterpolations;
@@ -455,10 +461,10 @@ namespace moris::xtk
         // ----------------------------------------------------------------------------------
 
         /**
-         * @brief Constructs the subphase neighborhood in the XTK model
+         * @brief Performs basis function enrichment for candidate 
          */
         void
-        construct_neighborhoods();
+        perform_enrichment_and_construct_THEB_basis();
 
         // ----------------------------------------------------------------------------------
 
@@ -619,6 +625,21 @@ namespace moris::xtk
                 Vector< moris_index > const &        aMaxEnrichmentLevel );
 
         // ----------------------------------------------------------------------------------
+        
+        /**
+         * @brief queries the support of enriched candidate basis functions as previously stored in mEnrichmentData, 
+         * determines whether they are part of the (T)HEB basis and writes the necessary data to the mEnrichmentData
+         * 
+         * @param aEnrichmentDataIndex 
+         * @param aMaxEnrichmentLevel 
+         */
+
+        void
+        construct_HEB_basis_from_enriched_candidate_basis_functions(
+                moris_index const &           aEnrichmentDataIndex,
+                Vector< moris_index > const & aMaxEnrichmentLevel );
+
+        // ----------------------------------------------------------------------------------
         /**
          * @brief counts number of enriched basis function indices and finds which SPGs a
          * given enriched BF index is active on. The data is stored in the Enrichment_Data
@@ -732,6 +753,11 @@ namespace moris::xtk
                 moris_index const &           aEnrichmentDataIndex,
                 Vector< moris_index > const & aMaxEnrichmentLevel );
 
+        void
+        assign_HEB_basis_function_IDs(
+                const moris_index             aEnrichmentDataIndex,
+                Vector< moris_index > const & aMaxEnrichmentLevel );
+
         // ----------------------------------------------------------------------------------
 
         void
@@ -789,6 +815,9 @@ namespace moris::xtk
 
         void
         construct_enriched_interpolation_mesh();
+
+        void
+        construct_enriched_interpolation_mesh_with_THEB_basis();
 
         void
         construct_enriched_interpolation_mesh_new();
@@ -900,6 +929,9 @@ namespace moris::xtk
 
         void
         construct_enriched_interpolation_vertices_and_cells();
+
+        void
+        construct_enriched_interpolation_vertices_and_cells_for_THEB_basis();
 
         void
         construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new();
@@ -1022,6 +1054,31 @@ namespace moris::xtk
                 Vector< moris_index > const &   aSubPhaseBasisEnrLev,
                 Mini_Map< moris_id, moris_id >& aMapBasisIndexToLocInSubPhase,
                 Vertex_Enrichment&              aVertexEnrichment );
+
+        // ----------------------------------------------------------------------------------
+        
+        // TODO: add description
+        /**
+         * @brief 
+         * 
+         * @param aEnrichmentDataIndex 
+         * @param aBaseVertexInterp 
+         * @param aMapBasisIndexToLocInSubPhase 
+         * @param aCandidateBfOwners 
+         * @param aCandidateBfIDs 
+         * @param aTMatrixWeights 
+         * @param aVertexEnrichment 
+         */
+        void
+        construct_enriched_vertex_interpolation_with_THEB_basis(
+                moris_index const &             aEnrichmentDataIndex,
+                mtk::Vertex_Interpolation*      aBaseVertexInterp,
+                Vector< moris_index > const &   aHebBfIndices, 
+                Vector< moris_index > const &   aCandidateBfOwners,
+                Vector< moris_index > const &   aCandidateBfIDs,
+                Matrix< DDRMat > const &        aTMatrixWeights,
+                Vertex_Enrichment&              aVertexEnrichment );
+
         // ----------------------------------------------------------------------------------
 
         Mini_Map< moris_id, moris_id >

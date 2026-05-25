@@ -780,7 +780,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            // FIXME default implemenation with no error
+            // FIXME default implementation with no error
             /**
              * Get elements interpolated into by a basis function. For a Lagrange mesh,
              * the elements in support of basis is equivalent to the elements connected
@@ -791,6 +791,79 @@ namespace moris
                     const uint          aMeshIndex,
                     const uint          aBasisIndex,
                     Matrix< IndexMat >& aElementIndices );
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * Get elements supporting a given candidate basis function. For a Lagrange mesh,
+             * the list of elements in the support of a basis function is equivalent to the list of elements connected
+             * to a node. Therefore, a call to get_elements. 
+             * NOTE: this function only differs from the function above in the HMR::Mesh implementation; for all other implementations, it just calls "get_elements_in_support_of_basis" 
+             */
+            virtual void
+            get_elements_in_support_of_candidate_basis_function(
+                    const uint          aMeshIndex,
+                    const uint          aBasisFunctionCandidateIndex,
+                    Matrix< IndexMat >& aElementIndices );
+
+            // ----------------------------------------------------------------------------
+            
+            virtual void
+            unset_all_BF_flags( const uint aMeshIndex );
+
+            // ----------------------------------------------------------------------------
+
+            virtual void
+            set_candidate_BFs_flags( 
+                    const uint                      aMeshIndex, 
+                    Vector< moris_index > const &   aListOfCandBfIndices, 
+                    const bool                      aState = false );
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * Get elements supporting a given candidate basis function. For a Lagrange mesh,
+             * the list of elements in the support of a basis function is equivalent to the list of elements connected
+             * to a node. Therefore, a call to get_elements. 
+             * NOTE: this function only differs from the function above in the HMR::Mesh implementation; for all other implementations, it just calls "get_elements_in_support_of_basis" 
+             */
+            virtual uint
+            get_candidate_basis_function_level(
+                    const uint aMeshIndex,
+                    const uint aBasisFunctionCandidateIndex ) const;
+
+            virtual void
+            print_candidate_basis_function(
+                    const uint aMeshIndex,
+                    const uint aBasisFunctionCandidateIndex ) const;
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the hierarchical level of an HMR background element (only used for HMR meshes accessed from the perspective of XTK)
+             * 
+             * @param aElementIndex Index of background element as exposed by HMR mesh to the outside
+             * @return uint hierarchical level of the HMR::Element
+             */
+            virtual uint
+            get_background_element_level( const moris_index aElementIndex ) const;
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * @brief evaluate the THEB-spline basis functions for a given subphase elements with a list of supported candidate BFs determined beforehand
+             * 
+             * @param aBsplineMeshIndex Discretization mesh index
+             * @param aElementIndex Index of the Lagrange 
+             * @param aSupportedCandidateBfIndices List of candidate BFs making up the HEB basis supported on the current Lagrange element
+             * @param tNodalTMatrixWeights output: list of nodal T-matrices (just the weights, ordering as prescribed by previous input)
+             */
+            virtual void 
+            eval_THEB_basis_on_element( 
+                    const moris_index aBsplineMeshIndex, 
+                    const moris_index aElementIndex, 
+                    Vector< moris_index > const & aSupportedCandidateBfIndices, 
+                    Vector< Matrix< DDRMat > > & tNodalTMatrixWeights );
 
             // ----------------------------------------------------------------------------
 
@@ -939,10 +1012,19 @@ namespace moris
              * @param aDiscretizationMeshIndex discretization mesh index
              * @return Entity owner
              */
-            virtual uint get_entity_owner(
+            virtual uint 
+            get_entity_owner(
                     moris_index       aEntityIndex,
                     enum EntityRank   aEntityRank,
                     const moris_index aDiscretizationMeshIndex = 0 ) const;
+
+            // ----------------------------------------------------------------------------
+
+            virtual moris_id 
+            get_ID_and_owner_of_candidate_BF( 
+                    const uint        aCandidateBFIndex, 
+                    const moris_index aEnrichmentDataIndex, 
+                    moris_index &     aOwner ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -1265,7 +1347,8 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
-             * Gets the number of basis functions. For Lagrange meshes, the number of basis functions and the number of
+             * Gets the number of basis functions (these are the active B-spline basis functions; to be used with non-enriched hierarchical B-spline bases). 
+             * For Lagrange meshes, the number of basis functions and the number of
              * nodes are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
              *
              * @param aMeshIndex Mesh index
@@ -1273,6 +1356,19 @@ namespace moris
              */
             virtual uint
             get_num_basis_functions( uint aMeshIndex = 0 );
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * Gets the number of candidate basis functions to be enriched by XTK. 
+             * For Lagrange meshes, the number of basis functions and the number of
+             * nodes are equivalent. Therefore, a default implementation using get_num_nodes() is used here.
+             *
+             * @param aMeshIndex Mesh index
+             * @return Number of candidate basis functions
+             */
+            virtual uint
+            get_num_candidate_basis_functions( uint aMeshIndex = 0 );
 
             // ----------------------------------------------------------------------------
 

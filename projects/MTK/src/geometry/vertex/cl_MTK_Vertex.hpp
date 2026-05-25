@@ -77,7 +77,33 @@ namespace moris
             virtual moris_index
             get_index() const
             {
-                MORIS_ERROR( false, "Function not implemented in base vertex" );
+                MORIS_ERROR( false, "MTK::get_index() - Function not implemented in base vertex" );
+
+                return gNoIndex;
+            }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * returns the proc.-global id of a basis function used for enrichment
+             */
+            virtual moris_id
+            get_mtk_candidate_id() const
+            {
+                MORIS_ERROR( false, "MTK::get_mtk_candidate_id() - Function not implemented in base vertex." );
+
+                return gNoID;
+            }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * returns the proc.-local unique index of this basis function for enrichment
+             */
+            virtual moris_index
+            get_mtk_candidate_index() const
+            {
+                MORIS_ERROR( false, "MTK::get_mtk_candidate_index() - Function not implemented in base vertex" );
 
                 return gNoIndex;
             }

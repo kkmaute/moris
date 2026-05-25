@@ -15,6 +15,7 @@
 #include "cl_MTK_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mesh_Core.hpp"    //MTK/src
+#include <sys/types.h>
 
 namespace moris::hmr
 {
@@ -318,6 +319,52 @@ namespace moris::hmr
                 Matrix< IndexMat >& aElementIndices ) override;
 
         //-------------------------------------------------------------------------------
+        
+        void get_elements_in_support_of_candidate_basis_function(
+                const uint          aMeshIndex,
+                const uint          aBasisFunctionCandidateIndex,
+                Matrix< IndexMat >& aElementIndices ) override;
+
+        //-------------------------------------------------------------------------------
+
+        void
+        unset_all_BF_flags( const uint aMeshIndex ) override;
+
+        //-------------------------------------------------------------------------------
+
+        void
+        set_candidate_BFs_flags( 
+                const uint                      aMeshIndex, 
+                Vector< moris_index > const &   aListOfCandBfIndices, 
+                const bool                      aState = false ) override;
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_candidate_basis_function_level(
+                const uint aMeshIndex,
+                const uint aBasisFunctionCandidateIndex ) const override;
+
+        void
+        print_candidate_basis_function(
+                const uint aMeshIndex,
+                const uint aBasisFunctionCandidateIndex ) const override;
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_background_element_level( const moris_index aElementIndex ) const override;
+
+        //-------------------------------------------------------------------------------
+
+        void 
+        eval_THEB_basis_on_element( 
+                const moris_index aBsplineMeshIndex, 
+                const moris_index aElementIndex, 
+                Vector< moris_index > const & aSupportedCandidateBfIndices, 
+                Vector< Matrix< DDRMat > > & tNodalTMatrixWeights ) override;
+
+        //-------------------------------------------------------------------------------
 
         void get_nodes_indices_in_bounding_box(
                 const moris::Matrix< DDRMat >& aPoint,
@@ -419,6 +466,10 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
+        uint get_num_candidate_basis_functions( uint aMeshIndex ) override;
+
+        //-------------------------------------------------------------------------------
+
         Matrix< IndexMat >
         get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const override;
 
@@ -479,6 +530,8 @@ namespace moris::hmr
          */
         uint get_node_owner( moris_index aNodeIndex ) const override;
 
+        // ----------------------------------------------------------------------------
+        
         /**
          * Gets the owner of an element.
          *
@@ -487,10 +540,23 @@ namespace moris::hmr
          */
         uint get_element_owner( moris_index aElementIndex ) const override;
 
-        uint get_entity_owner(
+        // ----------------------------------------------------------------------------
+ 
+        uint 
+        get_entity_owner(
                 moris_index     aEntityIndex,
                 mtk::EntityRank aEntityRank,
                 moris_index     aIndex = 0 ) const override;
+
+        // ----------------------------------------------------------------------------
+
+        moris_id 
+        get_ID_and_owner_of_candidate_BF( 
+                const uint        aCandidateBFIndex, 
+                const moris_index aEnrichmentDataIndex, 
+                moris_index &     aOwner ) const override;
+
+        // ----------------------------------------------------------------------------
 
         // FIXME Needs parallel implementation
         void

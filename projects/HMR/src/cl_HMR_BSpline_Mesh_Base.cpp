@@ -13,10 +13,12 @@
 #include <fstream>
 #include <string>
 
+#include "HMR_Globals.hpp"
 #include "HMR_Tools.hpp"       //HMR/src
 #include "cl_HMR_Basis.hpp"
 #include "cl_Stopwatch.hpp"    //CHR/src
 #include "cl_Matrix.hpp"       //LINALG/src
+#include "fn_assert.hpp"
 #include "fn_unique.hpp"       //LINALG/src
 #include "cl_Map.hpp"
 #include "cl_Tracer.hpp"
@@ -72,6 +74,7 @@ namespace moris::hmr
         // Make sure that node ownership is correct. Correct otherwise.
         this->confirm_basis_ownership();
 
+        // TODO: this includes candidate BFs ... rename the function
         // write all active basis into a container
         this->collect_active_and_refined_basis();
 
@@ -299,22 +302,22 @@ namespace moris::hmr
 
     void
     BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
-            uint              aLevel,
-            Vector< Element* >& aElements )
+            uint                aLevel,
+            Vector< Element* >& aElements,
+            const bool          aIncludeCandidates )
     {
         // cell containing background elements on this level
         Vector< Background_Element_Base* > tBackgroundElements;
 
         // ask background mesh about elements on this level
-        mBackgroundMesh->collect_elements_on_level_including_aura( aLevel,
-                tBackgroundElements );
+        mBackgroundMesh->collect_elements_on_level_including_aura( aLevel, tBackgroundElements );
 
         // count Elements
         luint tElementCount = 0;
 
         for ( Background_Element_Base* tBackElement : tBackgroundElements )
         {
-            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) ) // is active or refined
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) || ( aIncludeCandidates && tBackElement->is_candidate( mActivationPattern ) ) ) // is active or refined (or candidate, if requested)
             {
                 tElementCount++;
             }
@@ -327,7 +330,7 @@ namespace moris::hmr
         tElementCount = 0;
         for ( Background_Element_Base* tBackElement : tBackgroundElements )
         {
-            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) )
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) || ( aIncludeCandidates && tBackElement->is_candidate( mActivationPattern ) ) )
             {
                 aElements( tElementCount++ ) = mAllElementsOnProc( tBackElement->get_memory_index() );
             }
@@ -338,9 +341,9 @@ namespace moris::hmr
 
     void
     BSpline_Mesh_Base::process_level( uint aLevel )
-    {
+    {   // collect the HMR::Element's (i.e. the B-Spline element objects) corresponding to the active or refined HMR::Background_Element's; put them in the list tElementsOnThisLevel
         Vector< Element* > tElementsOnThisLevel;
-        this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel );
+        this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel, true );
 
         // initialize list of all basis functions on the current refinement level
         Vector< Basis* > tBFsOnThisLevel;
@@ -350,7 +353,7 @@ namespace moris::hmr
                 tElementsOnThisLevel,
                 tBFsOnThisLevel );
 
-        // determine state of each basis
+        // determine state of each basis function -- whether it is active, refined, candidate, ...
         this->determine_basis_state( tBFsOnThisLevel );
 
         // refine B-Spline mesh if this is not the last level
@@ -358,13 +361,25 @@ namespace moris::hmr
         {
             for ( auto tElement : tElementsOnThisLevel )
             {
-                // test if background element has children and is refined on pattern
+                // test if background element has children and is refined on pattern // 
                 Background_Element_Base* tBgElem = tElement->get_background_element();
                 if ( tBgElem->has_children() && tElement->is_refined() )
                 {
                     // refine B-Spline element
                     auto tElemMemIndex = tElement->get_memory_index();
                     mAllElementsOnProc( tElemMemIndex )->refine( mAllElementsOnProc );
+                }
+                else if ( tBgElem->has_children() && !tElement->is_refined() ) // 
+                {
+                    // check if the children are candidates (by definition, all children must be candidates or none, hence only need to test the first)
+                    bool tChildrenAreCandidates = tBgElem->get_child( 0 )->is_candidate( mActivationPattern );
+
+                    // refine B-Spline element
+                    if ( tChildrenAreCandidates )
+                    {
+                        auto tElemMemIndex = tElement->get_memory_index();
+                        mAllElementsOnProc( tElemMemIndex )->refine( mAllElementsOnProc );
+                    }
                 }
             }
         }
@@ -485,6 +500,8 @@ namespace moris::hmr
         // clean container
         mIndexedBasis.clear();
 
+        // NOTE: the candidate indices are already set, only the global "IDs" need to be set (which are analogous to the "Domain Indices")
+
         // special function for multigrid
         this->flag_refined_basis_of_owned_elements();
 
@@ -510,6 +527,7 @@ namespace moris::hmr
         }
 
         // counter for basis
+        luint tActiveBasisIndex = 0;
         luint tBasisIndex = 0;
 
         // set local index of basis
@@ -518,7 +536,7 @@ namespace moris::hmr
             if ( tBasis->is_flagged() )
             {
                 // set index of basis
-                tBasis->set_local_index( tBasisIndex++ );
+                tBasis->set_local_index( tActiveBasisIndex++ );
             }
         }
 
@@ -529,23 +547,23 @@ namespace moris::hmr
                 if ( tBasis->is_flagged() )
                 {
                     // set index of basis
-                    tBasis->set_local_index( tBasisIndex++ );
+                    tBasis->set_local_index( tActiveBasisIndex++ );
                 }
             }
         }
 
         // allocate container
-        mIndexedBasis.resize( tBasisIndex, nullptr );
+        mIndexedBasis.resize( tActiveBasisIndex, nullptr );
 
         // reset counter
-        tBasisIndex = 0;
+        tActiveBasisIndex = 0;
 
         // copy indexed basis into container
         for ( Basis* tBasis : mActiveBasisOnProc )
         {
             if ( tBasis->is_flagged() )
             {
-                mIndexedBasis( tBasisIndex++ ) = tBasis;
+                mIndexedBasis( tActiveBasisIndex++ ) = tBasis;
             }
         }
 
@@ -555,22 +573,23 @@ namespace moris::hmr
             {
                 if ( tBasis->is_flagged() )
                 {
-                    mIndexedBasis( tBasisIndex++ ) = tBasis;
+                    mIndexedBasis( tActiveBasisIndex++ ) = tBasis;
                 }
             }
         }
 
         if ( tNumberOfProcs == 1 )
         {
-            // reset counter
-            tBasisIndex = 0;
+            // reset counters
+            tActiveBasisIndex = 0;
 
+            // domain indices (proc.-global IDs for active, non-zero basis functions)
             for ( Basis* tBasis : mActiveBasisOnProc )
             {
                 if ( tBasis->is_flagged() )
                 {
                     // set index of basis
-                    tBasis->set_domain_index( tBasisIndex++ );
+                    tBasis->set_domain_index( tActiveBasisIndex++ );
                 }
             }
 
@@ -581,14 +600,14 @@ namespace moris::hmr
                     if ( tBasis->is_flagged() )
                     {
                         // set index of basis
-                        tBasis->set_domain_index( tBasisIndex++ );
+                        tBasis->set_domain_index( tActiveBasisIndex++ );
                     }
                 }
             }
         }    // end serial
-        else
+        else // if: parallel
         {
-            // Step 3: count flagged basis that are owned
+            // Step 3: count flagged basis functions that are owned
 
             // reset counters
             luint tActiveCount  = 0;
@@ -735,7 +754,7 @@ namespace moris::hmr
                 }
                 if ( tNumberOfBasis > 0 )
                 {
-                    ++tBasisIndex;
+                    ++tActiveBasisIndex;
                     tSendIndex( p ).set_size( tNumberOfBasis, 1 );
                     tSendBasis( p ).set_size( tNumberOfBasis, 1 );
                 }
@@ -746,7 +765,7 @@ namespace moris::hmr
             // Step 7: create lists with basis of which index is requested
 
             // reset counter
-            tBasisIndex = 0;
+            tActiveBasisIndex = 0;
 
             // reset counter
             Matrix< DDLUMat > tProcCount( tCommLength, 1, 0 );
@@ -846,7 +865,7 @@ namespace moris::hmr
                 tSendPedigree( p ).set_size( tProcCount( p ), 1 );
 
                 // reset counter
-                tBasisIndex = 0;
+                tActiveBasisIndex = 0;
 
                 // loop over all elements
                 for ( luint k = 0; k < tNumberOfElements; ++k )
@@ -858,7 +877,7 @@ namespace moris::hmr
                     // encode path and overwrite tSendElement with Ancestor Index
                     tElement->encode_pedigree_path( tSendIndex( p )( k ),
                             tSendPedigree( p ),
-                            tBasisIndex );
+                            tActiveBasisIndex );
                 }
             }
 
@@ -941,10 +960,10 @@ namespace moris::hmr
                         uint tIndex = tProcIndices( tOwner );
 
                         // get counter
-                        tBasisIndex = tProcCount( tIndex );
+                        tActiveBasisIndex = tProcCount( tIndex );
 
                         // write index into Communication List as is
-                        tBasis->set_domain_index( tReceiveIndex( tIndex )( tBasisIndex ) );
+                        tBasis->set_domain_index( tReceiveIndex( tIndex )( tActiveBasisIndex ) );
 
                         // increment counter
                         ++tProcCount( tIndex );
@@ -969,10 +988,10 @@ namespace moris::hmr
                             uint tIndex = tProcIndices( tOwner );
 
                             // get counter
-                            tBasisIndex = tProcCount( tIndex );
+                            tActiveBasisIndex = tProcCount( tIndex );
 
                             // write index into ba Communication List as is
-                            tBasis->set_domain_index( tReceiveIndex( tIndex )( tBasisIndex ) );
+                            tBasis->set_domain_index( tReceiveIndex( tIndex )( tActiveBasisIndex ) );
 
                             // increment counter
                             ++tProcCount( tIndex );
@@ -981,7 +1000,7 @@ namespace moris::hmr
                 }
             }
             // perform a small sanity test :
-            tBasisIndex = 0;
+            tActiveBasisIndex = 0;
 
             // loop over all basis
             for ( auto tBasis : mAllBasisOnProc )
@@ -994,11 +1013,11 @@ namespace moris::hmr
                     std::cout << par_rank() << " bad basis " << tBasis->get_hmr_id() << " " << tBasis->get_owner() << '\n';
 
                     // increment counter
-                    ++tBasisIndex;
+                    ++tActiveBasisIndex;
                 }
             }
 
-            MORIS_ERROR( tBasisIndex == 0, "%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n", proc_string().c_str(), (long unsigned int)tBasisIndex );
+            MORIS_ERROR( tActiveBasisIndex == 0, "%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n", proc_string().c_str(), (long unsigned int)tActiveBasisIndex );
         }    // end if parallel
 
              // insert parents if we are in multigrid
@@ -1029,6 +1048,343 @@ namespace moris::hmr
         #endif
         */
     } // end function::BSpline_Mesh_Base::calculate_basis_indices()
+
+    //------------------------------------------------------------------------------
+
+    void
+    BSpline_Mesh_Base::calculate_candidate_ids( const Matrix< IdMat >& aCommTable )
+    {
+        MORIS_ERROR( !mParameters->use_multigrid(), "HMR::BSpline_Mesh_Base::calculate_candidate_ids() - Multigrid not supported." );
+        
+        // report on this operation
+        MORIS_LOG_INFO( "B-Spline Mesh #%i: Computing candidate basis function IDs", this->get_index() );
+
+        // get number of ranks
+        uint tNumberOfProcs = par_size();
+
+        // get my rank
+        moris_id tMyRank = par_rank();
+
+        // counter for candidate basis functions (reused throughout)
+        luint tCandidateBasisIndex = 0;
+
+        // - - - - - - - - - - - - - - - -
+        // Step 1: before doing anything, make sure the flags are synchronized, if running in parallel
+        if ( tNumberOfProcs > 1 )
+        {
+            this->synchronize_flags( aCommTable );
+        }
+
+        // reset the candidate IDs for all basis functions
+        for ( Basis* tBasis : mAllBasisOnProc )
+        {
+            tBasis->set_candidate_id( gNoID );
+        }
+
+        // - - - - - - - - - - - - - - - -
+        // Step 2: trivial case - serial: candidate ids are equivalent to local indices ...
+        if ( tNumberOfProcs == 1 )
+        {
+            for ( Basis* tBasis : mCandidateBasisOnProc )
+            {
+                // set index of basis
+                tBasis->set_candidate_id( tCandidateBasisIndex++ );
+            }
+
+            // ... end function here for serial
+            return;
+        }
+
+        // everything below here is only for the parallel case!
+
+        // set index to next free index
+        tCandidateBasisIndex = mCandidateBasisOnProc.size();
+
+        // - - - - - - - - - - - - - - - -
+        // Step 3: count candidate basis functions that are owned
+
+        // reset counters
+        luint tCandidateCount = 0;
+
+        // candidate ids loop over all candidate basis
+        for ( Basis* tBasis : mCandidateBasisOnProc )
+        {
+            // test if basis is owned
+            if ( tBasis->get_owner() == tMyRank )
+            {
+                tBasis->set_candidate_id( tCandidateCount++ );
+            }
+        }
+
+        // - - - - - - - - - - - - - - - -
+        // Step 4: communicate offset and add to domain index & candidate id
+
+        // communicate number of owned candidate basis functions with other procs
+        Matrix< DDLUMat > tCandidateBasisCount;
+
+        allgather_scalar( tCandidateCount, tCandidateBasisCount );
+
+        // get my offset
+        moris_id tMyCandidateOffset = 0;
+
+        for ( moris_id p = 1; p <= tMyRank; ++p )
+        {
+            tMyCandidateOffset += tCandidateBasisCount( p - 1 );
+        }
+
+        // reset owned candidate basis function counter
+        tCandidateBasisCount.fill( 0 );
+
+        // loop over all basis
+        for ( Basis* tBasis : mCandidateBasisOnProc )
+        {
+            // get owner of basis
+            auto tOwner = tBasis->get_owner();
+
+            // test if basis is mine
+            if ( tOwner == tMyRank )
+            {
+                tBasis->set_candidate_index( tBasis->get_candidate_index() + tMyCandidateOffset );
+            }
+            else
+            {
+                // increment owned candidate basis function counter per proc
+                ++tCandidateBasisCount( tOwner );
+            }
+        }
+
+        // - - - - - - - - - - - - - - - -
+        // Step 5: create map for communication
+        Matrix< DDUMat > tProcIndices( tNumberOfProcs, 1, tNumberOfProcs );
+
+        uint tCommLength = aCommTable.length();
+
+        for ( uint k = 0; k < tCommLength; ++k )
+        {
+            tProcIndices( aCommTable( k ) ) = k;
+        }
+
+        // - - - - - - - - - - - - - - - -
+        // Step 6: allocate memory for communication lists
+
+        // dummy matrices for cells to send
+        Matrix< DDLUMat > tEmptyLuint;
+        Matrix< DDUMat >  tEmptyUint;
+
+        // create cells for candidate basis functions and element indices to send
+        Vector< Matrix< DDLUMat > > tSendIndex( tCommLength, tEmptyLuint );
+        Vector< Matrix< DDUMat > >  tSendBasis( tCommLength, tEmptyUint );
+        Vector< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint );
+
+        // assign memory for Index and Basis
+        for ( uint p = 0; p < tCommLength; ++p )
+        {
+            luint tNumCandidateBFs = tCandidateBasisCount( aCommTable( p ) );
+
+            if ( tNumCandidateBFs > 0 )
+            {
+                ++tCandidateBasisIndex;
+                tSendIndex( p ).set_size( tNumCandidateBFs, 1 );
+                tSendBasis( p ).set_size( tNumCandidateBFs, 1 );
+            }
+        }
+
+        // - - - - - - - - - - - - - - - -
+        // Step 7: create lists of candidate basis functions whose IDs are requested
+
+        // reset counter
+        tCandidateBasisIndex = 0;
+
+        // reset counter
+        Matrix< DDLUMat > tProcCount( tCommLength, 1, 0 );
+
+        // loop over all basis
+        for ( Basis* tBasis : mCandidateBasisOnProc )
+        {
+            // get owner of basis
+            auto tOwner = tBasis->get_owner();
+
+            // test if basis is not mine
+            if ( tOwner != tMyRank )
+            {
+                // get index of owner
+                uint tProcIndex = tProcIndices( tOwner );
+
+                // pointer to element
+                this->get_reference_element_of_basis( tBasis,
+                        tSendIndex( tProcIndex )( tProcCount( tProcIndex ) ),
+                        tSendBasis( tProcIndex )( tProcCount( tProcIndex ) ) );
+
+                // increment counter
+                ++tProcCount( tProcIndex );
+            }
+        }
+
+        // local basis IDs received by other procs
+        Vector< Matrix< DDUMat > > tReceiveBasis( tCommLength, tEmptyUint );
+
+        // communicate local basis indices to request
+        communicate_mats( aCommTable,
+                tSendBasis,
+                tReceiveBasis );
+
+        // free memory
+        tSendBasis.clear();
+
+        // now we need to determine the memory needed for the
+        // element pedigree paths
+
+        // reset counter
+        tProcCount.fill( 0 );
+
+        // determine memory for pedigree path
+        for ( uint p = 0; p < tCommLength; ++p )
+        {
+            // get number of elements
+            luint tNumberOfElements = tSendIndex( p ).length();
+
+            for ( luint k = 0; k < tNumberOfElements; ++k )
+            {
+                tProcCount( p ) += mAllElementsOnProc( tSendIndex( p )( k ) )
+                                            ->get_background_element()
+                                            ->get_length_of_pedigree_path();
+            }
+        }
+
+        // encode pedigree paths
+        for ( uint p = 0; p < tCommLength; ++p )
+        {
+            // get number of elements
+            luint tNumberOfElements = tSendIndex( p ).length();
+
+            // assign memory for path to send
+            tSendPedigree( p ).set_size( tProcCount( p ), 1 );
+
+            // reset counter
+            tCandidateBasisIndex = 0;
+
+            // loop over all elements
+            for ( luint k = 0; k < tNumberOfElements; ++k )
+            {
+                // get pointer to element
+                Background_Element_Base* tElement = mAllElementsOnProc( tSendIndex( p )( k ) )
+                                                            ->get_background_element();
+
+                // encode path and overwrite tSendElement with Ancestor Index
+                tElement->encode_pedigree_path( tSendIndex( p )( k ),
+                        tSendPedigree( p ),
+                        tCandidateBasisIndex );
+            }
+        }
+
+        Vector< Matrix< DDLUMat > > tReceiveIndex( tCommLength, tEmptyLuint );
+        Vector< Matrix< DDUMat > >  tReceivePedigree( tCommLength, tEmptyUint );
+
+        // communicate ancestor IDs
+        communicate_mats( aCommTable,
+                tSendIndex,
+                tReceiveIndex );
+
+        // communicate pedigree paths
+        communicate_mats( aCommTable,
+                tSendPedigree,
+                tReceivePedigree );
+
+        // clear memory
+        tSendPedigree.clear();
+
+        // now we loop over all elements and determine the index of the requested basis
+        for ( uint p = 0; p < tCommLength; ++p )
+        {
+            // get number of elements
+            luint tNumberOfElements = tReceiveIndex( p ).length();
+
+            // resize send index
+            tSendIndex( p ).set_size( tNumberOfElements, 1 );
+
+            // reset counter
+            luint tPedigreeCount = 0;
+
+            // loop over all elements
+            for ( luint k = 0; k < tNumberOfElements; ++k )
+            {
+                // decode path and get pointer to element
+                Element* tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
+                                                                                tReceiveIndex( p )( k ),
+                                                                                tReceivePedigree( p ),
+                                                                                tPedigreeCount )
+                                                                ->get_memory_index() );
+
+                // write index of requested basis into matrix
+                tSendIndex( p )( k ) = tElement->get_basis( tReceiveBasis( p )( k ) )
+                                                ->get_hmr_index();
+            }
+        }
+
+        // clear memory
+        tReceivePedigree.clear();
+        tReceiveBasis.clear();
+        tReceiveIndex.clear();
+
+        // communicate requested indices back to original proc
+        communicate_mats(
+                aCommTable,
+                tSendIndex,
+                tReceiveIndex );
+
+        // clear memory
+        tSendIndex.clear();
+
+        // finally, we can set the indices of the unknown basis
+
+        // reset counter
+        tProcCount.fill( 0 );
+
+        // loop over all basis functions
+        for ( auto tBasis : mCandidateBasisOnProc )
+        {
+            // get owner of basis
+            auto tOwner = tBasis->get_owner();
+
+            // test if basis is mine
+            if ( tOwner != tMyRank )
+            {
+                // get index of owner
+                uint tIndex = tProcIndices( tOwner );
+
+                // get counter
+                tCandidateBasisIndex = tProcCount( tIndex );
+
+                // write index into Communication List as is
+                tBasis->set_candidate_index( tReceiveIndex( tIndex )( tCandidateBasisIndex ) );
+
+                // increment counter
+                ++tProcCount( tIndex );
+            }
+        }
+
+        // perform a sanity test on the candidate basis functions and their IDs:
+        tCandidateBasisIndex = 0;
+        for ( auto tBasis : mCandidateBasisOnProc )
+        {
+            // test if basis is used, active and has no id
+            if ( tBasis->is_candidate()
+                    and tBasis->get_candidate_id() == gNoEntityID )
+            {
+                std::cout << par_rank() << " bad basis function" << tBasis->get_candidate_id() << " " << tBasis->get_owner() << '\n';
+
+                // increment counter
+                ++tCandidateBasisIndex;
+            }
+        }
+
+        MORIS_ERROR( tCandidateBasisIndex == 0, "%s ERROR.\n "
+            "Could not identify indices of %lu basis.\n "
+            "This might happen if a proc uses a candidate basis function that does not belong to\n "
+            "itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n", 
+            proc_string().c_str(), (long unsigned int)tCandidateBasisIndex );
+
+    } // end function::BSpline_Mesh_Base::calculate_candidate_ids()
 
     //------------------------------------------------------------------------------
 
@@ -1249,18 +1605,20 @@ namespace moris::hmr
         MORIS_LOG_INFO( "Collect active and refined basis functions" );
 
         // reset counter
-        mNumberOfActiveBasisOnProc  = 0;
-        mNumberOfRefinedBasisOnProc = 0;
-        mMaxLevel                   = 0;
+        mNumberOfActiveBasisOnProc    = 0;
+        mNumberOfRefinedBasisOnProc   = 0;
+        mNumberOfCandidateBasisOnProc = 0;
+        mMaxLevel                     = 0;
 
         // collect additional basis functions if multi-grid is being used, if not see below
         if ( mParameters->use_multigrid() )
         {
-            // count active basis on proc
+            // count active and candidate basis functions on proc
             for ( auto tBasis : mAllBasisOnProc )
             {
                 // reset index
                 tBasis->set_active_index( gNoEntityID );
+                tBasis->set_candidate_index( gNoEntityID );
 
                 // count basis
                 if ( tBasis->is_used() )
@@ -1274,16 +1632,23 @@ namespace moris::hmr
                     {
                         ++mNumberOfRefinedBasisOnProc;
                     }
+                    if ( tBasis->is_candidate() )
+                    {
+                        ++mNumberOfCandidateBasisOnProc;
+                        mMaxLevel = std::max( tBasis->get_level(), mMaxLevel );
+                    }
                 }
             }
 
             // reserve memory
             mActiveBasisOnProc.resize( mNumberOfActiveBasisOnProc, nullptr );
             mRefinedBasisOnProc.resize( mNumberOfRefinedBasisOnProc, nullptr );
+            mCandidateBasisOnProc.resize( mNumberOfCandidateBasisOnProc, nullptr );
 
             // reset counters
             mNumberOfActiveBasisOnProc  = 0;
             mNumberOfRefinedBasisOnProc = 0;
+            mNumberOfCandidateBasisOnProc = 0;
 
             // count active basis on proc
             for ( auto tBasis : mAllBasisOnProc )
@@ -1301,6 +1666,12 @@ namespace moris::hmr
                     {
                         mRefinedBasisOnProc( mNumberOfRefinedBasisOnProc++ ) = tBasis;
                     }
+                    if ( tBasis->is_candidate() )
+                    {
+                        tBasis->set_candidate_index( mNumberOfCandidateBasisOnProc );
+
+                        mCandidateBasisOnProc( mNumberOfCandidateBasisOnProc++ ) = tBasis;
+                    }
                 }
             }
         }    // end if: geometric multi-grid is used
@@ -1308,11 +1679,12 @@ namespace moris::hmr
         // if: multi-grid is NOT used
         else
         {
-            // count active basis on proc
+            // count active and candidate basis functions on proc to reserve memory
             for ( auto tBasis : mAllBasisOnProc )
             {
-                // reset index
+                // reset indices
                 tBasis->set_active_index( gNoEntityID );
+                tBasis->set_candidate_index( gNoEntityID );
 
                 // count basis
                 if ( tBasis->is_used() )
@@ -1322,29 +1694,50 @@ namespace moris::hmr
                         ++mNumberOfActiveBasisOnProc;
                         mMaxLevel = std::max( tBasis->get_level(), mMaxLevel );
                     }
+                    if ( tBasis->is_candidate() )
+                    {
+                        ++mNumberOfCandidateBasisOnProc;
+                        mMaxLevel = std::max( tBasis->get_level(), mMaxLevel );
+                    }
                 }
             }
 
             // reserve memory
             mActiveBasisOnProc.resize( mNumberOfActiveBasisOnProc, nullptr );
+            mCandidateBasisOnProc.resize( mNumberOfCandidateBasisOnProc, nullptr );
 
             // initialize counter
             mNumberOfActiveBasisOnProc = 0;
+            mNumberOfCandidateBasisOnProc = 0;
 
-            // populate container
+            // populate containers for active and candidate basis functions
             for ( auto tBasis : mAllBasisOnProc )
             {
-                if ( tBasis->is_active() and tBasis->is_used() )
+                // debug
+                if ( tBasis->is_candidate() )
                 {
-                    tBasis->set_active_index( mNumberOfActiveBasisOnProc );
-
-                    mActiveBasisOnProc( mNumberOfActiveBasisOnProc++ ) = tBasis;
+                    MORIS_ERROR( tBasis->is_used(), "HMR::BSpline_Mesh_Base::collect_active_and_refined_basis() - Assuming candidate basis are always used in this implementation. In case this is not true, throw an error here and fix this assumption." );
                 }
-            }
 
-        }    // end if: multi-grid is NOT used
+                if ( tBasis->is_used() )
+                {
+                    if ( tBasis->is_active() )
+                    {
+                        tBasis->set_active_index( mNumberOfActiveBasisOnProc );
+                        mActiveBasisOnProc( mNumberOfActiveBasisOnProc++ ) = tBasis;
+                    }
 
-    }        // end function: hmr::BSpline_Mesh_Base::collect_active_and_refined_basis()
+                    if ( tBasis->is_candidate() )
+                    {
+                        tBasis->set_candidate_index( mNumberOfCandidateBasisOnProc );
+                        mCandidateBasisOnProc( mNumberOfCandidateBasisOnProc++ ) = tBasis;  
+                    }
+                }
+            } // end for: all basis functions on proc
+
+        } // end if: multi-grid is NOT used
+        
+    } // end function: hmr::BSpline_Mesh_Base::collect_active_and_refined_basis()
 
     //------------------------------------------------------------------------------
     bool

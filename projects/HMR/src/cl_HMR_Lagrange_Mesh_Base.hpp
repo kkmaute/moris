@@ -13,22 +13,26 @@
 #include <string>
 
 #include "cl_HMR_Background_Element_Base.hpp"
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh_Base.hpp"    //HMR/src
 #include "cl_HMR_Basis.hpp"
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
 #include "cl_HMR_Edge.hpp"
-#include "cl_HMR_Element.hpp" //HMR/src
+#include "cl_HMR_Element.hpp"    //HMR/src
 #include "cl_HMR_Facet.hpp"
 #include "cl_HMR_Facet_Cluster.hpp"
-#include "cl_HMR_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Mesh_Base.hpp"     //HMR/src
+#include "cl_HMR_Parameters.hpp"    //HMR/src
 #include "cl_HMR_Side_Set.hpp"
-#include "cl_HMR_STK.hpp" //HMR/src
-#include "moris_typedefs.hpp" //COR/src
+#include "cl_HMR_STK.hpp"        //HMR/src
+#include "fn_assert.hpp"
+#include "moris_typedefs.hpp"    //COR/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
+#include "fn_HMR_bspline_shape.hpp"
+#include "MTK_Tools.hpp"
+#include "cl_MTK_Cell_Info.hpp"
 
-#include "cl_Matrix.hpp" //LINALG/src
+#include "cl_Matrix.hpp"    //LINALG/src
 
 namespace moris::hmr
 {
@@ -41,11 +45,11 @@ namespace moris::hmr
      */
     class Lagrange_Mesh_Base : public Mesh_Base
     {
-        Vector< bool >mBSplineMeshIsTrivialInterpoaltion;
+        Vector< bool > mBSplineMeshIsTrivialInterpolation;
 
         // @fixme: confirm that this is not identical to mAllNodesOnProc
         //! Cell containing used Nodes
-        Vector< Basis * > mNodes;
+        Vector< Basis* > mNodes;
 
         //! Cells containing real field data
 
@@ -58,32 +62,28 @@ namespace moris::hmr
         luint mNumberOfUsedAndOwnedNodes = 0;
         luint mNumberOfUsedNodes         = 0;
 
-    protected:
-
-        uint mNumBSplineMeshes = 0;
-        Vector< BSpline_Mesh_Base * > mBSplineMeshes;
-        Vector< Lagrange_Mesh_Base * > mLagrangeMeshForTMatrix;
+      protected:
+        uint                          mNumBSplineMeshes = 0;
+        Vector< BSpline_Mesh_Base* >  mBSplineMeshes;
+        Vector< Lagrange_Mesh_Base* > mLagrangeMeshForTMatrix;
 
         //! IDs for MTK
         moris_id mMaxFacetDomainIndex = 0;
-        moris_id mMaxEdgeDomainIndex = 0;
-        moris_id mMaxNodeDomainIndex = 0;
+        moris_id mMaxEdgeDomainIndex  = 0;
+        moris_id mMaxNodeDomainIndex  = 0;
 
-    public:
-
+      public:
         //! Cell containing facets
-      Vector< Facet * > mFacets;
+        Vector< Facet* > mFacets;
 
-    private:
-
+      private:
         //! Cell containing edges. Only populated in 3D
-      Vector< Edge * >  mEdges;
+        Vector< Edge* > mEdges;
 
         //! pointer to sidesets on database object
-      Vector< Side_Set > * mSideSets = nullptr;
+        Vector< Side_Set >* mSideSets = nullptr;
 
-    public:
-
+      public:
         /**
          * Default Mesh constructor
          *
@@ -92,18 +92,19 @@ namespace moris::hmr
          * @param[in] aBackgroundMesh   pointer to B-Spline mesh
          * @param[in] aOrder            polynomial degree of mesh
          */
-        Lagrange_Mesh_Base ( const Parameters * aParameters,
-                Background_Mesh_Base          * aBackgroundMesh,
-                Vector< BSpline_Mesh_Base* >  & aBSplineMeshes,
-                uint aOrder,
-                uint aActivationPattern );
+        Lagrange_Mesh_Base(
+                const Parameters*             aParameters,
+                Background_Mesh_Base*         aBackgroundMesh,
+                Vector< BSpline_Mesh_Base* >& aBSplineMeshes,
+                uint                          aOrder,
+                uint                          aActivationPattern );
 
         // ----------------------------------------------------------------------------
 
         /**
          * Virtual destructor. Does nothing.
          */
-        ~Lagrange_Mesh_Base() override{};
+        ~Lagrange_Mesh_Base() override {};
 
         // ----------------------------------------------------------------------------
 
@@ -138,21 +139,21 @@ namespace moris::hmr
         /**
          * Returns a pointer to the field Data Array. Needed for MTK output.
          */
-        Vector< Matrix< DDRMat > > & get_real_scalar_field_data()
+        Vector< Matrix< DDRMat > >& get_real_scalar_field_data()
         {
             return mRealScalarFieldData;
         }
 
         // ----------------------------------------------------------------------------
 
-        Matrix< DDRMat > & get_real_scalar_field_data( uint aFieldIndex )
+        Matrix< DDRMat >& get_real_scalar_field_data( uint aFieldIndex )
         {
             return mRealScalarFieldData( aFieldIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & get_real_scalar_field_data( uint aFieldIndex ) const
+        const Matrix< DDRMat >& get_real_scalar_field_data( uint aFieldIndex ) const
         {
             return mRealScalarFieldData( aFieldIndex );
         }
@@ -166,29 +167,30 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        Matrix< DDRMat > & get_real_scalar_field_coeffs( uint aFieldIndex )
+        Matrix< DDRMat >& get_real_scalar_field_coeffs( uint aFieldIndex )
         {
             return mRealScalarFieldBSplineCoeffs( aFieldIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & get_real_scalar_field_coeffs( uint aFieldIndex ) const
+        const Matrix< DDRMat >& get_real_scalar_field_coeffs( uint aFieldIndex ) const
         {
             return mRealScalarFieldBSplineCoeffs( aFieldIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        const std::string & get_real_scalar_field_label( uint aFieldIndex  ) const
+        const std::string& get_real_scalar_field_label( uint aFieldIndex ) const
         {
             return mRealScalarFieldLabels( aFieldIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        void set_real_scalar_field_label( uint aFieldIndex,
-                const std::string & aLabel )
+        void set_real_scalar_field_label(
+                uint               aFieldIndex,
+                const std::string& aLabel )
         {
             mRealScalarFieldLabels( aFieldIndex ) = aLabel;
         }
@@ -202,7 +204,8 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void set_real_scalar_field_bspline_order( uint aFieldIndex,
+        void set_real_scalar_field_bspline_order(
+                uint aFieldIndex,
                 uint aOrder )
         {
             mRealScalarFieldBSplineOrders( aFieldIndex ) = aOrder;
@@ -235,7 +238,7 @@ namespace moris::hmr
          * returns the number of nodes owned and shared on current proc
          */
         auto get_number_of_nodes_on_proc()
-        const -> decltype ( mNumberOfUsedNodes )
+                const -> decltype( mNumberOfUsedNodes )
         {
             return mNumberOfUsedNodes;
         }
@@ -267,7 +270,7 @@ namespace moris::hmr
         /**
          * returns a node pointer
          */
-        Basis * get_node_by_index( uint aIndex )
+        Basis* get_node_by_index( uint aIndex )
         {
             MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
             return mNodes( aIndex );
@@ -278,7 +281,7 @@ namespace moris::hmr
         /**
          * returns a node pointer ( const version )
          */
-        const Basis * get_node_by_index( uint aIndex ) const
+        const Basis* get_node_by_index( uint aIndex ) const
         {
             MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
             return mNodes( aIndex );
@@ -289,7 +292,7 @@ namespace moris::hmr
         /**
          * returns a node pointer
          */
-        Basis * get_node_by_index_including_aura( uint aIndex )
+        Basis* get_node_by_index_including_aura( uint aIndex )
         {
             MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
             return mAllBasisOnProc( aIndex );
@@ -300,7 +303,7 @@ namespace moris::hmr
         /**
          * returns a node pointer ( const version )
          */
-        const Basis * get_node_by_index_including_aura( uint aIndex ) const
+        const Basis* get_node_by_index_including_aura( uint aIndex ) const
         {
             MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
             return mAllBasisOnProc( aIndex );
@@ -312,9 +315,9 @@ namespace moris::hmr
          * returns the refinement pattern index of the B-Spline mesh
          */
         auto get_bspline_pattern( const uint aMeshIndex ) const
-        -> decltype ( mBSplineMeshes( aMeshIndex )->get_activation_pattern() )
+                -> decltype( mBSplineMeshes( aMeshIndex )->get_activation_pattern() )
         {
-            return  mBSplineMeshes( aMeshIndex )->get_activation_pattern() ;
+            return mBSplineMeshes( aMeshIndex )->get_activation_pattern();
         }
 
         // ----------------------------------------------------------------------------
@@ -325,28 +328,28 @@ namespace moris::hmr
          * Can also write vtk and gmsh files.
          * @param[in]  aFilePath  Path to where the mesh is written to.
          */
-        void save_to_file( const std::string & aFilePath );
+        void save_to_file( const std::string& aFilePath );
 
         // ----------------------------------------------------------------------------
 
         /**
          * creates a VTKfile of the mesh on the proc for debugging
          */
-        void save_to_vtk( const std::string & aFilePath );
+        void save_to_vtk( const std::string& aFilePath );
 
         // ----------------------------------------------------------------------------
 
         /**
          * creates a VTKfile of the mesh on the proc for debugging
          */
-        void save_to_gmsh( const std::string & aFilePath );
+        void save_to_gmsh( const std::string& aFilePath );
 
         // ----------------------------------------------------------------------------
 
         /**
          * Creates the MTK output object
          */
-        STK * create_stk_object( const double aTimeStep=0.0 );
+        STK* create_stk_object( const double aTimeStep = 0.0 );
 
         // ----------------------------------------------------------------------------
 
@@ -395,7 +398,7 @@ namespace moris::hmr
         /**
          * returns the number of active basis for the linked B-Spline mesh
          */
-        luint get_number_of_bsplines_on_proc( uint aMeshIndex ) const                       //FIXME
+        luint get_number_of_bsplines_on_proc( uint aMeshIndex ) const    // FIXME
         {
             // check that the requested BSpline-Mesh exists
             if ( mBSplineMeshes( aMeshIndex ) == nullptr )
@@ -411,8 +414,9 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        Basis * get_bspline( const uint aMeshIndex,
-                uint aBasisIndex )                      //FIXME
+        Basis* get_bspline(
+                const uint aMeshIndex,
+                uint       aBasisIndex )    // FIXME
         {
             // check that the requested BSpline-Mesh exists
             MORIS_ASSERT( mBSplineMeshes( aMeshIndex ) != nullptr,
@@ -424,11 +428,11 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void save_faces_to_vtk( const std::string & aPath );
+        void save_faces_to_vtk( const std::string& aPath );
 
         // ----------------------------------------------------------------------------
 
-        void save_edges_to_vtk( const std::string & aPath );
+        void save_edges_to_vtk( const std::string& aPath );
 
         // ----------------------------------------------------------------------------
 
@@ -446,28 +450,28 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        Facet * get_facet( uint aIndex )
+        Facet* get_facet( uint aIndex )
         {
             return mFacets( aIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        const Facet * get_facet( uint aIndex ) const
+        const Facet* get_facet( uint aIndex ) const
         {
             return mFacets( aIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        Edge * get_edge( uint aIndex )
+        Edge* get_edge( uint aIndex )
         {
             return mEdges( aIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        const Edge * get_edge( uint aIndex ) const
+        const Edge* get_edge( uint aIndex ) const
         {
             return mEdges( aIndex );
         }
@@ -534,13 +538,13 @@ namespace moris::hmr
 
         void check_if_bspline_mesh_is_trivial_interpolation()
         {
-            mBSplineMeshIsTrivialInterpoaltion.resize( mNumBSplineMeshes, false );
+            mBSplineMeshIsTrivialInterpolation.resize( mNumBSplineMeshes, false );
 
-            for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
+            for ( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
             {
-                if( mBSplineMeshes( Ik ) == nullptr )
+                if ( mBSplineMeshes( Ik ) == nullptr )
                 {
-                    mBSplineMeshIsTrivialInterpoaltion( Ik ) = true;
+                    mBSplineMeshIsTrivialInterpolation( Ik ) = true;
                 }
             }
         }
@@ -549,7 +553,7 @@ namespace moris::hmr
 
         bool get_bspline_mesh_is_trivial_interpolation( const uint aMeshIndex )
         {
-            return mBSplineMeshIsTrivialInterpoaltion( aMeshIndex );
+            return mBSplineMeshIsTrivialInterpolation( aMeshIndex );
         }
         // ----------------------------------------------------------------------------
         /**
@@ -564,7 +568,7 @@ namespace moris::hmr
         /**
          * return the underlying bspline mesh
          */
-        BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshIndex )
+        BSpline_Mesh_Base* get_bspline_mesh( const uint aMeshIndex )
         {
             return mBSplineMeshes( aMeshIndex );
         }
@@ -574,7 +578,7 @@ namespace moris::hmr
         /**
          * return the underlying bspline mesh ( const version )
          */
-        const BSpline_Mesh_Base * get_bspline_mesh( const uint aMeshIndex ) const
+        const BSpline_Mesh_Base* get_bspline_mesh( const uint aMeshIndex ) const
         {
             return mBSplineMeshes( aMeshIndex );
         }
@@ -584,13 +588,14 @@ namespace moris::hmr
         /**
          * return the lagrange elements in the support of this basis
          */
-        void get_my_elements_in_basis_support( const uint                    aMeshIndex,
-                const uint                    aBasisIndex,
-                Matrix< IndexMat > & aElementIndices )
+        void get_my_elements_in_basis_support(
+                const uint          aMeshIndex,
+                const uint          aBasisIndex,
+                Matrix< IndexMat >& aElementIndices )
         {
-            Basis * tBasis = nullptr;
+            Basis* tBasis = nullptr;
 
-            if( mBSplineMeshes( aMeshIndex )!= nullptr)
+            if ( mBSplineMeshes( aMeshIndex ) != nullptr )
             {
                 tBasis = mBSplineMeshes( aMeshIndex )->get_basis_by_index( aBasisIndex );
             }
@@ -603,45 +608,289 @@ namespace moris::hmr
 
             uint tCount = 0;
 
-            for( uint Ik = 0; Ik < tNumElements; Ik ++ )
+            for ( uint Ik = 0; Ik < tNumElements; Ik++ )
             {
-                Background_Element_Base * tBackgroundElement = tBasis->get_element( Ik )->get_background_element();
+                Background_Element_Base* tBackgroundElement = tBasis->get_element( Ik )->get_background_element();
 
                 this->get_num_active_elements( tBackgroundElement, tCount );
             }
 
-            Vector< Background_Element_Base * > tBackgroundActiveElements( tCount, nullptr );
+            Vector< Background_Element_Base* > tBackgroundActiveElements( tCount, nullptr );
 
-            aElementIndices.set_size(  1, tCount, MORIS_SINT_MAX );
+            aElementIndices.set_size( 1, tCount, MORIS_SINT_MAX );
 
             tCount = 0;
 
-            for( uint Ik = 0; Ik < tNumElements; Ik ++ )
+            for ( uint Ik = 0; Ik < tNumElements; Ik++ )
             {
-                Background_Element_Base * tBackgroundElement = tBasis->get_element( Ik )->get_background_element();
+                Background_Element_Base* tBackgroundElement = tBasis->get_element( Ik )->get_background_element();
 
                 this->get_active_elements( tBackgroundElement, tBackgroundActiveElements, tCount );
             }
 
-            for( uint Ik = 0; Ik < tBackgroundActiveElements.size(); Ik ++ )
+            for ( uint Ik = 0; Ik < tBackgroundActiveElements.size(); Ik++ )
             {
-                Element * tElement = this->get_element_by_memory_index( tBackgroundActiveElements( Ik )->get_memory_index() );
+                Element* tElement = this->get_element_by_memory_index( tBackgroundActiveElements( Ik )->get_memory_index() );
 
                 aElementIndices( Ik ) = tElement->get_index();
             }
 
-            MORIS_ASSERT( aElementIndices.max() != MORIS_SINT_MAX, "get_my_elements_in_basis_support(); Some invalid indices in list");
-
+            MORIS_ASSERT( aElementIndices.max() != MORIS_SINT_MAX, "HMR::Lagrange_Mesh_Base::get_my_elements_in_basis_support() - Invalid element indices in list." );
         }
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * return the lagrange elements in the support of this candidate basis function
+         */
+        void get_my_elements_in_candidate_basis_function_support(
+                const uint          aMeshIndex,
+                const uint          aBasisFunctionCandidateIndex,
+                Matrix< IndexMat >& aLagrangeElementIndices )
+        {
+            MORIS_ERROR( mBSplineMeshes( aMeshIndex ) != nullptr, 
+                    "HMR::Lagrange_Mesh_Base::get_my_elements_in_candidate_basis_function_support() - "
+                    "This function should not be called if a Lagrange basis is used." );
+            
+            Basis* tBasisFunction = mBSplineMeshes( aMeshIndex )->get_basis_function_by_candidate_index( aBasisFunctionCandidateIndex );
+
+            uint tNumBgElemsInBfSupport = tBasisFunction->get_num_elements();
+
+            // STEP 1: count the number of background elements active on the current pattern (and used in the Lagrange mesh) that support the B-spline BF 
+            uint tCountSupportingLagrangeElems = 0;
+
+            // initialize flag that indicates whether the element flags will need to be reset
+            bool tResetElementFlags = false;
+
+            for ( uint iSupportingBgElem = 0; iSupportingBgElem < tNumBgElemsInBfSupport; iSupportingBgElem++ )
+            {
+                // get the associated HMR background element
+                Background_Element_Base* tBackgroundElement = tBasisFunction->get_element( iSupportingBgElem )->get_background_element();
+
+                // check whether the current element is a candidate, and if so make sure to reset the element flags later, to avoid counting some parent elements multiple times
+                tResetElementFlags = tResetElementFlags || tBackgroundElement->is_candidate( mActivationPattern );
+
+                // count the element, its children, or its parent, depending on whether the element is active, refined, or a candidate, respectively
+                this->get_num_active_elements( tBackgroundElement, tCountSupportingLagrangeElems );
+            }
+
+            // if any candidate parents were counted, reset the element flags
+            if ( tResetElementFlags )
+            {
+                for ( uint iSupportingBgElem = 0; iSupportingBgElem < tNumBgElemsInBfSupport; iSupportingBgElem++ )
+                {
+                    Background_Element_Base* tBackgroundElement = tBasisFunction->get_element( iSupportingBgElem )->get_background_element();
+                    tBackgroundElement->unset_flag_for_all_parents();
+                }
+
+                // mark the flags as cleaned
+                tResetElementFlags = false;
+            }
+
+            // STEP 2: collect these background elements in a list
+            Vector< Background_Element_Base* > tBackgroundActiveElements( tCountSupportingLagrangeElems, nullptr );
+            aLagrangeElementIndices.set_size( 1, tCountSupportingLagrangeElems, MORIS_SINT_MAX );
+            tCountSupportingLagrangeElems = 0;
+
+            for ( uint iSupportingBgElem = 0; iSupportingBgElem < tNumBgElemsInBfSupport; iSupportingBgElem++ )
+            {
+                // get the associated HMR background element
+                Background_Element_Base* tBackgroundElement = tBasisFunction->get_element( iSupportingBgElem )->get_background_element();
+
+                // check whether the current element is a candidate, and if so make sure to reset the element flags later, to avoid listing some parent elements multiple times
+                tResetElementFlags = tResetElementFlags || tBackgroundElement->is_candidate( mActivationPattern );
+
+                // count the element, its children, or its parent, depending on whether the element is active, refined, or a candidate, respectively
+                this->get_active_elements( tBackgroundElement, tBackgroundActiveElements, tCountSupportingLagrangeElems );
+            }
+
+            // if any candidate parents were counted, reset the element flags
+            if ( tResetElementFlags )
+            {
+                for ( uint iSupportingBgElem = 0; iSupportingBgElem < tNumBgElemsInBfSupport; iSupportingBgElem++ )
+                {
+                    Background_Element_Base* tBackgroundElement = tBasisFunction->get_element( iSupportingBgElem )->get_background_element();
+                    tBackgroundElement->unset_flag_for_all_parents();
+                }
+
+                // mark the flags as cleaned
+                tResetElementFlags = false;
+            }
+
+            // sanity check that the functions counting and copying the supporting elements find the same number of elements
+            MORIS_ASSERT( tCountSupportingLagrangeElems == tBackgroundActiveElements.size(), 
+                    "HMR::Lagrange_Mesh_Base::get_my_elements_in_candidate_basis_function_support() - "
+                    "The two functions counting and copying the supporting background elements returned a different number of elements." );
+
+            // STEP 3: find and copy the indices of the Lagrange elements corresponding to the previously collected background elements 
+            for ( uint iSupportingLagrangeElem = 0; iSupportingLagrangeElem < tCountSupportingLagrangeElems; iSupportingLagrangeElem++ )
+            {
+                Background_Element_Base* tBgElem = tBackgroundActiveElements( iSupportingLagrangeElem );
+                auto tBgMemoryIndex = tBgElem->get_memory_index();
+                Element* tLagrangeElement = this->get_element_by_memory_index( tBgMemoryIndex );
+                aLagrangeElementIndices( iSupportingLagrangeElem ) = tLagrangeElement->get_index();
+            }
+
+            // sanity check output
+            MORIS_ASSERT( aLagrangeElementIndices.max() != MORIS_SINT_MAX, "HMR::Lagrange_Mesh_Base::get_my_elements_in_candidate_basis_function_support() - Invalid element indices in list." );
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        unset_all_BF_flags( const uint aMeshIndex )
+        {
+            mBSplineMeshes( aMeshIndex )->unset_all_BF_flags();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        set_candidate_BFs_flags( 
+                const uint                      aMeshIndex, 
+                Vector< moris_index > const &   aListOfCandBfIndices, 
+                const bool                      aState = false )
+        {
+            for ( const moris_index & iCandBfIndex : aListOfCandBfIndices )
+            {
+                Basis* tBasisFunction = mBSplineMeshes( aMeshIndex )->get_basis_function_by_candidate_index( (luint) iCandBfIndex );
+                
+                if ( aState )
+                {
+                    tBasisFunction->flag();
+                }
+                else
+                {
+                    tBasisFunction->unflag();
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+
+        moris_id
+        get_candidate_basis_function_owner_and_ID(
+                const uint aMeshIndex, 
+                const uint aBasisFunctionCandidateIndex,
+                moris_id & aBasisFunctionOwner ) const
+        {
+            MORIS_ERROR( mBSplineMeshes( aMeshIndex ) != nullptr, 
+                    "HMR::Lagrange_Mesh_Base::get_candidate_basis_function_level() - "
+                    "This function should not be called if a Lagrange basis is used." );
+
+            Basis* tBasisFunction = mBSplineMeshes( aMeshIndex )->get_basis_function_by_candidate_index( aBasisFunctionCandidateIndex );
+            aBasisFunctionOwner = tBasisFunction->get_owner();
+            return tBasisFunction->get_candidate_id();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        uint
+        get_candidate_basis_function_level( 
+                const uint aMeshIndex, 
+                const uint aBasisFunctionCandidateIndex ) const
+        {
+            MORIS_ERROR( mBSplineMeshes( aMeshIndex ) != nullptr, 
+                    "HMR::Lagrange_Mesh_Base::get_candidate_basis_function_level() - "
+                    "This function should not be called if a Lagrange basis is used." );
+            
+            Basis* tBasisFunction = mBSplineMeshes( aMeshIndex )->get_basis_function_by_candidate_index( aBasisFunctionCandidateIndex );
+            return tBasisFunction->get_level();
+        }
+
+        void
+        print_candidate_basis_function( 
+                const uint aMeshIndex, 
+                const uint aBasisFunctionCandidateIndex ) const
+        {
+            MORIS_ERROR( mBSplineMeshes( aMeshIndex ) != nullptr, 
+                    "HMR::Lagrange_Mesh_Base::print_candidate_basis_function() - "
+                    "This function should not be called if a Lagrange basis is used." );
+            
+            Basis* tBasisFunction = mBSplineMeshes( aMeshIndex )->get_basis_function_by_candidate_index( aBasisFunctionCandidateIndex );
+            tBasisFunction->print();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        uint 
+        get_element_level( const moris_index aElementIndex ) const
+        {
+            const Element* tLagrangeElement = this->get_element_including_aura( (luint)aElementIndex );
+            return tLagrangeElement->get_level();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        const luint*
+        get_element_ijk( const moris_index aElementIndex ) const
+        {
+            const Element* tLagrangeElement = this->get_element_including_aura( (luint)aElementIndex );
+            return tLagrangeElement->get_ijk();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        // TODO!: this function should be moved to the templated specialization of this class, once faster functions for the spline evaluation procedures are implemented
+        void 
+        eval_THEB_basis_on_element( 
+                const moris_index aBsplineMeshIndex, 
+                const moris_index aElementIndex, 
+                Vector< moris_index > const & aSupportedCandidateBfIndices, 
+                Vector< Matrix< DDRMat > > & tNodalTMatrixWeights )
+        {
+            // fist flag all the candidate BFs for the recursive tree-evaluation scheme to work    
+            this->set_candidate_BFs_flags( (uint)aBsplineMeshIndex, aSupportedCandidateBfIndices, true );
+
+            // get the element level and IJK
+            const Element* tLagrangeElement = this->get_element_including_aura( (luint)aElementIndex );
+            uint tElementLevel = tLagrangeElement->get_level();
+            const luint* tElementIJK = tLagrangeElement->get_ijk();
+
+            // get the nodal coordinates (local, in reference element space)
+            Matrix< DDRMat > tVertexLocalCoords; // format: Rows = Num Vertices x Cols = Num Dims
+            mtk::Cell_Info const * tCellInfo = tLagrangeElement->get_cell_info();
+            tCellInfo->get_loc_coords_of_cell( tVertexLocalCoords );
+            const uint tNumVerts = tVertexLocalCoords.n_rows();
+//             const uint tNumDims = tVertexLocalCoords.n_cols();
+//             const uint tPolyOrder = mtk::interpolation_order_to_uint( tCellInfo->get_cell_interpolation_order() );
+
+            // initialize output array
+            uint tNumCandBFs = aSupportedCandidateBfIndices.size();
+            tNodalTMatrixWeights.resize( tNumVerts );
+            for ( uint iVert = 0; iVert < tNumVerts; iVert++ )
+            {
+                tNodalTMatrixWeights( iVert ).set_size( tNumCandBFs, 1 );
+            }
+
+            // evaluate each candidate basis function at each vertex
+            for ( uint iBF = 0; iBF < tNumCandBFs; iBF++ )
+            {
+                // get access to the basis function
+                moris_index tCandBfIndex = aSupportedCandidateBfIndices( iBF );
+                Basis* tBasisFunction = mBSplineMeshes( aBsplineMeshIndex )->get_basis_function_by_candidate_index( (luint)tCandBfIndex );
+
+                for ( uint iVert = 0; iVert < tNumVerts; iVert++ )
+                {
+                    Matrix< DDRMat > tXi = tVertexLocalCoords.get_row( iVert );
+                    tNodalTMatrixWeights( iVert )( iBF ) = tBasisFunction->eval_trunc( tElementLevel, tElementIJK, tXi );
+                }
+
+            } // end for: evaluate every candidate basis function
+
+            // reset flags  
+            this->set_candidate_BFs_flags( (uint)aBsplineMeshIndex, aSupportedCandidateBfIndices, false );
+
+        } // end function: eval_THEB_basis_on_element()
 
         // ----------------------------------------------------------------------------
 
         /**
          * calculates nodes in bounding box
          */
-        void calculate_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >   & aPoint,
-                const moris::Matrix< DDRMat >   & aBoundingBoxSize,
-                moris::Matrix< IndexMat > & aNodeIndices )
+        void calculate_nodes_indices_in_bounding_box( const moris::Matrix< DDRMat >& aPoint,
+                const moris::Matrix< DDRMat >&                                       aBoundingBoxSize,
+                moris::Matrix< IndexMat >&                                           aNodeIndices )
         {
             moris::Matrix< DDLUMat > tElementMemoryIndex;
 
@@ -652,12 +901,12 @@ namespace moris::hmr
 
             aNodeIndices.set_size( tElementMemoryIndex.numel() * mNumberOfBasesPerElement, 1 );
 
-            for( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik ++ )
+            for ( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik++ )
             {
-                Element * tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
+                Element* tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
 
                 // loop over all nodes connected to element
-                for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
+                for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // unflag basis
                     tElement->get_basis( k )->unflag();
@@ -665,17 +914,17 @@ namespace moris::hmr
             }
 
             uint tCounter = 0;
-            for( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik ++ )
+            for ( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik++ )
             {
-                Element * tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
+                Element* tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
 
                 // loop over all nodes connected to element
-                for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
+                for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get node pointer
-                    Basis * tNode = tElement->get_basis( k );
+                    Basis* tNode = tElement->get_basis( k );
 
-                    if( !tNode->is_flagged() )
+                    if ( !tNode->is_flagged() )
                     {
                         aNodeIndices( tCounter++, 0 ) = tNode->get_index();
 
@@ -709,37 +958,65 @@ namespace moris::hmr
          * @param aElementIDs Matrix< DDLUMat > to fill with list of active BG element indices
          */
         void get_active_bg_element_indices_on_discretization_mesh_index_including_aura(
-                moris_index const aDiscretizationMeshIndex,
-                Matrix< DDLUMat > & aElementIDs )
+                moris_index const  aDiscretizationMeshIndex,
+                Matrix< DDLUMat >& aElementIDs )
         {
             mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_active_elements_on_proc_including_aura( aElementIDs );
         }
 
         // ----------------------------------------------------------------------------
 
-        void get_num_active_elements( Background_Element_Base * aBackgroundElement,
-                uint                    & aCounter )
+        void get_num_active_elements(
+                Background_Element_Base* aBackgroundElement,
+                uint&                    aCounter )
         {
-            MORIS_ASSERT( aBackgroundElement != nullptr, "get_num_active_elements(); Background element is nullptr");
+            MORIS_ASSERT( aBackgroundElement != nullptr, "HMR::Lagrange_Mesh_Base::get_num_active_elements() - Background element is nullptr." );
 
             bool tIsPadding = aBackgroundElement->is_padding();
 
-            if( !tIsPadding )
+            if ( !tIsPadding )
             {
                 bool tIsActive = aBackgroundElement->is_active( mActivationPattern );
 
-                if( !tIsActive )
+                if ( !tIsActive ) // element is not active, so look for and count active children (or parents if element is a dummy candidate element)
                 {
-                    uint tNumChildren = aBackgroundElement->get_num_children();
-
-                    for( uint Ii = 0; Ii < tNumChildren; Ii ++ )
+                    // the element is refined
+                    if ( !aBackgroundElement->is_candidate( mActivationPattern ) )
                     {
-                        Background_Element_Base * tBackgroundElement = aBackgroundElement->get_child( Ii );
+                        uint tNumChildren = aBackgroundElement->get_num_children();
 
-                        this->get_num_active_elements( tBackgroundElement, aCounter );
+                        for ( uint Ii = 0; Ii < tNumChildren; Ii++ )
+                        {
+                            Background_Element_Base* tBackgroundElement = aBackgroundElement->get_child( Ii );
+
+                            this->get_num_active_elements( tBackgroundElement, aCounter );
+                        }
+                    }
+                    else // element is a candidate element
+                    {
+                        // get the parent element
+                        Background_Element_Base* tParentElement = aBackgroundElement->get_parent();
+
+                        /* In the current implementation including a staircase buffer between refinement levels, 
+                        * the parent element (which is only one level coarser) should always be active, 
+                        * otherwise something is wrong with the assumptions made in this implementation */
+                        MORIS_ERROR( tParentElement->is_active( mActivationPattern ), 
+                                "HMR::Lagrange_Mesh_Base::get_num_active_elements() - "
+                                "Parent element of candidate element is not active. See comment in code for details." );
+
+                        // count the parent element; in case it is a candidate and has not been counted already starting from another child element already
+                        if ( !tParentElement->is_flagged() )
+                        {
+                            // FIXME: in case the implementation is ever changed to work without a staircase buffer, this bit should be changed to work as a recursive function 
+                            // this->get_num_active_elements( tParentElement, aCounter );
+                            aCounter++;
+
+                            // flag the current parent element to avoid counting it twice
+                            tParentElement->set_flag();
+                        }
                     }
                 }
-                else
+                else // element itself is active, so just count it
                 {
                     aCounter++;
                 }
@@ -748,30 +1025,61 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void get_active_elements( Background_Element_Base           * aBackgroundElement,
-                Vector< Background_Element_Base * > & aActiveBackgroundElements,
-                uint                              & aCounter )
+        void get_active_elements(
+                Background_Element_Base*            aBackgroundElement,
+                Vector< Background_Element_Base* >& aActiveBackgroundElements,
+                uint&                               aCounter )
         {
             bool tIsPadding = aBackgroundElement->is_padding();
 
-            if( !tIsPadding )
+            if ( !tIsPadding )
             {
                 bool tIsActive = aBackgroundElement->is_active( mActivationPattern );
 
-                if( !tIsActive )
+                // element is not active, so look for and list active children or the parent, if element is a dummy candidate element
+                if ( !tIsActive )
                 {
-                    uint tNumChildren = aBackgroundElement->get_num_children();
-
-                    for( uint Ii = 0; Ii < tNumChildren; Ii ++ )
+                    // the element is refined
+                    if ( !aBackgroundElement->is_candidate( mActivationPattern ) )
                     {
-                        Background_Element_Base * tBackgroundElement = aBackgroundElement->get_child( Ii );
+                        uint tNumChildren = aBackgroundElement->get_num_children();
 
-                        this->get_active_elements( tBackgroundElement, aActiveBackgroundElements, aCounter );
+                        for ( uint iChildElem = 0; iChildElem < tNumChildren; iChildElem++ )
+                        {
+                            Background_Element_Base* tBackgroundElement = aBackgroundElement->get_child( iChildElem );
+
+                            this->get_active_elements( tBackgroundElement, aActiveBackgroundElements, aCounter );
+                        }
+                    }
+                    else // element is a candidate element
+                    {
+                        // get the parent element
+                        Background_Element_Base* tParentElement = aBackgroundElement->get_parent();
+
+                        /* In the current implementation including a staircase buffer between refinement levels, 
+                        * the parent element (which is only one level coarser) should always be active, 
+                        * otherwise something is wrong with the assumptions made in this implementation */
+                        MORIS_ERROR( tParentElement->is_active( mActivationPattern ), 
+                                "HMR::Lagrange_Mesh_Base::get_active_elements() - "
+                                "Parent element of candidate element is not active. See comment in code for details." );
+
+                        // count the parent element; in case it is a candidate and has not been counted already starting from another child element already
+                        if ( !tParentElement->is_flagged() )
+                        {
+                            // FIXME: in case the implementation is ever changed to work without a staircase buffer, this bit should be changed to work as a recursive function 
+                            // this->get_active_elements( tParentElement, aActiveBackgroundElements, aCounter );
+                            aActiveBackgroundElements( aCounter++ ) = tParentElement;
+
+                            // flag the current parent element to avoid counting it twice
+                            tParentElement->set_flag();
+                        }
                     }
                 }
+
+                // element itself is active, so just list it
                 else
                 {
-                    aActiveBackgroundElements( aCounter++) = aBackgroundElement;
+                    aActiveBackgroundElements( aCounter++ ) = aBackgroundElement;
                 }
             }
         }
@@ -790,27 +1098,27 @@ namespace moris::hmr
          * < interpolation weights >
          *
          */
-        void save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );
+        void save_coeffs_to_binary_file( const uint aOrder, const std::string& aFilePath );
 
         // -----------------------------------------------------------------------------
 
-        virtual void calculate_t_matrices( bool aBool = true) = 0;
+        virtual void calculate_t_matrices( bool aBool = true ) = 0;
 
         // ----------------------------------------------------------------------------
 
-        void set_side_sets( Vector< Side_Set > & aSideSets )
+        void set_side_sets( Vector< Side_Set >& aSideSets )
         {
-            mSideSets = & aSideSets;
+            mSideSets = &aSideSets;
         }
 
         // ----------------------------------------------------------------------------
 
-        mtk::MtkSideSetInfo & get_side_set_info( const uint aIndex )
+        mtk::MtkSideSetInfo& get_side_set_info( const uint aIndex )
         {
-            Vector< Side_Set > & tSets = *mSideSets;
+            Vector< Side_Set >& tSets = *mSideSets;
 
             // set pointer of output object
-            tSets( aIndex ).mInfo.mElemIdsAndSideOrds = & tSets( aIndex ).mElemIdsAndSideOrds;
+            tSets( aIndex ).mInfo.mElemIdsAndSideOrds = &tSets( aIndex ).mElemIdsAndSideOrds;
 
             return tSets( aIndex ).mInfo;
         }
@@ -819,7 +1127,7 @@ namespace moris::hmr
 
         uint get_number_of_side_sets() const
         {
-            if( mSideSets != nullptr )
+            if ( mSideSets != nullptr )
             {
                 return mSideSets->size();
             }
@@ -839,9 +1147,9 @@ namespace moris::hmr
          * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
          */
         void get_elements_in_bspline_element(
-                moris_index const aBspElementIndex,
-                moris_index const aDiscretizationMeshIndex,
-                Vector< mtk::Cell * > & aCells );
+                moris_index const     aBspElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
+                Vector< mtk::Cell* >& aCells );
 
         // -----------------------------------------------------------------------------
 
@@ -854,12 +1162,12 @@ namespace moris::hmr
          */
         void
         get_lagrange_elements_in_bspline_elements(
-                moris_index const                          aDiscretizationMeshIndex,
+                moris_index const                aDiscretizationMeshIndex,
                 Vector< Vector< mtk::Cell* > >&  aCells,
                 Vector< Vector< moris_index > >& aCellIndices,
-                Vector< moris_index >&                aLagToBspCellIndices,
-                Vector< uint >&                       aBspCellRefineLevels,
-                Vector< mtk::Cell* >&                 aBsplineCells );
+                Vector< moris_index >&           aLagToBspCellIndices,
+                Vector< uint >&                  aBspCellRefineLevels,
+                Vector< mtk::Cell* >&            aBsplineCells );
 
         // -----------------------------------------------------------------------------
 
@@ -873,11 +1181,11 @@ namespace moris::hmr
          * @param aWeights
          */
         virtual void get_extended_t_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aBSplineCellIndex,
-                Element&                                    aLagrangeCell,
+                moris_index                       aDiscretizationMeshIndex,
+                moris_index                       aBSplineCellIndex,
+                Element&                          aLagrangeCell,
                 Vector< Vector< mtk::Vertex* > >& aBsplineBasis,
-                Vector< Matrix< DDRMat > >&            aWeights ) = 0;
+                Vector< Matrix< DDRMat > >&       aWeights ) = 0;
 
         // -----------------------------------------------------------------------------
 
@@ -892,12 +1200,12 @@ namespace moris::hmr
          * @param[out] aWeights
          */
         virtual void get_L2_projection_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                const Element*                              aRootBSplineCell,
-                const Element*                              aExtendedBSplineCell,
+                moris_index                             aDiscretizationMeshIndex,
+                const Element*                          aRootBSplineCell,
+                const Element*                          aExtendedBSplineCell,
                 Vector< Vector< const mtk::Vertex* > >& aRootBsplineBasis,
-                Vector< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                Vector< Matrix< DDRMat > >&            aWeights ) = 0;
+                Vector< const mtk::Vertex* >&           aExtendedBsplineBasis,
+                Vector< Matrix< DDRMat > >&             aWeights ) = 0;
 
         // -----------------------------------------------------------------------------
 
@@ -906,9 +1214,9 @@ namespace moris::hmr
          */
         void
         get_elements_in_interpolation_cluster(
-                moris_index const aElementIndex,
-                moris_index const aDiscretizationMeshIndex,
-                Vector< mtk::Cell * > & aCells);
+                moris_index const     aElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
+                Vector< mtk::Cell* >& aCells );
 
         // ----------------------------------------------------------------------------
 
@@ -922,19 +1230,19 @@ namespace moris::hmr
          */
         void
         get_elements_in_bspline_element_and_side_ordinal(
-                moris_index const            aBsplineElementIndex,
-                moris_index const            aDiscretizationMeshIndex,
-                moris_index const            aSideOrdinal,
-                Vector< mtk::Cell * > & aCells );
+                moris_index const     aBsplineElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
+                moris_index const     aSideOrdinal,
+                Vector< mtk::Cell* >& aCells );
 
         /**
-          * collect Lagrange elements on an BSpline interpolation element and side ordinal
-          */
+         * collect Lagrange elements on an BSpline interpolation element and side ordinal
+         */
         void
         get_elements_in_interpolation_cluster_and_side_ordinal(
-                moris_index const          aElementIndex,
-                moris_index const          aDiscretizationMeshIndex,
-                moris_index const          aSideOrdinal,
+                moris_index const     aElementIndex,
+                moris_index const     aDiscretizationMeshIndex,
+                moris_index const     aSideOrdinal,
                 Vector< mtk::Cell* >& aCells );
 
         // ----------------------------------------------------------------------------
@@ -942,8 +1250,7 @@ namespace moris::hmr
         // Hack for femdoc. Only tested in serial and linear meshes.
         void nodes_renumbering_hack_for_femdoc();
 
-    protected:
-
+      protected:
         /**
          * deletes the Lagrange meshes for T-matrices
          */
@@ -958,22 +1265,22 @@ namespace moris::hmr
          *
          * @return Element *
          */
-        Element * get_child(       Element * aElement,
-                uint aChildIndex );
+        Element* get_child( Element* aElement,
+                uint                 aChildIndex );
 
         // ----------------------------------------------------------------------------
 
         /**
          * creates a facet pointer
          */
-        virtual Facet * create_facet( Background_Facet * aFacet );
+        virtual Facet* create_facet( Background_Facet* aFacet );
 
         // ----------------------------------------------------------------------------
 
         /**
          * creates an edge pointer
          */
-        virtual Edge * create_edge( Background_Edge * aEdge );
+        virtual Edge* create_edge( Background_Edge* aEdge );
 
         // ----------------------------------------------------------------------------
 
@@ -984,7 +1291,8 @@ namespace moris::hmr
         void delete_edges();
 
         // ----------------------------------------------------------------------------
-    private:
+
+      private:
         // ----------------------------------------------------------------------------
 
         /**
@@ -1067,7 +1375,7 @@ namespace moris::hmr
          * @return uint          domain wide unique ID
          */
         virtual luint calculate_node_id( uint aLevel,
-                luint aI ) = 0;
+                luint                         aI ) = 0;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1081,8 +1389,8 @@ namespace moris::hmr
          * @return uint          domain wide unique ID
          */
         virtual luint calculate_node_id( uint aLevel,
-                luint aI,
-                luint aJ ) = 0;
+                luint                         aI,
+                luint                         aJ ) = 0;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1097,9 +1405,9 @@ namespace moris::hmr
          * @return uint          domain wide unique ID
          */
         virtual luint calculate_node_id( uint aLevel,
-                luint aI,
-                luint aJ,
-                luint aK ) = 0;
+                luint                         aI,
+                luint                         aJ,
+                luint                         aK ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -1113,4 +1421,4 @@ namespace moris::hmr
 
         void synchronize_edge_ids( uint aOwnedCount );
     };
-}
+}    // namespace moris::hmr

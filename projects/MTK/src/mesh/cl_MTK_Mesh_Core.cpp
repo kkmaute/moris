@@ -340,8 +340,80 @@ namespace moris::mtk
             const uint          aBasisIndex,
             Matrix< IndexMat >& aElementIndices )
     {
-        MORIS_ERROR( 0, "get_elements_in_support_of_basis not implemented" );
+        MORIS_ERROR( false, "MTK::Mesh_Core::get_elements_in_support_of_basis() - Not implemented in base class." );
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Mesh::get_elements_in_support_of_candidate_basis_function(
+            const uint          aMeshIndex,
+            const uint          aBasisFunctionCandidateIndex,
+            Matrix< IndexMat >& aElementIndices )
+    {
+        this->get_elements_in_support_of_basis( aMeshIndex, aBasisFunctionCandidateIndex, aElementIndices );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Mesh::unset_all_BF_flags( const uint aMeshIndex )
+    {
+        MORIS_ERROR( false, "MTK::Mesh_Core::unset_all_BF_flags() - Not implemented in base class. Function only applicable to HMR meshes." );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Mesh::set_candidate_BFs_flags( 
+            const uint                      aMeshIndex, 
+            Vector< moris_index > const &   aListOfCandBfIndices, 
+            const bool                      aState )
+    {
+        MORIS_ERROR( false, "MTK::Mesh_Core::set_candidate_BFs_flags() - Not implemented in base class. Function only applicable to HMR meshes." );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint
+    Mesh::get_candidate_basis_function_level(
+            const uint aMeshIndex,
+            const uint aBasisFunctionCandidateIndex ) const
+    {
+        MORIS_ERROR( false, "MTK::Mesh_Core::get_candidate_basis_function_level() - Not implemented in base class. Only implemented for HMR Meshes." );
+        return MORIS_UINT_MAX;
+    }
+
+    void
+    Mesh::print_candidate_basis_function(
+            const uint aMeshIndex,
+            const uint aBasisFunctionCandidateIndex ) const
+    {
+        MORIS_ERROR( false, "MTK::Mesh_Core::print_candidate_basis_function() - Not implemented in base class. Only implemented for HMR Meshes." );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint
+    Mesh::get_background_element_level( const moris_index aElementIndex ) const
+    {
+        MORIS_ERROR( false, "MTK::Mesh_Core::get_background_element_level() - Not implemented in base class. Only implemented for HMR Meshes." );
+        return MORIS_UINT_MAX;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void 
+    Mesh::eval_THEB_basis_on_element( 
+            const moris_index aBsplineMeshIndex, 
+            const moris_index aElementIndex, 
+            Vector< moris_index > const & aSupportedCandidateBfIndices, 
+            Vector< Matrix< DDRMat > > & tNodalTMatrixWeights )
+    {
+        MORIS_ERROR( false, "MTK::Mesh_Core::eval_THEB_basis_on_element() - Not implemented in base class. Only implemented for HMR Meshes." );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     void
     Mesh::get_nodes_indices_in_bounding_box(
@@ -349,7 +421,7 @@ namespace moris::mtk
             const Matrix< DDRMat >& aBoundingBoxSize,
             Matrix< IndexMat >&     aNodeIndices )
     {
-        MORIS_ERROR( 0, "get_nodes_in_bounding_box(), not implemented" );
+        MORIS_ERROR( false, "MTK::Mesh_Core::get_nodes_in_bounding_box() - Not implemented in base class." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -477,6 +549,18 @@ namespace moris::mtk
         }
 
         return tEntityOwner;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris_id
+    Mesh::get_ID_and_owner_of_candidate_BF( 
+            const uint        aCandidateBFIndex, 
+            const moris_index aEnrichmentDataIndex, 
+            moris_index &     aOwner ) const
+    {
+        MORIS_ERROR( false, "MTK::Mesh::get_ID_and_owner_of_candidate_BF() - Not implemented in base class. Function only applicable for HMR meshes." );
+        return gNoID;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -867,6 +951,14 @@ namespace moris::mtk
 
     uint
     Mesh::get_num_basis_functions( const uint aMeshIndex )
+    {
+        return this->get_num_nodes();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint
+    Mesh::get_num_candidate_basis_functions( const uint aMeshIndex )
     {
         return this->get_num_nodes();
     }

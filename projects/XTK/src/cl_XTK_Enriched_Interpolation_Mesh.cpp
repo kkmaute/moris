@@ -1891,8 +1891,24 @@ namespace moris::xtk
         this->setup_local_to_global_maps();
 
         this->setup_vertex_to_bulk_phase();
-
+    
         this->setup_basis_ownership();
+
+        this->setup_basis_to_bulk_phase();
+
+        MORIS_ASSERT( this->verify_basis_support(), "Issue detected in basis support." );
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::finalize_setup_with_THEB_basis()
+    {
+        this->setup_local_to_global_maps();
+
+        this->setup_vertex_to_bulk_phase();
+       
+        this->setup_basis_ownership_using_candidate_basis();
 
         this->setup_basis_to_bulk_phase();
 
@@ -2346,6 +2362,65 @@ namespace moris::xtk
             }
         }
     }
+
+    // ----------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::setup_basis_ownership_using_candidate_basis()
+    {
+        // size data
+        mEnrichCoeffOwnership.resize( mMeshIndices.max() + 1 );
+
+        // access the BG mesh
+        const mtk::Interpolation_Mesh& tBgMesh = mXTKModel->get_background_mesh();
+
+        // iterate through different B-spline meshes
+        for ( uint iBsplineMesh = 0; iBsplineMesh < mMeshIndices.numel(); iBsplineMesh++ )
+        {
+            moris_index tMeshIndex = mMeshIndices( iBsplineMesh );
+
+            // get the number of enriched BFs in the (T)HEB basis
+            uint tNumBFs = mEnrichCoeffLocToGlob( tMeshIndex ).numel();
+
+            // initialize the list of owning procs
+            mEnrichCoeffOwnership( tMeshIndex ).resize( 1, tNumBFs );
+            mEnrichCoeffOwnership( tMeshIndex ).fill( MORIS_INDEX_MAX );
+
+            // iterate through basis functions
+            uint tNumCandBfs = mCoeffToEnrichCoeffs( tMeshIndex ).size();
+            for ( uint iCandidateBF = 0; iCandidateBF < tNumCandBfs; iCandidateBF++ )
+            {
+                // get the owner of this candidate BF
+                moris_index tOwner;
+                tBgMesh.get_ID_and_owner_of_candidate_BF( iCandidateBF, tMeshIndex, tOwner );
+
+                // iterate through set of enriched BFs created from candidate BG BF
+                uint tNumEnrLvlsOnBf = mCoeffToEnrichCoeffs( tMeshIndex )( iCandidateBF ).numel();
+                for ( uint iEnrLvl = 0; iEnrLvl < tNumEnrLvlsOnBf; iEnrLvl++ )
+                {
+                    // get the index of the 
+                    moris_index tTHEBIndex = mCoeffToEnrichCoeffs( tMeshIndex )( iCandidateBF )( iEnrLvl );
+
+                    // skip BFs that are not part of the (T)HEB basis
+                    if ( tTHEBIndex != gNoIndex )
+                    {
+                        // store the owner of this THEB basis function
+                        mEnrichCoeffOwnership( tMeshIndex )( tTHEBIndex ) = tOwner;
+
+                        // remember all owned and non-owned BFs for communication later
+                        if ( tOwner != par_rank() )
+                        {
+                            mNotOwnedBasis.push_back( mEnrichCoeffLocToGlob( tMeshIndex )( tTHEBIndex ) );
+                        }
+                        else
+                        {
+                            mOwnedBasis.push_back( mEnrichCoeffLocToGlob( tMeshIndex )( tTHEBIndex ) );
+                        }
+                    }
+                } // end for: set of enriched BFs created from candidate BG BF
+            } // end for: set of (non-enriched) candidate BFs
+        } // end for: each discretization
+    } // end function: Enriched_Interpolation_Mesh::setup_basis_ownership_using_candidate_basis()
 
     // ----------------------------------------------------------------------------
 

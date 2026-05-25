@@ -16,6 +16,7 @@
 #include <set>
 
 #include "cl_Communication_Tools.hpp"
+#include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_assert.hpp"
 #include "fn_sort.hpp"
@@ -98,7 +99,16 @@ namespace moris::xtk
                 "mBackgroundMesh nullptr detected, this is probably because the enrichment has not been initialized properly" );
 
         // Perform enrichment over basis clusters
-        perform_basis_cluster_enrichment();
+
+// debug print - for testing the THEB basis
+bool tUseTHEB = true; // mXTKModelPtr->get_parameter_list().get< bool >( "construct_THEB_basis" );
+if ( tUseTHEB )
+{
+    this->perform_enrichment_and_construct_THEB_basis();
+    return;
+}
+        // else:
+        this->perform_basis_cluster_enrichment();
     }
 
     //-------------------------------------------------------------------------------------
@@ -110,7 +120,7 @@ namespace moris::xtk
                 "mBackgroundMesh nullptr detected, this is probably because the enrichment has not been initialized properly" );
 
         // Perform enrichment over basis clusters
-        perform_basis_cluster_enrichment_new();
+        this->perform_basis_cluster_enrichment_new();
     }
 
     //-------------------------------------------------------------------------------------
@@ -278,10 +288,6 @@ namespace moris::xtk
         // make sure mesh is not empty
         MORIS_ASSERT( mBackgroundMeshPtr->get_num_elems() > 0, "Enrichment::perform_basis_cluster_enrichment() - IP mesh without cells passed" );
 
-        // construct cell in xtk conformal model neighborhood connectivity
-        // todo: this does nothing right now, still needed?
-        this->construct_neighborhoods();
-
         // make sure we have access to all the vertex interpolation
         this->setup_background_vertex_interpolations();
 
@@ -298,7 +304,7 @@ namespace moris::xtk
             Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
 
             // Number of basis functions (= number of B-Splines on the A-mesh ?)
-            moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
+            moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex ); // TODO: uint tNumCandidateBFs = mBackgroundMeshPtr->get_num_candidate_basis_functions( tMeshIndex ); 
 
             if ( tWriteElementEnrichmentsLevels )
             {
@@ -308,19 +314,19 @@ namespace moris::xtk
             }
 
             // allocate data used after basis loop
-            Vector< Matrix< IndexMat > > tSubPhaseBinEnrichment( tNumBasisFunctions );
+            Vector< Matrix< IndexMat > > tSubPhaseBinEnrichment( tNumBasisFunctions ); // 
             Vector< Matrix< IndexMat > > tSubphaseClusterIndicesInSupport( tNumBasisFunctions );
             Vector< moris_index >        tMaxEnrichmentLevel( tNumBasisFunctions, 0 );
 
             for ( moris::size_t iBasisFunction = 0; iBasisFunction < tNumBasisFunctions; iBasisFunction++ )
             {
                 // Get elements in support of basis (these are interpolation cells)
-                Matrix< IndexMat > tParentElementsInSupport;
+                Matrix< IndexMat > tElementsInSupport;
 
-                mBackgroundMeshPtr->get_elements_in_support_of_basis( tMeshIndex, iBasisFunction, tParentElementsInSupport );
+                mBackgroundMeshPtr->get_elements_in_support_of_basis( tMeshIndex, iBasisFunction, tElementsInSupport ); // TODO: mBackgroundMeshPtr->get_elements_in_support_of_candidate_basis_function( tMeshIndex, iBasisFunction, tElementsInSupport );
 
                 // get subphase clusters in support (separated by phase)
-                tSubphaseClusterIndicesInSupport( iBasisFunction ) = this->get_subphase_clusters_in_support( tParentElementsInSupport );
+                tSubphaseClusterIndicesInSupport( iBasisFunction ) = this->get_subphase_clusters_in_support( tElementsInSupport );
 
                 // construct subphase in support map
                 IndexMap tSubPhaseIndexToSupportIndex;
@@ -356,7 +362,7 @@ namespace moris::xtk
                 this->unzip_subphase_bin_enrichment_into_element_enrichment(
                         tMeshIndex,
                         iBasisFunction,
-                        tParentElementsInSupport,
+                        tElementsInSupport,
                         tSubphaseClusterIndicesInSupport( iBasisFunction ),
                         tSubPhaseIndexToSupportIndex,
                         tPrunedSubphaseNeighborhood,
@@ -366,7 +372,7 @@ namespace moris::xtk
                 {
                     this->generate_element_enrichments_levels_based_on_sp( tMeshIndex,
                             iBasisFunction,
-                            tParentElementsInSupport,
+                            tElementsInSupport,
                             tSubphaseClusterIndicesInSupport( iBasisFunction ),
                             tSubPhaseIndexToSupportIndex,
                             tPrunedSubphaseNeighborhood,
@@ -381,7 +387,7 @@ namespace moris::xtk
                     tSubphaseClusterIndicesInSupport,
                     tMaxEnrichmentLevel );
 
-            // Assign enriched basis indices Only indices here because interpolation cells needs basis
+            // Assign enriched basis indices; Only indices here because interpolation cells needs basis function
             // indices and basis ids are created using the interpolation cell ids
             this->assign_enriched_coefficients_identifiers(
                     tMeshIndex,
@@ -393,6 +399,111 @@ namespace moris::xtk
 
         // create the enriched interpolation mesh
         this->construct_enriched_interpolation_mesh();
+
+        // create the integration mesh
+        this->construct_enriched_integration_mesh();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::perform_enrichment_and_construct_THEB_basis()
+    {
+        // make sure mesh is not empty
+        MORIS_ASSERT( mBackgroundMeshPtr->get_num_elems() > 0, "Enrichment::perform_basis_cluster_enrichment() - IP mesh without cells passed" );
+
+        // make sure we have access to all the base vertex interpolation (needed for existing functions to work without re-writing them, otherwise not needed when using the THEB basis)
+        this->setup_background_vertex_interpolations();
+
+        // bool variable to determine to populate the enrichment data with the element enrichments and levels
+        MORIS_ERROR( !mXTKModelPtr->mParameterList.get< bool >( "write_cell_enrichments_levels" ) && !mSortBasisEnrichmentLevels, 
+                "XTK::Enrichment::perform_enrichment_and_construct_THEB_basis() - "
+                "Options 'write_cell_enrichments_levels' and 'sort_basis_enrichment_levels' not supported (yet) in XTK workflow "
+                "constructing a THEB basis (if option 'construct_THEB_basis' is true)" );
+
+        // construct data needed for enrichment for every B-spline mesh the Lagrange mesh is related to
+        for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
+        {
+            // get the mesh index
+            moris_index tMeshIndex = mMeshIndices( iMeshIndex );
+
+            // log/trace enrichment for every discretization mesh index
+            Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
+
+            // Number of candidate basis functions (= number of basis functions to be enriched)
+            uint tNumCandidateBFs = mBackgroundMeshPtr->get_num_candidate_basis_functions( tMeshIndex ); 
+
+            // allocate data used after basis loop 
+            Vector< Matrix< IndexMat > > tSubphaseIndicesInSupport( tNumCandidateBFs ); // input: index of candidate BF || output: list of subphase indices in (the non-enriched) BF's support
+            Vector< Matrix< IndexMat > > tSubPhaseBinEnrichment( tNumCandidateBFs );    // input: index of candidate BF || output: enrichment level each of the subphases in the above list gets sorted into
+            Vector< moris_index >        tMaxEnrichmentLevel( tNumCandidateBFs, 0 );    // input: index of candidate BF || output: number of disjoint domains in BF's support minus 1  
+
+            MORIS_LOG_SPEC( "Number of candidate basis functions to be enriched", tNumCandidateBFs );
+
+            // enrich each of the candidate basis functions
+            for ( moris::size_t iCandidateBasisFunction = 0; iCandidateBasisFunction < tNumCandidateBFs; iCandidateBasisFunction++ )
+            {
+                // Get elements in support of basis (these are interpolation cells)
+                Matrix< IndexMat > tElementsInSupportOfBF;
+
+                // collect the Lagrange elements supporting the B-spline BF
+                mBackgroundMeshPtr->get_elements_in_support_of_candidate_basis_function( tMeshIndex, iCandidateBasisFunction, tElementsInSupportOfBF );
+
+                // get subphase clusters in support (separated by phase)
+                tSubphaseIndicesInSupport( iCandidateBasisFunction ) = this->get_subphase_clusters_in_support( tElementsInSupportOfBF );
+
+                // construct subphase in support map for indices to be findable in list
+                IndexMap tSubPhaseIndexToSupportIndex;
+                this->construct_subphase_in_support_map( tSubphaseIndicesInSupport( iCandidateBasisFunction ), tSubPhaseIndexToSupportIndex );
+
+                // prune the subphase graph to remove subphases outside the basis function's support
+                Matrix< IndexMat > tPrunedSubphaseNeighborhood;
+                this->generate_pruned_subphase_graph_in_basis_support(
+                        tSubphaseIndicesInSupport( iCandidateBasisFunction ),
+                        tSubPhaseIndexToSupportIndex,
+                        tPrunedSubphaseNeighborhood );
+
+                // Perform flood-fill: assign enrichment levels to subphases
+                this->assign_subphase_bin_enrichment_levels_in_basis_support(
+                        tSubphaseIndicesInSupport( iCandidateBasisFunction ),
+                        tSubPhaseIndexToSupportIndex,
+                        tPrunedSubphaseNeighborhood,
+                        tSubPhaseBinEnrichment( iCandidateBasisFunction ),
+                        tMaxEnrichmentLevel( iCandidateBasisFunction ) );
+
+                // Extract element enrichment levels from assigned sub-phase bin enrichment levels and store these as a member variable
+                this->unzip_subphase_bin_enrichment_into_element_enrichment(
+                        tMeshIndex,
+                        iCandidateBasisFunction,
+                        tElementsInSupportOfBF,
+                        tSubphaseIndicesInSupport( iCandidateBasisFunction ),
+                        tSubPhaseIndexToSupportIndex,
+                        tPrunedSubphaseNeighborhood,
+                        tSubPhaseBinEnrichment( iCandidateBasisFunction ) );
+
+            } // end for: enrich each candidate basis function
+
+            // construct subphase to enriched index
+            this->construct_enriched_basis_to_subphase_connectivity(
+                    tMeshIndex,
+                    tSubPhaseBinEnrichment,
+                    tSubphaseIndicesInSupport,
+                    tMaxEnrichmentLevel );
+
+            // determine which enriched candidate BFs are part of the (T)HEB basis and store this information in mEnrichmentData
+            this->construct_HEB_basis_from_enriched_candidate_basis_functions( tMeshIndex, tMaxEnrichmentLevel );
+
+            // Assign enriched basis function IDs (constructs the map mEnrichmentData->mEnrichedBasisIndexToID)
+            this->assign_HEB_basis_function_IDs(
+                    tMeshIndex,
+                    tMaxEnrichmentLevel );
+
+            MORIS_LOG_SPEC( "Num enriched basis functions in the (T)HEB basis", mEnrichmentData( tMeshIndex ).mNumEnrichedBasisFunctions );
+
+        } // end for: construct basis for each B-spline mesh
+
+        // create the enriched interpolation mesh
+        this->construct_enriched_interpolation_mesh_with_THEB_basis();
 
         // create the integration mesh
         this->construct_enriched_integration_mesh();
@@ -420,7 +531,7 @@ namespace moris::xtk
 
             Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
 
-            // Number of basis functions (= number of B-Splines on the A-mesh )
+            // Number of basis functions (= number of B-Splines on the A-mesh ) - (A-mesh is the "abstract" mesh holding the basis, usually the B-spline mesh)
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
             if ( tWriteElementEnrichmentsLevels )
@@ -565,18 +676,6 @@ namespace moris::xtk
 
         // construct the enriched IG mesh (i.e. clusters for all B-spline meshes)
         this->construct_enriched_integration_mesh( mMeshIndices );
-    }
-
-    //-------------------------------------------------------------------------------------
-
-    void
-    Enrichment::construct_neighborhoods()
-    {
-        // // construct full mesh neighborhood
-        // mXTKModelPtr->construct_neighborhood();
-
-        // // construct subphase neighborhood
-        // mXTKModelPtr->construct_subphase_neighborhood();
     }
 
     //-------------------------------------------------------------------------------------
@@ -1216,6 +1315,130 @@ namespace moris::xtk
     //-------------------------------------------------------------------------------------
 
     void
+    Enrichment::construct_HEB_basis_from_enriched_candidate_basis_functions(
+            moris_index const &           aEnrichmentDataIndex,
+            Vector< moris_index > const & aMaxEnrichmentLevel )
+    {
+        Tracer tTracer( "XTK", "Enrichment", "Construct HEB basis" );
+
+        /* What we are given at this point: 
+         * 1,2: maps mEnrichmentData->mSubphaseBGBasisIndices & -EnrLvl: maps Subphase index --> list of candidate BF indices & enr. lvls. supported in this subphase
+         * 3: mEnrichmentData->mSubphaseIndsInEnrichedBasis: maps enr. cand. BF index --> list of SPs comprising its support
+         */
+
+        /* What we need to get out of this functionality: 
+         * 1,2: maps mEnrichmentData->mSubphaseHebBasisFunctionIndices: maps Subphase index --> list of enriched basis functions in the (T)HEB basis supported on this subphase (using their indices in the (T)HEB basis)
+         * 3: mEnrichmentData->mSubphaseIndsInHebBf: maps enriched BF index in (T)HEB basis --> list of subphase indices in BF's support
+         * 4: mEnrichmentData->mBasisEnrichmentIndices: maps non-enr. cand. BF index + enr. lvl. --> enriched BF index in (T)HEB basis
+         * additionally 7: mEnrichmentData->mNonEnrBfIndForEnrBfInd & mEnrLvlOfEnrBf: maps enr. HEB-BF index --> non-enr. cand. BF index + enr. lvl.
+         */
+
+        // get the size of the set of enriched candidate basis functions
+        uint tNumCandidateBFs = mBackgroundMeshPtr->get_num_candidate_basis_functions( aEnrichmentDataIndex );
+        uint tNumEnrCandBFs = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis.size();
+        mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichedBasisFunctions = tNumEnrCandBFs;
+
+        // maps relating the enriched cand. and HEB BFs and the subphases comprising their support; map (1/2)
+        Vector< Vector< moris_index > > & tSubphaseHebBasisFunctionIndices = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseHebBasisFunctionIndices;    // input: subphase index || output: list of enriched basis functions in the (T)HEB basis supported on this subphase (using the index in the (T)HEB basis) //! NEW, to fill
+
+        // TODO: the reserve is a crude estimate and could be made more efficient by moving the construction outside of following loop, this is only to keep the implementation a bit more simple for now
+        // map (3)
+        Vector< Matrix< IndexMat > > & tSubphaseIndsInEnrichedBasis = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis; //! given
+        Vector< Vector< moris_index > > & tSubphaseIndsInHebBf = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInHebBf; // input: enriched BF index in (T)HEB basis || output: list of subphase indices in BF's support //! NEW, to fill
+        tSubphaseIndsInHebBf.reserve( tNumEnrCandBFs );
+
+        // initialize map relating enriched candidate BFs' indices to their indices in the (T)HEB basis (4)
+        Vector< Matrix< IndexMat > > & tBasisEnrichmentIndices = mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices;    // input1: non-enriched candidate BF index, input2: enrichment level || output: enriched BF index in (T)HEB basis //! to fill
+        tBasisEnrichmentIndices.resize( tNumCandidateBFs );
+
+        // TODO: the reserve is a crude estimate and could be made more efficient by moving the construction outside of following loop, this is only to keep the implementation a bit more simple for now
+        // initialize maps (7) that relate the enriched BFs part of the (T)HEB basis back to the (non-enriched and enriched) candidate BFs (7)
+        Vector< moris_index > & tHebBfIndexToCandBfInd = mEnrichmentData( aEnrichmentDataIndex ).mNonEnrBfIndForEnrBfInd;  // input: enriched BF index in (T)HEB basis || output: non-enriched BF index which the enr. BF is enriched from //! to fill
+        Vector< moris_index > & tHebBfIndexToEnrLvl = mEnrichmentData( aEnrichmentDataIndex ).mEnrLvlOfEnrBf;              // input: enriched BF index in (T)HEB basis || output: enrichment level of this enr. BF wrt. the underlying non-enriched BF //! to fill
+        tHebBfIndexToCandBfInd.reserve( tNumEnrCandBFs );
+        tHebBfIndexToEnrLvl.reserve( tNumEnrCandBFs );
+
+        // initialize counter keeping track of the number of enriched BFs in the enriched candidate set and the (T)HEB basis
+        uint tNumBfsInHEBBasis = 0;
+        uint tEnrCandBfIndex = 0;
+
+        // for every enriched candidate BF ()
+        for ( uint iCandidateBasisFunction = 0; iCandidateBasisFunction < tNumCandidateBFs; iCandidateBasisFunction++ )
+        {
+            // get the number of enriched BFs generated from the current candidate BF
+            uint tNumEnrLvlsOnBf = (uint)aMaxEnrichmentLevel( iCandidateBasisFunction ) + 1;
+            
+            // initialize map relating enriched candidate BFs to their index in the (T)HEB basis; default to -1 indicating they are not part of the (T)HEB basis
+            tBasisEnrichmentIndices( iCandidateBasisFunction ) = Matrix< IndexMat >( tNumEnrLvlsOnBf, 1, gNoIndex );
+
+            // get this candidate BF's hierarchical level from HMR
+            uint tCandidateBfLevel = mBackgroundMeshPtr->get_candidate_basis_function_level( aEnrichmentDataIndex, iCandidateBasisFunction );
+
+            for ( uint iEnrLvl = 0; iEnrLvl < tNumEnrLvlsOnBf; iEnrLvl++ )
+            {
+                // get the list of SPs in the support of this basis function
+                Matrix< IndexMat > & tSPsInSuppOfEnrCandBF = tSubphaseIndsInEnrichedBasis( tEnrCandBfIndex );
+
+                // FIXME: this only works as long as Lagrange pattern = B-spline pattern, otherwise we need to do the searching of the minimum level within the HMR B-spline mesh itself
+                // find the minimum level of the BG elements that the current enriched candidate BF is supported by
+                uint tMinBgElemLvl = MORIS_UINT_MAX;
+                uint tNumSPsInSupp = tSPsInSuppOfEnrCandBF.numel();
+                for ( uint iSpInSupp = 0; iSpInSupp < tNumSPsInSupp; iSpInSupp++ )
+                {
+                    moris_index tSpIndex = tSPsInSuppOfEnrCandBF( iSpInSupp );
+                    const mtk::Cell* tBgElement = mCutIgMesh->get_subphase_parent_cell( tSpIndex ); //!Q: What kind of "Cell" is this? What index does it use?
+                    moris_index tBgElementIndex = tBgElement->get_index();
+                    uint tBgElementLevel = mBackgroundMeshPtr->get_background_element_level( tBgElementIndex );
+
+                    if ( iSpInSupp == 0 )
+                    {
+                        tMinBgElemLvl = tBgElementLevel;
+                    }
+                    else
+                    {
+                        tMinBgElemLvl = std::min( tMinBgElemLvl, tBgElementLevel );
+                    }
+                }
+
+                // if the enriched candidate BF is supported by any elements coarser than its own level (i.e. supp(\beta) \nsubseteq \Omega^l, \beta \in B^l)
+                //                           or is only supported by elements finer than its own level (i.e. supp(\beta) \subseteq \Omega^{l+1} )
+                // then it is not part of the basis. Conversely, the minimum BG element level in the support needs to be equal to the level of the candidate BF 
+                // for the enriched BF to be part of the HEB basis
+                if ( tMinBgElemLvl == tCandidateBfLevel )
+                {
+                    // store away subphase information, maps (1/2) and (3)
+                    tSubphaseIndsInHebBf.push_back( Vector< moris_index>( tNumSPsInSupp ) );
+                    for ( uint iSpInSupp = 0; iSpInSupp < tNumSPsInSupp; iSpInSupp++ )
+                    {
+                        moris_index tSpIndex = tSPsInSuppOfEnrCandBF( iSpInSupp );
+                        tSubphaseHebBasisFunctionIndices( tSpIndex ).push_back( tNumBfsInHEBBasis );
+                        tSubphaseIndsInHebBf( tNumBfsInHEBBasis )( iSpInSupp ) = tSpIndex;
+                    }
+
+                    // store away information about the (indexing) relation between the HEB basis functions and the enriched candidate basis functions, maps (4) and (7)
+                    tBasisEnrichmentIndices( iCandidateBasisFunction )( iEnrLvl ) = tNumBfsInHEBBasis;
+                    tHebBfIndexToCandBfInd.push_back( iCandidateBasisFunction );
+                    tHebBfIndexToEnrLvl.push_back( iEnrLvl );
+
+                    // update number of BFs in the (T)HEB basis
+                    tNumBfsInHEBBasis++;
+                }
+                
+                // keep track which index of enriched BF in the list of enr. candidate BFs we're treating
+                tEnrCandBfIndex++;
+
+            } // end for: loop over set of enriched BFs generated from candidate BF
+        } // end for: loop over non-enriched candidate BFs
+
+        // store the number of enriched BFs
+        mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichedBasisFunctions = tEnrCandBfIndex;
+        mEnrichmentData( aEnrichmentDataIndex ).mNumBFsInHEBBasis = tNumBfsInHEBBasis;
+
+    } // end function: Enrichment::construct_HEB_basis_from_enriched_candidate_basis_functions()
+
+    //-------------------------------------------------------------------------------------
+    
+    void
     Enrichment::construct_enriched_basis_to_subphase_group_connectivity(
             moris_index const &                  aEnrichmentDataIndex,
             Vector< Matrix< IndexMat > > const & aSpgBinEnrichment,
@@ -1350,7 +1573,7 @@ namespace moris::xtk
 
         }    // end for: each non-enriched Basis function
 
-    }    // end function:
+    }    // end function: Enrichment::construct_enriched_basis_to_subphase_group_connectivity()
 
     //-------------------------------------------------------------------------------------
 
@@ -1473,7 +1696,6 @@ namespace moris::xtk
                     // get the current enriched basis' index
                     moris_index tEnrichedBasisIndex = tBasisEnrichmentInds( jEnrBF );
 
-                    // TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPGs
                     moris_index tFirstSubphaseInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
                     // moris_index tFirstSpgInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
 
@@ -1505,6 +1727,135 @@ namespace moris::xtk
                 tNotOwnedEnrichedBasisId,
                 tBasisIndexToBasisOwner );
     }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::assign_HEB_basis_function_IDs(
+            const moris_index             aEnrichmentDataIndex,
+            Vector< moris_index > const & aMaxEnrichmentLevel )
+    {
+        // initialize the ID map
+        uint tNumEnrBFsInHEBBasis = mEnrichmentData( aEnrichmentDataIndex ).mNumBFsInHEBBasis;
+        Matrix< IdMat > & tHebBfIndexToID = mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId;
+        tHebBfIndexToID.resize( 1, tNumEnrBFsInHEBBasis );
+        tHebBfIndexToID.fill( MORIS_INDEX_MAX );
+
+        // get current processor's ID
+        moris_index tParRank = par_rank();
+
+        // get the XTK comm table
+        Matrix< IndexMat > tCommTable = mXTKModelPtr->get_communication_table();
+
+        // Initialize map relating the global MPI proc rank to its position in the XTK Comm Table
+        Vector< moris_index > tProcRanks( tCommTable.numel() );
+
+        std::unordered_map< moris_id, moris_id > tProcRankToIndexInData;
+
+        // relate the global MPI proc rank to its position in the XTK Comm Table
+        for ( uint iProc = 0; iProc < tCommTable.numel(); iProc++ )
+        {
+            tProcRankToIndexInData[ tCommTable( iProc ) ] = iProc;
+
+            tProcRanks( iProc ) = ( tCommTable( iProc ) );
+        }
+
+        // get the first first free global ID (not first gets background basis information)
+        moris_id tBasisIdOffset = get_processor_offset( tNumEnrBFsInHEBBasis );
+
+        // initialize arrays for communication, to be filled in the following loop
+        Vector< Vector< moris_index > > tBasisIdToBasisOwner( tCommTable.numel() );
+        Vector< Vector< moris_index > > tSubphaseIdInSupport( tCommTable.numel() );
+        Vector< Vector< moris_index > > tBasisIndexToBasisOwner( tCommTable.numel() );
+
+        // for each non-enriched BF ...
+        uint tNumNonEnrCandBFs = mBackgroundMeshPtr->get_num_candidate_basis_functions( aEnrichmentDataIndex );
+        mEnrichmentData( aEnrichmentDataIndex ).mCandidateBfOwners.resize( tNumNonEnrCandBFs );
+        MORIS_ASSERT( mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.size() == tNumNonEnrCandBFs, "Enrichment::assign_HEB_basis_function_IDs() - Map relating candidate BFs to their (T)HEB basis indices has incorrect size or not been constructed correctly." );
+        for ( uint iCandidateBF = 0; iCandidateBF < tNumNonEnrCandBFs; iCandidateBF++ )
+        {
+            // get the owning processor and the global ID for non-enriched candidate basis function
+            moris_id tOwner = gNoID;
+            moris_id tCandidateBfId = mBackgroundMeshPtr->get_ID_and_owner_of_candidate_BF( iCandidateBF, aEnrichmentDataIndex, tOwner );
+            
+            // store it in the enrichment data for later use when constructing the 
+            mEnrichmentData( aEnrichmentDataIndex ).mCandidateBfOwners( iCandidateBF ) = tCandidateBfId;
+
+            // get the owning processor's position in the communication arrays
+            moris_index tProcIndexInCommTable = tProcRankToIndexInData[ tOwner ];
+
+            // get access to the list of enriched BFs (and their indices in the (T)HEB basis) created from the current non-enriched candidate BF 
+            Matrix< IndexMat >& tEnrBfIndexInHebBasis = mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( iCandidateBF );
+            uint tNumEnrLvlsOnBF = tEnrBfIndexInHebBasis.numel();
+
+            // only set id if we own it and package data for communication if shared
+            if ( tOwner == tParRank )
+            {
+                // give all enr. BFs their IDs
+                for ( uint iEnrBF = 0; iEnrBF < tNumEnrLvlsOnBF; iEnrBF++ )
+                {
+                    // get the current enriched basis' index
+                    moris_index tEnrBfInd = tEnrBfIndexInHebBasis( iEnrBF );
+
+                    // check if this enriched candidate BF is part of the HEB basis
+                    if( tEnrBfInd != gNoIndex )
+                    {
+                        // check that the basis doesn't already have an ID attached to it
+                        MORIS_ASSERT( tHebBfIndexToID( tEnrBfInd ) == MORIS_INDEX_MAX,
+                                "Enrichment::assign_HEB_basis_function_IDs() - Trying to set basis function's ID more than once." );
+
+                        // assign ID to enriched BF
+                        tHebBfIndexToID( tEnrBfInd ) = tBasisIdOffset;
+                    }
+
+                    // increment ID for next enr. BF
+                    tBasisIdOffset++;
+                }
+            }
+
+            // if we don't own the basis setup the communication to get the basis
+            else
+            {
+                // prepare ID requests for all enr. BFs
+                for ( uint iEnrBF = 0; iEnrBF < tNumEnrLvlsOnBF; iEnrBF++ )
+                {
+                    // get the current enriched basis' index
+                    moris_index tEnrBfInd = tEnrBfIndexInHebBasis( iEnrBF );
+
+                    // check if this enriched candidate BF is part of the HEB basis
+                    if( tEnrBfInd != gNoIndex )
+                    {
+                        // collect some uniquely identifying information about the enriched BF
+                        moris_index tFirstSubphaseInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInHebBf( tEnrBfInd )( 0 );
+                        moris_index tFirstSubphaseInSupportId = mXTKModelPtr->get_subphase_id( tFirstSubphaseInSupportIndex );
+
+                        tBasisIdToBasisOwner( tProcIndexInCommTable ).push_back( tCandidateBfId );
+                        tSubphaseIdInSupport( tProcIndexInCommTable ).push_back( tFirstSubphaseInSupportId );
+                        tBasisIndexToBasisOwner( tProcIndexInCommTable ).push_back( tEnrBfInd );
+                    }
+                }
+
+            } // end if: candidate BF is not owned by current proc
+        } // end for: loop over non-enriched candidate basis functions
+
+        // send information about not owned enriched basis to owner processor
+        Vector< Matrix< IndexMat > > tNotOwnedEnrichedBasisId;
+
+        this->communicate_basis_information_with_owner(
+                aEnrichmentDataIndex,
+                tBasisIdToBasisOwner,
+                tSubphaseIdInSupport,    // tSubphaseGroupIdInSupport,
+                tProcRanks,
+                tProcRankToIndexInData,
+                tNotOwnedEnrichedBasisId );
+
+        // set the received information in my data
+        this->set_received_enriched_basis_ids(
+                aEnrichmentDataIndex,
+                tNotOwnedEnrichedBasisId,
+                tBasisIndexToBasisOwner );
+
+    } // end function: Enrichment::assign_HEB_basis_function_IDs()
 
     //-------------------------------------------------------------------------------------
 
@@ -2421,6 +2772,63 @@ namespace moris::xtk
     //-------------------------------------------------------------------------------------
 
     void
+    Enrichment::construct_enriched_interpolation_mesh_with_THEB_basis()
+    {
+        // log/trace this function
+        Tracer tTracer( "XTK", "Enrichment", "Construct Enriched Interpolation Mesh (THEB Basis)" );
+
+        // initialize a new enriched interpolation mesh
+        mXTKModelPtr->mEnrichedInterpMesh( 0 ) = new Enriched_Interpolation_Mesh( mXTKModelPtr );
+
+        // set enriched basis rank
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mBasisRank = mBasisRank;
+
+        // set mesh index
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mMeshIndices = mMeshIndices;
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_mesh_index_map();
+
+        // allocate memory for enriched interpolation cells
+        this->allocate_interpolation_cells();
+
+        // unzip all IP cells and vertices and construct the whole enr. IP mesh
+        /* Note: This constructs all unzipped (i.e. enriched) IP cells with unzipped interpolation vertices being attached to a single cell
+         * this also handles the case of multiple enrichments where the number of interpolation vertices vary */
+        this->construct_enriched_interpolation_vertices_and_cells_for_THEB_basis();
+
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mCoeffToEnrichCoeffs.resize( mMeshIndices.max() + 1 );
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mEnrichCoeffLocToGlob.resize( mMeshIndices.max() + 1 );
+
+        // enriched to non-enriched coefficient mapping for all B-spline meshes
+        for ( uint iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++ )
+        {
+            // get the discretization mesh index (DMI)
+            moris_index tMeshIndex = mMeshIndices( iMesh );
+
+            // add the coeff to enriched coeffs to enriched interpolation mesh
+            mXTKModelPtr->mEnrichedInterpMesh( 0 )->mCoeffToEnrichCoeffs( tMeshIndex ) =
+                    mEnrichmentData( tMeshIndex ).mBasisEnrichmentIndices;
+
+            // add the local to global map
+            mXTKModelPtr->mEnrichedInterpMesh( 0 )->mEnrichCoeffLocToGlob( tMeshIndex ) =
+                    mEnrichmentData( tMeshIndex ).mEnrichedBasisIndexToId;
+        }
+
+        // tell the enriched IP mesh to finish setting itself up
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup_with_THEB_basis();
+
+        // in most cases all the interpolation vertices are the same. We merge them back together with this call
+        // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function
+        // (as that function is already too complex/loaded)
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->merge_duplicate_interpolation_vertices();
+
+        // reset global to local maps (delete & setup again) with deleted duplicate vertices
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mGlobalToLocalMaps( 0 ).clear();
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_vertex_maps();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
     Enrichment::construct_enriched_interpolation_mesh_new()
     {
         // log/trace this function
@@ -3304,6 +3712,224 @@ namespace moris::xtk
         // FIXME: shouldn't this be a shrink-to-fit?
         tEnrInterpMesh->mEnrichedInterpVerts.resize( tVertexCount );
     }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Enrichment::construct_enriched_interpolation_vertices_and_cells_for_THEB_basis()
+    {
+        // log trace this function
+        Tracer tTracer( "XTK", "Enrichment", "Construct Enriched Interpolation Vertices and Cells (for THEB Basis)" );
+
+        // get the enriched interpolation mesh pointer, this one is constructed here
+        Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
+
+        // geometry and interpolation order, limited to a single interpolation order mesh
+        mtk::Cell const & tFirstCell = mBackgroundMeshPtr->get_mtk_cell( 0 );
+
+        // set the interpolation mesh cell info (i.e. let the enriched IP mesh know what element type it uses)
+        mtk::Cell_Info_Factory tFactory;
+        tEnrInterpMesh->mCellInfo = tFactory.create_cell_info_sp( tFirstCell.get_geometry_type(), tFirstCell.get_interpolation_order() );
+
+        // allocate indices and ids
+        moris_index tUIPCIndex = 0;
+
+        // maximum mesh index
+        moris_index tMaxMeshIndex = mMeshIndices.max();
+
+        // Enriched Interpolation Cell Index to Vertex Index map
+        Matrix< IndexMat > tEnrInterpCellToVertex( tEnrInterpMesh->get_num_elements(), tEnrInterpMesh->mNumVertsPerInterpCell );
+
+        // allocate vertex indices and ids
+        // NOTE: THESE ARE NOT PARALLEL IDS
+        moris_index tVertId      = 1;
+        uint        tVertexCount = 0;
+
+        // unset the flags of all BFs on the background mesh; this is needed in the evaluation scheme later
+        for ( uint iBspMesh = 0; iBspMesh < mMeshIndices.numel(); iBspMesh++ )
+        {
+            mBackgroundMeshPtr->unset_all_BF_flags( mMeshIndices( iBspMesh ) );
+        }
+
+        // iterate through subphases and construct an interpolation cell in the interpolation mesh for each one
+        uint tNumBgElems = mBackgroundMeshPtr->get_num_elems();
+        for ( moris_index iBgElem = 0; iBgElem < (moris_index)tNumBgElems; iBgElem++ )
+        {
+            // get the pointer for the current parent cell
+            moris::mtk::Cell* tParentCell = &mBackgroundMeshPtr->get_mtk_cell( iBgElem );
+
+            // ID of the owning processor ("Owner")
+            moris_id tOwner = tParentCell->get_owner();
+
+            // vertices of cell
+            Vector< mtk::Vertex* > tVertices = tParentCell->get_vertex_pointers();
+
+            // get the SPs on the current BG element
+            Vector< moris_index > const & tSpsOnBgElem = mCutIgMesh->get_parent_cell_subphases( iBgElem );
+            uint tNumSPsOnBgElem = tSpsOnBgElem.size();
+
+            // subphase on the current BG element
+            for ( uint iSpOnBgElem = 0; iSpOnBgElem < tNumSPsOnBgElem; iSpOnBgElem++ )
+            {
+                // get the subphase index
+                moris_index tSpIndex = tSpsOnBgElem( iSpOnBgElem );
+
+                // bulk phase
+                moris_index tBulkPhase = mCutIgMesh->get_subphase_bulk_phase( tSpIndex );
+
+                // loop over the B-spline meshes (i.e. discretization meshes)
+                // this is done as the T-matrices at the enriched IP vertices need to be constructed wrt each B-spline mesh
+                for ( uint iBspMesh = 0; iBspMesh < mMeshIndices.numel(); iBspMesh++ )
+                {
+                    // Mesh Index
+                    moris_index tMeshIndex = mMeshIndices( iBspMesh );
+
+                    // get the T-matrix of the current IP node wrt the current B-spline mesh
+                    Vector< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tParentCell, tMeshIndex );
+
+                    // get list of enriched BFs supported by the current subphase
+                    Vector< moris_index > const & tEnrBFsSupportedBySP = mEnrichmentData( tMeshIndex ).mSubphaseHebBasisFunctionIndices( tSpIndex );
+                    uint tNumBFsSupportedInSP = tEnrBFsSupportedBySP.size();
+
+                    // collect indices and owners of non-enriched candiddate BFs
+                    Vector< moris_index > tCandBFsSupportedBySP( tNumBFsSupportedInSP );
+                    Vector< moris_index > tCandBfOwners( tNumBFsSupportedInSP );
+                    Vector< moris_index > tCandBfIDs( tNumBFsSupportedInSP );
+                    for ( uint iBF = 0; iBF < tNumBFsSupportedInSP; iBF++ )
+                    {
+                        moris_index tEnrHebBfIndex = tEnrBFsSupportedBySP( iBF );
+                        moris_index tCandBfIndex = mEnrichmentData( tMeshIndex ).mNonEnrBfIndForEnrBfInd( tEnrHebBfIndex );
+                        tCandBFsSupportedBySP( iBF ) = tCandBfIndex;
+                        moris_id tCandBfOwner = mEnrichmentData( tMeshIndex ).mCandidateBfOwners( tCandBfIndex );
+                        tCandBfOwners( iBF ) = tCandBfOwner;
+                        moris_id tCandBfID = mEnrichmentData( tMeshIndex ).mEnrichedBasisIndexToId( tCandBfIndex );
+                        tCandBfIDs( iBF ) = tCandBfID;
+                    }
+
+                    // evaluate the candidate basis functions for the Lagrange element to get the nodal T-matrices for the THEB basis
+                    Vector< Matrix< DDRMat > > tNodalTMatrixWeights;
+                    mBackgroundMeshPtr->eval_THEB_basis_on_element( tMeshIndex, iBgElem, tCandBFsSupportedBySP, tNodalTMatrixWeights );
+
+                    // construct unzipped enriched vertices
+                    uint tNumVerticesPerCell = tParentCell->get_number_of_vertices();
+                    for ( uint iParentCellVertex = 0; iParentCellVertex < tNumVerticesPerCell; iParentCellVertex++ )
+                    {
+                        // construct vertex enrichment
+                        Vertex_Enrichment tVertEnrichment; // = Vertex_Enrichment();
+
+                        // find out the enriched BF indices and IDs interpolating into the current vertex
+                        // and store it in the Vertex_Enrichment object
+                        this->construct_enriched_vertex_interpolation_with_THEB_basis(
+                                tMeshIndex,
+                                tVertexInterpolations( iParentCellVertex ),
+                                tEnrBFsSupportedBySP,
+                                tCandBfOwners,
+                                tCandBfIDs,
+                                tNodalTMatrixWeights( iParentCellVertex ),
+                                tVertEnrichment );
+
+                        // add vertex enrichment to enriched interpolation mesh
+                        bool tNewVertFlag = false;
+
+                        // NOTE: this should not need to be changed for the THEB basis
+                        moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(
+                                tMeshIndex,
+                                tVertices( iParentCellVertex ),
+                                tVertEnrichment,
+                                tNewVertFlag );
+
+                        // create this vertex on the first go around
+                        // Note: the Interpolation_Vertex_Unzipped (UIPV) carries a list of vertex enrichments, each VE corresponds to one mesh index
+                        // note though, that the UIPV is still created for every subphase (i.e. for every material sub-domain within the IP element)
+                        if ( iBspMesh == 0 )
+                        {
+                            // Create interpolation vertex with only the first Vertex enrichment
+                            tEnrInterpMesh->mEnrichedInterpVerts( tVertexCount ) =
+                                    new Interpolation_Vertex_Unzipped(
+                                            tVertices( iParentCellVertex ),
+                                            tVertId,
+                                            tVertexCount,
+                                            tVertices( iParentCellVertex )->get_owner(),
+                                            tMeshIndex,
+                                            tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ),
+                                            tMaxMeshIndex );
+
+                            // store enriched vertex's index for given parent cell index and element local node index
+                            tEnrInterpCellToVertex( tUIPCIndex, iParentCellVertex ) = tVertexCount;
+
+                            // update vertex ID to use for nex unzipped vertex
+                            tVertId++;
+
+                            // track number of unzipped vertices that have been created
+                            tVertexCount++;
+                        }
+                        else
+                        {
+                            // the unzipped interpolation vertex' index
+                            moris_index tVertexIndexInIp = tEnrInterpCellToVertex( tUIPCIndex - 1, iParentCellVertex );
+
+                            // add the vertex interpolation for new mesh index
+                            tEnrInterpMesh->mEnrichedInterpVerts( tVertexIndexInIp )    //
+                                    ->add_vertex_interpolation(
+                                            tMeshIndex,
+                                            tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ) );
+                        }
+                    } // end: loop over vertices of the IP cell
+
+                    // create the unzipped interpolation cell on first go
+                    /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (UIPV) which themselves get updated for every DMI
+                    * Hence, the Interpolation_Cell_Unzipped can be left alone after initial creation.
+                    * Access to the right UIPVs is given once they're all constructed (see code section with double for-loop just below) */
+                    if ( iBspMesh == 0 )
+                    {
+                        // create new enriched interpolation cell and put it in list associating it with the underlying parent IP cell
+                        tEnrInterpMesh->mEnrichedInterpCells( tUIPCIndex ) =
+                                new Interpolation_Cell_Unzipped(
+                                        tParentCell,
+                                        tSpIndex,
+                                        tBulkPhase,
+                                        mCutIgMesh->get_subphase_id( tSpIndex ),
+                                        tUIPCIndex,
+                                        tOwner,
+                                        tEnrInterpMesh->mCellInfo );
+
+                        // add enriched interpolation cell to base cell to enriched cell data
+                        tEnrInterpMesh->mBaseCellToEnrichedCell( tParentCell->get_index() ).push_back(    //
+                                tEnrInterpMesh->mEnrichedInterpCells( tUIPCIndex ) );
+
+                        // increment the cell index/id
+                        tUIPCIndex++;
+                    }
+                }    // end: loop over the Bspline meshes / discretization mesh indices
+            }    // end: loop over subphases on BG element //?(used to be just all subphases)
+        } // end for: loop over BG elements
+
+        // resize out aura cells
+        tEnrInterpCellToVertex.resize( tUIPCIndex, tEnrInterpMesh->mNumVertsPerInterpCell );
+        tEnrInterpMesh->mEnrichedInterpCells.resize( tUIPCIndex );
+
+        // with the cell to vertex data fully setup, add the vertex pointers to the cell
+        // for every (unzipped) IP cell get its unzipped vertices
+        for ( uint iIpCell = 0; iIpCell < tEnrInterpCellToVertex.n_rows(); iIpCell++ )
+        {
+            // initialize list of unzipped vertices on cell
+            Vector< Interpolation_Vertex_Unzipped* > tVertices( tEnrInterpCellToVertex.n_cols() );
+
+            // iterate through and get unzipped vertices on cell
+            for ( uint iVertex = 0; iVertex < tEnrInterpCellToVertex.n_cols(); iVertex++ )
+            {
+                // store pointer to unzipped vertices in list
+                tVertices( iVertex ) = tEnrInterpMesh->get_unzipped_vertex_pointer( tEnrInterpCellToVertex( iIpCell, iVertex ) );
+            }
+
+            // set vertices in cell
+            tEnrInterpMesh->mEnrichedInterpCells( iIpCell )->set_vertices( tVertices );
+        }
+
+        // make sure list is only as big as it needs to be
+        tEnrInterpMesh->mEnrichedInterpVerts.resize( tVertexCount );
+
+    } // end function: Enrichment::construct_enriched_interpolation_vertices_and_cells_for_THEB_basis()
 
     //-------------------------------------------------------------------------------------
 
@@ -4390,6 +5016,84 @@ namespace moris::xtk
 
     //-------------------------------------------------------------------------------------
 
+    void 
+    Enrichment::construct_enriched_vertex_interpolation_with_THEB_basis(
+            moris_index const &             aEnrichmentDataIndex,
+            mtk::Vertex_Interpolation*      aBaseVertexInterp,
+            Vector< moris_index > const &   aHebBfIndices,
+            Vector< moris_index > const &   aCandidateBfOwners,
+            Vector< moris_index > const &   aCandidateBfIDs,
+            Matrix< DDRMat > const &        aTMatrixWeights,
+            Vertex_Enrichment&              aVertexEnrichment )
+    {
+        // allocate a new vertex enrichment
+        aVertexEnrichment = Vertex_Enrichment();
+
+        // a nullptr here would indicate an aura node without a t-matrix
+        if ( aBaseVertexInterp != nullptr )
+        {
+            // sanity check
+            uint tNumCoeffs = aHebBfIndices.size();
+            MORIS_ASSERT( 
+                    aCandidateBfOwners.size() == tNumCoeffs && aCandidateBfIDs.size() == tNumCoeffs && aTMatrixWeights.numel() == tNumCoeffs,
+                    "HMR::Enrichment::construct_enriched_vertex_interpolation_with_THEB_basis() - "
+                    "T-matrix information does not line up; different number of basis function IDs, Owners, and Weights provided to function." );
+
+            // set a tolerance of what we would consider a zero T-matrix weight
+            real tZeroTol = 1.0e-12;
+
+            // count the number of non-zero T-matrix weights (on the corner and edge nodes there are inevitably zeros)
+            uint tNumNonZeroEntries = 0;
+            for ( uint iBF = 0; iBF < tNumCoeffs; iBF++ )
+            {               
+                if ( std::abs( aTMatrixWeights( iBF ) ) > tZeroTol )
+                {
+                    tNumNonZeroEntries++;
+                }
+            }
+
+            // initialize the arrays to be added to a vertex enrichment object
+            Matrix< IndexMat > tIndices( tNumNonZeroEntries, 1 );
+            Matrix< IndexMat > tIDs( tNumNonZeroEntries, 1 );
+            Matrix< IndexMat > tOwners( tNumNonZeroEntries, 1 );
+            Matrix< DDRMat > tWeights( tNumNonZeroEntries, 1 );
+
+            // get access to the index to list location map
+            IndexMap& tVertEnrichMap = aVertexEnrichment.get_basis_map();
+
+            // populate these arrays
+            tNumNonZeroEntries = 0;
+            for ( uint iBF = 0; iBF < tNumCoeffs; iBF++ )
+            {
+                // eliminate zero-valued BFs from the T-matrices
+                if ( std::abs( aTMatrixWeights( iBF ) ) > tZeroTol )
+                {
+                    moris_index tHebBfIndex = aHebBfIndices( iBF );
+                    
+                    // construct the map giving the list location on the current UIPV from the (T)HEB BF index
+                    tVertEnrichMap[ tHebBfIndex ] = tNumNonZeroEntries;
+
+                    // copy into arrays without the zero-entries 
+                    tIndices( tNumNonZeroEntries ) = tHebBfIndex;
+                    tIDs( tNumNonZeroEntries ) = aCandidateBfIDs( iBF );
+                    tOwners( tNumNonZeroEntries ) = aCandidateBfOwners( iBF );
+                    tWeights( tNumNonZeroEntries ) = aTMatrixWeights( iBF );
+                    tNumNonZeroEntries++;
+                }
+            }
+
+            // populate the vertex enrichment
+            aVertexEnrichment.add_basis_information( tIndices, tIDs );
+            aVertexEnrichment.add_basis_owners( tIndices, tOwners );
+            aVertexEnrichment.add_basis_weights( tIndices, tWeights );
+            aVertexEnrichment.add_base_vertex_interpolation( aBaseVertexInterp );// (this remains unused probably, but leave it for now to not break things)
+
+        } // end if: vertex has a T-matrix (and is not a pure aura vertex)
+
+    } // end function: Enrichment::construct_enriched_vertex_interpolation_with_THEB_basis()
+
+    //-------------------------------------------------------------------------------------
+
     void
     Enrichment::construct_enriched_vertex_interpolation(
             moris_index const &             aEnrichmentDataIndex,
@@ -4463,8 +5167,9 @@ namespace moris::xtk
             aVertexEnrichment.add_basis_owners( tEnrichCoeffInds, tBaseVertOwners );
             aVertexEnrichment.add_basis_weights( tEnrichCoeffInds, *tBaseVertWeights );
             aVertexEnrichment.add_base_vertex_interpolation( aBaseVertexInterp );
-        }
-    }
+
+        } // end if: vertex has a T-matrix
+    } // end function: Enrichment::construct_enriched_vertex_interpolation()
 
     //-------------------------------------------------------------------------------------
 
@@ -4598,7 +5303,8 @@ namespace moris::xtk
         moris::scatter_vector( tProcFirstID, tFirstId );
 
         return tFirstId( 0 );
-    }
+
+    } // end function: Enrichment::allocate_basis_ids()
 
     //-------------------------------------------------------------------------------------
 
