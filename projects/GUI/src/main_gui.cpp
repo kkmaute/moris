@@ -290,14 +290,27 @@ namespace moris
                 }
                 else
                 {
+                    //if the submodue appears in sCanAdd, then it means that it can add or remove forms, meaning it should start with 0 subforms
+                    const bool tCanAddSubForms =
+                            sCanAdd.contains( tStringList[ iChildren ] );
+
                     if ( iChildren < mLibrary.get_parameter_lists()( iRoot ).size() )
                     {
-                        if ( mLibrary.get_parameter_lists()( iRoot )( iChildren ).size() >= 1 )
+                        auto &tSubmoduleParameterLists =
+                                mLibrary.get_parameter_lists()( iRoot )( iChildren );
+
+                        if ( tCanAddSubForms )
                         {
-                            for ( uint i = 0; i < mLibrary.get_parameter_lists()( iRoot )( iChildren ).size(); i++ )
-                            {
-                                add_project( iRoot, iChildren, i );
-                            }
+                            // Addable sections should not automatically create visible children
+                            mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
+                        }
+                        else if ( tSubmoduleParameterLists.size() >= 1 )
+                        {
+                            // Non-addable sections should have exactly one direct form.
+                            mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements(
+                                    tSubmoduleParameterLists( 0 ) );
+
+                            mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
                         }
                         else
                         {
@@ -307,31 +320,13 @@ namespace moris
                     else
                     {
                         mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
-                        // if ( iRoot == (uint)( Module_Type::FEM ) )
-                        // {
-                        //     mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
-                        // }
-                        // else if ( iRoot == (uint)( Module_Type::OPT ) && iChildren == (uint)( OPT_Submodule::INTERFACE ) )
-                        // {
-                        //     mTreeWidgetChildren[ iRoot ][ iChildren ]->setSubFormCheck( true );
-                        // }
-                        // else
-                        // {
-                        //     // Adding the parameter_list elements to all the forms and setting the visibility to false
-                        //     mTreeWidgetChildren[ iRoot ][ iChildren ]->add_elements( mLibrary.get_parameter_lists()( iRoot )(iChildren)( 0 ) );
-                        //     mTreeWidgetChildren[ iRoot ][ iChildren ]->setCountProps( 1 );
-                        // }
                     }
                     mTreeWidgetChildren[ iRoot ][ iChildren ]->set_form_visible( false );
                 }
-
-                // Adding the scroll area to the main layout
+                // adding scroll area
                 mLayout->addWidget( mTreeWidgetChildren[ iRoot ][ iChildren ]->getScrollArea() );
-
-                // Adds the children to the associated project
+                // adding children to associated projects
                 mQTreeWidgetItems[ iRoot ]->addChild( mQTreeWidgetChildren[ iRoot ][ iChildren ] );
-
-                // Connects the QTreeWidgetChildren to the associated Moris_Tree_Widget_Item
                 mTreeWidget->setItemWidget( mQTreeWidgetChildren[ iRoot ][ iChildren ], 0, mTreeWidgetChildren[ iRoot ][ iChildren ] );
             }
 
