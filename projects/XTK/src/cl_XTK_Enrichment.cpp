@@ -3794,7 +3794,7 @@ if ( tUseTHEB )
                     // collect indices and owners of non-enriched candiddate BFs
                     Vector< moris_index > tCandBFsSupportedBySP( tNumBFsSupportedInSP );
                     Vector< moris_index > tCandBfOwners( tNumBFsSupportedInSP );
-                    Vector< moris_index > tCandBfIDs( tNumBFsSupportedInSP );
+                    Vector< moris_index > tHebBfIDs( tNumBFsSupportedInSP );
                     for ( uint iBF = 0; iBF < tNumBFsSupportedInSP; iBF++ )
                     {
                         moris_index tEnrHebBfIndex = tEnrBFsSupportedBySP( iBF );
@@ -3802,8 +3802,8 @@ if ( tUseTHEB )
                         tCandBFsSupportedBySP( iBF ) = tCandBfIndex;
                         moris_id tCandBfOwner = mEnrichmentData( tMeshIndex ).mCandidateBfOwners( tCandBfIndex );
                         tCandBfOwners( iBF ) = tCandBfOwner;
-                        moris_id tCandBfID = mEnrichmentData( tMeshIndex ).mEnrichedBasisIndexToId( tCandBfIndex );
-                        tCandBfIDs( iBF ) = tCandBfID;
+                        moris_id tHebBfID = mEnrichmentData( tMeshIndex ).mEnrichedBasisIndexToId( tEnrHebBfIndex );
+                        tHebBfIDs( iBF ) = tHebBfID;
                     }
 
                     // evaluate the candidate basis functions for the Lagrange element to get the nodal T-matrices for the THEB basis
@@ -3824,7 +3824,7 @@ if ( tUseTHEB )
                                 tVertexInterpolations( iParentCellVertex ),
                                 tEnrBFsSupportedBySP,
                                 tCandBfOwners,
-                                tCandBfIDs,
+                                tHebBfIDs,
                                 tNodalTMatrixWeights( iParentCellVertex ),
                                 tVertEnrichment );
 

@@ -1063,9 +1063,9 @@ namespace moris::xtk
          * 
          * @param aEnrichmentDataIndex 
          * @param aBaseVertexInterp 
-         * @param aMapBasisIndexToLocInSubPhase 
-         * @param aCandidateBfOwners 
-         * @param aCandidateBfIDs 
+         * @param aHebBfIndices 
+         * @param aBfOwners 
+         * @param aHebBfIDs 
          * @param aTMatrixWeights 
          * @param aVertexEnrichment 
          */
@@ -1074,8 +1074,8 @@ namespace moris::xtk
                 moris_index const &             aEnrichmentDataIndex,
                 mtk::Vertex_Interpolation*      aBaseVertexInterp,
                 Vector< moris_index > const &   aHebBfIndices, 
-                Vector< moris_index > const &   aCandidateBfOwners,
-                Vector< moris_index > const &   aCandidateBfIDs,
+                Vector< moris_index > const &   aBfOwners,
+                Vector< moris_index > const &   aHebBfIDs,
                 Matrix< DDRMat > const &        aTMatrixWeights,
                 Vertex_Enrichment&              aVertexEnrichment );
 
