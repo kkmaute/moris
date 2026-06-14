@@ -83,6 +83,10 @@ namespace moris::hmr
         //! pointer to sidesets on database object
         Vector< Side_Set >* mSideSets = nullptr;
 
+        //! for each B-spline mesh the truncation weights wrt. to the refined 
+        // FIXME: this information arguably shouldn't reside in the Lagrange mesh, but it is the most efficient way of doing things without implementing a static object providing these in the T-matrix evaluation
+        Matrix< DDRMat > mTruncationWeights;
+
       public:
         /**
          * Default Mesh constructor
@@ -741,6 +745,11 @@ namespace moris::hmr
         unset_all_BF_flags( const uint aMeshIndex )
         {
             mBSplineMeshes( aMeshIndex )->unset_all_BF_flags();
+
+            // initialize truncation weights
+            // TODO: move the storage of this information to a static object
+            MORIS_ERROR( aMeshIndex == 0, "HMR::Lagrange_Mesh_Base::unset_all_BF_flags() - This is only implemented under the assumption that B-spline mesh index == Lagrange mesh index == 0." );
+            mBSplineMeshes( aMeshIndex )->evaluate_truncation_weights( mTruncationWeights );
         }
 
         // ----------------------------------------------------------------------------
@@ -873,7 +882,7 @@ namespace moris::hmr
                 for ( uint iVert = 0; iVert < tNumVerts; iVert++ )
                 {
                     Matrix< DDRMat > tXi = tVertexLocalCoords.get_row( iVert );
-                    tNodalTMatrixWeights( iVert )( iBF ) = tBasisFunction->eval_trunc( tElementLevel, tElementIJK, tXi );
+                    tNodalTMatrixWeights( iVert )( iBF ) = tBasisFunction->eval_trunc( tElementLevel, tElementIJK, tXi, mTruncationWeights );
                 }
 
             } // end for: evaluate every candidate basis function

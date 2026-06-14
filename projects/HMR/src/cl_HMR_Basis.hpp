@@ -1279,7 +1279,8 @@ namespace moris::hmr
         eval_trunc( 
                 const uint aElementLevel, 
                 const luint* aElementIJK, 
-                const Matrix< DDRMat > &aXi ) const
+                const Matrix< DDRMat > & aXi,
+                const Matrix< DDRMat > & aTruncationWeights ) const
         {
             MORIS_ERROR( false, "HMR::Basis::eval_trunc() - Only implemented for B-Spline specialization." );
             return 0.0;
@@ -1291,7 +1292,8 @@ namespace moris::hmr
         eval_truncated_children_at_point( 
                 const uint aElementLevel, 
                 const luint* aElementIJK, 
-                const Matrix< DDRMat > &aXi ) const
+                const Matrix< DDRMat > & aXi,
+                const Matrix< DDRMat > & aTruncationWeights ) const
         {
             MORIS_ERROR( false, "HMR::Basis::eval_truncated_children_at_point() - Only implemented for B-Spline specialization." );
             return 0.0;

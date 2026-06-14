@@ -798,7 +798,8 @@ namespace moris::hmr
         eval_trunc( 
                 const uint aElementLevel, 
                 const luint* aElementIJK, 
-                const Matrix< DDRMat > &aXi ) const override
+                const Matrix< DDRMat > & aXi,
+                const Matrix< DDRMat > & aTruncationWeights ) const override
         {
             real tVal = eval( N, P, this->get_level(), this->get_ijk(), aElementLevel, aElementIJK, aXi );
             if ( mChildrenFlag )
@@ -808,9 +809,8 @@ namespace moris::hmr
                     const Basis * tChild = this->mChildren[ iChild ];
                     if ( tChild != nullptr )
                     {
-                        // TODO!: where to get the truncation weights from?
-                        real tTruncationWeight = 0.0;
-                        tVal -= tTruncationWeight * tChild->eval_truncated_children_at_point( aElementLevel, aElementIJK, aXi );
+                        real tTruncationWeight = aTruncationWeights( iChild );
+                        tVal -= tTruncationWeight * tChild->eval_truncated_children_at_point( aElementLevel, aElementIJK, aXi, aTruncationWeights );
                     }
                 }
             }
@@ -823,7 +823,8 @@ namespace moris::hmr
         eval_truncated_children_at_point( 
                 const uint aElementLevel, 
                 const luint* aElementIJK, 
-                const Matrix< DDRMat > &aXi ) const override
+                const Matrix< DDRMat > & aXi,
+                const Matrix< DDRMat > & aTruncationWeights ) const override
         {
             if ( this->mFlag )
             {
@@ -839,9 +840,8 @@ namespace moris::hmr
                         const Basis * tChild = this->mChildren[ iChild ];
                         if ( tChild != nullptr )
                         {
-                            // TODO!: where to get the truncation weights from?
-                            real tTruncationWeight = 0.0;
-                            tVal += tTruncationWeight * tChild->eval_truncated_children_at_point( aElementLevel, aElementIJK, aXi );
+                            real tTruncationWeight = aTruncationWeights( iChild );
+                            tVal += tTruncationWeight * tChild->eval_truncated_children_at_point( aElementLevel, aElementIJK, aXi, aTruncationWeights );
                         }
                     }
                 }
