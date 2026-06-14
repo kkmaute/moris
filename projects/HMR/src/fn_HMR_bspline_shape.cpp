@@ -325,7 +325,7 @@ namespace moris::hmr
         }
 
         // perform the re-mapping to the BF-level
-        while ( tCurrentLevel < aBfLevel )
+        while ( tCurrentLevel > aBfLevel )
         {
             // do this in 1D for each independent dimension
             for ( uint iDim = 0; iDim < aNumDims; iDim++ )
@@ -343,7 +343,7 @@ namespace moris::hmr
             }
 
             // move up
-            tCurrentLevel++;
+            tCurrentLevel--;
 
         } // end while: 
 
