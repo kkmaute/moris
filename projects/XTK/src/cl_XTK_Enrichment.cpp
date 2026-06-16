@@ -1779,7 +1779,7 @@ if ( tUseTHEB )
             moris_id tCandidateBfId = mBackgroundMeshPtr->get_ID_and_owner_of_candidate_BF( iCandidateBF, aEnrichmentDataIndex, tOwner );
             
             // store it in the enrichment data for later use when constructing the 
-            mEnrichmentData( aEnrichmentDataIndex ).mCandidateBfOwners( iCandidateBF ) = tCandidateBfId;
+            mEnrichmentData( aEnrichmentDataIndex ).mCandidateBfOwners( iCandidateBF ) = tOwner;
 
             // get the owning processor's position in the communication arrays
             moris_index tProcIndexInCommTable = tProcRankToIndexInData[ tOwner ];
@@ -1806,10 +1806,10 @@ if ( tUseTHEB )
 
                         // assign ID to enriched BF
                         tHebBfIndexToID( tEnrBfInd ) = tBasisIdOffset;
-                    }
 
-                    // increment ID for next enr. BF
-                    tBasisIdOffset++;
+                        // increment ID for next enr. BF
+                        tBasisIdOffset++;
+                    }
                 }
             }
 
@@ -5035,7 +5035,7 @@ if ( tUseTHEB )
             // sanity check
             uint tNumCoeffs = aHebBfIndices.size();
             MORIS_ASSERT( 
-                    aCandidateBfOwners.size() == tNumCoeffs && aCandidateBfIDs.size() == tNumCoeffs && aTMatrixWeights.numel() == tNumCoeffs,
+                    aBfOwners.size() == tNumCoeffs && aHebBfIDs.size() == tNumCoeffs && aTMatrixWeights.numel() == tNumCoeffs,
                     "HMR::Enrichment::construct_enriched_vertex_interpolation_with_THEB_basis() - "
                     "T-matrix information does not line up; different number of basis function IDs, Owners, and Weights provided to function." );
 
@@ -5075,8 +5075,8 @@ if ( tUseTHEB )
 
                     // copy into arrays without the zero-entries 
                     tIndices( tNumNonZeroEntries ) = tHebBfIndex;
-                    tIDs( tNumNonZeroEntries ) = aCandidateBfIDs( iBF );
-                    tOwners( tNumNonZeroEntries ) = aCandidateBfOwners( iBF );
+                    tIDs( tNumNonZeroEntries ) = aHebBfIDs( iBF );
+                    tOwners( tNumNonZeroEntries ) = aBfOwners( iBF );
                     tWeights( tNumNonZeroEntries ) = aTMatrixWeights( iBF );
                     tNumNonZeroEntries++;
                 }
