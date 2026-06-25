@@ -77,9 +77,11 @@ namespace moris::MSI
     void
     Equation_Model::compute_IQIs()
     {
+        // Get the requested IQI names
+        Vector< std::string > tRequestedIQINames = this->get_requested_IQI_names();
+
         // get number of IQI on the model
-        uint tNumIQIsOnModel =
-                this->get_requested_IQI_names().size();
+        uint tNumIQIsOnModel = tRequestedIQINames.size();
 
         // get local number of equation sets
         uint tNumSets = mFemSets.size();
@@ -110,18 +112,13 @@ namespace moris::MSI
                     for ( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                     {
                         // assemble QI values into global vector
-                        mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
+                        mDesignVariableInterface->update_QI( tRequestedIQINames( tIQIIndex ),
+                                mDesignVariableInterface->get_QI( tRequestedIQINames( tIQIIndex ) ) + mFemSets( tSetIndex )->get_QI()( tIQIIndex )( 0, 0 ) );
                     }
                 }
                 // free memory on treated equation set
                 mFemSets( tSetIndex )->free_matrix_memory();
             }
-        }
-
-        // Normalization
-        if ( gLogger.mIteration == 0 )
-        {
-            this->normalize_IQIs();
         }
     }
 
@@ -210,81 +207,84 @@ namespace moris::MSI
 
         // global assembly to switch entries to the right processor
         mImplicitdQidp->vector_global_assembly();
+
+        // Update the dQIdp within the design variable interface
+        mDesignVariableInterface->update_QI_sensitivity( Module_Type::FEM, this->get_dQIdp() );
     }
 
     //------------------------------------------------------------------------------
 
-    //    void
-    //    Equation_Model::compute_implicit_dQIdp()
-    //    {
-    //        // Trace this function
-    //        Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
+    // void
+    // Equation_Model::compute_implicit_dQIdp()
+    // {
+    //     // Trace this function
+    //     Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
+
+    //     // get local number of equation sets
+    //     uint tNumSets = mFemSets.size();
+
+    //     // loop over local equation sets
+    //     for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
+    //     {
+    //         // get number of equation object on treated equation set
+    //         uint tNumEquationObjectOnSet =
+    //                 mFemSets( tSetIndex )->get_num_equation_objects();
+
+    //         // initialize treated equation set //FIXME????
+    //         mFemSets( tSetIndex )->initialize_set();
+
+    //         // loop over equation objects on treated equation set
+    //         for ( uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
+    //         {
+    //             // compute dQIdp implicit
+    //             mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_dQIdp_implicit();
+    //         }
+    //         // free memory on treated equation set
+    //         mFemSets( tSetIndex )->free_matrix_memory();
+    //     }
+
+    //     // global assembly to switch entries to the right processor
+    //     mImplicitdQidp->vector_global_assembly();
+    // }
+
+    // //------------------------------------------------------------------------------
+
+    // void
+    // Equation_Model::compute_explicit_dQIdp()
+    // {
+    //     // Trace this function
+    //     Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Expl" );
+
+    //     // get local number of equation sets
+    //     uint tNumSets = mFemSets.size();
+
+    //     // loop over local equation sets
+    //     for ( uint iSet = 0; iSet < tNumSets; iSet++ )
+    //     {
+    //         // get number of equation objects on treated equation set
+    //         uint tNumEquationObjectOnSet =
+    //                 mFemSets( iSet )->get_num_equation_objects();
+
+    //         // initialize treated equation set //FIXME????
+    //         mFemSets( iSet )->initialize_set();
+
+    //         // if some IQI are requested on treated equation set
+    //         if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
+    //         {
+    //             // loop over equation objects on treated equation set
+    //             for ( uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
+    //             {
+    //                 // compute dQIdp explicit
+    //                 mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
+    //             }
+    //             // free memory on treated equation set
+    //             mFemSets( iSet )->free_matrix_memory();
+    //         }
+    //     }
     //
-    //        // get local number of equation sets
-    //        uint tNumSets = mFemSets.size();
-    //
-    //        // loop over local equation sets
-    //        for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
-    //        {
-    //            // get number of equation object on treated equation set
-    //            uint tNumEquationObjectOnSet =
-    //                    mFemSets( tSetIndex )->get_num_equation_objects();
-    //
-    //            // initialize treated equation set //FIXME????
-    //            mFemSets( tSetIndex )->initialize_set();
-    //
-    //            // loop over equation objects on treated equation set
-    //            for ( uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
-    //            {
-    //                // compute dQIdp implicit
-    //                mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_dQIdp_implicit();
-    //            }
-    //            // free memory on treated equation set
-    //            mFemSets( tSetIndex )->free_matrix_memory();
-    //        }
-    //
-    //        // global assembly to switch entries to the right processor
-    //        mImplicitdQidp->vector_global_assembly();
-    //    }
-    //
-    //    //------------------------------------------------------------------------------
-    //
-    //    void
-    //    Equation_Model::compute_explicit_dQIdp()
-    //    {
-    //        // Trace this function
-    //        Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Expl" );
-    //
-    //        // get local number of equation sets
-    //        uint tNumSets = mFemSets.size();
-    //
-    //        // loop over local equation sets
-    //        for ( uint iSet = 0; iSet < tNumSets; iSet++ )
-    //        {
-    //            // get number of equation objects on treated equation set
-    //            uint tNumEquationObjectOnSet =
-    //                    mFemSets( iSet )->get_num_equation_objects();
-    //
-    //            // initialize treated equation set //FIXME????
-    //            mFemSets( iSet )->initialize_set();
-    //
-    //            // if some IQI are requested on treated equation set
-    //            if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
-    //            {
-    //                // loop over equation objects on treated equation set
-    //                for ( uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
-    //                {
-    //                    // compute dQIdp explicit
-    //                    mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
-    //                }
-    //                // free memory on treated equation set
-    //                mFemSets( iSet )->free_matrix_memory();
-    //            }
-    //        }
-    //
-    //        // global assembly to switch entries to the right processor
-    //        mExplicitdQidp->vector_global_assembly();
-    //    }
+    //     // global assembly to switch entries to the right processor
+    //     mExplicitdQidp->vector_global_assembly();
+    // }
 
     //-------------------------------------------------------------------------------------------------
 
@@ -313,5 +313,4 @@ namespace moris::MSI
         // return dQIdp
         return mdQIdp;
     }
-
 }    // namespace moris::MSI

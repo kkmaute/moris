@@ -203,11 +203,12 @@ namespace moris::prm
     static void insert_design_field_parameters( Parameter_List& aDesignParameterList, gen::Field_Type aFieldType )
     {
         insert_field_parameters( aDesignParameterList, aFieldType );
-        aDesignParameterList.insert( "discretization_mesh_index", -2 );           // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
-        aDesignParameterList.insert( "discretization_lower_bound", -1.0 );        // Lower bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );         // Upper bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "use_multilinear_interpolation", false );    // Whether to use multilinear interpolation for derived node field values
-        aDesignParameterList.insert( "delaunay", false );                         // Whether to use Delaunay triangulation for geometry
+        aDesignParameterList.insert( "discretization_mesh_index", -2 );              // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
+        aDesignParameterList.insert( "discretization_lower_bound", -1.0 );           // Lower bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );            // Upper bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "use_multilinear_interpolation", false );       // Whether to use multilinear interpolation for derived node field values
+        aDesignParameterList.insert( "compute_sensitivities_along_edges", true );    // Whether sensitivities are computed along mesh edges or along the LS gradient direction
+        aDesignParameterList.insert( "delaunay", false );                            // Whether to use Delaunay triangulation for geometry
     }
 
     /**
@@ -228,6 +229,61 @@ namespace moris::prm
 
         return tDesignParameterList;
     }
+
+    // /**
+    //  * Creates a parameter list with parameters shared by all GQIs
+    //  *
+    //  * @return GEN base GQI parameter list
+    //  */
+    // static Parameter_List create_GQI_parameter_list()
+    // {
+    //     Parameter_List tGQIParameterList( "GQI" );
+    //     tGQIParameterList.insert( "design_name", "", Entry_Type::SELECTION, "name", Module_Type::GEN, 1 );
+    //     tGQIParameterList.insert( "GQI_name", "" );
+    //     tGQIParameterList.insert_enum( "GQI_type", gen::GQI_Type_String::values );
+    //     return tGQIParameterList;
+    // }
+
+    // static void insert_GQI_parameters( Parameter_List& aGQIParameterList, gen::GQI_Type aGQIType )
+    // {
+    //     aGQIParameterList.set( "GQI_type", aGQIType );
+
+    //     switch ( aGQIType )
+    //     {
+    //         case gen::GQI_Type::RAYCAST_SHAPE_DIAMETER:
+    //             aGQIParameterList.insert( "number_of_polar_rays", 30, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
+    //             aGQIParameterList.insert( "number_of_azimuth_rays", 1, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function
+    //             aGQIParameterList.insert( "cone_angle", 60.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+    //             aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+    //             break;
+
+    //         case gen::GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
+    //             aGQIParameterList.insert( "number_of_samples", 1, 1, 1000 );                                   // Number of rays to be cast in the polar direction for the shape diameter function
+    //             aGQIParameterList.insert( "cone_angle", 120.0, 0.0, 179.9999999 );                             // Cone angle in degrees for the shape diameter function
+    //             aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+    //             aGQIParameterList.insert( "minimum_relative_chord_length", 0.25, 1e-6, 1.0 );                  // Exclude diameters if the chord between the two vertices is less than this fraction of the diameter, to avoid very high sensitivities for edges that are nearly parallel to the surface
+    //             aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+    //             break;
+
+    //         case gen::GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
+    //             aGQIParameterList.insert( "number_of_samples", 1, 1, 1000 );                                   // Number of rays to be cast in the polar direction for the shape diameter function
+    //             aGQIParameterList.insert( "cone_angle", 20.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+    //             aGQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+    //             aGQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+    //             break;
+
+    //         default:
+    //             MORIS_ERROR( false, "GQI %s type not implemented.", gen::GQI_Type_String::values( static_cast< uint >( aGQIType ) ).c_str() );
+    //             break;
+    //     }
+    // }
 
     /**
      * Creates a parameter list for the construction of a geometry.
@@ -382,6 +438,21 @@ namespace moris::prm
 
         return tPropertyParameterList;
     }
+
+    // /**
+    //  * Creates a parameter list that is used to assign a GQI to a design. Any number of these can be added to
+    //  * the fourth (index 3) of the parameter lists for GEN.
+    //  *
+    //  * @return GEN GQI parameter list
+    //  */
+    // inline Parameter_List
+    // create_GQI_parameter_list( gen::GQI_Type aGQIType )
+    // {
+    //     Parameter_List tGQIParameterList = create_GQI_parameter_list();
+    //     insert_GQI_parameters( tGQIParameterList, aGQIType );
+
+    //     return tGQIParameterList;
+    // }
 
     //------------------------------------------------------------------------------
 

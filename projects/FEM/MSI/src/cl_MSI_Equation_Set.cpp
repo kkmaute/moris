@@ -447,13 +447,6 @@ namespace moris::MSI
 
         if ( mQIExist )
         {
-            //                // resize each matrix to 0x0
-            //                for( auto & tQI : mQI )
-            //                {
-            //                    tQI.resize( 0, 0 );
-            //                }
-            //                mQI.clear();
-
             // reset the exist flag
             mQIExist = false;
         }
@@ -504,12 +497,12 @@ namespace moris::MSI
 
     //------------------------------------------------------------------------------
 
-    Vector< enum gen::PDV_Type > Equation_Set::get_requested_dv_types()
-    {
-        Vector< enum gen::PDV_Type > tDvTypes;
-        mEquationModel->get_design_variable_interface()->get_ip_requested_dv_types( tDvTypes );
-        return tDvTypes;
-    }
+    // Vector< enum gen::PDV_Type > Equation_Set::get_requested_dv_types()
+    // {
+    //     Vector< enum gen::PDV_Type > tDvTypes;
+    //     mEquationModel->get_design_variable_interface()->get_ip_requested_dv_types( tDvTypes );
+    //     return tDvTypes;
+    // }
 
     //------------------------------------------------------------------------------
     // FIXME this might be too slow.

@@ -168,8 +168,13 @@ namespace moris
 
                     // ---------------------------------------------------------------------------------------------------------
 
-                        Matrix< DDSMat >
-                map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds );
+            Matrix< DDSMat >
+            map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds );
+
+                    // ---------------------------------------------------------------------------------------------------------
+
+            Matrix< DDSMat >
+            map_from_moris_ids_to_indices( const Vector< sint >& aGlobalIds );
 
     };
 }

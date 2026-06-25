@@ -11,9 +11,71 @@
 #pragma once
 
 #include "cl_Parameter_List.hpp"
+#include "cl_XTK_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 namespace moris::prm
 {
+    /**
+     * Creates a basic parameter list for XQIs with no specific parameters set.
+     *
+     * @return XQI parameter list. Cannot necessarily be used directly, needs additional parameters inserted by insert_XQI_parameters()
+     */
+    static Parameter_List create_XQI_parameter_list()
+    {
+        Parameter_List tParameterList( "XQI" );
+
+        tParameterList.insert( "leader_phase_name", "" );                         // Name of the phase on the leader side of the interface TODO BRENDAN VERIFY AGAINST PHASE NAMES
+        tParameterList.insert( "follower_phase_name", "" );                       // Name of the phase on the follower side of the interface TODO BRENDAN VERIFY AGAINST PHASE NAMES
+        tParameterList.insert( "mesh_set_names", Vector< std::string >() );       // Mesh set names to compute the XQI on. Must form an entire closed boundary
+        tParameterList.insert_enum( "XQI_type", mtk::QI_Type_String::values );    // Type of XQI to be computed
+        tParameterList.insert( "XQI_name", "" );                                  // Name of the XQI, used for choosing design criteria for OPT or for output
+
+        return tParameterList;
+    }
+
+    //------------------------------------------------------------------------------
+
+    static void insert_XQI_parameters( Parameter_List& aXQIParameterList, mtk::QI_Type aXQIType )
+    {
+        switch ( aXQIType )
+        {
+            case mtk::QI_Type::VOLUME:
+                aXQIParameterList.set( "XQI_type", mtk::QI_Type::VOLUME );
+                break;
+            case mtk::QI_Type::RAYCAST_SHAPE_DIAMETER:
+                aXQIParameterList.set( "XQI_type", mtk::QI_Type::RAYCAST_SHAPE_DIAMETER );
+                aXQIParameterList.insert( "number_of_polar_rays", 20, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
+                aXQIParameterList.insert( "number_of_azimuth_rays", 1, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function
+                aXQIParameterList.insert( "cone_angle", 30.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+                aXQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function. Must be an even integer
+                aXQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+                aXQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aXQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+                break;
+
+            case mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
+                aXQIParameterList.set( "XQI_type", mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER );
+                aXQIParameterList.insert( "number_of_samples", 1, 1, 1000 );                                   // Number of unique minimum inscribed circles to compute for each vertex, taking the average of these values as the shape diameter for the facet. More circles makes the measure less noisy, but makes the hessian more dense
+                aXQIParameterList.insert( "cone_angle", 120.0, 0.0, 179.9999999 );                             // Cone angle in degrees for the shape diameter function
+                aXQIParameterList.insert( "minimum_relative_chord_length", 0.25, 1e-6, 1.0 );                  // Exclude diameters if the chord between the two vertices is less than this fraction of the diameter, to avoid very high sensitivities for edges that are nearly parallel to the surface
+                aXQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function. Must be an even integer
+                aXQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+                aXQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aXQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+                break;
+
+            case mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
+                aXQIParameterList.set( "XQI_type", mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER );
+                aXQIParameterList.insert( "number_of_samples", 1, 1, 1000 );                                   // Number of unique minimal distances to compute for each vertex, taking the average of these values as the shape diameter for the facet. More samples makes the measure less noisy, but makes the hessian more dense
+                aXQIParameterList.insert( "cone_angle", 20.0, 0.0, 179.9999999 );                              // Cone angle in degrees for the shape diameter function
+                aXQIParameterList.insert( "agglomeration_exponent", 1.0, 1.0, 1000.0 );                        // Exponent for the agglomeration function. Must be an even integer
+                aXQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
+                aXQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
+                aXQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+                break;
+        }
+    }
 
     //------------------------------------------------------------------------------
 
@@ -147,5 +209,14 @@ namespace moris::prm
         return tParameterList;
     }
     //------------------------------------------------------------------------------
+
+    inline Parameter_List
+    create_XQI_parameter_list( mtk::QI_Type aXQIType )
+    {
+        Parameter_List tParameterList = create_XQI_parameter_list();
+        insert_XQI_parameters( tParameterList, aXQIType );
+
+        return tParameterList;
+    }
 
 }    // namespace moris::prm

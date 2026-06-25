@@ -93,7 +93,6 @@ namespace moris::mtk
             Set const                                 *aSideSet )
     {
         // loop over all clusters that the side set consists of
-
         moris_index const tNumClustersOnSet = aSideSet->get_clusters_on_set().size();
         mClusterToCellIndices.resize( tNumClustersOnSet, Vector< moris_index >() );
         for ( moris_index tClusterIndex = 0; tClusterIndex < tNumClustersOnSet; tClusterIndex++ )

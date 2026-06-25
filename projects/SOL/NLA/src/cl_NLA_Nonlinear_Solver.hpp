@@ -7,8 +7,7 @@
  * cl_NLA_Nonlinear_Solver.hpp
  *
  */
-#ifndef MORIS_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_HPP_
-#define MORIS_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_HPP_
+#pragma once
 
 // MORIS header files.
 #include "moris_typedefs.hpp"    // CON/src
@@ -16,12 +15,12 @@
 #include <memory>
 #include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 #include "cl_NLA_Nonlinear_Solver_Enums.hpp"
 
 namespace moris
 {
-    class Solver_Interface;
     namespace sol
     {
         class SOL_Warehouse;
@@ -456,4 +455,3 @@ namespace moris
         };
     }    // namespace NLA
 }    // namespace moris
-#endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_HPP_ */

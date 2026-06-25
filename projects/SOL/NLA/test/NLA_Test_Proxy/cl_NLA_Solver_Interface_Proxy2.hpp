@@ -251,13 +251,6 @@ namespace moris
 
             // ----------------------------------------------------------------------------------------------
 
-            void use_matrix_market_files() override
-            {
-                mUseMatrixMarketFiles = true;
-            };
-
-            // ----------------------------------------------------------------------------------------------
-
             const char* get_matrix_market_path() override
             {
                 if ( mUseMatrixMarketFiles == true )

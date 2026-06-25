@@ -136,7 +136,7 @@ namespace moris::mtk
         auto const             tNumVertices  = static_cast< moris::size_t >( mData.mLocalToGlobalVertexIndex.size() );
         uint const             tDim          = this->get_spatial_dimension();
         const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
-        const Matrix< DDRMat > tFacetMeasure = this->get_facet_measure();
+        Vector< real >         tFacetMeasure = this->compute_facet_measure();
         mVertexNormals.resize( tDim, tNumVertices );
 
         auto tNormal = Matrix< DDRMat >( tDim, 1 );
@@ -167,12 +167,7 @@ namespace moris::mtk
         return mData.mVertexNeighbors( aLocalVertexIndex );
     }
 
-    const Matrix< DDRMat > &Integration_Surface_Mesh::get_facet_measure() const
-    {
-        return mFacetMeasure;
-    }
-
-    Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals() const
+    const Matrix< DDRMat > &Integration_Surface_Mesh::get_vertex_normals() const
     {
         return mVertexNormals;
     }
@@ -229,11 +224,11 @@ namespace moris::mtk
 
     Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals_of_cell( moris_index aLocalCellIndex ) const
     {
-        Matrix< DDRMat >      tVertexNormals = this->get_vertex_normals();
-        Vector< moris_index > tVertexIndices = this->get_vertices_of_cell( aLocalCellIndex );
-        size_t const          tDim           = tVertexNormals.n_rows();
-        size_t const          tNumVertices   = tVertexIndices.size();
-        Matrix< DDRMat >      tCellVertexNormals{ tDim, tNumVertices };
+        const Matrix< DDRMat > &tVertexNormals = this->get_vertex_normals();
+        Vector< moris_index >   tVertexIndices = this->get_facets_vertex_indices( aLocalCellIndex );
+        size_t const            tDim           = tVertexNormals.n_rows();
+        size_t const            tNumVertices   = tVertexIndices.size();
+        Matrix< DDRMat >        tCellVertexNormals{ tDim, tNumVertices };
         for ( moris::size_t i = 0; i < tNumVertices; i++ )
         {
             tCellVertexNormals.set_column( i, tVertexNormals.get_column( tVertexIndices( i ) ) );
@@ -289,4 +284,5 @@ namespace moris::mtk
 
         return tMesh;
     }
+
 }    // namespace moris::mtk

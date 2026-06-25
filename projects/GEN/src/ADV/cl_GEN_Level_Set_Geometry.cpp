@@ -11,6 +11,7 @@
 #include "cl_GEN_Level_Set_Geometry.hpp"
 
 #include <utility>
+#include "cl_Library_IO.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Derived_Node.hpp"
@@ -93,8 +94,8 @@ namespace moris::gen
             }
             else
             {
-                // Get locators
-                const Vector< Basis_Node >& tLocators = tDerivedNode.get_locator_nodes();
+                // Get locators (parent nodes if this node is an intersection node, corner nodes otherwise)
+                const Vector< Basis_Node >& tLocators = tDerivedNode.get_field_basis_nodes();
 
                 // If we only have 2 locators, can use special logic if at least one node is on the interface
                 if ( tLocators.size() == 2 )
@@ -139,35 +140,31 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Level_Set_Geometry::create_intersection_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager& aNodeManager,
+            const mtk::Cell&    aBackgroundElement,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode )
     {
         if ( this->use_multilinear_interpolation() )
         {
             // Create multilinear intersection node
             return new Intersection_Node_Bilinear(
-                    aNodeIndex,
-                    aBackgroundNodes,
+                    aNodeManager.get_total_number_of_nodes(),
+                    aBackgroundElement,
+                    aNodeManager,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
                     *this );
         }
         else
         {
             // Create linear intersection node
             return new Intersection_Node_Linear(
-                    aNodeIndex,
-                    aBackgroundNodes,
+                    aNodeManager.get_total_number_of_nodes(),
+                    aBackgroundElement,
+                    aNodeManager,
                     aFirstParentNode,
                     aSecondParentNode,
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder,
                     *this );
         }
     }
@@ -175,11 +172,9 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node* Level_Set_Geometry::create_floating_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager&     aNodeManager,
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         MORIS_ERROR( false, "Level_Set_Geometry::create_floating_node - Floating nodes not yet implemented for level set geometry." );
         return nullptr;
@@ -187,10 +182,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Level_Set_Geometry::compute_sensitivity_along_edges()
+    {
+        return mParameters.mComputeSensitivitiesAlongEdges;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Level_Set_Geometry::compute_intersection_local_coordinate(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode )
+            const mtk::Cell&   aBackgroundElement,
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode )
     {
         // If either parent node is on the interface, we can skip the entire intersection procedure and return the local coordinates of the parent nodes
         bool tFirstParentOnInterface  = ( this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() ) == Geometric_Region::INTERFACE );
@@ -260,12 +262,12 @@ namespace moris::gen
             // allocate matrix for level set values at background cell nodes
             Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
+            Matrix< IndexMat > tBackgroundNodeIndices = aBackgroundElement.get_vertex_inds();
+
             // get level set values of corner nodes
             for ( uint iBackgroundNode = 0; iBackgroundNode < tNumBases; ++iBackgroundNode )
             {
-                tPhiBCNodes( iBackgroundNode ) = this->get_field_value(
-                        aBackgroundNodes( iBackgroundNode )->get_index(),
-                        aBackgroundNodes( iBackgroundNode )->get_global_coordinates() );
+                tPhiBCNodes( iBackgroundNode ) = this->get_field_value( mNodeManager->get_background_node( tBackgroundNodeIndices( iBackgroundNode ) ) );
             }
 
             // Scale element level set field such that norm equals 1.0
@@ -318,9 +320,9 @@ namespace moris::gen
             real tResidual          = 0.0;
 
             // compute initial guess: location of intersection point along edge in edge CS
-            real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
-                                 / ( tSecondParentPhi - tFirstParentPhi );
-            Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
+            real             tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
+                                             / ( tSecondParentPhi - tFirstParentPhi );
+            Matrix< DDRMat > tInitialGuess   = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
 
             // loop over initial guess trials
             for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
@@ -452,19 +454,19 @@ namespace moris::gen
                 }
             }
 
-            // print debug information
+            // // print debug information
             // for ( uint in = 0; in < tNumBases; ++in )
             // {
-            //     std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
+            //     std::string tStrg = "Ancestor_Node_" + std::to_string( ( in ) );
             //     print( aAncestorNodeCoordinates( in ), tStrg );
             // }
 
-            // print( tPhiBCNodes, "tPhiBCNodes" );
+            // PRINT( tPhiBCNodes );
 
             // fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
 
-            // print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
-            // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
+            // PRINT( aFirstParentNode.get_parametric_coordinates() );
+            // PRINT( aSecondParentNode.get_parametric_coordinates() );
 
             MORIS_ERROR( false,
                     "Intersection_Node_Bilinear::compute_intersection - Newton did not converge: %s %e %s %e %s %e",
@@ -508,7 +510,11 @@ namespace moris::gen
         else
         {
             // Get parents
-            const Vector< Basis_Node >& tParentNodes = aParentNode.get_locator_nodes();
+            Vector< Basis_Node > tParentNodes = aParentNode.get_field_basis_nodes();
+
+            MORIS_ASSERT( tParentNodes.size() == 2,
+                    "Level_Set_Geometry::get_dfield_dcoordinates - Linear interpolation expects 2 parent nodes, but got %ld.",
+                    tParentNodes.size() );
 
             MORIS_ASSERT( tParentNodes.size() == 2,
                     "Level_Set_Geometry::get_dfield_dcoordinates - Linear interpolation expects 2 parent nodes, but got %ld.",
@@ -533,6 +539,16 @@ namespace moris::gen
                 aSensitivities( tCoordinateIndex ) = tDeltaPhi * tParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
             }
         }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::get_dfield_dcoordinates(
+            const Derived_Node& aDerivedNode,
+            Matrix< DDRMat >&   aSensitivities )
+    {
+        aSensitivities.resize( aDerivedNode.get_parametric_coordinates().length(), 1 );
+        mField->get_dfield_dcoordinates( aDerivedNode, aSensitivities );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -580,8 +596,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Level_Set_Geometry::get_name()
+    const std::string&
+    Level_Set_Geometry::get_name() const
     {
         return Design_Field::get_name();
     }
@@ -718,5 +734,20 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Level_Set_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
+    {
+        // TO IMPLEMENT
+        return 0.0;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Level_Set_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
+    {
+        MORIS_ERROR( false, "Level_Set_Geometry::compute_GQI_sensitivities() - GQI sensitivities not implemented for level set geometry." );
+    }
 
 }    // namespace moris::gen

@@ -328,7 +328,8 @@ void Nonlinear_Problem::set_time_value(
         const moris::real& aLambda,
         moris::uint        aPos )
 {
-    mSolverInterface->set_time_value( aLambda, aPos );
+    // mSolverInterface->set_time_value( aLambda, aPos );
+    MORIS_ERROR( false, "Nonlinear_Problem::set_time_value - This function is deprecated" );
 }
 
 //--------------------------------------------------------------------------------------------------

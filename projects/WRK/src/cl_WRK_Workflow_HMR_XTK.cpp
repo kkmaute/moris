@@ -281,7 +281,7 @@ namespace moris::wrk
         Module_Parameter_Lists tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Module_Type::XTK );
 
         // Create XTK
-        xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList( 0 )( 0 ) );
+        xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList );
 
         std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer = std::make_shared< mtk::Mesh_Manager >();
 
@@ -426,16 +426,27 @@ namespace moris::wrk
             tMIGPerformer.perform();
         }
 
+        mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
+
+        // Assign PDVs
+        mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
+
+        // FIXME: This should likely be done inside xtk::Model::perform() and be made private and kept out of the main workflow,
+        // but we need to wait until the PDVs are created to be able to map XQI sensitivities to PDV IDs
+        // tXTKPerformer->compute_XQIs( mPerformerManager->mLibrary );
+
         if ( tDeleteXTK )
         {
             // free the memory and delete the unused data
             mPerformerManager->mDataBasePerformer( 0 )->free_memory();
         }
-
-        mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
-
-        // Assign PDVs
-        mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
+        else
+        {
+            // IMPORTANT!!! do not overwrite previous XTK and MTK performer before we know if this XTK performer triggers a restart.
+            // otherwise the fem::field meshes are deleted and cannot be used anymore.
+            mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr< xtk::Model >( tXTKPerformer );
+            mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+        }
 
         // Stage 3: MDL perform ---------------------------------------------------------------------
         mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
@@ -445,8 +456,6 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer( 0 )->set_use_new_ghost_mesh_sets( tUseNewGhostSets );
 
         mPerformerManager->mMDLPerformer( 0 )->initialize();
-
-        mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
         // Build MDL components and solve
         mPerformerManager->mMDLPerformer( 0 )->perform();
@@ -467,7 +476,7 @@ namespace moris::wrk
         }
 
         // evaluate IQIs
-        Vector< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
+        Vector< Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
         // get number of design criteria
         mNumCriteria = tVal.size();
@@ -497,8 +506,6 @@ namespace moris::wrk
     Matrix< DDRMat >
     Workflow_HMR_XTK::compute_dcriteria_dadv()
     {
-        mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
-
         mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 
         Matrix< DDRMat > tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();

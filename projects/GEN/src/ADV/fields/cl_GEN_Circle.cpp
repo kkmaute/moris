@@ -73,9 +73,9 @@ namespace moris::gen
         // Compute level set value
         real tLevelSet = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 ) + pow( aCoordinates( 1 ) - tYCenter, 2 ) );
 
-        if ( std::abs( tLevelSet ) < MORIS_REAL_EPS )
+        if ( tLevelSet < MORIS_REAL_EPS )
         {
-            tLevelSet = tLevelSet < 0.0 ? -MORIS_REAL_EPS : MORIS_REAL_EPS;
+            tLevelSet = MORIS_REAL_EPS;
         }
 
         aSensitivities( 0 ) = ( aCoordinates( 0 ) - tXCenter ) / tLevelSet;
@@ -84,4 +84,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

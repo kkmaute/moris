@@ -286,7 +286,7 @@ namespace moris::xtk
         this->setup_background_vertex_interpolations();
 
         // bool variable to determine to populate the enrichment data with the element enrichments and levels
-        bool tWriteElementEnrichmentsLevels = mXTKModelPtr->mParameterList.get< bool >( "write_cell_enrichments_levels" );
+        bool tWriteElementEnrichmentsLevels = mXTKModelPtr->mParameterList( 0 )( 0 ).get< bool >( "write_cell_enrichments_levels" );
 
         // construct data needed for enrichment for every B-spline mesh the Lagrange mesh is related to
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
@@ -410,7 +410,7 @@ namespace moris::xtk
         this->setup_background_vertex_interpolations();
 
         // bool variable to determine to populate the enrichment data with the element enrichments and levels
-        bool tWriteElementEnrichmentsLevels = mXTKModelPtr->mParameterList.get< bool >( "write_cell_enrichments_levels" );
+        bool tWriteElementEnrichmentsLevels = mXTKModelPtr->mParameterList( 0 )( 0 ).get< bool >( "write_cell_enrichments_levels" );
 
         // iterate through B-spline meshes
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )

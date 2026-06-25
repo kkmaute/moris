@@ -7,16 +7,15 @@
  * cl_NLA_Solver_Pseudo_Time_Control.hpp
  *
  */
-#ifndef SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
-#define SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
+#pragma once
 
 #include "cl_Parameter_List.hpp"
 
 #include "cl_SOL_Enums.hpp"
+#include "cl_DLA_Solver_Interface.hpp"
 
 namespace moris
 {
-    class Solver_Interface;
 
     namespace sol
     {
@@ -120,7 +119,7 @@ namespace moris
 
           public:
             Solver_Pseudo_Time_Control(
-                    Parameter_List&    aParameterListNonlinearSolver,
+                    Parameter_List&   aParameterListNonlinearSolver,
                     sol::Dist_Vector* aCurrentSolution,
                     Nonlinear_Solver* aNonLinSolverManager );
 
@@ -144,5 +143,3 @@ namespace moris
         };
     }    // namespace NLA
 }    // namespace moris
-
-#endif /* SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_ */

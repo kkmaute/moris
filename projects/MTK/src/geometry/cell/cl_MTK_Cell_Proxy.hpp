@@ -145,14 +145,27 @@ namespace moris::mtk
         Matrix< IndexMat >
         get_vertex_inds() const override
         {
-            Matrix< IndexMat > tVertexInd( mVertices.size(), 1 );
-
-            for ( moris::uint i = 0; i < this->get_number_of_vertices(); i++ )
+            if ( Cell::mCellInfo != nullptr )
             {
-                tVertexInd( i ) = mVertices( i )->get_index();
-            }
+                Matrix< IndexMat > tInds( Cell::mCellInfo->get_num_verts(), 1 );
 
-            return tVertexInd;
+                for ( uint i = 0; i < Cell::mCellInfo->get_num_verts(); i++ )
+                {
+                    tInds( i ) = i;
+                }
+                return tInds;
+            }
+            else
+            {
+                Matrix< IndexMat > tVertexInd( mVertices.size(), 1 );
+
+                for ( moris::uint i = 0; i < this->get_number_of_vertices(); i++ )
+                {
+                    tVertexInd( i ) = mVertices( i )->get_index();
+                }
+
+                return tVertexInd;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -181,7 +194,14 @@ namespace moris::mtk
         Geometry_Type
         get_geometry_type() const override
         {
-            return mGeometryType;
+            if ( Cell::mCellInfo != nullptr )
+            {
+                return Cell::get_geometry_type();
+            }
+            else
+            {
+                return mGeometryType;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -192,7 +212,14 @@ namespace moris::mtk
         Interpolation_Order
         get_interpolation_order() const override
         {
-            return mInterpOrder;
+            if ( Cell::mCellInfo != nullptr )
+            {
+                return Cell::get_interpolation_order();
+            }
+            else
+            {
+                return mInterpOrder;
+            }
         }
 
         //------------------------------------------------------------------------------

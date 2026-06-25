@@ -128,7 +128,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Combined_Fields::get_determining_adv_ids(
-            Vector< sint >&   aDeterminingADVIDs,
+            Vector< sint >&     aDeterminingADVIDs,
             const Derived_Node& aDerivedNode,
             const Node_Manager& aNodeManager )
     {
@@ -172,6 +172,30 @@ namespace moris::gen
 
         // Get relevant sensitivity
         mFields( tMinFieldIndex )->get_dfield_dcoordinates( aNodeIndex, aCoordinates, aSensitivities );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Combined_Fields::get_dfield_dcoordinates(
+            const Derived_Node& aDerivedNode,
+            Matrix< DDRMat >&   aSensitivities )
+    {
+        // Find which field is the minimum
+        real tMin           = mScale * mFields( 0 )->get_field_value( aDerivedNode.get_index(), aDerivedNode.get_global_coordinates() );
+        uint tMinFieldIndex = 0;
+        for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
+        {
+            real tResult = mScale * mFields( iFieldIndex )->get_field_value( aDerivedNode.get_index(), aDerivedNode.get_global_coordinates() );
+            if ( tResult < tMin )
+            {
+                tMin           = tResult;
+                tMinFieldIndex = iFieldIndex;
+            }
+        }
+
+        // Get relevant sensitivity
+        mFields( tMinFieldIndex )->get_dfield_dcoordinates( aDerivedNode, aSensitivities );
     }
 
     //--------------------------------------------------------------------------------------------------------------

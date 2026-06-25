@@ -179,6 +179,17 @@ namespace moris::gen
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) = 0;
 
+
+        /**
+         * Given a derived node, returns a vector of the field derivatives with respect to the nodal coordinates.
+         */
+        virtual void get_dfield_dcoordinates(
+                const Derived_Node& aDerivedNode,
+                Matrix< DDRMat >&   aSensitivities ) override
+        {
+            this->get_dfield_dcoordinates( aDerivedNode.get_global_coordinates(), aSensitivities );
+        }
+
         /**
          * Returns a nullptr, since all analytic fields by definition do not need to be remapped
          *

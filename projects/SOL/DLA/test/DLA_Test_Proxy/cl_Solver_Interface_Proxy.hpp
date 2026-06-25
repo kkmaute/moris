@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_SOLVER_INPUT_TEST_HPP_
-#define SRC_DISTLINALG_CL_SOLVER_INPUT_TEST_HPP_
+#pragma once
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -59,7 +58,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        ~Solver_Interface_Proxy() override{};
+        ~Solver_Interface_Proxy() override {};
 
         // ----------------------------------------------------------------------------------------------
         // local dimension of the problem
@@ -289,14 +288,6 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        void
-        use_matrix_market_files() override
-        {
-            mUseMatrixMarketFiles = true;
-        }
-
-        // ----------------------------------------------------------------------------------------------
-
         const char*
         get_matrix_market_path() override
         {
@@ -334,7 +325,265 @@ namespace moris
         {
             return mEigenValues;
         }
+
+        void
+        postmultiply_implicit_dQds() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - postmultiply_implicit_dQds - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        compute_IQI() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - compute_IQI - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_eigen_solution_vector - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_eigen_values( const std::shared_ptr< Vector< real > >& aEigenValues ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_eigen_values - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_adjoint_solution_vector - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_previous_adjoint_solution_vector - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_time_levels_for_type( MSI::Dof_Type aDofType, uint aNumTimeLevels ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_time_levels_for_type - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_solution_vector_prev_time_step( sol::Dist_Vector* aSolutionVector ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_solution_vector_prev_time_step - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        sol::Dist_Vector*
+        get_solution_vector_prev_time_step() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_solution_vector_prev_time_step - This function is not implemented" );
+            return nullptr;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_time( const Matrix< DDRMat >& aTime ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_time - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        get_time() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_time - This function is not implemented" );
+            return Matrix< DDRMat >();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_previous_time( const Matrix< DDRMat >& aTime ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_previous_time - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        get_previous_time() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_previous_time - This function is not implemented" );
+            return Matrix< DDRMat >();
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDSMat >
+        get_my_local_global_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_my_local_global_map - This function is not implemented" );
+            return Matrix< DDSMat >();
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDSMat >
+        get_my_local_global_overlapping_map( const Vector< enum MSI::Dof_Type >& aListOfDofTypes ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_my_local_global_overlapping_map - This function is not implemented" );
+            return Matrix< DDSMat >();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        get_equation_object_off_diag_rhs(
+                const uint&                 aMyElementInd,
+                const uint&                 aMyDofTypeInd,
+                Vector< Matrix< DDRMat > >& aElementRHS ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_equation_object_off_diag_rhs - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        get_equation_object_staggered_rhs(
+                const uint&                 aMyElementInd,
+                const uint&                 aMyDofTypeInd,
+                Vector< Matrix< DDRMat > >& aElementRHS ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_equation_object_staggered_rhs - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        mtk::Mesh*
+        get_mesh_pointer_for_multigrid() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_mesh_pointer_for_multigrid - This function is not implemented" );
+            return nullptr;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        read_multigrid_maps(
+                uint                    aLevel,
+                const Matrix< DDSMat >& aFineLevelToCoarseLevelNodeIndices,
+                sint                    aFineLevelOwner,
+                Matrix< DDSMat >&       aCoarseLevelToFineLevelNodeIndices ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - read_multigrid_maps - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Vector< Matrix< DDUMat > >&
+        get_lists_of_ext_index_multigrid() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_lists_of_ext_index_multigrid - This function is not implemented" );
+            static Vector< Matrix< DDUMat > > dummy;
+            return dummy;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Vector< Matrix< DDSMat > >&
+        get_lists_of_multigrid_identifiers() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_lists_of_multigrid_identifiers - This function is not implemented" );
+            static Vector< Matrix< DDSMat > > dummy;
+            return dummy;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Vector< Vector< Matrix< DDSMat > > >&
+        get_multigrid_map() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_multigrid_map - This function is not implemented" );
+            static Vector< Vector< Matrix< DDSMat > > > dummy;
+            return dummy;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDUMat >&
+        get_number_remaining_dofs() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_number_remaining_dofs - This function is not implemented" );
+            static Matrix< DDUMat > dummy;
+            return dummy;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDSMat >&
+        get_type_time_identifier_to_type_map() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_type_time_identifier_to_type_map - This function is not implemented" );
+            static Matrix< DDSMat > dummy;
+            return dummy;
+        }
+
+        //------------------------------------------------------------------------------
+
+        sint
+        get_adof_index_for_type( uint aDofType ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_adof_index_for_type - This function is not implemented" );
+            return -1;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        calculate_criteria( const uint& aSetIndex, const uint& aElementIndex ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - calculate_criteria - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Vector< Matrix< DDRMat > >&
+        get_criteria( const uint& aMySetInd ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - get_criteria - This function is not implemented" );
+            static Vector< Matrix< DDRMat > > dummy;
+            return dummy;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_requested_IQI_names( const Vector< std::string >& aIQINames ) override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - set_requested_IQI_names - This function is not implemented" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        compute_sparsity_pattern() override
+        {
+            MORIS_ERROR( false, "Solver_Interface_Proxy - compute_sparsity_pattern - This function is not implemented" );
+        }
     };
 
 }    // namespace moris
-#endif /* SRC_DISTLINALG_CL_SOLVER_INPUT_TEST_HPP_ */

@@ -226,6 +226,5 @@ namespace moris::fem
                 return nullptr;
         }
     }
-
     //------------------------------------------------------------------------------
 }    // namespace moris::fem

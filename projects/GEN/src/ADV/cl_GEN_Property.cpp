@@ -146,7 +146,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void Property::get_design_info(
-            const uint                    aNodeIndex,
+            const uint              aNodeIndex,
             const Matrix< DDRMat >& aCoordinates,
             Vector< real >&         aOutputDesignInfo )
     {
@@ -156,8 +156,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Property::get_name()
+    const std::string&
+    Property::get_name() const
     {
         return Design_Field::get_name();
     }
@@ -173,6 +173,13 @@ namespace moris::gen
         this->get_name() == "" ? tFieldNames( 0 ) = "Property: " + std::to_string( mOffsetID ) : tFieldNames( 0 ) = this->get_name();
 
         return tFieldNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Property::depends_on_advs() const
+    {
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -210,5 +217,20 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Property::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
+    {
+        // TO IMPLEMENT
+        return 0.0;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Property::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
+    {
+        // TO IMPLEMENT
+    }
 
 }    // namespace moris::gen

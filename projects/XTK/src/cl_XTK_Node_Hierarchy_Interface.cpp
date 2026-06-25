@@ -236,9 +236,7 @@ namespace moris::xtk
                         tEdgeToVertex( 1 ),
                         tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 0 ) ),
                         tGeometricQuery.get_vertex_local_coord_wrt_parent_entity( tEdgeToVertex( 1 ) ),
-                        tParentEntityIndicesUINT,
-                        tGeometricQuery.get_geometry_type(),
-                        tGeometricQuery.get_interpolation_order() );
+                        *( ( *aBackgroundCellForEdge )( iEdge ) ) );
 
                 real tIntersectionLocalCoordinate = mGeometryEngine->get_queued_intersection_local_coordinate();
 

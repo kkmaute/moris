@@ -31,23 +31,21 @@ namespace moris::gen
          * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Linear(
-                uint                     aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&       aFirstParentNode,
-                const Parent_Node&       aSecondParentNode,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder,
-                Level_Set_Geometry&      aInterfaceGeometry );
+                uint                aNodeIndex,
+                const mtk::Cell&    aBackgroundElement,
+                const Node_Manager& aNodeManager,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode,
+                Level_Set_Geometry& aInterfaceGeometry );
 
       private:
-
         /**
          * Gets the basis nodes that provided the field values for this level set intersection node to be created;
          * For a linear intersection node, these are the parent nodes.
          *
          * @return Basis nodes for interpolating sensitivities
          */
-        const Vector< Basis_Node >& get_field_basis_nodes() const override;
+        Vector< Basis_Node > get_field_basis_nodes() const override;
 
         /**
          * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -74,4 +72,4 @@ namespace moris::gen
          */
         Matrix< DDRMat > get_dxi_dcoordinate_second_parent() const override;
     };
-}
+}    // namespace moris::gen

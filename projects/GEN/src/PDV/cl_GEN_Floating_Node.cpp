@@ -19,17 +19,15 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node::Floating_Node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            uint                    aNodeIndex,
+            const mtk::Cell&        aBackgroundElement,
+            const Node_Manager&     aNodeManager,
+            const Matrix< DDRMat >& aParametricCoordinates )
             : Derived_Node(
                       aNodeIndex,
-                      aBackgroundNodes,
-                      aParametricCoordinates,
-                      aBackgroundGeometryType,
-                      aBackgroundInterpolationOrder )
+                      aBackgroundElement,
+                      aNodeManager,
+                      aParametricCoordinates )
     {
     }
 
@@ -50,7 +48,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     uint
-    Floating_Node::get_num_pdvs()
+    Floating_Node::get_num_pdvs() const
     {
         return this->get_global_coordinates().numel();
     }
@@ -66,7 +64,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id
-    Floating_Node::get_starting_pdv_id()
+    Floating_Node::get_starting_pdv_id() const
     {
         return mPDVStartingID;
     }
@@ -98,9 +96,16 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Floating_Node::get_owner()
+    Floating_Node::get_owner() const
     {
         return mNodeOwner;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Floating_Node::compute_sensitivity_along_edges() const
+    {
+        return false;
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@
 #include "cl_FEM_Material_Model.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
+#include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_IQI.hpp"
 #include "cl_Library_IO.hpp"
@@ -31,15 +32,15 @@ namespace moris::fem
 
       public:
         Model_Initializer(
-                const Module_Parameter_Lists        &aParameterList,
-                mtk::Mesh_Pair const                            *aMeshPair,
+                const Module_Parameter_Lists                    &aParameterList,
                 std::shared_ptr< Library_IO >                    aLibrary,
+                mtk::Mesh_Pair const                            *aMeshPair,
                 uint                                             aSpatialDimension,
                 bool                                             aUseNewGhostSets,
                 std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
                 : mParameterList( aParameterList )
-                , mMeshPair( aMeshPair )
                 , mLibrary( std::move( aLibrary ) )
+                , mMeshPair( aMeshPair )
                 , mSpatialDimension( aSpatialDimension )
                 , mUseNewGhostSets( aUseNewGhostSets )
                 , mDofTypeToBsplineMeshIndex( std::move( aDofTypeToBsplineMeshIndex ) ) {};
@@ -99,13 +100,14 @@ namespace moris::fem
                 moris::fem::Field_Interpolator_Manager   *aFIManager );
 
         // data
-        Module_Parameter_Lists               mParameterList;
-        mtk::Mesh_Pair const                            *mMeshPair;
-        std::shared_ptr< Library_IO >                    mLibrary;
-        uint                                             mSpatialDimension;
-        bool                                             mUseNewGhostSets;
-        std::unordered_map< MSI::Dof_Type, moris_index > mDofTypeToBsplineMeshIndex;
-        Vector< fem::Set_User_Info >                     mSetInfo;
+        Module_Parameter_Lists                                  mParameterList;
+        std::shared_ptr< Library_IO >                           mLibrary;
+        mtk::Mesh_Pair const                                   *mMeshPair;
+        std::shared_ptr< const MSI::Design_Variable_Interface > mDesignVariableInterface;
+        uint                                                    mSpatialDimension;
+        bool                                                    mUseNewGhostSets;
+        std::unordered_map< MSI::Dof_Type, moris_index >        mDofTypeToBsplineMeshIndex;
+        Vector< fem::Set_User_Info >                            mSetInfo;
 
         moris::map< std::string, MSI::Dof_Type >   mMSIDofTypeMap = moris::MSI::get_msi_dof_type_map();
         moris::map< std::string, gen::PDV_Type >   mMSIDvTypeMap  = gen::get_pdv_type_map();

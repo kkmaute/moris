@@ -21,7 +21,6 @@ namespace moris::gen
         mtk::Mesh_Pair mMeshPair;
 
       public:
-
         /**
          * Constructor using created ADVs.
          *
@@ -124,7 +123,7 @@ namespace moris::gen
          * @param aNodeManager Node manager
          */
         void get_determining_adv_ids(
-                Vector< sint >&   aDeterminingADVIDs,
+                Vector< sint >&     aDeterminingADVIDs,
                 const Derived_Node& aDerivedNode,
                 const Node_Manager& aNodeManager ) final;
 
@@ -150,10 +149,21 @@ namespace moris::gen
                 Matrix< DDRMat >&       aSensitivities ) override;
 
         /**
+         * Given a derived node, returns a vector of the field derivatives with respect to the nodal coordinates.
+         * Used for computing sensitivities at intersection nodes if we choose not to compute them along edges
+         *
+         * @param aDerivedNode Derived node
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        void get_dfield_dcoordinates(
+                const Derived_Node& aDerivedNode,
+                Matrix< DDRMat >&   aSensitivities ) override;
+
+        /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh
          *
          * @return MTK field
          */
         std::shared_ptr< mtk::Field > get_mtk_field() override;
     };
-}
+}    // namespace moris::gen

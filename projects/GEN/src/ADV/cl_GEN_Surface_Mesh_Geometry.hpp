@@ -156,7 +156,7 @@ namespace moris::gen
         bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
-        Node_Manager*           mNodeManager;
+        const Node_Manager*     mNodeManager;
 
         // Optimization variables
         ADV_Handler                    mADVHandler;
@@ -188,7 +188,6 @@ namespace moris::gen
         Vector< std::shared_ptr< Field > >                             mPerturbationFields;                  // Vector of perturbation fields
         Matrix< DDRMat >                                               mOriginalVertexBases;                 // Basis function values for original positions of each vertex <number of fields> x <number of vertices>
         Vector< const mtk::Cell* >                                     mOriginalVertexBackgroundElements;    // Index of the background element the facet vertex was in on construction
-        Vector< Vector< moris_index > >                                mVertexConnectivity;                  // Input: vertex index, Output: All vertices connected by an edge to this vertex
         Vector< std::pair< Vector< moris_index >, Matrix< DDRMat > > > mRegularizationSensitivities;         // Stores dx_i/dx_k for each vertex i and dependency vertex k. Size <number of vertices*dims> x <number of vertices*dims> x_i is column TODO: make sparse
         Matrix< DDRMat >                                               mRegularizationDisplacements;         // Stores the regularization displacements for each vertex, size <number of vertices*dims> x <number of vertices*dims>
 
@@ -208,7 +207,7 @@ namespace moris::gen
          */
         Surface_Mesh_Geometry(
                 Surface_Mesh_Parameters       aParameters,
-                Node_Manager&                 aNodeManager,
+                const Node_Manager&           aNodeManager,
                 const Vector< ADV >&          aADVs,
                 ADV_Manager&                  aADVManager,
                 std::shared_ptr< Library_IO > aLibrary = nullptr );
@@ -249,53 +248,49 @@ namespace moris::gen
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.
          *
-         * @param aNodeIndex Node index of the new intersection node
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aNodeManager Reference to the node manager to access GEN nodes associated with the background element
+         * @param aBackgroundElement Background element where the intersection node lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager& aNodeManager,
+                const mtk::Cell&    aBackgroundElement,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode ) override;
 
         /**
          * Creates a floating node based on the given information.
          *
-         * @param aNodeIndex Node index to be assigned to the new floating node
-         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aNodeManager Reference to the node manager to access GEN nodes associated with the background element
+         * @param aBackgroundElement Background element where the floating node lies
          * @param aParametricCoordinates Parametric coordinates inside the background element
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New floating node
          */
         Floating_Node* create_floating_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager&     aNodeManager,
+                const mtk::Cell&        aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates ) override;
+
+        /**
+         * Flag to tell intersection nodes whether to compute sensitivities along their parent vector (default), or in the direction normal to the interface.
+         */
+        bool compute_sensitivity_along_edges() override;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
          *
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aBackgroundElement Background element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @param aParentFacetIndex return value. A pointer to the facet that intersected the edge to create this intersection node
-         * @return Parent edge local coordinate, between -1 and 1
+         * @return Parent edge local coordinate, between -1 and 1, and the index of the facet that caused the intersection
          */
         std::pair< uint, real >
         compute_intersection_local_coordinate(
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode );
+                const mtk::Cell&   aBackgroundElement,
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
 
         /**
          * Takes a ray and its intersections and determines what the local coordinate of the intersection is.
@@ -322,11 +317,6 @@ namespace moris::gen
         // ----------------------------------------------------------------------------------------------------------------
         // OPTIMIZATION FUNCTIONS
         // ----------------------------------------------------------------------------------------------------------------
-
-        /**
-         * Determines how vertices are connected through edges. Sets mVertexConnectivity using a std::set to ensure uniqueness
-         */
-        void build_vertex_connectivity();
 
         /**
          *
@@ -486,8 +476,8 @@ namespace moris::gen
          *
          * @return File name of the .obj file that this surface mesh was created with
          */
-        std::string
-        get_name() override;
+        const std::string&
+        get_name() const final;
 
         /**
          * Gets the names of all the fields associated with this design
@@ -635,7 +625,7 @@ namespace moris::gen
          * @param aBasis Return value. The basis functions at the point.
          */
         Matrix< DDRMat > compute_vertex_basis(
-                const mtk::Cell*        aBackgroundElement,
+                const mtk::Cell&        aBackgroundElement,
                 const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
@@ -897,6 +887,13 @@ namespace moris::gen
             return QueryElements< MemorySpace >{ tElements };
         }
 #endif
+
+
+        real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary );
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const;
     };
 }    // namespace moris::gen
 

@@ -15,19 +15,17 @@
 namespace moris::gen
 {
     Floating_Node_Surface_Mesh::Floating_Node_Surface_Mesh(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            uint                              aParentVertex,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder,
-            Surface_Mesh_Geometry&            aInterfaceGeometry )
+            uint                    aNodeIndex,
+            const mtk::Cell&        aBackgroundElement,
+            const Node_Manager&     aNodeManager,
+            const Matrix< DDRMat >& aParametricCoordinates,
+            uint                    aParentVertex,
+            Surface_Mesh_Geometry&  aInterfaceGeometry )
             : Floating_Node(
                       aNodeIndex,
-                      aBackgroundNodes,
-                      aParametricCoordinates,
-                      aBackgroundGeometryType,
-                      aBackgroundInterpolationOrder )
+                      aBackgroundElement,
+                      aNodeManager,
+                      aParametricCoordinates )
             , mParentVertex( aParentVertex )
             , mInterfaceGeometry( aInterfaceGeometry )
     {

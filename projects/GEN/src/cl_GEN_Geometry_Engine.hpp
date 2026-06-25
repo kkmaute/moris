@@ -25,6 +25,7 @@ namespace moris::gen
 {
     class Geometry;
     class Property;
+    class Design;
 }    // namespace moris::gen
 
 namespace moris::MSI
@@ -64,8 +65,12 @@ namespace moris::gen
         sol::Dist_Vector* mOwnedADVs     = nullptr;
         sol::Dist_Vector* mPrimitiveADVs = nullptr;
 
-        // IQIs
-        Vector< std::string > mRequestedIQIs;
+        // QIs
+        Vector< std::string >                        mRequestedQIs;
+        Vector< Vector< uint > >                     mDesignGQIIndices;    // For each design, stores the index in mdGQIdADV that the GQIs need to be summed into. MORIS_UINT_MAX if the GQI is not requested
+        sol::Dist_Vector*                            mdGQIdADV = nullptr;
+        std::shared_ptr< Submodule_Parameter_Lists > mGQIParameterLists;
+        std::shared_ptr< Library_IO >                mLibrary = nullptr;
 
         size_t      mActiveGeometryIndex = 0;
         std::string mGeometryFieldFile;
@@ -74,8 +79,8 @@ namespace moris::gen
         real        mTimeOffset;
 
         // PDVs
-        PDV_Host_Manager   mPDVHostManager;
-        Intersection_Node* mQueuedIntersectionNode = nullptr;
+        std::shared_ptr< PDV_Host_Manager > mPDVHostManager;
+        Intersection_Node*                  mQueuedIntersectionNode = nullptr;
 
         // diagnostic information
         bool        mDiagnostics = false;
@@ -146,10 +151,27 @@ namespace moris::gen
         Vector< real >& get_upper_bounds();
 
         /**
-         * Lets MDL know about the stored requested IQIs through the PDV host manager. This has to be done after
-         * the model is set, that's why it's a separate call that needs to be performed at the right time.
+         * Creates QI objects in the PDV Host Manager, which can be used for output or as criteria in optimization.
+         * If the QI is used for optimization, its sensitivities will be stored in mdGQIdADV. Thus, this function also builds the
+         * mDesignGQIIndices map
+         *
+         * @param aQIParameterLists Third submodule in the GEN parameter list, which contains a list of GQI parameter list objects
          */
-        void communicate_requested_IQIs();
+        void register_GQIs();
+
+        /**
+         * Determines which GQIs are requested for optimization and builds the mDesignGQIIndices map
+         * This is a vector for each geometry that has the indices of the mdGQIdADV multivector that correspond to that geometry's GQIs
+         */
+        void build_GQI_data();
+
+        /**
+         * Gets all the GQI parameter lists for a given design name via a brute force search
+         *
+         * @param aDesignName Name of the design
+         * @return Vector of shared pointers to the parameter lists for the GQIs that belong to the design
+         */
+        Vector< std::shared_ptr< const Parameter_List > > get_design_GQI_parameter_lists( const std::string& aDesignName ) const;
 
         /**
          * Import a phase function pointer
@@ -161,14 +183,14 @@ namespace moris::gen
                 uint                         aNumPhases,
                 const Vector< std::string >& aPhaseNames = {} );
 
-        /**
-         * Import dcriteria/dx from file
-         * used in plato workflow where platoanalyze does the forward analysis
-         */
-        void
-        set_dQIdp(
-                const Vector< Matrix< DDRMat >* >& adQIdp,
-                Matrix< DDSMat >*                  aMap );
+        // /**
+        //  * Import dcriteria/dx from file
+        //  * used in plato workflow where platoanalyze does the forward analysis
+        //  */
+        // void
+        // set_dQIdp(
+        //         const Vector< Matrix< DDRMat >* >& adQIdp,
+        //         Matrix< DDSMat >*                  aMap );
 
         /**
          * Gets the sensitivities of the criteria with respect to the advs
@@ -182,7 +204,7 @@ namespace moris::gen
          *
          * @return member pdv host manager pointer
          */
-        MSI::Design_Variable_Interface* get_design_variable_interface();
+        std::shared_ptr< MSI::Design_Variable_Interface > get_design_variable_interface();
 
         /**
          * Returns if the element consisting of provided node indices and coordinates is intersected by the active geometry index.
@@ -219,13 +241,11 @@ namespace moris::gen
          * @return If the edge is intersected and a node has been queued
          */
         bool queue_intersection(
-                uint                     aEdgeFirstNodeIndex,
-                uint                     aEdgeSecondNodeIndex,
-                const Matrix< DDRMat >&  aEdgeFirstNodeParametricCoordinates,
-                const Matrix< DDRMat >&  aEdgeSecondNodeParametricCoordinates,
-                const Matrix< DDUMat >&  aBackgroundElementNodeIndices,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder );
+                uint                    aEdgeFirstNodeIndex,
+                uint                    aEdgeSecondNodeIndex,
+                const Matrix< DDRMat >& aEdgeFirstNodeParametricCoordinates,
+                const Matrix< DDRMat >& aEdgeSecondNodeParametricCoordinates,
+                const mtk::Cell&        aBackgroundElement );
 
         /**
          * Returns if the queued intersection has the first parent node on the active geometry interface.
@@ -303,45 +323,26 @@ namespace moris::gen
                 mtk::Cell* aCell );
 
         /**
-         * Creates a new floating node based on the given information.
+         * Creates a floating node based on the given information.
          *
-         * @param aGeometryIndex Geometry with the surface point
-         * @param aNodeIndex Node index assigned to the new floating node
-         * @param aBackgroundNodes Background nodes of the element where the floating node lies
-         * @param aParametricCoordinates Parametric coordinates of the floating node inside its background element
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
+         * @param aGeometryIndex Geometry to create this floating node
+         * @param aParentCell Background element where the floating node lies
+         * @param aParametricCoordinates Parametric coordinates inside the background element
          */
         void
         create_floating_node(
-                moris_index              aGeometryIndex,
-                const mtk::Cell&         aParentCell,
-                const Matrix< DDRMat >&  aParametricCoordinates,
-                mtk::Geometry_Type       aBackgroundGeometryType,
-                mtk::Interpolation_Order aBackgroundInterpolationOrder );
-
-        /**
-         * Creates and registers new derived nodes based on the given information.
-         *
-         * @param aVertexIndices Indices of the parent cell
-         * @param aParametricCoordinates Parametric coordinates of each new derived node to create
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
-         */
-        void create_new_derived_nodes(
-                const Vector< Matrix< IndexMat > >& aVertexIndices,
-                const Vector< Matrix< DDRMat > >&   aParametricCoordinates,
-                mtk::Geometry_Type                  aBackgroundGeometryType,
-                mtk::Interpolation_Order            aBackgroundInterpolationOrder );
+                moris_index             aGeometryIndex,
+                const mtk::Cell&        aParentCell,
+                const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
          * Overloaded version of creating derived nodes. Calls other version internally.
          *
-         * @param aNewNodeParentCell MTK cells
-         * @param aParametricCoordinates Parametric coordinates for creating the derived node
+         * @param aNewNodeParentCell MTK cells where the derived nodes lie
+         * @param aParametricCoordinates Parametric coordinates of the derived nodes inside their parent cells
          */
         void create_new_derived_nodes(
-                Vector< mtk::Cell* >&                                aNewNodeParentCell,
+                const Vector< mtk::Cell* >&                          aNewNodeParentCell,
                 const Vector< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates );
 
         /**
@@ -577,5 +578,15 @@ namespace moris::gen
                 const Matrix< DDUMat >& aBulkPhases,
                 PHASE_FUNCTION          aPhaseFunction = nullptr,
                 uint                    aNumPhases     = 1 );
+
+        /**
+         * Updates the GQIs by name to the specified values.
+         *
+         * @param aGQINames Names of the GQIs to update
+         * @param aGQIValues New values for the GQIs
+         */
+        void update_GQIs(
+                const Vector< std::string >& aGQINames,
+                const Vector< real >&        aGQIValues );
     };
 }    // namespace moris::gen

@@ -14,6 +14,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "moris_typedefs.hpp"
+#include "cl_Library_Enums.hpp"
 
 #include "cl_MTK_Mesh_Manager.hpp"
 
@@ -24,11 +25,7 @@
 
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Tools.hpp"
-#include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-#include "cl_MTK_Mesh_Data_STK.hpp"
-#include "cl_MTK_Mesh_Core_STK.hpp"
-#include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -47,22 +44,15 @@
 #include "cl_FEM_SP_Factory.hpp"                    //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
+#include "cl_FEM_Design_Variable_Interface_Proxy.hpp"
 
 #include "cl_MDL_Model.hpp"
-#include "cl_VIS_Factory.hpp"
-#include "cl_VIS_Visualization_Mesh.hpp"
-#include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Background_Mesh.hpp"      //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
-#include "cl_HMR_Element.hpp"              //HMR/src
-#include "cl_HMR_Factory.hpp"              //HMR/src
+#include "cl_HMR_Parameters.hpp"           //HMR/src
 #include "cl_HMR_Field.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
-#include "cl_HMR_Parameters.hpp"            //HMR/src
-#include "cl_HMR_Database.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -85,30 +75,28 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_FEM_Model.hpp"
-
 // define free function for properties
 inline void
 tPropValConstFunc_MDLFEMBench(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        Matrix< DDRMat >&                       aPropMatrix,
+        Vector< Matrix< DDRMat > >&             aParameters,
+        moris::fem::Field_Interpolator_Manager* aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
 inline void
 tPropValFuncL2_MDLFEMBench(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager )
+        Matrix< DDRMat >&                       aPropMatrix,
+        Vector< Matrix< DDRMat > >&             aParameters,
+        moris::fem::Field_Interpolator_Manager* aFIManager )
 {
     aPropMatrix = { { 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) } };
 }
 
 // define function for cutting plane
 inline moris::real
-tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat >& aPoint )
+tPlane_MDLFEMBench( const Matrix< DDRMat >& aPoint )
 {
     moris::real tOffset = 2.6;
     return aPoint( 0 ) - tOffset;
@@ -193,10 +181,10 @@ namespace moris
 
             hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            auto tPlane = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
+            auto                                              tPlane          = std::make_shared< moris::gen::Line >( 2.6, 0.0, 1.0, 0.0 );
             Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-            size_t                                tModelDimension = 3;
+            size_t                                 tModelDimension = 3;
             moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
             moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
@@ -376,12 +364,10 @@ namespace moris
                     0,
                     tSetInfo );
 
-            // get the global IQI values in order to determine the corerct size
-            Vector< moris::Matrix< DDRMat > >& tGlobalIQICell = tModel->get_fem_model()->get_IQI_values();
+            std::shared_ptr< fem::FEM_Design_Variable_Interface_Proxy > tDVI = std::make_shared< fem::FEM_Design_Variable_Interface_Proxy >();
+            tDVI->register_QI( tIQIVolFraction->get_name(), Module_Type::FEM, MORIS_REAL_MAX );
 
-            // Resize the global IQI properly
-            tGlobalIQICell.resize( 1 );
-            tGlobalIQICell( 0 ).set_size( 1, 1 );
+            tModel->set_design_variable_interface( tDVI );
 
             Solver_Interface* tSolverInterface = tModel->get_solver_interface();
 
@@ -398,8 +384,8 @@ namespace moris
             //
             //       tModel->set_output_manager( &tOutputData );
 
-            dla::Solver_Factory                             tSolFactory;
-            Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+            dla::Solver_Factory tSolFactory;
+            Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
             tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
             tLinearSolverParameterList.set( "AZ_output", AZ_all );
             tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
@@ -453,11 +439,12 @@ namespace moris
             Matrix< DDRMat > tFullSol;
             tTimeSolver.get_full_solution( tFullSol );
 
-            Vector< moris::Matrix< IdMat > > aCriteriaIds;
+            Vector< Matrix< IdMat > > aCriteriaIds;
 
             tSolverInterface->get_adof_ids_based_on_criteria( aCriteriaIds, 0.1 );
 
             delete tInterpMesh;
+            delete tModel;
         }
 
     } /* END_TEST_CASE */

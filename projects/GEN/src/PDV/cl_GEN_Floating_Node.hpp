@@ -24,28 +24,25 @@ namespace moris::gen
     class Floating_Node : public Derived_Node
     {
       private:
-        moris_id             mPDVStartingID;
-        moris_id             mNodeID    = -1;
-        moris_index          mNodeOwner = -1;
+        moris_id    mPDVStartingID;
+        moris_id    mNodeID    = -1;
+        moris_index mNodeOwner = -1;
 
       public:
         /**
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * @param aBackgroundNodes Background nodes of the element where this node resides
-         * @param aFirstParentNode First parent node information
-         * @param aSecondParentNode Second parent node information
+         * brendan documentation, like everywhere
          * @param aBackgroundGeometryType Background element geometry type
          * @param aBackgroundInterpolationOrder Background element interpolation order
          * @param aInterfaceGeometry Interface geometry
          */
         Floating_Node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aGeometryType,
-                mtk::Interpolation_Order          aInterpolationOrder );
+                uint                    aNodeIndex,
+                const mtk::Cell&        aBackgroundElement,
+                const Node_Manager&     aNodeManager,
+                const Matrix< DDRMat >& aParametricCoordinates );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
@@ -67,7 +64,7 @@ namespace moris::gen
          *
          * @return Number of PDVs
          */
-        uint get_num_pdvs() override;
+        uint get_num_pdvs() const override;
 
         /**
          * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
@@ -81,7 +78,7 @@ namespace moris::gen
          *
          * @return The global index of the first PDV on the host
          */
-        moris_id get_starting_pdv_id() override;
+        moris_id get_starting_pdv_id() const override;
 
         /**
          * Set the node ID for this node.
@@ -109,7 +106,7 @@ namespace moris::gen
          *
          * @return Owning processor
          */
-        moris_index get_owner() override;
+        moris_index get_owner() const override;
 
       protected:
         /**
@@ -125,5 +122,13 @@ namespace moris::gen
          * @return Const geometry reference
          */
         virtual const Geometry& get_interface_geometry() const = 0;
+
+        /**
+         * Gets if the sensitivities for this node should be geometrically consistent with the mesh (true) or normal to the geometry isocontour (false)
+         * This implementation should always return false, as floating nodes are not along foreground mesh edges
+         *
+         * @return Sensitivity flag
+         */
+        bool compute_sensitivity_along_edges() const override;
     };
 }    // namespace moris::gen

@@ -18,7 +18,8 @@ namespace moris::opt
 
     // -------------------------------------------------------------------------------------------------------------
 
-    Algorithm::Algorithm()
+    Algorithm::Algorithm( std::shared_ptr< Problem > aProblem )
+            : mProblem( aProblem )
     {
         // set size of FD epsilons to zero to indicate that no values have been set
         mFiniteDifferenceEpsilons.set_size( 0, 0 );

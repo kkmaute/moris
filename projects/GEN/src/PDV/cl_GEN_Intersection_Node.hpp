@@ -12,7 +12,6 @@
 
 #include "cl_GEN_Derived_Node.hpp"
 #include "cl_GEN_Basis_Node.hpp"
-
 namespace moris::gen
 {
     // Forward declare necessary classes
@@ -41,13 +40,12 @@ namespace moris::gen
          * @param aBackgroundInterpolationOrder Background element interpolation order
          */
         Intersection_Node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                real                              aLocalCoordinate,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder );
+                uint                aNodeIndex,
+                const mtk::Cell&    aBackgroundElement,
+                const Node_Manager& aNodeManager,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode,
+                real                aLocalCoordinate );
 
         /**
          * Gets if this node's position depends on ADVs. This means either the interface geometry or the parent nodes depend on ADVs.
@@ -57,12 +55,11 @@ namespace moris::gen
         bool depends_on_advs() const override;
 
         /**
-         * Gets the locator nodes of this derived node.
-         * For intersection nodes, these are its parents.
+         * Gets the parent nodes of this intersection node.
          *
-         * @return Locator nodes
+         * @return Parent nodes
          */
-        const Vector< Basis_Node >& get_locator_nodes() const override;
+        const Vector< Basis_Node >& get_parent_nodes() const;
 
         /**
          * Gets if this intersection node can be determined that it is on a specific interface without any field evaluation.
@@ -106,7 +103,7 @@ namespace moris::gen
          *
          * @return Number of PDVs
          */
-        uint get_num_pdvs() override;
+        uint get_num_pdvs() const override;
 
         /**
          * Sets the starting index to be able to use the intersection coordinates of this node as PDVs
@@ -120,7 +117,7 @@ namespace moris::gen
          *
          * @return The global index of the first PDV on the host
          */
-        moris_id get_starting_pdv_id() override;
+        moris_id get_starting_pdv_id() const override;
 
         /**
          * Set the node ID for this node.
@@ -148,7 +145,7 @@ namespace moris::gen
          *
          * @return Owning processor
          */
-        moris_index get_owner() override;
+        moris_index get_owner() const override;
 
         /**
          * Gets the first parent node of this intersection node.

@@ -121,7 +121,7 @@ namespace moris::gen
          * @return the value of the property field at the requested location
          */
         void get_design_info(
-                const uint                    aNodeIndex,
+                const uint              aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Vector< real >&         aOutputDesignInfo ) override;
 
@@ -147,7 +147,7 @@ namespace moris::gen
          * Gets the name of the property
          *
          */
-        std::string get_name() override;
+        const std::string& get_name() const final;
 
         /**
          * Gets the names of all the fields associated with this property
@@ -165,6 +165,12 @@ namespace moris::gen
         {
             Design_Field::mField->set_advs( aADVs );
         }
+
+        /**
+         * Check if the property field depends on ADVs
+         * Currently, I'm not sure this is possible, so the function just returns false
+         */
+        virtual bool depends_on_advs() const final;
 
         /**
          * Gets if this field is to be used for seeding a B-spline field.
@@ -193,5 +199,13 @@ namespace moris::gen
          * @return Upper bound
          */
         real get_discretization_upper_bound() const override;
+
+        //--------------------------------------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        //--------------------------------------------------------------------------------------------------------------
+
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary ) final;
+
+        virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const final;
     };
 }    // namespace moris::gen

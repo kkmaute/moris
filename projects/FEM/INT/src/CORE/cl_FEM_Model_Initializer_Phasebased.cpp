@@ -824,13 +824,18 @@ namespace moris::fem
         Submodule_Parameter_Lists tIQIParameterList = mParameterList( 4 );
 
         // get number of IQIs
-        uint tNumIQIs = tIQIParameterList.size();
+        uint tNumQIs = tIQIParameterList.size();
 
-        // set size for list of IQI pointers
-        mIQIs.resize( tNumIQIs, nullptr );
+        // set size for list of IQI and GQI pointers
+        mIQIs.resize( tNumQIs, nullptr );
+        // mGQIs.resize( tNumQIs, nullptr );
+
+        // init counters for number of IQIs and GQIs
+        // uint tNumGQIs = 0;
+        uint tNumIQIs = 0;
 
         // loop over the parameter lists
-        for ( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+        for ( uint iIQI = 0; iIQI < tNumQIs; iIQI++ )
         {
             // get the treated IQI parameter list
             const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
@@ -869,22 +874,26 @@ namespace moris::fem
             bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIQIBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
 
             // create an IQI pointer
-            mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
+            mIQIs( tNumIQIs ) = tIQIFactory.create_IQI( tIQIType );
 
             // set name
-            mIQIs( iIQI )->set_name( tIQIName );
-
-            // set quantity dof type
-            mIQIs( iIQI )->set_quantity_dof_type( tQuantityDofTypes );
-
-            // set index for vectorial field
-            mIQIs( iIQI )->set_output_type_index( tIQIFieldIndex );
-
-            // set bulk type
-            mIQIs( iIQI )->set_bulk_type( tIQIBulkType );
+            mIQIs( tNumIQIs )->set_name( tIQIName );
 
             // set constant parameters
-            mIQIs( iIQI )->set_parameters( tFuncParameters );
+            mIQIs( tNumIQIs )->set_parameters( tFuncParameters );
+
+            // set quantity dof type
+            mIQIs( tNumIQIs )->set_quantity_dof_type( tQuantityDofTypes );
+
+            // set index for vectorial field
+            mIQIs( tNumIQIs )->set_output_type_index( tIQIFieldIndex );
+
+            // set bulk type
+            mIQIs( tNumIQIs )->set_bulk_type( tIQIBulkType );
+
+            // set final time
+            mIQIs( tNumIQIs )->set_time_final( tTimeFinal );
+            if ( tTimeFinal > -1.0 ) { mIQIs( tNumIQIs )->set_time_boundary( true ); }
 
             // set final time
             mIQIs( iIQI )->set_time_final( tTimeFinal );
@@ -916,7 +925,7 @@ namespace moris::fem
                         tPhaseName.c_str() );
 
                 // set phase name
-                mIQIs( iIQI )->set_phase_name( tPhaseName, tIsLeader );
+                mIQIs( tNumIQIs )->set_phase_name( tPhaseName, tIsLeader );
 
                 // get the phase index
                 uint tPhaseIndex = mPhaseMap[ tPhaseName ];
@@ -930,10 +939,10 @@ namespace moris::fem
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                 // set leader dof dependencies
-                mIQIs( iIQI )->set_dof_type_list( tDofTypes );
+                mIQIs( tNumIQIs )->set_dof_type_list( tDofTypes );
 
                 // set leader dv dependencies
-                mIQIs( iIQI )->set_dv_type_list( tDvTypes );
+                mIQIs( tNumIQIs )->set_dv_type_list( tDvTypes );
 
                 // set leader properties
                 Vector< Vector< std::string > > tPropertyNamesPair;
@@ -956,10 +965,7 @@ namespace moris::fem
                     uint tPropertyIndex = mPropertyMap[ tPropertyName ];
 
                     // set property for IWG
-                    mIQIs( iIQI )->set_property(
-                            mProperties( tPropertyIndex ),
-                            tPropertyNamesPair( iProp )( 1 ),
-                            tIsLeader );
+                    mIQIs( tNumIQIs )->set_property( mProperties( tPropertyIndex ), tPropertyNamesPair( iProp )( 1 ), tIsLeader );
                 }
 
                 // set leader constitutive models
@@ -978,10 +984,7 @@ namespace moris::fem
                             mPhaseInfo( tPhaseIndex ).get_CM_by_name( tCMName );
 
                     // set CM for IQI
-                    mIQIs( iIQI )->set_constitutive_model(
-                            tCM,
-                            tCMNamesPair( iCM )( 1 ),
-                            tIsLeader );
+                    mIQIs( tNumIQIs )->set_constitutive_model( tCM, tCMNamesPair( iCM )( 1 ), tIsLeader );
                 }
             }
 
@@ -1005,10 +1008,11 @@ namespace moris::fem
                 uint tSPIndex = mStabilizationParameterMap[ tSPName ];
 
                 // set SP for IWG
-                mIQIs( iIQI )->set_stabilization_parameter(
-                        mStabilizationParameters( tSPIndex ),
-                        tSPNamesPair( iSP )( 1 ) );
+                mIQIs( tNumIQIs )->set_stabilization_parameter( mStabilizationParameters( tSPIndex ), tSPNamesPair( iSP )( 1 ) );
             }
+
+            // Increment the number of IQIs
+            tNumIQIs++;
         }
     }
 
@@ -1193,10 +1197,10 @@ namespace moris::fem
         // loop over the IQIs
         for ( uint iIQI = 0; iIQI < tIQIParameterList.size(); iIQI++ )
         {
-            // get the treated IWG parameter list
+            // get the treated IQI parameter list
             const Parameter_List &tIQIParameter = tIQIParameterList( iIQI );
 
-            // get the IWG bulk type
+            // get the IQI bulk type
             fem::Element_Type tIQIBulkType = mIQIs( iIQI )->get_bulk_type();
 
             // get time continuity flag
@@ -1311,8 +1315,7 @@ namespace moris::fem
 
     //----------------------------------------------------------------
 
-    void
-    Model_Initializer_Phasebased::get_mesh_set_names(
+    void Model_Initializer_Phasebased::get_mesh_set_names(
             fem::Element_Type      aIWGBulkType,
             const std::string     &aLeaderPhaseName,
             const std::string     &aFollowerPhaseName,

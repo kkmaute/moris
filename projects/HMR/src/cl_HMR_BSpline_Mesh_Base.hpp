@@ -32,8 +32,8 @@ namespace moris::hmr
         //! number of all basis (including unused on padding)
         luint mNumberOfAllBasis = 0;
 
-        luint          mNumberOfActiveBasisOnProc  = 0;
-        luint          mNumberOfRefinedBasisOnProc = 0;
+        luint            mNumberOfActiveBasisOnProc  = 0;
+        luint            mNumberOfRefinedBasisOnProc = 0;
         Vector< Basis* > mActiveBasisOnProc;
         Vector< Basis* > mRefinedBasisOnProc;
 
@@ -61,7 +61,7 @@ namespace moris::hmr
         /**
          * Virtual destructor. Does nothing.
          */
-        ~BSpline_Mesh_Base() override{};
+        ~BSpline_Mesh_Base() override {};
 
         /**
          * Gets the polynomial order in a specific direction
@@ -230,7 +230,7 @@ namespace moris::hmr
          * @param aChildMatrices Child matrices to fill
          */
         virtual void evaluate_child_matrices(
-                const Matrix< DDUMat >&   aBasisIndices,
+                const Matrix< DDUMat >&     aBasisIndices,
                 Vector< Matrix< DDRMat > >& aChildMatrices ) = 0;
 
         /**
@@ -251,7 +251,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         void collect_active_and_refined_elements_from_level(
-                uint              aLevel,
+                uint                aLevel,
                 Vector< Element* >& aElements );
 
         /**
@@ -320,7 +320,7 @@ namespace moris::hmr
          * @param[ inout ]  aBasis   cell containing found basis
          */
         virtual void collect_bases_from_level( uint aLevel,
-                Vector< Basis* >&                     aBasis ) = 0;
+                Vector< Basis* >&                   aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -381,7 +381,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual void delete_unused_bases( uint    aLevel,
+        virtual void delete_unused_bases( uint      aLevel,
                 Vector< Background_Element_Base* >& aBackgroundElements,
                 Vector< Basis* >&                   aBasis ) = 0;
     };

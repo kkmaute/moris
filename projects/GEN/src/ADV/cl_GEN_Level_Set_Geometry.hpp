@@ -101,51 +101,48 @@ namespace moris::gen
          * that is, its position may lie outside of the edge definition based on the given nodal coordinates. This information can be
          * requested from the created intersection node.
          *
-         * @param aNodeIndex Node index of the new intersection node
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aNodeManager Reference to the node manager to access GEN nodes associated with the background element
+         * @param aBackgroundElement Background element where the intersection node lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New intersection node
          */
         Intersection_Node* create_intersection_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager& aNodeManager,
+                const mtk::Cell&    aBackgroundElement,
+                const Parent_Node&  aFirstParentNode,
+                const Parent_Node&  aSecondParentNode ) override;
 
         /**
          * Creates a floating node based on the given information.
          *
-         * @param aNodeIndex Node index to be assigned to the new floating node
-         * @param aBackgroundNodes Background nodes of the element where the floating node lies
+         * @param aNodeManager Reference to the node manager to access GEN nodes associated with the background element
+         * @param aBackgroundElement Background element where the floating node lies
          * @param aParametricCoordinates Parametric coordinates inside the background element
-         * @param aBackgroundGeometryType Geometry type of the background element
-         * @param aBackgroundInterpolationOrder Interpolation order of the background element
          * @return New floating node
          */
         Floating_Node* create_floating_node(
-                uint                              aNodeIndex,
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Matrix< DDRMat >&           aParametricCoordinates,
-                mtk::Geometry_Type                aBackgroundGeometryType,
-                mtk::Interpolation_Order          aBackgroundInterpolationOrder ) override;
+                const Node_Manager&     aNodeManager,
+                const mtk::Cell&        aBackgroundElement,
+                const Matrix< DDRMat >& aParametricCoordinates ) override;
+
+        /**
+         *  Flag to tell intersection nodes whether to compute sensitivities along their parent vector (default), or in the direction normal to the interface.
+         */
+        bool compute_sensitivity_along_edges() final;
 
         /**
          * Computes the local coordinate along a parent edge of an intersection node created using this geometry.
          *
-         * @param aBackgroundNodes Background nodes of the element where the intersection lies
+         * @param aBackgroundElement Background element where the intersection lies
          * @param aFirstParentNode Node marking the starting point of the intersection edge
          * @param aSecondParentNode Node marking the ending point of the intersection edge
          * @return Parent edge local coordinate, between -1 and 1
          */
         real compute_intersection_local_coordinate(
-                const Vector< Background_Node* >& aBackgroundNodes,
-                const Parent_Node&                aFirstParentNode,
-                const Parent_Node&                aSecondParentNode );
+                const mtk::Cell&   aBackgroundElement,
+                const Parent_Node& aFirstParentNode,
+                const Parent_Node& aSecondParentNode );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -157,6 +154,10 @@ namespace moris::gen
         void get_dfield_dcoordinates(
                 const Basis_Node& aParentNode,
                 Matrix< DDRMat >& aSensitivities ) const;
+
+        void get_dfield_dcoordinates(
+                const Derived_Node& aDerivedNode,
+                Matrix< DDRMat >&   aSensitivities );
 
         /**
          * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
@@ -177,7 +178,7 @@ namespace moris::gen
          *
          * @return Name
          */
-        std::string get_name() override;
+        const std::string& get_name() const final;
 
         /**
          * Gets the names of all the fields associated with this design
@@ -291,6 +292,14 @@ namespace moris::gen
          * @param aAllUpdatedDesigns All designs (this design will take fields from the ones it needs)
          */
         void update_dependencies( const Vector< std::shared_ptr< Design > >& aAllUpdatedDesigns ) override;
+
+        //------------------------------------------------------------------------------
+        // Geometry Quantity of Interest (GQI) functions
+        //------------------------------------------------------------------------------
+
+        virtual real compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary ) final;
+
+        virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const final;
 
       private:
         /**

@@ -26,6 +26,7 @@ namespace moris::gen
             : Geometry( Design_Parameters(), 1e-12 )
             , mVoxelInput( std::move( aVoxelInput ) )
             , mIndex( aIndex )
+            , mName( mVoxelInput->get_file_name() + "_" + std::to_string( mIndex ) )
     {
     }
 
@@ -127,31 +128,26 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Voxel_Geometry::create_intersection_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager& aNodeManager,
+            const mtk::Cell&    aBackgroundElement,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode )
     {
         return new Intersection_Node_Voxel(
-                aNodeIndex,
-                aBackgroundNodes,
+                aNodeManager.get_total_number_of_nodes(),
+                aBackgroundElement,
+                aNodeManager,
                 aFirstParentNode,
                 aSecondParentNode,
-                aBackgroundGeometryType,
-                aBackgroundInterpolationOrder,
                 *this );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node* Voxel_Geometry::create_floating_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager&     aNodeManager,
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         MORIS_ERROR( false, "Voxel_Geometry::create_floating_node - Floating nodes not yet implemented for voxel geometry." );
         return nullptr;
@@ -159,10 +155,17 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Voxel_Geometry::compute_sensitivity_along_edges()
+    {
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real Voxel_Geometry::compute_intersection_local_coordinate(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode )
+            const mtk::Cell&   aBackgroundElement,
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode )
     {
         // Get parent geometric regions
         Geometric_Region tFirstParentGeometricRegion  = this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
@@ -207,9 +210,9 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string Voxel_Geometry::get_name()
+    const std::string& Voxel_Geometry::get_name() const
     {
-        return mVoxelInput->get_file_name() + "_" + std::to_string( mIndex );
+        return mName;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -305,5 +308,20 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Voxel_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
+    {
+        MORIS_ERROR( false, "Voxel_Geometry::compute_GQI() - GQI not implemented for voxel geometry." );
+        return 0.0;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Voxel_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
+    {
+        MORIS_ERROR( false, "Voxel_Geometry::compute_GQI_sensitivities() - GQI sensitivities not implemented for voxel geometry." );
+    }
 
 }    // namespace moris::gen

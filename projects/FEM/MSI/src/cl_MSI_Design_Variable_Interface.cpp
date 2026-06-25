@@ -9,9 +9,9 @@
  */
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
-#include "cl_MSI_Equation_Model.hpp"
 // SOL/src
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
 // LINALG/src
 #include "fn_trans.hpp"
 
@@ -21,40 +21,197 @@ namespace moris::MSI
     //------------------------------------------------------------------------------
 
     void
-    Design_Variable_Interface::set_requested_IQIs(
+    Design_Variable_Interface::set_requested_QIs(
             const Vector< std::string >& aRequestedIQIs )
     {
-        MORIS_ASSERT( mModel != nullptr,
-                "Design_Variable_Interface::set_requested_IQIs - mModel has not been set." );
+        mRequestedQIs = std::move( aRequestedIQIs );
+    }
 
-        mModel->set_requested_IQI_names( aRequestedIQIs );
+    //------------------------------------------------------------------------------
+
+    template<>
+    Vector< std::string >
+    Design_Variable_Interface::get_requested_QIs< std::string >( Module_Type aModule ) const
+    {
+        // Check if we want all the requested QIs or from a specific module
+        if ( aModule == Module_Type::END_ENUM )
+        {
+            return mRequestedQIs;
+        }
+
+        // Get the indices of all the requested QIs
+        Vector< std::string > tRequestedQINames;
+        tRequestedQINames.reserve( mRequestedQIs.size() );
+
+        // Go through the list of requested QIs, add the index only if the module matches the requested module
+        for ( uint iQI = 0; iQI < mRequestedQIs.size(); iQI++ )
+        {
+            // Get the name of the requested QI and check it exists
+            const std::string& tQIName = mRequestedQIs( iQI );
+
+            // Add the index to the list if the QI has been created and the module matches
+            if ( mQINameToIndexMap.key_exists( tQIName ) and mQIs( mQINameToIndexMap.at( tQIName ) ).mModule == aModule )
+            {
+                tRequestedQINames.push_back( tQIName );
+            }
+        }
+
+        return tRequestedQINames;
+    }
+
+    //------------------------------------------------------------------------------
+
+    template<>
+    Vector< uint >
+    Design_Variable_Interface::get_requested_QIs< uint >( Module_Type aModule ) const
+    {
+        // Get the indices of all the requested QIs
+        Vector< uint > tRequestedQIIndices;
+        tRequestedQIIndices.reserve( mRequestedQIs.size() );
+
+        // Go through the list of requested QIs, add the index only if the module matches the requested module
+        for ( uint iQI = 0; iQI < mRequestedQIs.size(); iQI++ )
+        {
+            // Get the name of the requested QI and check it exists
+            const std::string& tQIName = mRequestedQIs( iQI );
+
+            // Add the index to the list if the module matches
+            if ( aModule == Module_Type::END_ENUM or ( mQINameToIndexMap.key_exists( tQIName ) and ( mQIs( mQINameToIndexMap.at( tQIName ) ).mModule == aModule ) ) )
+            {
+                tRequestedQIIndices.push_back( mQINameToIndexMap.at( tQIName ) );
+            }
+        }
+
+        return tRequestedQIIndices;
+    }
+
+    //-------------------------------------------------------------------------------
+
+    uint Design_Variable_Interface::get_num_requested_QIs() const
+    {
+        return mRequestedQIs.size();
+    }
+
+    //------------------------------------------------------------------------------
+
+    template<>
+    const Vector< real >
+    Design_Variable_Interface::get_all_QI_values< real >() const
+    {
+        Vector< real > tQIValues( mRequestedQIs.size(), 0.0 );
+
+        for ( uint iQI = 0; iQI < mRequestedQIs.size(); iQI++ )
+        {
+            tQIValues( iQI ) = this->get_QI( mRequestedQIs( iQI ) );
+        }
+
+        return tQIValues;
+    }
+
+    //------------------------------------------------------------------------------
+
+    template<>
+    const Vector< Matrix< DDRMat > >
+    Design_Variable_Interface::get_all_QI_values< Matrix< DDRMat > >() const
+    {
+        Vector< Matrix< DDRMat > > tQIValues( mRequestedQIs.size(), Matrix< DDRMat >( 1, 1, 0.0 ) );
+
+        for ( uint iQI = 0; iQI < mRequestedQIs.size(); iQI++ )
+        {
+            tQIValues( iQI )( 0, 0 ) = this->get_QI( mRequestedQIs( iQI ) );
+        }
+
+        return tQIValues;
+    }
+
+    //------------------------------------------------------------------------------
+
+    real Design_Variable_Interface::get_QI( const std::string& aQIName ) const
+    {
+        MORIS_ASSERT( mQINameToIndexMap.key_exists( aQIName ),
+                "Design_Variable_Interface::get_QI - Quantity of interest with name %s not found.",
+                aQIName.c_str() );
+
+        return mQIs( mQINameToIndexMap.at( aQIName ) ).val();
+    }
+
+    //------------------------------------------------------------------------------
+
+    real Design_Variable_Interface::get_QI( uint aIndex ) const
+    {
+        MORIS_ASSERT( aIndex < mQIs.size(),
+                "Design_Variable_Interface::get_QI - Quantity of interest index %d out of bounds.",
+                aIndex );
+
+        return mQIs( aIndex ).val();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Design_Variable_Interface::update_QI( const std::string& aQIName, real aValue )
+    {
+        MORIS_ASSERT( mQINameToIndexMap.key_exists( aQIName ),
+                "Design_Variable_Interface::update_QI - Quantity of interest with name %s not found.",
+                aQIName.c_str() );
+
+        mQIs( mQINameToIndexMap[ aQIName ] ).set_val( aValue );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Design_Variable_Interface::update_QI_sensitivity( Module_Type aModule, sol::Dist_Vector* adQIdp )
+    {
+        switch ( aModule )
+        {
+            case Module_Type::FEM:
+            {
+                mdIQIdPDV = adQIdp;
+                break;
+            }
+            case Module_Type::XTK:
+            {
+                mdXQIdPDV = adQIdp;
+                break;
+            }
+            case Module_Type::STK:
+            {
+                mdSQIdPDV = adQIdp;
+                break;
+            }
+            default:
+            {
+                MORIS_ASSERT( false,
+                        "Design_Variable_Interface::update_QI_sensitivity - No design variable sensitivities for module type %d.",
+                        static_cast< int >( aModule ) );
+                break;
+            }
+        }
     }
 
     //------------------------------------------------------------------------------
 
     sol::Dist_Vector*
-    Design_Variable_Interface::get_dQIdp()
+    Design_Variable_Interface::get_dQIdp( Module_Type aModule )
     {
-        if ( !mdQIdpImported )
+        switch ( aModule )
         {
-            MORIS_ASSERT( mModel != nullptr,
-                    "Design_Variable_Interface::get_dQIdp - mModel has not been set." );
-
-            return mModel->get_dQIdp();
-        }
-        else
-        {
-            return mdQIdp;
+            case Module_Type::FEM:
+            {
+                return mdIQIdPDV;
+            }
+            case Module_Type::XTK:
+            {
+                return mdXQIdPDV;
+            }
+            default:
+            {
+                MORIS_ASSERT( false,
+                        "Design_Variable_Interface::get_dQIdp - No design variable sensitivities for module type %d.",
+                        static_cast< int >( aModule ) );
+                return nullptr;
+            }
         }
     }
-
     //------------------------------------------------------------------------------
-
-    void
-    Design_Variable_Interface::set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp )
-    {
-        mdQIdpImported = true;
-        mdQIdp         = adQIdp;
-    }
 
 }    // namespace moris::MSI

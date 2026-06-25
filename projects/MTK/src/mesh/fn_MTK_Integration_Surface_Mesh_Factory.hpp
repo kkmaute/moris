@@ -177,6 +177,10 @@ namespace moris::mtk
         Vector< moris_index > mCellToClusterIndices;
 
         Matrix< DDRMat > mVertexCoordinates;
+
+        uint mNumClusters = 0;
+
+        uint mNumFacets = 0;
     };
 
 }    // namespace moris::mtk

@@ -29,7 +29,6 @@
 #include "GEN_Data_Types.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
-#include "cl_FEM_Phase_User_Info.hpp"
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_Library_IO.hpp"
 
@@ -121,12 +120,6 @@ namespace moris
             Vector< moris::sint >                   mFieldTypes;
             Vector< std::shared_ptr< fem::IQI > >   mIQIs;
 
-            //! requested IQI Names
-            Vector< std::string > mRequestedIQINames;
-
-            // A map for mIQIs
-            moris::map< std::string, moris_index > mIQINameToIndexMap;
-
             // flag to skip GEN procedures
             bool mFEMOnly = false;
 
@@ -157,11 +150,12 @@ namespace moris
              * @param[ in ] aSetInfo       cell of set user info
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
+
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-                    const moris_index                   &aMeshPairIndex,
-                    Vector< fem::Set_User_Info >        &aSetInfo,
-                    MSI::Design_Variable_Interface      *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+                    moris_index                                       aMeshPairIndex,
+                    Vector< fem::Set_User_Info >                     &aSetInfo,
+                    std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -172,10 +166,10 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-                    const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
-                    const std::shared_ptr< Library_IO >      &aLibrary );
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    moris_index                          aMeshPairIndex,
+                    const Module_Parameter_Lists        &aParameterList,
+                    const std::shared_ptr< Library_IO > &aLibrary );
 
             //------------------------------------------------------------------------------
             /**
@@ -187,10 +181,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-                    const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists &aParameterList,
-                    MSI::Design_Variable_Interface           *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+                    moris_index                                       aMeshPairIndex,
+                    const Module_Parameter_Lists                     &aParameterList,
+                    std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -388,6 +382,10 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
+            virtual void set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface ) final;
+
+            //------------------------------------------------------------------------------
             /**
              * @brief set space dimension ( only for UT)
              * @param[ in ] aSpaceDim int for space dimension
@@ -416,42 +414,42 @@ namespace moris
             void
             set_requested_IQI_names( const Vector< std::string > &aRequestedIQINames ) override
             {
-                mRequestedIQINames = aRequestedIQINames;
+                if ( mDesignVariableInterface == nullptr )
+                {
+                    MORIS_LOG_WARNING( "FEM_Model::set_requested_IQI_names - design variable interface is nullptr, cannot set requested IQI names. Skipping!" );
+                }
+                else
+                {
+                    mDesignVariableInterface->set_requested_QIs( aRequestedIQINames );
+                }
             }
 
-            //------------------------------------------------------------------------------
+            //     //------------------------------------------------------------------------------
             /**
              * @brief get requested IQI names
              */
-            const Vector< std::string > &
+            const Vector< std::string >
             get_requested_IQI_names() override
             {
-                return mRequestedIQINames;
+                if ( mDesignVariableInterface == nullptr )
+                {
+                    static const Vector< std::string > tEmpty;
+                    return tEmpty;
+                }
+                return mDesignVariableInterface->get_requested_QIs< std::string >( Module_Type::FEM );
             }
 
             //------------------------------------------------------------------------------
             /**
-             * @brief build a map for the mIQIs, fills in the mIQINameToIndexMap values
+             * @brief Adds the IQIs stored in mIQIs to the design variable interface
              */
-            void create_IQI_map() override;
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief Initialize the IQI with the correct size
-             */
-            void initialize_IQIs() override;
+            void register_iqis();
 
             //------------------------------------------------------------------------------
             /**
              * @brief finalize the fem sets
              */
             void finalize_equation_sets( MSI::Model_Solver_Interface *aModelSolverInterface ) override;
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief scale the IQIs according to user input.
-             */
-            void normalize_IQIs() override;
 
             //------------------------------------------------------------------------------
             /**
@@ -502,7 +500,8 @@ namespace moris
              * @param[ in ] aXYZPvIds list of xyz pdv ids
              */
             void set_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
-                    Vector< Matrix< DDSMat > >      &aXYZPvIds );
+                    Vector< Vector< moris_index > > &aXYZPvIds );
+
 
             //------------------------------------------------------------------------------
             /**

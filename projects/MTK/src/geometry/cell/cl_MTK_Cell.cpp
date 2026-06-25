@@ -176,7 +176,7 @@ namespace moris::mtk
     bool
     Cell::check_unique_vertex_inds() const
     {
-        uint                      tNumVertices = this->get_number_of_vertices();
+        uint               tNumVertices = this->get_number_of_vertices();
         Matrix< IndexMat > tVertexInds  = this->get_vertex_inds();
         for ( uint i = 0; i < tNumVertices; i++ )
         {

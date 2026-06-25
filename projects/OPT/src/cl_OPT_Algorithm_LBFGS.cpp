@@ -58,8 +58,9 @@ namespace moris::opt
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Algorithm_LBFGS::Algorithm_LBFGS( const Parameter_List& aParameterList )
-            : mMaxIt( aParameterList.get< sint >( "max_its" ) )
+    Algorithm_LBFGS::Algorithm_LBFGS( const Parameter_List& aParameterList, std::shared_ptr< Problem > aProblem )
+            : Algorithm( aProblem )
+            , mMaxIt( aParameterList.get< sint >( "max_its" ) )
             , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
             , mNumCorrections( aParameterList.get< sint >( "num_corr" ) )
             , mNumberOfFunctionEvals( aParameterList.get< sint >( "num_function_evaluations" ) )

@@ -8,9 +8,7 @@
  *
  */
 
-#ifndef SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
-#define SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
-
+#pragma once
 #include <utility>
 
 #include "moris_typedefs.hpp"
@@ -21,6 +19,7 @@
 #include "GEN_Data_Types.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
+#include "cl_MSI_QI.hpp"
 
 namespace moris
 {
@@ -43,10 +42,19 @@ namespace moris
             //------------------------------------------------------------------------------
 
           private:
-            Matrix< DDRMat >                       mTime;
-            std::shared_ptr< MSI::Equation_Model > mModel         = nullptr;
-            bool                                   mdQIdpImported = false;
-            sol::Dist_Vector*                      mdQIdp         = nullptr;
+            bool              mdQIdpImported = false;
+            sol::Dist_Vector* mdXQIdPDV      = nullptr;    // XTK module sensitivities
+            sol::Dist_Vector* mdIQIdPDV      = nullptr;    // FEM module sensitivities
+            sol::Dist_Vector* mdSQIdPDV      = nullptr;    // STK module sensitivities
+
+          protected:
+            // QI Values that were requested to be used for optimization objectives or constraints
+            Vector< std::string > mRequestedQIs = {};
+
+            // All QI values that were specified in the input file, names mapped to QI objects
+            Vector< MSI::QI >                  mQIs;
+            map< std::string, moris_index >    mQINameToIndexMap;        // <QI name, index in mQIs>. Used to access QIs by name
+            map< Module_Type, Vector< uint > > mModuleToQIIndicesMap;    // <Module_Type, list of indices in mQIs>. Used to access QIs by module type
 
             //------------------------------------------------------------------------------
 
@@ -56,48 +64,134 @@ namespace moris
             /**
              * trivial constructor
              */
-            Design_Variable_Interface() {};
+            Design_Variable_Interface( Vector< std::string >& aRequestedQIs )
+                    : mRequestedQIs( aRequestedQIs ) {};
 
             //------------------------------------------------------------------------------
 
             /**
              * trivial destructor
              */
-            virtual ~Design_Variable_Interface() {};
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * set model pointer
-             * @param[ in ] aModel Model pointer
-             */
-            void
-            set_equation_model( std::shared_ptr< MSI::Equation_Model > aModel )
+            virtual ~Design_Variable_Interface()
             {
-                mModel = std::move( aModel );
+                delete mdXQIdPDV;
+                delete mdIQIdPDV;
             }
 
             //------------------------------------------------------------------------------
 
             /**
-             * set time
-             * @param[ in ] aTime Time
+             * Templated constructor to register a single quantity of interest. Forwards the arguments to the appropriate QI constructor.
+             * See MSI_QI constructor for options with construction.
+             *
+             * @tparam Args Variadic template to accept any number of arguments of any type
+             * @param[ in ] args Arguments to forward to the QI constructor
              */
-            void
-            set_time( const Matrix< DDRMat >& aTime )
+            template< typename... Args >
+            void register_QI( const std::string& aName, Module_Type aModule, Args&&... args )
             {
-                mTime = aTime;
+                // Add the name to the map
+                mQINameToIndexMap[ aName ] = mQIs.size();
+                mModuleToQIIndicesMap[ aModule ].push_back( mQIs.size() );
+
+                // Add the QI to the list
+                mQIs.push_back( QI( aModule, std::forward< Args >( args )... ) );
+            }
+
+            //------------------------------------------------------------------------------
+
+
+            template< typename T >
+            void register_QIs( const Vector< std::string >& aQIName, const Vector< Module_Type >& aModule, Vector< T >& aQIValue )
+            {
+                MORIS_ASSERT( aQIName.size() == aQIValue.size(),
+                        "Design_Variable_Interface::register_QI - Size of aQIName and aQIValue must be the same." );
+
+                // Allocate memory
+                mQIs.reserve( mQIs.size() + aQIName.size() );
+
+                for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
+                {
+                    this->register_QI( aQIName( iQI ), aModule( iQI ), aQIValue( iQI ) );
+                }
+            }
+
+            //------------------------------------------------------------------------------
+
+            template< typename T, typename U >
+            void register_QIs( const Vector< std::string >& aQIName, const Vector< Module_Type >& aModule, Vector< T >& aQIValue, Vector< U >& adQIdADV = Vector< U >() )
+            {
+                MORIS_ASSERT( aQIName.size() == aQIValue.size() && aQIName.size() == adQIdADV.size(),
+                        "Design_Variable_Interface::register_QI - Size of aQIName, aQIValue and adQIdADV must be the same." );
+
+                // Allocate memory
+                mQIs.reserve( mQIs.size() + aQIName.size() );
+
+                for ( uint iQI = 0; iQI < aQIName.size(); iQI++ )
+                {
+                    this->register_QI( aQIName( iQI ), aModule( iQI ), aQIValue( iQI ), adQIdADV( iQI ) );
+                }
             }
 
             //------------------------------------------------------------------------------
 
             /**
-             * set requested IQI type for sensitivity analysis
-             * @param[ in ] aRequestedIQIType
+             * set requested QI names for sensitivity analysis
+             * @param[ in ] aRequestedQIs
              */
-            void set_requested_IQIs( const Vector< std::string >& aRequestedIQIs );
+            void set_requested_QIs( const Vector< std::string >& aRequestedQIs );
 
             //------------------------------------------------------------------------------
+
+            /**
+             * Gets the list of QI names/indices that were requested for sensitivity analysis
+             *
+             * @tparam[ in ] T Return type, either std::string or uint for getting the names or the indices.
+             *               Explicit instantiations for these two types are provided in the cpp file.
+             * @param[ in ] aModule Module type to filter requested QI names by (GEN, FEM, XTK, etc.)
+             */
+            template< typename T >
+            Vector< T > get_requested_QIs( Module_Type aModule = Module_Type::END_ENUM ) const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Gets the number of QIs that were requested to be used as optimization objectives or constraints
+             */
+            uint get_num_requested_QIs() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Gets the value of the QIs that were requested for optimization as a vector of scalars
+             *
+             * @tparam T Return type, either real or Matrix< DDRMat > for getting the values
+             */
+            template< typename T >
+            const Vector< T >
+            get_all_QI_values() const;
+
+            //-----------------------------------------------------------------------------
+
+            /**
+             * Gets the value of the specific QI by name
+             */
+            real get_QI( const std::string& aQIName ) const;
+
+            /**
+             * Gets the value of the specific QI by the global index in mQIs
+             */
+            real get_QI( uint aQIIndex ) const;
+
+            /*
+             * Sets the value of the speicific QI by name
+             */
+            void update_QI( const std::string& aQIName, real aValue );
+
+            /**
+             * Updates all QIs for the given module.
+             */
+            void update_QI_sensitivity( Module_Type aModule, sol::Dist_Vector* adQIdp );
 
             /**
              * get unique dv types for set
@@ -106,25 +200,25 @@ namespace moris
              */
 
             virtual void get_ig_unique_dv_types_for_set(
-                    const moris::moris_index      aIntegrationMeshSetIndex,
-                    Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
+                    const moris_index             aIntegrationMeshSetIndex,
+                    Vector< enum gen::PDV_Type >& aDvTypes ) const = 0;
 
             //------------------------------------------------------------------------------
 
             virtual Vector< std::shared_ptr< gen::Design_Extraction_Operator > >
-            get_ig_desgin_extraction_operators( const Matrix< moris::IndexMat >& ) = 0;
+            get_ig_design_extraction_operators( const Matrix< moris::IndexMat >& ) const = 0;
 
             //------------------------------------------------------------------------------
 
             virtual Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >
-            get_ip_desgin_extraction_operators(
+            get_ip_design_extraction_operators(
                     const Matrix< moris::IndexMat >&,
-                    const Vector< enum gen::PDV_Type >& ) = 0;
+                    const Vector< enum gen::PDV_Type >& ) const = 0;
 
             //------------------------------------------------------------------------------
 
             virtual Vector< sint >
-            build_local_adv_indices( Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& ) = 0;
+            build_local_adv_indices( Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& ) const = 0;
 
             //-------------------------------------------------------------------------------
 
@@ -133,7 +227,7 @@ namespace moris
                     Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators,
                     Vector< Vector< Matrix< DDRMat > > >&                                   aAdvPropWeights,
                     Vector< sint >&                                                         aAdvIds,
-                    Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap ) = 0;
+                    Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -141,7 +235,7 @@ namespace moris
             populate_adv_geo_weights(
                     const std::shared_ptr< gen::Design_Extraction_Operator >& aOperator,
                     Matrix< DDRMat >&                                         aAdvGeoWeights,
-                    const uint                                                aNumAdvs ) = 0;
+                    const uint                                                aNumAdvs ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -151,12 +245,12 @@ namespace moris
              * @param[ in ] aDvTypes                  list of group of dv types
              */
             virtual void get_ip_dv_types_for_set(
-                    const moris::moris_index      aIntegrationMeshSetIndex,
-                    Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
+                    moris::moris_index            aIntegrationMeshSetIndex,
+                    Vector< enum gen::PDV_Type >& aDvTypes ) const = 0;
 
             virtual void get_ig_dv_types_for_set(
-                    const moris::moris_index                aIntegrationMeshSetIndex,
-                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) = 0;
+                    const moris_index                       aIntegrationMeshSetIndex,
+                    Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -166,10 +260,10 @@ namespace moris
             }
 
             virtual void get_ig_pdv_value(
-                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< moris_index >&        aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
-                    Vector< moris::Matrix< DDRMat > >&  aDvValues,
-                    Vector< Vector< bool > >&           aIsActiveDv ) = 0;
+                    Vector< Matrix< DDRMat > >&         aDvValues,
+                    Vector< Vector< bool > >&           aIsActiveDv ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -182,7 +276,7 @@ namespace moris
             virtual void get_ip_pdv_value(
                     const Matrix< IndexMat >&           aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
-                    Vector< moris::Matrix< DDRMat > >&  aDvValues ) = 0;
+                    Vector< Matrix< DDRMat > >&         aDvValues ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -194,8 +288,8 @@ namespace moris
              */
             virtual void
             reshape_pdv_values(
-                    const Vector< moris::Matrix< DDRMat > >& aPdvValues,
-                    moris::Matrix< DDRMat >&                 aReshapedPdvValues )
+                    const Vector< Matrix< DDRMat > >& aPdvValues,
+                    Matrix< DDRMat >&                 aReshapedPdvValues ) const
             {
                 MORIS_ASSERT( aPdvValues.size() != 0,
                         "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty." );
@@ -220,7 +314,8 @@ namespace moris
             /**
              * return local to global dv map
              */
-            virtual const moris::Matrix< DDSMat >& get_my_local_global_map() = 0;
+            virtual const Matrix< DDSMat >& get_my_local_global_map() = 0;
+            // BRENDAN to make this work in parallel
 
             //------------------------------------------------------------------------------
 
@@ -233,12 +328,12 @@ namespace moris
             virtual void get_ip_dv_ids_for_type_and_ind(
                     const Matrix< IndexMat >&           aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
-                    Vector< moris::Matrix< IdMat > >&   aDvIds ) = 0;
+                    Vector< Matrix< IdMat > >&          aDvIds ) const = 0;
 
             virtual void get_ig_dv_ids_for_type_and_ind(
-                    const Matrix< IndexMat >&           aNodeIndices,
+                    const Vector< moris_index >&        aNodeIndices,
                     const Vector< enum gen::PDV_Type >& aDvTypes,
-                    Vector< moris::Matrix< IdMat > >&   aDvIds ) = 0;
+                    Vector< Vector< moris_index > >&    aDvIds ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -246,7 +341,7 @@ namespace moris
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
              */
-            virtual void get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) = 0;
+            virtual void get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -262,15 +357,18 @@ namespace moris
              * returns the dQIdp
              * @param[ out ] dQIdp matrix filled with dQIdp
              */
-            virtual sol::Dist_Vector* get_dQIdp();
+            virtual sol::Dist_Vector* get_dQIdp( Module_Type aModule );
 
             //------------------------------------------------------------------------------
 
             /**
-             * returns the dQIdp
-             * @param[ out ] dQIdp matrix filled with dQIdp
+             * Gets whether this design variable interface was created via a gen workflow or not.
+             * If not, no pdvs are created, and this is just used to store QI values
+             * FIXME @bc: There should be a cleaner way to handle this through inheritance - the FEM model relies on knowing this info
+             * to avoid creating PDV IDs for nodes if we are doing STK. Thus if body fitted shape optimization was implemented this would
+             * be unnecessary.
              */
-            void set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp );
+            virtual bool is_gen_workflow() const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -280,5 +378,3 @@ namespace moris
 
     }    // namespace MSI
 }    // namespace moris
-
-#endif /* SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_ */

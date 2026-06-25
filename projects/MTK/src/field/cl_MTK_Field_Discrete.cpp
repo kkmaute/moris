@@ -453,10 +453,10 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------------------
 
     void Field_Discrete::compute_derivatives_of_field_value(
-            Matrix< DDRMat >&   aDerivatives,
-            Matrix< IndexMat >& aCoefIndices,
-            uint const &        aNodeIndex,
-            uint const &        aFieldIndex )
+            Matrix< DDRMat >&      aDerivatives,
+            Vector< moris_index >& aCoefIndices,
+            uint const &           aNodeIndex,
+            uint const &           aFieldIndex ) const
     {
         // check that discretization index is valid
         MORIS_ASSERT( mDiscretizationMeshIndex > -1,
@@ -470,7 +470,7 @@ namespace moris::mtk
         if ( !tIPmesh->get_mtk_vertex( aNodeIndex ).has_interpolation( mDiscretizationMeshIndex ) )
         {
             aDerivatives.set_size( 0, 0 );
-            aCoefIndices.set_size( 0, 0 );
+            aCoefIndices.resize( 0 );
             return;
         }
 
@@ -483,7 +483,7 @@ namespace moris::mtk
         uint tNumberOfNodalCoefficients = tMeshCoefficientIndices.numel();
 
         // set size of coefficient index vector to be returned
-        aCoefIndices.set_size( tNumberOfNodalCoefficients, 1 );
+        aCoefIndices.resize( tNumberOfNodalCoefficients );
 
         // map mesh coefficient indices onto field coefficient indices
         for ( uint tIndex = 0; tIndex < tNumberOfNodalCoefficients; ++tIndex )

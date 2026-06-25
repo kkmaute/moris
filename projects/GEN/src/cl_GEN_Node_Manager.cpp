@@ -58,21 +58,21 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Node_Manager::get_number_of_background_nodes()
+    uint Node_Manager::get_number_of_background_nodes() const
     {
         return mBackgroundNodes.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Node_Manager::get_total_number_of_nodes()
+    uint Node_Manager::get_total_number_of_nodes() const
     {
         return mBackgroundNodes.size() + mDerivedNodes.size();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Node& Node_Manager::get_node( uint aNodeIndex )
+    const Node& Node_Manager::get_node( uint aNodeIndex ) const
     {
         if ( this->is_background_node( aNodeIndex ) )
         {
@@ -100,19 +100,23 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Background_Node& Node_Manager::get_background_node( uint aBackgroundNodeIndex ) const
+    {
+        return mBackgroundNodes( aBackgroundNodeIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Node_Manager::create_derived_node(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aGeometryType,
-            mtk::Interpolation_Order          aInterpolationOrder )
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         mDerivedNodes.push_back(
                 new Derived_Node(
                         this->get_total_number_of_nodes(),
-                        aBackgroundNodes,
-                        aParametricCoordinates,
-                        aGeometryType,
-                        aInterpolationOrder ) );
+                        aBackgroundElement,
+                        *this,
+                        aParametricCoordinates ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -154,21 +158,21 @@ namespace moris::gen
 
     real Node_Manager::get_node_coordinate_value(
             uint aNodeIndex,
-            uint aCoordinateIndex )
+            uint aCoordinateIndex ) const
     {
         return this->get_node( aNodeIndex ).get_coordinate_value( aCoordinateIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool Node_Manager::node_depends_on_advs( uint aNodeIndex )
+    bool Node_Manager::node_depends_on_advs( uint aNodeIndex ) const
     {
         return this->get_node( aNodeIndex ).depends_on_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    uint Node_Manager::get_number_of_derived_node_pdvs( uint aNodeIndex )
+    uint Node_Manager::get_number_of_derived_node_pdvs( uint aNodeIndex ) const
     {
         return this->get_derived_node( aNodeIndex ).get_num_pdvs();
     }
@@ -182,21 +186,21 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_id Node_Manager::get_derived_node_starting_pdv_id( uint aNodeIndex )
+    moris_id Node_Manager::get_derived_node_starting_pdv_id( uint aNodeIndex ) const
     {
         return this->get_derived_node( aNodeIndex ).get_starting_pdv_id();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_id Node_Manager::get_derived_node_id( uint aNodeIndex )
+    moris_id Node_Manager::get_derived_node_id( uint aNodeIndex ) const
     {
         return this->get_derived_node( aNodeIndex ).get_id();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    moris_index Node_Manager::get_derived_node_owner( uint aNodeIndex )
+    moris_index Node_Manager::get_derived_node_owner( uint aNodeIndex ) const
     {
         return this->get_derived_node( aNodeIndex ).get_owner();
     }
@@ -206,7 +210,7 @@ namespace moris::gen
     void Node_Manager::append_dcoordinate_dadv_from_derived_node(
             uint                    aNodeIndex,
             Matrix< DDRMat >&       aCoordinateSensitivities,
-            const Matrix< DDRMat >& aSensitivityFactor )
+            const Matrix< DDRMat >& aSensitivityFactor ) const
     {
         this->get_derived_node( aNodeIndex ).append_dcoordinate_dadv( aCoordinateSensitivities, aSensitivityFactor );
     }

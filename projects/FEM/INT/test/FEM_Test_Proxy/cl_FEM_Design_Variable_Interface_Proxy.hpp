@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
-#define SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
+#pragma once
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -43,6 +42,7 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         FEM_Design_Variable_Interface_Proxy()
+                : Design_Variable_Interface( *( new Vector< std::string >() ) )
         {
             mDvTypes.resize( 2 );
             mDvTypes( 0 ).resize( 2 );
@@ -159,8 +159,8 @@ namespace moris::fem
 
         void
         get_ig_unique_dv_types_for_set(
-                const moris::moris_index      aIntegrationMeshSetIndex,
-                Vector< enum gen::PDV_Type >& aDvTypes ) override
+                const moris_index             aIntegrationMeshSetIndex,
+                Vector< enum gen::PDV_Type >& aDvTypes ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_unique_dv_types_for_set() - not implemented in the child class" );
         };
@@ -169,8 +169,8 @@ namespace moris::fem
 
         void
         get_ip_dv_types_for_set(
-                const moris::moris_index                aIntegrationMeshSetIndex,
-                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) override
+                const moris_index                       aIntegrationMeshSetIndex,
+                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) const override
         {
             aDvTypes = mDvTypes;
         };
@@ -179,8 +179,8 @@ namespace moris::fem
 
         void
         get_ig_dv_types_for_set(
-                const moris::moris_index                aIntegrationMeshSetIndex,
-                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) override
+                const moris_index                       aIntegrationMeshSetIndex,
+                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_types_for_set() - not implemented in the child class" );
         };
@@ -192,7 +192,7 @@ namespace moris::fem
                 const moris::Matrix< IndexMat >&    aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
                 Vector< moris::Matrix< DDRMat > >&  aDvValues,
-                Vector< moris::Matrix< DDSMat > >&  aIsActiveDv )
+                Vector< moris::Matrix< DDSMat > >&  aIsActiveDv ) const
         {
             aIsActiveDv.resize( aDvTypes.size() );
 
@@ -226,10 +226,10 @@ namespace moris::fem
 
         void
         get_ig_pdv_value(
-                const moris::Matrix< IndexMat >&    aNodeIndices,
+                const Vector< moris_index >&        aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
                 Vector< moris::Matrix< DDRMat > >&  aDvValues,
-                Vector< Vector< bool > >&           aIsActiveDv ) override
+                Vector< Vector< bool > >&           aIsActiveDv ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
         }
@@ -240,7 +240,7 @@ namespace moris::fem
         get_ip_pdv_value(
                 const moris::Matrix< IndexMat >&    aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< DDRMat > >&  aDvValues ) override
+                Vector< moris::Matrix< DDRMat > >&  aDvValues ) const override
         {
             aDvValues.resize( aDvTypes.size() );
 
@@ -263,20 +263,9 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         void
-        get_ig_pdv_value(
-                const moris::Matrix< IndexMat >&    aNodeIndices,
-                const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< DDRMat > >&  aDvValues )
-        {
-            MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_pdv_value() - not implemented in the child class" );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
         reshape_pdv_values(
                 const Vector< moris::Matrix< DDRMat > >& aPdvValues,
-                moris::Matrix< DDRMat >&                 aReshapedPdvValues ) override
+                moris::Matrix< DDRMat >&                 aReshapedPdvValues ) const override
         {
             MORIS_ASSERT( aPdvValues.size() != 0,
                     "GEN_Design_Variable_Interface::reshape_pdv_value - pdv value vector is empty." );
@@ -308,7 +297,7 @@ namespace moris::fem
         get_ip_dv_ids_for_type_and_ind(
                 const Matrix< IndexMat >&           aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< IdMat > >&   aDvIds ) override
+                Vector< moris::Matrix< IdMat > >&   aDvIds ) const override
         {
             aDvIds.resize( aDvTypes.size() );
 
@@ -327,9 +316,9 @@ namespace moris::fem
 
         void
         get_ig_dv_ids_for_type_and_ind(
-                const Matrix< IndexMat >&           aNodeIndices,
+                const Vector< moris_index >&        aNodeIndices,
                 const Vector< enum gen::PDV_Type >& aDvTypes,
-                Vector< moris::Matrix< IdMat > >&   aDvIds ) override
+                Vector< Vector< moris_index > >&    aDvIds ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_dv_ids_for_type_and_ind() - not implemented in the child class" );
         }
@@ -337,7 +326,7 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         void
-        get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) override
+        get_ip_requested_dv_types( Vector< enum gen::PDV_Type >& aDvTypes ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ip_requested_dv_types() - not implemented in the child class" );
         }
@@ -352,14 +341,21 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
-        void set_requested_IQIs( const Vector< std::string >& aRequestedIQINames );
+        virtual const real get_requested_GQI( std::string const & aGeometryName, fem::IQI_Type aGQI ) const final
+        {
+            MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_requested_GQI() - not implemented in the child class" );
+            return 0.0;
+        }
 
         //------------------------------------------------------------------------------
+
+        virtual bool is_gen_workflow() const final
+        {
+            return true;
+        }
 
     };    // class FEM_Design_Variable_Interface_Proxy
 
     //------------------------------------------------------------------------------
 
 }    // namespace moris::fem
-
-#endif /* SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_ */

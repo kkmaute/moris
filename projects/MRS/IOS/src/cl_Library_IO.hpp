@@ -203,8 +203,8 @@ namespace moris
         std::string
         get_sub_parameter_list_location_in_xml_tree(
                 const Module_Type aModule,
-                const uint                aSubParamListIndex = MORIS_UINT_MAX,
-                const bool                aIsInnerParamList  = false );
+                const uint        aSubParamListIndex = MORIS_UINT_MAX,
+                const bool        aIsInnerParamList  = false );
 
         // -----------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ namespace moris
          * @param aParamListType
          * @return Module_Parameter_Lists
          */
-        Module_Parameter_Lists
+        const Module_Parameter_Lists&
         get_parameters_for_module( Module_Type aParamListType ) const;
 
         // -----------------------------------------------------------------------------
@@ -280,7 +280,6 @@ namespace moris
                 const Parameter_List&     aContainingParameterList );
 
       private:
-
         /**
          * Gets if a given module is being supported by the current library.
          *
@@ -339,14 +338,13 @@ namespace moris
      */
 
     Parameter_List create_and_set_parameter_list( Module_Type aModule,
-            uint                                                      aChild,
-            uint                                                      aSubChild,
-            const Vector< std::string >&                              aKeys,
-            const Vector< std::string >&                              aValues );
+            uint                                              aChild,
+            uint                                              aSubChild,
+            const Vector< std::string >&                      aKeys,
+            const Vector< std::string >&                      aValues );
 
     /**
      * @brief Create a parameter list for a given module, child, and sub-child
-     
      * @param aModule module to create the parameter list for
      * @param aChild child to create the parameter list for
      * @param aSubChild sub-child to create the parameter list for

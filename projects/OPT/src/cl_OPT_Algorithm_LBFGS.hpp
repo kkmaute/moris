@@ -39,7 +39,7 @@ namespace moris::opt
         /**
          * Constructor
          */
-        Algorithm_LBFGS( const Parameter_List& aParameterList );
+        Algorithm_LBFGS( const Parameter_List& aParameterList, std::shared_ptr< Problem > aProblem = nullptr );
 
         /**
          * Destructor

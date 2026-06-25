@@ -70,7 +70,7 @@ namespace moris::gen
 
     Surface_Mesh_Geometry::Surface_Mesh_Geometry(
             Surface_Mesh_Parameters       aParameters,
-            Node_Manager&                 aNodeManager,
+            const Node_Manager&           aNodeManager,
             const Vector< ADV >&          aADVs,
             ADV_Manager&                  aADVManager,
             std::shared_ptr< Library_IO > aLibrary )
@@ -97,7 +97,6 @@ namespace moris::gen
         if ( this->do_regularization() )
         {
             this->load_regularization_function( aLibrary );
-            this->build_vertex_connectivity();
         }
 
         // If this surface mesh is being optimized via B-spline fields, construct seeding fields and check for a scaling function
@@ -308,20 +307,18 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Floating_Node* Surface_Mesh_Geometry::create_floating_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Matrix< DDRMat >&           aParametricCoordinates,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager&     aNodeManager,
+            const mtk::Cell&        aBackgroundElement,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
         uint tNumVertices = this->get_number_of_vertices();
         uint tDims        = this->get_spatial_dimension();
 
         mtk::Interpolation_Function_Factory tInterpolationFactory;
         mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
-                aBackgroundGeometryType,
+                aBackgroundElement.get_geometry_type(),
                 mtk::Interpolation_Type::LAGRANGE,
-                aBackgroundInterpolationOrder );
+                aBackgroundElement.get_interpolation_order() );
 
         // Perform interpolation using parametric coordinates
         Matrix< DDRMat > tBasis;
@@ -332,9 +329,10 @@ namespace moris::gen
         delete tInterpolation;
 
         // Add contributions from all locators
-        for ( uint iNode = 0; iNode < aBackgroundNodes.size(); iNode++ )
+        Matrix< DDRMat > tBackgroundNodeCoords = aBackgroundElement.get_vertex_coords();
+        for ( uint iNode = 0; iNode < tBasis.length(); iNode++ )
         {
-            tGlobalCoordinate += aBackgroundNodes( iNode )->get_global_coordinates() * tBasis( iNode );
+            tGlobalCoordinate += tBackgroundNodeCoords.get_row( iNode ) * tBasis( iNode );
         }
 
         Matrix< DDRMat > tVertexGlobalCoords = Surface_Mesh::get_all_vertex_coordinates();
@@ -363,32 +361,29 @@ namespace moris::gen
         if ( tParentVertex == MORIS_UINT_MAX )
         {
             this->write_to_file( "failed.obj" );
-            MORIS_ERROR( false, "Floating node %d does not lie on a vertex of surface mesh \"%s\"", aNodeIndex, this->get_name().c_str() );
+            MORIS_ERROR( false, "Floating node %d does not lie on a vertex of surface mesh \"%s\"", aNodeManager.get_total_number_of_nodes(), this->get_name().c_str() );
         }
 
         // Create surface mesh floating node
         return new Floating_Node_Surface_Mesh(
-                aNodeIndex,
-                aBackgroundNodes,
+                aNodeManager.get_total_number_of_nodes(),
+                aBackgroundElement,
+                *mNodeManager,
                 aParametricCoordinates,
                 tParentVertex,
-                aBackgroundGeometryType,
-                aBackgroundInterpolationOrder,
                 *this );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node* Surface_Mesh_Geometry::create_intersection_node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            const Node_Manager& aNodeManager,
+            const mtk::Cell&    aBackgroundElement,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode )
     {
         // Determine the local coordinate of the intersection and the facet that intersects the parent edge
-        std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
+        std::pair< uint, real > tIntersection = this->compute_intersection_local_coordinate( aBackgroundElement, aFirstParentNode, aSecondParentNode );
 
         if ( std::abs( tIntersection.second ) > 1.0 + Surface_Mesh::mIntersectionTolerance or std::isnan( tIntersection.second ) )
         {
@@ -401,34 +396,40 @@ namespace moris::gen
             std::cout << "2nd Region by raycasting" << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
             std::cout << "1st region from stored data " << mNodeMeshRegions.at( aFirstParentNode.get_index() ) << std::endl;
             std::cout << "2nd region from stored data " << mNodeMeshRegions.at( aSecondParentNode.get_index() ) << std::endl;
-            tIntersection = this->compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode );
+            tIntersection = this->compute_intersection_local_coordinate( aBackgroundElement, aFirstParentNode, aSecondParentNode );
             Surface_Mesh::write_to_file( "failed.obj" );
         }
 
         MORIS_ERROR( tIntersection.first != MORIS_UINT_MAX and ( tIntersection.second < ( 1.0 + Surface_Mesh::mIntersectionTolerance ) and tIntersection.second > ( -1.0 - Surface_Mesh::mIntersectionTolerance ) ),
                 "Intersection node %d on surface mesh %s has local coordinate %f. Should be [-1, 1]",
-                aNodeIndex,
+                aNodeManager.get_total_number_of_nodes(),
                 this->get_name().c_str(),
                 tIntersection.second );
 
         // Create surface mesh intersection node
         return new Intersection_Node_Surface_Mesh(
-                aNodeIndex,
-                aBackgroundNodes,
+                aNodeManager.get_total_number_of_nodes(),
+                aBackgroundElement,
+                *mNodeManager,
                 aFirstParentNode,
                 aSecondParentNode,
                 tIntersection,
-                aBackgroundGeometryType,
-                aBackgroundInterpolationOrder,
                 *this );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool Surface_Mesh_Geometry::compute_sensitivity_along_edges()
+    {
+        return mParameters.mComputeSensitivitiesAlongEdges;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     std::pair< uint, real > Surface_Mesh_Geometry::compute_intersection_local_coordinate(
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode )
+            const mtk::Cell&   aBackgroundElement,
+            const Parent_Node& aFirstParentNode,
+            const Parent_Node& aSecondParentNode )
     {
         // Get the parent node global coordinates. The origin of the ray will be the first parent node
         Matrix< DDRMat > tFirstParentNodeCoordinates  = aFirstParentNode.get_global_coordinates();
@@ -515,6 +516,21 @@ namespace moris::gen
         // If no intersection was found (but there should be one), loosen the intersection tolerance and try again
         Surface_Mesh::mIntersectionTolerance *= 10.0;
 
+        // brendan delete
+        if ( Surface_Mesh::mIntersectionTolerance >= 0.1 )
+        {
+            std::cout << "Increased intersection tolerance to " << Surface_Mesh::mIntersectionTolerance << std::endl;
+
+            this->get_geometric_region( aFirstParentNode.get_index(), aFirstParentNode.get_global_coordinates() );
+            this->get_geometric_region( aSecondParentNode.get_index(), aSecondParentNode.get_global_coordinates() );
+
+            std::cout << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
+            std::cout << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
+
+            std::cout << get_region_from_raycast( aFirstParentNode.get_global_coordinates() ) << std::endl;
+            std::cout << get_region_from_raycast( aSecondParentNode.get_global_coordinates() ) << std::endl;
+        }
+
         MORIS_ASSERT( Surface_Mesh::mIntersectionTolerance < 0.1, "Surface mesh intersection tolerance is too large. No valid intersection found." );
 
         // Recast the ray
@@ -569,41 +585,6 @@ namespace moris::gen
                 MORIS_ERROR( false, "Unknown Regularization type provided to surface mesh geometry %s.", mParameters.mName.c_str() );
                 break;
             }
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void Surface_Mesh_Geometry::build_vertex_connectivity()
-    {
-        // Initialize a set to store unique vertex connectivity for every vertex
-        uint                              tNumVertices = this->get_number_of_vertices();
-        Vector< std::set< moris_index > > tVertexConnectivity( tNumVertices );
-
-        uint tNumVertsPerFacet = Surface_Mesh::get_facets_vertex_indices( 0 ).size();
-
-        // Loop through all facets of the surface mesh
-        for ( auto& tFacet : Surface_Mesh::get_facet_connectivity() )
-        {
-            // Loop through all vertices of the facet
-            for ( uint iVertex = 0; iVertex < tNumVertsPerFacet; iVertex++ )
-            {
-                // Get the current vertex and the next vertex (wrapping around)
-                moris_index tCurrentVertex = tFacet( iVertex );
-                moris_index tNextVertex    = tFacet( ( iVertex + 1 ) % tNumVertsPerFacet );
-
-                // Add both to each others sets
-                tVertexConnectivity( tCurrentVertex ).insert( tNextVertex );
-                tVertexConnectivity( tNextVertex ).insert( tCurrentVertex );
-            }
-        }
-
-        // Convert the sets to vectors and store them in the vertex connectivity
-        mVertexConnectivity.resize( tNumVertices );
-        for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
-        {
-            // Convert the set to a vector
-            mVertexConnectivity( iVertex ) = Vector< moris_index >( tVertexConnectivity( iVertex ).begin(), tVertexConnectivity( iVertex ).end() );
         }
     }
 
@@ -935,7 +916,7 @@ namespace moris::gen
             uint tNumV = this->get_number_of_vertices();
 
             // Get the regularization from whatever function was loaded
-            Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_all_original_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
+            Matrix< DDRMat > tRegularizationDisp = regularize_mesh( Surface_Mesh::get_all_vertex_coordinates(), Surface_Mesh::get_all_original_vertex_coordinates(), Surface_Mesh::get_facet_connectivity(), Surface_Mesh::get_vertex_connectivity(), mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
 
             MORIS_ASSERT( tRegularizationDisp.n_rows() == this->get_spatial_dimension(), "Regularization function for surface mesh %s does not return the correct number of rows. Expected %d, got %lu", mParameters.mName.c_str(), this->get_spatial_dimension(), tRegularizationDisp.n_rows() );
             MORIS_ASSERT( tRegularizationDisp.n_cols() == this->get_number_of_vertices(), "Regularization function for surface mesh %s does not return the correct number of cols. Expected %d, got %lu", mParameters.mName.c_str(), this->get_number_of_vertices(), tRegularizationDisp.n_cols() );
@@ -967,7 +948,7 @@ namespace moris::gen
             for ( moris_index iRegIter = 1; iRegIter < mParameters.mRegularizationIterations; iRegIter++ )
             {
                 // Get the regularization from whatever function was loaded
-                Matrix< DDRMat > tRegularizationDisp = regularize_mesh( this->get_all_vertex_coordinates(), this->get_all_original_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
+                Matrix< DDRMat > tRegularizationDisp = regularize_mesh( Surface_Mesh::get_all_vertex_coordinates(), Surface_Mesh::get_all_original_vertex_coordinates(), Surface_Mesh::get_facet_connectivity(), Surface_Mesh::get_vertex_connectivity(), mParameters.mRegularizationFactors, get_discretization_scaling_user_defined );
 
                 MORIS_ASSERT( tRegularizationDisp.n_rows() == this->get_spatial_dimension(), "Regularization function for surface mesh %s does not return the correct number of rows. Expected %d, got %lu", mParameters.mName.c_str(), this->get_spatial_dimension(), tRegularizationDisp.n_rows() );
                 MORIS_ASSERT( tRegularizationDisp.n_cols() == tNumV, "Regularization function for surface mesh %s does not return the correct number of cols. Expected %d, got %lu", mParameters.mName.c_str(), tNumV, tRegularizationDisp.n_cols() );
@@ -1001,9 +982,9 @@ namespace moris::gen
 
                         // Get surface mesh vertex dependencies
                         Vector< moris_index > tVertexDependencies = regularization_vertex_inds(
-                                this->get_all_vertex_coordinates(),
-                                this->get_facet_connectivity(),
-                                mVertexConnectivity,
+                                Surface_Mesh::get_all_vertex_coordinates(),
+                                Surface_Mesh::get_facet_connectivity(),
+                                Surface_Mesh::get_vertex_connectivity(),
                                 mParameters.mRegularizationFactors,
                                 iV );
 
@@ -1015,10 +996,10 @@ namespace moris::gen
                             {
                                 // Get dx_i/dx_k for this vertex
                                 Matrix< DDRMat > tDviDvk = regularization_sensitivity(
-                                        this->get_all_vertex_coordinates(),
-                                        this->get_all_original_vertex_coordinates(),
-                                        this->get_facet_connectivity(),
-                                        mVertexConnectivity,
+                                        Surface_Mesh::get_all_vertex_coordinates(),
+                                        Surface_Mesh::get_all_original_vertex_coordinates(),
+                                        Surface_Mesh::get_facet_connectivity(),
+                                        Surface_Mesh::get_vertex_connectivity(),
                                         mParameters.mRegularizationFactors,
                                         iV,
                                         iDependency,
@@ -1113,7 +1094,7 @@ namespace moris::gen
             Vector< real > tFactor = get_discretization_scaling_user_defined == nullptr ? Vector< real >( tDims, 1.0 ) : get_discretization_scaling_user_defined( Surface_Mesh::get_original_vertex_coordinates( iV ) );
 
             // Get the regularization dependencies for this vertex
-            Vector< moris_index > tVertexDependencies = regularization_vertex_inds( this->get_all_vertex_coordinates(), this->get_facet_connectivity(), mVertexConnectivity, mParameters.mRegularizationFactors, iV );
+            Vector< moris_index > tVertexDependencies = regularization_vertex_inds( Surface_Mesh::get_all_vertex_coordinates(), Surface_Mesh::get_facet_connectivity(), Surface_Mesh::get_vertex_connectivity(), mParameters.mRegularizationFactors, iV );
 
             // Loop through all the vertex dependencies and set the initial sensitivity to be identity
             for ( auto iDependency : tVertexDependencies )
@@ -1123,10 +1104,10 @@ namespace moris::gen
                 {
                     // Get dx_i/dx_k regularization sensitivity for this dependency vertex
                     Matrix< DDRMat > tDviDvk = regularization_sensitivity(
-                            this->get_all_vertex_coordinates(),
-                            this->get_all_original_vertex_coordinates(),
-                            this->get_facet_connectivity(),
-                            mVertexConnectivity,
+                            Surface_Mesh::get_all_vertex_coordinates(),
+                            Surface_Mesh::get_all_original_vertex_coordinates(),
+                            Surface_Mesh::get_facet_connectivity(),
+                            Surface_Mesh::get_vertex_connectivity(),
                             mParameters.mRegularizationFactors,
                             iV,
                             iDependency,
@@ -1366,22 +1347,6 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Vector< moris_index > >&
-    Surface_Mesh_Geometry::get_all_vertex_connectivity() const
-    {
-        return mVertexConnectivity;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    const Vector< moris_index >&
-    Surface_Mesh_Geometry::get_vertex_connectivity( uint aVertexIndex ) const
-    {
-        return mVertexConnectivity( aVertexIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Matrix< DDRMat >
     Surface_Mesh_Geometry::get_dvertex_dadv( const uint aFacetVertexIndex ) const
     {
@@ -1544,7 +1509,7 @@ namespace moris::gen
             {
                 const Node_Manager& tNodeManager = *mNodeManager;
                 const Derived_Node& tDerivedNode = tNodeManager.get_derived_node( aNodeIndex );
-                mPerturbationFields( iFieldIndex )->get_determining_adv_ids( tFieldADVIDs, tDerivedNode, *mNodeManager );
+                mPerturbationFields( iFieldIndex )->get_determining_adv_ids( tFieldADVIDs, tDerivedNode, tNodeManager );
             }
 
             // Append the ADV IDs to the output matrix
@@ -1639,7 +1604,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat > Surface_Mesh_Geometry::compute_vertex_basis(
-            const mtk::Cell*        aBackgroundElement,
+            const mtk::Cell&        aBackgroundElement,
             const Matrix< DDRMat >& aParametricCoordinates )
     {
         // build interpolator
@@ -1648,9 +1613,9 @@ namespace moris::gen
 
         // create interpolation function based on spatial dimension of problem
         tInterpolation = tFactory.create_interpolation_function(
-                aBackgroundElement->get_geometry_type(),
+                aBackgroundElement.get_geometry_type(),
                 mtk::Interpolation_Type::LAGRANGE,
-                aBackgroundElement->get_interpolation_order() );
+                aBackgroundElement.get_interpolation_order() );
 
         // compute basis function at the vertices
         Matrix< DDRMat > tBasis;
@@ -1658,7 +1623,6 @@ namespace moris::gen
 
         // clean up
         delete tInterpolation;
-
         return tBasis;
     }
 
@@ -1703,7 +1667,7 @@ namespace moris::gen
                     }
 
                     // Get the basis function values at the vertex location
-                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( mCurrentVertexBackgroundElements( iVertexIndex ), mVertexParametricCoordinates.get_column( iVertexIndex ) );
+                    Matrix< DDRMat > tBasis = this->compute_vertex_basis( *mCurrentVertexBackgroundElements( iVertexIndex ), mVertexParametricCoordinates.get_column( iVertexIndex ) );
                     mCurrentVertexBases.set_column( iVertexIndex, trans( tBasis ) );
                 }
             }
@@ -2129,8 +2093,8 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::string
-    Surface_Mesh_Geometry::get_name()
+    const std::string&
+    Surface_Mesh_Geometry::get_name() const
     {
         return mParameters.mName;
     }
@@ -2222,4 +2186,16 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
+    real Surface_Mesh_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
+    {
+        // TO IMPLEMENT
+        return 0.0;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
+    {
+        MORIS_ERROR( false, "Level_Set_Geometry::compute_GQI_sensitivities() - GQI sensitivities not implemented for level set geometry." );
+    }
 }    // namespace moris::gen

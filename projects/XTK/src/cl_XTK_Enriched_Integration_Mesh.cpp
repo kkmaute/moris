@@ -4603,10 +4603,10 @@ namespace moris::xtk
             /* ---------------------------------------------------------------------------------------- */
             // NOTE: If dbl.-SS. are used with an "un-enriched" basis, the base vertex interpolations would need to be communicated in addition to the enriched T-matrices
             // NOTE: This should generally NOT be done.
-            if ( mModel->mParameterList.exists( "unenriched_mesh_indices" ) )
+            if ( mModel->mParameterList( 0 )( 0 ).exists( "unenriched_mesh_indices" ) )
             {
                 Matrix< IndexMat > tUnenrichedBsplineMeshIndices;
-                moris::string_to_matrix( mModel->mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
+                moris::string_to_matrix( mModel->mParameterList( 0 )( 0 ).get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
                 bool tPerformUnenrichment = tUnenrichedBsplineMeshIndices.numel() > 0;
                 if ( tPerformUnenrichment )
                 {

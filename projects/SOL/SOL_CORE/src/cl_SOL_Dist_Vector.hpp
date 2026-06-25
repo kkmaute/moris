@@ -257,7 +257,21 @@ namespace moris::sol
                 const moris::uint&                 aNumIndices,
                 const moris::Matrix< DDSMat >&     aGlobalBlockRows,
                 const moris::uint&                 aBlockRowOffsets,
-                Vector< moris::Matrix< DDRMat > >& LHSValues ) = 0;
+                Vector< Matrix< DDRMat > >& LHSValues ) = 0;
+
+        /**
+         * Extracts owned values in this vector into a DDRMat.
+         *
+         * @param aNumIndices Number of indices to extract
+         * @param aGlobalBlockRows Global block rows
+         * @param aBlockRowOffsets Global row offsets
+         * @param LHSValues Matrix to extract into
+         */
+        virtual void extract_my_values(
+                const moris::uint&                 aNumIndices,
+                const Vector< sint >&              aGlobalBlockRows,
+                const moris::uint&                 aBlockRowOffsets,
+                Vector< Matrix< DDRMat > >& LHSValues ) = 0;
 
         /**
          * Gets a pointer to the real values stored in this vector.

@@ -50,4 +50,11 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+
+    bool Node::compute_sensitivity_along_edges() const
+    {
+        // Assme backgrod odes to be icosistet by defalt
+        return false;
+    }
+    
+}    // namespace moris::gen

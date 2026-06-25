@@ -59,7 +59,6 @@
 // FEM/MSI
 #include "cl_MSI_Solver_Interface.hpp"
 #include "MSI_Test_Proxy/cl_MTK_Vertex_Proxy.hpp"
-#include "MSI_Test_Proxy/cl_MTK_Cell_Proxy.hpp"
 #include "MSI_Test_Proxy/cl_MTK_Cluster_Proxy.hpp"
 // FEM/INT
 #include "cl_FEM_CM_Factory.hpp"

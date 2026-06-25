@@ -8,9 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
-#define MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
-
+#pragma once
 #include "core.hpp"
 #include "cl_OPT_Algorithm.hpp"
 #include "cl_Parameter_List.hpp"
@@ -21,18 +19,18 @@ using namespace moris;
 class OptAlgGCMMA : public moris::opt::Algorithm
 {
 
-private:
+  private:
     bool mPrint;
 
-    moris::uint mResFlag = 0;         // flag from GCMMA describing result of optimization algorithm
-    moris::sint mMaxInnerIterations;  // maximum inner iterations per every optimization iteration
-    moris::real mNormDrop;            // relative change in objective convergence criteria
-    moris::real mAsympAdapt0;         // initial asymptote adaptation factor
-    moris::real mAsympShrink;         // shrinking asymptote adaptation factor
-    moris::real mAsympExpand;         // expanding asymptote adaptation factor
-    moris::real mStepSize;            // GCMMA step size
-    moris::real mPenalty;             // GCMMA constraint penalty
-    moris::sint mIvers;               // GCMMA version
+    moris::uint mResFlag = 0;           // flag from GCMMA describing result of optimization algorithm
+    moris::sint mMaxInnerIterations;    // maximum inner iterations per every optimization iteration
+    moris::real mNormDrop;              // relative change in objective convergence criteria
+    moris::real mAsympAdapt0;           // initial asymptote adaptation factor
+    moris::real mAsympShrink;           // shrinking asymptote adaptation factor
+    moris::real mAsympExpand;           // expanding asymptote adaptation factor
+    moris::real mStepSize;              // GCMMA step size
+    moris::real mPenalty;               // GCMMA constraint penalty
+    moris::sint mIvers;                 // GCMMA version
 
     /**
      * @brief External function call for computing objective and constraints, to
@@ -56,40 +54,36 @@ private:
             double**     aD_Con,
             int*         aActive );
 
-public:
-
+  public:
     /**
      * Constructor
      */
-  OptAlgGCMMA( const moris::Parameter_List& aParameterList );
+    OptAlgGCMMA( const moris::Parameter_List& aParameterList, std::shared_ptr< moris::opt::Problem > aProblem = nullptr );
 
-  /**
-   * Destructor
-   */
-  ~OptAlgGCMMA() override;
+    /**
+     * Destructor
+     */
+    ~OptAlgGCMMA() override;
 
-  /**
-   * @brief MORIS interface for solving of optimization problem using
-   *        GCMMA
-   *
-   * @param[in] aCurrentOptAlgInd index of optimization algorithm
-   * @param[in] aOptProb Object of type Problem containing relevant
-   *            data regarding ADVs, the objective and constraints
-   */
-  uint solve(
-          uint                                   aCurrentOptAlgInd,
-          std::shared_ptr< moris::opt::Problem > aOptProb ) override;
+    /**
+     * @brief MORIS interface for solving of optimization problem using
+     *        GCMMA
+     *
+     * @param[in] aCurrentOptAlgInd index of optimization algorithm
+     * @param[in] aOptProb Object of type Problem containing relevant
+     *            data regarding ADVs, the objective and constraints
+     */
+    uint solve(
+            uint                                   aCurrentOptAlgInd,
+            std::shared_ptr< moris::opt::Problem > aOptProb ) override;
 
-  /**
-   *@brief Run GCMMA algorithm
-   */
-  void gcmma_solve();
+    /**
+     *@brief Run GCMMA algorithm
+     */
+    void gcmma_solve();
 
-  /**
-   *@brief Prints result of the GCMMA algorithm based on mStopFlag
-   */
-  void printresult();
+    /**
+     *@brief Prints result of the GCMMA algorithm based on mStopFlag
+     */
+    void printresult();
 };
-
-#endif /* MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_ */
-

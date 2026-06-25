@@ -294,9 +294,6 @@ namespace moris::xtk
             // Get the intersected cell from the background mesh, its cell info, and connectivity
             mtk::Cell& tCell = aBackgroundMesh->get_mtk_cell( tBgCellIndex );
 
-            // Get the type of cell (tri, quad, tet, hex)
-            mtk::Geometry_Type tCellType = tCell.get_geometry_type();
-
             //-------------------------------------------------------
             // Make requests for surface points inside the cell
             //-------------------------------------------------------
@@ -347,9 +344,7 @@ namespace moris::xtk
                     mGeometryEngine->create_floating_node(
                             mMeshGenerationData->mDelaunayGeometryIndices( tBgCellIndex )( iPoint ),
                             tCell,
-                            tSurfacePoints.get_row( iPoint ),
-                            tCellType,
-                            tCell.get_interpolation_order() );
+                            tSurfacePoints.get_row( iPoint ) );
                 }
             }    // end for: iterate through surface points
 

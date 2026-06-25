@@ -131,7 +131,7 @@ namespace moris::xtk
             std::shared_ptr< mtk::Mesh_Manager > pOutputMTK = std::make_shared< mtk::Mesh_Manager >();
 
             // XTK initialize
-            std::shared_ptr< xtk::Model > pXTK = std::make_shared< xtk::Model >( tXTKParams( 0 )( 0 ) );
+            std::shared_ptr< xtk::Model > pXTK = std::make_shared< xtk::Model >( tXTKParams );
 
             // Set performer to HMR
             pHMR->set_performer( pBGMTK );

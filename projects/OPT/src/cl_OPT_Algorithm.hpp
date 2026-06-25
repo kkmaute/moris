@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_CL_OPT_ALGORITHM_HPP_
-#define MORIS_CL_OPT_ALGORITHM_HPP_
+#pragma once
 
 #include "cl_Parameter_List.hpp"
 #include "cl_OPT_Problem.hpp"
@@ -80,7 +79,7 @@ namespace moris::opt
         /**
          * Constructor
          */
-        Algorithm();
+        Algorithm( std::shared_ptr< Problem > aProblem = nullptr );
 
         /**
          * Destructor
@@ -187,7 +186,4 @@ namespace moris::opt
         const Matrix< DDRMat >& get_constraint_gradients_analytically();
         const Matrix< DDRMat >& get_constraint_gradients_by_fd();
     };
-    }
-
-#endif /* MORIS_CL_OPT_ALGORITHM_HPP_ */
-
+}    // namespace moris::opt

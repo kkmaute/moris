@@ -115,7 +115,7 @@ namespace moris
             // pointer to library for input reading
             std::shared_ptr< Library_IO > mLibrary = nullptr;
 
-            MSI::Design_Variable_Interface *mDesignVariableInterface = nullptr;
+            std::shared_ptr< MSI::Design_Variable_Interface > mDesignVariableInterface = nullptr;
 
             Module_Parameter_Lists mFEMParameterList = Module_Parameter_Lists( Module_Type::FEM );
             Module_Parameter_Lists mMSIParameterList = Module_Parameter_Lists( Module_Type::MSI );
@@ -152,12 +152,12 @@ namespace moris
              * @param[ in ] aUseMultigrid  bool for multigrid use
              */
             Model(
-                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-                    const uint                           aBSplineIndex,
-                    Vector< fem::Set_User_Info >        &aSetInfo,
-                    MSI::Design_Variable_Interface      *aDesignVariableInterface,
-                    const moris_index                    aMeshPairIndex = 0,
-                    const bool                           aUseMultigrid  = false );
+                    std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+                    const uint                                        aBSplineIndex,
+                    Vector< fem::Set_User_Info >                     &aSetInfo,
+                    std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface,
+                    const moris_index                                 aMeshPairIndex,
+                    const bool                                        aUseMultigrid );
 
             //------------------------------------------------------------------------------
             /**
@@ -214,7 +214,10 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_design_variable_interface( MSI::Design_Variable_Interface *aDesignVariableInterface );
+            void set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface );
+
+            const std::shared_ptr< MSI::Design_Variable_Interface > get_design_variable_interface();
+
 
             //------------------------------------------------------------------------------
             /**

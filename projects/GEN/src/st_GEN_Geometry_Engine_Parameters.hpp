@@ -35,10 +35,10 @@ namespace moris::gen
         ADV_Manager                           mADVManager;
         Vector< std::shared_ptr< Geometry > > mGeometries        = {};
         Vector< std::shared_ptr< Property > > mProperties        = {};
-        Matrix< DDUMat >                      mBulkPhases        = {{}};
-        Vector< std::string >                 mRequestedIQIs     = {};
+        Matrix< DDUMat >                      mBulkPhases        = { {} };
+        Vector< std::string >                 mRequestedQIs      = {};
         std::string                           mGeometryFieldFile = "";
         std::string                           mOutputMeshFile    = "";
         real                                  mTimeOffset        = 0.0;
     };
-}
+}    // namespace moris::gen

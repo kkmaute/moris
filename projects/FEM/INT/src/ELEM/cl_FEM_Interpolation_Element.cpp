@@ -468,7 +468,7 @@ namespace moris::fem
     void Interpolation_Element::fill_mat_pdv_assembly_vector()
     {
         // get the design variable interface
-        MSI::Design_Variable_Interface* tDVInterface =
+        std::shared_ptr< const MSI::Design_Variable_Interface > tDVInterface =
                 mSet->mEquationModel->get_design_variable_interface();
 
         // get the list of requested dv types by the opt solver
@@ -486,7 +486,7 @@ namespace moris::fem
 
         // get extraction operators for the cluster for each requested PDV type and IP node (basis)
         Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > > tIPExtractionOperatorsLeader =
-                tDVInterface->get_ip_desgin_extraction_operators( tLeaderVerticesInds, tRequestedDvTypesLeader );
+                tDVInterface->get_ip_design_extraction_operators( tLeaderVerticesInds, tRequestedDvTypesLeader );
 
         // reset IP Adv list
         mSet->mIPAdvIds.clear();
@@ -548,7 +548,7 @@ namespace moris::fem
 
             // get extraction operators for the cluster for each requested PDV type and IP node (basis)
             Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > > tIPExtractionOperatorsFollower =
-                    tDVInterface->get_ip_desgin_extraction_operators( tFollowerVerticesInds, tRequestedDvTypesFollower );
+                    tDVInterface->get_ip_design_extraction_operators( tFollowerVerticesInds, tRequestedDvTypesFollower );
 
             // get unique adv ids for ip extraction operators on cluster
             tDVInterface->build_local_adv_indices(

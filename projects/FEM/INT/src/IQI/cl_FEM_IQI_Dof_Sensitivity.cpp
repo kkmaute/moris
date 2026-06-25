@@ -86,7 +86,7 @@ namespace moris::fem
             {
                 const Matrix< DDRMat >& tSpatialGradient = tFI->gradx( 1 );
 
-                if ( mQuantityDofType.size() > 1 && mIQITypeIndex != -1 )
+                if ( mQuantityDofType.size() > 0 && mIQITypeIndex != -1 )
                 {
 
                     aQI( 0 ) += dot( tSpatialGradient.get_column( mIQITypeIndex ), tDxDp.get_column( tLocalAdvIndex ) );

@@ -8,11 +8,12 @@
  *
  */
 
-#ifndef PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
-#define PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_
+#pragma once
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
+
+#include "cl_MSI_Design_Variable_Interface.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -41,7 +42,6 @@ namespace moris
         class MSI_Solver_Interface;
         class Equation_Set;
         class Equation_Object;
-        class Design_Variable_Interface;
         enum class Dof_Type;
         //------------------------------------------------------------------------------
 
@@ -50,6 +50,8 @@ namespace moris
           protected:
             // list of equation sets
             Vector< MSI::Equation_Set* > mFemSets;
+            // List of GQIs
+            // Vector< std::shared_ptr< fem::GQI > > mGQIs;
 
             // list of equation objects
             Vector< MSI::Equation_Object* > mFemClusters;
@@ -66,7 +68,7 @@ namespace moris
 
             sol::Dist_Map* mdQIdpMap = nullptr;
 
-            Vector< moris::Matrix< DDRMat > > mGlobalIQIVal;
+            // Vector< moris::Matrix< DDRMat > > mGlobalIQIVal;
 
             sol::Dist_Vector* mImplicitdQidp = nullptr;
             sol::Dist_Vector* mExplicitdQidp = nullptr;
@@ -76,7 +78,7 @@ namespace moris
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
 
-            MSI::Design_Variable_Interface* mDesignVariableInterface = nullptr;
+            std::shared_ptr< MSI::Design_Variable_Interface > mDesignVariableInterface = nullptr;
 
             bool mIsForwardAnalysis             = true;
             bool mIsAdjointSensitivityAnalysis  = true;
@@ -379,7 +381,7 @@ namespace moris
              * @param[ in ] aDesignVariableInterface pointer to design variable interface
              */
             void
-            set_design_variable_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
+            set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
             {
                 mDesignVariableInterface = aDesignVariableInterface;
             }
@@ -389,7 +391,7 @@ namespace moris
              * @brief get pointer to design variable interface
              * @returns pointer to design variable interface
              */
-            MSI::Design_Variable_Interface*
+            std::shared_ptr< const MSI::Design_Variable_Interface >
             get_design_variable_interface()
             {
                 return mDesignVariableInterface;
@@ -402,20 +404,12 @@ namespace moris
              */
             virtual void set_requested_IQI_names( const Vector< std::string >& aRequestedIQINames ) = 0;
 
-            //------------------------------------------------------------------------------
+            // //------------------------------------------------------------------------------
             /**
              * @brief get requested IQI names
              */
-            virtual const Vector< std::string >&
+            virtual const Vector< std::string >
             get_requested_IQI_names() = 0;
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief set requested IQI names
-             * @param[ in ] aRequestedIQINames List of requested IQI names
-             */
-            virtual void
-            create_IQI_map() = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -512,13 +506,13 @@ namespace moris
             /**
              * compute implicit dQidp
              */
-            //            void compute_implicit_dQIdp();
+            void compute_implicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**
              * compute explicit dQidp
              */
-            //            void compute_explicit_dQIdp();
+            void compute_explicit_dQIdp();
 
             //------------------------------------------------------------------------------
             /**
@@ -528,10 +522,6 @@ namespace moris
                     MSI::Model_Solver_Interface* aModelSolverInterface );
 
             //------------------------------------------------------------------------------
-            /**
-             * @brief initialize QI
-             */
-            virtual void initialize_IQIs() = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -541,7 +531,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * @brief computes the "requested" IQIs which are set in GEN parameter list
+             * @brief Computes the IQIs that are being used for optimization ONLY.
+             * These come from the GEN parameter list, and this function is only used for optimization problems.
              */
             void compute_IQIs();
 
@@ -551,17 +542,11 @@ namespace moris
              *
              * @returns mGlobalIQIVal cell filled with global QI values
              */
-            Vector< moris::Matrix< DDRMat > >&
+            Vector< moris::Matrix< DDRMat > >
             get_IQI_values()
             {
-                return mGlobalIQIVal;
+                return mDesignVariableInterface->get_all_QI_values< Matrix< DDRMat > >();
             }
-
-            //------------------------------------------------------------------------------
-            /**
-             * @brief Scale the IQIs according to user input. Default does nothing, scaling is done in child class.
-             */
-            virtual void normalize_IQIs() {};
 
             //------------------------------------------------------------------------------
             /**
@@ -695,5 +680,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace MSI */
 } /* namespace moris */
-
-#endif /* PROJECTS_FEM_MDL_SRC_CL_MSI_MODEL_HPP_ */

@@ -79,6 +79,7 @@ namespace moris::gen
     //-------------------------------------------------------------------------------
 
     class PDV_Host_Manager : public MSI::Design_Variable_Interface
+            , public std::enable_shared_from_this< PDV_Host_Manager >
     {
       private:
         // Node manager
@@ -137,7 +138,7 @@ namespace moris::gen
          *
          * @param aNodeManager Node manager from the geometry engine
          */
-        explicit PDV_Host_Manager( Node_Manager& aNodeManager );
+        explicit PDV_Host_Manager( Node_Manager& aNodeManager, Vector< std::string >& aRequestedQIs );
 
         /**
          * Destructor
@@ -210,7 +211,7 @@ namespace moris::gen
         void
         get_ip_dv_types_for_set(
                 moris_index         aIGMeshSetIndex,
-                Vector< PDV_Type >& aPDVTypes ) override;
+                Vector< PDV_Type >& aPDVTypes ) const override;
 
         /**
          * Get dv types for set
@@ -220,8 +221,8 @@ namespace moris::gen
          */
         void
         get_ig_dv_types_for_set(
-                moris_index                   aIGMeshSetIndex,
-                Vector< Vector< PDV_Type > >& aPDVTypes ) override;
+                const moris_index             aIGMeshSetIndex,
+                Vector< Vector< PDV_Type > >& aPDVTypes ) const override;
 
         /**
          * Get unique dv types for set /// needs to be removed
@@ -231,8 +232,8 @@ namespace moris::gen
          */
         void
         get_ig_unique_dv_types_for_set(
-                moris_index         aIGMeshSetIndex,
-                Vector< PDV_Type >& aPDVTypes ) override;
+                const moris_index   aIGMeshSetIndex,
+                Vector< PDV_Type >& aPDVTypes ) const override;
 
         /**
          * Get pdv values for requested vertex indices and dv types
@@ -245,7 +246,7 @@ namespace moris::gen
         get_ip_pdv_value(
                 const Matrix< IndexMat >&   aNodeIndices,
                 const Vector< PDV_Type >&   aPDVTypes,
-                Vector< Matrix< DDRMat > >& aDvValues ) override;
+                Vector< Matrix< DDRMat > >& aDvValues ) const override;
 
         /**
          * Get pdv values for requested vertex indices and dv types
@@ -257,28 +258,28 @@ namespace moris::gen
          */
         void
         get_ig_pdv_value(
-                const Matrix< IndexMat >&   aNodeIndices,
-                const Vector< PDV_Type >&   aPDVTypes,
-                Vector< Matrix< DDRMat > >& aDvValues,
-                Vector< Vector< bool > >&   aIsActiveDv ) override;
+                const Vector< moris_index >& aNodeIndices,
+                const Vector< PDV_Type >&    aPDVTypes,
+                Vector< Matrix< DDRMat > >&  aDvValues,
+                Vector< Vector< bool > >&    aIsActiveDv ) const override;
 
         //-------------------------------------------------------------------------------
 
         Vector< std::shared_ptr< Design_Extraction_Operator > >
-        get_ig_desgin_extraction_operators( const Matrix< moris::IndexMat >& ) override;
+        get_ig_design_extraction_operators( const Matrix< moris::IndexMat >& ) const override;
 
         //-------------------------------------------------------------------------------
 
         Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >
-        get_ip_desgin_extraction_operators(
+        get_ip_design_extraction_operators(
                 const Matrix< moris::IndexMat >&,
-                const Vector< enum gen::PDV_Type >& ) override;
+                const Vector< enum gen::PDV_Type >& ) const override;
 
         //-------------------------------------------------------------------------------
 
         Vector< sint >
         build_local_adv_indices(
-                Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& aExtractionOperators ) override;
+                Vector< std::shared_ptr< gen::Design_Extraction_Operator > >& aExtractionOperators ) const override;
 
         //-------------------------------------------------------------------------------
 
@@ -287,7 +288,7 @@ namespace moris::gen
                 Vector< Vector< std::shared_ptr< gen::Design_Extraction_Operator > > >& aExtractionOperators,
                 Vector< Vector< Matrix< DDRMat > > >&                                   aAdvPropWeights,
                 Vector< sint >&                                                         aAdvIds,
-                Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap ) override;
+                Vector< Matrix< DDSMat > >&                                             aDVTypeAdvMap ) const override;
 
         //-------------------------------------------------------------------------------
 
@@ -295,7 +296,7 @@ namespace moris::gen
         populate_adv_geo_weights(
                 const std::shared_ptr< gen::Design_Extraction_Operator >& aOperator,
                 Matrix< DDRMat >&                                         aAdvGeoWeights,
-                const uint                                                aNumAdvs ) override;
+                const uint                                                aNumAdvs ) const override;
 
         /**
          * Get the local to global pdv type map
@@ -316,7 +317,7 @@ namespace moris::gen
         void get_ip_dv_ids_for_type_and_ind(
                 const Matrix< IndexMat >&  aNodeIndices,
                 const Vector< PDV_Type >&  aPDVTypes,
-                Vector< Matrix< IdMat > >& aDvIds ) override;
+                Vector< Matrix< IdMat > >& aDvIds ) const override;
 
         /**
          * Get local to global DV type map
@@ -326,16 +327,16 @@ namespace moris::gen
          * @param aDvIds     List of Dv Ids
          */
         void get_ig_dv_ids_for_type_and_ind(
-                const Matrix< IndexMat >&  aNodeIndices,
-                const Vector< PDV_Type >&  aPDVTypes,
-                Vector< Matrix< IdMat > >& aDvIds ) override;
+                const Vector< moris_index >&     aNodeIndices,
+                const Vector< PDV_Type >&        aPDVTypes,
+                Vector< Vector< moris_index > >& aDvIds ) const override;
 
         /**
          * Get requested pdv types on interpolation mesh nodes for sensitivity analysis
          *
          * @param[ in ] aPDVTypes list of dv types to fill
          */
-        void get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes ) override;
+        void get_ip_requested_dv_types( Vector< PDV_Type >& aPDVTypes ) const override;
 
         /**
          * Get requested pdv types on integration mesh nodes for sensitivity analysis
@@ -440,7 +441,7 @@ namespace moris::gen
          *
          * @return Matrix of optimization sensitivities
          */
-        Matrix< DDRMat > compute_diqi_dadv( const Vector< sint >& aFullADVIds );
+        Matrix< DDRMat > compute_dqi_dadv( const Vector< sint >& aFullADVIds, sol::Dist_Vector* aFulldQIdADV );
 
         void communicate_dof_types( Vector< enum PDV_Type >& aPDVTypeList );
 
@@ -452,12 +453,6 @@ namespace moris::gen
 
         void create_pdv_ids();
 
-        //-------------------------------------------------------------------------------
-
-        void
-        set_dQIdp(
-                const Vector< Matrix< DDRMat >* >& adQIdp,
-                Matrix< DDSMat >*                  aMap );
 
         //-------------------------------------------------------------------------------
 
@@ -509,5 +504,12 @@ namespace moris::gen
         void build_local_to_global_maps();
 
         //-------------------------------------------------------------------------------
+        /**
+         * Tells FEM to ensure we create PDV IDs for GEN nodes for optimization
+         * FIXME @bc: There should be a cleaner way to handle this through inheritance - the FEM model, relies on knowing this info
+         * to avoid creating PDV IDs for nodes if we are doing STK. Thus if body fitted shape optimization was implemented this would
+         * be unnecessary.
+         */
+        virtual bool is_gen_workflow() const final;
     };
 }    // namespace moris::gen

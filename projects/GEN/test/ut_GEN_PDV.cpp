@@ -13,6 +13,8 @@
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
+#include "cl_MTK_Cell_Proxy.hpp"
+#include "cl_MTK_Cell_Info_Quad4.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Design_Factory.hpp"
@@ -54,13 +56,19 @@ namespace moris::gen
     {
       public:
         explicit PDV_Host_Manager_Test( Node_Manager& aNodeManager = Node_Manager::get_trivial_instance() )
-                : PDV_Host_Manager( aNodeManager )
+                : PDV_Host_Manager( aNodeManager, *( new Vector< std::string >() ) )
         {
         }
 
         sol::Dist_Vector*
-        get_dQIdp() override
+        get_dQIdp( Module_Type aModule ) override
         {
+            // Testing as if this was a FEM IQI
+            if ( aModule != Module_Type::FEM )
+            {
+                return nullptr;
+            }
+
             // Factory
             sol::Matrix_Vector_Factory tDistributedFactory;
 
@@ -376,8 +384,14 @@ namespace moris::gen
                 tPDVHostManager.mIGVertexIdtoIndMap[ 3 ] = 1;
             }
 
+            // Create dummy mtk cell to assign to intersection nodes
+            std::shared_ptr< mtk::Cell_Info > tCellInfo = std::make_shared< mtk::Cell_Info_Quad4 >();
+            mtk::Cell_Proxy                   tCell;
+            tCell.set_mtk_cell_info( tCellInfo );
+
             // Loop over all node indices
-            Vector< Background_Node* > tTemporaryBackgroundNodes;
+            Vector< Background_Node* >
+                    tTemporaryBackgroundNodes;
             for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIdsPerSet.length(); tNodeIndex++ )
             {
                 // Go around a circle to create parent coordinates
@@ -387,9 +401,9 @@ namespace moris::gen
 
                 // Create parent nodes
                 auto        tFirstNode = new Background_Node( 0, tFirstParentCoordinates );
-                Parent_Node tFirstParentNode( *tFirstNode, { { -1.0 } } );
+                Parent_Node tFirstParentNode( *tFirstNode, { { -1.0, 0.0 } } );
                 auto        tSecondNode = new Background_Node( 0, tSecondParentCoordinates );
-                Parent_Node tSecondParentNode( *tSecondNode, { { 1.0 } } );
+                Parent_Node tSecondParentNode( *tSecondNode, { { 1.0, 0.0 } } );
 
                 // Background nodes need to be deleted later
                 tTemporaryBackgroundNodes.push_back( tFirstNode );
@@ -401,11 +415,10 @@ namespace moris::gen
                 // Create intersection node
                 auto tIntersectionNode = new Intersection_Node_Linear(
                         tNodeIndex,
-                        tBackgroundNodes,
+                        tCell,
+                        tNodeManager,
                         tFirstParentNode,
                         tSecondParentNode,
-                        mtk::Geometry_Type::LINE,
-                        mtk::Interpolation_Order::LINEAR,
                         *tCircleGeometry );
 
                 // Add to node manager
@@ -478,7 +491,11 @@ namespace moris::gen
             {
                 tFullADVIds = tOwnedADVIds;
             }
-            Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_diqi_dadv( tFullADVIds );
+
+            sol::Matrix_Vector_Factory tDistributedFactory;
+            sol::Dist_Map*             tADVMap   = tDistributedFactory.create_map( tFullADVIds );
+            sol::Dist_Vector*          tdADV     = tDistributedFactory.create_vector( tADVMap, 1, false, true );
+            Matrix< DDRMat >           tdIQIdADV = tPDVHostManager.compute_dqi_dadv( tFullADVIds, tdADV );
 
             // Check sensitivities
             if ( par_rank() == 0 )
@@ -578,6 +595,16 @@ namespace moris::gen
         // Owned ADV IDs
         tPDVHostManager.set_owned_adv_ids( { 2 * par_rank(), 2 * par_rank() + 1 } );
 
+        // Add QIs
+        tPDVHostManager.register_QI( "TrickGQI1", Module_Type::GEN, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickIQI3", Module_Type::FEM, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickXQI1", Module_Type::XTK, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrivialIQI1", Module_Type::FEM, 0.0 );    // Requested for optimization
+        tPDVHostManager.register_QI( "TrickXQI2", Module_Type::XTK, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrivialIQI2", Module_Type::FEM, 0.0 );    // Requested for optimization
+        tPDVHostManager.register_QI( "TrickGQI2", Module_Type::GEN, 0.0 );      // Dummy to make sure indexing is correct
+        tPDVHostManager.register_QI( "TrickIQI4", Module_Type::FEM, 0.0 );      // Dummy to make sure indexing is correct
+
         // Full ADV IDs
         Vector< sint > tFullADVIds;
         if ( par_rank() == 0 )
@@ -589,8 +616,14 @@ namespace moris::gen
             }
         }
 
+        sol::Matrix_Vector_Factory tDistributedFactory;
+        sol::Dist_Map*             tADVMap = tDistributedFactory.create_map( tFullADVIds );
+        sol::Dist_Vector*          tdADV   = tDistributedFactory.create_vector( tADVMap, 2, false, true );
+
+        tPDVHostManager.set_requested_QIs( { "TrivialIQI1", "TrivialIQI2" } );
+
         // Compute sensitivities
-        Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_diqi_dadv( tFullADVIds );
+        Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_dqi_dadv( tFullADVIds, tdADV );
 
         // Check sensitivities
         REQUIRE( tdIQIdADV.n_rows() == 2 );

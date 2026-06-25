@@ -2063,7 +2063,7 @@ namespace moris::fem
                 "Trying to set PDV assembly map on a VIS cluster. This shouldn't happen." );
 
         // get the design variable interface
-        MSI::Design_Variable_Interface* tDVInterface =
+        std::shared_ptr< const MSI::Design_Variable_Interface > tDVInterface =
                 mEquationModel->get_design_variable_interface();
 
         // check that the design interface exists
@@ -2076,7 +2076,7 @@ namespace moris::fem
         aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
 
         // get extraction operators for the cluster; current implementation only works for conformal side sets
-        mIGExtractionOperators = tDVInterface->get_ig_desgin_extraction_operators( tNodeIndicesOnCluster );
+        mIGExtractionOperators = tDVInterface->get_ig_design_extraction_operators( tNodeIndicesOnCluster );
 
         mIGAdvIds = tDVInterface->build_local_adv_indices( mIGExtractionOperators );
 
@@ -3709,7 +3709,7 @@ namespace moris::fem
             Vector< enum gen::PDV_Type >& aGeoPdvType )
     {
         // get design variable interface
-        MSI::Design_Variable_Interface* tPdvInterface =
+        std::shared_ptr< const MSI::Design_Variable_Interface > tPdvInterface =
                 mEquationModel->get_design_variable_interface();
 
         // if the pdv interface is set
@@ -3801,8 +3801,7 @@ namespace moris::fem
         }
 
         // get design variable interfac
-        MSI::Design_Variable_Interface* tDVInterface =
-                mEquationModel->get_design_variable_interface();
+        std::shared_ptr< const MSI::Design_Variable_Interface > tDVInterface = mEquationModel->get_design_variable_interface();
 
         // loop over all vertices in cluster
         for ( uint iVert = 0; iVert < tNumVertices; ++iVert )

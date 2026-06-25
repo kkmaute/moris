@@ -153,12 +153,12 @@ namespace moris::mdl
 
     //------------------------------------------------------------------------------
     Model::Model(
-            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const uint                           aBSplineIndex,
-            Vector< fem::Set_User_Info >&        aSetInfo,
-            MSI::Design_Variable_Interface*      aDesignVariableInterface,
-            const moris_index                    aMeshPairIndex,
-            const bool                           aUseMultigrid )
+            std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+            const uint                                        aBSplineIndex,
+            Vector< fem::Set_User_Info >&                     aSetInfo,
+            std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface,
+            const moris_index                                 aMeshPairIndex,
+            const bool                                        aUseMultigrid )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mBSplineIndex( aBSplineIndex )
@@ -310,7 +310,6 @@ namespace moris::mdl
                     mMeshPairIndex,
                     mFEMParameterList,
                     mDesignVariableInterface );
-            // tDofTypeToBsplineMeshIndex );
 
             // build a map relating the dof types to their respective B-spline mesh indices and pass it to the FEM model
             std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToBsplineMeshIndex = this->build_dof_type_to_mesh_index();
@@ -321,12 +320,6 @@ namespace moris::mdl
 
             // initialize the Equation Model
             mEquationModel->initialize_from_inputfile( mLibrary );
-
-            // set the equation model if using design variables
-            if ( mDesignVariableInterface != nullptr )
-            {
-                mDesignVariableInterface->set_equation_model( mEquationModel );
-            }
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -419,14 +412,12 @@ namespace moris::mdl
     {
         mEquationModel->set_is_forward_analysis();
 
-        mEquationModel->initialize_IQIs();
-
         mSolverWarehouse->get_main_time_solver()->solve();
     }
 
     //------------------------------------------------------------------------------
 
-    Vector< moris::Matrix< DDRMat > >
+    Vector< Matrix< DDRMat > >
     Model::get_IQI_values()
     {
         return mEquationModel->get_IQI_values();
@@ -442,25 +433,36 @@ namespace moris::mdl
         // activate sensitivity analysis and set type of sensitivity analysis
         mEquationModel->set_sensitivity_analysis_type( tIsAdjointSensitivityAnalysis );
 
-        // initialize computation of dQdp
-        mEquationModel->initialize_explicit_and_implicit_dQIdp();
+        if ( mEquationModel->get_num_rhs() != 0 )
+        {
+            // initialize computation of dQdp
+            mEquationModel->initialize_explicit_and_implicit_dQIdp();
 
-        // compute sensitivities
-        mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+            // compute sensitivities
+            mSolverWarehouse->get_main_time_solver()->solve_sensitivity();
+        }
     }
 
     //------------------------------------------------------------------------------
     void
-    Model::set_design_variable_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
+    Model::set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
     {
         mDesignVariableInterface = aDesignVariableInterface;
-
-        //            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-        //
-        //            mDesignVariableInterface->set_equation_model( mEquationModel );
+        if ( mEquationModel != nullptr )
+        {
+            mEquationModel->set_design_variable_interface( aDesignVariableInterface );
+        }
     }
 
     //------------------------------------------------------------------------------
+
+    const std::shared_ptr< MSI::Design_Variable_Interface > Model::get_design_variable_interface()
+    {
+        return mDesignVariableInterface;
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     Model::set_weak_bcs( const Matrix< DDRMat >& aWeakBCs )
     {

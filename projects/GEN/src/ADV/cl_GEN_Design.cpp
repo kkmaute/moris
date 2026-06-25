@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Design.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris::gen
 {
@@ -412,5 +413,34 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+    // Geometry Quantity of Interest (GQI) functions
+    //--------------------------------------------------------------------------------------------------------------
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< real >
+    Design::compute_GQIs( sol::Dist_Vector*                          aGQISensitivities,
+            const Vector< std::shared_ptr< Parameter_List const > >& aGQIParameters,
+            const Vector< uint >&                                    aRequestIndices,
+            const std::shared_ptr< Library_IO >                      aLibrary )
+    {
+        Tracer tTracer( "GEN", this->get_name(), "compute_all_GQIs" );
+
+        Vector< real > tGQIValues( aRequestIndices.size(), MORIS_REAL_MAX );
+
+        for ( uint iGQI = 0; iGQI < aRequestIndices.size(); iGQI++ )
+        {
+            // Compute the GQI value, store for output
+            tGQIValues( iGQI ) = this->compute_GQI( aGQIParameters( iGQI ), aLibrary );
+
+            // Check if the sensitivities are requested
+            if ( aRequestIndices( iGQI ) != MORIS_UINT_MAX )
+            {
+                this->compute_GQI_sensitivities( aGQIParameters( iGQI ), aGQISensitivities, aRequestIndices( iGQI ) );
+            }
+        }
+
+        return tGQIValues;
+    }
 
 }    // namespace moris::gen

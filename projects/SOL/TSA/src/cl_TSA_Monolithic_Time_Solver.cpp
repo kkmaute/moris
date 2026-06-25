@@ -210,7 +210,6 @@ void Monolithic_Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
 
 void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
 {
-    mNonlinearSolver->get_my_nonlin_problem()->set_time_value( aLambdaInc );
     mLambdaInc = aLambdaInc;
 }
 

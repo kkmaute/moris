@@ -48,7 +48,7 @@ namespace moris::opt
 
         for ( uint tAlgorithmIndex = 0; tAlgorithmIndex < tNumAlgorithms; tAlgorithmIndex++ )
         {
-            mAlgorithms.push_back( create_algorithm( aAlgorithmParameterLists( tAlgorithmIndex ) ) );
+            mAlgorithms.push_back( create_algorithm( aAlgorithmParameterLists( tAlgorithmIndex ), mProblem ) );
         }
     }
 

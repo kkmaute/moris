@@ -11,6 +11,7 @@
 #include "cl_XTK_Model.hpp"
 
 #include <utility>
+#include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
@@ -36,12 +37,15 @@
 #include "cl_MTK_Visualization_STK.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Integration_Surface_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "cl_XTK_Basis_Processor.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "GEN_Data_Types.hpp"
 
 using namespace moris;
 
@@ -84,7 +88,7 @@ namespace moris::xtk
             moris::mtk::Interpolation_Mesh *aMeshData,
             moris::gen::Geometry_Engine    *aGeometryEngine,
             bool                            aLinkGeometryOnConstruction )
-            : mParameterList( "None" )
+            : mParameterList( Module_Type::XTK )
             , mModelDimension( aModelDimension )
             , mBackgroundMesh( aMeshData )
             , mCutMesh( this, mModelDimension )
@@ -96,15 +100,15 @@ namespace moris::xtk
             , mConvertedToTet10s( false )
     {
         // flag this as a non-parameter list based run
-        mParameterList.insert( "has_parameter_list", false );
+        mParameterList( 0 )( 0 ).insert( "has_parameter_list", false );
 
         // flag that this field is false, this is for unit testing where enrichment is used
-        mParameterList.insert( "write_cell_enrichments_levels", false );
+        mParameterList( 0 )( 0 ).insert( "write_cell_enrichments_levels", false );
     }
 
     // ----------------------------------------------------------------------------------
 
-    Model::Model( moris::Parameter_List const &aParameterList )
+    Model::Model( moris::Module_Parameter_Lists const &aParameterList )
             : mParameterList( aParameterList )
             , mModelDimension( UINT_MAX )
             , mEnrichment( nullptr )
@@ -114,12 +118,12 @@ namespace moris::xtk
             , mConvertedToTet10s( false )
     {
         // flag this as a parameter list based run
-        mParameterList.insert( "has_parameter_list", true );
+        mParameterList( 0 )( 0 ).insert( "has_parameter_list", true );
 
         this->setup_diagnostics(
-                mParameterList.get< bool >( "diagnostics" ),
-                mParameterList.get< std::string >( "diagnostics_path" ),
-                mParameterList.get< std::string >( "diagnostics_id" ) );
+                mParameterList( 0 )( 0 ).get< bool >( "diagnostics" ),
+                mParameterList( 0 )( 0 ).get< std::string >( "diagnostics_path" ),
+                mParameterList( 0 )( 0 ).get< std::string >( "diagnostics_id" ) );
     }
 
     // ----------------------------------------------------------------------------------
@@ -195,8 +199,8 @@ namespace moris::xtk
     {
         Tracer tTracer( "XTK", "Overall", "Run" );
 
-        mVerbose      = mParameterList.get< bool >( "verbose" );
-        mVerboseLevel = mParameterList.get< uint >( "verbose_level" );
+        mVerbose      = mParameterList( 0 )( 0 ).get< bool >( "verbose" );
+        mVerboseLevel = mParameterList( 0 )( 0 ).get< uint >( "verbose_level" );
 
         if ( !mInitializeCalled )
         {
@@ -211,25 +215,25 @@ namespace moris::xtk
         MORIS_ASSERT( this->has_parameter_list(), "Perform can only be called on a parameter list based XTK" );
         MORIS_ERROR( this->valid_parameters(), "Invalid parameters detected in XTK." );
 
-        if ( mParameterList.get< std::string >( "probe_bg_cells" ) != "" )
+        if ( mParameterList( 0 )( 0 ).get< std::string >( "probe_bg_cells" ) != "" )
         {
             Matrix< IdMat > tBgCellIds;
-            string_to_matrix( mParameterList.get< std::string >( "probe_bg_cells" ), tBgCellIds );
+            string_to_matrix( mParameterList( 0 )( 0 ).get< std::string >( "probe_bg_cells" ), tBgCellIds );
             print( tBgCellIds, "tBgCellIds" );
             this->probe_bg_cell( tBgCellIds );
         }
 
         // perform decomposition if requested in parameter list
-        if ( mParameterList.get< bool >( "decompose" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "decompose" ) )
         {
             // get parameters specifying the integration mesh from the parameter list
-            mTriangulateAll       = mParameterList.get< bool >( "triangulate_all" );
-            mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
-            mOnlyGenerateXtkTemp  = mParameterList.get< bool >( "only_generate_xtk_temp" );
-            mIgElementOrder       = mParameterList.get< uint >( "ig_element_order" );
+            mTriangulateAll       = mParameterList( 0 )( 0 ).get< bool >( "triangulate_all" );
+            mTriangulateAllInPost = mParameterList( 0 )( 0 ).get< bool >( "triangulate_all_in_post" );
+            mOnlyGenerateXtkTemp  = mParameterList( 0 )( 0 ).get< bool >( "only_generate_xtk_temp" );
+            mIgElementOrder       = mParameterList( 0 )( 0 ).get< uint >( "ig_element_order" );
 
             // get and store indices of B-spline meshes wrt. which information needs to be constructed
-            moris::string_to_matrix( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
+            moris::string_to_matrix( mParameterList( 0 )( 0 ).get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
 
             // check the enriched B-spline mesh indices
             for ( uint iBspMesh = 0; iBspMesh < mBsplineMeshIndices.numel(); iBspMesh++ )
@@ -240,7 +244,7 @@ namespace moris::xtk
                         "the Lagrange mesh in HMR. They should also start with the first one." );
             }
 
-            // if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
+            // if ( mParameterList( 0 )( 0 ).get< bool >( "cleanup_cut_mesh" ) )
             // {
             //     mCleanupMesh = true;
             // }
@@ -259,13 +263,13 @@ namespace moris::xtk
         }
 
         // perform mesh cleanup if requested through parameter list
-        if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "cleanup_cut_mesh" ) )
         {
             // set flag as member variable
             mCleanupMesh = true;
 
             // cleanup the mesh
-            Mesh_Cleanup tMeshCleanup( this, &mParameterList );
+            Mesh_Cleanup tMeshCleanup( this, &mParameterList( 0 )( 0 ) );
             tMeshCleanup.perform();
         }
 
@@ -278,20 +282,20 @@ namespace moris::xtk
     void
     Model::perform_enrichment()
     {
-        if ( mParameterList.get< bool >( "enrich" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "enrich" ) )
         {
             // get rank of the interpolation basis (B-spline or Lagrange Element)
             // determines which basis functions to perform enrichment on
-            mtk::EntityRank tBasisRank = mtk::get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
+            mtk::EntityRank tBasisRank = mtk::get_entity_rank_from_str( mParameterList( 0 )( 0 ).get< std::string >( "basis_rank" ) );
 
             // get flag whether basis enrichments need to be sorted
-            bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
+            bool tSortBasisEnrichmentLevels = mParameterList( 0 )( 0 ).get< bool >( "sort_basis_enrichment_levels" );
 
             // perform the enrichment
             this->perform_basis_enrichment( tBasisRank, mBsplineMeshIndices, tSortBasisEnrichmentLevels, this->uses_SPG_based_enrichment() );
 
             // if high to low double side sets need to be created
-            if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "high_to_low_dbl_side_sets" ) )
             {
                 // log this operation
                 Tracer tTracer( "XTK", "Create high to low double side sets" );
@@ -337,18 +341,18 @@ namespace moris::xtk
 
             // get index of B-spline meshes indices that will be unenriched later
             Matrix< IndexMat > tUnenrichedBsplineMeshIndices;
-            moris::string_to_matrix( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
+            moris::string_to_matrix( mParameterList( 0 )( 0 ).get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
 
             this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
 
         }    // end: enrichment
 
-        if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "identify_hanging_nodes" ) )
         {
             this->perform_hanging_node_identification();
         }
 
-        if ( mParameterList.get< bool >( "ghost_stab" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "ghost_stab" ) )
         {
 
             // construct ghost using the new procedure if specifically requested by user
@@ -361,7 +365,7 @@ namespace moris::xtk
                 this->construct_face_oriented_ghost_penalization_cells();
             }
 
-            if ( mParameterList.get< bool >( "visualize_ghost" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "visualize_ghost" ) )
             {
                 // log/trace the creation of Ghost mesh sets for visualization
                 Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
@@ -371,7 +375,7 @@ namespace moris::xtk
                 {
                     // get the B-spline mesh indices
                     Matrix< IndexMat > tBsplineMeshIndices;
-                    moris::string_to_matrix( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
+                    moris::string_to_matrix( mParameterList( 0 )( 0 ).get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
 
                     // visualize ghost mesh sets for all B-spline meshes and bulk-phases
                     for ( moris::moris_index iBM = 0; iBM < (moris_index)tBsplineMeshIndices.numel(); iBM++ )
@@ -393,7 +397,7 @@ namespace moris::xtk
             }
         }
 
-        std::string tUnionBlockStr = mParameterList.get< std::string >( "union_blocks" );
+        std::string tUnionBlockStr = mParameterList( 0 )( 0 ).get< std::string >( "union_blocks" );
         if ( !tUnionBlockStr.empty() )
         {
             // get the blocks to unionize
@@ -401,8 +405,8 @@ namespace moris::xtk
             moris::string_to_vector_of_vectors( tUnionBlockStr, tUnionBlockCells );
 
             // Row based
-            Matrix< IndexMat > tUnionBlockColors      = string_to_matrix< IndexMat >( mParameterList.get< std::string >( "union_block_colors" ) );
-            std::string        tUnionNewBlockNamesStr = mParameterList.get< std::string >( "union_block_names" );
+            Matrix< IndexMat > tUnionBlockColors      = string_to_matrix< IndexMat >( mParameterList( 0 )( 0 ).get< std::string >( "union_block_colors" ) );
+            std::string        tUnionNewBlockNamesStr = mParameterList( 0 )( 0 ).get< std::string >( "union_block_names" );
 
             Vector< Vector< std::string > > tNewBlockNames;
             moris::string_to_vector_of_vectors( tUnionNewBlockNamesStr, tNewBlockNames );
@@ -419,7 +423,7 @@ namespace moris::xtk
             this->get_enriched_integ_mesh( 0 ).communicate_sets_of_type( mtk::SetType::BULK );
         }
 
-        std::string tUnionSideSetStr = mParameterList.get< std::string >( "union_side_sets" );
+        std::string tUnionSideSetStr = mParameterList( 0 )( 0 ).get< std::string >( "union_side_sets" );
         if ( !tUnionSideSetStr.empty() )
         {
             // get the blocks to unionize
@@ -427,8 +431,8 @@ namespace moris::xtk
             moris::string_to_vector_of_vectors( tUnionSideSetStr, tUnionSideSetCells );
 
             // Row based
-            Matrix< IndexMat > tUnionSideSetColors      = string_to_matrix< IndexMat >( mParameterList.get< std::string >( "union_side_set_colors" ) );
-            std::string        tUnionNewSideSetNamesStr = mParameterList.get< std::string >( "union_side_set_names" );
+            Matrix< IndexMat > tUnionSideSetColors      = string_to_matrix< IndexMat >( mParameterList( 0 )( 0 ).get< std::string >( "union_side_set_colors" ) );
+            std::string        tUnionNewSideSetNamesStr = mParameterList( 0 )( 0 ).get< std::string >( "union_side_set_names" );
 
             Vector< Vector< std::string > > tNewSideSetNames;
             moris::string_to_vector_of_vectors( tUnionNewSideSetNamesStr, tNewSideSetNames );
@@ -445,7 +449,7 @@ namespace moris::xtk
             this->get_enriched_integ_mesh( 0 ).communicate_sets_of_type( mtk::SetType::SIDESET );
         }
 
-        std::string tDeactivatedBlockStr = mParameterList.get< std::string >( "deactivate_all_but_blocks" );
+        std::string tDeactivatedBlockStr = mParameterList( 0 )( 0 ).get< std::string >( "deactivate_all_but_blocks" );
         if ( !tDeactivatedBlockStr.empty() )
         {
             // get the blocks to unionize
@@ -457,7 +461,7 @@ namespace moris::xtk
             this->get_enriched_integ_mesh( 0 ).deactivate_all_blocks_except_selected( tBlocksToKeepStr( 0 ) );
         }
 
-        std::string tDeactivatedSideSetStr = mParameterList.get< std::string >( "deactivate_all_but_side_sets" );
+        std::string tDeactivatedSideSetStr = mParameterList( 0 )( 0 ).get< std::string >( "deactivate_all_but_side_sets" );
         if ( !tDeactivatedSideSetStr.empty() )
         {
             // get the blocks to unionize
@@ -469,7 +473,7 @@ namespace moris::xtk
             this->get_enriched_integ_mesh( 0 ).deactivate_all_side_sets_except_selected( tSideSetsToKeepStr( 0 ) );
         }
 
-        if ( mParameterList.get< bool >( "multigrid" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "multigrid" ) )
         {
             this->construct_multigrid();
         }
@@ -495,7 +499,7 @@ namespace moris::xtk
             mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
 
             // basis agglomeration
-            if ( mParameterList.get< bool >( "activate_basis_agglomeration" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "activate_basis_agglomeration" ) )
             {
                 // create a static object
                 Basis_Processor tBasisProcessor = Basis_Processor( this );
@@ -504,7 +508,7 @@ namespace moris::xtk
                 tBasisProcessor.perform_basis_extention();
             }
 
-            else if ( mParameterList.get< bool >( "activate_cell_agglomeration" ) )
+            else if ( mParameterList( 0 )( 0 ).get< bool >( "activate_cell_agglomeration" ) )
             {
                 // create a static object
                 Basis_Processor tBasisProcessor = Basis_Processor( this );
@@ -514,25 +518,25 @@ namespace moris::xtk
             }
 
             // write the enriched ip mesh
-            if ( mParameterList.get< bool >( "exodus_output_XTK_ip_mesh" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "exodus_output_XTK_ip_mesh" ) )
             {
-                mEnrichedInterpMesh( 0 )->write_mesh( &mParameterList );
+                mEnrichedInterpMesh( 0 )->write_mesh( &mParameterList( 0 )( 0 ) );
             }
 
             // output (to console) a list of all blocks & sets in the XIGA model
-            if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "print_enriched_ig_mesh" ) )
             {
                 tEnrIntegMesh.print();
             }
 
             // Visualize XTK (write xtk_temp.exo)
-            if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "exodus_output_XTK_ig_mesh" ) )
             {
                 // log the visualization step
                 Tracer tTracer( "XTK", "Overall", "Visualize" );
 
                 // compute and write cluster measures to exo output if requested
-                if ( mParameterList.get< bool >( "write_cluster_measures_to_exo" ) )
+                if ( mParameterList( 0 )( 0 ).get< bool >( "write_cluster_measures_to_exo" ) )
                 {
                     // pre-compute the cluster measures for writing to xtk_temp
                     mEnrichedIntegMesh( 0 )->visualize_cluster_measures();
@@ -540,17 +544,17 @@ namespace moris::xtk
                     // pre-compute cluster measures on B-spline meshes (only possible for SPG based enrichment)
                     if ( this->uses_SPG_based_enrichment() )
                     {
-                        bool tWriteBsplineClusterInfo = mParameterList.get< bool >( "write_bspline_cluster_info" );
+                        bool tWriteBsplineClusterInfo = mParameterList( 0 )( 0 ).get< bool >( "write_bspline_cluster_info" );
                         mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures( tWriteBsplineClusterInfo );
                     }
                 }
 
                 // write the xtk_temp.exo
-                tEnrIntegMesh.write_mesh( &mParameterList );
+                tEnrIntegMesh.write_mesh( &mParameterList( 0 )( 0 ) );
             }
 
             // print the memory usage of XTK
-            if ( mParameterList.get< bool >( "print_memory" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "print_memory" ) )
             {
                 moris::Memory_Map tXtkMM = this->get_memory_usage();
                 tXtkMM.par_print( "XTK Model" );
@@ -568,12 +572,204 @@ namespace moris::xtk
         }
     }
 
+    void
+    Model::compute_XQIs( const std::shared_ptr< Library_IO > aLibrary )
+    {
+        Tracer tTracer( "XTK", "Compute XQIs" );
+
+        // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
+        std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mGeometryEngine->get_design_variable_interface();
+
+        uint tNumXQIs = mParameterList( 1 ).size();
+
+        if ( tNumXQIs > 0 )    // todo brendan be more elegant
+        {
+            // Create a dist vector to store the sensitivities
+            sol::Matrix_Vector_Factory tDistFactory;
+            sol::Dist_Map             *tMap      = tDistFactory.create_map( tDesignCriteriaManager->get_my_local_global_map() );
+            sol::Dist_Vector          *tdXQIdPDV = tDistFactory.create_vector( tMap, tNumXQIs );
+
+            // Loop through requested XQIs and compute them
+            for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
+            {
+                // Get the XQI name and type
+                std::string                  tXQIName      = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
+                mtk::QI_Type                 tXQIType      = static_cast< mtk::QI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
+                const Vector< std::string > &tMeshSetNames = mParameterList( 1 )( iXQI ).get_vector< std::string >( "mesh_set_names" );    // FIXME brendan, make this able to be retrieved by phase name
+
+                // Create a surface mesh from the IG mesh for surface XQIs
+                mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), tMeshSetNames );
+                mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
+
+                // Brendan delete
+                tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
+
+                // // brendan delete
+                // std::ofstream tSensitivityFile( "dqi_dpdv_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+                // Vector< Vector< uint > > tVerticesOfInterest( tADVs.size() );
+                // Vector< std::ifstream >  tVertexFiles( tADVs.size() );
+                // Vector< std::ofstream >  tVertexOutputFile( tADVs.size() );
+                // for ( uint iA = 0; iA < tADVs.size(); iA++ )
+                // {
+                //     tVertexFiles( iA )      = std::ifstream( "vertices_dependent_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+                //     tVertexOutputFile( iA ) = std::ofstream( "vertex_sensitivities_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+
+                //     if ( tVertexFiles( iA ).is_open() )
+                //     {
+                //         luint tID;
+                //         real  x, y, dx, dy;
+                //         while ( tVertexFiles( iA ) >> tID >> x >> y >> dx >> dy )
+                //         {
+                //             tVerticesOfInterest( iA ).push_back( static_cast< uint >( tID ) );
+                //         }
+                //         tVertexFiles( iA ).close();
+                //     }
+                // }
+                std::ofstream tMapFile( "vertex_map_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+
+                // Get the IG to PDV ID map for this surface mesh
+                Vector< Vector< moris_index > > tPDVIDs;
+                Vector< gen::PDV_Type >         tPDVTypes = this->get_spatial_dim() == 2 ? Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE } )
+                                                                                         : Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE } );
+                tDesignCriteriaManager->get_ig_dv_ids_for_type_and_ind( tSurfaceMeshData.mLocalToGlobalVertexIndex, tPDVTypes, tPDVIDs );
+
+                // Determine the XQI type and compute it
+                real tXQIValue = MORIS_REAL_MAX;
+                switch ( tXQIType )
+                {
+                    case ( mtk::QI_Type::VOLUME ):
+                        tXQIValue = tSurfaceMesh.compute_volume();
+                        tSurfaceMesh.compute_QI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
+                        break;
+                    case ( mtk::QI_Type::RAYCAST_SHAPE_DIAMETER ):
+                    {
+                        real                                             tConeAngle      = mParameterList( 1 )( iXQI ).get< real >( "cone_angle" );
+                        uint                                             tNumPolarRays   = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) );
+                        uint                                             tNumAzimuthRays = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) );
+                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom         = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
+
+                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter_raycast(
+                                *tAgglom,
+                                tConeAngle,
+                                tNumPolarRays,
+                                tNumAzimuthRays );
+
+                        tSurfaceMesh.compute_QI_sensitivities(
+                                tXQIType,
+                                tPDVIDs,
+                                tdXQIdPDV,
+                                iXQI );
+
+                        // brendan delete
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+
+                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+                        }
+
+                        // brendan delete
+                        std::ofstream tSensFile( "sens_raycast_" + std::to_string( (uint)tConeAngle ) + ".txt" );
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+                        }
+                        tSensFile.close();
+
+
+                        break;
+                    }
+                    case ( mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
+                    {
+                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
+
+                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle(
+                                *tAgglom,
+                                mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
+                                mParameterList( 1 )( iXQI ).get< real >( "minimum_relative_chord_length" ),
+                                mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
+
+                        tSurfaceMesh.compute_QI_sensitivities(
+                                tXQIType,
+                                tPDVIDs,
+                                tdXQIdPDV,
+                                iXQI );
+
+                        // brendan delete
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+
+                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+                        }
+
+                        // brendan delete
+                        std::ofstream tSensFile( "sens_inscribed_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+                        }
+                        tSensFile.close();
+
+                        break;
+                    }
+                    case ( mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
+                    {
+                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
+
+                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter_shortest_distance(
+                                *tAgglom,
+                                mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
+                                mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
+
+                        tSurfaceMesh.compute_QI_sensitivities(
+                                tXQIType,
+                                tPDVIDs,
+                                tdXQIdPDV,
+                                iXQI );
+
+                        // brendan delete
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+
+                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+                        }
+
+                        // brendan delete
+                        std::ofstream tSensFile( "sens_shortest_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
+                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+                        {
+                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+                        }
+                        tSensFile.close();
+
+                        break;
+                    }
+                    default:
+                        MORIS_ERROR( false, "XTK::Model::compute_XQIs - XQI Type not implemented." );
+                }
+
+                tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue );
+            }
+
+            tdXQIdPDV->vector_global_assembly();
+            tDesignCriteriaManager->update_QI_sensitivity( Module_Type::XTK, tdXQIdPDV );
+        }
+    }
+
     // ----------------------------------------------------------------------------------
 
     bool
     Model::has_parameter_list()
     {
-        return mParameterList.get< bool >( "has_parameter_list" );
+        return mParameterList( 0 )( 0 ).get< bool >( "has_parameter_list" );
     }
 
     // ----------------------------------------------------------------------------------
@@ -581,10 +777,10 @@ namespace moris::xtk
     bool
     Model::valid_parameters()
     {
-        bool tDecompose = mParameterList.get< bool >( "decompose" );
-        bool tEnrich    = mParameterList.get< bool >( "enrich" );
-        bool tGhost     = mParameterList.get< bool >( "ghost_stab" );
-        bool tMultigrid = mParameterList.get< bool >( "multigrid" );
+        bool tDecompose = mParameterList( 0 )( 0 ).get< bool >( "decompose" );
+        bool tEnrich    = mParameterList( 0 )( 0 ).get< bool >( "enrich" );
+        bool tGhost     = mParameterList( 0 )( 0 ).get< bool >( "ghost_stab" );
+        bool tMultigrid = mParameterList( 0 )( 0 ).get< bool >( "multigrid" );
 
         if ( tEnrich == true )
         {
@@ -615,8 +811,8 @@ namespace moris::xtk
 
         uint               tSpatialDimension = this->get_spatial_dim();
         mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
-        std::string        tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
-        moris::lint        tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
+        std::string        tDecompStr        = mParameterList( 0 )( 0 ).get< std::string >( "decomposition_type" );
+        moris::lint        tOctreeRefLevel   = std::stoi( mParameterList( 0 )( 0 ).get< std::string >( "octree_refinement_level" ) );
 
         if ( tDecompStr.compare( "octree_only" ) == 0 )
         {
@@ -1130,7 +1326,7 @@ namespace moris::xtk
     moris::Parameter_List &
     Model::get_parameter_list()
     {
-        return mParameterList;
+        return mParameterList( 0 )( 0 );
     }
 
     //------------------------------------------------------------------------------
@@ -1303,21 +1499,21 @@ namespace moris::xtk
     Model::get_global_T_matrix_output_file_name()
     {
         // get value from parameter list
-        return mParameterList.get< std::string >( "global_T_matrix_output_file" );
+        return mParameterList( 0 )( 0 ).get< std::string >( "global_T_matrix_output_file" );
     }
 
     std::string
     Model::get_elemental_T_matrix_output_file_name()
     {
         // get value from parameter list
-        return mParameterList.get< std::string >( "elemental_T_matrix_output_file" );
+        return mParameterList( 0 )( 0 ).get< std::string >( "elemental_T_matrix_output_file" );
     }
 
     std::string
     Model::get_MPC_output_file_name()
     {
         // get value from parameter list
-        return mParameterList.get< std::string >( "MPC_output_file" );
+        return mParameterList( 0 )( 0 ).get< std::string >( "MPC_output_file" );
     }
 
     // -----------------------------------------------------------------------------
@@ -1428,9 +1624,9 @@ namespace moris::xtk
     bool
     Model::uses_SPG_based_enrichment()
     {
-        if ( mParameterList.get< bool >( "has_parameter_list" ) )
+        if ( mParameterList( 0 )( 0 ).get< bool >( "has_parameter_list" ) )
         {
-            if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            if ( mParameterList( 0 )( 0 ).get< bool >( "use_SPG_based_enrichment" ) )
             {
                 return true;
             }
@@ -1445,7 +1641,7 @@ namespace moris::xtk
     Model::delete_xtk_after_generation()
     {
         // get the ouput from parameter
-        return mParameterList.get< bool >( "delete_xtk_after_generation" );
+        return mParameterList( 0 )( 0 ).get< bool >( "delete_xtk_after_generation" );
     }
 
 }    // namespace moris::xtk

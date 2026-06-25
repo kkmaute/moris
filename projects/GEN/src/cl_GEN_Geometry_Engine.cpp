@@ -32,6 +32,9 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
+// IOS
+#include "cl_Library_Enums.hpp"    // just for Module_Type enum
+
 namespace moris::gen
 {
 
@@ -45,13 +48,16 @@ namespace moris::gen
             mtk::Mesh*                           aMesh )
             : mNodeManager( aMesh )
             , mPhaseTable( create_phase_table( aParameterLists, aLibrary ) )
-            , mPDVHostManager( mNodeManager )
+            , mGQIParameterLists( std::make_shared< Submodule_Parameter_Lists >( std::as_const( aParameterLists( 3 ) ) ) )
+            , mLibrary( aLibrary )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
 
-        // Requested IQIs
-        mRequestedIQIs = aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" );
+        // Requested QIs
+        mRequestedQIs = aParameterLists( 0 )( 0 ).get_vector< std::string >( "IQI_types" );
+
+        mPDVHostManager = std::make_shared< PDV_Host_Manager >( mNodeManager, mRequestedQIs );
 
         // Geometries
         mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
@@ -86,7 +92,7 @@ namespace moris::gen
         {
             tRequestedPDVTypes( tPDVTypeIndex ) = tPDVTypeMap[ tRequestedPDVNames( tPDVTypeIndex ) ];
         }
-        mPDVHostManager.set_requested_interpolation_pdv_types( tRequestedPDVTypes );
+        mPDVHostManager->set_requested_interpolation_pdv_types( tRequestedPDVTypes );
 
         // Initialize PDV type list
         this->initialize_pdv_type_list();
@@ -96,6 +102,9 @@ namespace moris::gen
         {
             mPhaseTable.print();
         }
+
+        // Store GQI parameter list
+        this->register_GQIs();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -109,8 +118,9 @@ namespace moris::gen
             , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
             , mADVManager( aParameters.mADVManager )
             , mInitialPrimitiveADVs( aParameters.mADVManager.mADVs )
+            , mGQIParameterLists( nullptr )
             , mTimeOffset( aParameters.mTimeOffset )
-            , mPDVHostManager( mNodeManager )
+            , mPDVHostManager( std::make_shared< PDV_Host_Manager >( mNodeManager, aParameters.mRequestedQIs ) )
     {
         // Tracer
         Tracer tTracer( "GEN", "Create geometry engine" );
@@ -125,6 +135,9 @@ namespace moris::gen
 
         // Distribute ADVs
         this->distribute_advs( tMeshPair );
+
+        // No GQIs to register in this constructor, as it's only used for testing purposes with no designs/properties
+        mDesignGQIIndices.resize( mGeometries.size() + mProperties.size() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -134,6 +147,7 @@ namespace moris::gen
         // Delete stored distributed vectors
         delete mOwnedADVs;
         delete mPrimitiveADVs;
+        delete mdGQIdADV;
 
         // Delete queued intersection node, in case it wasn't admitted
         delete mQueuedIntersectionNode;
@@ -149,6 +163,12 @@ namespace moris::gen
         mOwnedADVs->replace_global_values( mFullADVIds, aNewADVs );
         mOwnedADVs->vector_global_assembly();
         mPrimitiveADVs->import_local_to_global( *mOwnedADVs );
+
+        // Reset sensitivities
+        if ( mdGQIdADV != nullptr )
+        {
+            mdGQIdADV->vec_put_scalar( 0.0 );
+        }
 
         // Import ADVs into fields that need it
         for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
@@ -198,16 +218,6 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::set_dQIdp(
-            const Vector< moris::Matrix< DDRMat >* >& adQIdp,
-            moris::Matrix< moris::DDSMat >*           aMap )
-    {
-        mPDVHostManager.set_dQIdp( adQIdp, aMap );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Matrix< IdMat >&
     Geometry_Engine::get_IjklIDs()
     {
@@ -230,26 +240,18 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::communicate_requested_IQIs()
-    {
-        mPDVHostManager.set_requested_IQIs( mRequestedIQIs );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     Matrix< DDRMat >
     Geometry_Engine::get_dcriteria_dadv()
     {
-        return mPDVHostManager.compute_diqi_dadv( mFullADVIds );
+        return mPDVHostManager->compute_dqi_dadv( mFullADVIds, mdGQIdADV );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    MSI::Design_Variable_Interface*
+    std::shared_ptr< MSI::Design_Variable_Interface >
     Geometry_Engine::get_design_variable_interface()
     {
-        return &mPDVHostManager;
+        return mPDVHostManager;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -308,30 +310,21 @@ namespace moris::gen
 
     bool
     Geometry_Engine::queue_intersection(
-            uint                     aEdgeFirstNodeIndex,
-            uint                     aEdgeSecondNodeIndex,
-            const Matrix< DDRMat >&  aEdgeFirstNodeParametricCoordinates,
-            const Matrix< DDRMat >&  aEdgeSecondNodeParametricCoordinates,
-            const Matrix< DDUMat >&  aBackgroundElementNodeIndices,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            uint                    aEdgeFirstNodeIndex,
+            uint                    aEdgeSecondNodeIndex,
+            const Matrix< DDRMat >& aEdgeFirstNodeParametricCoordinates,
+            const Matrix< DDRMat >& aEdgeSecondNodeParametricCoordinates,
+            const mtk::Cell&        aBackgroundElement )
     {
         // If previous intersection node was not admitted, this will delete it
         delete mQueuedIntersectionNode;
-
-        // Get background nodes
-        Vector< Background_Node* > tBackgroundNodes( aBackgroundElementNodeIndices.length() );
-        for ( uint iNode = 0; iNode < tBackgroundNodes.size(); iNode++ )
-        {
-            tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( aBackgroundElementNodeIndices( iNode ) ) );
-        }
 
         // Create parent nodes
         Parent_Node tFirstParentNode( mNodeManager.get_node( aEdgeFirstNodeIndex ), aEdgeFirstNodeParametricCoordinates );
         Parent_Node tSecondParentNode( mNodeManager.get_node( aEdgeSecondNodeIndex ), aEdgeSecondNodeParametricCoordinates );
 
         // Have the active geometry create a new intersection node
-        mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager.get_total_number_of_nodes(), tBackgroundNodes, tFirstParentNode, tSecondParentNode, aBackgroundGeometryType, aBackgroundInterpolationOrder );
+        mQueuedIntersectionNode = mGeometries( mActiveGeometryIndex )->create_intersection_node( mNodeManager, aBackgroundElement, tFirstParentNode, tSecondParentNode );
 
         // Return if queued intersected node is on the parent edge
         return mQueuedIntersectionNode->parent_edge_is_intersected();
@@ -423,27 +416,14 @@ namespace moris::gen
 
     void
     Geometry_Engine::create_floating_node(
-            moris_index              aGeometryIndex,
-            const mtk::Cell&         aParentCell,
-            const Matrix< DDRMat >&  aParametricCoordinates,
-            mtk::Geometry_Type       aBackgroundGeometryType,
-            mtk::Interpolation_Order aBackgroundInterpolationOrder )
+            moris_index             aGeometryIndex,
+            const mtk::Cell&        aParentCell,
+            const Matrix< DDRMat >& aParametricCoordinates )
     {
-        // Get vertex indices from parent cell
-        Matrix< IdMat >            tVertexIndices = aParentCell.get_vertex_inds();
-        Vector< Background_Node* > tBackgroundNodes( tVertexIndices.length() );
-        for ( uint iNode = 0; iNode < tVertexIndices.numel(); iNode++ )
-        {
-            // Get the associated GEN background nodes from the node manager
-            tBackgroundNodes( iNode ) = &( mNodeManager.get_background_node( tVertexIndices( iNode ) ) );
-        }
-
         Floating_Node* tNewNode = mGeometries( aGeometryIndex )->create_floating_node(    //
-                mNodeManager.get_total_number_of_nodes(),
-                tBackgroundNodes,
-                aParametricCoordinates,
-                aParentCell.get_geometry_type(),
-                aParentCell.get_interpolation_order() );
+                mNodeManager,
+                aParentCell,
+                aParametricCoordinates );
 
         // Add new derived node to the node manager
         mNodeManager.add_derived_node( tNewNode );
@@ -453,7 +433,7 @@ namespace moris::gen
 
     void
     Geometry_Engine::create_new_derived_nodes(
-            Vector< mtk::Cell* >&                                aNewNodeParentCell,
+            const Vector< mtk::Cell* >&                          aNewNodeParentCell,
             const Vector< std::shared_ptr< Matrix< DDRMat > > >& aParametricCoordinates )
     {
         // This function can't be traced; Right now XTK does not always call it from all processors.
@@ -462,52 +442,10 @@ namespace moris::gen
         uint tNumberOfNewDerivedNodes = aNewNodeParentCell.size();
 
         // Get vertex indices from parent cell and change parametric coordinate type
-        Vector< Matrix< IndexMat > > tVertexIndices( tNumberOfNewDerivedNodes );
-        Vector< Matrix< DDRMat > >   tParametricCoordinates( tNumberOfNewDerivedNodes );
+        Vector< Matrix< DDRMat > > tParametricCoordinates( tNumberOfNewDerivedNodes );
         for ( uint iCellIndex = 0; iCellIndex < tNumberOfNewDerivedNodes; iCellIndex++ )
         {
-            tVertexIndices( iCellIndex )         = aNewNodeParentCell( iCellIndex )->get_vertex_inds();
-            tParametricCoordinates( iCellIndex ) = *aParametricCoordinates( iCellIndex );
-        }
-
-        // Call overloaded function
-        if ( tNumberOfNewDerivedNodes > 0 )
-        {
-            this->create_new_derived_nodes(
-                    tVertexIndices,
-                    tParametricCoordinates,
-                    aNewNodeParentCell( 0 )->get_geometry_type(),
-                    aNewNodeParentCell( 0 )->get_interpolation_order() );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    Geometry_Engine::create_new_derived_nodes(
-            const Vector< Matrix< IndexMat > >& aVertexIndices,
-            const Vector< Matrix< DDRMat > >&   aParametricCoordinates,
-            mtk::Geometry_Type                  aBackgroundGeometryType,
-            mtk::Interpolation_Order            aBackgroundInterpolationOrder )
-    {
-        // This function can't be traced; Right now XTK does not always call it from all processors.
-
-        // Loop over nodes
-        for ( uint iNode = 0; iNode < aVertexIndices.size(); iNode++ )
-        {
-            // Create basis nodes
-            Vector< Background_Node* > tBackgroundNodes( aVertexIndices( iNode ).length() );
-            for ( uint iBaseNode = 0; iBaseNode < aVertexIndices( iNode ).length(); iBaseNode++ )
-            {
-                tBackgroundNodes( iBaseNode ) = &( mNodeManager.get_background_node( aVertexIndices( iNode )( iBaseNode ) ) );
-            }
-
-            // Create new derived node
-            mNodeManager.create_derived_node(
-                    tBackgroundNodes,
-                    aParametricCoordinates( iNode ),
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder );
+            mNodeManager.create_derived_node( *aNewNodeParentCell( iCellIndex ), *aParametricCoordinates( iCellIndex ) );
         }
     }
 
@@ -746,18 +684,18 @@ namespace moris::gen
         }
 
         // Set interpolation PDV types in host manager
-        mPDVHostManager.set_interpolation_pdv_types( tPDVTypes );
+        mPDVHostManager->set_interpolation_pdv_types( tPDVTypes );
 
         // Get and save communication map from IP mesh
         Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
-        mPDVHostManager.set_communication_table( tCommTable );
+        mPDVHostManager->set_communication_table( tCommTable );
 
         // Get and save global to local vertex maps from IP and IG meshes
         std::unordered_map< moris_id, moris_index > tIPVertexGlobaToLocalMap =
                 tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
         std::unordered_map< moris_id, moris_index > tIGVertexGlobaToLocalMap =
                 tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
-        mPDVHostManager.set_vertex_global_to_local_maps(
+        mPDVHostManager->set_vertex_global_to_local_maps(
                 tIPVertexGlobaToLocalMap,
                 tIGVertexGlobaToLocalMap );
 
@@ -775,10 +713,10 @@ namespace moris::gen
         }
 
         // Create PDV IDs
-        mPDVHostManager.create_pdv_ids();
+        mPDVHostManager->create_pdv_ids();
 
         // Create Design Extraction Operators
-        mPDVHostManager.create_design_extraction_operators();
+        mPDVHostManager->create_design_extraction_operators();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -937,10 +875,10 @@ namespace moris::gen
         tTemporaryPDVTypeList.shrink_to_fit();
 
         // Communicate dof types so that all processors have the same unique list
-        mPDVHostManager.communicate_dof_types( tTemporaryPDVTypeList );
+        mPDVHostManager->communicate_dof_types( tTemporaryPDVTypeList );
 
         // Create a map
-        mPDVHostManager.create_dv_type_map();
+        mPDVHostManager->create_dv_type_map();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1009,7 +947,7 @@ namespace moris::gen
         }
 
         // Set owned and owned and shared ADV IDs in PDV host manager
-        mPDVHostManager.set_owned_adv_ids( tOwnedADVIds, tAllOwnedAndSharedADVIds );
+        mPDVHostManager->set_owned_adv_ids( tOwnedADVIds, tAllOwnedAndSharedADVIds );
 
         MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", (moris::real)( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
 
@@ -1262,6 +1200,14 @@ namespace moris::gen
         this->reset_mesh_information( tMesh );
 
         MORIS_LOG_INFO( "Time to reset mesh information: %f sec", (moris::real)( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
+
+        // Set up the GQI sensitivity matrix
+        if ( mFullADVIds.size() > 0 and mPDVHostManager->get_num_requested_QIs() > 0 )
+        {
+            // Create distributed vector for GQI sensitivities
+            sol::Dist_Map* tFullMap = tDistributedFactory.create_map( mFullADVIds );
+            mdGQIdADV               = tDistributedFactory.create_vector( tFullMap, (sint)mPDVHostManager->get_num_requested_QIs(), false, true );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1276,7 +1222,7 @@ namespace moris::gen
         mNodeManager.reset_background_nodes( aMesh );
 
         // Reset PDV host manager
-        mPDVHostManager.reset();
+        mPDVHostManager->reset();
 
         // Reset info related to the mesh
         mActiveGeometryIndex = 0;
@@ -1373,6 +1319,7 @@ namespace moris::gen
             }
 
             // Loop over geometries
+            uint tFieldIndex = 0;
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
                 for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
@@ -1391,7 +1338,7 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( iGeometryFieldIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( tFieldIndex++ ), tFieldData );
                 }
             }
 
@@ -1415,7 +1362,7 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( tFieldIndex++ ), tFieldData );
                 }
             }
 
@@ -1691,7 +1638,7 @@ namespace moris::gen
         }
 
         // Create hosts of nodes of non-unzipped interpolation nodes
-        mPDVHostManager.create_interpolation_pdv_hosts(
+        mPDVHostManager->create_interpolation_pdv_hosts(
                 tNodeIndicesPerSet,
                 tNodeIdsPerSet,
                 tNodeOwnersPerSet,
@@ -1714,7 +1661,7 @@ namespace moris::gen
                 for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
                 {
                     // Create interpolation PDV
-                    mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPDVType, iProperty );
+                    mPDVHostManager->create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPDVType, iProperty );
                 }
             }
         }
@@ -1764,8 +1711,8 @@ namespace moris::gen
         }
 
         // Set PDV types
-        mPDVHostManager.set_integration_pdv_types( tPDVTypes );
-        mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePDVs );
+        mPDVHostManager->set_integration_pdv_types( tPDVTypes );
+        mPDVHostManager->set_requested_integration_pdv_types( tCoordinatePDVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1825,4 +1772,142 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Geometry_Engine::register_GQIs()
+    {
+        // Determine the total number of GQIs
+        uint tNumGQIs = mGQIParameterLists->size();
+
+        // Size vectors
+        Vector< std::string > tGQINames( tNumGQIs );
+        Vector< Module_Type > tModule( tNumGQIs, Module_Type::GEN );
+        Vector< real >        tGQIValues( tNumGQIs, MORIS_REAL_MAX );    // Initialize with dummy value, compute the GQIs later on FIXME probably pass function to evaluate them later on
+
+        // Get the GQI names from all the designs. Determine which ones are requested and fill mDesignGQIIndices accordingly
+        tNumGQIs = 0;    // Reset counter to fill in the GQI names
+
+        // Loop through the submodule parameter list and get all GQI names
+        for ( const auto& iGQIParameterList : *mGQIParameterLists )
+        {
+            // Get GQI name
+            tGQINames( tNumGQIs++ ) = iGQIParameterList.get< std::string >( "GQI_name" );
+        }
+
+        // Create QI objects in the PDV host manager
+        mPDVHostManager->register_QIs( tGQINames, tModule, tGQIValues );
+
+        this->build_GQI_data();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Geometry_Engine::build_GQI_data()
+    {
+        // Initialize design GQI index storage for every design
+        mDesignGQIIndices.clear();
+        mDesignGQIIndices.resize( mGeometries.size() + mProperties.size() );
+
+        // Get all the requested QI names (not just GQIs) and make a map -> index
+        Vector< std::string >                   tRequestedQIs = mPDVHostManager->get_requested_QIs< std::string >();
+        std::unordered_map< std::string, uint > tRequestedQIsMap;
+        tRequestedQIsMap.reserve( tRequestedQIs.size() );
+        for ( uint i = 0; i < tRequestedQIs.size(); ++i )
+        {
+            tRequestedQIsMap.emplace( tRequestedQIs( i ), i );
+        }
+
+        // Build name -> index maps for geometries and properties
+        std::unordered_map< std::string, uint > tGeometryNameToIndex;
+        tGeometryNameToIndex.reserve( mGeometries.size() );
+        for ( uint i = 0; i < mGeometries.size(); ++i )
+        {
+            tGeometryNameToIndex.emplace( mGeometries( i )->get_name(), i );
+        }
+
+        std::unordered_map< std::string, uint > tPropertyNameToIndex;
+        tPropertyNameToIndex.reserve( mProperties.size() );
+        for ( uint i = 0; i < mProperties.size(); ++i )
+        {
+            tPropertyNameToIndex.emplace( mProperties( i )->get_name(), i );
+        }
+
+        // Loop through all configured GQIs (parameter lists) and assign their request index (or MORIS_UINT_MAX if not requested)
+        for ( uint iGQI = 0; iGQI < mGQIParameterLists->size(); ++iGQI )
+        {
+            const Parameter_List& tGQIParameterList = ( *mGQIParameterLists )( iGQI );
+
+            const std::string tGQIName    = tGQIParameterList.get< std::string >( "GQI_name" );
+            const std::string tDesignName = tGQIParameterList.get< std::string >( "design_name" );
+
+            // determine request index (MORIS_UINT_MAX means not requested)
+            uint tRequestIndex = MORIS_UINT_MAX;
+            auto tReqIt        = tRequestedQIsMap.find( tGQIName );
+            if ( tReqIt != tRequestedQIsMap.end() )
+            {
+                tRequestIndex = tReqIt->second;
+            }
+
+            // assign to geometry if present
+            auto tGeomIt = tGeometryNameToIndex.find( tDesignName );
+            if ( tGeomIt != tGeometryNameToIndex.end() )
+            {
+                mDesignGQIIndices( tGeomIt->second ).push_back( tRequestIndex );
+            }
+
+            // assign to property if present
+            auto tPropIt = tPropertyNameToIndex.find( tDesignName );
+            if ( tPropIt != tPropertyNameToIndex.end() )
+            {
+                mDesignGQIIndices( mGeometries.size() + tPropIt->second ).push_back( tRequestIndex );
+            }
+
+            MORIS_ERROR( tGeomIt != tGeometryNameToIndex.end() or tPropIt != tPropertyNameToIndex.end(),
+                    "Geometry_Engine::build_GQI_data - Design name '%s' for GQI '%s' not found among geometries or properties.",
+                    tDesignName.c_str(),
+                    tGQIName.c_str() );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< std::shared_ptr< const Parameter_List > > Geometry_Engine::get_design_GQI_parameter_lists( const std::string& aDesignName ) const
+    {
+        // Initialize output
+        Vector< std::shared_ptr< const Parameter_List > > tParameterLists;
+
+        // Loop through submodule parameter lists
+        if ( mGQIParameterLists )
+        {
+            for ( const auto& iParameterList : *mGQIParameterLists )
+            {
+                // Get the design name for this GQI
+                const std::string& tGQIName = iParameterList.get< std::string >( "design_name" );
+
+                // Add to output if the name matches
+                if ( tGQIName == aDesignName )
+                {
+                    tParameterLists.push_back( std::make_shared< const Parameter_List >( iParameterList ) );
+                }
+            }
+        }
+        return tParameterLists;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Geometry_Engine::update_GQIs(
+            const Vector< std::string >& aGQINames,
+            const Vector< real >&        aGQIValues )
+    {
+        MORIS_ASSERT( aGQINames.size() == aGQIValues.size(),
+                "Geometry_Engine::update_GQIs - Number of GQI names and values do not match." );
+
+        for ( uint iGQI = 0; iGQI < aGQINames.size(); iGQI++ )
+        {
+            mPDVHostManager->update_QI( aGQINames( iGQI ), aGQIValues( iGQI ) );
+        }
+    }
+
 }    // namespace moris::gen

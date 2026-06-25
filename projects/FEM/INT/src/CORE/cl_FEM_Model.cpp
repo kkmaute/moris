@@ -112,10 +112,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const moris_index                   &aMeshPairIndex,
-            Vector< fem::Set_User_Info >        &aSetInfo,
-            MSI::Design_Variable_Interface      *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+            moris_index                                       aMeshPairIndex,
+            Vector< fem::Set_User_Info >                     &aSetInfo,
+            std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
     {
@@ -124,7 +124,7 @@ namespace moris::fem
         this->set_design_variable_interface( aDesignVariableInterface );
 
         // if no design variables have been stipulated, skip
-        if ( aDesignVariableInterface == nullptr )
+        if ( aDesignVariableInterface == nullptr or not aDesignVariableInterface->is_gen_workflow() )
         {
             mFEMOnly = true;
             MORIS_LOG( "Skipping GEN, FEM Only" );
@@ -162,7 +162,7 @@ namespace moris::fem
 
     FEM_Model::FEM_Model(
             std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const moris_index                   &aMeshPairIndex,
+            moris_index                          aMeshPairIndex,
             const Module_Parameter_Lists        &aParameterList,
             const std::shared_ptr< Library_IO > &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
@@ -199,10 +199,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-            const moris_index                   &aMeshPairIndex,
-            const Module_Parameter_Lists        &aParameterList,
-            MSI::Design_Variable_Interface      *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager >              aMeshManager,
+            moris_index                                       aMeshPairIndex,
+            const Module_Parameter_Lists                     &aParameterList,
+            std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -211,12 +211,26 @@ namespace moris::fem
 
         this->set_design_variable_interface( aDesignVariableInterface );
 
-        // if no design variables have been stipulated, skip
-        if ( aDesignVariableInterface == nullptr )
-        {
-            mFEMOnly = true;
-            MORIS_LOG( "Skipping GEN, FEM Only" );
-        }
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 0: unpack fem input and mesh
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        // get pointers to interpolation and integration meshes
+        mtk::Interpolation_Mesh *tIPMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
+        mtk::Integration_Mesh   *tIGMesh = mMeshManager->get_integration_mesh( mMeshPairIndex );
+
+        // set the space dimension
+        mSpaceDim = tIPMesh->get_spatial_dim();
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: create IP nodes
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        this->create_interpolation_nodes( tIPMesh );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: create fem sets
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        this->create_fem_sets( tIPMesh, tIGMesh );
     }
 
     //------------------------------------------------------------------------------
@@ -296,7 +310,7 @@ namespace moris::fem
                 uint tVertexIndex = mIGNodes( iNode )->get_index();
 
                 // get the pdv values from the MSI/GEN interface
-                Matrix< IndexMat >         tVertexIndices( 1, 1, tVertexIndex );
+                Vector< moris_index >      tVertexIndices( 1, tVertexIndex );
                 Vector< Matrix< DDRMat > > tVertexCoordsFromGen( mSpaceDim );
                 Vector< Vector< bool > >   tIsActiveDv;
 
@@ -329,7 +343,7 @@ namespace moris::fem
                 }
 
                 // get the id associated to the pdv
-                Vector< moris::Matrix< DDSMat > > tPdvIds;
+                Vector< Vector< moris_index > > tPdvIds;
                 tDesignInterface->get_ig_dv_ids_for_type_and_ind(
                         tVertexIndices,
                         tGeoPdvType,
@@ -502,6 +516,12 @@ namespace moris::fem
                 tFemSet->update();
             }
         }
+    }
+
+    void
+    FEM_Model::set_design_variable_interface( std::shared_ptr< MSI::Design_Variable_Interface > aDesignVariableInterface )
+    {
+        mDesignVariableInterface = aDesignVariableInterface;
     }
 
     void
@@ -855,6 +875,9 @@ namespace moris::fem
         mIQIs       = tModelInitializer->get_iqis();
         mFields     = tModelInitializer->get_fields();
         mFieldTypes = tModelInitializer->get_field_types();
+
+        // Register IQIs with the Design Variable Interface
+        this->register_iqis();
     }
 
     //------------------------------------------------------------------------------
@@ -909,55 +932,6 @@ namespace moris::fem
         {
             // finalize the fem set
             tFemSet->finalize( aModelSolverInterface );
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
-    void
-    FEM_Model::normalize_IQIs()
-    {
-        for ( uint tRequestedIQIIndex = 0; tRequestedIQIIndex < mRequestedIQINames.size(); tRequestedIQIIndex++ )
-        {
-            // IQI index
-            uint tIQIIndex = 0;
-            while ( tIQIIndex < mIQIs.size() and ( mIQIs( tIQIIndex )->get_name() not_eq mRequestedIQINames( tRequestedIQIIndex ) ) )
-            {
-                tIQIIndex++;
-            }
-            MORIS_ASSERT( tIQIIndex < mIQIs.size(),
-                    "IQI was not found with the requested name %s",
-                    mRequestedIQINames( tRequestedIQIIndex ).c_str() );
-
-            // Set normalization
-            std::string tNormalization = mParameterList( 4 )( tIQIIndex ).get< std::string >( "normalization" );
-            if ( tNormalization == "none" )
-            {
-                // Do nothing
-            }
-            else if ( tNormalization == "time" )
-            {
-                MORIS_ERROR( false, "Time normalization not implemented yet for IQIs yet, implementation should go here." );
-            }
-            else if ( tNormalization == "design" )
-            {
-                mIQIs( tRequestedIQIIndex )->set_reference_value( mGlobalIQIVal( tRequestedIQIIndex )( 0 ) );
-                mGlobalIQIVal( tRequestedIQIIndex )( 0 ) = 1.0;
-            }
-            else
-            {
-                // Try to set reference values directly
-                try
-                {
-                    mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_matrix< DDRMat >( tNormalization )( 0 ) );
-                } catch ( ... )
-                {
-                    // error
-                    MORIS_ERROR( false,
-                            "FEM_Model::normalize_IQIs() - Unknown normalization: %s. Must be 'none', 'time', 'design', or a reference value.",
-                            tNormalization.c_str() );
-                }
-            }
         }
     }
 
@@ -1043,52 +1017,13 @@ namespace moris::fem
     //-------------------------------------------------------------------------------------------------
 
     void
-    FEM_Model::create_IQI_map()
+    FEM_Model::register_iqis()
     {
-        // erase the content of the map
-        mIQINameToIndexMap.clear();
-
-        uint tCounter = 0;
-
-        // loop over all IQIs and build a name to index map
-        for ( const std::shared_ptr< IQI > &tIQI : mIQIs )
+        // Loop through IQIs
+        for ( auto &tIQI : mIQIs )
         {
-            std::string tIQIName = tIQI->get_name();
-
-            mIQINameToIndexMap[ tIQIName ] = tCounter++;
-        }
-    }
-
-    //-------------------------------------------------------------------------------------------------
-
-    void
-    FEM_Model::initialize_IQIs()
-    {
-        // create content of the map
-        this->create_IQI_map();
-
-        // number of requested IQIs for the model
-        moris::uint tNumIQIs = mRequestedIQINames.size();
-
-        // resize the Global IQI cell
-        mGlobalIQIVal.resize( tNumIQIs );
-
-        // set a counter
-        uint iIQICounter = 0;
-
-        for ( auto &tQI : mGlobalIQIVal )
-        {
-            // use the map to get the IQI index of requested IQI
-            moris_index tIQIIndex = mIQINameToIndexMap[ mRequestedIQINames( iIQICounter ) ];
-
-            // get the matrix dimension of the IQI
-            std::pair< uint, uint > tMatrixDim = mIQIs( tIQIIndex )->get_matrix_dim();
-
-            // set size for the QI value and initialize the value with 0
-            tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
-
-            // increase the counter by 1
-            iIQICounter++;
+            // Register IQI with the Design Variable Interface
+            mDesignVariableInterface->register_QI( tIQI->get_name(), Module_Type::FEM, 0.0 );
         }
     }
 
@@ -1138,8 +1073,8 @@ namespace moris::fem
 
     void
     FEM_Model::set_vertex_xyz_pdv_ids(
-            moris_index                 aVertexIndex,
-            Vector< Matrix< DDSMat > > &aXYZPvIds )
+            moris_index                      aVertexIndex,
+            Vector< Vector< moris_index > > &aXYZPvIds )
     {
         // get num of pdv
         uint tNumXYZPdv = aXYZPvIds.size();

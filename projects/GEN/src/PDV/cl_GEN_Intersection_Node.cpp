@@ -19,19 +19,17 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     Intersection_Node::Intersection_Node(
-            uint                              aNodeIndex,
-            const Vector< Background_Node* >& aBackgroundNodes,
-            const Parent_Node&                aFirstParentNode,
-            const Parent_Node&                aSecondParentNode,
-            real                              aLocalCoordinate,
-            mtk::Geometry_Type                aBackgroundGeometryType,
-            mtk::Interpolation_Order          aBackgroundInterpolationOrder )
+            uint                aNodeIndex,
+            const mtk::Cell&    aBackgroundElement,
+            const Node_Manager& aNodeManager,
+            const Parent_Node&  aFirstParentNode,
+            const Parent_Node&  aSecondParentNode,
+            real                aLocalCoordinate )
             : Derived_Node(
                       aNodeIndex,
-                      aBackgroundNodes,
-                      0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates(),
-                      aBackgroundGeometryType,
-                      aBackgroundInterpolationOrder )
+                      aBackgroundElement,
+                      aNodeManager,
+                      0.5 * ( 1.0 - aLocalCoordinate ) * aFirstParentNode.get_parametric_coordinates() + 0.5 * ( 1.0 + aLocalCoordinate ) * aSecondParentNode.get_parametric_coordinates() )
             , mParentNodes( { Basis_Node( aFirstParentNode, 0.5 * ( 1.0 - aLocalCoordinate ) ), Basis_Node( aSecondParentNode, 0.5 * ( 1.0 + aLocalCoordinate ) ) } )
     {
     }
@@ -59,7 +57,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< Basis_Node >& Intersection_Node::get_locator_nodes() const
+    const Vector< Basis_Node >& Intersection_Node::get_parent_nodes() const
     {
         return mParentNodes;
     }
@@ -107,7 +105,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     uint
-    Intersection_Node::get_num_pdvs()
+    Intersection_Node::get_num_pdvs() const
     {
         return this->get_global_coordinates().numel();
     }
@@ -123,7 +121,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id
-    Intersection_Node::get_starting_pdv_id()
+    Intersection_Node::get_starting_pdv_id() const
     {
         return mPDVStartingID;
     }
@@ -155,7 +153,7 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     moris_index
-    Intersection_Node::get_owner()
+    Intersection_Node::get_owner() const
     {
         return mNodeOwner;
     }
