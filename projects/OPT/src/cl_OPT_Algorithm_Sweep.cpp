@@ -35,14 +35,20 @@ namespace moris::opt
         // define sampling strategy
         mIncludeBounds              = aParameterList.get< bool >( "include_bounds" );
         mNumEvaluations             = string_to_matrix< DDUMat >( aParameterList.get< std::string >( "num_evaluations_per_adv" ) );
-        std::string tEvalVectorFile = aParameterList.get< std::string >( "adv_evaluation_vector_file" );
+        std::string tEvalVectorFile = aParameterList.get< std::string >( "adv_target_vector_file" );
+        std::string tDirVectorFile  = aParameterList.get< std::string >( "adv_direction_vector_file" );
+        real        tStepSize       = aParameterList.get< real >( "step_size" );
         if ( aParameterList.get< bool >( "random_direction_vector" ) )
         {
-            this->load_random_evaluation_points( aParameterList.get< real >( "step_size" ) );
+            this->load_random_evaluation_points( tStepSize );
         }
         else if ( not tEvalVectorFile.empty() )
         {
-            this->load_evaluation_points_from_file( tEvalVectorFile, aParameterList.get< real >( "step_size" ) );
+            this->load_evaluation_points_from_file( tEvalVectorFile, tStepSize );
+        }
+        else if ( not tDirVectorFile.empty() )
+        {
+            this->load_direction_from_file( tDirVectorFile, tStepSize );
         }
         else
         {
@@ -542,6 +548,34 @@ namespace moris::opt
         Vector< real > tDirections;
         tDirections.reserve( tDirectionADVs.size() );
         std::transform( tCurrentADVs.begin(), tCurrentADVs.end(), tDirectionADVs.begin(), std::back_inserter( tDirections ), std::minus< double >() );
+
+        // Set evaluation points along this direction
+        this->setup_evaluation_points_from_direction( tDirections, aStepSize );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Algorithm_Sweep::load_direction_from_file( const std::string& aFileName, real aStepSize )
+    {
+        // Open vector file
+        // Note: only processor 0 reads this file; therefore no parallel file name extension is used
+        hid_t tFileID = open_hdf5_file( aFileName, false );
+
+        // Define matrix in which to read direction ADVs
+        Vector< real > tDirections;
+
+        // Read ADVS from restart file
+        herr_t tStatus = 0;
+        load_vector_from_hdf5_file( tFileID, "ADVs", tDirections.data(), tStatus );
+
+        // Close restart file
+        close_hdf5_file( tFileID );
+
+        MORIS_ERROR( tDirections.size() == mProblem->get_num_advs(),
+                "Algorithm_Sweep::load_direction_from_file - Size of direction ADV vector (%ld) does not match number of ADVs (%d).",
+                tDirections.size(),
+                mProblem->get_num_advs() );
 
         // Set evaluation points along this direction
         this->setup_evaluation_points_from_direction( tDirections, aStepSize );

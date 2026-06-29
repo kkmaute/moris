@@ -104,6 +104,11 @@ namespace moris::opt
         void load_evaluation_points_from_file( const std::string& aFileName, real aStepSize = 1.0 );
 
         /**
+         * Gets the direction vector directly from the HDF5 file, and setups up mNumEvaluationPoints based on this direction vector
+         */
+        void load_direction_from_file( const std::string& aFileName, real aStepSize = 1.0 );
+
+        /**
          * Generates a random direction vector, and then sets up mNumEvaluationPoints to be values of the ADVs along the vector
          */
         void load_random_evaluation_points( real aStepSize = 1.0 );
