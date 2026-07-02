@@ -198,8 +198,8 @@ namespace moris::opt
             // log criteria and ADVs
             MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
 
-            Matrix< DDRMat > tCritCopy( 2, 1 );
-            for ( uint i = 0; i < 2; ++i )
+            Matrix< DDRMat > tCritCopy( mCriteria.size(), 1 );
+            for ( uint i = 0; i < mCriteria.size(); ++i )
             {
                 tCritCopy( i ) = mCriteria( i );
             }
