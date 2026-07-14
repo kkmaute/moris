@@ -645,14 +645,15 @@
                  // If volume is less than a specific threshold then add it to the list of
                  if ( tVolume >= tVolThreshold )
                  {
-                     // if a volume threshold is met mark the spgs as its own root
+                     // if a volume threshold is met mark the spgs as its mown root
                      mRootSPGIds( iSPGIndex )   = tSubphaseGroup->get_id();
                      mRootSPGOwner( iSPGIndex ) = par_rank();
                      //MORIS_LOG_INFO( "The SPG with the index %d is a root with a Bsplince Cell %d, the volume is %f", iSPGIndex ,iBspElem, tVolume );
                      Counter++;
                  }
                  else
-                 { //MORIS_LOG_INFO( "The SPG with the index %d is a not root with a Bsplince Cell %d, the volume is %f", iSPGIndex ,iBspElem, tVolume );
+                 { 
+                    MORIS_LOG_INFO( "The SPG with the index %d is a not root with a Bsplince Cell %d, the volume is %f", tSubphaseGroup->get_id() ,iBspElem, tVolume );
                  }
              }
          }
@@ -958,13 +959,39 @@
                          Matrix< IdMat >            tBasisOwners  = tVertexEnrichment->get_owners();
                          IndexMap&                  tBasisMap     = tVertexEnrichment->get_basis_map();
                          tBasisMap.clear();
+
+                         Matrix< IndexMat > tAgglomeratedBasisIndices;
+                         Matrix< IndexMat > tAgglomeratedBasisIds;
+                         Matrix< DDRMat >   tAgglomeratedBasisWeights;
+                         Matrix< IndexMat > tAgglomeratedBasisOwners;
+
+                         auto tFnCheckAllZeros = [ this, aMeshIndex ]() -> bool {
+                             // Now you can freely access class member variables like mBasisData!
+                             const auto& tFollowerBasis = mBasisData( aMeshIndex ).mFollowerBasis;
+
+                             return std::all_of( tFollowerBasis.begin(), tFollowerBasis.end(), []( auto aValue ) {
+                                 return aValue == 0;
+                             } );
+                         };
+
+                         if ( tCellMaxsize->size() == 0 && tFnCheckAllZeros() )
+                         {
+                             tAgglomeratedBasisIndices.set_size( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element(), 1 );
+                             tAgglomeratedBasisIds.set_size( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element(), 1 );
+                             tAgglomeratedBasisWeights.set_size( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element(), 1 );
+                             tAgglomeratedBasisOwners.set_size( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element(), 1 );
+                         }
+                         else
+                         {
+                             tAgglomeratedBasisIndices.set_size( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                             tAgglomeratedBasisIds.set_size( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                             tAgglomeratedBasisWeights.set_size( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                             tAgglomeratedBasisOwners.set_size( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                         }
  
                          // probably need to do a resize call here
                          // overallocation basis Indices , assume that every basis index need to be replaced
-                         Matrix< IndexMat > tAgglomeratedBasisIndices( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
-                         Matrix< IndexMat > tAgglomeratedBasisIds( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
-                         Matrix< DDRMat >   tAgglomeratedBasisWeights( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
-                         Matrix< IndexMat > tAgglomeratedBasisOwners( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
+                         
                          // tBasisMap.reserve( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) ); // FIXME: only works if the Mini_Map is implemented using a std::unordered_map
  
                          // initialize a counter to count how many basis will be added and replaced
