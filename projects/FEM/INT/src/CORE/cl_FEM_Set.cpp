@@ -27,6 +27,7 @@
 #include "cl_MTK_Vertex.hpp"
 #include "fn_equal_to.hpp"
 #include "fn_trans.hpp"
+#include "cl_MTK_Interpolation_Function.hpp"
 
 namespace moris::fem
 {
@@ -2364,68 +2365,68 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    std::unordered_map< moris_index, Vector< real > > Set::get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes )
+    std::vector< std::tuple< moris_index, Matrix< DDRMat > > > Set::get_ip_element_displacements( const std::vector< moris_index >& aRequestedIGCells )
     {
-        std::unordered_map< moris_index, Vector< real > > tNodalDisplacements;
+        // Build IP element displacement matrices
+        std::vector< std::tuple< moris_index, Matrix< DDRMat > > > tIPElementDisplacements;
 
-        for ( auto* tEquationObject : mEquationObjList )
+        for ( const auto& iCellIndex : aRequestedIGCells )
         {
-            auto* const tInterpElement = dynamic_cast< fem::Interpolation_Element* >( tEquationObject );
-
-            std::shared_ptr< Cluster > const tCluster     = tInterpElement->get_cluster( 0 );
-            mtk::Cluster const * const       tMeshCluster = tCluster->get_mesh_cluster();
-
-            // get only the primary vertices! If you get all vertices you might interpolate vertices of a follower side that reside in the same cluster with the wrong interpolation element
-            Matrix< IndexMat > const            tPrimaryVertexIndexMat = tMeshCluster->get_primary_vertices_inds_in_cluster();
-            std::set< moris_index > const       tPrimaryVertexIndexSet( tPrimaryVertexIndexMat.begin(), tPrimaryVertexIndexMat.end() );    // convert to set for faster "is in" check
-            Vector< mtk::Vertex const * > const tVerticesOnCluster = tMeshCluster->get_vertices_in_cluster();
-            Matrix< DDRMat >                    tLocalCoords       = tMeshCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
-
-            tInterpElement->compute_my_pdof_values();
-            if ( get_time_continuity() )
+            moris_index tElementIndex = -1;
+            // Find the IP element from the cell index
+            for ( auto* tEquationObject : mEquationObjList )
             {
-                tInterpElement->compute_previous_pdof_values();
-            }
-            tInterpElement->set_field_interpolators_coefficients();
-
-            // TODO @ff: can we use the geometry interpolator with the new methods for retrieving the element coordinates in the current configuration?
-            // loop over the vertices on the treated mesh cluster
-            uint const tNumNodes = tLocalCoords.n_rows();
-            MORIS_ASSERT( tNumNodes == tVerticesOnCluster.size(),
-                    "FEM::Set::get_nodal_displacements() - "
-                    "Number of nodes in the interpolation element and number of nodes in the local coordinates "
-                    "matrix are different." );
-            for ( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
-            {
-                moris_index tVertexIndex = tVerticesOnCluster( iVertex )->get_index();
-                // if the vertex is not requested, or if it is already in the map, or if it is not a primary vertex, skip it
-                if ( aRequestedNodes.count( tVertexIndex ) == 0 || tNodalDisplacements.count( tVertexIndex ) != 0 || tPrimaryVertexIndexSet.count( tVertexIndex ) == 0 )
+                auto* const                           tInterpElement  = dynamic_cast< fem::Interpolation_Element* >( tEquationObject );
+                std::shared_ptr< fem::Cluster > const tCluster        = tInterpElement->get_cluster( 0 );    // for non-conformal there are 2 clusters per IP element - we get only the leader as for now
+                const mtk::Cluster*                   tMeshCluster    = tCluster->get_mesh_cluster();
+                Vector< mtk::Cell const * > const     tCellsInCluster = tMeshCluster->get_primary_cells_in_cluster();
+                for ( uint i = 0; i < tCellsInCluster.size(); ++i )
                 {
-                    continue;
+                    moris_index tCellIndex = tCellsInCluster( i )->get_index();
+
+                    if ( tCellIndex == iCellIndex )
+                    {
+                        tElementIndex = tInterpElement->get_ip_cell( mtk::Leader_Follower::LEADER )->get_index();
+
+                        // DEBUG OUTPUT
+                        // std::cout << "Element Index: " << tElementIndex << std::endl;
+                        // std::cout << "Processing facet with cell index: " << iCellIndex << std::endl;
+
+                        // Check if there is already a displacement for this IP Element
+                        for ( const auto& [ existingElementIndex, _ ] : tIPElementDisplacements )
+                        {
+                            if ( existingElementIndex == tElementIndex )
+                            {
+                                break;
+                            }
+                        }
+
+                        tInterpElement->compute_my_pdof_values();
+                        if ( get_time_continuity() )
+                        {
+                            tInterpElement->compute_previous_pdof_values();
+                        }
+                        tInterpElement->set_field_interpolators_coefficients();
+
+                        // Get displacement field interpolator
+                        Field_Interpolator* tFiX = get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                                                           ->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+
+                        // Get displacement values of IP Element nodes
+                        Matrix< DDRMat > const & tDispVec = tFiX->get_coeff();
+                        // Create displacement matrix to store displacements at IP Elements corresponding to the requested IG cells
+                        tIPElementDisplacements.push_back( std::make_tuple( tElementIndex, tDispVec ) );
+
+                        // DEBUG OUTPUT
+                        // std::cout << "Displacement Matrix for Element " << tElementIndex << " (Cell Index " << iCellIndex << "):\n"
+                        //           << std::endl;
+                        // PRINT( tDispVec );
+                        break;
+                    }
                 }
-
-                // get the ith vertex coordinates in the IP param space
-                Matrix< DDRMat > tVertexCoord = tLocalCoords.get_row( iVertex );
-
-                tVertexCoord.resize( 1, tVertexCoord.numel() + 1 );
-                tVertexCoord( tVertexCoord.numel() - 1 ) = -1.0;    // adding time coordinate
-                tVertexCoord                             = trans( tVertexCoord );
-
-                // set vertex coordinates for field interpolator
-                this->get_field_interpolator_manager()->set_space_time( tVertexCoord );
-
-                Field_Interpolator* tFiX = get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
-                                                   ->get_field_interpolators_for_type( MSI::Dof_Type::UX );
-
-                Vector< real > tDisp( 2 );
-                tDisp( 0 ) = tFiX->val()( 0 );
-                tDisp( 1 ) = tFiX->val()( 1 );
-                // tDisp( 1 ) = tFiY->val()( 0 );
-
-                tNodalDisplacements[ tVertexIndex ] = tDisp;
             }
         }
-        return tNodalDisplacements;
+        return tIPElementDisplacements;
     }
 
     //------------------------------------------------------------------------------

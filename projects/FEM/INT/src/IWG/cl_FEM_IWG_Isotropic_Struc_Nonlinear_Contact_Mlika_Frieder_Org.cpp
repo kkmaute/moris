@@ -65,7 +65,7 @@ namespace moris::fem
 
         // set flag to use displacement for gap
         mUseDeformedGeometryForGap           = true;
-        mUseConsistentDeformedGeometryForGap = false;
+        // mUseConsistentDeformedGeometryForGap = false;
     }
 
     //------------------------------------------------------------------------------
@@ -112,14 +112,17 @@ namespace moris::fem
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
-                mUseConsistentDeformedGeometryForGap,
+                // mUseConsistentDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
                 mFollowerFIManager,
                 mGapData );
 
         // check whether the remapping is successful
-        if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
+        // remap_nonconformal_rays uses -2.0 as a sentinel on failure (see cl_FEM_IWG.cpp).
+        // Note: in 3D the valid follower coords (eta,zeta) live in [0,1] with eta+zeta<=1,
+        // so the original check `abs(coord(0))>1` wrongly rejected valid remaps.
+        if ( tRemappedFollowerCoords( 0 ) < -1.5 )
         {
             //            MORIS_ERROR( false,
             //                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - Remapping of follower coordinates was not successful. " );

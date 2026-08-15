@@ -16,6 +16,10 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_Json_Object.hpp"
 #include <ostream>
+#include <map>
+#include <utility>
+#include <vector>
+#include <tuple>
 
 namespace moris::mtk
 {
@@ -51,6 +55,19 @@ namespace moris::mtk
 
         void set_displacement( Matrix< DDRMat > const &aDisplacements );
 
+        void set_ip_element_displacement( moris_index aCellIndex, Matrix< DDRMat > const &aIPElementDisplacements );
+
+        [[nodiscard]] Matrix< DDRMat > get_ip_element_displacement( moris_index aCellIndex ) const;
+
+        void refresh_derived_quantities();
+
+        /**
+         * @brief Set displacement for a specific facet
+         * @param aCellIndex Global cell index (which represents a facet)
+         * @param aFacetDisplacements Displacement matrix for the facet vertices (numVertices x numDim)
+         */
+        void set_facet_displacement( moris_index aCellIndex, Matrix< DDRMat > const &aFacetDisplacements );
+
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
          * @return A list of lists. The outer list contains the neighbor-lists for each vertex. The inner list contains the indices of the neighbors.
@@ -82,6 +99,13 @@ namespace moris::mtk
          * @return A (d x n) matrix where d is the dimension of the mesh (holding the normal components) and n is the number of vertices in the surface mesh.
          */
         [[nodiscard]] Matrix< DDRMat > get_vertex_normals() const;
+
+        /**
+         * @brief Returns the facet coordinates for a specific cell (with displacements applied)
+         * @param aCellIndex Global cell index (which represents a facet)
+         * @return A (dim x 3) matrix with displaced coordinates of vertex1, vertex2, and midpoint ghost
+         */
+        [[nodiscard]] Matrix< DDRMat > get_facet_coordinates( moris_index aCellIndex ) const;
 
         /**
          * @brief Returns the global index of a vertex with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
@@ -120,6 +144,8 @@ namespace moris::mtk
          */
         [[nodiscard]] Vector< moris_index > get_cells_of_vertex( moris_index aLocalVertexIndex ) const;
 
+        void write_to_file( const std::string &aFilePath ) const;
+
         /**
          * @brief Returns the coordinates of all vertices that are part of the cell with the given local index.
          * @param aLocalCellIndex The local index of the cell in the surface mesh.
@@ -151,6 +177,8 @@ namespace moris::mtk
         [[nodiscard]] uint get_spatial_dimension() const;
 
         Json to_json() const;
+
+        std::map< moris_index, Matrix< DDRMat > > mIPElementDisplacements;
 
       private:    // methods
         /**
@@ -275,6 +303,9 @@ namespace moris::mtk
         Vector< Vector< moris_index > > mSideSetToClusterIndices;
 
         moris::Matrix< DDRMat > mDisplacements;
+
+        // Store displacements per facet using cellIndex as key
+        std::map< moris_index, Matrix< DDRMat > > mFacetDisplacements;
 
         Vector< Vector< moris_index > > mClusterToCellIndices;
 

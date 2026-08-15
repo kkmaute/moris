@@ -29,7 +29,12 @@ namespace moris::mtk
 
         virtual MappingResult map( moris_index aSourceSideSetIndex, Matrix< DDRMat > const &aParametricCoordinate, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const = 0;
 
-        virtual void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aSetDisplacements ) = 0;
+        // virtual void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aSetDisplacements ) = 0;
+        /**
+         * @brief Update IP-element displacements for mesh deformation
+         * @param aIPElementDisplacements Vector of (ipElementIndex, displacements)
+         */
+        virtual void update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements ) = 0;
 
       protected:
         Vector< Side_Set const * > const                      &get_side_sets() const { return mSideSets; }

@@ -92,11 +92,11 @@ namespace moris
             mtk::Interpolation_Order mIGTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
             // field interpolator manager pointers
-            Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
-            Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
-            Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
+            Field_Interpolator_Manager* mLeaderFIManager           = nullptr;
+            Field_Interpolator_Manager* mFollowerFIManager         = nullptr;
+            Field_Interpolator_Manager* mLeaderPreviousFIManager   = nullptr;
             Field_Interpolator_Manager* mFollowerPreviousFIManager = nullptr;
-            Field_Interpolator_Manager* mLeaderEigenFIManager    = nullptr;
+            Field_Interpolator_Manager* mLeaderEigenFIManager      = nullptr;
 
             // number of eigen vectors
             uint mNumEigenVectors = 0;
@@ -605,8 +605,8 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            std::unordered_map< moris_index, Vector< real > >
-            get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes ) override;
+            // std::unordered_map< moris_index, Vector< real > >
+            // get_nodal_displacements( const std::unordered_set< moris_index >& aRequestedNodes ) override;
 
             //------------------------------------------------------------------------------
             /**
@@ -1118,6 +1118,11 @@ namespace moris
             void populate_fields(
                     Vector< std::shared_ptr< fem::Field > >& aFieldToPopulate,
                     Vector< std::string > const &            aFieldIQINames ) override;
+
+            //------------------------------------------------------------------------------
+
+            std::vector< std::tuple< moris_index, Matrix< DDRMat > > > get_ip_element_displacements( const std::vector< moris_index >& aRequestedIGCells );
+
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

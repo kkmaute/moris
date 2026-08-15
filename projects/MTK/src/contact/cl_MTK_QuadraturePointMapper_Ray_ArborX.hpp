@@ -23,9 +23,15 @@ namespace moris::mtk
                 : QuadraturePointMapper_Ray( aIGMesh, aSideSets, aCandidatePairs ){};
 
         MappingResult map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const override;
+        void         update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements ) override;
+
+        //void update_facet_displacements( std::vector<std::tuple<moris_index, moris_index, Matrix<DDRMat>>> const &aFacetVertexDisplacements ) override;
 
       private:
         Vector< std::pair< moris_index, Surface_Mesh > > get_target_surface_meshes( moris_index aSourceMeshIndex ) const;
-        void                                             check_cell_intersections( MappingResult &tMappingResult, real aMaxNegativeRayLength, real aMaxPositiveRayLength, arborx::cell_locator_map const &tBoxRayMap ) const;
+        void                                             check_cell_intersections( MappingResult &tMappingResult, real aMaxNegativeRayLength, real aMaxPositiveRayLength, arborx::cell_locator_map const &tBoxRayMap, const std::unordered_map< moris_index, moris::mtk::arborx::GatheredSurfaceMesh > *aGatheredMeshes = nullptr ) const;
+
+        mutable bool mGatheredTargetMeshesDirty = true;
+        mutable std::unordered_map< moris_index, moris::Vector< moris::mtk::arborx::GatheredSurfaceMesh > > mCachedGatheredTargetMeshes;
     };
 }    // namespace moris::mtk

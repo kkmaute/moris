@@ -86,6 +86,16 @@ namespace moris::mtk
          */
         Vector< real > mSignedDistance;
 
+        /**
+         * @brief Contains the normals computed in nonlinear/consistent deformed geometry formulation.
+         */
+        Matrix< DDRMat > mNormalsNonlinear;
+
+        /**
+         * @brief The physical coordinates of the point from which the mapping was performed, in nonlinear/consistent deformed geometry formulation.
+         */
+        Matrix< DDRMat > mSourcePhysicalCoordinateNonlinear;
+
         Json to_json();
     };
 }    // namespace moris::mtk

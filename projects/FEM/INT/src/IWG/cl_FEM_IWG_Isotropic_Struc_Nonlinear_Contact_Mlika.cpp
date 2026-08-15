@@ -64,8 +64,8 @@ namespace moris::fem
         mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
         // set flag to use displacement for gap
-        mUseDeformedGeometryForGap           = true;
-        mUseConsistentDeformedGeometryForGap = true;
+        mUseDeformedGeometryForGap = true;
+        // mUseConsistentDeformedGeometryForGap = true;
 
         // scaling factor to enable pure penalty formulation
         mTractionScaling = 1.0;
@@ -89,7 +89,7 @@ namespace moris::fem
                     "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only three parameters possible." );
 
             // parameter 0: consistency flag
-            mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
+            // mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
 
             // parameter 1: pure penalty flag
             // create penalty only formulation
@@ -150,14 +150,17 @@ namespace moris::fem
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
-                mUseConsistentDeformedGeometryForGap,
+                // mUseConsistentDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
                 mFollowerFIManager,
                 mGapData );
 
         // check whether the remapping is successful
-        if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
+        // remap_nonconformal_rays uses -2.0 as a sentinel on failure (see cl_FEM_IWG.cpp).
+        // Note: in 3D the valid follower coords (eta,zeta) live in [0,1] with eta+zeta<=1,
+        // so the original check `abs(coord(0))>1` wrongly rejected valid remaps.
+        if ( tRemappedFollowerCoords( 0 ) < -1.5 )
         {
             return;    // exit if remapping was not successful
         }
@@ -431,14 +434,17 @@ namespace moris::fem
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
-                mUseConsistentDeformedGeometryForGap,
+                // mUseConsistentDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
                 mFollowerFIManager,
                 mGapData );
 
         // check whether the remapping is successful
-        if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
+        // remap_nonconformal_rays uses -2.0 as a sentinel on failure (see cl_FEM_IWG.cpp).
+        // Note: in 3D the valid follower coords (eta,zeta) live in [0,1] with eta+zeta<=1,
+        // so the original check `abs(coord(0))>1` wrongly rejected valid remaps.
+        if ( tRemappedFollowerCoords( 0 ) < -1.5 )
         {
             return;    // exit if remapping was not successful
         }
@@ -655,8 +661,8 @@ namespace moris::fem
 
                 Matrix< DDRMat > tRayCastPoint = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
                                                + trans( mLeaderFIManager->get_IP_geometry_interpolator()->valx() );
-                Matrix< DDRMat > tTgtPoint = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
-                                           + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
+                Matrix< DDRMat > tTgtPoint     = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val()    //
+                                               + trans( mFollowerFIManager->get_IP_geometry_interpolator()->valx() );
 
                 const std::shared_ptr< Constitutive_Model >& tConstitutiveModelLeader =
                         mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );

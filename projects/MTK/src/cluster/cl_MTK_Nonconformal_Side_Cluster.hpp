@@ -21,10 +21,10 @@ namespace moris::mtk
                 Cluster const                         *aLeaderSideCluster,
                 Cluster const                         *aFollowerSideCluster,
                 Vector< IntegrationPointPairs > const &aIntegrationPointPairs,
-                Vector< NodalPointPairs > const       &aNodalPointPairs )
+                Vector< NodalPointPairs > const       &aNodalPointPairs = Vector< NodalPointPairs >{} )
                 : Double_Side_Cluster( aLeaderSideCluster, aFollowerSideCluster, {} )
                 , mIntegrationPointPairs( aIntegrationPointPairs )
-                , mNodalPointPairs( aNodalPointPairs ){};
+                , mNodalPointPairs( aNodalPointPairs ) {};
 
         /**
          * \brief Works similar to the function get_primary_cells_in_cluster() from the base class. The difference is, that

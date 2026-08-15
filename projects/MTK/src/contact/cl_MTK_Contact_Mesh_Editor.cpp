@@ -16,6 +16,7 @@
 #include "cl_Vector.hpp"
 #include "fn_assert.hpp"
 #include "fn_join_horiz.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Tracer.hpp"
@@ -28,6 +29,54 @@
 #include <utility>
 #include <tuple>
 #include <map>
+
+namespace
+{
+    inline void assert_param_in_bounds_box( moris::Matrix< moris::DDRMat > const &aParam, const char *aContext )
+    {
+        if ( aParam.n_rows() >= 1 )
+        {
+            MORIS_ASSERT(
+                    aParam( 0 ) >= -1.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
+                    "MTK parametric coordinate out of bounds (param[0]=%e, context=%s)",
+                    aParam( 0 ),
+                    aContext );
+        }
+        if ( aParam.n_rows() >= 2 )
+        {
+            MORIS_ASSERT(
+                    aParam( 1 ) >= -1.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
+                    "MTK parametric coordinate out of bounds (param[1]=%e, context=%s)",
+                    aParam( 1 ),
+                    aContext );
+        }
+    }
+
+    inline void assert_param_in_bounds_simplex( moris::Matrix< moris::DDRMat > const &aParam, const char *aContext )
+    {
+        if ( aParam.n_rows() >= 1 )
+        {
+            MORIS_ASSERT(
+                    aParam( 0 ) >= 0.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
+                    "MTK TRI parametric coordinate out of bounds (eta=%e, context=%s)",
+                    aParam( 0 ),
+                    aContext );
+        }
+        if ( aParam.n_rows() >= 2 )
+        {
+            MORIS_ASSERT(
+                    aParam( 1 ) >= 0.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
+                    "MTK TRI parametric coordinate out of bounds (zeta=%e, context=%s)",
+                    aParam( 1 ),
+                    aContext );
+            MORIS_ASSERT(
+                    aParam( 0 ) + aParam( 1 ) <= 1.0 + 1e-12,
+                    "MTK TRI parametric coordinate out of bounds (eta+zeta=%e, context=%s)",
+                    aParam( 0 ) + aParam( 1 ),
+                    aContext );
+        }
+    }
+}    // namespace
 
 namespace moris::mtk
 {
@@ -119,20 +168,18 @@ namespace moris::mtk
                 tNonconformalSideClusters[ tSetPair ].emplace_back(
                         tLeaderCluster,
                         tDummyCluster,
-                        Vector< IntegrationPointPairs >{},
-                        Vector< NodalPointPairs >{} );
+                        Vector< IntegrationPointPairs >{} );
                 continue;    // skip the rest of the loop
             }
             for ( const auto &[ tTargetClusterLocator, tResultIndices ] : tTargetClusterToResultMap )
             {
                 Vector< IntegrationPointPairs > tIntegrationPointPairs;    // bundles of integration points that were mapped from the leader side to the follower side cells
-                Vector< NodalPointPairs >       tNodePointPairs;           // mapped points of all nodes on the leader side to the follower side
                 // for this cluster-cluster pairing, get the pairing of their cells (using the indices, the access to the corresponding indices
                 // in the mapping result is guaranteed to be correct)
                 std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > tCellPairing = extract_cell_pairing( aMappingResult, tResultIndices );
                 for ( auto const &[ tCellPair, tCellResults ] : tCellPairing )
                 {
-                    populate_integration_and_nodal_point_pairs( aMappingResult, tIntegrationPointPairs, tNodePointPairs, tCellResults );
+                    populate_integration_point_pairs( aMappingResult, tIntegrationPointPairs, tCellResults );
                 }
                 auto const &[ tTargetClusterIndex, tTargetMeshIndex ] = tTargetClusterLocator;
                 SetPair const  tSetPair                               = std::make_pair( tSourceMeshIndex, tTargetMeshIndex );
@@ -140,18 +187,20 @@ namespace moris::mtk
                 Cluster const *tFollowerCluster                       = mSideSets( tTargetMeshIndex )->get_clusters_by_index( tTargetClusterIndex );
 
                 // append a new nonconformal side cluster
-                tNonconformalSideClusters[ tSetPair ].emplace_back( tLeaderCluster, tFollowerCluster, tIntegrationPointPairs, tNodePointPairs );
+                tNonconformalSideClusters[ tSetPair ].emplace_back(
+                        tLeaderCluster,
+                        tFollowerCluster,
+                        tIntegrationPointPairs );
             }
         }
         return tNonconformalSideClusters;
     }
-    void Contact_Mesh_Editor::populate_integration_and_nodal_point_pairs(
+    void Contact_Mesh_Editor::populate_integration_point_pairs(
             MappingResult const                      &aMappingResult,
             Vector< IntegrationPointPairs >          &aIntegrationPointPairs,
-            Vector< NodalPointPairs >                &aNodePointPairs,
             Contact_Mesh_Editor::ResultIndices const &aCellResults ) const
     {
-        Vector< moris_index > tNodalResultColumns;
+        // Create integration-point pairs for this cell pair.
         Vector< moris_index > tIntegrationPointResultColumns;
         for ( uint iResult = 0; iResult < aCellResults.size(); iResult++ )
         {
@@ -160,19 +209,11 @@ namespace moris::mtk
             {
                 tIntegrationPointResultColumns.push_back( tMappingResultColumn );
             }
-            else
-            {
-                tNodalResultColumns.push_back( tMappingResultColumn );
-            }
         }
 
         if ( tIntegrationPointResultColumns.size() > 0 )
         {
             aIntegrationPointPairs.push_back( create_integration_point_pairs_from_results( tIntegrationPointResultColumns, aMappingResult ) );
-        }
-        if ( tNodalResultColumns.size() > 0 )
-        {
-            aNodePointPairs.push_back( create_nodal_point_pairs_from_results( tNodalResultColumns, aMappingResult ) );
         }
     }
 
@@ -182,7 +223,6 @@ namespace moris::mtk
 
         Matrix< DDRMat > tQWeights = mIntegrator.get_weights();
         Matrix< DDRMat > tQPoints  = mIntegrator.get_points();
-        MORIS_ASSERT( tQPoints.n_rows() == 2 && sum( tQPoints.get_row( 1 ) ) < MORIS_REAL_EPS, "Currently, only 1D parametric coordinates with a constant time dimension are supported!" );
 
         // the leader and follower cell indices are the same for each result in this method!
         moris_index const tLeaderCellIndex   = aMappingResult.mSourceCellIndex( aResultIndices( 0 ) );
@@ -217,8 +257,9 @@ namespace moris::mtk
                     tFollowerCellIndex == aMappingResult.mTargetCellIndices( tMappingResultColumn ),
                     "Follower cell index does not match! This means that the pre-filtering of result indices did not work correctly!" );
 
-            // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
+            // Fill spatial coordinates from mapping result (already validated in populate_integration_point_pairs).
             auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
+            assert_param_in_bounds_box( tCoordinate, "Contact_Mesh_Editor::create_integration_point_pairs" );
             for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
             {
                 tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
@@ -239,76 +280,12 @@ namespace moris::mtk
         };
     }
 
-    NodalPointPairs Contact_Mesh_Editor::create_nodal_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const
-    {
-        size_t const tNumResults = aResultIndices.size();
-
-        // the leader and follower cluster and cell indices are the same for each result in this method!
-        moris_index const tLeaderClusterIndex = aMappingResult.mSourceClusterIndex( aResultIndices( 0 ) );
-        moris_index const tLeaderCellIndex    = aMappingResult.mSourceCellIndex( aResultIndices( 0 ) );
-        moris_index const tFollowerCellIndex  = aMappingResult.mTargetCellIndices( aResultIndices( 0 ) );
-
-        Vector< real >        tDistances( tNumResults );
-        Vector< moris_index > tLeaderNodeIndices( tNumResults );
-        Matrix< DDRMat >      tNormals( aMappingResult.mNormals.n_rows(), tNumResults );
-        Matrix< DDRMat >      tReferenceNormals( aMappingResult.mReferenceNormals.n_rows(), tNumResults );
-        Matrix< DDRMat >      tLeaderParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
-        Matrix< DDRMat >      tFollowerParametricCoords( mIntegrator.get_points().n_rows(), tNumResults, -1.0 );
-
-        const Side_Set           *tSideSet         = mSideSets( aMappingResult.mSourceMeshIndex );
-        const Side_Cluster       *tCluster         = dynamic_cast< mtk::Side_Cluster const * >( tSideSet->get_clusters_by_index( tLeaderClusterIndex ) );
-        const Matrix< IndexMat > &tSideOrdinals    = tCluster->get_cell_side_ordinals();
-        Vector< const Cell * >    tCells           = tCluster->get_primary_cells_in_cluster();
-        auto                      tHasCorrectIndex = [ &tLeaderCellIndex ]( const Cell *const &aCell ) { return aCell->get_index() == tLeaderCellIndex; };
-        auto const               &tCell            = std::find_if( tCells.begin(), tCells.end(), tHasCorrectIndex );
-        MORIS_ASSERT( tCell != tCells.end(), "Contact_Mesh_Editor::create_nodal_point_pairs_from_results: Could not find cell with index %d in cluster %d!", tLeaderCellIndex, tLeaderClusterIndex );
-        size_t                          tCellIndex = std::distance( tCells.begin(), tCell );
-        const Vector< const Vertex * > &tVertices  = tCells( tCellIndex )->get_vertices_on_side_ordinal( tSideOrdinals( tCellIndex ) );
-
-        // loop over each index in the mapping result for this pair of cells
-        for ( uint iIndex = 0; iIndex < tNumResults; ++iIndex )
-        {
-            /* To get the correct column in the mapping result, we have to index into the list of result columns.
-             * E.g. for a cell-cell pair, the mapping result columns are [ 3, 6, 8, 9 ] which means that the
-             * mapping results of the first nodal point (that got mapped successfully on the other cell) is stored in column 3, the second in column 6 and so on. */
-            size_t const tMappingResultColumn = aResultIndices( iIndex );
-
-            /* The next line provides the local index of the node that has been mapped in the result. E.g. if we have a 2 node line cell, the two nodal points
-             * will correspond to the node at the parametric coordinate (-1.0) and (1.0) at the local indices 0 and 1 respectively.
-             * It is up to this function to determine which node of the cell has been mapped. */
-            size_t const tNodeIndex      = get_node_coordinate_index( tMappingResultColumn );
-            tLeaderNodeIndices( iIndex ) = tVertices( tNodeIndex )->get_index();
-
-            // TODO: This is a hack for line elements! Generalize for other cell types by retrieving the local parametric coordinate from a given node index.
-            MORIS_ASSERT( tNodeIndex <= 1, "Currently, only Line elements are supported in the nonconformal mapping!" );
-            tLeaderParametricCoords( 0, iIndex ) = tNodeIndex == 0 ? -1.0 : 1.0;
-
-            // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
-            auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
-            for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
-            {
-                tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
-            }
-            tDistances( iIndex ) = aMappingResult.mSignedDistance( tMappingResultColumn );
-            tNormals.set_column( iIndex, aMappingResult.mNormals.get_column( tMappingResultColumn ) );
-            tReferenceNormals.set_column( iIndex, aMappingResult.mReferenceNormals.get_column( tMappingResultColumn ) );
-        }
-
-        return {
-            tLeaderCellIndex,
-            tLeaderParametricCoords,
-            tLeaderNodeIndices,
-            tFollowerCellIndex,
-            tFollowerParametricCoords,
-            tDistances,
-            tNormals,
-            tReferenceNormals
-        };
-    }
-
     Vector< MappingResult > Contact_Mesh_Editor::perform_mapping( const Matrix< DDRMat > &aPointsToMap ) const
     {
         Tracer tTracer( "Contact Mesh Editor", "Update", "Perform Mapping" );
+        // Ensure mapping points are integration (quadrature) points only
+        MORIS_ASSERT( aPointsToMap.n_cols() == mIntegrator.get_points().n_cols(),
+                "Contact_Mesh_Editor::perform_mapping - aPointsToMap must contain integration points only (n_integration_points)" );
         // get all possible source side sets that have been specified in the candidate pairings
         std::set< moris_index > tSourceSideSets;
         std::transform(
@@ -412,9 +389,10 @@ namespace moris::mtk
         return { tB0Phase, tB1Phase };
     }
 
-    void Contact_Mesh_Editor::update_displacements( std::unordered_map< moris_index, Vector< real > > const &aNodalDisplacements )
+    void Contact_Mesh_Editor::update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements )
     {
-        mPointMapper.update_displacements( aNodalDisplacements );
+        // Forward IP element displacement updates to the mapper.
+        this->mPointMapper.update_ip_element_displacements( aIPElementDisplacements );
     }
 
     Vector< Side_Set const * > Contact_Mesh_Editor::get_side_sets() const
@@ -422,41 +400,35 @@ namespace moris::mtk
         return mSideSets;
     }
 
-    Matrix< DDRMat > Contact_Mesh_Editor::get_nodal_parametric_coordinates() const
-    {
-        const Side_Cluster             *tCluster      = dynamic_cast< mtk::Side_Cluster const * >( mSideSets( 0 )->get_clusters_on_set()( 0 ) );
-        const Cell                     *tCell         = tCluster->get_primary_cells_in_cluster()( 0 );
-        const Matrix< IndexMat >       &tSideOrdinals = tCluster->get_cell_side_ordinals();
-        const Vector< const Vertex * > &tVertices     = tCell->get_vertices_on_side_ordinal( tSideOrdinals( 0 ) );
-        MORIS_ASSERT( tVertices.size() == 2, "Currently, only Line elements are supported in the nonconformal mapping!" );
-        return { { -1.0, 1.0 } };    // has to be generalized for different cell types
-    }
-
     Matrix< DDRMat > Contact_Mesh_Editor::get_points_to_map() const
     {
-        Matrix< DDRMat > const tNodalParametricCoordinates = get_nodal_parametric_coordinates();
-        Matrix< DDRMat > const tIntegrationPoints          = mIntegrator.get_points().get_row( 0 );    // only use the spatial parametric coordinates, not the time dimension
-        return join_horiz( tNodalParametricCoordinates, tIntegrationPoints );
+        Matrix< DDRMat > const tAllPoints      = mIntegrator.get_points();
+        uint const             tNumSpatialRows = tAllPoints.n_rows() - 1;    // last row is time
+        return tAllPoints( { 0, tNumSpatialRows - 1 }, { 0, tAllPoints.n_cols() - 1 } );
     }
 
     bool Contact_Mesh_Editor::is_integration_point_result_index( moris_index aMappingResultColumnIndex ) const
     {
-        size_t const nNodalPoints       = get_nodal_parametric_coordinates().n_cols();
+        size_t const tNumMappedPoints   = get_points_to_map().n_cols();
         size_t const nIntegrationPoints = mIntegrator.get_number_of_points();
-        size_t const nLocalIndex        = aMappingResultColumnIndex % ( nNodalPoints + nIntegrationPoints );
+        MORIS_ASSERT( tNumMappedPoints >= nIntegrationPoints, "Contact_Mesh_Editor::is_integration_point_result_index - inconsistent mapping sizes." );
+        size_t const nNodalPoints = tNumMappedPoints - nIntegrationPoints;
+        size_t const nLocalIndex  = aMappingResultColumnIndex % tNumMappedPoints;
         return nLocalIndex >= nNodalPoints;
     }
 
     moris_index Contact_Mesh_Editor::get_integration_point_index( moris_index aMappingResultColumnIndex ) const
     {
-        size_t const nNodalPoints = get_nodal_parametric_coordinates().n_cols();
-        return aMappingResultColumnIndex % ( nNodalPoints + mIntegrator.get_number_of_points() ) - nNodalPoints;
+        size_t const tNumMappedPoints = get_points_to_map().n_cols();
+        MORIS_ASSERT( tNumMappedPoints > 0, "Contact_Mesh_Editor::get_integration_point_index - no points to map." );
+        return aMappingResultColumnIndex % tNumMappedPoints;
     }
 
-    moris_index Contact_Mesh_Editor::get_node_coordinate_index( moris_index aMappingResultColumnIndex ) const
-    {
-        size_t const nNodalPoints = get_nodal_parametric_coordinates().n_cols();
-        return aMappingResultColumnIndex % ( nNodalPoints + mIntegrator.get_number_of_points() );
-    }
+    // Nodal point handling - currently unused, commented out
+    // moris_index Contact_Mesh_Editor::get_node_coordinate_index( moris_index aMappingResultColumnIndex ) const
+    // {
+    //     //size_t const nNodalPoints = get_nodal_parametric_coordinates().n_cols();
+    //     return aMappingResultColumnIndex % ( mIntegrator.get_number_of_points() );
+    // }
 
 }    // namespace moris::mtk

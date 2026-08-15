@@ -35,6 +35,8 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_Interpolation_Element.hpp"
+#include "cl_FEM_Cluster.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -146,10 +148,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-            const moris_index                        &aMeshPairIndex,
-            const Module_Parameter_Lists &aParameterList,
-            const std::shared_ptr< Library_IO >      &aLibrary )
+            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+            const moris_index                   &aMeshPairIndex,
+            const Module_Parameter_Lists        &aParameterList,
+            const std::shared_ptr< Library_IO > &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -184,10 +186,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-            const moris_index                        &aMeshPairIndex,
-            const Module_Parameter_Lists &aParameterList,
-            MSI::Design_Variable_Interface           *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+            const moris_index                   &aMeshPairIndex,
+            const Module_Parameter_Lists        &aParameterList,
+            MSI::Design_Variable_Interface      *aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -409,8 +411,8 @@ namespace moris::fem
         }
         Tracer tTracer( "FEM", "Model", "Remapping" );
 
-        // get the side set names that get used by the contact mesh editor to build nonconformal sets
-        std::unordered_map< moris_index, Vector< real > > tNodalDisplacements;
+        // Collect facet displacements from all nonconformal sets
+        std::vector< std::tuple< moris_index, Matrix< DDRMat > > > tIPVertexDisplacements;
 
         for ( auto const &tFemSet : mFemSets )
         {
@@ -419,39 +421,63 @@ namespace moris::fem
                 continue;
             }
 
-            auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
+            // auto const &tMeshSet = dynamic_cast< fem::Set *const >( tFemSet )->get_mesh_set();
 
-            std::unordered_set< moris_index > tRequestedIGNodes;
-            std::unordered_set< moris_index > tRequestedIPNodes;
+            std::vector< moris_index > tRequestedIGCells;
+            std::vector< moris_index > tRequestedIPElements;
 
-            for ( auto const &tCluster : tMeshSet->get_clusters_on_set() )
+            // Loop through all equation objects (IP elements) and their clusters
+            tRequestedIPElements.clear();
+            for ( auto *tEquationObject : static_cast< fem::Set * >( tFemSet )->get_equation_object_list() )
             {
-                for ( auto const &tCell : tCluster->get_primary_cells_in_cluster() )
+                auto *const                           tInterpElement  = dynamic_cast< fem::Interpolation_Element * >( tEquationObject );
+                std::shared_ptr< fem::Cluster > const tCluster        = tInterpElement->get_cluster( 0 );    // for non-conformal there are 2 clusters per IP element - we get only the leader as for now
+                const mtk::Cluster                   *tMeshCluster    = tCluster->get_mesh_cluster();
+                Vector< mtk::Cell const * > const     tCellsInCluster = tMeshCluster->get_primary_cells_in_cluster();
+                moris_index                           tIpElemIndex    = tInterpElement->get_ip_cell( mtk::Leader_Follower::LEADER )->get_index();
+                tRequestedIPElements.push_back( tIpElemIndex );
+            }
+
+            // Fill tRequestedIGCells with all cell indices from all clusters in the mesh set
+            auto *tMeshSet = static_cast< fem::Set * >( tFemSet )->get_mesh_set();
+            for ( uint iCluster = 0; iCluster < tMeshSet->get_num_clusters_on_set(); ++iCluster )
+            {
+                const mtk::Cluster               *tCluster        = tMeshSet->get_clusters_by_index( iCluster );
+                Vector< mtk::Cell const * > const tCellsInCluster = tCluster->get_primary_cells_in_cluster();
+                for ( uint i = 0; i < tCellsInCluster.size(); ++i )
                 {
-                    for ( auto const &tVertex : tCell->get_vertex_pointers() )
-                    {
-                        tRequestedIGNodes.insert( tVertex->get_index() );
-                    }
-                }
-                for ( auto const &tVertex : tCluster->get_interpolation_cell().get_vertex_pointers() )
-                {
-                    tRequestedIPNodes.insert( tVertex->get_index() );
+                    tRequestedIGCells.push_back( tCellsInCluster( i )->get_index() );
                 }
             }
-            std::unordered_map< moris::moris_index, Vector< moris::real > > tNewNodes = tFemSet->get_nodal_displacements( tRequestedIGNodes );
+
+            // Get facet displacements for this FEM set
+            auto tIPVertexDisplacementForSet = static_cast< fem::Set * >( tFemSet )->get_ip_element_displacements( tRequestedIGCells );
+            tIPVertexDisplacements.insert(
+                    tIPVertexDisplacements.end(),
+                    std::make_move_iterator( tIPVertexDisplacementForSet.begin() ),
+                    std::make_move_iterator( tIPVertexDisplacementForSet.end() ) );
+
 #ifdef MORIS_HAVE_DEBUG
-            // The next loop removes all nodes that have been found from the set of requested nodes. This is to make sure that we could get the displacement from every requested node.
-            for ( auto const &[ tIndex, _ ] : tNewNodes )
+            // The next loop removes all facets that have been found from the set of requested facets. This is to make sure that we could get the displacement from every requested facet.
+            for ( auto const &[ tElementIndex, tIPVertexDisplacement ] : tIPVertexDisplacementForSet )
             {
-                tRequestedIGNodes.erase( tIndex );
+                auto it = std::find( tRequestedIPElements.begin(), tRequestedIPElements.end(), tElementIndex );
+                if ( it != tRequestedIPElements.end() )
+                {
+                    tRequestedIPElements.erase( it );
+                }
             }
-            MORIS_ASSERT( tRequestedIGNodes.size() == 0, "Not all requested nodal displacements could be found!" );
+            MORIS_ASSERT( tRequestedIPElements.size() == 0, "Not all requested IP element displacements could be found!" );
 #endif
-            tNodalDisplacements.merge( tNewNodes );
         }
 
-        // store the names of the mesh sets that are stored in each FEM set. This is necessary to update the newly created
-        // nonconformal sets.
+        // Skip update if no displacements were collected
+        if ( tIPVertexDisplacements.empty() )
+        {
+            return;
+        }
+
+        // Update displacements in contact mesh editor
         Vector< std::string > tMeshSetNames;
         tMeshSetNames.reserve( mFemSets.size() );
         for ( auto const &tSet : mFemSets )
@@ -467,13 +493,13 @@ namespace moris::fem
         }
 
         MORIS_ASSERT( mContactMeshEditor != nullptr, "Contact mesh editor not initialized!" );
-        mContactMeshEditor->update_displacements( tNodalDisplacements );
+        mContactMeshEditor->update_ip_element_displacements( tIPVertexDisplacements );
         mContactMeshEditor->update_nonconformal_side_sets();
 
         // loop over each fem set and check if it needs to be updated (i.e. only nonconformal sets!)
         for ( size_t iFemSet = 0; iFemSet < mFemSets.size(); ++iFemSet )
         {
-            auto *const tFemSet      = dynamic_cast< fem::Set      *>( mFemSets( iFemSet ) );
+            auto *const tFemSet      = dynamic_cast< fem::Set * >( mFemSets( iFemSet ) );
             auto const &tMeshSetName = tMeshSetNames( iFemSet );
             if ( tFemSet->get_is_update_required() )
             {
@@ -800,6 +826,7 @@ namespace moris::fem
          * while the new method uses phases and phase-pairs to define the applicable sets. Old input files can be detected by the number of
          * elements in the ParameterList. If it is 8, then the legacy method was used, if it is 9, the new method was used.
          */
+        // Remap nonconformal sets after updating IP element displacements.
         std::unique_ptr< Model_Initializer > tModelInitializer;
         switch ( mParameterList.size() )
         {
@@ -1228,17 +1255,23 @@ namespace moris::fem
             return;
         }
 
-        mtk::Integration_Mesh_DataBase_IG* tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
+        mtk::Integration_Mesh_DataBase_IG *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
 
         auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 
         Vector< mtk::Side_Set const * > tSideSets;
-        for ( std::string const & tSetName : tSetNames )
+        for ( std::string const &tSetName : tSetNames )
         {
             tSideSets.push_back( dynamic_cast< mtk::Side_Set const * >( tIGMesh->get_set_by_name( tSetName ) ) );
         }
 
-        mtk::Integrator tSideIntegrator = prepare_nonconformal_integrator( tIGMesh );
+        mtk::Geometry_Type tSideGeometryType = mtk::Geometry_Type::UNDEFINED;
+        if ( tSideSets.size() > 0 && tSideSets( 0 ) != nullptr )
+        {
+            tSideGeometryType = tSideSets( 0 )->get_integration_cell_geometry_type();
+        }
+
+        mtk::Integrator tSideIntegrator = prepare_nonconformal_integrator( tIGMesh, tSideGeometryType );
 
         mContactMeshEditor = std::make_shared< mtk::Contact_Mesh_Editor >( tIGMesh, tSideIntegrator, tSideSets, tCandidatePairs );
 
@@ -1252,7 +1285,9 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    mtk::Integrator FEM_Model::prepare_nonconformal_integrator( mtk::Integration_Mesh const *aIGMesh )
+    mtk::Integrator FEM_Model::prepare_nonconformal_integrator(
+            mtk::Integration_Mesh const *aIGMesh,
+            mtk::Geometry_Type           aSideGeometryType )
     {
         mtk::Integration_Order tIntegrationOrder = mtk::Integration_Order::UNDEFINED;
         for ( auto const &tSetInfo : mSetInfo )
@@ -1264,10 +1299,22 @@ namespace moris::fem
             }
         }
         MORIS_ASSERT( tIntegrationOrder not_eq mtk::Integration_Order::UNDEFINED, "Nonconformal integration order not defined!" );
-        MORIS_ASSERT( aIGMesh->get_spatial_dim() == 2, "Currently only 2D problems are supported." );
+
+        if ( aSideGeometryType == mtk::Geometry_Type::UNDEFINED )
+        {
+            if ( aIGMesh->get_spatial_dim() == 2 )
+            {
+                aSideGeometryType = mtk::Geometry_Type::LINE;
+            }
+            else if ( aIGMesh->get_spatial_dim() == 3 )
+            {
+                aSideGeometryType = mtk::Geometry_Type::TRI;
+            }
+        }
+
         // create a side integrator
         mtk::Integration_Rule tSideIntegRule(
-                mtk::Geometry_Type::LINE,    // TODO @ff: currently only 2d problems are supported
+                aSideGeometryType,
                 mtk::Integration_Type::GAUSS,
                 tIntegrationOrder,
                 mtk::Geometry_Type::LINE,

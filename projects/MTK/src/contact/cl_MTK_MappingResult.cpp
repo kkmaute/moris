@@ -10,6 +10,55 @@
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_Json_Object.hpp"
 
+#include "fn_assert.hpp"
+
+// Assert parametric coordinate in [-1,1] for lines/quads
+inline void assert_param_in_bounds_box( const moris::Matrix< moris::DDRMat >& aParam, const char* aContext )
+{
+    if ( aParam.n_rows() >= 1 )
+    {
+        MORIS_ASSERT(
+                aParam( 0 ) >= -1.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
+                "MTK parametric coordinate out of bounds (param[0]=%e, context=%s)",
+                aParam( 0 ),
+                aContext );
+    }
+    if ( aParam.n_rows() >= 2 )
+    {
+        MORIS_ASSERT(
+                aParam( 1 ) >= -1.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
+                "MTK parametric coordinate out of bounds (param[1]=%e, context=%s)",
+                aParam( 1 ),
+                aContext );
+    }
+}
+
+// Assert parametric coordinate in [0,1] for triangles/simplex
+inline void assert_param_in_bounds_simplex( const moris::Matrix< moris::DDRMat >& aParam, const char* aContext )
+{
+    if ( aParam.n_rows() >= 1 )
+    {
+        MORIS_ASSERT(
+                aParam( 0 ) >= 0.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
+                "MTK TRI parametric coordinate out of bounds (eta=%e, context=%s)",
+                aParam( 0 ),
+                aContext );
+    }
+    if ( aParam.n_rows() >= 2 )
+    {
+        MORIS_ASSERT(
+                aParam( 1 ) >= 0.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
+                "MTK TRI parametric coordinate out of bounds (zeta=%e, context=%s)",
+                aParam( 1 ),
+                aContext );
+        MORIS_ASSERT(
+                aParam( 0 ) + aParam( 1 ) <= 1.0 + 1e-12,
+                "MTK TRI parametric coordinate out of bounds (eta+zeta=%e, context=%s)",
+                aParam( 0 ) + aParam( 1 ),
+                aContext );
+    }
+}
+
 namespace moris::mtk
 {
     MappingResult::MappingResult(
@@ -28,14 +77,28 @@ namespace moris::mtk
             , mNormals( aPhysicalDimension, aNumberOfPoints )
             , mReferenceNormals( aPhysicalDimension, aNumberOfPoints )
             , mSignedDistance( aNumberOfPoints )
+            , mNormalsNonlinear( aPhysicalDimension, aNumberOfPoints )
+            , mSourcePhysicalCoordinateNonlinear( aPhysicalDimension, aNumberOfPoints )
     {
+        // Assert all parametric coordinates are in bounds at construction
+        for ( uint i = 0; i < aNumberOfPoints; ++i )
+        {
+            if ( mTargetParametricCoordinate.n_rows() == 2 )
+            {
+                assert_param_in_bounds_box( mTargetParametricCoordinate.get_column( i ), "MappingResult::MappingResult (box)" );
+            }
+            else if ( mTargetParametricCoordinate.n_rows() == 3 )
+            {
+                assert_param_in_bounds_simplex( mTargetParametricCoordinate.get_column( i ), "MappingResult::MappingResult (simplex)" );
+            }
+        }
     }
 
     Json MappingResult::to_json()
     {
         Json tMappingResult;
 
-        auto &tResults = tMappingResult.add_child( "results", Json() );
+        auto& tResults = tMappingResult.add_child( "results", Json() );
         for ( size_t iPoint = 0; iPoint < mTargetCellIndices.size(); iPoint++ )
         {
             Json tPoint;

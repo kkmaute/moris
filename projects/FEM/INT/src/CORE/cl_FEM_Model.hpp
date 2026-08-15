@@ -169,10 +169,10 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-                    const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists             &aParameterList,
-                    const std::shared_ptr< Library_IO >      &aLibrary );
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    const moris_index                   &aMeshPairIndex,
+                    const Module_Parameter_Lists        &aParameterList,
+                    const std::shared_ptr< Library_IO > &aLibrary );
 
             //------------------------------------------------------------------------------
             /**
@@ -184,10 +184,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-                    const moris_index                        &aMeshPairIndex,
-                    const Module_Parameter_Lists             &aParameterList,
-                    MSI::Design_Variable_Interface           *aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    const moris_index                   &aMeshPairIndex,
+                    const Module_Parameter_Lists        &aParameterList,
+                    MSI::Design_Variable_Interface      *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -550,7 +550,7 @@ namespace moris
             prepare_nonconformal_candidate_pairs();
 
             mtk::Integrator
-            prepare_nonconformal_integrator( mtk::Integration_Mesh const *aIGMesh );
+            prepare_nonconformal_integrator( mtk::Integration_Mesh const *aIGMesh, mtk::Geometry_Type aSideGeometryType = mtk::Geometry_Type::UNDEFINED );
 
             std::shared_ptr< mtk::Contact_Mesh_Editor > get_contact_mesh_editor() const
             {
