@@ -26,12 +26,10 @@ namespace moris::gen
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * @param aBackgroundNodes Background nodes of the element where this node resides
-         * @param aFirstParentNode First parent node information
-         * @param aSecondParentNode Second parent node information
-         * @param aLocalCoordinate Local coordinate along the parent edge
-         * @param aBackgroundGeometryType Background element geometry type
-         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aBackgroundElement The background element that this floating node is created in
+         * @param aNodeManager Node manager needed to access information about other GEN nodes
+         * @param aFirstParentNode First parent node - a GEN node that this intersection node is created between
+         * @param aSecondParentNode Second parent node - a GEN node that this intersection node is created between
          * @param aInterfaceGeometry Interface geometry (level set)
          */
         Intersection_Node_Level_Set(

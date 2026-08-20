@@ -35,11 +35,10 @@ namespace moris::gen
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * @param aBackgroundNodes Background nodes of the element where this node resides
-         * @param aFirstParentNode First parent node information
-         * @param aSecondParentNode Second parent node information
-         * @param aBackgroundGeometryType Background element geometry type
-         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aBackgroundElement The background element that this floating node is created in
+         * @param aNodeManager Node manager needed to access information about other GEN nodes
+         * @param aFirstParentNode First parent node - a GEN node that this intersection node is created between
+         * @param aSecondParentNode Second parent node - a GEN node that this intersection node is created between
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Intersection_Node_Surface_Mesh(
@@ -108,8 +107,7 @@ namespace moris::gen
          *
          * @return Matrix< DDRMat > Sensitivities of the local coordinate with respect to the facet vertices. Size <spatial dimension x number of vertices per facet>
          */
-        Matrix< DDRMat >
-        compute_dxi_dfacet() const;
+        Matrix< DDRMat > compute_dxi_dfacet() const;
 
         /**
          * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

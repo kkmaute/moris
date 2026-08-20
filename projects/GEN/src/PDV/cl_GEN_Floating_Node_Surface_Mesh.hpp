@@ -35,10 +35,11 @@ namespace moris::gen
          * Constructor
          *
          * @param aNodeIndex This node's index on the processor if it is admitted
-         * brendan documentation, like everywhere
+         * @param aBackgroundElement The background element that this floating node is created in
+         * @param aNodeManager Node manager needed to access information about other GEN nodes
+         * @param aBackgroundElement The background element that this floating node is created in
          * @param aParametricCoordinates Parametric coordinates inside the background element
-         * @param aBackgroundGeometryType Background element geometry type
-         * @param aBackgroundInterpolationOrder Background element interpolation order
+         * @param aParentVertex The index of the vertex in the surface mesh that this floating node is created on
          * @param aInterfaceGeometry Interface geometry (surface mesh)
          */
         Floating_Node_Surface_Mesh(
