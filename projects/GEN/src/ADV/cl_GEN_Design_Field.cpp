@@ -43,7 +43,10 @@ namespace moris::gen
         // Check for a provided field
         MORIS_ERROR( mField, "A design must be provided a field for computing values." );
 
-        Derived_Node::override_linear_interpolation( mParameters.mUseMultilinearInterpolation );
+        if ( mParameters.mUseMultilinearInterpolation )
+        {
+            Derived_Node::override_linear_interpolation();
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
