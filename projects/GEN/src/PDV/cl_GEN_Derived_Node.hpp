@@ -188,6 +188,6 @@ namespace moris::gen
          *
          * @param aOverride If true, the locator interpolation order will be overridden to linear for all derived nodes
          */
-        static void override_linear_interpolation( bool aOverride = true );
+        static void override_linear_interpolation();
     };
 }    // namespace moris::gen

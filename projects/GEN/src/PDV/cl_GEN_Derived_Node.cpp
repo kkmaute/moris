@@ -207,9 +207,9 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Derived_Node::override_linear_interpolation( bool aOverride )
+    void Derived_Node::override_linear_interpolation()
     {
-        gOverrideLinearInterpolation = aOverride;
+        gOverrideLinearInterpolation = true;
     }
 
 }    // namespace moris::gen
