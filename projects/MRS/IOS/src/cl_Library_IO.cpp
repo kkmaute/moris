@@ -1124,7 +1124,6 @@ namespace moris
                     case 2:
                         switch ( aSubChild )
                         {
-
                             // Eventually create an enum to check this
                             case 0:
                                 return prm::create_gcmma_parameter_list();
@@ -1136,6 +1135,9 @@ namespace moris
                                 return prm::create_sqp_parameter_list();
 
                             case 3:
+                                return prm::create_adam_parameter_list();
+
+                            case 4:
                                 return prm::create_sweep_parameter_list();
                             default:
                                 break;

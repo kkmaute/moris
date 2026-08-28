@@ -16,6 +16,7 @@ set(HEADERS
     cl_OPT_Algorithm.hpp
     cl_OPT_Algorithm_GCMMA.hpp
     cl_OPT_Algorithm_LBFGS.hpp
+    cl_OPT_Algorithm_ADAM.hpp
     cl_OPT_Algorithm_SQP.hpp
     cl_OPT_Algorithm_Sweep.hpp
     cl_OPT_Manager.hpp
@@ -35,6 +36,7 @@ set(LIB_SOURCES
     cl_OPT_Algorithm.cpp
     cl_OPT_Algorithm_GCMMA.cpp
     cl_OPT_Algorithm_LBFGS.cpp
+    cl_OPT_Algorithm_ADAM.cpp
     cl_OPT_Algorithm_SQP.cpp
     cl_OPT_Algorithm_Sweep.cpp
     cl_OPT_Manager.cpp

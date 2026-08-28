@@ -12,6 +12,7 @@
 #include "cl_OPT_Algorithm_GCMMA.hpp"
 #include "cl_OPT_Algorithm_SQP.hpp"
 #include "cl_OPT_Algorithm_LBFGS.hpp"
+#include "cl_OPT_Algorithm_ADAM.hpp"
 #include "cl_OPT_Algorithm_Sweep.hpp"
 
 namespace moris::opt
@@ -31,6 +32,10 @@ namespace moris::opt
         else if ( tAlgorithmName == "lbfgs" )
         {
             return std::make_shared< Algorithm_LBFGS >( aAlgorithmParameterList );
+        }
+        else if ( tAlgorithmName == "adam" )
+        {
+            return std::make_shared< Algorithm_ADAM >( aAlgorithmParameterList );
         }
         else if ( tAlgorithmName == "sweep" )
         {

@@ -25,7 +25,58 @@ namespace moris::opt
 {
     TEST_CASE( "[optimization]" )
     {
+        // ---------------------------------------------------------------------------------------------------------
 
+        SECTION( "ADAM" )
+        {
+            // This optimization problem does not use the constraints!
+            // Set up default parameter lists
+            Parameter_List tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
+            Parameter_List tAlgorithmParameterList = moris::prm::create_adam_parameter_list();
+
+            tAlgorithmParameterList.set( "step_size", 0.01 );
+            tAlgorithmParameterList.set( "gradient_decay_factor", 0.9 );
+            tAlgorithmParameterList.set( "squared_gradient_decay_factor", 0.999 );
+            tAlgorithmParameterList.set( "max_its", 5000 );
+            tAlgorithmParameterList.set( "epsilon", 1e-8 );
+
+            // Create interface
+            std::shared_ptr< Criteria_Interface > tInterface = std::make_shared< Interface_User_Defined >(
+                    &initialize_rosenbrock,
+                    &get_criteria_rosenbrock,
+                    &get_dcriteria_dadv_rosenbrock );
+
+            // Create Problem
+            std::shared_ptr< Problem > tProblem = std::make_shared< Problem_User_Defined >(
+                    tProblemParameterList,
+                    tInterface,
+                    &get_constraint_types_rosenbrock,
+                    &compute_objectives_rosenbrock,
+                    &compute_constraints_rosenbrock,
+                    &compute_dobjective_dadv_rosenbrock,
+                    &compute_dobjective_dcriteria_rosenbrock,
+                    &compute_dconstraint_dadv_rosenbrock,
+                    &compute_dconstraint_dcriteria_rosenbrock );
+
+            // Create manager
+            Submodule_Parameter_Lists tAlgorithms( "Algorithms" );
+            tAlgorithms.add_parameter_list( tAlgorithmParameterList );
+            Manager tManager( tAlgorithms, tProblem );
+
+            // Solve optimization problem
+            tManager.perform();
+
+            // Check Solution
+            if ( par_rank() == 0 )
+            {
+                REQUIRE( std::abs( tManager.get_objectives()( 0 ) ) < 2E-7 );    // check value of objective
+                Vector< real > tADVs = tManager.get_advs();
+                for ( auto iADV : tADVs )
+                {
+                    REQUIRE( std::abs( iADV - 1.0 ) < 1E-4 );
+                }
+            }
+        }
         // ---------------------------------------------------------------------------------------------------------
 
 #ifdef MORIS_HAVE_GCMMA
