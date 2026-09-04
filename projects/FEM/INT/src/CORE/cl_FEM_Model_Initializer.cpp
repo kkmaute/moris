@@ -141,6 +141,11 @@ namespace moris::fem
             MORIS_ERROR( not( ( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() ) and ( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() ) ),
                     "FEM_Model::create_fields(); Field must be either created based on IQI or read from file." );
 
+            if ( not tFieldParameter.get< std::string >( "update_wait_function_name" ).empty() )
+            {
+                tField->set_pause_update_function( mLibrary->load_function< Void_Function >( tFieldParameter.get< std::string >( "update_wait_function_name" ) ) );
+            }
+
             if ( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
             {
                 tField->set_field_from_file(
@@ -157,11 +162,6 @@ namespace moris::fem
             if ( not tFieldParameter.get< std::string >( "field_output_to_file" ).empty() )
             {
                 tField->set_field_to_file( tFieldParameter.get< std::string >( "field_output_to_file" ) );
-            }
-
-            if ( not tFieldParameter.get< std::string >( "update_wait_function_name" ).empty() )
-            {
-                tField->set_pause_update_function( mLibrary->load_function< Void_Function >( tFieldParameter.get< std::string >( "update_wait_function_name" ) ) );
             }
 
             mFields( iField ) = tField;
