@@ -1,0 +1,25 @@
+# lsan-pmix-ompi.supp
+# ---- PMIx (libpmix.so.2) entries ----
+leak:pmix_pointer_array_init
+leak:pmix_hash_fetch
+leak:pmix_gds_shmem2_fetch
+leak:PMIx_Value_create
+leak:PMIx_Value_xfer
+leak:pmix_bfrops_base_copy_value
+leak:pmix_bfrops_base_value_load
+leak:get_data
+leak:fetch_nodeinfo
+leak:fetch_appinfo
+leak:fetch_sessioninfo
+
+# ---- Open MPI (libmpi.so.40) entries ----
+leak:avx_component_op_query
+leak:ompi_op_base_op_select
+leak:ompi_mpi_instance_init_common
+leak:ompi_comm_init_mpi3
+
+# Suppress leaks arising from libc formatting allocation
+leak:__vasprintf_internal
+
+
+
