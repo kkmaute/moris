@@ -839,7 +839,7 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", tLibraryName );
         aParameterLists.set( "restart_file", "" );
-        aParameterLists.set( "reinitialize_interface_iter", 18 );
+        aParameterLists.set( "reinitialize_interface_iter", 19 );
 
         aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::GCMMA );
         aParameterLists.set( "step_size", tMMAStepSize );
@@ -965,7 +965,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
             aParameterLists.set( "discretization_upper_bound", tBsplineLimitTop );
         }
 
-        uint tParamCounter = 0;
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
         aParameterLists.set( "name", "LvL_Set_Field" );
         aParameterLists.set( "dependencies", "Level_Set_Field" );
@@ -983,8 +982,6 @@ Matrix<DDRMat> compute_objectives( const Vector< real >& aADVs, const Vector< re
         {
             aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p8", "HMR_dummy_c_p8", "HMR_dummy_n_p9", "HMR_dummy_c_p9", "ghost_p9" );
         }
-
-        tParamCounter++;
     }
 
     //--------------------------------------------------------------------------------------------------------------

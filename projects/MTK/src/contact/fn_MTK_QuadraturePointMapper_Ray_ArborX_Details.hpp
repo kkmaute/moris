@@ -19,10 +19,7 @@
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_View.hpp>
 #include <decl/Kokkos_Declare_SERIAL.hpp>
-#include <functional>
-#include <iostream>
 #include <sys/types.h>
-#include <tuple>
 #include <unordered_map>
 
 using moris::moris_index;
@@ -38,6 +35,21 @@ namespace moris::mtk::arborx
      * The values are the indices of the rays that intersect with the respective cell.
      */
     using cell_locator_map = index_map< index_map< moris::Vector< moris_index > > >;
+
+    /**
+     * @brief Lightweight container holding the arrays produced by gather_surface_mesh_arrays
+     * for one surface mesh. Used to perform global raytracing against assembled arrays.
+     */
+    struct GatheredSurfaceMesh
+    {
+        moris_index                  mMeshIndex = -1;
+        Vector< Matrix< IndexMat > > mGlobalCells;                  // cell -> compacted vertex indices
+        Matrix< IndexMat >           mGlobalCellIds;                // original global cell ids
+        Matrix< IndexMat >           mGlobalCellOwners;             // owning proc for each cell
+        Matrix< IndexMat >           mGlobalVertexIds;              // original global vertex ids for compacted coords
+        Matrix< DDRMat >             mGlobalVertexCoords;           // (d x n) coords
+        Matrix< DDRMat >             mGlobalVertexDisplacements;    // (d x n) displacements
+    };
 
     template< typename MemorySpace >
     struct QueryBoxes
@@ -119,10 +131,10 @@ namespace moris::mtk::arborx
     };
 
     template< typename MemorySpace, typename ExecutionSpace >
-    QueryBoxes< MemorySpace > construct_query_boxes( ExecutionSpace const &aExecutionSpace, moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes );
+    QueryBoxes< MemorySpace > construct_query_boxes( ExecutionSpace const &aExecutionSpace, Vector< std::pair< moris_index, Surface_Mesh > > const &aTargetSurfaceMeshes );
 
     template< typename MemorySpace, typename ExecutionSpace >
-    QueryRays< MemorySpace > construct_query_rays( ExecutionSpace const &iRay, moris::mtk::MappingResult const &aMappingResult );
+    QueryRays< MemorySpace > construct_query_rays( ExecutionSpace const &iRay, MappingResult const &aMappingResult );
 
     //    /**
     //     * @brief To be able to use the tuple as a key in the unordered_map, we need to define a hash function for it.
@@ -141,11 +153,17 @@ namespace moris::mtk::arborx
     //        }
     //    };
 
-    //    std::unordered_map< cell_locator_tuple, moris::Vector< moris_index >, cell_locator_hash >
+    //    std::unordered_map< cell_locator_tuple, Vector< moris_index >, cell_locator_hash >
     cell_locator_map
     map_rays_to_boxes(
-            moris::mtk::MappingResult const                                           &aMappingResult,
-            moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes );
+            MappingResult const                                    &aMappingResult,
+            Vector< std::pair< moris_index, Surface_Mesh > > const &aTargetSurfaceMeshes );
+
+    // Overload that accepts pre-gathered global arrays for target meshes.
+    cell_locator_map
+    map_rays_to_boxes(
+            MappingResult const                 &aMappingResult,
+            Vector< GatheredSurfaceMesh > const &aGatheredTargetMeshes );
 
 }    // namespace moris::mtk::arborx
 

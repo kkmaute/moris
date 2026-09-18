@@ -17,7 +17,6 @@
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris::fem
@@ -27,23 +26,33 @@ namespace moris::fem
     class IWG_Isotropic_Struc_Nonlinear_Contact_Mlika : public IWG
     {
       private:
-        // sign for symmetric/unsymmetric Nitsche
-        sint mBeta = 1;
-
-        // the literature used for this implementation uses a different parameter to switch between symmetric and unsymmetric Nitsche.
-        // to avoid confusion with other IWGs, mBeta will be used to switch between symmetric and unsymmetric Nitsche in the factory, and
-        // mTheta will be used to switch between the two different Nitsche formulations in the implementation.
-        //      symmetric: mBeta = -1, mTheta =  1
-        //    unsymmetric: mBeta =  0, mTheta =  0
-        // skew-symmetric: mBeta =  1, mTheta = -1
+        // mTheta is used to switch between the following formulations of the Nitsche term:
+        //      symmetric :mTheta =  1
+        //        neutral: mTheta =  0
+        //    unsymmetric: mTheta = -1
         sint mTheta = 1;
+
+        // default for traction
+        CM_Function_Type mCMFunctionType = CM_Function_Type::PK1;
+
+        // scaling factor for the traction; set to zero for pure penalty formulation
+        real mTractionScaling = 1.0;
+
+        // flag to trigger debug output
+        sint mDebugFlag = 0;
+
+        // variable to keep track of the old traction TODO: implement this properly
+        std::map< int, Matrix< DDRMat > > mTractionHistoryMap;
+
+        // debug functions
+        void debug_function();
 
       public:
         enum class IWG_Property_Type
         {
             MATERIAL,
             THICKNESS,
-            GAP,
+            SELECT,
             MAX_ENUM
         };
 
@@ -63,13 +72,15 @@ namespace moris::fem
         /*
          * constructor
          */
-        IWG_Isotropic_Struc_Nonlinear_Contact_Mlika( sint aBeta );
+        IWG_Isotropic_Struc_Nonlinear_Contact_Mlika(
+                sint             aBeta,
+                CM_Function_Type aCMFunctionType = CM_Function_Type::PK1 );
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IWG_Isotropic_Struc_Nonlinear_Contact_Mlika() override{};
+        ~IWG_Isotropic_Struc_Nonlinear_Contact_Mlika() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -99,6 +110,12 @@ namespace moris::fem
          * @param[ in ] aWStar weight associated to the evaluation point
          */
         void compute_dRdp( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * set parameters
+         */
+        void set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
 
         //------------------------------------------------------------------------------
     };

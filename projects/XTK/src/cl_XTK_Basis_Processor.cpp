@@ -1019,7 +1019,7 @@ namespace moris::xtk
             // if no good cell is found 
             else if (  mRootSPGIds( iSPGIndex ) == gNoID)
             {
-                std::cout<<"eliminated SPG: "<<iSPGIndex<<std::endl;
+                std::cout << "eliminated SPG: " << iSPGIndex << '\n';
                 // get the all the lagrange cells of the that SPG index
                 Vector< moris_index > const & tUIPCIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, iSPGIndex );
 

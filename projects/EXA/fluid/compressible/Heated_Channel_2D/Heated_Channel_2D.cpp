@@ -432,8 +432,6 @@ namespace moris
         // fill the material model part of the parameter list
 
         // init CM counter
-        uint tMMCounter = 0;
-
         // create fluid constitutive model
         aParameterLists( FEM::MATERIAL_MODELS ).add_parameter_list();
         aParameterLists.set( "material_name", "MMFluid" );
@@ -443,7 +441,6 @@ namespace moris
         aParameterLists.set( "properties",
                 "PropHeatCapacity,IsochoricHeatCapacity;"
                 "PropGasConstant,SpecificGasConstant" );
-        tMMCounter++;
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list

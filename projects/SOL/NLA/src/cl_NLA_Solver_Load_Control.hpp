@@ -39,13 +39,16 @@ namespace moris::NLA
         /// parameters for exponential strategy
         real mExponent;
 
+        /// time offset for outputting converged load step solutions
+        real mTimeOffSet = 0.0;
+
         // check if the load stepping requirement (e.g. residual drop) is met
         bool check_load_step_requirement( Nonlinear_Solver* aNonLinSolverManager );
 
       public:
         Solver_Load_Control( Parameter_List& aParameterListNonlinearSolver );
 
-        ~Solver_Load_Control(){};
+        ~Solver_Load_Control() {};
 
         /*
          *  evaluates the relaxation parameter

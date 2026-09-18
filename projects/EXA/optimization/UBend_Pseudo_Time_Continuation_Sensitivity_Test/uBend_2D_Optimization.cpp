@@ -15,16 +15,16 @@
 
 #include "AztecOO.h"
 
+/* ------------------------------------------------------------------------ */
+// interpolation order
+extern uint gInterpolationOrder;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 //------------------------------------------------------------------------------
 namespace moris
 {
-    /* ------------------------------------------------------------------------ */
-    // interpolation order
-    uint gInterpolationOrder = 1;
-
     std::string
     moris_to_string( real tValue )
     {
@@ -148,12 +148,12 @@ namespace moris
     real tComsolParameter1 = 20.0;
     real tComsolParameter2 = 30.0;
 
-    // Newton paramters when using NLBGS
+    // Newton parameters when using NLBGS
     real tNewton_rel_res  = 2.5e-1;
     real tNewton_relax    = 1.0;
     sint tNewton_max_iter = 15;
 
-    // Newton paramters without NLBGS
+    // Newton parameters without NLBGS
     moris::real tNLA_rel_res_norm_drop    = 1.0e-9;
     moris::real tNLA_relaxation_parameter = 1.0;
     int         tNLA_max_iter             = 100;
@@ -1264,14 +1264,12 @@ namespace moris
         }
 
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
-        uint tParamCounter = 0;
 
         aParameterLists.set( "name", "LevelsetField" );
         aParameterLists.set( "dependencies", "Level_Set_Field" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
         aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "HMR_dummy_n_p2", "HMR_dummy_c_p2" );
-        tParamCounter++;
     }
 
     void

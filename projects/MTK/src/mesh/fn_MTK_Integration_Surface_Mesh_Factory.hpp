@@ -51,7 +51,7 @@ namespace moris::mtk
 
         Vector< Vector< moris_index > > get_cell_to_vertex_indices() const
         {
-            return mCellToVertexIndices;
+            return mFacetToVertexIndices;
         }
 
 
@@ -89,7 +89,7 @@ namespace moris::mtk
          * @brief Initializes all information for the given cell.
          * @param aCell
          */
-        void initialize_cell( map< moris_index, Vector< moris_index > > &aTmpNeighborMap, const Cell *aCell, int aCellOrdinal, moris_index aClusterIndex );
+        void initialize_facet( map< moris_index, Vector< moris_index > > &aTmpNeighborMap, const Cell *aCell, int aCellOrdinal, moris_index aClusterIndex );
 
         /**
          * @brief Initializes all information for the given vertex.
@@ -160,7 +160,7 @@ namespace moris::mtk
          * @brief List of vertices that are part of the cell with the given index. The indices are the
          * indices of the vertices in the surface mesh, not the global indices!
          */
-        Vector< Vector< moris_index > > mCellToVertexIndices;
+        Vector< Vector< moris_index > > mFacetToVertexIndices;
 
         /**
          * @brief List of cell indices that the vertex with the given index is part of. The indices are the indices of
@@ -177,6 +177,10 @@ namespace moris::mtk
         Vector< moris_index > mCellToClusterIndices;
 
         Matrix< DDRMat > mVertexCoordinates;
+
+        Vector< uint > mIPClusterLocalIndex;    // Local index within the cluster of the IP cell. Length = num_facets
+
+        Vector< const mtk::Cluster * > mFacetClusters;    // Cluster of the IP cell for every facet in the surface mesh
     };
 
 }    // namespace moris::mtk

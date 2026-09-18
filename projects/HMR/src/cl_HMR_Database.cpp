@@ -126,6 +126,7 @@ namespace moris::hmr
         {
             // delete this mesh
             delete tMesh;
+            tMesh = nullptr;
         }
         mAdditionalLagrangeMeshes( aPattern ).clear();
     }
@@ -153,9 +154,9 @@ namespace moris::hmr
 
     void
     Database::load_refinement_pattern(
-            Matrix< DDLUMat >&                aElementCounterPerLevelAndPattern,
+            Matrix< DDLUMat >&           aElementCounterPerLevelAndPattern,
             Vector< Matrix< DDLUMat > >& aElementPerPattern,
-            Matrix< DDUMat >&                 aPatternListUniqueMat )
+            Matrix< DDUMat >&            aPatternListUniqueMat )
     {
         uint tNumPattern = aElementPerPattern.size();
 
@@ -355,7 +356,7 @@ namespace moris::hmr
                 mLagrangeMeshes( iLagMesh )->set_side_sets( mOutputSideSets );
             }
         }    // end for: each Lagrange mesh to be created
-    }        // end function: hmr::Database::create_meshes()
+    }    // end function: hmr::Database::create_meshes()
 
     // -----------------------------------------------------------------------------
 
@@ -387,6 +388,7 @@ namespace moris::hmr
             {
                 // delete this mesh
                 delete tMesh;
+                tMesh = nullptr;
             }
             tMeshes.clear();
         }
@@ -1368,7 +1370,7 @@ namespace moris::hmr
 
         if ( mParameters->get_create_side_sets() )
         {
-            uint tNumberOfSets = 2 * mParameters->get_number_of_dimensions();
+            uint     tNumberOfSets = 2 * mParameters->get_number_of_dimensions();
             Side_Set tEmpty;
 
             // allocate output side set

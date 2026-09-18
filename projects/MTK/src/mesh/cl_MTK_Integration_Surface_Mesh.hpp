@@ -37,9 +37,6 @@ namespace moris::mtk
 
         [[nodiscard]] Matrix< DDRMat > initialize_vertex_coordinates( Integration_Mesh const *aIGMesh );
 
-        [[nodiscard]] Matrix< DDRMat > initialize_vertex_coordinates_from_side_sets(
-                Integration_Mesh const           *aIGMesh,
-                const Vector< Side_Set const * > &aSideSets );
 
         [[nodiscard]] Vector< Vector< moris_index > > get_cell_to_vertex_indices(
                 Integration_Mesh const           *aIGMesh,
@@ -48,7 +45,23 @@ namespace moris::mtk
         Vector< Side_Set const * >
         obtain_sidesets_from_names( Integration_Mesh_DataBase_IG const *aIGMesh, const Vector< std::string > &aSideSetNames );
 
-        void set_all_displacements( const Matrix< DDRMat > &aDisplacements ) override;
+        /**
+         * Sets the displacement all nodes of an IP cell that correspond to a given facet
+         *
+         * @param aFacetIndex local index of the facet in the surface mesh
+         * @param aIPElementDisplacements <dimension> x <number of vertices> matrix containing displacment data for all vertices of the IP cell that correspond to the facet
+         */
+        void set_ip_element_displacement( moris_index aFacetIndex, Matrix< DDRMat > const &aIPElementDisplacements );
+
+        [[nodiscard]] const std::map< moris_index, Matrix< DDRMat > > &get_ip_element_displacement() const;
+
+        /**
+         * Override for function as the integration surface mesh computes displacement via IP element displacements
+         *
+         */
+        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates() const override;
+
+        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates_of_facet( const uint aFacetIndex ) const override;
 
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
@@ -62,20 +75,6 @@ namespace moris::mtk
          * @return A list of indices of the neighbors of the vertex with the given index.
          */
         [[nodiscard]] Vector< moris_index > get_vertex_neighbors( moris_index aLocalVertexIndex ) const;
-
-
-        /**
-         * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
-         * @return A (n x 1) matrix where n is the number of facets in the surface mesh.
-         */
-        [[nodiscard]] const Matrix< DDRMat > &get_facet_measure() const;
-
-        /**
-         * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
-         * @details The vertex normals are averaged over all facets that are connected to the vertex, weighted by the respective facet measure.
-         * @return A (d x n) matrix where d is the dimension of the mesh (holding the normal components) and n is the number of vertices in the surface mesh.
-         */
-        [[nodiscard]] Matrix< DDRMat > get_vertex_normals() const;
 
         /**
          * @brief Returns the global index of a vertex with the given local index. Global refers to the whole mesh while local is only valid for the surface mesh.
@@ -133,25 +132,15 @@ namespace moris::mtk
         Json to_json() const;
 
       private:    // methods
-
-        void initialize_facet_measure();
-
-        void initialize_vertex_normals();
-
         /**
          * @brief Contains information about the surface mesh including mapping to the original IG mesh and other useful maps
          */
         Integration_Surface_Mesh_Data mData;
 
         /**
-         * @brief Stores the averaged vertex normals for each vertex in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!
+         * @brief Stores the background IP element displacements for each facet in the surface mesh
          */
-        Matrix< DDRMat > mVertexNormals = Matrix< DDRMat >( 0, 0 );
-
-        /**
-         * @brief Is used to store the measure of each facet.
-         */
-        Matrix< DDRMat > mFacetMeasure = Matrix< DDRMat >( 0, 0 );
+        std::map< moris_index, Matrix< DDRMat > > mIPElementDisplacements;
     };
 
 }    // namespace moris::mtk

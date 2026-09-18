@@ -63,6 +63,7 @@ set(HEADERS
         cluster/cl_MTK_Side_Cluster_Input.hpp
 
         contact/cl_MTK_Contact_Mesh_Editor.hpp
+        contact/fn_MTK_Gather_Surface_Mesh_Arrays.hpp
         contact/cl_MTK_MappingResult.hpp
         contact/cl_MTK_PointPairs.hpp
         contact/cl_MTK_QuadraturePointMapper.hpp
@@ -245,6 +246,7 @@ set(LIB_SOURCES
         cluster/cl_MTK_Side_Cluster_ISC_Impl.cpp
 
         contact/cl_MTK_Contact_Mesh_Editor.cpp
+        contact/fn_MTK_Gather_Surface_Mesh_Arrays.cpp
         contact/cl_MTK_MappingResult.cpp
         contact/cl_MTK_QuadraturePointMapper.cpp
         # contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.cpp ## gets added further down (if ArborX is used)

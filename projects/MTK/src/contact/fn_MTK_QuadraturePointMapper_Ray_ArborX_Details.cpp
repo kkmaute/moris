@@ -8,19 +8,18 @@
  *
  */
 
-#include "cl_MTK_Surface_Mesh.hpp"
+#include "cl_MTK_Integration_Surface_Mesh.hpp"
 #include "fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_Tracer.hpp"
 #include <unordered_map>
-#include <functional>
 
 namespace moris::mtk::arborx
 {
     template< typename MemorySpace, typename ExecutionSpace >
     QueryBoxes< MemorySpace > construct_query_boxes(
-            ExecutionSpace const                                                      &aExecutionSpace,
-            moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
+            ExecutionSpace const                                                                  &aExecutionSpace,
+            moris::Vector< std::pair< moris_index, moris::mtk::Integration_Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
         uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, auto b ) { return a + b.second.get_number_of_facets(); } );
 
@@ -40,6 +39,7 @@ namespace moris::mtk::arborx
                 {
                     tBox += coordinate_to_arborx_point< ArborX::Point >( tVertices.get_column( iVertexIndex ) );
                 }
+
                 tBoxes( tBoxIndex )       = tBox;
                 tMeshIndices( tBoxIndex ) = aTargetSurfaceMeshes( iMeshIndex ).first;
                 tCellIndices( tBoxIndex ) = iCellIndex;
@@ -51,7 +51,9 @@ namespace moris::mtk::arborx
     }
 
     template< typename MemorySpace, typename ExecutionSpace >
-    QueryRays< MemorySpace > construct_query_rays( ExecutionSpace const &aExecutionSpace, moris::mtk::MappingResult const &aMappingResult )
+    QueryRays< MemorySpace > construct_query_rays(
+            ExecutionSpace const &aExecutionSpace,
+            MappingResult const  &aMappingResult )
     {
         uint const tNumPoints = aMappingResult.mSourcePhysicalCoordinate.n_cols();
         // since rays are directional, we need to double the number of rays to store rays pointing in both directions (positive and negative)
@@ -82,10 +84,90 @@ namespace moris::mtk::arborx
         return QueryRays< MemorySpace >{ tRays, tCellIndices };
     }
 
+    template< typename MemorySpace, typename ExecutionSpace >
+    QueryBoxes< MemorySpace > construct_query_boxes_from_gathered(
+            ExecutionSpace const                       &aExecutionSpace,
+            moris::Vector< GatheredSurfaceMesh > const &aGatheredTargetMeshes )
+    {
+        uint const tNumCells = std::accumulate( aGatheredTargetMeshes.begin(), aGatheredTargetMeshes.end(), 0, []( auto a, const auto &b ) { return a + (uint)b.mGlobalCells.size(); } );
+
+        Kokkos::View< ArborX::Box *, MemorySpace > tBoxes( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:boxes" ), tNumCells );
+        Kokkos::View< moris_index *, MemorySpace > tMeshIndices( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:mesh_indices" ), tNumCells );
+        Kokkos::View< moris_index *, MemorySpace > tCellIndices( Kokkos::view_alloc( aExecutionSpace, Kokkos::WithoutInitializing, "view:cell_indices" ), tNumCells );
+
+        moris_index tBoxIndex = 0;
+        for ( size_t iMeshIndex = 0; iMeshIndex < aGatheredTargetMeshes.size(); ++iMeshIndex )
+        {
+            auto const &tGathered = aGatheredTargetMeshes( iMeshIndex );
+            for ( size_t iCellIndex = 0; iCellIndex < tGathered.mGlobalCells.size(); ++iCellIndex )
+            {
+                ArborX::Box tBox;
+                auto const &tCellConn = tGathered.mGlobalCells( iCellIndex );
+                for ( size_t iVertexIndex = 0; iVertexIndex < tCellConn.n_rows(); ++iVertexIndex )
+                {
+                    moris_index tCompactedIdx = tCellConn( iVertexIndex );
+                    tBox += coordinate_to_arborx_point< ArborX::Point >( tGathered.mGlobalVertexCoords.get_column( tCompactedIdx ) );
+                }
+
+                tBoxes( tBoxIndex )       = tBox;
+                tMeshIndices( tBoxIndex ) = tGathered.mMeshIndex;
+                tCellIndices( tBoxIndex ) = (moris_index)iCellIndex;
+                ++tBoxIndex;
+            }
+        }
+
+        return QueryBoxes< MemorySpace >{ tBoxes, tMeshIndices, tCellIndices };
+    }
+
     cell_locator_map
-    map_rays_to_boxes( moris::mtk::MappingResult const &aMappingResult, moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
+    map_rays_to_boxes(
+            moris::mtk::MappingResult const            &aMappingResult,
+            moris::Vector< GatheredSurfaceMesh > const &aGatheredTargetMeshes )
+    {
+        Tracer tTracer( "Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX (gathered arrays)" );
+
+        MORIS_ASSERT( Kokkos::is_initialized(), "Kokkos has not been initialized - needed by ArborX." );
+
+        using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+        using MemorySpace    = ExecutionSpace::memory_space;
+        ExecutionSpace tExecutionSpace{};
+
+        // Construct the query boxes from all cells in the gathered target meshes
+        QueryBoxes< MemorySpace > tQueryBoxes = construct_query_boxes_from_gathered< MemorySpace >( tExecutionSpace, aGatheredTargetMeshes );
+
+        // Construct the query rays from all the points that have been initialized in the mapping result (source side points)
+        QueryRays< MemorySpace > tQueryRays = construct_query_rays< MemorySpace >( tExecutionSpace, aMappingResult );
+
+        ArborX::BVH< MemorySpace > tBoundingVolumeHierarchy( tExecutionSpace, tQueryBoxes );
+
+        Kokkos::View< QueryResult *, MemorySpace > tResults( "values", 0 );
+        Kokkos::View< int *, MemorySpace >         tOffsets( "offsets", 0 );
+
+        tBoundingVolumeHierarchy.query( tExecutionSpace, tQueryRays, RayIntersectionCallback< MemorySpace >{ tQueryRays }, tResults, tOffsets );
+
+        cell_locator_map tBoxRayMap;
+        for ( size_t i = 0; i < tResults.extent( 0 ); ++i )
+        {
+            moris_index const tBoxIndex   = tResults( i ).mBoxIndex;
+            moris_index const tPointIndex = tResults( i ).mPointIndex;
+            moris_index const tMeshIndex  = tQueryBoxes.mMeshIndices( tBoxIndex );
+            moris_index const tCellIndex  = tQueryBoxes.mCellIndices( tBoxIndex );
+            tBoxRayMap[ tMeshIndex ][ tCellIndex ].push_back( tPointIndex );
+        }
+
+        return tBoxRayMap;
+    }
+
+
+    cell_locator_map
+    map_rays_to_boxes(
+            const MappingResult                                                     &aMappingResult,
+            const Vector< std::pair< moris_index, mtk::Integration_Surface_Mesh > > &aTargetSurfaceMeshes )
     {
         Tracer tTracer( "Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX" );
+
+        MORIS_ASSERT( Kokkos::is_initialized(), "Kokkos has not been initialized - needed by ArborX." );
+
         using ExecutionSpace = Kokkos::DefaultExecutionSpace;
         using MemorySpace    = ExecutionSpace::memory_space;
         ExecutionSpace tExecutionSpace{};
@@ -98,6 +180,7 @@ namespace moris::mtk::arborx
 
         ArborX::BVH< MemorySpace > tBoundingVolumeHierarchy( tExecutionSpace, tQueryBoxes );
         //        ArborX::BruteForce< MemorySpace >                 tBoundingVolumeHierarchy( tExecutionSpace, tQueryBoxes ); // The brute force algorithm for comparison... much slower!
+
         Kokkos::View< QueryResult *, MemorySpace > tResults( "values", 0 );
         Kokkos::View< int *, MemorySpace >         tOffsets( "offsets", 0 );
 

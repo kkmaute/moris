@@ -40,6 +40,8 @@ namespace moris
             Matrix< Matrix_Type > const     &aB )
             -> decltype( join_horiz( aA.matrix_data(), aB.matrix_data() ) )
     {
+        MORIS_ASSERT( aA.n_rows() == 0 || aB.n_rows() == 0 || aA.n_rows() == aB.n_rows(),
+                "moris::join_horiz - The number of rows in the two matrices must be equal." );
 
         return join_horiz( aA.matrix_data(), aB.matrix_data() );
     }

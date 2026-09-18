@@ -44,6 +44,7 @@ fn_isvector.hpp
 fn_linsolve.hpp
 fn_linspace.hpp
 fn_load_matrix_from_binary_file.hpp
+fn_mat_to_vec.hpp
 fn_lu.hpp
 fn_max.hpp
 fn_min.hpp
@@ -79,6 +80,7 @@ op_plus.hpp
 op_times.hpp
 fn_rank.hpp
 fn_join_horiz.hpp
+fn_join_vert.hpp
 )
     
 if(MORIS_USE_EIGEN)
@@ -191,6 +193,7 @@ Arma_Impl/op_plus_Arma.hpp
 Arma_Impl/op_times_Arma.hpp
 Arma_Impl/fn_rank_Arma.hpp
 Arma_Impl/fn_join_horiz_Arma.hpp
+Arma_Impl/fn_join_vert_Arma.hpp
 Arma_Impl/fn_max_Arma.hpp
 Arma_Impl/fn_min_Arma.hpp
   )

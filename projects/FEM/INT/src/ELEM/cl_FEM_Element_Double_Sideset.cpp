@@ -25,6 +25,7 @@
 #include "fn_FEM_Side_Coordinate_Map.hpp"
 #include "cl_MSI_Equation_Model.hpp"
 #include "fn_assert.hpp"
+#include "fn_join_vert.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 
@@ -89,9 +90,12 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Matrix< DDSMat > Element_Double_Sideset::get_local_cluster_assembly_indices( moris_index const aLeaderSideOrdinal, moris_index const aFollowerSideOrdinal ) const
+    Matrix< DDSMat > Element_Double_Sideset::get_local_cluster_assembly_indices(
+            moris_index const aLeaderSideOrdinal,
+            moris_index const aFollowerSideOrdinal ) const
     {
         Matrix< DDSMat > tGeoLocalAssembly;
+
         if ( mSet->get_geo_pdv_assembly_flag() )
         {
             // get the vertices indices
@@ -102,8 +106,14 @@ namespace moris::fem
             Vector< enum gen::PDV_Type > tGeoPdvType;
             mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
 
+            Matrix< DDSMat > tLeaderGeoLocalAssembly;
+            Matrix< DDSMat > tFollowerGeoLocalAssembly;
+
             // get local assembly indices
-            mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices( tLeaderVertexIndices, tGeoPdvType, tGeoLocalAssembly );
+            mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices( tLeaderVertexIndices, tGeoPdvType, tLeaderGeoLocalAssembly );
+            mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices( tFollowerVertexIndices, tGeoPdvType, tFollowerGeoLocalAssembly );
+
+            tGeoLocalAssembly = join_vert( tLeaderGeoLocalAssembly, tFollowerGeoLocalAssembly );
         }
         return tGeoLocalAssembly;
     }

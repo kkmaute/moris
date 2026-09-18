@@ -13,13 +13,13 @@
 
 #include <map>
 
-#include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                          //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_IQI.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI.hpp"    //FEM/INT/src
 
 namespace moris::fem
 {
@@ -28,6 +28,9 @@ namespace moris::fem
     class IQI_Strain_Energy : public IQI
     {
         //------------------------------------------------------------------------------
+        // stress and strain type to evaluate the IWG
+        enum CM_Function_Type mStressType;
+        enum CM_Function_Type mStrainType;
 
         enum class IWG_Property_Type
         {
@@ -47,13 +50,15 @@ namespace moris::fem
         /*
          * constructor
          */
-        IQI_Strain_Energy();
+        IQI_Strain_Energy(
+                enum CM_Function_Type aStressType = CM_Function_Type::DEFAULT,
+                enum CM_Function_Type aStrainType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IQI_Strain_Energy() override{};
+        ~IQI_Strain_Energy() override {};
 
         //------------------------------------------------------------------------------
 
@@ -100,4 +105,3 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRAIN_ENERGY_HPP_ */
-

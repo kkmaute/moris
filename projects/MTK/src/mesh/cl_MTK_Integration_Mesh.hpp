@@ -26,7 +26,7 @@
 
 namespace moris::mtk
 {
-    class Integration_Mesh : public virtual Mesh
+    class alignas(16) Integration_Mesh : public virtual Mesh
     {
         // class Cluster_Group;
 
@@ -84,7 +84,6 @@ namespace moris::mtk
         // ##############################################
 
         // ----------------------------------------------------------------------------
-
         moris::uint
         get_num_sets() const override;
 

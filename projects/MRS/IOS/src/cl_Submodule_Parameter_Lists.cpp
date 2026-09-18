@@ -36,9 +36,21 @@ namespace moris
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Submodule_Parameter_Lists::add_parameter_list( const Parameter_List& aParameterList )
+    void Submodule_Parameter_Lists::add_parameter_list(
+            const Parameter_List& aParameterList,
+            const bool            aIsUnique )
     {
+        // check if parameter list allows for multiple entries
+        MORIS_ERROR( mIsUnique ? mParameterLists.size() == 0 : true,
+                "Submodule_Parameter_Lists::add_parameter_list - The %s submodule only allows for one parameter list, "
+                "which is created automatically. Remove add_parameter_list command in input file.",
+                mType.c_str() );
+
+        // add parameter list
         mParameterLists.push_back( aParameterList );
+
+        // set uniqueness flag
+        mIsUnique = aIsUnique;
     }
 
     //--------------------------------------------------------------------------------------------------------------

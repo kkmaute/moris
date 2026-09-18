@@ -13,6 +13,10 @@
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 
+#include <map>
+#include <utility>
+#include <tuple>
+
 #if MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
 #include <ArborX_Box.hpp>
@@ -105,7 +109,7 @@ namespace moris::mtk
         // Accessor methods
         // -------------------------------------------------------------------------------
 
-        [[nodiscard]] virtual const Matrix< DDRMat > get_all_vertex_coordinates() const;
+        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates() const;
 
         /**
          * @brief Gets the coordinates of a single vertex from the local index aVertexIndex
@@ -129,6 +133,13 @@ namespace moris::mtk
         [[nodiscard]] virtual const Matrix< DDRMat >& get_vertex_displacements() const;
 
         /**
+         * @brief Returns the averaged vertex normals for each vertex in the surface mesh.
+         * @details The vertex normals are averaged over all facets that are connected to the vertex, weighted by the respective facet measure.
+         * @return A (d x n) matrix where d is the dimension of the mesh (holding the normal components) and n is the number of vertices in the surface mesh.
+         */
+        [[nodiscard]] Matrix< DDRMat > get_vertex_normals() const;
+
+        /**
          * @brief gets the entire vertex connectivity of the surface mesh
          */
         [[nodiscard]] const Vector< Vector< moris_index > >& get_facet_connectivity() const;
@@ -139,13 +150,21 @@ namespace moris::mtk
          * @param aFacetIndex local index of the facet
          * @return Vector< moris_index > local vertex indices that form the facet
          */
-        [[nodiscard]] const Vector< moris_index > get_facets_vertex_indices( const uint aFacetIndex ) const;
+        [[nodiscard]] const Vector< moris_index >& get_facets_vertex_indices( const uint aFacetIndex ) const;
+
+        /**
+         * @brief Gets the indices to the facets that contain the vertex with the local index aVertexIndex
+         *
+         * @param aVertexIndex local index of the vertex
+         * @return Vector< moris_index > local facet indices that contain the vertex
+         */
+        [[nodiscard]] const Vector< moris_index >& get_vertexs_facet_indices( const uint aVertexIndex ) const;
 
         /**
          * @brief Gets the coordinates of all vertices that form the facet with the local index aFacetIndex
          * Size: < spatial dim x number of vertices in the facet >
          */
-        [[nodiscard]] Matrix< DDRMat > get_all_vertex_coordinates_of_facet( const uint aFacetIndex ) const;
+        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates_of_facet( const uint aFacetIndex ) const;
 
         /**
          * @brief Returns the facet normals for each facet in the surface mesh.
@@ -161,6 +180,12 @@ namespace moris::mtk
          */
         [[nodiscard]] const Matrix< DDRMat > get_facet_normal( const uint aFacetIndex ) const;
 
+        /**
+         * @brief Returns the facet measure (length/area) for each facet in the surface mesh.
+         * @return A (n x 1) vector where n is the number of facets in the surface mesh.
+         */
+        [[nodiscard]] const Vector< real >& get_facet_measure() const;
+
         [[nodiscard]] virtual uint get_spatial_dimension() const;
 
         /**
@@ -171,6 +196,11 @@ namespace moris::mtk
         [[nodiscard]] uint get_number_of_vertices() const;
 
         [[nodiscard]] real get_intersection_tolerance() const;
+
+        /**
+         * Helper function to recompute surface mesh quantities such as facet measure and vertex normals after the surface mesh has been deformed.
+         */
+        void refresh_derived_quantities();
 
 
         // -------------------------------------------------------------------------------
@@ -274,6 +304,19 @@ namespace moris::mtk
          * @brief computes the facet normals and stores in mFacetNormals. mVertexCoordinates must be initialized first
          */
         void initialize_facet_normals();
+
+        /**
+         * @brief computes the facet measures (length for 2D, area for 3D) and stores in mFacetMeasure. mVertexCoordinates must be initialized first
+         */
+        void initialize_facet_measure();
+
+        /**
+         * @brief computes the vertex normals and stores in mVertexNormals. mFacetNormals must be initialized first
+         */
+        void
+        initialize_vertex_normals();
+
+        void build_vertex_to_facet_connectivity();
 
         //-------------------------------------------------------------------------------
         // Private methods useful for raycasting
@@ -451,17 +494,41 @@ namespace moris::mtk
         Matrix< DDRMat > mDisplacements;
 
         /**
-         * @brief List of cell indices that the vertex with the given index is part of. The indices are the indices of
-         * the cell in the surface mesh
+         * @brief List of facet indices that the vertex with the given index is part of. The indices are the indices of
+         * the facet in the surface mesh
          * size: number of facets< spatial_dim >
          */
         Vector< Vector< moris_index > > mFacetConnectivity;
 
         /**
+         * @brief List of facet indices that the vertex with the given index is part of. The indices are the indices of
+         * the facets in the surface mesh
+         * size: number of vertices< spatial_dim >
+         */
+        Vector< Vector< moris_index > > mVertexToFacetConnectivity;
+
+        /**
+         * @brief List of vertex indices that are connected to the vertex with the given index.
+         * The indices are the indices of the vertices in the surface mesh
+         */
+        Vector< Vector< moris_index > > mVertexToVertexIndices;
+
+        /**
          * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!
          * size: < spatial dim x number of facets >
          */
-        Matrix< DDRMat > mFacetNormals = Matrix< DDRMat >( 0, 0 );
+        Matrix< DDRMat > mFacetNormals;
+
+        /**
+         * @brief Stores the vertex normals for each vertex in the surface mesh. The indices are the indices of the vertices in the surface mesh, not the global indices!
+         * size: < spatial dim x number of vertices >
+         */
+        Matrix< DDRMat > mVertexNormals;
+
+        /**
+         * @brief Stores the measure of each facet (length of line segment in 2D, area of triangle in 3D)
+         */
+        Vector< real > mFacetMeasure;
 
       protected:    // variables
 #if MORIS_HAVE_ARBORX

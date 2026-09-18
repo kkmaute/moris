@@ -396,7 +396,7 @@ namespace moris::xtk
             // number of vertices in the selected grid
             const moris::uint tNumVerts = tCurrentTemplate->get_mesh_grid()->num_verts();
 
-            // vertex ancestr
+            // vertex ancestor
             const Vertex_Ancestry *tVertexAncestry = tCurrentTemplate->get_vertex_ancestry();
 
             // hashes for the current template
@@ -404,12 +404,11 @@ namespace moris::xtk
 
             Cell_Connectivity const tCellConnectivity = mCutIgMesh->get_background_cell_connectivity( tCell.get_index() );
 
-            // parameteric coordinates for the current template
+            // parametric coordinates for the current template
             const Matrix< DDRMat > &tVertexParamCoords = tCurrentTemplate->get_vertex_param_coords();
 
             for ( moris::uint iV = 0; iV < tNumVerts; iV++ )
             {
-
                 Matrix< DDRMat > tBasisWeights;
 
                 // local coordinate of this vertex wrt the current cell group
@@ -426,11 +425,12 @@ namespace moris::xtk
 
                     if ( tVertexAncestry->get_vertex_parent_rank( iV ) == mtk::EntityRank::ELEMENT )
                     {
-                        if ( !mDecompData->request_exists( tCell.get_index(), ( *tVertexHashes )( iV ), mtk::EntityRank::ELEMENT, tNewNodeIndexInSubdivision ) )
+                        if ( !mDecompData->request_exists(
+                                     tCell.get_index(), FacetKey( ( *tVertexHashes )( iV ), 0, 0 ), mtk::EntityRank::ELEMENT, tNewNodeIndexInSubdivision ) )
                         {
                             tNewNodeIndexInSubdivision = mDecompData->register_new_request(
                                     tCell.get_index(),
-                                    ( *tVertexHashes )( iV ),
+                                    FacetKey( ( *tVertexHashes )( iV ), 0, 0 ),
                                     tCell.get_owner(),
                                     mtk::EntityRank::ELEMENT,
                                     tNewCoordinate,
@@ -450,14 +450,14 @@ namespace moris::xtk
                     {
                         if ( !mDecompData->request_exists(
                                      tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ),
-                                     ( *tVertexHashes )( iV ),
+                                     FacetKey( ( *tVertexHashes )( iV ), 0, 0 ),
                                      tVertexAncestry->get_vertex_parent_rank( iV ),
                                      tNewNodeIndexInSubdivision ) )
                         {
                             moris_index tOwningProc    = mBackgroundMesh->get_entity_owner( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) );
                             tNewNodeIndexInSubdivision = mDecompData->register_new_request(
                                     tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ),
-                                    ( *tVertexHashes )( iV ),
+                                    FacetKey( ( *tVertexHashes )( iV ), 0, 0 ),
                                     tOwningProc,
                                     tVertexAncestry->get_vertex_parent_rank( iV ),
                                     tNewCoordinate,

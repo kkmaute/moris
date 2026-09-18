@@ -21,10 +21,7 @@
 #include "cl_MTK_Cell.hpp"                          //MTK/src
 #include "cl_MSI_Equation_Object.hpp"               //FEM/MSI/src
 #include "cl_FEM_Enums.hpp"                         //FEM/INT/src
-#include "cl_FEM_Node.hpp"                          //FEM/INT/src
 #include "cl_FEM_IWG.hpp"                           //FEM/INT/src
-#include "cl_FEM_Geometry_Interpolator.hpp"         //FEM/INT/src
-#include "cl_FEM_Field_Interpolator.hpp"            //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"                    //MTK/src
 

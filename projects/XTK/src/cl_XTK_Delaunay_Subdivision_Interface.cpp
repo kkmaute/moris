@@ -312,7 +312,7 @@ namespace moris::xtk
                 mtk::EntityRank tParentRank = mtk::EntityRank::ELEMENT;
 
                 // FIXME @bc: this secondary ID is not guaranteed to be unique with intersection nodes right now
-                moris_index tSecondaryID = std::stoul( std::to_string( tBgCellIndex ) + std::to_string( iPoint ) );
+                FacetKey tSecondaryID = std::make_tuple( tBgCellIndex, iPoint, 0 );
 
                 moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
 

@@ -148,7 +148,7 @@ namespace moris::xtk
          * @return moris_index unique id for edge
          */
 
-        moris_index
+        FacetKey
         hash_edge( Vector< moris::mtk::Vertex * > const &aEdgeVertices );
 
         bool

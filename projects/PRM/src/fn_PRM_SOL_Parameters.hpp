@@ -763,6 +763,9 @@ namespace moris::prm
         // Relaxation parameter
         tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
 
+        // Time offsets for outputting; if offset is zero no output is written
+        tNonLinAlgorithmParameterList.insert( "NLA_time_offset", 0.0 );
+
         // Load control strategy
         tNonLinAlgorithmParameterList.insert_enum( "NLA_load_control_strategy",
                 sol::SolverLoadControlType_String::values );
@@ -778,6 +781,9 @@ namespace moris::prm
 
         // Exponent for exponential load factor growth strategy
         tNonLinAlgorithmParameterList.insert( "NLA_load_control_exponent", 1.0 );
+
+        // Time offsets for outputting pseudo time steps; if offset is zero no output is written
+        tNonLinAlgorithmParameterList.insert( "NLA_load_control_time_offset", 0.0 );
 
         // Pseudo time control strategy
         tNonLinAlgorithmParameterList.insert_enum( "NLA_pseudo_time_control_strategy",

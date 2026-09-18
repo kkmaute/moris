@@ -22,6 +22,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 #undef protected
 #undef private
 // LINALG/src
@@ -735,13 +736,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                             moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
                                     dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
 
-                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulence->dwalldestructioncoeffdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulence->dproductioncoeffdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulence->ddiffusioncoeffdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulence->ddivfluxdu( tVelDofTypes );
+                            moris::fem::CM_Spalart_Allmaras_Turbulence* tCMLeaderSATurbulencePtr =
+                                    dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMLeaderSATurbulence.get() );
+
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulencePtr->dwalldestructioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulencePtr->dproductioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulencePtr->ddiffusioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulencePtr->ddivfluxdu( tVelDofTypes );
                             const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdLeaderDOF( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMLeaderSATurbulence->dwalldestructiontermdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacProductionTerm         = tCMLeaderSATurbulence->dproductiontermdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMLeaderSATurbulencePtr->dwalldestructiontermdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacProductionTerm         = tCMLeaderSATurbulencePtr->dproductiontermdu( tVelDofTypes );
 
                             Matrix< DDRMat > tJacStrongForm, tResStrongForm;
                             tSAIWG->compute_jacobian_strong_form( tVelDofTypes, tJacStrongForm );
@@ -766,12 +770,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tLeaderFIs( 0 )->reset_eval_flags();
                                     tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulence->production_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount )        = tCMLeaderSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount )         = tCMLeaderSATurbulence->production_term()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulencePtr->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulencePtr->production_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount )        = tCMLeaderSATurbulencePtr->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount )         = tCMLeaderSATurbulencePtr->production_term()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulencePtr->divflux()( 0 );
                                     tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
@@ -781,12 +785,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tLeaderFIs( 0 )->reset_eval_flags();
                                     tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->production_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount ) -= tCMLeaderSATurbulence->production_term()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->production_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount ) -= tCMLeaderSATurbulencePtr->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount ) -= tCMLeaderSATurbulencePtr->production_term()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulencePtr->divflux()( 0 );
                                     tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
@@ -899,10 +903,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                             moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
                                     dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
 
-                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulence->dwalldestructioncoeffdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulence->dproductioncoeffdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulence->ddiffusioncoeffdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulence->ddivfluxdu( tVisDofTypes( 0 ) );
+                            moris::fem::CM_Spalart_Allmaras_Turbulence* tCMLeaderSATurbulencePtr =
+                                    dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMLeaderSATurbulence.get() );
+
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulencePtr->dwalldestructioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulencePtr->dproductioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulencePtr->ddiffusioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulencePtr->ddivfluxdu( tVisDofTypes( 0 ) );
                             const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdLeaderDOF( tVisDofTypes( 0 ) );
 
                             Matrix< DDRMat > tJacStrongForm, tResStrongForm;
@@ -926,10 +933,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tLeaderFIs( 1 )->reset_eval_flags();
                                     tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulencePtr->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulencePtr->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulencePtr->divflux()( 0 );
                                     tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
@@ -939,10 +946,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tLeaderFIs( 1 )->reset_eval_flags();
                                     tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulencePtr->divflux()( 0 );
                                     tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
@@ -1034,12 +1041,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                             moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
                                     dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
 
-                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulence->dwalldestructioncoeffdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulence->dproductioncoeffdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulence->ddiffusioncoeffdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMLeaderSATurbulence->dwalldestructiontermdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacProductionTerm         = tCMLeaderSATurbulence->dproductiontermdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulence->ddivfluxdu( tWallDistDofTypes( 0 ) );
+                            moris::fem::CM_Spalart_Allmaras_Turbulence* tCMLeaderSATurbulencePtr =
+                                    dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMLeaderSATurbulence.get() );
+
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulencePtr->dwalldestructioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulencePtr->dproductioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulencePtr->ddiffusioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMLeaderSATurbulencePtr->dwalldestructiontermdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionTerm         = tCMLeaderSATurbulencePtr->dproductiontermdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulencePtr->ddivfluxdu( tWallDistDofTypes( 0 ) );
                             const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdLeaderDOF( tWallDistDofTypes( 0 ) );
 
                             Matrix< DDRMat > tJacStrongForm, tResStrongForm;
@@ -1065,12 +1075,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tLeaderFIs( 2 )->reset_eval_flags();
                                     tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount )        = tCMLeaderSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount )         = tCMLeaderSATurbulence->production_term()( 0 );
-                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulencePtr->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulencePtr->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount )        = tCMLeaderSATurbulencePtr->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount )         = tCMLeaderSATurbulencePtr->production_term()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulencePtr->divflux()( 0 );
                                     tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
@@ -1080,12 +1090,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tLeaderFIs( 2 )->reset_eval_flags();
                                     tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount ) -= tCMLeaderSATurbulence->production_term()( 0 );
-                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount ) -= tCMLeaderSATurbulencePtr->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount ) -= tCMLeaderSATurbulencePtr->production_term()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulencePtr->divflux()( 0 );
                                     tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );

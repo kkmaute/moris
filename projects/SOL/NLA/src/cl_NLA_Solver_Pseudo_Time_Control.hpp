@@ -97,9 +97,6 @@ namespace moris
             /// time offset for outputting pseudo time solutions
             real mTimeOffSet = 0.0;
 
-            /// pseudo time for outputting pseudo time solutions
-            real mOutputTime = 0.0;
-
             /// flag to indicate whether steady state mode entered
             bool mSteadyStateMode = false;
 
@@ -120,7 +117,7 @@ namespace moris
 
           public:
             Solver_Pseudo_Time_Control(
-                    Parameter_List&    aParameterListNonlinearSolver,
+                    Parameter_List&   aParameterListNonlinearSolver,
                     sol::Dist_Vector* aCurrentSolution,
                     Nonlinear_Solver* aNonLinSolverManager );
 

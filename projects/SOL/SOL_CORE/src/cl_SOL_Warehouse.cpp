@@ -78,7 +78,7 @@ SOL_Warehouse::~SOL_Warehouse()
     {
         PetscFinalize();
 #ifdef MORIS_HAVE_SLEPC
-	SlepcFinalize();
+        SlepcFinalize();
 #endif
     }
 #endif
@@ -93,6 +93,10 @@ SOL_Warehouse::~SOL_Warehouse()
 
 void SOL_Warehouse::initialize()
 {
+    // check that there is only one parameter list for the warehouse
+    MORIS_ERROR( mParameterlist( 6 ).size() == 1,
+            "SOL_Warehouse::initialize - More than one parameter list for solver warehouse; do not add parameter list in input file" );
+
     // Load parameters from parameterlist
     mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
 
@@ -117,9 +121,8 @@ void SOL_Warehouse::initialize()
     {
         PetscInitializeNoArguments();
 #ifdef MORIS_HAVE_SLEPC
-	SlepcInitializeNoArguments();
+        SlepcInitializeNoArguments();
 #endif
-    
     }
 #endif
 

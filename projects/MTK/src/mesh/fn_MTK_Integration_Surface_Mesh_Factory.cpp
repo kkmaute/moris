@@ -84,6 +84,9 @@ namespace moris::mtk
 
         // in a last step, the neighbors can actually be correctly assigned since all local indices are known
         this->initialize_neighbors( tTmpNeighborMap );
+
+        // Check to make sure the clusters and local indices of the IP elements within the cluster was set correctly
+        MORIS_ASSERT( mIPClusterLocalIndex.size() == mFacetClusters.size() and mFacetClusters.size() == mFacetToVertexIndices.size() and mIPClusterLocalIndex.size() == mFacetToVertexIndices.size(), "The number of facets in the surface mesh does not match the number of local indices of the IP elements within the cluster" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -123,32 +126,34 @@ namespace moris::mtk
             Cell const *tCurrentCell        = tCells( i );
             int const   tCurrentCellOrdinal = tCellOrds( i );
 
-            this->initialize_cell( aTmpNeighborMap, tCurrentCell, tCurrentCellOrdinal, aClusterIndex );
+            this->initialize_facet( aTmpNeighborMap, tCurrentCell, tCurrentCellOrdinal, aClusterIndex );
         }    // end loop over cells
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Integration_Surface_Mesh_Data::initialize_cell(
+    void Integration_Surface_Mesh_Data::initialize_facet(
             map< moris_index, Vector< moris_index > > &aTmpNeighborMap,
             const Cell                                *aCell,
             int                                        aCellOrdinal,
             moris_index                                aClusterIndex )
     {
-        MORIS_ASSERT( mGlobalToLocalCellIndex.count( aCell->get_index() ) == 0, "Cell added twice to surface mesh" );
+        moris_index tIGCellIndex = aCell->get_index();
 
-        auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mCellToVertexIndices.size() );
+        MORIS_ASSERT( mGlobalToLocalCellIndex.count( tIGCellIndex ) == 0, "Cell added twice to surface mesh" );
+
+        auto const tCurrentLocalCellIndex = static_cast< moris_index >( this->mFacetToVertexIndices.size() );
 
         // local index (on the surface mesh, from 0 to n_surfacemesh), global index (in the integration mesh, arbitrary numbers between 0 and n_igmesh)
-        mLocalToGlobalCellIndex.push_back( aCell->get_index() );
-        mGlobalToLocalCellIndex[ aCell->get_index() ] = tCurrentLocalCellIndex;
+        mLocalToGlobalCellIndex.push_back( tIGCellIndex );
+        mGlobalToLocalCellIndex[ tIGCellIndex ] = tCurrentLocalCellIndex;
 
         // one cluster per cell but one cluster can have multiple cells
         mCellToClusterIndices.push_back( aClusterIndex );
         mClusterToCellIndices( aClusterIndex ).push_back( tCurrentLocalCellIndex );
 
         // prepare the cell to vertex map
-        mCellToVertexIndices.push_back( Vector< moris_index >() );
+        mFacetToVertexIndices.push_back( Vector< moris_index >() );
 
         // side ordinal holds the index of the side of the cell that is actually on the surface
         mCellSideOrdinals.push_back( aCellOrdinal );
@@ -159,6 +164,50 @@ namespace moris::mtk
         {
             Vertex const *tVertex = tSideVertices( j );
             this->initialize_vertex( aTmpNeighborMap, tCurrentLocalCellIndex, tSideVertices, tVertex );
+        }
+
+        // Find the cluster that the cell belongs to (so that we can interpolate the displacements from the IP cell later on)
+        uint                tNumSideSets = this->mSideSets.size();
+        const mtk::Cluster *tCluster     = nullptr;
+        for ( uint iSideSet = 0; iSideSet < tNumSideSets; ++iSideSet )
+        {
+            const Side_Set *tSideSet = this->mSideSets( iSideSet );
+            for ( uint iCluster = 0; iCluster < tSideSet->get_num_clusters_on_set(); ++iCluster )
+            {
+                const mtk::Cluster *tCandidateCluster = tSideSet->get_clusters_by_index( iCluster );
+                auto                tPrimaryCells     = tCandidateCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+                for ( uint i = 0; i < tPrimaryCells.size(); ++i )
+                {
+                    if ( tPrimaryCells( i )->get_index() == tIGCellIndex )
+                    {
+                        tCluster = tCandidateCluster;
+                        break;
+                    }
+                }
+                if ( tCluster ) break;
+            }
+            if ( tCluster ) break;
+        }
+
+        // Store the cluster for this facet
+        mFacetClusters.push_back( tCluster );
+
+        if ( tCluster )
+        {
+            // Find the local index of the cell within the cluster
+            moris_index tLeaderClusterLocalIndex = -1;
+            auto        tNumPrimaryCells         = tCluster->get_num_primary_cells();
+            for ( uint iIPCell = 0; iIPCell < tNumPrimaryCells; ++iIPCell )
+            {
+                Vector< moris::mtk::Cell const * > const &tPrimaryCellsInCluster = tCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+                if ( tPrimaryCellsInCluster( iIPCell )->get_index() == tIGCellIndex )
+                {
+                    tLeaderClusterLocalIndex = iIPCell;
+                    break;
+                }
+            }
+
+            mIPClusterLocalIndex.push_back( tLeaderClusterLocalIndex );
         }
     }
 
@@ -190,7 +239,7 @@ namespace moris::mtk
 
         // update the vertex to cell and cell to vertex map for this vertex
         this->mVertexToCellIndices( tCurrentLocalVertexIndex ).push_back( aCurrentLocalCellIndex );
-        this->mCellToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
+        this->mFacetToVertexIndices( aCurrentLocalCellIndex ).push_back( tCurrentLocalVertexIndex );
 
         for ( auto const &tNeighbor : aSideVertices )
         {    // update neighbors for this vertex for this cell

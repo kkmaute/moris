@@ -16,6 +16,11 @@
 #include "cl_MTK_Vertex_DataBase.hpp"
 #include "cl_Json_Object.hpp"
 
+#include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Interpolation_Function.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
+
 namespace moris::mtk
 {
     Integration_Surface_Mesh::Integration_Surface_Mesh(
@@ -26,8 +31,6 @@ namespace moris::mtk
                       1e-9 )
             , mData( aData )
     {
-        this->initialize_facet_measure();
-        this->initialize_vertex_normals();
     }
 
     Matrix< DDRMat > Integration_Surface_Mesh::initialize_vertex_coordinates( Integration_Mesh const *aIGMesh )
@@ -112,54 +115,12 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Integration_Surface_Mesh::initialize_facet_measure()
-    {
-        auto const       tNumCells          = static_cast< moris::size_t >( mData.mLocalToGlobalCellIndex.size() );
-        Matrix< DDRMat > tVertexCoordinates = this->get_all_vertex_coordinates();
-        mFacetMeasure.resize( tNumCells, 1 );
-
-        for ( moris::size_t i = 0; i < tNumCells; i++ )
-        {
-            MORIS_ASSERT( get_spatial_dimension() == 2, "Surface Mesh facet measure only implemented for 2D meshes (Lines)" );
-            Vector< moris_index > tVertices = mData.mCellToVertexIndices( i );
-            Matrix< DDRMat >      tCoords( 2, 2 );
-            // int const   tGlobalCellIndex = mLocalToGlobalCellIndex( i );
-            // int         tSideOrdinal     = mCellSideOrdinals( i );
-            // Cell const &tCell            = mIGMesh->get_mtk_cell( tGlobalCellIndex );
-            // real const  tMeasure         = tCell.compute_cell_side_measure( tSideOrdinal );
-            mFacetMeasure( i ) = norm( tVertexCoordinates.get_column( tVertices( 1 ) ) - tVertexCoordinates.get_column( tVertices( 0 ) ) );
-        }
-    }
-
-    void Integration_Surface_Mesh::initialize_vertex_normals()
-    {
-        auto const             tNumVertices  = static_cast< moris::size_t >( mData.mLocalToGlobalVertexIndex.size() );
-        uint const             tDim          = this->get_spatial_dimension();
-        const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
-        const Matrix< DDRMat > tFacetMeasure = this->get_facet_measure();
-        mVertexNormals.resize( tDim, tNumVertices );
-
-        auto tNormal = Matrix< DDRMat >( tDim, 1 );
-        for ( moris::size_t i = 0; i < tNumVertices; i++ )
-        {
-            Vector< moris_index > tVertexCellNeighbors = mData.mVertexToCellIndices( i );
-            auto const            tNumNeighbors        = static_cast< moris::size_t >( tVertexCellNeighbors.size() );
-            tNormal.fill( 0.0 );    // reset the current normal to zero for each vertex normal calculation
-
-            // compute the normal as the weighted average of the facet normals of the neighboring cells
-            for ( moris::size_t j = 0; j < tNumNeighbors; j++ )
-            {
-                int const tCellIndex = tVertexCellNeighbors( j );
-                tNormal += tFacetNormals.get_column( tCellIndex ) * tFacetMeasure( tCellIndex );
-            }
-            mVertexNormals.set_column( i, tNormal / norm( tNormal ) );
-        }
-    }
-
     Vector< Vector< moris_index > > Integration_Surface_Mesh::get_vertex_neighbors() const
     {
         return mData.mVertexNeighbors;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     Vector< moris_index > Integration_Surface_Mesh::get_vertex_neighbors( moris_index aLocalVertexIndex ) const
     {
@@ -167,44 +128,175 @@ namespace moris::mtk
         return mData.mVertexNeighbors( aLocalVertexIndex );
     }
 
-    const Matrix< DDRMat > &Integration_Surface_Mesh::get_facet_measure() const
-    {
-        return mFacetMeasure;
-    }
-
-    Matrix< DDRMat > Integration_Surface_Mesh::get_vertex_normals() const
-    {
-        return mVertexNormals;
-    }
+    //--------------------------------------------------------------------------------------------------------------
 
     moris_index Integration_Surface_Mesh::get_global_vertex_index( moris_index aLocalVertexIndex ) const
     {
         return mData.mLocalToGlobalVertexIndex( aLocalVertexIndex );
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
     moris_index Integration_Surface_Mesh::get_global_cell_index( moris_index aLocalCellIndex ) const
     {
         return mData.mLocalToGlobalCellIndex( aLocalCellIndex );
     }
+
+    //--------------------------------------------------------------------------------------------------------------
 
     moris_index Integration_Surface_Mesh::get_local_vertex_index( moris_index aGlobalVertexIndex ) const
     {
         return mData.mGlobalToLocalVertexIndex.at( aGlobalVertexIndex );
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
     moris_index Integration_Surface_Mesh::get_local_cell_index( moris_index aGlobalCellIndex ) const
     {
         return mData.mGlobalToLocalCellIndex.at( aGlobalCellIndex );
     }
 
-    void Integration_Surface_Mesh::set_all_displacements( Matrix< DDRMat > const &aDisplacements )
-    {
-        // Set the displacement of the vertices in the base class
-        Surface_Mesh::set_all_displacements( aDisplacements );
+    //--------------------------------------------------------------------------------------------------------------
 
-        // the displacement on each vertex invalidates the facet and vertex normals as well as the facet measure, so update them.
-        this->initialize_facet_measure();
-        this->initialize_vertex_normals();
+    const std::map< moris_index, Matrix< DDRMat > > &Integration_Surface_Mesh::get_ip_element_displacement() const
+    {
+        return mIPElementDisplacements;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Integration_Surface_Mesh::set_ip_element_displacement( moris_index aCellIndex, const Matrix< DDRMat > &aIPElementDisplacements )
+    {
+        mIPElementDisplacements[ aCellIndex ] = aIPElementDisplacements;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDRMat > Integration_Surface_Mesh::get_all_vertex_coordinates() const
+    {
+        // Get the vertex coordinates from the base class
+        Matrix< DDRMat > tVertexCoordinates = Surface_Mesh::get_all_vertex_coordinates();
+
+        // If facet displacements exist, return deformed coordinates for each cell
+        if ( !mIPElementDisplacements.empty() )
+        {
+            Matrix< DDRMat > tDeformedCoordinates = tVertexCoordinates;
+            const uint       tNumFacets           = this->get_number_of_facets();
+            for ( uint iF = 0; iF < tNumFacets; ++iF )
+            {
+                Matrix< DDRMat >      tCellVertexCoordinates = get_all_vertex_coordinates_of_facet( iF );
+                Vector< moris_index > tVertexIndices         = get_vertices_of_cell( iF );
+                size_t                tNumVertices           = tVertexIndices.size();
+                for ( size_t i = 0; i < tNumVertices; i++ )
+                {
+                    tDeformedCoordinates.set_column( tVertexIndices( i ), tCellVertexCoordinates.get_column( i ) );
+                }
+            }
+            return tDeformedCoordinates;
+        }
+        return tVertexCoordinates;
+    }
+
+    Matrix< DDRMat > Integration_Surface_Mesh::get_all_vertex_coordinates_of_facet( const uint aFacetIndex ) const
+    {
+        // Compute cell vertex coordinates, applying IP element displacements if available.
+        Matrix< DDRMat >      tVertexCoordinates = this->get_all_vertex_coordinates();
+        Vector< moris_index > tVertexIndices     = this->get_facets_vertex_indices( aFacetIndex );
+        size_t const          tDim               = this->get_spatial_dimension();
+        size_t const          tNumVertices       = tVertexIndices.size();
+        Matrix< DDRMat >      tCellVertexCoordinates{ tDim, tNumVertices };
+
+        // Get information about the IP cell and cluster for this facet
+        const mtk::Cluster *tCluster                 = mData.mFacetClusters( aFacetIndex );
+        uint                tLeaderClusterLocalIndex = mData.mIPClusterLocalIndex( aFacetIndex );
+
+
+        // // Check if facet displacements exist for this cell
+        // moris_index tGlobalCellIndex = this->get_global_cell_index( aFacetIndex );
+
+        // // Use the interpolation element index for facet displacements
+        // uint                tNumSideSets = mData.mSideSets.size();
+        // const mtk::Cluster *tCluster     = nullptr;
+        // for ( uint iSideSet = 0; iSideSet < tNumSideSets; ++iSideSet )
+        // {
+        //     const Side_Set *tSideSet = mData.mSideSets( iSideSet );
+        //     for ( uint iCluster = 0; iCluster < tSideSet->get_num_clusters_on_set(); ++iCluster )
+        //     {
+        //         const mtk::Cluster *tCandidateCluster = tSideSet->get_clusters_by_index( iCluster );
+        //         auto                tPrimaryCells     = tCandidateCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+        //         for ( uint i = 0; i < tPrimaryCells.size(); ++i )
+        //         {
+        //             if ( tPrimaryCells( i )->get_index() == tGlobalCellIndex )
+        //             {
+        //                 tCluster = tCandidateCluster;
+        //                 break;
+        //             }
+        //         }
+        //         if ( tCluster ) break;
+        //     }
+        //     if ( tCluster ) break;
+        // }
+
+        if ( tCluster )
+        {
+            //     // Find the local index of the cell within the cluster
+            //     moris_index tLeaderClusterLocalIndex = -1;
+            //     auto        tNumPrimaryCells         = tCluster->get_num_primary_cells();
+            //     for ( uint iIPCell = 0; iIPCell < tNumPrimaryCells; ++iIPCell )
+            //     {
+            //         Vector< moris::mtk::Cell const * > const &tPrimaryCellsInCluster = tCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
+            //         if ( tPrimaryCellsInCluster( iIPCell )->get_index() == tGlobalCellIndex )
+            //         {
+            //             tLeaderClusterLocalIndex = iIPCell;
+            //             break;
+            //         }
+            //     }
+
+            // Now use this index for local coordinates
+            Matrix< DDRMat > tTargetLocalCoordinates = tCluster->get_cell_local_coords_on_side_wrt_interp_cell( tLeaderClusterLocalIndex );
+
+            // Get the interpolation cell from the cluster
+            const mtk::Cell &tIPElement = tCluster->get_interpolation_cell();
+
+            // Get the local coordinates of the vertices of the interpolation cell
+            Matrix< DDRMat >      tIPElementVertices;
+            const mtk::Cell_Info *tIPInfo = tIPElement.get_cell_info();
+            tIPInfo->get_loc_coords_of_cell( tIPElementVertices );
+
+            // Get displacement for THIS specific IP element
+            moris_index tIPElementIndex = tIPElement.get_index();
+            auto        tIt             = mIPElementDisplacements.find( tIPElementIndex );
+            if ( tIt != mIPElementDisplacements.end() )
+            {
+                Matrix< DDRMat > tDispForInterp = tIt->second;
+                // Set up space interpolator for displacement using all IP element nodes
+                Interpolation_Rule tFieldInterpRule(
+                        tIPElement.get_geometry_type(),
+                        Interpolation_Type::LAGRANGE,
+                        tIPElement.get_cell_info()->get_cell_interpolation_order(),
+                        Interpolation_Type::UNDEFINED,
+                        Interpolation_Order::UNDEFINED );
+                Space_Interpolator tFieldSpaceInterpolator( tFieldInterpRule );
+                tFieldSpaceInterpolator.set_space_coeff( tDispForInterp );
+                tFieldSpaceInterpolator.set_space_param_coeff( tIPElementVertices );
+
+                // Interpolate displacement to each cell vertex
+                for ( size_t iV = 0; iV < tNumVertices; iV++ )
+                {
+                    Matrix< DDRMat > tVertexParamCoord = trans( tTargetLocalCoordinates.get_row( iV ) );
+                    tFieldSpaceInterpolator.set_space( tVertexParamCoord );
+                    Matrix< DDRMat > tVertexDisp = tFieldSpaceInterpolator.valx();    // (dim x 1)
+                    tCellVertexCoordinates.set_column( iV, tVertexCoordinates.get_column( tVertexIndices( iV ) ) + trans( tVertexDisp ) );
+                }
+                return tCellVertexCoordinates;
+            }
+        }
+
+        for ( moris::size_t iV = 0; iV < tNumVertices; iV++ )
+        {
+            tCellVertexCoordinates.set_column( iV, tVertexCoordinates.get_column( tVertexIndices( iV ) ) );
+        }
+        return tCellVertexCoordinates;
     }
 
     moris_index Integration_Surface_Mesh::get_cluster_of_cell( moris_index aLocalCellIndex ) const
@@ -214,7 +306,7 @@ namespace moris::mtk
 
     Vector< moris_index > Integration_Surface_Mesh::get_vertices_of_cell( moris_index aLocalCellIndex ) const
     {
-        return mData.mCellToVertexIndices( aLocalCellIndex );
+        return mData.mFacetToVertexIndices( aLocalCellIndex );
     }
 
     Vector< moris_index > Integration_Surface_Mesh::get_cells_of_vertex( moris_index aLocalVertexIndex ) const
@@ -231,7 +323,7 @@ namespace moris::mtk
     {
         Matrix< DDRMat >      tVertexNormals = this->get_vertex_normals();
         Vector< moris_index > tVertexIndices = this->get_vertices_of_cell( aLocalCellIndex );
-        size_t const          tDim           = tVertexNormals.n_rows();
+        size_t const          tDim           = this->get_spatial_dimension();
         size_t const          tNumVertices   = tVertexIndices.size();
         Matrix< DDRMat >      tCellVertexNormals{ tDim, tNumVertices };
         for ( moris::size_t i = 0; i < tNumVertices; i++ )

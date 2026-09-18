@@ -44,9 +44,24 @@ namespace moris::fem
         void             compute_jacobian_and_residual() override;
 
       protected:
+        /**
+         * initialize the geometry interpolator for the IG leader and follower element
+         * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
+         * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
+         */
+        void initialize_leader_follower_ig_interpolator( mtk::Leader_Follower const aLeaderFollowerType ) const override;
+
         moris_index get_follower_local_cell_index() const override;
+        void        initialize_quadrature_point( uint iGP ) override;
 
       private:
+        /**
+         * initialize the geometry interpolator for the IG leader and follower element for the previous time step
+         * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
+         * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
+         */
+        void initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower const aLeaderFollowerType ) const;
+
         moris_index                mFollowerCellIndexInCluster;
         mtk::IntegrationPointPairs mIntegrationPointPairs;
         mtk::NodalPointPairs       mNodalPointPairs;

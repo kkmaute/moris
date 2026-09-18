@@ -10,9 +10,7 @@
 #ifndef MORIS_CL_MTK_MAPPINGRESULT_HPP
 #define MORIS_CL_MTK_MAPPINGRESULT_HPP
 
-#include <ostream>
 #include "cl_Vector.hpp"
-#include "cl_Matrix.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Json_Object.hpp"
 
@@ -87,6 +85,16 @@ namespace moris::mtk
          * @brief The n-th entry is the distance of the n-th to the mapped point in physical coordinates.
          */
         Vector< real > mSignedDistance;
+
+        /**
+         * @brief Contains the normals computed in nonlinear/consistent deformed geometry formulation.
+         */
+        Matrix< DDRMat > mNormalsNonlinear;
+
+        /**
+         * @brief The physical coordinates of the point from which the mapping was performed, in nonlinear/consistent deformed geometry formulation.
+         */
+        Matrix< DDRMat > mSourcePhysicalCoordinateNonlinear;
 
         Json to_json();
     };

@@ -179,6 +179,9 @@ option(MORIS_HAVE_SYMBOLIC
 option(MORIS_HAVE_SYMBOLIC_STRONG
     "Use symbolic information (strong) in executable." OFF )
 
+option(MORIS_HAVE_SANITIZE
+    "Use sanitizer (address,undefined,leak) in executable." OFF )
+
 option(MORIS_HAVE_PEDANTIC 
     "Use strict compiler checking" ON)
 
@@ -204,7 +207,7 @@ option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
 option(MORIS_HAVE_SLEPC
-    "Build MORIS with support for SLEPC." OFF )
+    "Build MORIS with support for SLEPC." ON )
 
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -216,7 +219,7 @@ option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
 option(MORIS_HAVE_ARBORX
-    "Build MORIS with support for ArborX." OFF )
+    "Build MORIS with support for ArborX." ON )
     
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
@@ -469,7 +472,6 @@ endif()
 # and retain symbol information in the executable itself,
 # for debugging purposes.
 
-
 # Set optimization type.
 # Compile with -O compiler optimizations.
 # Debug flags.
@@ -508,6 +510,14 @@ if (MORIS_HAVE_SYMBOLIC)
     #if (HAVE_ANALYZER_DBG)
     #    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fanalyzer")
     #endif()
+    
+    if (MORIS_HAVE_SANITIZE)
+        check_cxx_compiler_flag("-fsanitize=address,undefined,leak,alignment,signed-integer-overflow,vptr,pointer-compare" HAVE_SAN_DBG)
+        if (HAVE_SAN_DBG)
+             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fsanitize=address,undefined,leak,alignment,signed-integer-overflow,vptr,pointer-compare")
+             # ,signed-integer-overflow,vptr
+        endif() 
+    endif()
 else()    
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type Release" FORCE)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
@@ -604,6 +614,10 @@ if (MORIS_HAVE_PEDANTIC)
 check_cxx_compiler_flag(-std=c++17 HAVE_STD_CPP17)
 if (HAVE_STD_CPP17)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++17")
+    
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 else()
     check_cxx_compiler_flag(-std=c++14 HAVE_STD_CPP14)
     if (HAVE_STD_CPP14)

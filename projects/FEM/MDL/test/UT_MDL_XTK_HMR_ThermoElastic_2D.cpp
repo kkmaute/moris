@@ -454,8 +454,6 @@ namespace moris
             tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
-            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
-
             tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML ) );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
 
@@ -953,8 +951,6 @@ namespace moris
 
             tParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
-
-            tParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
             tParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML ) );
             tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );

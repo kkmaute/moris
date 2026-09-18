@@ -83,6 +83,8 @@ int main( int argc,
 
     result = Catch::Session().run( argc, argv );
 
+    Kokkos::finalize();
+
     // finalize moris global communication manager
     gMorisComm.finalize();
 

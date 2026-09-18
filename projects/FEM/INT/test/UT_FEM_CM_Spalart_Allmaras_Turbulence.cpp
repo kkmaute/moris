@@ -283,11 +283,6 @@ TEST_CASE( "CM_Spalart_Allmaras_Turbulence", "[CM_Spalart_Allmaras_Turbulence]" 
                     // derivative dof type
                     const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
-                    // production coeff
-                    //------------------------------------------------------------------------------
-                    // evaluate dproductioncoeffdu
-                    Matrix< DDRMat > tdproductioncoeffdu = tCMLeaderSATurbulence->dproductioncoeffdu( tDofDerivative );
-
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate dtractiondu

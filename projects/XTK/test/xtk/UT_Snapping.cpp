@@ -40,7 +40,6 @@ namespace moris::xtk
 
             // XTK parameter list
             Module_Parameter_Lists tXTKParams( Module_Type::XTK );
-            tXTKParams( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
             tXTKParams( 0 )( 0 ).set( "decompose", true );
             tXTKParams( 0 )( 0 ).set( "decomposition_type", "conformal" );
             tXTKParams( 0 )( 0 ).set( "enrich", true );
@@ -63,7 +62,6 @@ namespace moris::xtk
             real tXNormal = sin( -tPlaneAngle * M_PI / 180 );
             real tYNormal = cos( -tPlaneAngle * M_PI / 180 );
 
-            tGENParams( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
             tGENParams( 0 )( 0 ).set( "output_mesh_file", "GEN_Snapping.exo" );
 
             // Geometry parameter lists

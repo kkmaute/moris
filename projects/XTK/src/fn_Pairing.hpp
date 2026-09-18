@@ -17,10 +17,48 @@ namespace moris::xtk
 {
     template< typename Integer >
     inline static Integer
-    cantor_pairing( Integer const aPt1,
-            Integer const         aPt2 )
+    cantor_pairing(
+            Integer const aPt1,
+            Integer const aPt2 )
     {
-        Integer tID = ( ( aPt1 * aPt1 + 3 * aPt1 + 2 * aPt1 * aPt2 + aPt2 + aPt2 * aPt2 ) / 2 );
+        enum PairingType : uint
+        {
+            CANTOR,
+            SZUDZIK
+        };
+
+        const PairingType tPairing = PairingType::CANTOR;
+
+        Integer tID;
+
+        switch ( tPairing )
+        {
+            case PairingType::CANTOR:
+            {
+                // Cantor pairing
+                tID = ( ( aPt1 * aPt1 + 3 * aPt1 + 2 * aPt1 * aPt2 + aPt2 + aPt2 * aPt2 ) / 2 );
+                break;
+            }
+            case PairingType::SZUDZIK:
+            {
+                // Szudzik Pairing
+                if ( aPt1 > aPt2 )
+                {
+                    tID = (Integer)aPt1 * aPt1 + aPt1 + aPt2;
+                }
+                else
+                {
+                    tID = (Integer)aPt2 * aPt2 + aPt1;
+                }
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "cantor_pairing: Unknown pairing type" );
+                break;
+            }
+        }
+
         return tID;
     }
 }    // namespace moris::xtk

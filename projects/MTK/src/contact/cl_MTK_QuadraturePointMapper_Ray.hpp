@@ -9,14 +9,10 @@
  */
 #pragma once
 
-#include <deque>
-#include <set>
 #include "cl_MTK_QuadraturePointMapper.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Integration_Surface_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_Space_Interpolator.hpp"
-#include "cl_Json_Object.hpp"
 
 namespace moris::mtk
 {
@@ -31,12 +27,13 @@ namespace moris::mtk
                 Vector< Side_Set const * >                            &aSideSets,
                 const Vector< std::pair< moris_index, moris_index > > &aCandidatePairs );
 
-        void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aSetDisplacements ) override;
+        // void update_displacements( std::vector<std::tuple<moris_index, moris_index, Matrix<DDRMat>>> const &aFacetVertexDisplacements );
+        void update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements );
 
       protected:
         Vector< Integration_Surface_Mesh > const &get_surface_meshes() const { return mSurfaceMeshes; }
         Vector< Integration_Surface_Mesh > const &get_reference_surface_meshes() const { return mReferenceSurfaceMeshes; }
-        MappingResult                 initialize_source_points( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const;
+        MappingResult                             initialize_source_points( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const;
 
       private:
         static auto initialize_surface_meshes(

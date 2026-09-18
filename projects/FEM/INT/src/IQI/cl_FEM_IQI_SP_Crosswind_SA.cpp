@@ -126,12 +126,16 @@ namespace moris::fem
         const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                 mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
+
         // compute strong form of residual
-        aR = tFIViscosity->gradt( 1 )
-           + trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->gradx( 1 )
-           - tCMSATurbulence->production_term()
-           + tCMSATurbulence->wall_destruction_term()
-           - tCMSATurbulence->divflux();
+        aR = tFIViscosity->gradt( 1 )                                                       //
+           + trans( tCMSATurbulencePtr->modified_velocity() ) * tFIViscosity->gradx( 1 )    //
+           - tCMSATurbulencePtr->production_term()                                          //
+           + tCMSATurbulencePtr->wall_destruction_term()                                    //
+           - tCMSATurbulencePtr->divflux();
 
         MORIS_ASSERT( isfinite( aR ),
                 "IQI_SP_Crosswind_SA::compute_residual_strong_form - Residual contains NAN or INF, exiting!" );

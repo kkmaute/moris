@@ -63,8 +63,11 @@ namespace moris::mtk
         // Initialize distortion vectors/matrices
         this->reset_coordinates();
 
-        // Compute the normals of the facets
-        this->initialize_facet_normals();
+        // Build vertex to facet connectivity
+        this->build_vertex_to_facet_connectivity();
+
+        // Compute facet normals, vertex normals, and facet measures
+        this->refresh_derived_quantities();
 
 #if MORIS_HAVE_ARBORX
         // Construct the ArborX BVH
@@ -139,7 +142,7 @@ namespace moris::mtk
         mDisplacements = aDisplacements;
 
         // Update the normal vector for all the facets
-        this->initialize_facet_normals();
+        this->refresh_derived_quantities();
 
 #if MORIS_HAVE_ARBORX
         // Update the bounding volume hierarchy
@@ -164,7 +167,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
+    Matrix< DDRMat > Surface_Mesh::get_all_vertex_coordinates() const
     {
         return mVertexCoordinates + mDisplacements;
     }
@@ -199,6 +202,13 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Matrix< DDRMat > Surface_Mesh::get_vertex_normals() const
+    {
+        return mVertexNormals;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     const Vector< Vector< moris_index > >& Surface_Mesh::get_facet_connectivity() const
     {
         return mFacetConnectivity;
@@ -206,9 +216,16 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Vector< moris_index > Surface_Mesh::get_facets_vertex_indices( const uint aFacetIndex ) const
+    const Vector< moris_index >& Surface_Mesh::get_facets_vertex_indices( const uint aFacetIndex ) const
     {
         return mFacetConnectivity( aFacetIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    const Vector< moris_index >& Surface_Mesh::get_vertexs_facet_indices( const uint aVertexIndex ) const
+    {
+        return mVertexToFacetConnectivity( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -254,6 +271,13 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Vector< real >& Surface_Mesh::get_facet_measure() const
+    {
+        return mFacetMeasure;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     uint Surface_Mesh::get_number_of_facets() const
     {
         return mFacetConnectivity.size();
@@ -280,6 +304,25 @@ namespace moris::mtk
         // Initialize distortion vectors/matrices
         mDisplacements.set_size( this->get_spatial_dimension(), this->get_number_of_vertices(), 0.0 );
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::build_vertex_to_facet_connectivity()
+    {
+        mVertexToFacetConnectivity.resize( this->get_number_of_vertices(), Vector< moris_index >( this->get_spatial_dimension() ) );
+
+        moris_index tNumFacets = this->get_number_of_facets();
+        for ( moris_index iF = 0; iF < tNumFacets; iF++ )
+        {
+            const Vector< moris_index >& tFacetVertices = this->get_facets_vertex_indices( iF );
+
+            for ( uint iV = 0; iV < tFacetVertices.size(); iV++ )
+            {
+                mVertexToFacetConnectivity( tFacetVertices( iV ) )( iV ) = iF;
+            }
+        }
+    }
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1281,6 +1324,15 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
+    void Surface_Mesh::refresh_derived_quantities()
+    {
+        this->initialize_facet_normals();
+        this->initialize_facet_measure();
+        this->initialize_vertex_normals();
+    }
+
+    // --------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh::initialize_facet_normals()
     {
         auto const tNumFacets = static_cast< moris::size_t >( mFacetConnectivity.size() );
@@ -1324,6 +1376,61 @@ namespace moris::mtk
             {
                 MORIS_ERROR( false, "Surface Mesh facet normals only implemented for 2D (lines) or 3D (triangles) meshes" );
             }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::initialize_facet_measure()
+    {
+        // Compute facet measures using deformed vertex coordinates.
+        const uint tNumFacets = this->get_number_of_facets();
+        const uint tDim       = this->get_spatial_dimension();
+        mFacetMeasure.resize( tNumFacets, 1 );
+        for ( uint iF = 0; iF < tNumFacets; iF++ )
+        {
+            Matrix< DDRMat > tCoords = this->get_all_vertex_coordinates_of_facet( iF );
+            if ( tDim == 2 )
+            {
+                // 2D: length of line segment
+                mFacetMeasure( iF ) = norm( tCoords.get_column( 1 ) - tCoords.get_column( 0 ) );
+            }
+            else    // 3D
+            {
+                // 3D: area using cross product (for triangles/quads this is approximate)
+                Matrix< DDRMat > tEdge1 = tCoords.get_column( 1 ) - tCoords.get_column( 0 );
+                Matrix< DDRMat > tEdge2 = tCoords.get_column( 2 ) - tCoords.get_column( 0 );
+                Matrix< DDRMat > tCross( 3, 1 );
+                tCross( 0 )         = tEdge1( 1 ) * tEdge2( 2 ) - tEdge1( 2 ) * tEdge2( 1 );
+                tCross( 1 )         = tEdge1( 2 ) * tEdge2( 0 ) - tEdge1( 0 ) * tEdge2( 2 );
+                tCross( 2 )         = tEdge1( 0 ) * tEdge2( 1 ) - tEdge1( 1 ) * tEdge2( 0 );
+                mFacetMeasure( iF ) = 0.5 * norm( tCross );    // Triangle area
+                // For quads with 4 vertices, would need to sum two triangles
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Surface_Mesh::initialize_vertex_normals()
+    {
+        const uint tNumVertices = this->get_number_of_vertices();
+        const uint tDim         = this->get_spatial_dimension();
+        mVertexNormals.resize( tDim, tNumVertices );
+        Matrix< DDRMat > tNormal( tDim, 1 );
+        for ( uint iV = 0; iV < tNumVertices; iV++ )
+        {
+            const Vector< moris_index >& tVertexFacetNeighbors = this->get_vertexs_facet_indices( iV );
+            uint                         tNumConnectedFacets   = tVertexFacetNeighbors.size();
+            tNormal.fill( 0.0 );
+            // compute the normal as the weighted average of the facet normals of the neighboring cells
+            for ( uint iF = 0; iF < tNumConnectedFacets; iF++ )
+            {
+                const moris_index tFacetIndex = tVertexFacetNeighbors( iF );
+                // Use deformed facet measure and normals
+                tNormal += mFacetNormals.get_column( tFacetIndex ) * mFacetMeasure( tFacetIndex );
+            }
+            mVertexNormals.set_column( iV, tNormal / norm( tNormal ) );
         }
     }
 

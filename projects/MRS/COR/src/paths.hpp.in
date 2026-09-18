@@ -15,7 +15,6 @@
 
 namespace moris
 {
-
     // ge the library path
     inline
     std::string
@@ -30,20 +29,6 @@ namespace moris
     get_moris_bin_dir()
     {
         return "@CMAKE_BINARY_DIR@";
-    }
-
-    inline
-    std::string
-    get_moris_git_branch()
-    {
-        return "@MORIS_GIT_BRANCH@";
-    }
-
-    inline
-    std::string
-    get_moris_git_hash()
-    {
-        return "@MORIS_GIT_HASH@";
     }
 }
 #endif /* PROJECTS_MRS_COR_SRC_PATHS_HPP_ */

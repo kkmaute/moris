@@ -8,8 +8,8 @@
 
 #include "fn_clip_value.hpp"
 
-//#include <Sacado.hpp> // for autodiff
-//#include <cstdio>     // nicer than streams in some respects
+// #include <Sacado.hpp> // for autodiff
+// #include <cstdio>     // nicer than streams in some respects
 
 namespace moris::fem
 {
@@ -484,7 +484,16 @@ namespace moris::fem
     CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers::eval_traction_cauchy(
             const Matrix< DDRMat >& aNormal )
     {
-        MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Wriggers::eval_dCauchyStressdDOF - Not implemented." );
+        // get the 2nd Piola-Kirchhoff stress in full form
+        Matrix< DDRMat > t2PKStressFull;
+        this->voigt_to_full_sym_stress( this->flux( CM_Function_Type::PK2 ), t2PKStressFull );
+
+        // evaluate the Cauchy stress
+        Matrix< DDRMat > tCauchyStressFull =
+                this->deformation_gradient() * t2PKStressFull * trans( this->deformation_gradient() ) / this->volume_change_jacobian();
+
+        // evaluate traction based on Cauchy stress; note the normal is the one in the deformed configuration
+        mCauchyTraction = tCauchyStressFull * aNormal;
     }
 
     //--------------------------------------------------------------------------------------------------------------

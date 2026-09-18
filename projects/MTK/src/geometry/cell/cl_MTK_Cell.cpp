@@ -251,7 +251,7 @@ namespace moris::mtk
         Vector< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
 
         // get vertex ordinals
-        Matrix< IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map( aSideOrdinal );
+        Matrix< IndexMat > tGeometricVertOrdsOnFacet = this->get_cell_info()->get_node_to_facet_map( aSideOrdinal );
 
         // allocate cell of vertices
         Vector< moris::mtk::Vertex const * > tVerticesOnSide( tGeometricVertOrdsOnFacet.numel() );

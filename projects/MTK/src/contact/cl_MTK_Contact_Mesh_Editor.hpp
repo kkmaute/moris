@@ -11,10 +11,7 @@
 #ifndef MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP
 #define MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP
 
-#include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Integrator.hpp"
-#include "fn_assert.hpp"
 
 #if MORIS_HAVE_ARBORX
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
@@ -45,7 +42,7 @@ namespace moris::mtk
 
         void update_nonconformal_side_sets() const;
 
-        void update_displacements( std::unordered_map< moris_index, Vector< real > > const &aNodalDisplacements );
+        void update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements );
 
         Vector< Side_Set const * > get_side_sets() const;
 
@@ -57,12 +54,12 @@ namespace moris::mtk
 
       private:
         // types
-        /**
-         * \brief Holds information about a cluster pair consisting of a source cluster and a target cluster on a target mesh.
-         * \details This is used for the conversion from a mapping result to a nonconformal side cluster.
-         * The first index is the source cluster index, the second index is the target cluster index and the third index is the target mesh index.
-         */
-        using ClusterPair = std::tuple< moris_index, moris_index, moris_index >;
+        // /**
+        //  * \brief Holds information about a cluster pair consisting of a source cluster and a target cluster on a target mesh.
+        //  * \details This is used for the conversion from a mapping result to a nonconformal side cluster.
+        //  * The first index is the source cluster index, the second index is the target cluster index and the third index is the target mesh index.
+        //  */
+        // using ClusterPair = std::tuple< moris_index, moris_index, moris_index >;
 
         /**
          * \brief Holds information about a cell pair consisting of a source cell and a target cell.
@@ -109,9 +106,10 @@ namespace moris::mtk
         static std::pair< std::string, std::string > get_leaderphase_from_set_name( std::string const &aSideSetName );
 
         /**
-         * @brief The mapper has to map the nodes as well as the integration points. This function returns a combined matrix of the nodal parametric coordinates
-         * (e.g. -1.0 and 1.0 for a line) as the first n_node columns and the integration points as the last n_ig columns.
-         * @return
+         * @brief Return the parametric integration points used for mapping.
+         * @details This returns only the integration (quadrature) points from the internal integrator
+         * (spatial rows, no time row). Contact mapping is intended to run on integration points only.
+         * @return Matrix of integration points (dim x n_integration_points)
          */
         Matrix< DDRMat > get_points_to_map() const;
 
@@ -136,16 +134,13 @@ namespace moris::mtk
 
         moris_index get_integration_point_index( moris_index aResultIndex ) const;
 
-        moris_index get_node_coordinate_index( moris_index aMappingResultColumnIndex ) const;
-
         IntegrationPointPairs create_integration_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const;
 
         NodalPointPairs create_nodal_point_pairs_from_results( Vector< moris_index > aResultIndices, MappingResult aMappingResult ) const;
 
-        void populate_integration_and_nodal_point_pairs(
+        void populate_integration_point_pairs(
                 MappingResult const                      &aMappingResult,
                 Vector< IntegrationPointPairs >          &aIntegrationPointPairs,
-                Vector< NodalPointPairs >                &aNodePointPairs,
                 Contact_Mesh_Editor::ResultIndices const &aCellResults ) const;
 
         Integration_Mesh_DataBase_IG                   *mIGMesh;

@@ -92,7 +92,7 @@ namespace moris
 
     real tMMAPenalty  = 5.0;
     real tMMAStepSize = 0.05;
-    int  tMMAMaxIter  = 5;
+    int  tMMAMaxIter  = 1;
 
     real tBsplineLimit = tHoleRadius;
 
@@ -522,7 +522,7 @@ namespace moris
         aParameterLists.set( "is_optimization_problem", tIsOpt );
         aParameterLists.set( "problem", "user_defined" );
         aParameterLists.set( "library", tLibraryName );
-        aParameterLists.set( "restart_file", "ADV_Alg_0_Iter_11.hdf5" );
+        aParameterLists.set( "restart_file", "ADV_Alg_0_Iter_10.hdf5" );
         aParameterLists.set( "reinitialize_interface_iter", 50 );
 
         aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::GCMMA );
@@ -558,7 +558,7 @@ namespace moris
 
         aParameterLists.set( "use_refine_low_level_elements", false );
 
-        aParameterLists.set( "restart_refinement_pattern_file", "HMR_Background_Refinement_Iter_11.hdf5" );
+        aParameterLists.set( "restart_refinement_pattern_file", "HMR_Background_Refinement_Iter_10.hdf5" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -618,14 +618,12 @@ namespace moris
         }
 
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
-        uint tParamCounter = 0;
 
         aParameterLists.set( "name", "LevelsetField" );
         aParameterLists.set( "dependencies", "Level_Set_Field" );
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "LS1" );
         aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "HMR_dummy_n_p2", "HMR_dummy_c_p2" );
-        tParamCounter++;
     }
 
     //--------------------------------------------------------------------------------------------------------------

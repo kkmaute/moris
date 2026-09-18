@@ -24,7 +24,7 @@ namespace moris::fem
         Model_Initializer::initialize();
     }
 
-        //----------------------------------------------------------------
+    //----------------------------------------------------------------
 
     void Model_Initializer_Phasebased::create_phases()
     {
@@ -62,7 +62,7 @@ namespace moris::fem
         }
     }
 
-        //----------------------------------------------------------------
+    //----------------------------------------------------------------
 
     void Model_Initializer_Phasebased::create_material_models()
     {
@@ -109,11 +109,11 @@ namespace moris::fem
                     tDofTypes,
                     mMSIDofTypeMap );
 
-                        Vector< std::string > tDofTypeNames;
-                        string_to_vector(
-                                std::get< 1 >( tMMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
-                                tDofTypeNames );
-            
+            Vector< std::string > tDofTypeNames;
+            string_to_vector(
+                    std::get< 1 >( tMMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
+                    tDofTypeNames );
+
             tMM->set_dof_type_list( tDofTypes, tDofTypeNames );
 
             // set MM properties
@@ -121,7 +121,7 @@ namespace moris::fem
             string_to_vector_of_vectors(
                     tMMParameter.get< std::string >( "properties" ),
                     tPropertyNamesPair );
-            
+
             for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
             {
                 // get the property name
@@ -156,7 +156,7 @@ namespace moris::fem
 
     //----------------------------------------------------------------
 
-        void Model_Initializer_Phasebased::create_constitutive_models()
+    void Model_Initializer_Phasebased::create_constitutive_models()
     {
         // create a constitutive model factory
         CM_Factory tCMFactory;
@@ -223,11 +223,11 @@ namespace moris::fem
                     tDofTypes,
                     mMSIDofTypeMap );
 
-                        Vector< std::string > tDofTypeNames;
-                        string_to_vector(
-                                std::get< 1 >( tCMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
-                                tDofTypeNames );
-            
+            Vector< std::string > tDofTypeNames;
+            string_to_vector(
+                    std::get< 1 >( tCMParameter.get< std::pair< std::string, std::string > >( "dof_dependencies" ) ),
+                    tDofTypeNames );
+
             tCM->set_dof_type_list( tDofTypes, tDofTypeNames );
 
             // set CM dv dependencies
@@ -236,12 +236,12 @@ namespace moris::fem
                     std::get< 0 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                     tDvTypes,
                     mMSIDvTypeMap );
-            
+
             Vector< std::string > tDvTypeNames;
             string_to_vector(
                     std::get< 1 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                     tDvTypeNames );
-            
+
             tCM->set_dv_type_list( tDvTypes, tDvTypeNames );
 
             // set CM material model
@@ -249,9 +249,9 @@ namespace moris::fem
             string_to_vector_of_vectors(
                     tCMParameter.get< std::string >( "material_model" ),
                     tMMNamesPair );
-            
+
             MORIS_ERROR( tMMNamesPair.size() <= 1,
-             "Model_Initializer_Phasebased::create_CMs() - Only one material model per CM allowed." );
+                    "Model_Initializer_Phasebased::create_CMs() - Only one material model per CM allowed." );
 
             // loop over Material Model names
             for ( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
@@ -277,7 +277,7 @@ namespace moris::fem
             string_to_vector_of_vectors(
                     tCMParameter.get< std::string >( "properties" ),
                     tPropertyNamesPair );
-            
+
             for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
             {
                 // get the property name
@@ -309,7 +309,7 @@ namespace moris::fem
             mPhaseInfo( mPhaseMap[ tPhaseName ] ).set_CM( tCM );
         }
     }
-    
+
     //----------------------------------------------------------------
 
     void Model_Initializer_Phasebased::create_stabilization_parameters()
@@ -387,12 +387,12 @@ namespace moris::fem
                         std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                         tDofTypes,
                         mMSIDofTypeMap );
-                
+
                 Vector< std::string > tDofTypeNames;
                 string_to_vector( std::get< 1 >(
                                           tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                         tDofTypeNames );
-                
+
                 mStabilizationParameters( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                 // set dv dependencies
@@ -401,12 +401,12 @@ namespace moris::fem
                         std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                         tDvTypes,
                         mMSIDvTypeMap );
-                
+
                 Vector< std::string > tDvTypeNames;
                 string_to_vector(
                         std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                         tDvTypeNames );
-                
+
                 mStabilizationParameters( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsLeader );
 
                 // set leader properties
@@ -520,7 +520,7 @@ namespace moris::fem
             }
         }
     }
-    
+
     //----------------------------------------------------------------
 
     void Model_Initializer_Phasebased::create_iwgs()
@@ -800,7 +800,7 @@ namespace moris::fem
             }
         }
     }
-    
+
     //----------------------------------------------------------------
 
     void Model_Initializer_Phasebased::create_iqis()
@@ -851,7 +851,7 @@ namespace moris::fem
             real tTimeFinal = tIQIParameter.get< real >( "time_final" );
 
             // get the treated IQI bulk type
-            auto tIQIBulkType = tIQIParameter.get< fem::Element_Type  >( "IQI_bulk_type" );
+            auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
             // set bool to true if double sideset
             bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIQIBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
@@ -1000,9 +1000,9 @@ namespace moris::fem
         }
     }
 
-     //----------------------------------------------------------------
+    //----------------------------------------------------------------
 
-      void Model_Initializer_Phasebased::create_set_info()
+    void Model_Initializer_Phasebased::create_set_info()
     {
         // init number of fem sets to be created
         uint tNumFEMSets = 0;
@@ -1012,6 +1012,9 @@ namespace moris::fem
         Submodule_Parameter_Lists tIQIParameterList = mParameterList( 4 );
 
         // get fem computation type parameter list
+        MORIS_ERROR( mParameterList( 5 ).size() == 1,
+                "Model_Initializer_Phasebased::create_set_info - There should be only one computation parameter list." );
+
         Parameter_List tComputationParameterList = mParameterList( 5 )( 0 );
 
         // get bool for analytical/finite difference for dRdu and dQIdu
@@ -1035,15 +1038,15 @@ namespace moris::fem
         // get enum for perturbation strategy for finite difference
         auto tPerturbationStrategy = tComputationParameterList.get< fem::Perturbation_Type >( "finite_difference_perturbation_strategy" );
 
-        mtk::Integration_Order const tIntegrationOrder     = 
-        static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
-        
-        real const                   tMaxNegativeRayLength = 
-        tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
-        
-        real const                   tMaxPositiveRayLength = 
-        tComputationParameterList.get< real >( "nonconformal_max_positive_ray_length" );
-        
+        mtk::Integration_Order const tIntegrationOrder =
+                static_cast< mtk::Integration_Order >( tComputationParameterList.get< uint >( "nonconformal_integration_order" ) );
+
+        real const tMaxNegativeRayLength =
+                tComputationParameterList.get< real >( "nonconformal_max_negative_ray_length" );
+
+        real const tMaxPositiveRayLength =
+                tComputationParameterList.get< real >( "nonconformal_max_positive_ray_length" );
+
         // create a map of the set
         std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
 
@@ -1296,7 +1299,7 @@ namespace moris::fem
             }
         }
     }
-    
+
     //----------------------------------------------------------------
 
     void
@@ -1310,13 +1313,14 @@ namespace moris::fem
             Vector< std::string > &aMeshSetNames )
     {
         // get the leader phase mesh index
-        MORIS_ERROR( mPhaseMap.find( aLeaderPhaseName ) != mPhaseMap.end(), 
-        "Model_Initializer_Phasebased::get_mesh_set_names - Unknown leader phase name: %s \n", aLeaderPhaseName.c_str() );
-        
+        MORIS_ERROR( mPhaseMap.find( aLeaderPhaseName ) != mPhaseMap.end(),
+                "Model_Initializer_Phasebased::get_mesh_set_names - Unknown leader phase name: %s \n",
+                aLeaderPhaseName.c_str() );
+
         moris::Matrix< moris::IndexMat > tLeaderPhaseIndices =
-         mPhaseInfo( mPhaseMap[ aLeaderPhaseName ] ).get_phase_indices();
-        
-        uint                             tNumLeaderIndices   = tLeaderPhaseIndices.numel();
+                mPhaseInfo( mPhaseMap[ aLeaderPhaseName ] ).get_phase_indices();
+
+        uint tNumLeaderIndices = tLeaderPhaseIndices.numel();
 
         // switch on the element type
         switch ( aIWGBulkType )
@@ -1491,14 +1495,14 @@ namespace moris::fem
         }
     }
 
-        //----------------------------------------------------------------
+    //----------------------------------------------------------------
 
-        void Model_Initializer_Phasebased::print_physics_model()
+    void Model_Initializer_Phasebased::print_physics_model()
     {
         Parameter_List tComputationParameterList = this->mParameterList( 5 )( 0 );
-        
-        bool           tPrintPhysics             = tComputationParameterList.get< bool >( "print_physics_model" );
-        
+
+        bool tPrintPhysics = tComputationParameterList.get< bool >( "print_physics_model" );
+
         if ( tPrintPhysics && par_rank() == 0 )
         {
             std::cout << "Phase info \n";

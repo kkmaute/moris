@@ -84,6 +84,7 @@ namespace moris::fem
         friend class Element_Time_Sideset;
         friend class Element_Time_Final_Sideset;
         friend class Element_Time_Boundary;
+        friend class Element_Nonconformal_Sideset;
         friend class Element;
 
         //------------------------------------------------------------------------------
