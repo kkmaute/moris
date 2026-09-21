@@ -131,7 +131,7 @@ namespace moris::mtk
     void QuadraturePointMapper_ArborX::update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements )
     {
         QuadraturePointMapper_Ray::update_ip_element_displacements( aIPElementDisplacements );
-        mGatheredTargetMeshesDirty = true;
+        // mGatheredTargetMeshesDirty = true;
     }
 
     MappingResult QuadraturePointMapper_ArborX::map(
@@ -157,32 +157,32 @@ namespace moris::mtk
         // Gather global arrays once per source mesh and refresh only when the surface-mesh state changes
         // (i.e. when displacement updates arrive). The gather uses the current deformed surface-mesh state,
         // so the resulting coordinates already include the IP-element displacements if they were stored.
-        auto tCachedIt = mCachedGatheredTargetMeshes.find( aSourceMeshIndex );
-        if ( mGatheredTargetMeshesDirty || tCachedIt == mCachedGatheredTargetMeshes.end() )
-        {
-            Vector< arborx::GatheredSurfaceMesh > tGatheredTargetMeshes;
-            for ( auto const &tPair : get_candidate_pairs() )
-            {
-                if ( tPair.first == aSourceMeshIndex )
-                {
-                    arborx::GatheredSurfaceMesh tG;
-                    tG.mMeshIndex = tPair.second;
+        // auto tCachedIt = mCachedGatheredTargetMeshes.find( aSourceMeshIndex );
+        // if ( mGatheredTargetMeshesDirty || tCachedIt == mCachedGatheredTargetMeshes.end() )
+        // {
+        //     Vector< arborx::GatheredSurfaceMesh > tGatheredTargetMeshes;
+        //     for ( auto const &tPair : get_candidate_pairs() )
+        //     {
+        //         if ( tPair.first == aSourceMeshIndex )
+        //         {
+        //             arborx::GatheredSurfaceMesh tG;
+        //             tG.mMeshIndex = tPair.second;
 
-                    mtk::gather_surface_mesh_arrays(
-                            get_surface_meshes()( tPair.second ),
-                            tG.mGlobalCells,
-                            tG.mGlobalCellIds,
-                            tG.mGlobalCellOwners,
-                            tG.mGlobalVertexIds,
-                            tG.mGlobalVertexCoords,
-                            tG.mGlobalVertexDisplacements );
+        //             mtk::gather_surface_mesh_arrays(
+        //                     get_surface_meshes()( tPair.second ),
+        //                     tG.mGlobalCells,
+        //                     tG.mGlobalCellIds,
+        //                     tG.mGlobalCellOwners,
+        //                     tG.mGlobalVertexIds,
+        //                     tG.mGlobalVertexCoords,
+        //                     tG.mGlobalVertexDisplacements );
 
-                    tGatheredTargetMeshes.push_back( tG );
-                }
-            }
-            mCachedGatheredTargetMeshes[ aSourceMeshIndex ] = tGatheredTargetMeshes;
-            mGatheredTargetMeshesDirty                      = false;
-        }
+        //             tGatheredTargetMeshes.push_back( tG );
+        //         }
+        //     }
+        //     mCachedGatheredTargetMeshes[ aSourceMeshIndex ] = tGatheredTargetMeshes;
+        //     mGatheredTargetMeshesDirty                      = false;
+        // }
         // const Vector< arborx::GatheredSurfaceMesh > &tGatheredTargetMeshes = mCachedGatheredTargetMeshes.at( aSourceMeshIndex );
 
         // auto const &tBoxRayMap = arborx::map_rays_to_boxes( tMappingResult, tGatheredTargetMeshes );
@@ -238,20 +238,20 @@ namespace moris::mtk
                 */
 
                 moris_index tGlobalTargetCellIndex = -1;
-                if ( aGatheredMeshes != nullptr && aGatheredMeshes->find( tTargetMeshIndex ) != aGatheredMeshes->end() )
-                {
-                    auto const &tG         = aGatheredMeshes->at( tTargetMeshIndex );
-                    tGlobalTargetCellIndex = tG.mGlobalCellIds( tTargetCellIndex );
-                }
-                else
-                {
-                    tGlobalTargetCellIndex = tTargetMesh.get_global_cell_index( tTargetCellIndex );
-                }
+                // if ( aGatheredMeshes != nullptr && aGatheredMeshes->find( tTargetMeshIndex ) != aGatheredMeshes->end() )
+                // {
+                //     auto const &tG         = aGatheredMeshes->at( tTargetMeshIndex );
+                //     tGlobalTargetCellIndex = tG.mGlobalCellIds( tTargetCellIndex );
+                // }
+                // else
+                // {
+                tGlobalTargetCellIndex = tTargetMesh.get_global_cell_index( tTargetCellIndex );
+                //}
 
                 // Use side set to get the cluster for this cell
-                const Side_Set     *tSideSet      = get_side_sets()( tTargetMeshIndex );
-                const mtk::Cluster *tCluster      = nullptr;
-                int                 tClusterIndex = -1;
+                const Side_Set     *tSideSet = get_side_sets()( tTargetMeshIndex );
+                const mtk::Cluster *tCluster = nullptr;
+                // int                 tClusterIndex = -1;
                 for ( uint iCluster = 0; iCluster < tSideSet->get_num_clusters_on_set(); ++iCluster )
                 {
                     const mtk::Cluster *tCandidateCluster = tSideSet->get_clusters_by_index( iCluster );
@@ -260,8 +260,8 @@ namespace moris::mtk
                     {
                         if ( tPrimaryCells( iC )->get_index() == tGlobalTargetCellIndex )
                         {
-                            tCluster      = tCandidateCluster;
-                            tClusterIndex = (int)iCluster;
+                            tCluster = tCandidateCluster;
+                            // tClusterIndex = (int)iCluster;
                             break;
                         }
                     }
@@ -350,22 +350,22 @@ namespace moris::mtk
                 tFieldSpaceInterpolator.set_space_param_coeff( tIPElementVertices );    // Node parametric coordinates
 
                 Matrix< DDRMat > tTargetCellCoordinates;
-                if ( aGatheredMeshes != nullptr && aGatheredMeshes->find( tTargetMeshIndex ) != aGatheredMeshes->end() )
-                {
-                    auto const &tG        = aGatheredMeshes->at( tTargetMeshIndex );
-                    auto const &tCellConn = tG.mGlobalCells( tTargetCellIndex );
-                    uint const  tNumVerts = tCellConn.n_rows();
-                    tTargetCellCoordinates.set_size( tG.mGlobalVertexCoords.n_rows(), tNumVerts );
-                    for ( uint iv = 0; iv < tNumVerts; ++iv )
-                    {
-                        moris_index tCompIdx                    = tCellConn( iv );
-                        tTargetCellCoordinates.get_column( iv ) = tG.mGlobalVertexCoords.get_column( tCompIdx );
-                    }
-                }
-                else
-                {
-                    tTargetCellCoordinates = tTargetMesh.get_all_vertex_coordinates_of_facet( tTargetCellIndex );
-                }
+                // if ( aGatheredMeshes != nullptr && aGatheredMeshes->find( tTargetMeshIndex ) != aGatheredMeshes->end() )
+                // {
+                //     auto const &tG        = aGatheredMeshes->at( tTargetMeshIndex );
+                //     auto const &tCellConn = tG.mGlobalCells( tTargetCellIndex );
+                //     uint const  tNumVerts = tCellConn.n_rows();
+                //     tTargetCellCoordinates.set_size( tG.mGlobalVertexCoords.n_rows(), tNumVerts );
+                //     for ( uint iv = 0; iv < tNumVerts; ++iv )
+                //     {
+                //         moris_index tCompIdx                    = tCellConn( iv );
+                //         tTargetCellCoordinates.get_column( iv ) = tG.mGlobalVertexCoords.get_column( tCompIdx );
+                //     }
+                // }
+                // else
+                // {
+                tTargetCellCoordinates = tTargetMesh.get_all_vertex_coordinates_of_facet( tTargetCellIndex );
+                // }
 
                 /* Because the segments will always be oriented in opposing directions (e.g. the vertices of each triangle will be ordered counter-clockwise),
                  * the parametric coordinate will also be measured in opposing directions.
@@ -441,16 +441,16 @@ namespace moris::mtk
                         tMappingResult.mTargetPhysicalCoordinate.set_column( tRayIndex, tTargetYgp );
                         tMappingResult.mSignedDistance( tRayIndex )       = tRayLineIntersection.get_signed_ray_length();
                         tMappingResult.mTargetSideSetIndices( tRayIndex ) = tTargetMeshIndex;
-                        if ( aGatheredMeshes != nullptr && aGatheredMeshes->find( tTargetMeshIndex ) != aGatheredMeshes->end() )
-                        {
-                            tMappingResult.mTargetCellIndices( tRayIndex )  = tGlobalTargetCellIndex;
-                            tMappingResult.mTargetClusterIndex( tRayIndex ) = tClusterIndex;
-                        }
-                        else
-                        {
-                            tMappingResult.mTargetCellIndices( tRayIndex )  = tTargetMesh.get_global_cell_index( tTargetCellIndex );
-                            tMappingResult.mTargetClusterIndex( tRayIndex ) = tTargetMesh.get_cluster_of_cell( tTargetCellIndex );
-                        }
+                        // if ( aGatheredMeshes != nullptr && aGatheredMeshes->find( tTargetMeshIndex ) != aGatheredMeshes->end() )
+                        // {
+                        //     tMappingResult.mTargetCellIndices( tRayIndex )  = tGlobalTargetCellIndex;
+                        //     tMappingResult.mTargetClusterIndex( tRayIndex ) = tClusterIndex;
+                        // }
+                        // else
+                        // {
+                        tMappingResult.mTargetCellIndices( tRayIndex )  = tTargetMesh.get_global_cell_index( tTargetCellIndex );
+                        tMappingResult.mTargetClusterIndex( tRayIndex ) = tTargetMesh.get_cluster_of_cell( tTargetCellIndex );
+                        // }
                     }
                 }
             }

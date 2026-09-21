@@ -29,9 +29,10 @@ namespace moris::mtk
 
       private:
         Vector< std::pair< moris_index, Integration_Surface_Mesh > > get_target_surface_meshes( moris_index aSourceMeshIndex ) const;
-        void                                                         check_cell_intersections( MappingResult &tMappingResult, real aMaxNegativeRayLength, real aMaxPositiveRayLength, arborx::cell_locator_map const &tBoxRayMap, const std::unordered_map< moris_index, moris::mtk::arborx::GatheredSurfaceMesh > *aGatheredMeshes = nullptr ) const;
+        // void                                                         check_cell_intersections( MappingResult &tMappingResult, real aMaxNegativeRayLength, real aMaxPositiveRayLength, arborx::cell_locator_map const &tBoxRayMap, const std::unordered_map< moris_index, moris::mtk::arborx::GatheredSurfaceMesh > *aGatheredMeshes = nullptr ) const;
+        void check_cell_intersections( MappingResult &tMappingResult, real aMaxNegativeRayLength, real aMaxPositiveRayLength, arborx::cell_locator_map const &tBoxRayMap ) const;
 
-        mutable bool                                                                     mGatheredTargetMeshesDirty = true;
-        mutable std::unordered_map< moris_index, Vector< arborx::GatheredSurfaceMesh > > mCachedGatheredTargetMeshes;
+        // mutable bool                                                                     mGatheredTargetMeshesDirty = true;
+        // mutable std::unordered_map< moris_index, Vector< arborx::GatheredSurfaceMesh > > mCachedGatheredTargetMeshes;
     };
 }    // namespace moris::mtk
