@@ -66,8 +66,8 @@ namespace moris
          * Vector copy constructor
          */
         Vector( const Vector< T >& aVector )
+                : mVector( aVector.data() )
         {
-            mVector = aVector.data();
         }
 
         //------------------------------------------------------------------
@@ -80,8 +80,7 @@ namespace moris
          */
 
         template< typename A >
-        Vector(
-                moris::uint const aSize,
+        Vector( moris::uint const aSize,
                 A const &         aValue )
                 : mVector( aSize, aValue )
         {
@@ -92,8 +91,7 @@ namespace moris
 
         //------------------------------------------------------------------
 
-        Vector(
-                moris::uint const aSize )
+        Vector( moris::uint const aSize )
                 : mVector( aSize )
         {
             MORIS_CHECK_MEMORY( sizeof( T ) * aSize < MORIS_MAX_CELL_CAPACITY,
