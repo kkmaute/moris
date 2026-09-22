@@ -163,7 +163,7 @@ namespace moris::mtk
         /**
          * trivial constructor
          */
-        Space_Interpolator(){};
+        Space_Interpolator() {};
 
         /**
          * constructor
@@ -186,6 +186,12 @@ namespace moris::mtk
                 const Interpolation_Rule& aIPMapInterpolationRule,
                 const CellShape&          aInterpolationShape = CellShape::GENERAL,
                 const bool                aSpaceSideset       = false );
+
+        /**
+         * copy constructor, needed to make a deep copy of the space interpolation function object
+         * @param[ in ] aOther Space_Interpolator object to copy
+         */
+        Space_Interpolator( const Space_Interpolator& aOther );
 
         //------------------------------------------------------------------------------
         /**
