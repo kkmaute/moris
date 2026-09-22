@@ -457,9 +457,9 @@ namespace moris::mtk
         }
     }
 
-    Vector< std::pair< moris_index, Integration_Surface_Mesh > > QuadraturePointMapper_ArborX::get_target_surface_meshes( moris_index aSourceMeshIndex ) const
+    Vector< std::pair< moris_index, Surface_Mesh > > QuadraturePointMapper_ArborX::get_target_surface_meshes( moris_index aSourceMeshIndex ) const
     {
-        Vector< std::pair< moris_index, Integration_Surface_Mesh > > tTargetSurfaceMeshes;
+        Vector< std::pair< moris_index, Surface_Mesh > > tTargetSurfaceMeshes;
         for ( auto const &[ tSourceCandidateIndex, tTargetCandidateIndex ] : get_candidate_pairs() )
         {
             if ( tSourceCandidateIndex == aSourceMeshIndex )

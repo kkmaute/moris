@@ -8,7 +8,7 @@
  *
  */
 
-#include "cl_MTK_Integration_Surface_Mesh.hpp"
+#include "cl_MTK_Surface_Mesh.hpp"
 #include "fn_MTK_QuadraturePointMapper_Ray_ArborX_Details.hpp"
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_Tracer.hpp"
@@ -18,8 +18,8 @@ namespace moris::mtk::arborx
 {
     template< typename MemorySpace, typename ExecutionSpace >
     QueryBoxes< MemorySpace > construct_query_boxes(
-            ExecutionSpace const                                                                  &aExecutionSpace,
-            moris::Vector< std::pair< moris_index, moris::mtk::Integration_Surface_Mesh > > const &aTargetSurfaceMeshes )
+            ExecutionSpace const                                                      &aExecutionSpace,
+            moris::Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes )
     {
         uint const tNumCells = std::accumulate( aTargetSurfaceMeshes.begin(), aTargetSurfaceMeshes.end(), 0, []( auto a, auto b ) { return a + b.second.get_number_of_facets(); } );
 
@@ -161,8 +161,8 @@ namespace moris::mtk::arborx
 
     cell_locator_map
     map_rays_to_boxes(
-            const MappingResult                                                     &aMappingResult,
-            const Vector< std::pair< moris_index, mtk::Integration_Surface_Mesh > > &aTargetSurfaceMeshes )
+            const MappingResult                                         &aMappingResult,
+            const Vector< std::pair< moris_index, mtk::Surface_Mesh > > &aTargetSurfaceMeshes )
     {
         Tracer tTracer( "Quadrature Point Mapper", "Map", "Perform Raytracing with ArborX" );
 

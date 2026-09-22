@@ -13,7 +13,6 @@
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
 #include "cl_MTK_MappingResult.hpp"
-#include "cl_MTK_Integration_Surface_Mesh.hpp"
 
 #include <ArborX.hpp>
 #include <ArborX_Box.hpp>
@@ -157,8 +156,8 @@ namespace moris::mtk::arborx
     //    std::unordered_map< cell_locator_tuple, Vector< moris_index >, cell_locator_hash >
     cell_locator_map
     map_rays_to_boxes(
-            MappingResult const                                                            &aMappingResult,
-            Vector< std::pair< moris_index, moris::mtk::Integration_Surface_Mesh > > const &aTargetSurfaceMeshes );
+            MappingResult const                                                &aMappingResult,
+            Vector< std::pair< moris_index, moris::mtk::Surface_Mesh > > const &aTargetSurfaceMeshes );
 
     // // Overload that accepts pre-gathered global arrays for target meshes.
     // cell_locator_map
