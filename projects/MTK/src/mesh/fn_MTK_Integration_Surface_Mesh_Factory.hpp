@@ -54,6 +54,10 @@ namespace moris::mtk
             return mFacetToVertexIndices;
         }
 
+        uint get_number_of_facets() const
+        {
+            return mFacetToVertexIndices.size();
+        }
 
       private:    // methods
         /**
@@ -179,6 +183,8 @@ namespace moris::mtk
         Matrix< DDRMat > mVertexCoordinates;
 
         Vector< uint > mIPClusterLocalIndex;    // Local index within the cluster of the IP cell. Length = num_facets
+
+        Vector< moris_index > mIPElementFacetIndex;    // IP Element index that each facet belongs to. Length = num_facets
 
         Vector< const mtk::Cluster * > mFacetClusters;    // Cluster of the IP cell for every facet in the surface mesh
     };

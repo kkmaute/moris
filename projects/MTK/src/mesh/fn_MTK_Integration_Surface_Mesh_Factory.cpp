@@ -195,14 +195,18 @@ namespace moris::mtk
         if ( tCluster )
         {
             // Find the local index of the cell within the cluster
-            moris_index tLeaderClusterLocalIndex = -1;
-            auto        tNumPrimaryCells         = tCluster->get_num_primary_cells();
+            moris_index                               tLeaderClusterLocalIndex = -1;
+            auto                                      tNumPrimaryCells         = tCluster->get_num_primary_cells();
+            Vector< moris::mtk::Cell const * > const &tPrimaryCellsInCluster   = tCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
             for ( uint iIPCell = 0; iIPCell < tNumPrimaryCells; ++iIPCell )
             {
-                Vector< moris::mtk::Cell const * > const &tPrimaryCellsInCluster = tCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
                 if ( tPrimaryCellsInCluster( iIPCell )->get_index() == tIGCellIndex )
                 {
+                    // Store the local index of the cell within the cluster for this facet
                     tLeaderClusterLocalIndex = iIPCell;
+
+                    // Add to map of IP cell index to local facet index
+                    mIPElementFacetIndex.push_back( tCluster->get_interpolation_cell().get_index() );
                     break;
                 }
             }

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "fn_MTK_Integration_Surface_Mesh_Factory.hpp"
+#include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "moris_typedefs.hpp"
@@ -30,8 +31,7 @@ namespace moris::mtk
     {
 
       public:    // constructors
-        Integration_Surface_Mesh(
-                Integration_Surface_Mesh_Data const &aData );
+        Integration_Surface_Mesh( Integration_Surface_Mesh_Data const &aData );
 
         // methods
 
@@ -54,14 +54,6 @@ namespace moris::mtk
         void set_ip_element_displacement( moris_index aFacetIndex, Matrix< DDRMat > const &aIPElementDisplacements );
 
         [[nodiscard]] const std::map< moris_index, Matrix< DDRMat > > &get_ip_element_displacement() const;
-
-        /**
-         * Override for function as the integration surface mesh computes displacement via IP element displacements
-         *
-         */
-        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates() const override;
-
-        [[nodiscard]] virtual Matrix< DDRMat > get_all_vertex_coordinates_of_facet( const uint aFacetIndex ) const override;
 
         /**
          * @brief Returns the indices of all neighboring vertices for each vertex in the surface mesh.
@@ -131,7 +123,15 @@ namespace moris::mtk
 
         Json to_json() const;
 
-      private:    // methods
+      private:
+        /**
+         * Function to build interpolation rule from the IP mesh.
+         * This function assumes that the entire IP mesh has the same geometry type and interpolation order.
+         * @param aData Integration_Surface_Mesh_Data object containing information about the surface mesh
+         */
+        static Interpolation_Rule get_ip_field_interpolation_rule( const Integration_Surface_Mesh_Data &aData );
+
+      private:    // variables
         /**
          * @brief Contains information about the surface mesh including mapping to the original IG mesh and other useful maps
          */
@@ -141,6 +141,14 @@ namespace moris::mtk
          * @brief Stores the background IP element displacements for each facet in the surface mesh
          */
         std::map< moris_index, Matrix< DDRMat > > mIPElementDisplacements;
+
+        const Interpolation_Rule mFieldInterpRule;    // Interpolation rule for the field space (displacement field)
+
+        /**1
+         * @brief Space interpolator for the displacement field.
+         * This is used to interpolate the displacement from the background IP element to the surface mesh vertices.
+         */
+        Space_Interpolator mFieldSpaceInterpolator;
     };
 
 }    // namespace moris::mtk
