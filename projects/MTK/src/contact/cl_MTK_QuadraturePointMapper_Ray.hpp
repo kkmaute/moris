@@ -31,9 +31,17 @@ namespace moris::mtk
         void update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements );
 
       protected:
-        Vector< Integration_Surface_Mesh > const &get_surface_meshes() const { return mSurfaceMeshes; }
-        Vector< Integration_Surface_Mesh > const &get_reference_surface_meshes() const { return mReferenceSurfaceMeshes; }
-        MappingResult                             initialize_source_points( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const;
+        Vector< Integration_Surface_Mesh > const &get_surface_meshes() const
+        {
+            return mSurfaceMeshes;
+        }
+
+        const Vector< Integration_Surface_Mesh > &get_reference_surface_meshes() const
+        {
+            return mReferenceSurfaceMeshes;
+        }
+
+        MappingResult initialize_source_points( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates ) const;
 
       private:
         static auto initialize_surface_meshes(
