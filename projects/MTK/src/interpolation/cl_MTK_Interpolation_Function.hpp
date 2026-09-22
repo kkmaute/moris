@@ -37,7 +37,7 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         // default constructor
-        Interpolation_Function(){};
+        Interpolation_Function() {};
 
         //------------------------------------------------------------------------------
 
@@ -168,6 +168,13 @@ namespace moris::mtk
         get_interpolation_type() const override
         {
             return T;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Interpolation_Function_Base* clone() override
+        {
+            return new Interpolation_Function< G, T, N, B >();
         }
 
         //------------------------------------------------------------------------------

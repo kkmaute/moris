@@ -33,14 +33,14 @@ namespace moris::mtk
         /**
          * trivial constructor
          */
-        Interpolation_Function_Base(){};
+        Interpolation_Function_Base() {};
 
         //------------------------------------------------------------------------------
 
         /**
          * trivial destructor
          */
-        virtual ~Interpolation_Function_Base(){};
+        virtual ~Interpolation_Function_Base() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -155,6 +155,13 @@ namespace moris::mtk
          * returns the interpolation type
          */
         virtual Interpolation_Type get_interpolation_type() const = 0;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns a clone of the interpolation function object
+         */
+        virtual Interpolation_Function_Base* clone() = 0;
 
         //------------------------------------------------------------------------------
     };
