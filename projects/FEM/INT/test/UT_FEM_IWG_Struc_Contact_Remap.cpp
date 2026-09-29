@@ -686,9 +686,9 @@ void Test_IWG_Struc_Contact_Remap(
                                 tIWG->mSet->mFollowerFIManager,
                                 tIWG->mGapData );
 
-                        real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
-                        Matrix< DDRMat > tFdGap2du2 = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
-                        Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
+                        real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2.0 / tPerturbation;
+                        Matrix< DDRMat > tFdGap2du2 = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2.0 / tPerturbation;
+                        Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2.0 / tPerturbation;
 
                         const real tRelDenFloor = 1.0e-6;
                         const real tGapduDen    = std::max( std::abs( tFdGapdu ), tRelDenFloor );
@@ -698,8 +698,12 @@ void Test_IWG_Struc_Contact_Remap(
                         real tErrordGapdu   = 100.0 * std::abs( tFdGapdu - tNominalGapData->mdGapdu( 0, tCounter ) ) / tGapduDen;
                         real tErrordGap2du2 = 100.0 * norm( tFdGap2du2 - tNominalGapData->mdGap2du2.get_row( tCounter ) ) / tGap2du2Den;
                         real tErrordGap2duv = 100.0 * norm( tFdGap2duv - tNominalGapData->mdGap2duv.get_row( tCounter ) ) / tGap2duvDen;
-                        fprintf( stdout, "tFdGapdu: %d %d %e\n", (int)iInterpOrder, (int)tCounter, tFdGapdu );
+                        // fprintf( stdout, "tFdGapdu: %d %d %e\n", (int)iInterpOrder, (int)tCounter, tFdGapdu );
                         const real tLeaderGapTolScale = ( iSpaceDim == 3 && iInterpOrder == 2 ) ? 1.2 : 1.0;
+
+                        CHECK( tErrordGapdu < 100.0 * tEpsilon * tLeaderGapTolScale );
+                        CHECK( tErrordGap2du2 < 100.0 * tEpsilon * tLeaderGapTolScale );
+                        CHECK( tErrordGap2duv < 100 * tEpsilon * tLeaderGapTolScale );
                         if ( tErrordGapdu + tErrordGap2du2 + tErrordGap2duv > 100.0 * tEpsilon * tLeaderGapTolScale )
                         {
                             fprintf( stdout, "percent error dGapdu:  %e\n", tErrordGapdu );
@@ -730,6 +734,9 @@ void Test_IWG_Struc_Contact_Remap(
                         real tErrordEta2du2 = 100.0 * norm( tFdEta2du2 - tNomEta2du2 ) / norm( tFdEta2du2 );
                         real tErrordEta2duv = 100.0 * norm( tFdEta2duv - tNomEta2duv ) / norm( tFdEta2duv );
 
+                        CHECK( tErrordEtadu < 100.0 * tEpsilon );
+                        CHECK( tErrordEta2du2 < 100.0 * tEpsilon );
+                        CHECK( tErrordEta2duv < 100.0 * tEpsilon );
                         if ( tErrordEtadu + tErrordEta2du2 + tErrordEta2duv > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dEtadu:   %e\n", tErrordEtadu );
@@ -747,6 +754,8 @@ void Test_IWG_Struc_Contact_Remap(
                         real tErrordLeaderNormaldu    = 100.0 * norm( tFdLeaderNormaldu - tNominalGapData->mLeaderdNormaldu.get_column( tCounter ) ) / norm( tFdLeaderNormaldu );
                         real tErrordLeaderdNormal2du2 = 100.0 * norm( tFdLeaderdNormal2du2 - tNominalGapData->mLeaderdNormal2du2( tRowBlk, tColBlk ) ) / norm( tFdLeaderdNormal2du2 );
 
+                        CHECK( tErrordLeaderNormaldu < 100.0 * tEpsilon );
+                        CHECK( tErrordLeaderdNormal2du2 < 100.0 * tEpsilon );
                         if ( tErrordLeaderNormaldu + tErrordLeaderdNormal2du2 > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dLeaderNormaldu:   %e\n", tErrordLeaderNormaldu );
@@ -770,6 +779,9 @@ void Test_IWG_Struc_Contact_Remap(
                         real tErrordGapvec2du2  = 100.0 * norm( tFdGapvec2du2 - tNominalGapData->mdGapvec2du2( tRowBlk, tColBlk ) ) / norm( tFdGapvec2du2 );
                         real tErrordGapvec2duv  = 100.0 * norm( tFdGapvec2duv - tNominalGapData->mdGapvec2duv( tRowBlk, tColBlk ) ) / norm( tFdGapvec2duv );
 
+                        CHECK( tErrordGapVectordu < 100.0 * tEpsilon );
+                        CHECK( tErrordGapvec2du2 < 100.0 * tEpsilon );
+                        CHECK( tErrordGapvec2duv < 100.0 * tEpsilon );
                         if ( tErrordGapVectordu + tErrordGapvec2du2 + tErrordGapvec2duv > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dGapVecdu:   %e\n", tErrordGapVectordu );
@@ -830,14 +842,18 @@ void Test_IWG_Struc_Contact_Remap(
                         real tErrordGap2dv2 = 100.0 * norm( tFdGap2dv2 - trans( tNominalGapData->mdGap2dv2.get_column( tCounter ) ) ) / tGap2dv2Den;
                         real tErrordGap2duv = 100.0 * norm( tFdGap2duv - trans( tNominalGapData->mdGap2duv.get_column( tCounter ) ) ) / tGap2duvDen;
 
-                        // const real tFollowerGapTolScale = ( iSpaceDim == 3 ) ? 120.0 : 1.0;
-                        //  if ( tErrordGapdv + tErrordGap2dv2 + tErrordGap2duv > 100.0 * tEpsilon * tFollowerGapTolScale )
-                        //  {
-                        fprintf( stdout, "percent error dGapdv:  %e\n", tErrordGapdv );
-                        fprintf( stdout, "percent error dGap2dv2 %e\n", tErrordGap2dv2 );
-                        fprintf( stdout, "percent error dGap2duv %e\n", tErrordGap2duv );
-                        //     tPassedCheck = false;
-                        // }
+                        const real tFollowerGapTolScale = ( iSpaceDim == 3 ) ? 120.0 : 1.0;
+
+                        CHECK( tErrordGapdv < 100.0 * tEpsilon * tFollowerGapTolScale );
+                        CHECK( tErrordGap2dv2 < 100.0 * tEpsilon * tFollowerGapTolScale );
+                        CHECK( tErrordGap2duv < 100.0 * tEpsilon * tFollowerGapTolScale );
+                        if ( tErrordGapdv + tErrordGap2dv2 + tErrordGap2duv > 100.0 * tEpsilon * tFollowerGapTolScale )
+                        {
+                            fprintf( stdout, "percent error dGapdv:  %e\n", tErrordGapdv );
+                            fprintf( stdout, "percent error dGap2dv2 %e\n", tErrordGap2dv2 );
+                            fprintf( stdout, "percent error dGap2duv %e\n", tErrordGap2duv );
+                            tPassedCheck = false;
+                        }
 
                         Matrix< DDRMat > tFdEtadv   = ( tPertGapData->mEta - tCurrentGapData->mEta ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdEta2dv2 = ( tPertGapData->mdEtadv - tCurrentGapData->mdEtadv ) / 2 / tPerturbation;
@@ -861,13 +877,16 @@ void Test_IWG_Struc_Contact_Remap(
                         real tErrordEta2dv2 = 100.0 * norm( tFdEta2dv2 - tNomEta2dv2 ) / norm( tFdEta2dv2 );
                         real tErrordEta2duv = 100.0 * norm( tFdEta2duv - tNomEta2duv ) / norm( tFdEta2duv );
 
-                        // if ( tErrordEtadv + tErrordEta2dv2 + tErrordEta2duv > 100.0 * tEpsilon )
-                        // {
-                        fprintf( stdout, "percent error dEtadv:   %e\n", tErrordEtadv );
-                        fprintf( stdout, "percent error dEta2dv2: %e\n", tErrordEta2dv2 );
-                        fprintf( stdout, "percent error dEta2duv: %e\n", tErrordEta2duv );
-                        //     tPassedCheck = false;
-                        // }
+                        CHECK( tErrordEtadv < 100.0 * tEpsilon );
+                        CHECK( tErrordEta2dv2 < 100.0 * tEpsilon );
+                        CHECK( tErrordEta2duv < 100.0 * tEpsilon );
+                        if ( tErrordEtadv + tErrordEta2dv2 + tErrordEta2duv > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error dEtadv:   %e\n", tErrordEtadv );
+                            fprintf( stdout, "percent error dEta2dv2: %e\n", tErrordEta2dv2 );
+                            fprintf( stdout, "percent error dEta2duv: %e\n", tErrordEta2duv );
+                            tPassedCheck = false;
+                        }
                         Matrix< DDRMat > tFdLeaderNormaldu    = ( tPertGapData->mLeaderNormal - tCurrentGapData->mLeaderNormal ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdLeaderdNormal2du2 = ( tPertGapData->mLeaderdNormaldu - tCurrentGapData->mLeaderdNormaldu ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdLeaderRefNormaldu = ( tPertGapData->mLeaderRefNormal - tCurrentGapData->mLeaderRefNormal ) / 2 / tPerturbation;
@@ -899,13 +918,16 @@ void Test_IWG_Struc_Contact_Remap(
 
                         real tErrordGapvec2duv = 100.0 * norm( tFdGapvec2duv - tdGapvec2duvExtraction ) / tGapvec2duvDen;
 
-                        // if ( tErrordGapVectordv + tErrordGapvec2dv2 + tErrordGapvec2duv > 100.0 * tEpsilon * tFollowerGapTolScale )
-                        // {
-                        fprintf( stdout, "percent error dGapVecdv:   %e\n", tErrordGapVectordv );
-                        fprintf( stdout, "percent error dGapvec2dv2: %e\n", tErrordGapvec2dv2 );
-                        fprintf( stdout, "percent error dGapvec2duv: %e\n", tErrordGapvec2duv );
-                        //     tPassedCheck = false;
-                        // }
+                        CHECK( tErrordGapVectordv < 100.0 * tEpsilon * tFollowerGapTolScale );
+                        CHECK( tErrordGapvec2dv2 < 100.0 * tEpsilon * tFollowerGapTolScale );
+                        CHECK( tErrordGapvec2duv < 100.0 * tEpsilon * tFollowerGapTolScale );
+                        if ( tErrordGapVectordv + tErrordGapvec2dv2 + tErrordGapvec2duv > 100.0 * tEpsilon * tFollowerGapTolScale )
+                        {
+                            fprintf( stdout, "percent error dGapVecdv:   %e\n", tErrordGapVectordv );
+                            fprintf( stdout, "percent error dGapvec2dv2: %e\n", tErrordGapvec2dv2 );
+                            fprintf( stdout, "percent error dGapvec2duv: %e\n", tErrordGapvec2duv );
+                            tPassedCheck = false;
+                        }
 
                         tFollowerDOFHatDisp( in, idir ) += tPerturbation;
                         tCounter++;
@@ -917,15 +939,15 @@ void Test_IWG_Struc_Contact_Remap(
                 tFollowerFIs.clear();
 
                 // check if the test passed
-                // if ( !tPassedCheck )
-                // {
-                std::cout << "TEST FAILED for configuration: "
-                          << " spaceDim=" << (int)iSpaceDim
-                          << " interpOrder=" << (int)iInterpOrder
-                          << " useDeformed=" << (int)aUseDeformedConfig
-                          << " dispScale=" << aDisplacementScaling
-                          << std::endl;
-                //}
+                if ( !tPassedCheck )
+                {
+                    std::cout << "TEST FAILED for configuration: "
+                              << " spaceDim=" << (int)iSpaceDim
+                              << " interpOrder=" << (int)iInterpOrder
+                              << " useDeformed=" << (int)aUseDeformedConfig
+                              << " dispScale=" << aDisplacementScaling
+                              << std::endl;
+                }
                 REQUIRE( tPassedCheck );
             }
         }
