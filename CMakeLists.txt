@@ -217,6 +217,9 @@ option(MORIS_HAVE_LBFGS
 
 option(MORIS_HAVE_ARBORX
     "Build MORIS with support for ArborX." ON )
+
+option(MORIS_HAVE_GEOMPACK
+    "Build MORIS with support for Geompack." OFF )
     
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
@@ -845,6 +848,14 @@ endif()
 
 if (MORIS_HAVE_LBFGS)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_LBFGS")
+endif()
+
+# -------------------------------------------------------------------------
+# GEOMPACK ----------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+if (MORIS_HAVE_GEOMPACK)
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_GEOMPACK")
 endif()
 
 # -------------------------------------------------------------------------
