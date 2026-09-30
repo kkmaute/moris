@@ -96,7 +96,7 @@ PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
 
 inline void
 tConstValFunction_VISOutputManager( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >&              aParameters,
+        Vector< moris::Matrix< moris::DDRMat > >&                   aParameters,
         moris::fem::Field_Interpolator_Manager*                     aFIManager )
 {
     aPropMatrix = aParameters( 0 );
@@ -629,12 +629,7 @@ namespace moris::vis
             // Define outputs
             moris::Parameter_List tParameterList = moris::prm::create_vis_parameter_list();
 
-            std::string tMorisOutput = std::getenv( "MORISOUTPUT" );
-
-            MORIS_ERROR( tMorisOutput.size() > 0,
-                    "Environment variable MORISOUTPUT not set." );
-
-            tParameterList.set( "File_Name", std::pair< std::string, std::string >( tMorisOutput, "Vis_Test.exo" ) );
+            tParameterList.set( "File_Name", std::pair< std::string, std::string >( "./", "Vis_Test.exo" ) );
             tParameterList.set( "Set_Names", std::string( "HMR_dummy_c_p0,HMR_dummy_c_p1,HMR_dummy_n_p0,HMR_dummy_n_p1" ) );
             tParameterList.set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
             tParameterList.set( "Field_Type", std::string( "ELEMENTAL_INT,GLOBAL,NODAL" ) );

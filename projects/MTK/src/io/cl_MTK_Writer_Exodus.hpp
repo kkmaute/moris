@@ -415,6 +415,24 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        /**
+         * Check and if necessary create directory including subfolders.
+         *
+         * @param aDirectoryName.
+         */
+        void create_directory( const std::string& aDirectoryName );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * Check if file name does not include path information with exception of ./.
+         *
+         * @param aFileName.
+         */
+        bool isFileNameOnly( const std::string& aFileName );
+
+        //------------------------------------------------------------------------------
+
     };    // end: class Writer_Exodus
 
     //------------------------------------------------------------------------------

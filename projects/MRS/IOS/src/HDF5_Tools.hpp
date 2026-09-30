@@ -22,8 +22,6 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 
-// #include "assert.hpp"
-
 #include "moris_typedefs.hpp"     //COR/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src

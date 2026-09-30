@@ -179,8 +179,7 @@ namespace moris::xtk
 
             moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh( tOutputOptions );
 
-            // std::string tPrefix = std::getenv("MORISOUTPUT");
-            std::string tMeshOutputFile = "xtk_hmr_output.e";
+            std::string tMeshOutputFile = "./xtk_hmr_output.e";
             tCutMeshData->create_output_mesh( tMeshOutputFile );
             delete tCutMeshData;
             delete tMeshData;

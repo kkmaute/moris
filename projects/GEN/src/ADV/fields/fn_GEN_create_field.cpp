@@ -59,7 +59,7 @@ namespace moris::gen
             case Field_Type::CONSTANT:
             {
                 ADV tConstant = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "constant" ) );
-                tField = std::make_shared< Constant_Field >( tConstant, tName );
+                tField        = std::make_shared< Constant_Field >( tConstant, tName );
                 break;
             }
             case Field_Type::LINE:
@@ -68,25 +68,25 @@ namespace moris::gen
                 ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
                 ADV tNormalX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_x" ) );
                 ADV tNormalY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_y" ) );
-                tField = std::make_shared< Line >( tCenterX, tCenterY, tNormalX, tNormalY, tName );
+                tField       = std::make_shared< Line >( tCenterX, tCenterY, tNormalX, tNormalY, tName );
                 break;
             }
             case Field_Type::CIRCLE:
             {
                 ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
                 ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                ADV tRadius = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
-                tField = std::make_shared< Circle >( tCenterX, tCenterY, tRadius, tName );
+                ADV tRadius  = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
+                tField       = std::make_shared< Circle >( tCenterX, tCenterY, tRadius, tName );
                 break;
             }
             case Field_Type::SUPERELLIPSE:
             {
-                ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                ADV tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
-                ADV tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
-                real tExponent = aFieldParameterList.get< real >( "exponent" );
-                tField = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 0.0 );
+                ADV  tCenterX       = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                ADV  tCenterY       = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                ADV  tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
+                ADV  tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
+                real tExponent      = aFieldParameterList.get< real >( "exponent" );
+                tField              = std::make_shared< Superellipse >( tCenterX, tCenterY, tSemidiameterX, tSemidiameterY, tExponent, 1.0, 0.0, tName );
                 break;
             }
             case Field_Type::PLANE:
@@ -97,7 +97,7 @@ namespace moris::gen
                 ADV tNormalX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_x" ) );
                 ADV tNormalY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_y" ) );
                 ADV tNormalZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "normal_z" ) );
-                tField = std::make_shared< Plane >( tCenterX, tCenterY, tCenterZ, tNormalX, tNormalY, tNormalZ, tName );
+                tField       = std::make_shared< Plane >( tCenterX, tCenterY, tCenterZ, tNormalX, tNormalY, tNormalZ, tName );
                 break;
             }
             case Field_Type::SPHERE:
@@ -105,32 +105,32 @@ namespace moris::gen
                 ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
                 ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
                 ADV tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
-                ADV tRadius = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
-                tField = std::make_shared< Sphere >( tCenterX, tCenterY, tCenterZ, tRadius, tName );
+                ADV tRadius  = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "radius" ) );
+                tField       = std::make_shared< Sphere >( tCenterX, tCenterY, tCenterZ, tRadius, tName );
                 break;
             }
             case Field_Type::SUPERELLIPSOID:
             {
-                ADV tCenterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
-                ADV tCenterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
-                ADV tCenterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
-                ADV tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
-                ADV tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
-                ADV tSemidiameterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_z" ) );
-                real tExponent = aFieldParameterList.get< real >( "exponent" );
-                tField = std::make_shared< Superellipsoid >( tCenterX, tCenterY, tCenterZ, tSemidiameterX, tSemidiameterY, tSemidiameterZ, tExponent, tName );
+                ADV  tCenterX       = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_x" ) );
+                ADV  tCenterY       = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_y" ) );
+                ADV  tCenterZ       = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "center_z" ) );
+                ADV  tSemidiameterX = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_x" ) );
+                ADV  tSemidiameterY = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_y" ) );
+                ADV  tSemidiameterZ = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "semidiameter_z" ) );
+                real tExponent      = aFieldParameterList.get< real >( "exponent" );
+                tField              = std::make_shared< Superellipsoid >( tCenterX, tCenterY, tCenterZ, tSemidiameterX, tSemidiameterY, tSemidiameterZ, tExponent, tName );
                 break;
             }
             case Field_Type::SCALED_FIELD:
             {
                 ADV tScalingFactor = aADVManager.create_adv( aFieldParameterList.get< Design_Variable >( "scaling_factor" ) );
-                tField = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), tScalingFactor, tName );
+                tField             = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), tScalingFactor, tName );
                 break;
             }
             case Field_Type::COMBINED_FIELDS:
             {
                 bool tUseMinimum = aFieldParameterList.get< bool >( "use_minimum" );
-                tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum, tName );
+                tField           = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum, tName );
                 break;
             }
             case Field_Type::NODAL_FROM_FILE:
@@ -167,10 +167,10 @@ namespace moris::gen
                 auto tImageFileName    = aFieldParameterList.get< std::string >( "image_file" );
                 auto tDomainDimensions = aFieldParameterList.get_vector< real >( "image_dimensions" );
                 auto tDomainOffset     = aFieldParameterList.get_vector< real >( "image_offset" );
-                real tSDFScaling = aFieldParameterList.get< real >( "image_sdf_scaling" );
-                real tSDFShift   = aFieldParameterList.get< real >( "image_sdf_shift" );
-                real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );
-                bool tsDFInterp  = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
+                real tSDFScaling       = aFieldParameterList.get< real >( "image_sdf_scaling" );
+                real tSDFShift         = aFieldParameterList.get< real >( "image_sdf_shift" );
+                real tSDFDefault       = aFieldParameterList.get< real >( "image_sdf_default" );
+                bool tsDFInterp        = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
 
                 tField = std::make_shared< Image_Signed_Distance_Field >(
                         tImageFileName,
@@ -191,8 +191,8 @@ namespace moris::gen
                 auto tFieldFunction = aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) );
 
                 // Get sensitivity function if needed
-                Sensitivity_Function tSensitivityFunction = nullptr;
-                std::string tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
+                Sensitivity_Function tSensitivityFunction     = nullptr;
+                std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
                 if ( not tSensitivityFunctionName.empty() )
                 {
                     tSensitivityFunction = aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName );
@@ -265,4 +265,4 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
-}
+}    // namespace moris::gen

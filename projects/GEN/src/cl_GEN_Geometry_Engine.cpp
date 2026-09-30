@@ -1359,14 +1359,15 @@ namespace moris::gen
                 tNodeCoordinates( tNodeIndex ) = aMesh->get_node_coordinate( tNodeIndex );
             }
 
+            // Create vector to hold field value at each node. Gets overwritten for each field.
+            Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
+
             // Loop over geometries
+            uint tFieldIndex = 0;    // track field index through geomtries and properties
             for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
             {
                 for ( uint iGeometryFieldIndex = 0; iGeometryFieldIndex < mGeometries( tGeometryIndex )->get_num_fields(); iGeometryFieldIndex++ )
                 {
-                    // Create field vector
-                    Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
-
                     for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                     {
                         // Get design info from the geometry
@@ -1378,7 +1379,7 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( iGeometryFieldIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( tFieldIndex++ ), tFieldData );
                 }
             }
 
@@ -1387,9 +1388,6 @@ namespace moris::gen
             {
                 for ( uint iPropertyFieldIndex = 0; iPropertyFieldIndex < mProperties( tPropertyIndex )->get_num_fields(); iPropertyFieldIndex++ )
                 {
-                    // Create field vector
-                    Matrix< DDRMat > tFieldData( aMesh->get_num_nodes(), 1 );
-
                     // Loop over all nodes on the mesh
                     for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                     {
@@ -1402,9 +1400,11 @@ namespace moris::gen
                     }
 
                     // Create field on mesh
-                    tWriter.write_nodal_field( tFieldNames( tNumGeometryFields + tPropertyIndex ), tFieldData );
+                    tWriter.write_nodal_field( tFieldNames( tFieldIndex++ ), tFieldData );
                 }
             }
+
+            MORIS_ASSERT( tFieldIndex == tFieldNames.size(), "GEN - Geometry_Engine::output_fields_on_mesh() Number of output fields (%d) does not equal total number of geometry and property fields (%ld).", tFieldIndex, tFieldNames.size() );
 
             // Finalize
             tWriter.close_file( true );
@@ -1474,7 +1474,8 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
     // PRIVATE
     //--------------------------------------------------------------------------------------------------------------
-    void Geometry_Engine::create_interpolation_pdvs(
+    void
+    Geometry_Engine::create_interpolation_pdvs(
             mtk::Interpolation_Mesh*               aInterpolationMesh,
             mtk::Integration_Mesh*                 aIntegrationMesh,
             Vector< Vector< Vector< PDV_Type > > > aPDVTypes )
@@ -1811,4 +1812,5 @@ namespace moris::gen
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
 }    // namespace moris::gen

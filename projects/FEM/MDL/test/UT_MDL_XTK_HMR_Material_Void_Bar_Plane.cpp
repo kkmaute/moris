@@ -87,10 +87,9 @@ PlaneMatVoidMDL( const moris::Matrix< moris::DDRMat >& aPoint )
     return ( mNx * ( aPoint( 0 ) - mXC ) + mNy * ( aPoint( 1 ) - mYC ) );
 }
 
-void
-tConstValFunctionMatVoidMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        Vector< moris::Matrix< moris::DDRMat > >&       aParameters,
-        moris::fem::Field_Interpolator_Manager*              aFIManager )
+void tConstValFunctionMatVoidMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        Vector< moris::Matrix< moris::DDRMat > >&                 aParameters,
+        moris::fem::Field_Interpolator_Manager*                   aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
@@ -149,13 +148,15 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         auto tPlane = std::make_shared< moris::gen::Line >( 0.9545459, 0.11, 1.0, 0.0 );
+
         Vector< std::shared_ptr< moris::gen::Geometry > > tGeometryVector = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
-        size_t                                tModelDimension = 2;
+        size_t                                 tModelDimension = 2;
         moris::gen::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometryVector;
         moris::gen::Geometry_Engine tGeometryEngine( tInterpMesh, tGeometryEngineParameters );
-        moris::xtk::Model                 tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
+
+        moris::xtk::Model tXTKModel( tModelDimension, tInterpMesh, &tGeometryEngine );
         tXTKModel.mVerbose = false;
 
         // Specify decomposition Method and Cut Mesh ---------------------------------------
@@ -176,7 +177,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         // Write mesh
         moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );
 
-        writer.write_mesh( "", "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e", "", "./temp.exo" );
+        writer.write_mesh( "./mdl_exo", "xtk_hmr_bar_plane_mat_void_integ_2d_ghost.e", "./", "temp.exo" );
 
         // Write the fields
         writer.set_time( 0.0 );
@@ -293,8 +294,8 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        dla::Solver_Factory                             tSolFactory;
-        Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
+        dla::Solver_Factory tSolFactory;
+        Parameter_List      tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_aztec();
         tLinearSolverParameterList.set( "AZ_diagnostics", AZ_none );
         tLinearSolverParameterList.set( "AZ_output", AZ_all );
         tLinearSolverParameterList.set( "AZ_solver", AZ_gmres_condnum );
@@ -310,10 +311,14 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         // STEP 2: create nonlinear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        NLA::Nonlinear_Solver_Factory               tNonlinFactory;
+        NLA::Nonlinear_Solver_Factory tNonlinFactory;
+
         Parameter_List tNonlinearSolverParameterList = prm::create_nonlinear_algorithm_parameter_list();
+
         tNonlinearSolverParameterList.set( "NLA_max_iter", 3 );
-        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm = tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
+
+        std::shared_ptr< NLA::Nonlinear_Algorithm > tNonlinearSolverAlgorithm =
+                tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
 
         tNonlinearSolverAlgorithm->set_linear_solver( &tLinSolver );
 

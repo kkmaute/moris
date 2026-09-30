@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <utility>
+#include <filesystem>
 
 namespace moris::mtk
 {
@@ -643,6 +644,15 @@ namespace moris::mtk
         MORIS_ERROR( mExoID == -1,
                 "Exodus file is currently open, call close_file() before creating a new one." );
 
+        // check that filename does not contain any path information, except for ./
+        MORIS_ERROR( isFileNameOnly( aFileName ),
+                "Exodus file name (%s) must not contain path information.",
+                aFileName.c_str() );
+
+        MORIS_ERROR( isFileNameOnly( aTempName ),
+                "Exodus temporary file name (%s) must not contain path information.",
+                aTempName.c_str() );
+
         // Add temporary and permanent file names to file paths
         if ( !aFilePath.empty() )
         {
@@ -653,6 +663,10 @@ namespace moris::mtk
         {
             aTempPath += "/";
         }
+
+        // check and if necessary create the temporary path
+        create_directory( aTempPath );
+        create_directory( aFilePath );
 
         mTempFileName = aTempPath + aTempName;
         mPermFileName = aFilePath + aFileName;
@@ -684,8 +698,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::create_init_mesh_file(
+    void Writer_Exodus::create_init_mesh_file(
             std::string        aFilePath,
             const std::string& aFileName,
             std::string        aTempPath,
@@ -726,8 +739,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::get_node_sets()
+    void Writer_Exodus::get_node_sets()
     {
         Vector< std::string > tNodeSetNames = mMesh->get_set_names( EntityRank::NODE );
 
@@ -760,8 +772,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::get_side_sets()
+    void Writer_Exodus::get_side_sets()
     {
         // Determine number of non-empty side sets across all procs
         Vector< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
@@ -804,8 +815,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::get_block_sets()
+    void Writer_Exodus::get_block_sets()
     {
         Vector< std::string > tBlockNames = mMesh->get_set_names( EntityRank::ELEMENT );
 
@@ -873,8 +883,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::write_nodes()
+    void Writer_Exodus::write_nodes()
     {
         // spatial dimension
         int  tSpatialDim = mMesh->get_spatial_dim();
@@ -942,8 +951,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::write_node_sets()
+    void Writer_Exodus::write_node_sets()
     {
         // Get the number of node sets and their names
         Vector< std::string > tNodeSetNames = mMesh->get_set_names( EntityRank::NODE );
@@ -984,8 +992,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::write_blocks()
+    void Writer_Exodus::write_blocks()
     {
         // create ad-hoc element IDs FIXME: should be handled by MTK
         uint tProcOffset = get_processor_offset( mNumUniqueExodusElements ) + 1;
@@ -1130,8 +1137,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Writer_Exodus::write_side_sets()
+    void Writer_Exodus::write_side_sets()
     {
         // Get side set names
         Vector< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
@@ -1269,8 +1275,7 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    int
-    Writer_Exodus::get_nodes_per_element( CellTopology aCellTopology )
+    int Writer_Exodus::get_nodes_per_element( CellTopology aCellTopology )
     {
         switch ( aCellTopology )
         {
@@ -1305,4 +1310,44 @@ namespace moris::mtk
                 return 0;
         }
     }
+
+    //--------------------------------------------------------------------------
+
+    void Writer_Exodus::create_directory( const std::string& aDirectoryName )
+    {
+        namespace fs = std::filesystem;
+
+        // skip if directory name is empty
+        if ( aDirectoryName.empty() )
+        {
+            return;
+        }
+
+        // Define folder path
+        fs::path tDirectoryPath( aDirectoryName );
+
+        // Check if path exists
+        if ( !fs::exists( tDirectoryPath ) )
+        {
+
+            // Create all necessary directories
+            MORIS_ERROR( fs::create_directories( tDirectoryPath ),
+                    "create_director - failed to create %s",
+                    aDirectoryName.c_str() );
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Writer_Exodus::isFileNameOnly( const std::string& aFileName )
+    {
+        if ( aFileName.rfind( "./", 0 ) == 0 )
+        {
+            return aFileName.find( '/', 2 ) == std::string::npos;
+        }
+        return aFileName.find( '/' ) == std::string::npos;
+    }
+
+    //--------------------------------------------------------------------------
+
 }    // namespace moris::mtk

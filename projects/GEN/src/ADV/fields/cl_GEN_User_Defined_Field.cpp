@@ -76,19 +76,27 @@ namespace moris::gen
         MORIS_ASSERT( aCoordinates.numel() == aSensitivities.numel(),
                 "User_Defined_Field::get_dfield_dcoordinates - inconsistent dimensions" );
 
+        // FD Perturbation size
         const real tPertubation = 1e-8;
 
+        // Copy coordinates to be able to perturb
         Matrix< DDRMat > tCoordinates( aCoordinates );
 
-        for ( uint idim = 0; idim < aCoordinates.numel(); ++idim )
+        for ( uint iDim = 0; iDim < aCoordinates.numel(); ++iDim )
         {
-            tCoordinates( idim ) += tPertubation;
+            // Perturb coordinates in positive direction
+            tCoordinates( iDim ) += tPertubation;
             real tFieldValue = this->get_field_value_user_defined( tCoordinates, mFieldVariables );
 
-            tCoordinates( idim ) -= 2.0 * tPertubation;
+            // Perturb coordinates in negative direction
+            tCoordinates( iDim ) -= 2.0 * tPertubation;
             tFieldValue -= this->get_field_value_user_defined( tCoordinates, mFieldVariables );
 
-            aSensitivities( idim ) = tFieldValue / 2.0 / tPertubation;
+            // Reset coordinates
+            tCoordinates( iDim ) += tPertubation;
+
+            // Compute central difference
+            aSensitivities( iDim ) = tFieldValue / 2.0 / tPertubation;
         }
     }
 
@@ -149,4 +157,4 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+}    // namespace moris::gen

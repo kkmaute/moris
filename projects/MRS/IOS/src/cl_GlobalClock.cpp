@@ -7,7 +7,6 @@
  * cl_GlobalClock.cpp
  *
  */
-
 #include "cl_GlobalClock.hpp"
 #include "Log_Constants.hpp"
 

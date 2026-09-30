@@ -63,7 +63,6 @@ else
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDOPT  build_opt'                                         >> $HOME/.cshrc_moris
-echo 'setenv MORISOUTPUT    $MORISROOT/$MORISBUILDDBG/'                        >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv MRD $MORISROOT/build_dbg/projects/mains/moris'                    >> $HOME/.cshrc_moris
 echo 'setenv MRO $MORISROOT/build_opt/projects/mains/moris'                    >> $HOME/.cshrc_moris

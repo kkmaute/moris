@@ -11,6 +11,7 @@
 #include "cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 
 #include "fn_trans.hpp"
 
@@ -63,8 +64,12 @@ namespace moris::fem
         const std::shared_ptr< Constitutive_Model > &tCMSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMSATurbulence.get() );
+
         // compute stabilization parameter value
-        mPPVal = mParameters( 0 ) * tCMSATurbulence->diffusion_coefficient() / tElementSize;
+        mPPVal = mParameters( 0 ) * tCMSATurbulencePtr->diffusion_coefficient() / tElementSize;
     }
 
     //------------------------------------------------------------------------------
@@ -99,9 +104,13 @@ namespace moris::fem
         // if turbulence CM depends on dof
         if ( tCMSATurbulence->check_dof_dependency( aDofTypes ) )
         {
+            // cast constitutive model base class pointer to SA constitutive model
+            CM_Spalart_Allmaras_Turbulence *tCMSATurbulencePtr =
+                    dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMSATurbulence.get() );
+
             // add contribution from diffusion coefficient
             mdPPdLeaderDof( tDofIndex ) =
-                    mParameters( 0 ) * tCMSATurbulence->ddiffusioncoeffdu( aDofTypes ) / tElementSize;
+                    mParameters( 0 ) * tCMSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / tElementSize;
         }
         else
         {
