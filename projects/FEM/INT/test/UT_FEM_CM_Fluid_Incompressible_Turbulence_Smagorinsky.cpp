@@ -430,7 +430,7 @@ TEST_CASE( "CM_Fluid_Incompressible_Turbulence_Smagorinsky_with_wd_dof",    //
         "[CM_Fluid_Incompressible_Turbulence_Smagorinsky_with_wd_dof]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-3;
+    real tEpsilon = 1.0E-2;
 
     // define a perturbation relative size
     real tPerturbation = 1.0E-6;

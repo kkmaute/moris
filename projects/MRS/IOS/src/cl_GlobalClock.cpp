@@ -7,7 +7,6 @@
  * cl_GlobalClock.cpp
  *
  */
-
 #include "cl_GlobalClock.hpp"
 #include "Log_Constants.hpp"
 
@@ -162,12 +161,11 @@ namespace moris
     GlobalClock::iterate()
     {
         // increment iteration counter of currently active action
-        mCurrentIteration[mIndentationLevel]++;
+        mCurrentIteration[ mIndentationLevel ]++;
 
         // renew time stamp at beginning of an iteration
-        mIterationTimeStamps[mIndentationLevel] = (real)std::clock();
+        mIterationTimeStamps[ mIndentationLevel ] = (real)std::clock();
     }
 
     // --------------------------------------------------------------------------------
 }    // namespace moris
-

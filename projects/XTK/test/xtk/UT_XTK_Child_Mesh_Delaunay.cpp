@@ -30,6 +30,7 @@ namespace moris::xtk
 
     TEST_CASE( "Delaunay Subdivision", "[Delaunay 2D]" )
     {
+#ifdef MORIS_HAVE_GEOMPACK
         // Spatial dimension
         uint tSpatialDim = 2;
 
@@ -205,6 +206,6 @@ namespace moris::xtk
             // Verify the interpolated coordinate is equal to the node coordinate row
             CHECK( moris::norm( tInterpNodeCoord - tNodeCoords.get_row( tNodeIndex ) ) < tTol );
         }
+#endif
     }
-
 }    // namespace moris::xtk

@@ -606,11 +606,11 @@ namespace moris::xtk
         MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only supported for nodes and cells" );
         if ( aEntityRank == mtk::EntityRank::NODE )
         {
-            return mIntegrationVertices( aEntityIndex )->get_index();
+            return mIntegrationVertices( aEntityIndex )->get_id();
         }
         else if ( aEntityRank == mtk::EntityRank::ELEMENT )
         {
-            return mIntegrationCells( aEntityIndex )->get_index();
+            return mIntegrationCells( aEntityIndex )->get_id();
         }
 
         else

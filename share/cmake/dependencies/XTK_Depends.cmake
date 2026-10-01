@@ -29,7 +29,9 @@ include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 
 
 # needs some tpls
-set(XTK_TPL_DEPENDENCIES
-    # ADd back with arborx"arborx"
-    )
+set( XTK_TPL_DEPENDENCIES )
 
+# Include geompack if used
+if(${MORIS_HAVE_GEOMPACK})
+    list(APPEND XTK_TPL_DEPENDENCIES "geompack")
+endif()

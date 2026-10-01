@@ -9,6 +9,7 @@
  */
 
 #include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 //LINALG/src
@@ -84,24 +85,33 @@ namespace moris::fem
         // init SP values
         mPPVal.set_size( 3, 1, 0.0 );
 
-        // get the SA turbulence CM
+        // get the leader SA turbulence CM
         const std::shared_ptr< Constitutive_Model > &tCMLeaderSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMLeaderSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMLeaderSATurbulence.get() );
+
+        // get the follower SA turbulence CM
         const std::shared_ptr< Constitutive_Model > &tCMFollowerSATurbulence =
                 mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMFollowerSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMFollowerSATurbulence.get() );
 
         // compute weighted property
         real tDeno =
-                tLeaderVolume / tCMLeaderSATurbulence->diffusion_coefficient()( 0 ) + tFollowerVolume / tCMFollowerSATurbulence->diffusion_coefficient()( 0 );
+                tLeaderVolume / tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 )    //
+                + tFollowerVolume / tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 );
 
         // compute Nitsche parameter value
         mPPVal( 0 ) = 2.0 * mParameters( 0 )( 0 ) * tInterfaceSurface / tDeno;
 
         // compute leader weight value
-        mPPVal( 1 ) = ( tLeaderVolume / tCMLeaderSATurbulence->diffusion_coefficient()( 0 ) ) / tDeno;
+        mPPVal( 1 ) = ( tLeaderVolume / tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 ) ) / tDeno;
 
         // compute follower weight value
-        mPPVal( 2 ) = ( tFollowerVolume / tCMFollowerSATurbulence->diffusion_coefficient()( 0 ) ) / tDeno;
+        mPPVal( 2 ) = ( tFollowerVolume / tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 ) ) / tDeno;
     }
 
     //------------------------------------------------------------------------------
@@ -136,30 +146,39 @@ namespace moris::fem
         // reset the matrix
         mdPPdLeaderDof( tDofIndex ).set_size( 3, tFIDer->get_number_of_space_time_coefficients() );
 
-        // get the SA turbulence CM
+        // get the leader SA turbulence CM
         const std::shared_ptr< Constitutive_Model > &tCMLeaderSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMLeaderSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMLeaderSATurbulence.get() );
+
+        // get the follower SA turbulence CM
         const std::shared_ptr< Constitutive_Model > &tCMFollowerSATurbulence =
                 mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMFollowerSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMFollowerSATurbulence.get() );
 
         // if leader turbulence CM depends on dof type
         if ( tCMLeaderSATurbulence->check_dof_dependency( aDofTypes ) )
         {
             // compute weighted property
             real tDeno =
-                    tLeaderVolume / tCMLeaderSATurbulence->diffusion_coefficient()( 0 ) + tFollowerVolume / tCMFollowerSATurbulence->diffusion_coefficient()( 0 );
+                    tLeaderVolume / tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 )    //
+                    + tFollowerVolume / tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 );
 
             // compute derivative of Nitsche SP FIXME ????
             mdPPdLeaderDof( tDofIndex ).get_row( 0 ) =
-                    this->val()( 0 ) * tLeaderVolume * tCMLeaderSATurbulence->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMLeaderSATurbulence->diffusion_coefficient()( 0 ), 2 ) * tDeno );
+                    this->val()( 0 ) * tLeaderVolume * tCMLeaderSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 ), 2 ) * tDeno );
 
             // compute derivative of leader weight SP
             mdPPdLeaderDof( tDofIndex ).get_row( 1 ) =
-                    -this->val()( 1 ) * tFollowerVolume * tCMLeaderSATurbulence->ddiffusioncoeffdu( aDofTypes ) / ( tCMLeaderSATurbulence->diffusion_coefficient()( 0 ) * tCMFollowerSATurbulence->diffusion_coefficient()( 0 ) * tDeno );
+                    -this->val()( 1 ) * tFollowerVolume * tCMLeaderSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / ( tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 ) * tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 ) * tDeno );
 
             // compute derivative of the follower weight SP
             mdPPdLeaderDof( tDofIndex ).get_row( 2 ) =
-                    this->val()( 2 ) * tLeaderVolume * tCMLeaderSATurbulence->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMLeaderSATurbulence->diffusion_coefficient()( 0 ), 2 ) * tDeno );
+                    this->val()( 2 ) * tLeaderVolume * tCMLeaderSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 ), 2 ) * tDeno );
         }
         else
         {
@@ -199,30 +218,39 @@ namespace moris::fem
         // reset the matrix
         mdPPdFollowerDof( tDofIndex ).set_size( 3, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
-        // get the SA turbulence CM
+        // get the leader SA turbulence CM
         const std::shared_ptr< Constitutive_Model > &tCMLeaderSATurbulence =
                 mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMLeaderSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMLeaderSATurbulence.get() );
+
+        // get the follower SA turbulence CM
         const std::shared_ptr< Constitutive_Model > &tCMFollowerSATurbulence =
                 mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence *tCMFollowerSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence * >( tCMFollowerSATurbulence.get() );
 
         // if follower turbulence CM depends on dof type
         if ( tCMFollowerSATurbulence->check_dof_dependency( aDofTypes ) )
         {
             // compute weighted property
-            real tDeno =
-                    tLeaderVolume / tCMLeaderSATurbulence->diffusion_coefficient()( 0 ) + tFollowerVolume / tCMFollowerSATurbulence->diffusion_coefficient()( 0 );
+            real tDeno =                                                                      //
+                    tLeaderVolume / tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 )    //
+                    + tFollowerVolume / tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 );
 
             // compute derivative of Nitsche SP FIXME ????
             mdPPdFollowerDof( tDofIndex ).get_row( 0 ) =
-                    this->val()( 0 ) * tFollowerVolume * tCMFollowerSATurbulence->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMFollowerSATurbulence->diffusion_coefficient()( 0 ), 2 ) * tDeno );
+                    this->val()( 0 ) * tFollowerVolume * tCMFollowerSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 ), 2 ) * tDeno );
 
             // compute derivative of leader weight SP
             mdPPdFollowerDof( tDofIndex ).get_row( 1 ) =
-                    this->val()( 1 ) * tFollowerVolume * tCMFollowerSATurbulence->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMFollowerSATurbulence->diffusion_coefficient()( 0 ), 2 ) * tDeno );
+                    this->val()( 1 ) * tFollowerVolume * tCMFollowerSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / ( std::pow( tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 ), 2 ) * tDeno );
 
             // compute derivative of the follower weight SP
             mdPPdFollowerDof( tDofIndex ).get_row( 2 ) =
-                    -this->val()( 2 ) * tLeaderVolume * tCMFollowerSATurbulence->ddiffusioncoeffdu( aDofTypes ) / ( tCMLeaderSATurbulence->diffusion_coefficient()( 0 ) * tCMFollowerSATurbulence->diffusion_coefficient()( 0 ) * tDeno );
+                    -this->val()( 2 ) * tLeaderVolume * tCMFollowerSATurbulencePtr->ddiffusioncoeffdu( aDofTypes ) / ( tCMLeaderSATurbulencePtr->diffusion_coefficient()( 0 ) * tCMFollowerSATurbulencePtr->diffusion_coefficient()( 0 ) * tDeno );
         }
         else
         {

@@ -99,6 +99,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
     // DECOMPOSITION OPTIONS:   X -node hierarchy,      D -Delaunay triangulation
     // EXAMPLE: { "VL-A-X" } is a vertical line with analytic discretization and node hierarchy decomposition
 
+#ifdef MORIS_HAVE_GEOMPACK
     Vector< Vector< std::string > > tConfigurations = {
         { "SM-D-D" },
         { "SM-A-X" },
@@ -115,13 +116,24 @@ TEST_CASE( "Shape_Sensitivity_Bspline_2D",
         { "VL-D-X", "OL-D-X", "SM-D-X" },
         // { "SM-D-X", "OL-D-X" },
     };
+#else
+    Vector< Vector< std::string > > tConfigurations = {
+        { "SM-A-X" },
+        { "SM2-D-X", "SM-D-X" },
+        { "VL-A-X", "OL-F-X" },
+        { "VL-A-X", "OL-A-X" },
+        { "VL-F-X", "OL-D-X" },
+        { "VL-D-X", "OL-D-X" },
+        { "VL-D-X", "OL-D-X", "SM-A-X" },
+        { "VL-D-X", "OL-D-X", "SM-D-X" },
+    };
+#endif
 
     // KNOWN NONWORKING CASES
-    // { "VL-D-X", "OL-D-X", "SM-D-D" } - fails as floating nodes have 4 locator nodes, and LS geometries can only perform multiple intersections
-    //                                    with linear interpolation, which uses 2 parent nodes
-    // { "SM-D-X", "OL-D-X" },          - FIXME @bc: not sure why this fails
-    // ANY REGULARIZATION FD TESTS      - Sensitivities are implemented correctly, but the test for this case gives discontinuous sensitivities for the FD
-
+    // { "VL-D-X", "OL-D-X", "SM-D-D" }              - fails as floating nodes have 4 locator nodes, and LS geometries can only perform multiple intersections
+    //                                               with linear interpolation, which uses 2 parent nodes
+    // { "SM-D-X", "OL-D-X" },                       - FIXME @bc: not sure why this fails
+    // ANY SURFACE MESH REGULARIZATION FD TESTS      - Sensitivities are implemented correctly, but the test for this case gives discontinuous sensitivities for the FD
 
     // remove files from previous test runs
     // FIXME: should be made independent of OS; note std::remove does not take wild cards
@@ -169,6 +181,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
     // DECOMPOSITION OPTIONS:   X -node hierarchy,      D -Delaunay triangulation
     // EXAMPLE: { "VL-A-X" } is a vertical line with analytic discretization and node hierarchy decomposition
 
+#ifdef MORIS_HAVE_GEOMPACK
     Vector< Vector< std::string > > tConfigurations = {
         { "SM-D-X" },
         { "SM-A-X" },
@@ -179,10 +192,24 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
         { "VL-D-X", "OL-F-X" },
         { "VL-F-X", "OL-D-X" },
         { "VL-D-X", "OL-D-X" },
-        // { "VL-D-X", "OL-D-X", "SM-A-D" },
-        // { "VL-D-X", "OL-D-X", "SM-D-X" },
-        // { "SM-D-X", "VL-D-X", "OL-D-X" }
+        { "VL-D-X", "OL-D-X", "SM-A-D" },
+        { "VL-D-X", "OL-D-X", "SM-D-X" },
+        { "SM-D-X", "VL-D-X", "OL-D-X" }
     };
+#else
+    Vector< Vector< std::string > > tConfigurations = {
+        { "SM-D-X" },
+        { "SM-A-X" },
+        { "VL-A-X", "OL-F-X" },
+        { "VL-F-X", "OL-A-X" },
+        { "VL-A-X", "OL-A-X" },
+        { "VL-D-X", "OL-F-X" },
+        { "VL-F-X", "OL-D-X" },
+        { "VL-D-X", "OL-D-X" },
+        { "VL-D-X", "OL-D-X", "SM-D-X" },
+        { "SM-D-X", "VL-D-X", "OL-D-X" }
+    };
+#endif
 
     // KNOWN NONWORKING CASES
     // { "VL-D-X", "OL-D-X", "SM-D-D" } - fails as floating nodes have 4 locator nodes, and LS geometries can only perform multiple intersections

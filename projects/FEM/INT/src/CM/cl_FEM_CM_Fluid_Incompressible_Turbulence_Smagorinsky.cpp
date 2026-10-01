@@ -94,13 +94,10 @@ namespace moris::fem
     void
     CM_Fluid_Incompressible_Turbulence_Smagorinsky::eval_turbulent_dynamic_viscosity()
     {
-        // compute the strain rate form
-        real tStrainRateForm = 2.0 * dot( this->strain(), this->strain() );
-
         // compute turbulent viscosity
         mTurbDynVisc = mPropDensity->val()( 0 )                                   //
                      * std::pow( mKappa * mPropWallDistance->val()( 0 ), 2.0 )    //
-                     * std::pow( tStrainRateForm, 0.5 );
+                     * std::pow( this->fluid_strain_rate()( 0 ), 0.5 );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -119,7 +116,7 @@ namespace moris::fem
         mdTurbDynViscdu( tDofIndex ) =                                       //
                 mPropDensity->val()( 0 )                                     //
                 * std::pow( mKappa * mPropWallDistance->val()( 0 ), 2.0 )    //
-                * this->dfluidstrainratedu( aDofTypes ) * 0.5 / std::pow( this->fluid_strain_rate()( 0 ), 0.5 );
+                * 0.5 * this->dfluidstrainratedu( aDofTypes ) / std::pow( this->fluid_strain_rate()( 0 ), 0.5 );
 
         // if wall distance depends on dof
         if ( mPropWallDistance->check_dof_dependency( aDofTypes ) )
@@ -153,7 +150,7 @@ namespace moris::fem
         mdTurbDynViscdx( aOrder - 1 ) =                                      //
                 mPropDensity->val()( 0 )                                     //
                 * std::pow( mKappa * mPropWallDistance->val()( 0 ), 2.0 )    //
-                * this->dfluidstrainratedx( aOrder ) * 0.5 / std::pow( this->fluid_strain_rate()( 0 ), 0.5 );
+                * 0.5 * this->dfluidstrainratedx( aOrder ) / std::pow( this->fluid_strain_rate()( 0 ), 0.5 );
 
         // if wall distance has a space dependency
         if ( mPropWallDistance->check_space_dependency() )
@@ -284,21 +281,27 @@ namespace moris::fem
         //        Field_Interpolator* tFITest =
         //                mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) );
         //
-        //        // get the derivative dof FI
-        //        Field_Interpolator* tFIDer =
-        //                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
-        //
+        // get the derivative dof FI
+        Field_Interpolator* tFIDer =
+                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+        
         //        // this term is not zero for Smagorinsky
         //        mdTestTurbDynViscdu( tTestDofIndex )( tDofIndex ).set_size(    //
         //                tFITest->get_number_of_space_time_coefficients(),      //
         //                tFIDer->get_number_of_space_time_coefficients() );
 
+        // get additional term
+        Matrix< DDRMat > tdStrainModdu = 2.0 * this->dStraindDOF( aDofTypes );
+        tdStrainModdu( { 0, this->get_num_space_dims() - 1 },    //
+                { 0, tFIDer->get_number_of_space_time_coefficients() - 1 } ) =
+                0.5 * tdStrainModdu( { 0, this->get_num_space_dims() - 1 },    //
+                        { 0, tFIDer->get_number_of_space_time_coefficients() - 1 } );
 
         // add contribution to derivative of strain rate form
-        mdTestTurbDynViscdu( tTestDofIndex )( tDofIndex ) =                                                                                                 //
-                mPropDensity->val()( 0 )                                                                                                                    //
-                * std::pow( mKappa * mPropWallDistance->val()( 0 ), 2.0 )                                                                                   //
-                * ( 2.0 * trans( this->dStraindDOF( aTestDofTypes ) ) * this->dStraindDOF( aDofTypes ) / std::pow( this->fluid_strain_rate()( 0 ), 0.5 )    //
+        mdTestTurbDynViscdu( tTestDofIndex )( tDofIndex ) =                                                                                //
+                mPropDensity->val()( 0 )                                                                                                   //
+                * std::pow( mKappa * mPropWallDistance->val()( 0 ), 2.0 )                                                                  //
+                * ( 2.0 * trans( this->dStraindDOF( aTestDofTypes ) ) * tdStrainModdu / std::pow( this->fluid_strain_rate()( 0 ), 0.5 )    //
                         - 0.25 * trans( this->dfluidstrainratedu( aTestDofTypes ) ) * this->dfluidstrainratedu( aDofTypes ) / std::pow( this->fluid_strain_rate()( 0 ), 1.5 ) );
 
         // if wall distance depends on dof
@@ -368,7 +371,14 @@ namespace moris::fem
     void
     CM_Fluid_Incompressible_Turbulence_Smagorinsky::eval_fluid_strain_rate()
     {
-        mFluidStrainRate = std::max( 2.0 * dot( this->strain(), this->strain() ), mFluidStrainRateTol );
+        // get additional term
+        Matrix< DDRMat > tStrainMod = 2.0 * this->strain();
+        tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } ) =
+                0.5 * tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } );
+
+        // compute fluid strain rate
+        real tFluidstrainRate = dot( this->strain(), tStrainMod );
+        mFluidStrainRate      = std::max( 2.0 * tFluidstrainRate, mFluidStrainRateTol );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -423,9 +433,14 @@ namespace moris::fem
         // check for strain rate value
         if ( this->fluid_strain_rate()( 0 ) > mFluidStrainRateTol && aDofTypes( 0 ) == mDofVelocity )
         {
+            // get additional term
+            Matrix< DDRMat > tStrainMod = 2.0 * this->strain();
+            tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } ) =
+                    0.5 * tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } );
+
             // fill the derivative
             mdFluidStrainRatedu( tDofIndex ) =    //
-                    4.0 * trans( this->strain() ) * this->dStraindDOF( aDofTypes );
+                    4.0 * trans( tStrainMod ) * this->dStraindDOF( aDofTypes );
         }
         else
         {
@@ -476,8 +491,13 @@ namespace moris::fem
         // check for strain rate value
         if ( this->fluid_strain_rate()( 0 ) > mFluidStrainRateTol )
         {
+            // get additional term
+            Matrix< DDRMat > tStrainMod = 2.0 * this->strain();
+            tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } ) =
+                    0.5 * tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } );
+
             // fill the derivative
-            mdFluidStrainRatedx( aOrder - 1 ) = 4.0 * trans( this->dstraindx( aOrder ) ) * this->strain();
+            mdFluidStrainRatedx( aOrder - 1 ) = 4.0 * trans( this->dstraindx( aOrder ) ) * tStrainMod;
         }
         else
         {
@@ -545,10 +565,21 @@ namespace moris::fem
         // check for strain rate value
         if ( this->fluid_strain_rate()( 0 ) > mFluidStrainRateTol && aDofTypes( 0 ) == mDofVelocity )
         {
+            // get additional term
+            Matrix< DDRMat > tStrainMod = 2.0 * this->strain();
+            tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } ) =
+                    0.5 * tStrainMod( { 0, this->get_num_space_dims() - 1 }, { 0, 0 } );
+
+            Matrix< DDRMat > tdStrainModdu = 2.0 * this->dStraindDOF( aDofTypes );
+            tdStrainModdu( { 0, this->get_num_space_dims() - 1 },    //
+                    { 0, tFI->get_number_of_space_time_coefficients() - 1 } ) =
+                    0.5 * tdStrainModdu( { 0, this->get_num_space_dims() - 1 },    //
+                            { 0, tFI->get_number_of_space_time_coefficients() - 1 } );
+
             // compute the derivative
-            mdFluidStrainRatedxdu( aOrder - 1 )( tDofIndex ) =                                     //
-                    4.0 * ( trans( this->dstraindx( aOrder ) ) * this->dStraindDOF( aDofTypes )    //
-                            + this->dstraindxdu( aDofTypes, aOrder, this->strain() ) );
+            mdFluidStrainRatedxdu( aOrder - 1 )( tDofIndex ) =                    //
+                    4.0 * ( trans( this->dstraindx( aOrder ) ) * tdStrainModdu    //
+                            + this->dstraindxdu( aDofTypes, aOrder, tStrainMod ) );
         }
         else
         {

@@ -12,9 +12,12 @@
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Regular_Subdivision_Interface.hpp"
 #include "cl_XTK_Node_Hierarchy_Interface.hpp"
-#include "cl_XTK_Delaunay_Subdivision_Interface.hpp"
 #include "cl_XTK_Octree_Interface.hpp"
 #include "cl_XTK_Elevate_Order_Interface.hpp"
+
+#ifdef MORIS_HAVE_GEOMPACK
+#include "cl_XTK_Delaunay_Subdivision_Interface.hpp"
+#endif
 
 namespace moris::xtk
 {
@@ -34,6 +37,7 @@ namespace moris::xtk
                 return std::make_shared< xtk::Regular_Subdivision_Interface >( aParameterList, mtk::CellTopology::HEX8 );
                 break;
 
+#ifdef MORIS_HAVE_GEOMPACK
             case Subdivision_Method::C_DELAUNAY_QUAD4:
                 return std::make_shared< xtk::Delaunay_Subdivision_Interface >( aParameterList, mtk::CellTopology::QUAD4 );
                 break;
@@ -41,6 +45,7 @@ namespace moris::xtk
             case Subdivision_Method::C_DELAUNAY_HEX8:
                 return std::make_shared< xtk::Delaunay_Subdivision_Interface >( aParameterList, mtk::CellTopology::HEX8 );
                 break;
+#endif
 
             case Subdivision_Method::C_TRI3:
                 return std::make_shared< xtk::Node_Hierarchy_Interface >( aParameterList );

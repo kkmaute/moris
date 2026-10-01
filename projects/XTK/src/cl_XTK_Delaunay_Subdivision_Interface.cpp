@@ -21,6 +21,8 @@
 #include "fn_dot.hpp"
 #include "fn_cross.hpp"
 
+// NOTE: This file only gets compiled if MORIS_HAVE_GEOMPACK is on
+
 // Fortran function used during the triangulation of 3D physical element. Will return an organized array of the triangulation (number of tetrahedra-by-4 vertices)
 extern "C" {
 void tetlst_( uint&, uint*, uint*, uint&, uint* );
@@ -40,7 +42,6 @@ void dtris2_( uint&, uint&, real*, uint*, uint&, uint*, uint*, uint*, uint& );
 extern "C" {
 void dtris3_( uint&, uint&, uint&, uint&, real*, uint*, uint&, uint&, uint&, uint&, uint*, uint*, uint*, uint& );
 }
-
 namespace moris::xtk
 {
     Delaunay_Subdivision_Interface::Delaunay_Subdivision_Interface( Parameter_List& aParameterList, mtk::CellTopology aCellTopology )

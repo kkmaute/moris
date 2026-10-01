@@ -50,7 +50,6 @@ set(HEADERS
         cl_XTK_Decomposition_Algorithm.hpp
         cl_XTK_Regular_Subdivision_Interface.hpp
         cl_XTK_Node_Hierarchy_Interface.hpp
-        cl_XTK_Delaunay_Subdivision_Interface.hpp
         cl_XTK_Elevate_Order_Interface.hpp
         cl_XTK_Octree_Interface.hpp
         cl_XTK_Cut_Integration_Mesh.hpp
@@ -157,7 +156,6 @@ set(LIB_SOURCES
         cl_XTK_Decomposition_Algorithm_Factory.cpp
         cl_XTK_Regular_Subdivision_Interface.cpp
         cl_XTK_Node_Hierarchy_Interface.cpp
-        cl_XTK_Delaunay_Subdivision_Interface.cpp
         cl_XTK_Node_Hierarchy_Template_Library.cpp
         cl_XTK_Elevate_Order_Interface.cpp
         cl_XTK_Octree_Interface.cpp
@@ -166,6 +164,16 @@ set(LIB_SOURCES
         cl_XTK_Basis_Processor.cpp
         cl_XTK_HMR_Helper.cpp
         )
+
+# if Geompack is used, add the respective files to the lists
+if (MORIS_HAVE_GEOMPACK)
+    list(APPEND LIB_SOURCES
+            cl_XTK_Delaunay_Subdivision_Interface.cpp
+    )
+    list(APPEND HEADERS
+            cl_XTK_Delaunay_Subdivision_Interface.hpp
+    )
+endif ()
 
 # List library dependencies
 set(LIB_DEPENDENCIES
@@ -193,11 +201,12 @@ target_include_directories(${XTK}-lib PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<INSTALL_INTERFACE:${${XTK}_HEADER_INSTALL_DIR}>)
 target_link_libraries(${XTK}-lib PUBLIC ${LIB_DEPENDENCIES})
-target_link_libraries(${XTK}-lib PUBLIC "/home/maute/codes/geompack3d/lib/libgeompack3.gcc.a" ) # brendan remove this
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
 
 # Link third party libraries
 foreach (TPL ${XTK_TPL_DEPENDENCIES})
+message(STATUS "MORIS_TPL_DIR = ${MORIS_TPL_DIR}")
+message(STATUS "Looking for: ${MORIS_TPL_DIR}/${tpl}_new.cmake")
     string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     target_link_libraries(${XTK}-lib

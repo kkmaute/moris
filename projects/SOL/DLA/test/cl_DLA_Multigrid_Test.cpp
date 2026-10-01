@@ -710,12 +710,8 @@ namespace moris
 
             std::string tObjectPath = "/projects/HMR/tutorials/bracket.obj";
             // get path for STL file to load
-            std::string tPrefix = std::getenv( "MORISOUTPUT" );
 
-            MORIS_ERROR( tPrefix.size() > 0,
-                            "Environment variable MORISOUTPUT not set." );
-
-            tObjectPath = tPrefix + tObjectPath;
+            tObjectPath = "./" + tObjectPath;
 
             // create SDF generator
             sdf::SDF_Generator tSdfGen( tObjectPath );

@@ -12,6 +12,8 @@
 
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
+
 #include "fn_dot.hpp"
 
 namespace moris::fem
@@ -49,12 +51,18 @@ namespace moris::fem
         const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                 mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TURBULENCE ) );
 
+        // cast constitutive model base class pointer to SA constitutive model
+        CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =
+                dynamic_cast< CM_Spalart_Allmaras_Turbulence* >( tCMSATurbulence.get() );
+
         // compute modified velocity
         Matrix< DDRMat > tModVelocity =
                 tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
 
         // compute strong form of residual
-        Matrix< DDRMat > tR = tFIViscosity->gradt( 1 ) + trans( tModVelocity ) * tFIViscosity->gradx( 1 ) - tCMSATurbulence->production_term() + tCMSATurbulence->wall_destruction_term() - tCMSATurbulence->divflux();
+        Matrix< DDRMat > tR = tFIViscosity->gradt( 1 ) + trans( tModVelocity ) * tFIViscosity->gradx( 1 )            //
+                            - tCMSATurbulencePtr->production_term() + tCMSATurbulencePtr->wall_destruction_term()    //
+                            - tCMSATurbulencePtr->divflux();
 
         // evaluate the QI
         aQI = tR;

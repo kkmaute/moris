@@ -271,8 +271,8 @@ namespace moris
             {
                 aParameterLists( GEN::GEOMETRIES ).add_parameter_list( gen::Field_Type::LINE );
                 aParameterLists.set( "center_y", -0.52 );
-                aParameterLists.set( "normal_x", .707106781 );
-                aParameterLists.set( "normal_y", .707106781 );
+                aParameterLists.set( "normal_x", -.707106781 );
+                aParameterLists.set( "normal_y", -.707106781 );
 
                 // Set the ADV dependency
                 if ( tADV == "A" )
@@ -309,7 +309,7 @@ namespace moris
             {
                 aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_surface_mesh_geometry_parameter_list() );
                 aParameterLists.set( "file_path", moris::get_base_moris_dir() + "projects/GEN/test/data/tetra.obj" );
-                aParameterLists.set( "offset", -.8, -1.1, -0.3 );
+                aParameterLists.set( "offset", -.8, -1.1, -0.5 );
                 aParameterLists.set( "name", "SM2" );
 
                 // Set the ADV dependency

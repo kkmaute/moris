@@ -37,6 +37,7 @@ set(MORIS_FIND_WRAPPERS
 	#superlu.cmake
 	viennacl_new.cmake
 	#viennacl.cmake
+	geompack_new.cmake
 	)
 
 install(FILES ${MORIS_FIND_WRAPPERS}

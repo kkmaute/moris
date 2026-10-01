@@ -482,7 +482,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence_Smagorinsky_with_wd_dof", "[CM_Diff_Lin_I
     real tEpsilon = 1.0E-2;
 
     // define a perturbation relative size
-    real tPerturbation = 1.0E-5;
+    real tPerturbation = 1.0E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------

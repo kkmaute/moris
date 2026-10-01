@@ -389,13 +389,9 @@ namespace moris::xtk
 #ifdef MORIS_HAVE_DEBUG
         // Create writer/file
         moris::mtk::Writer_Exodus tWriter;
-        std::string               tMorisRoot = std::getenv( "MORISOUTPUT" );
-
-        MORIS_ERROR( tMorisRoot.size() > 0,
-                "Environment variable MORISOUTPUT not set." );
 
         std::string tTempName = "multigrid_basis_temp.exo";
-        tWriter.write_points( tMorisRoot, aName, tMorisRoot, tTempName, mEnrichedBasisCoords );
+        tWriter.write_points( "./", aName, "./", tTempName, mEnrichedBasisCoords );
 
         // Create fields
         Vector< std::string > tPointFieldNames( 2 );
