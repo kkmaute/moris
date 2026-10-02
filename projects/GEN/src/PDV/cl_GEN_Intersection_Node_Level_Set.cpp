@@ -128,8 +128,8 @@ namespace moris::gen
                 }
             }
 
-            //     // Compute the sensitivities to add for this ancestor
-            //     tSensitivitiesToAdd = -tBasis * tInvGradxMag2 * aSensitivityFactor * tGradx * tFieldSensitivities;
+            // This version manually computes the interpolates the sensitivity from the basis nodes. Seemingly no difference in accuracy from above
+            // Vector< Basis_Node > tFieldBasisNodes = this->get_field_basis_nodes();
 
             // // Get level set/ancestor node sensitivity values from ancestors
             // for ( uint iFieldBasisNode = 0; iFieldBasisNode < tFieldBasisNodes.size(); iFieldBasisNode++ )
@@ -143,7 +143,7 @@ namespace moris::gen
             //             tFieldBasisNodes( iFieldBasisNode ).get_global_coordinates() );
 
             //     // Compute the sensitivities to add for this ancestor
-            //     tSensitivitiesToAdd = -tBasis * tInvGradxMag2 * aSensitivityFactor * tGradx * tFieldSensitivities;
+            //     tSensitivitiesToAdd = tBasis * tInvGradxMag2 * aSensitivityFactor * tGradx * tFieldSensitivities;
 
             //     // Resize sensitivities
             //     uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
