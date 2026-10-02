@@ -132,7 +132,7 @@ namespace moris::gen
         // Try to directly determine the geometric region based on the field value alone
         // return this->determine_geometric_region( this->get_field_value( MORIS_INDEX_MAX, aNodeCoordinates ) );
 
-        // FIXME @bc: Let analytic level set fields determine the geometric region directly
+        // FIXME: Let analytic level set fields determine the geometric region directly
         return Geometric_Region::UNDEFINED;
     }
 
@@ -318,9 +318,9 @@ namespace moris::gen
             real tResidual          = 0.0;
 
             // compute initial guess: location of intersection point along edge in edge CS
-            real tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
-                                 / ( tSecondParentPhi - tFirstParentPhi );
-            Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
+            real             tEdgeCoordinate = ( 2.0 * tIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )
+                                             / ( tSecondParentPhi - tFirstParentPhi );
+            Matrix< DDRMat > tInitialGuess   = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
 
             // loop over initial guess trials
             for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )

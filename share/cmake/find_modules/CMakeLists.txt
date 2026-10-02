@@ -14,6 +14,7 @@ set(MORIS_FIND_MODULES
 	FindEigen.cmake
 	FindEigen3.cmake
 	FindGCMMA.cmake
+	FindGEOPK.cmake
 	FindHDF5.cmake
 	FindMKL.cmake
     FindOPENBLAS.cmake

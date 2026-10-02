@@ -19,6 +19,7 @@ namespace moris::opt
         GCMMA,
         LBFGS,
         SQP,
+        ADAM,
         SWEEP
     };
 }
@@ -30,9 +31,12 @@ namespace moris::prm
     inline Parameter_List
     create_opt_problem_parameter_list()
     {
+        std::cout << "A\n";
         Parameter_List tParameterList( "Problem" );
+        std::cout << "B\n";
 
-        tParameterList.insert( "is_optimization_problem", false );        // Whether or not to use OPT
+        tParameterList.insert( "is_optimization_problem", false );    // Whether or not to use OPT
+
         tParameterList.insert( "workflow", "HMR_XTK" );                   // Workflow to use, HMR_XTK - standard workflow, STK_XTK
         tParameterList.insert( "problem", "user_defined" );               // OPT Problem class type
         tParameterList.insert( "restart_file", "" );                      // Name of restart file
@@ -204,6 +208,26 @@ namespace moris::prm
     //--------------------------------------------------------------------------------------------------------------
 
     inline Parameter_List
+    create_adam_parameter_list()
+    {
+        Parameter_List tParameterList( "ADAM" );
+
+        tParameterList.insert( "algorithm", "adam" );                       // Algorithm name, don't change
+        tParameterList.insert( "restart_index", 0 );                        // Restart iteration index
+        tParameterList.insert( "max_its", 100 );                            // Maximum number of iterations
+        tParameterList.insert( "grad_tol", 1e-6 );                          // convergence criterion based on projected gradients
+        tParameterList.insert( "norm_drop", 1e-12 );                        // convergence criterion based on norm drop of the optimization variables
+        tParameterList.insert( "step_size", 0.001 );                        // ADAM learning rate
+        tParameterList.insert( "gradient_decay_factor", 0.9 );              // Decay rate for moving average of gradient
+        tParameterList.insert( "squared_gradient_decay_factor", 0.999 );    // Decay rate for moving average of squared gradient
+        tParameterList.insert( "epsilon", 1e-8 );                           // Small value to prevent division by zero
+
+        return tParameterList;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    inline Parameter_List
     create_sweep_parameter_list()
     {
         Parameter_List tParameterList( "Sweep" );
@@ -244,6 +268,8 @@ namespace moris::prm
                 return create_lbfgs_parameter_list();
             case opt::Optimization_Algorithm_Type::SQP:
                 return create_sqp_parameter_list();
+            case opt::Optimization_Algorithm_Type::ADAM:
+                return create_adam_parameter_list();
             case opt::Optimization_Algorithm_Type::SWEEP:
                 return create_sweep_parameter_list();
             default:

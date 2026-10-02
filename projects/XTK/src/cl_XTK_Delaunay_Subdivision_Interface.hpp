@@ -7,9 +7,10 @@
  * cl_XTK_Delaunay_Subdivision_Interface.hpp
  *
  */
+ 
+#pragma once
 
-#ifndef MORIS_CL_XTK_Delaunay_Subdivision_Interface_HPP_
-#define MORIS_CL_XTK_Delaunay_Subdivision_Interface_HPP_
+// NOTE: This file only gets compiled if MORIS_HAVE_GEOMPACK is on
 
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 
@@ -218,4 +219,3 @@ namespace moris::xtk
     };
 
 }    // namespace moris::xtk
-#endif

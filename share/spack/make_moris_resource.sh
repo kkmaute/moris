@@ -53,6 +53,8 @@ export  DOXY_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "doxygen
 export CLANG_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "llvm" )            {n=1}}END{print n}'`
 export NINJA_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "ninja" )           {n=1}}END{print n}'`
 export  ARBX_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "arborx" )          {n=1}}END{print n}'`
+export GEOPK_INSTALLED=`spack find | awk -F '@' 'BEGIN{n=0}{ if ( $1 == "geompack" )        {n=1}}END{print n}'`
+
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
@@ -137,6 +139,11 @@ fi
 if [ $ARBX_INSTALLED == "1" ];then
 export ARBX_DIR=`spack location --install-dir arborx`
 echo "setenv ARBX_DIR"       $ARBX_DIR                                         >> $HOME/.cshrc_moris
+fi
+
+if [ $GEOPK_INSTALLED == "1" ];then
+export GEOPK_DIR=`spack location --install-dir geompack`
+echo "setenv GEOPK_DIR"       $GEOPK_DIR                                         >> $HOME/.cshrc_moris
 fi
 
 echo ""                                                                        >> $HOME/.cshrc_moris
