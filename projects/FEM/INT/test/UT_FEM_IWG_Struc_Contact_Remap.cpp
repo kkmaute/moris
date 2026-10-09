@@ -11,6 +11,8 @@
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
+#include <cstdlib>
+#include <iomanip>
 #include <iostream>
 
 #define protected public
@@ -47,7 +49,7 @@ void Test_IWG_Struc_Contact_Remap(
     real tEpsilon = 1E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -290,8 +292,16 @@ void Test_IWG_Struc_Contact_Remap(
 
                             tFollowerXHat = tLeaderXHat;
 
+                            // if ( aUseConsistentDeformedConfig )
+                            // {
                             tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
                             tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
+                            // }
+                            // else
+                            // {
+                            //     tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
+                            //     tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
+                            // }
 
                             tLeaderDOFHatDisp = {
                                 { -0.2, 0.1 },
@@ -472,32 +482,32 @@ void Test_IWG_Struc_Contact_Remap(
                             };
 
                             tFollowerDOFHatDisp = {
-                                { 0.0, 0.9, 0.0 },
-                                { -0.2000, 0.0, 0.0 },
+                                { 0.0, 0.2, 0.0 },
+                                { -0.92000, 0.0, 0.0 },
                                 { 0.0, 0.0, 0.0 },
-                                { 0.0, -0.2000, 0.0 },
-                                { 0.0, 0.0, -0.2000 },
-                                { 0.0, 0.2000, 0.0 },
+                                { 0.0, -0.92000, 0.0 },
+                                { 0.0, 0.0, -0.92000 },
+                                { 0.0, 0.92000, 0.0 },
                                 { 0.0, 0.0, 0.0 },
-                                { 0.2000, 0.0, 0.0 },
-                                { 0.0, 0.0, 0.0 },
-                                { 0.0, 0.0, 0.0 },
-                                { -0.2000, 0.0, 0.0 },
-                                { 0.0, 0.0, 0.0 },
-                                { 0.0, -0.2000, 0.0 },
-                                { 0.0, 0.0, -0.2000 },
-                                { 0.0, 0.2000, 0.0 },
-                                { 0.0, 0.0, 0.0 },
-                                { 0.2000, 0.0, 0.0 },
+                                { 0.92000, 0.0, 0.0 },
                                 { 0.0, 0.0, 0.0 },
                                 { 0.0, 0.0, 0.0 },
-                                { -0.2000, 0.0, 0.0 },
+                                { -0.92000, 0.0, 0.0 },
                                 { 0.0, 0.0, 0.0 },
-                                { 0.0, -0.2000, 0.0 },
-                                { 0.0, 0.0, -0.2000 },
-                                { 0.0, 0.2000, 0.0 },
+                                { 0.0, -0.92000, 0.0 },
+                                { 0.0, 0.0, -0.92000 },
+                                { 0.0, 0.92000, 0.0 },
                                 { 0.0, 0.0, 0.0 },
-                                { 0.2000, 0.0, 0.0 },
+                                { 0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { -0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.92000, 0.0 },
+                                { 0.0, 0.0, -0.92000 },
+                                { 0.0, 0.92000, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.92000, 0.0, 0.0 },
                                 { 0.0, 0.0, 0.0 }
 
                             };
@@ -686,25 +696,19 @@ void Test_IWG_Struc_Contact_Remap(
                                 tIWG->mSet->mFollowerFIManager,
                                 tIWG->mGapData );
 
-                        real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2.0 / tPerturbation;
-                        Matrix< DDRMat > tFdGap2du2 = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2.0 / tPerturbation;
-                        Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2.0 / tPerturbation;
+                        real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
+                        Matrix< DDRMat > tFdGap2du2 = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
+                        Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
 
-                        const real tRelDenFloor = 1.0e-6;
-                        const real tGapduDen    = std::max( std::abs( tFdGapdu ), tRelDenFloor );
-                        const real tGap2du2Den  = std::max( norm( tFdGap2du2 ), tRelDenFloor );
-                        const real tGap2duvDen  = std::max( norm( tFdGap2duv ), tRelDenFloor );
+                        real tErrordGapdu   = 100.0 * std::abs( tFdGapdu - tNominalGapData->mdGapdu( tCounter ) ) / std::abs( tFdGapdu );
+                        real tErrordGap2du2 = 100.0 * norm( tFdGap2du2 - tNominalGapData->mdGap2du2.get_row( tCounter ) ) / norm( tFdGap2du2 );
+                        real tErrordGap2duv = 100.0 * norm( tFdGap2duv - tNominalGapData->mdGap2duv.get_row( tCounter ) ) / norm( tFdGap2duv );
 
-                        real tErrordGapdu   = 100.0 * std::abs( tFdGapdu - tNominalGapData->mdGapdu( 0, tCounter ) ) / tGapduDen;
-                        real tErrordGap2du2 = 100.0 * norm( tFdGap2du2 - tNominalGapData->mdGap2du2.get_row( tCounter ) ) / tGap2du2Den;
-                        real tErrordGap2duv = 100.0 * norm( tFdGap2duv - tNominalGapData->mdGap2duv.get_row( tCounter ) ) / tGap2duvDen;
-                        // fprintf( stdout, "tFdGapdu: %d %d %e\n", (int)iInterpOrder, (int)tCounter, tFdGapdu );
-                        const real tLeaderGapTolScale = ( iSpaceDim == 3 && iInterpOrder == 2 ) ? 1.2 : 1.0;
+                        CHECK( tErrordGapdu < 100.0 * tEpsilon );
+                        CHECK( tErrordGap2du2 < 100.0 * tEpsilon );
+                        CHECK( tErrordGap2duv < 100 * tEpsilon );
 
-                        CHECK( tErrordGapdu < 100.0 * tEpsilon * tLeaderGapTolScale );
-                        CHECK( tErrordGap2du2 < 100.0 * tEpsilon * tLeaderGapTolScale );
-                        CHECK( tErrordGap2duv < 100 * tEpsilon * tLeaderGapTolScale );
-                        if ( tErrordGapdu + tErrordGap2du2 + tErrordGap2duv > 100.0 * tEpsilon * tLeaderGapTolScale )
+                        if ( tErrordGapdu + tErrordGap2du2 + tErrordGap2duv > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dGapdu:  %e\n", tErrordGapdu );
                             fprintf( stdout, "percent error dGap2du2 %e\n", tErrordGap2du2 );
@@ -744,7 +748,6 @@ void Test_IWG_Struc_Contact_Remap(
                             fprintf( stdout, "percent error dEta2duv: %e\n", tErrordEta2duv );
                             tPassedCheck = false;
                         }
-
                         Matrix< DDRMat > tFdLeaderNormaldu    = ( tPertGapData->mLeaderNormal - tCurrentGapData->mLeaderNormal ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdLeaderdNormal2du2 = ( tPertGapData->mLeaderdNormaldu - tCurrentGapData->mLeaderdNormaldu ) / 2 / tPerturbation;
 
@@ -833,21 +836,16 @@ void Test_IWG_Struc_Contact_Remap(
                         Matrix< DDRMat > tFdGap2dv2 = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
                         // fprintf( stdout, "tFdGapdv: %d %d %e\n", (int)iInterpOrder, (int)tCounter, tFdGapdv );
-                        const real tRelDenFloor = 1.0e-6;
-                        const real tGapdvDen    = std::max( std::abs( tFdGapdv ), tRelDenFloor );
-                        const real tGap2dv2Den  = std::max( norm( tFdGap2dv2 ), tRelDenFloor );
-                        const real tGap2duvDen  = std::max( norm( tFdGap2duv ), tRelDenFloor );
 
-                        real tErrordGapdv   = 100.0 * std::abs( tFdGapdv - tNominalGapData->mdGapdv( 0, tCounter ) ) / tGapdvDen;
-                        real tErrordGap2dv2 = 100.0 * norm( tFdGap2dv2 - trans( tNominalGapData->mdGap2dv2.get_column( tCounter ) ) ) / tGap2dv2Den;
-                        real tErrordGap2duv = 100.0 * norm( tFdGap2duv - trans( tNominalGapData->mdGap2duv.get_column( tCounter ) ) ) / tGap2duvDen;
+                        real tErrordGapdv   = 100.0 * std::abs( tFdGapdv - tNominalGapData->mdGapdv( 0, tCounter ) ) / std::abs( tFdGapdv );
+                        real tErrordGap2dv2 = 100.0 * norm( tFdGap2dv2 - trans( tNominalGapData->mdGap2dv2.get_column( tCounter ) ) ) / norm( tFdGap2dv2 );
+                        real tErrordGap2duv = 100.0 * norm( tFdGap2duv - trans( tNominalGapData->mdGap2duv.get_column( tCounter ) ) ) / norm( tFdGap2duv );
 
-                        const real tFollowerGapTolScale = ( iSpaceDim == 3 ) ? 120.0 : 1.0;
+                        CHECK( tErrordGapdv < 100.0 * tEpsilon );
+                        CHECK( tErrordGap2dv2 < 100.0 * tEpsilon );
+                        CHECK( tErrordGap2duv < 100.0 * tEpsilon );
 
-                        CHECK( tErrordGapdv < 100.0 * tEpsilon * tFollowerGapTolScale );
-                        CHECK( tErrordGap2dv2 < 100.0 * tEpsilon * tFollowerGapTolScale );
-                        CHECK( tErrordGap2duv < 100.0 * tEpsilon * tFollowerGapTolScale );
-                        if ( tErrordGapdv + tErrordGap2dv2 + tErrordGap2duv > 100.0 * tEpsilon * tFollowerGapTolScale )
+                        if ( tErrordGapdv + tErrordGap2dv2 + tErrordGap2duv > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dGapdv:  %e\n", tErrordGapdv );
                             fprintf( stdout, "percent error dGap2dv2 %e\n", tErrordGap2dv2 );
@@ -900,14 +898,10 @@ void Test_IWG_Struc_Contact_Remap(
                         Matrix< DDRMat > tFdGapvec2dv2 = ( tPertGapData->mdGapvecdv - tCurrentGapData->mdGapvecdv ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGapvec2duv = ( tPertGapData->mdGapvecdu - tCurrentGapData->mdGapvecdu ) / 2 / tPerturbation;
 
-                        const real tGapVecdvDen   = std::max( norm( tFdGapVecdv ), tRelDenFloor );
-                        const real tGapvec2dv2Den = std::max( norm( tFdGapvec2dv2 ), tRelDenFloor );
-                        const real tGapvec2duvDen = std::max( norm( tFdGapvec2duv ), tRelDenFloor );
-
-                        real             tErrordGapVectordv     = 100.0 * norm( tFdGapVecdv - tNominalGapData->mdGapvecdv.get_column( tCounter ) ) / tGapVecdvDen;
+                        real             tErrordGapVectordv     = 100.0 * norm( tFdGapVecdv - tNominalGapData->mdGapvecdv.get_column( tCounter ) ) / norm( tFdGapVecdv );
                         Matrix< DDRMat > tdGapvec2dv2Extraction = tNominalGapData->mdGapvec2dv2( { 0, iSpaceDim - 1 }, { tCounter * tNumDofs, ( tCounter + 1 ) * tNumDofs - 1 } );
 
-                        real tErrordGapvec2dv2 = 100.0 * norm( tFdGapvec2dv2 - tdGapvec2dv2Extraction ) / tGapvec2dv2Den;
+                        real tErrordGapvec2dv2 = 100.0 * norm( tFdGapvec2dv2 - tdGapvec2dv2Extraction ) / norm( tFdGapvec2dv2 );
 
                         Matrix< DDRMat > tdGapvec2duvExtraction( iSpaceDim, tNumDofs, 0.0 );
                         for ( uint id = 0; id < tNumDofs; ++id )
@@ -916,12 +910,13 @@ void Test_IWG_Struc_Contact_Remap(
                             tdGapvec2duvExtraction.get_column( id ) = tNominalGapData->mdGapvec2duv.get_column( id * tNumDofs + tCounter );
                         }
 
-                        real tErrordGapvec2duv = 100.0 * norm( tFdGapvec2duv - tdGapvec2duvExtraction ) / tGapvec2duvDen;
+                        real tErrordGapvec2duv = 100.0 * norm( tFdGapvec2duv - tdGapvec2duvExtraction ) / norm( tFdGapvec2duv );
 
-                        CHECK( tErrordGapVectordv < 100.0 * tEpsilon * tFollowerGapTolScale );
-                        CHECK( tErrordGapvec2dv2 < 100.0 * tEpsilon * tFollowerGapTolScale );
-                        CHECK( tErrordGapvec2duv < 100.0 * tEpsilon * tFollowerGapTolScale );
-                        if ( tErrordGapVectordv + tErrordGapvec2dv2 + tErrordGapvec2duv > 100.0 * tEpsilon * tFollowerGapTolScale )
+                        CHECK( tErrordGapVectordv < 100.0 * tEpsilon );
+                        CHECK( tErrordGapvec2dv2 < 100.0 * tEpsilon );
+                        CHECK( tErrordGapvec2duv < 100.0 * tEpsilon );
+
+                        if ( tErrordGapVectordv + tErrordGapvec2dv2 + tErrordGapvec2duv > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dGapVecdv:   %e\n", tErrordGapVectordv );
                             fprintf( stdout, "percent error dGapvec2dv2: %e\n", tErrordGapvec2dv2 );
@@ -973,7 +968,6 @@ TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Nonlinear", "[moris],[fem],[IWG_Str
             // true,    // use consistent deformed geometry
             1.0 );
 }
-
 TEST_CASE( "IWG_compact_hessian_chain_rule_helper", "[moris],[fem],[IWG_compact_hessian_chain_rule_helper]" )
 {
     Matrix< DDRMat > tDqgByEta( 2, 3, 0.0 );

@@ -29,54 +29,7 @@
 #include <utility>
 #include <tuple>
 #include <map>
-
-namespace
-{
-    inline void assert_param_in_bounds_box( moris::Matrix< moris::DDRMat > const &aParam, const char *aContext )
-    {
-        if ( aParam.n_rows() >= 1 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= -1.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
-                    "MTK parametric coordinate out of bounds (param[0]=%e, context=%s)",
-                    aParam( 0 ),
-                    aContext );
-        }
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 1 ) >= -1.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK parametric coordinate out of bounds (param[1]=%e, context=%s)",
-                    aParam( 1 ),
-                    aContext );
-        }
-    }
-
-    inline void assert_param_in_bounds_simplex( moris::Matrix< moris::DDRMat > const &aParam, const char *aContext )
-    {
-        if ( aParam.n_rows() >= 1 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= 0.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
-                    "MTK TRI parametric coordinate out of bounds (eta=%e, context=%s)",
-                    aParam( 0 ),
-                    aContext );
-        }
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 1 ) >= 0.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK TRI parametric coordinate out of bounds (zeta=%e, context=%s)",
-                    aParam( 1 ),
-                    aContext );
-            MORIS_ASSERT(
-                    aParam( 0 ) + aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK TRI parametric coordinate out of bounds (eta+zeta=%e, context=%s)",
-                    aParam( 0 ) + aParam( 1 ),
-                    aContext );
-        }
-    }
-}    // namespace
+#include "fn_MTK_Param_Assert.hpp"
 
 namespace moris::mtk
 {
@@ -118,13 +71,11 @@ namespace moris::mtk
     Contact_Mesh_Editor::extract_cell_pairing( MappingResult const &aMappingResult, const Vector< moris_index > &aResultIndices )
     {
         std::map< Contact_Mesh_Editor::CellPair, Contact_Mesh_Editor::ResultIndices > tCellPairs;
-        for ( moris_index const &tResultIndex : aResultIndices )
+        for ( auto const &tResultIndex : aResultIndices )
         {
-            const moris_index &tSourceCellIndex = aMappingResult.mSourceCellIndex( tResultIndex );
-            const moris_index &tTargetCellIndex = aMappingResult.mTargetCellIndices( tResultIndex );
-
-            const std::pair< moris_index, moris_index > tCellPair = std::make_pair( tSourceCellIndex, tTargetCellIndex );
-
+            moris_index const &tSourceCellIndex = aMappingResult.mSourceCellIndex( tResultIndex );
+            moris_index const &tTargetCellIndex = aMappingResult.mTargetCellIndices( tResultIndex );
+            auto const         tCellPair        = std::make_pair( tSourceCellIndex, tTargetCellIndex );
             tCellPairs[ tCellPair ].push_back( tResultIndex );
         }
         return tCellPairs;
@@ -259,7 +210,17 @@ namespace moris::mtk
 
             // Fill spatial coordinates from mapping result (already validated in populate_integration_point_pairs).
             auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
-            assert_param_in_bounds_box( tCoordinate, "Contact_Mesh_Editor::create_integration_point_pairs" );
+
+            if ( tCoordinate.n_rows == 2 )
+            {
+                assert_param_in_bounds_box( tCoordinate, "Contact_Mesh_Editor::create_integration_point_pairs (box)" );
+            }
+            else if ( tCoordinate.n_rows == 3 )
+            {
+                assert_param_in_bounds_simplex( tCoordinate, "Contact_Mesh_Editor::create_integration_point_pairs (simplex)" );
+            }
+
+
             for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
             {
                 tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );

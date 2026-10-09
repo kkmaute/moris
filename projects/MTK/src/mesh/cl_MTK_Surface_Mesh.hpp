@@ -140,6 +140,13 @@ namespace moris::mtk
         [[nodiscard]] Matrix< DDRMat > get_vertex_normals() const;
 
         /**
+         * @brief Returns the facet coordinates for a specific cell (with displacements applied)
+         * @param aCellIndex Global cell index (which represents a facet)
+         * @return A (dim x 3) matrix with displaced coordinates of vertex1, vertex2, and midpoint ghost
+         */
+        [[nodiscard]] moris_index get_global_vertex_index( moris_index aLocalVertexIndex ) const;
+
+        /**
          * @brief gets the entire vertex connectivity of the surface mesh
          */
         [[nodiscard]] const Vector< Vector< moris_index > >& get_facet_connectivity() const;

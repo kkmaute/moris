@@ -41,6 +41,7 @@ set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
 # List header files
 set(HEADERS
         MTK_Tools.hpp
+        fn_MTK_Param_Assert.hpp
 
         cl_MTK_Periodic_Boundary_Condition_Helper.hpp
 
@@ -69,6 +70,7 @@ set(HEADERS
         contact/cl_MTK_QuadraturePointMapper.hpp
         contact/cl_MTK_QuadraturePointMapper_Ray_Dummy.hpp
         contact/cl_MTK_QuadraturePointMapper_Ray.hpp
+        contact/cl_MTK_Gather_Surface_Mesh_Arrays.hpp
         # contact/cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp ## gets added further down (if ArborX is used)
 
         field/cl_MTK_Field.hpp

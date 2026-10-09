@@ -23,7 +23,6 @@ namespace moris::mtk
                 : QuadraturePointMapper_Ray( aIGMesh, aSideSets, aCandidatePairs ) {};
 
         MappingResult map( moris_index aSourceMeshIndex, Matrix< DDRMat > const &aParametricCoordinates, real aMaxNegativeRayLength, real aMaxPositiveRayLength ) const override;
-        void          update_ip_element_displacements( std::vector< std::tuple< moris_index, Matrix< DDRMat > > > const &aIPElementDisplacements ) override;
 
         // void update_facet_displacements( std::vector<std::tuple<moris_index, moris_index, Matrix<DDRMat>>> const &aFacetVertexDisplacements ) override;
 

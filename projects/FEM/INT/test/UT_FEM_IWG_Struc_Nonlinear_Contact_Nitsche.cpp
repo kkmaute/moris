@@ -217,7 +217,7 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
         // loop on the field interpolation order
         // only up to quadratic checked for now
-        for ( uint iInterpOrder = 2; iInterpOrder < 3; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -640,56 +640,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     print( tJacobian, "AnalyticalJacobian" );
                     print( tJacobianFD, "FDJacobian" );
                     print( tJacobian - tJacobianFD, "Jacobian error" );
-                    int              N       = tNumDofDisp;
-                    Matrix< DDRMat > errMat  = tJacobian - tJacobianFD;
-                    real             tRelTol = 1e-4;    // flag anything above this
-
-                    fprintf( stdout, "\n=== Column-by-column Jacobian diff (uu and vu blocks) ===\n" );
-                    fprintf( stdout, "%-6s %-6s %-6s %-14s %-14s %-14s %-10s\n", "col", "node", "dir", "analytic", "FD", "abserr", "relerr" );
-
-                    // Only scan the u-columns (cols 0..N-1) since uv/vv are clean
-                    for ( uint col = 0; col < (uint)N; col++ )
-                    {
-                        uint node = col / iSpaceDim;
-                        uint dir  = col % iSpaceDim;
-
-                        for ( uint row = 0; row < (uint)( 2 * N ); row++ )
-                        {
-                            real an = tJacobian( row, col );
-                            real fd = tJacobianFD( row, col );
-                            real ae = std::abs( an - fd );
-                            real re = ae / ( std::abs( fd ) + 1e-15 );
-
-                            if ( re > tRelTol && ae > 1e-12 )
-                            {
-                                uint row_block = ( row < (uint)N ) ? 0 : 1;    // 0=leader res, 1=follower res
-                                uint row_node  = ( row % N ) / iSpaceDim;
-                                uint row_dir   = ( row % N ) % iSpaceDim;
-
-                                fprintf( stdout,
-                                        "col=%3u (node%u dir%u)  row=%3u [%s res, node%u dir%u]"
-                                        "  an=%+.6e  fd=%+.6e  ae=%.2e  re=%.2e\n",
-                                        col,
-                                        node,
-                                        dir,
-                                        row,
-                                        row_block == 0 ? "leader" : "follower",
-                                        row_node,
-                                        row_dir,
-                                        an,
-                                        fd,
-                                        ae,
-                                        re );
-                            }
-                        }
-                    }
-
-                    real err_uu = norm( errMat( { 0, N - 1 }, { 0, N - 1 } ) ) / norm( tJacobianFD( { 0, N - 1 }, { 0, N - 1 } ) );
-                    real err_uv = norm( errMat( { 0, N - 1 }, { N, 2 * N - 1 } ) ) / norm( tJacobianFD( { 0, N - 1 }, { N, 2 * N - 1 } ) );
-                    real err_vu = norm( errMat( { N, 2 * N - 1 }, { 0, N - 1 } ) ) / norm( tJacobianFD( { N, 2 * N - 1 }, { 0, N - 1 } ) );
-                    real err_vv = norm( errMat( { N, 2 * N - 1 }, { N, 2 * N - 1 } ) ) / norm( tJacobianFD( { N, 2 * N - 1 }, { N, 2 * N - 1 } ) );
-
-                    fprintf( stdout, "Block errors: uu=%.2e  uv=%.2e  vu=%.2e  vv=%.2e\n", err_uu, err_uv, err_vu, err_vv );
                 }
 
                 // check jacobian by FD with standard method
@@ -870,6 +820,46 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[mori
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_LIN_ISO,
+            0.01,
+            true,    // compute gap on deformed configuration
+            // true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
+}
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_UNSYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_UNSYM]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_LIN_ISO,
+            10.0,
+            true,    // compute gap on deformed configuration
+            // true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_LIN_ISO,
+            0.01,
+            true,    // compute gap on deformed configuration
+            // true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
+}
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_NEUTRAL", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_NEUTRAL]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_LIN_ISO,
+            10.0,
+            true,    // compute gap on deformed configuration
+            // true,       // compute gap consistent with displacement interpolation
+            false );    // pure penalty formulation
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_NEUTRAL,
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
             true,    // compute gap on deformed configuration

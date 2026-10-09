@@ -12,43 +12,7 @@
 #include "cl_Logger.hpp"
 #include <chrono>
 #include <cstdio>
-
-namespace
-{
-    inline void assert_param_in_bounds_box( moris::Matrix< moris::DDRMat > const & aParam, const char* aContext )
-    {
-        if ( aParam.n_rows() >= 1 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= -1.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
-                    "MTK Ray-Line parametric out of bounds (LINE domain, param[0]=%e, context=%s)",
-                    aParam( 0 ),
-                    aContext );
-        }
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 1 ) >= -1.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK Ray-Line parametric out of bounds (LINE domain, param[1]=%e, context=%s)",
-                    aParam( 1 ),
-                    aContext );
-        }
-    }
-
-    inline void assert_param_in_bounds_simplex( moris::Matrix< moris::DDRMat > const & aParam, const char* aContext )
-    {
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= 0.0 - 1e-12 && aParam( 1 ) >= 0.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12 && aParam( 1 ) <= 1.0 + 1e-12 && aParam( 0 ) + aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK Ray-Line parametric out of bounds (TRI simplex, eta=%e zeta=%e, context=%s)",
-                    aParam( 0 ),
-                    aParam( 1 ),
-                    aContext );
-        }
-    }
-}    // namespace
-
+#include "fn_MTK_Param_Assert.hpp"
 namespace moris::mtk
 {
     // NOT NEEDED ANYMORE
@@ -150,7 +114,7 @@ namespace moris::mtk
         Matrix< DDRMat > tJacRayInv;
         const real       tRayResRefNormTol    = 1e-10;
         const real       tStagnationNormTol   = 1e-12;
-        const real       tStagnationAcceptTol = 1e-3;
+        const real       tStagnationAcceptTol = 1e-6;
         const uint       tMaxNewtonSteps      = 100;
 
 
@@ -164,7 +128,16 @@ namespace moris::mtk
                 tSolRay( 1 ) = std::min( 1.0, std::max( -1.0, tSolRay( 1 ) ) );    // tSolRay = (s,eta)
 
                 Matrix< DDRMat > tTargetEtagp = { { tSolRay( 1 ) } };
-                assert_param_in_bounds_box( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_2D_postclamp" );
+                
+                if ( tTargetEtagp.n_rows() == 2 )
+                {
+                    assert_param_in_bounds_box( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_2D_postclamp (box)" );
+                }
+                else if ( tTargetEtagp.n_rows() == 3 )
+                {
+                    assert_param_in_bounds_simplex( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_2D_postclamp (simplex)" );
+                }
+
 
                 // Build a Lagrange interpolator along the target local coordinates on the side
                 Interpolation_Rule tFacetInterpRule(
@@ -400,16 +373,6 @@ namespace moris::mtk
             else
             {
                 assert_param_in_bounds_box( mParametricCoordinate, "Ray_Line_Intersection::perform_nonlinear_2D_final" );
-            }
-
-            if ( tSpaceDim == 3
-                    && ( std::abs( mParametricCoordinate( 0 ) ) > 1.2 || std::abs( mParametricCoordinate( 1 ) ) > 1.2 ) )
-            {
-                std::cout << "RAYLINE_3D_PARAM_OOB"
-                          << " s=" << tSolRay( 0 )
-                          << " eta=" << mParametricCoordinate( 0 )
-                          << " zeta=" << mParametricCoordinate( 1 )
-                          << std::endl;
             }
         }
     }

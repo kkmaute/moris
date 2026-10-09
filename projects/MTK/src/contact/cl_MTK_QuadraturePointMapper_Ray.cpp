@@ -27,55 +27,7 @@
 #include "cl_MTK_Cell_Info.hpp"
 #include "fn_dot.hpp"
 #include <iostream>
-
-namespace
-{
-    inline void assert_param_in_bounds_box( moris::Matrix< moris::DDRMat > const &aParam, const char *aContext )
-    {
-        if ( aParam.n_rows() >= 1 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= -1.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
-                    "MTK parametric coordinate out of bounds (param[0]=%e, context=%s)",
-                    aParam( 0 ),
-                    aContext );
-        }
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 1 ) >= -1.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK parametric coordinate out of bounds (param[1]=%e, context=%s)",
-                    aParam( 1 ),
-                    aContext );
-        }
-    }
-
-    inline void assert_param_in_bounds_simplex( moris::Matrix< moris::DDRMat > const &aParam, const char *aContext )
-    {
-        if ( aParam.n_rows() >= 1 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= 0.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
-                    "MTK TRI parametric coordinate out of bounds (eta=%e, context=%s)",
-                    aParam( 0 ),
-                    aContext );
-        }
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 1 ) >= 0.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK TRI parametric coordinate out of bounds (zeta=%e, context=%s)",
-                    aParam( 1 ),
-                    aContext );
-            MORIS_ASSERT(
-                    aParam( 0 ) + aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK TRI parametric coordinate out of bounds (eta+zeta=%e, context=%s)",
-                    aParam( 0 ) + aParam( 1 ),
-                    aContext );
-        }
-    }
-}    // namespace
-
+#include "fn_MTK_Param_Assert.hpp"
 namespace moris::mtk
 {
     QuadraturePointMapper_Ray::QuadraturePointMapper_Ray(
@@ -113,6 +65,7 @@ namespace moris::mtk
             Integration_Surface_Mesh_Data   tData( aIGMesh, tSideSetCast );
             Integration_Surface_Mesh        tSurfaceMesh( tData );
             tSurfaceMeshes.push_back( tSurfaceMesh );
+            // tSurfaceMesh.write_to_file( "surface_mesh_" + tSideSet->get_set_name() + std::to_string( gLogger.iter ) + ".obj" );
         }
 
         return tSurfaceMeshes;
@@ -263,9 +216,17 @@ namespace moris::mtk
                 // Evaluate shape functions and interpolate the parametric coordinate along the side
                 Matrix< DDRMat > tSourceNRsgp = trans( tFacetInterpolator.NXi() );
                 Matrix< DDRMat > tSourceRsgp  = tSourceLocalCoordsTrans * tSourceNRsgp;
-                // tSourceRsgp is in interpolation-cell parametric coordinates (r,s[,t]),
-                // so box bounds are appropriate even when side geometry is TRI.
-                assert_param_in_bounds_box( tSourceRsgp, "QuadraturePointMapper_Ray::source_rs_interp" );
+
+                if ( tSourceRsgp.n_rows() == 2 )
+                {
+                    assert_param_in_bounds_box( tSourceRsgp, "QuadraturePointMapper_Ray::source_rs_interp (box)" );
+                }
+                else if ( tSourceRsgp.n_rows() == 3 )
+                {
+                    assert_param_in_bounds_simplex( tSourceRsgp, "QuadraturePointMapper_Ray::source_rs_interp (simplex)" );
+                }
+
+
                 tGeomSpaceInterpolator.set_space_time( tSourceRsgp );
                 tFieldSpaceInterpolator.set_space( tSourceRsgp );
                 Matrix< DDRMat > tSourceYgp = tGeomSpaceInterpolator.valx() + tFieldSpaceInterpolator.valx();

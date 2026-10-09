@@ -222,7 +222,7 @@ option(MORIS_HAVE_ARBORX
     "Build MORIS with support for ArborX." ON )
 
 option(MORIS_HAVE_GEOMPACK
-    "Build MORIS with support for Geompack." ON )
+    "Build MORIS with support for Geompack." OFF )
     
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
