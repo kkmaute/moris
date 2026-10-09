@@ -168,7 +168,7 @@ extern "C" void check_results()
     // check displacements at node aNodeId in first time step (displacements are 3,4,5th nodal fields, first time step has index 0)
     Vector< Matrix< DDRMat > > tReferenceDisplacement;
 
-    tReferenceDisplacement.push_back( { { -1.931735576379704e-05 }, { -2.458041207903132e-02 } } );    // test case 0
+    tReferenceDisplacement.push_back( { { -1.929788901590124e-05 }, { -2.458317452982498e-02 } } );    // test case 0
     tReferenceDisplacement.push_back( { { -1.159293612747665e-05 }, { -2.527716057948835e-02 } } );    // test case 1
 
     Matrix< DDRMat > tActualDisplacement = {

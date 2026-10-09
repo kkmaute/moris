@@ -14,43 +14,7 @@
 #include "cl_Logger.hpp"
 #include <chrono>
 #include <cstdio>
-
-namespace
-{
-    inline void assert_param_in_bounds_box( moris::Matrix< moris::DDRMat > const & aParam, const char* aContext )
-    {
-        if ( aParam.n_rows() >= 1 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= -1.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12,
-                    "MTK Ray-Line parametric out of bounds (LINE domain, param[0]=%e, context=%s)",
-                    aParam( 0 ),
-                    aContext );
-        }
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 1 ) >= -1.0 - 1e-12 && aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK Ray-Line parametric out of bounds (LINE domain, param[1]=%e, context=%s)",
-                    aParam( 1 ),
-                    aContext );
-        }
-    }
-
-    inline void assert_param_in_bounds_simplex( moris::Matrix< moris::DDRMat > const & aParam, const char* aContext )
-    {
-        if ( aParam.n_rows() >= 2 )
-        {
-            MORIS_ASSERT(
-                    aParam( 0 ) >= 0.0 - 1e-12 && aParam( 1 ) >= 0.0 - 1e-12 && aParam( 0 ) <= 1.0 + 1e-12 && aParam( 1 ) <= 1.0 + 1e-12 && aParam( 0 ) + aParam( 1 ) <= 1.0 + 1e-12,
-                    "MTK Ray-Line parametric out of bounds (TRI simplex, eta=%e zeta=%e, context=%s)",
-                    aParam( 0 ),
-                    aParam( 1 ),
-                    aContext );
-        }
-    }
-}    // namespace
-
+#include "fn_MTK_Param_Assert.hpp"
 namespace moris::mtk
 {
     // NOT NEEDED ANYMORE
@@ -130,7 +94,7 @@ namespace moris::mtk
         mHasIntersection = false;
     }
 
-    
+
     void Ray_Line_Intersection::perform_nonlinear_raytracing(
             Space_Interpolator&     tGeomSpaceInterpolator,
             Space_Interpolator&     tFieldSpaceInterpolator,
@@ -139,9 +103,9 @@ namespace moris::mtk
             const Matrix< DDRMat >& tTargetLocalCoordinates )
     {
         // Newton solve for ray/line intersection in nonlinearly deformed configuration.
-        int const        tProcRank = moris::Logger::logger_par_rank();
+        int const        tProcRank          = moris::Logger::logger_par_rank();
         auto const       tRaytraceStartTime = std::chrono::steady_clock::now();
-        uint             tSpaceDim = mOrigin.n_rows();
+        uint             tSpaceDim          = mOrigin.n_rows();
         Matrix< DDRMat > tSolRay( tSpaceDim, 1, 0.0 );
         Matrix< DDRMat > tSolRayPrev( tSpaceDim, 1, 1.0 );
         real             tRayResRefNorm   = 0.0;
@@ -150,10 +114,10 @@ namespace moris::mtk
         uint             tNewtonIters     = 0;
         // Matrix< DDRMat > tTargetParamPoint( tSpaceDim - 1, 1, 0.0 );
         Matrix< DDRMat > tJacRayInv;
-        const real       tRayResRefNormTol  = 1e-10;
-        const real       tStagnationNormTol = 1e-12;
-        const real       tStagnationAcceptTol = 1e-3;
-        const uint       tMaxNewtonSteps    = 100;
+        const real       tRayResRefNormTol    = 1e-10;
+        const real       tStagnationNormTol   = 1e-12;
+        const real       tStagnationAcceptTol = 1e-6;
+        const uint       tMaxNewtonSteps      = 100;
 
 
         for ( uint inew = 0; inew < tMaxNewtonSteps; inew++ )
@@ -166,7 +130,16 @@ namespace moris::mtk
                 tSolRay( 1 ) = std::min( 1.0, std::max( -1.0, tSolRay( 1 ) ) );    // tSolRay = (s,eta)
 
                 Matrix< DDRMat > tTargetEtagp = { { tSolRay( 1 ) } };
-                assert_param_in_bounds_box( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_2D_postclamp" );
+                
+                if ( tTargetEtagp.n_rows() == 2 )
+                {
+                    assert_param_in_bounds_box( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_2D_postclamp (box)" );
+                }
+                else if ( tTargetEtagp.n_rows() == 3 )
+                {
+                    assert_param_in_bounds_simplex( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_2D_postclamp (simplex)" );
+                }
+
 
                 // Build a Lagrange interpolator along the target local coordinates on the side
                 Interpolation_Rule tFacetInterpRule(
@@ -216,14 +189,14 @@ namespace moris::mtk
                 tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tTargetdVgpdeta - tTargetdYgpdeta;
                 if ( std::abs( det( tJacRay ) ) < MORIS_REAL_EPS ) break;
                 tJacRayInv = inv( tJacRay );
-    
+
                 const real tConvThresh = std::max( tRayResRefNormTol * tRayResRefNorm, tRayResRefNormTol );
                 if ( tResRayNorm < tConvThresh )
                 {
                     tNewtonConverged = true;
                     break;
                 }
-               
+
                 if ( norm( tSolRay - tSolRayPrev ) < tStagnationNormTol )
                 {
                     if ( tResRayNorm < tStagnationAcceptTol )
@@ -249,12 +222,12 @@ namespace moris::mtk
                 if ( tEta + tZeta > 1.0 )
                 {
                     real tSum = tEta + tZeta;
-                    tEta  /= tSum;
+                    tEta /= tSum;
                     tZeta /= tSum;
                 }
 
-                tSolRay( 1 ) = tEta;
-                tSolRay( 2 ) = tZeta;
+                tSolRay( 1 )                  = tEta;
+                tSolRay( 2 )                  = tZeta;
                 Matrix< DDRMat > tTargetEtagp = { { tSolRay( 1 ) }, { tSolRay( 2 ) } };    // eta and zeta
                 assert_param_in_bounds_simplex( tTargetEtagp, "Ray_Line_Intersection::perform_nonlinear_3D_postclamp" );
 
@@ -292,8 +265,8 @@ namespace moris::mtk
                 Matrix< DDRMat > tTargetdYgpdrs = tTargetdNYgpdrs * tGeomSpaceInterpolator.get_space_coeff();
                 Matrix< DDRMat > tTargetdVgpdrs = tTargetdNYgpdrs * tFieldSpaceInterpolator.get_space_coeff();
                 // Chain rule: dY/dxi = [dY/dr, dY/ds] * dxi/dxi_hat
-    
-                Matrix< DDRMat > tTargetdYgpdeta = trans( tTargetdYgpdrs )  * tTargetdrsdeta;
+
+                Matrix< DDRMat > tTargetdYgpdeta = trans( tTargetdYgpdrs ) * tTargetdrsdeta;
                 Matrix< DDRMat > tTargetdVgpdeta = trans( tTargetdVgpdrs ) * tTargetdrsdeta;
 
                 // Compute the residual
@@ -313,14 +286,14 @@ namespace moris::mtk
                 tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tTargetdVgpdeta - tTargetdYgpdeta;
                 if ( std::abs( det( tJacRay ) ) < MORIS_REAL_EPS ) break;
                 tJacRayInv = inv( tJacRay );
-              
+
                 const real tConvThresh = std::max( tRayResRefNormTol * tRayResRefNorm, tRayResRefNormTol );
                 if ( tResRayNorm < tConvThresh )
                 {
                     tNewtonConverged = true;
                     break;
                 }
-                
+
                 if ( norm( tSolRay - tSolRayPrev ) < tStagnationNormTol )
                 {
                     if ( tResRayNorm < tStagnationAcceptTol )
@@ -402,16 +375,6 @@ namespace moris::mtk
             else
             {
                 assert_param_in_bounds_box( mParametricCoordinate, "Ray_Line_Intersection::perform_nonlinear_2D_final" );
-            }
-
-            if ( tSpaceDim == 3
-                    && ( std::abs( mParametricCoordinate( 0 ) ) > 1.2 || std::abs( mParametricCoordinate( 1 ) ) > 1.2 ) )
-            {
-                std::cout << "RAYLINE_3D_PARAM_OOB"
-                          << " s=" << tSolRay( 0 )
-                          << " eta=" << mParametricCoordinate( 0 )
-                          << " zeta=" << mParametricCoordinate( 1 )
-                          << std::endl;
             }
         }
     }

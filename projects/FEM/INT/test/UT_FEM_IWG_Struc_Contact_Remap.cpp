@@ -11,6 +11,9 @@
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
 
 #define protected public
 #define private public
@@ -39,14 +42,14 @@ using namespace fem;
 void Test_IWG_Struc_Contact_Remap(
         const IWG_Type aIWGType,
         bool           aUseDeformedConfig,
-        bool           aUseConsistentDeformedConfig,
-        const real&    aDisplacementScaling )
+        // bool           aUseConsistentDeformedConfig,
+        const real& aDisplacementScaling )
 {
     // define an epsilon environment
     real tEpsilon = 1E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -157,14 +160,14 @@ void Test_IWG_Struc_Contact_Remap(
     tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set gap computing parameters
-    tIWG->mUseDeformedGeometryForGap           = aUseDeformedConfig;
-    tIWG->mUseConsistentDeformedGeometryForGap = aUseConsistentDeformedConfig;
+    tIWG->mUseDeformedGeometryForGap = aUseDeformedConfig;
+    // tIWG->mUseConsistentDeformedGeometryForGap = aUseConsistentDeformedConfig;
 
     // set error flag
     bool tPassedCheck = true;
 
     // loop on the space dimension - Note: this test is only for 2D
-    for ( uint iSpaceDim = 2; iSpaceDim < 3; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim <= 3; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -209,8 +212,9 @@ void Test_IWG_Struc_Contact_Remap(
         for ( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
             // create an interpolation order
-            mtk::Interpolation_Order tGIInterpolationOrder   = tInterpolationOrders( iInterpOrder - 1 );
-            mtk::Interpolation_Order tSideInterpolationOrder = aUseConsistentDeformedConfig ? tGIInterpolationOrder : tInterpolationOrders( 0 );
+            mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
+            // mtk::Interpolation_Order tSideInterpolationOrder = aUseConsistentDeformedConfig ? tGIInterpolationOrder : tInterpolationOrders( 0 );
+            mtk::Interpolation_Order tSideInterpolationOrder = tGIInterpolationOrder;
 
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
@@ -288,16 +292,16 @@ void Test_IWG_Struc_Contact_Remap(
 
                             tFollowerXHat = tLeaderXHat;
 
-                            if ( aUseConsistentDeformedConfig )
-                            {
-                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
-                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
-                            }
-                            else
-                            {
-                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
-                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
-                            }
+                            // if ( aUseConsistentDeformedConfig )
+                            // {
+                            tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
+                            tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
+                            // }
+                            // else
+                            // {
+                            //     tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
+                            //     tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
+                            // }
 
                             tLeaderDOFHatDisp = {
                                 { -0.2, 0.1 },
@@ -330,6 +334,192 @@ void Test_IWG_Struc_Contact_Remap(
                     }
                     break;
                 }
+                case 3:
+                {
+                    // 3D integration parametric point (single GP) - explicitly set as column vector
+                    tIntegPoints.set_size( 3, 1 );
+                    tIntegPoints( 0, 0 ) = 0.33;
+                    tIntegPoints( 1, 0 ) = 0.33;
+                    tIntegPoints( 2, 0 ) = 0.;
+
+                    switch ( iInterpOrder )
+                    {
+                        case 1:
+                        {
+                            // linear HEX nodes (8 nodes)
+                            tLeaderXHat = {
+                                { 0.0, 0.0, 0.0 },
+                                { 1.0, 0.0, 0.0 },
+                                { 1.0, 1.0, 0.0 },
+                                { 0.0, 1.0, 0.0 },
+                                { 0.0, 0.0, 1.0 },
+                                { 1.0, 0.0, 1.0 },
+                                { 1.0, 1.0, 1.0 },
+                                { 0.0, 1.0, 1.0 }
+                            };
+
+                            tFollowerXHat = tLeaderXHat;
+
+                            // side parametric nodes for TRI embedded in the 3D parent cell
+                            tLeaderSideNodesParam   = { { -0.6, -0.5, -0.4 }, { 0.5, 0.2, -0.4 }, { -0.1, 0.6, -0.4 } };
+                            tFollowerSideNodesParam = { { -0.6, -0.5, 0.5 }, { 0.5, 0.2, 0.5 }, { -0.1, 0.6, 0.5 } };
+
+                            // DOF displacements per HEX node (3 components)
+                            tLeaderDOFHatDisp = {
+                                { 0.3, 0.26, 0.08 },
+                                { -0.3, 0.2, 0.14 },
+                                { 0.28, -0.26, 0.1 },
+                                { -0.28, 0.22, 0.07 },
+                                { 0.18, 0.12, -0.06 },
+                                { -0.18, 0.1, -0.1 },
+                                { 0.16, -0.12, -0.07 },
+                                { -0.16, 0.1, -0.04 }
+                            };
+
+                            tFollowerDOFHatDisp = {
+                                { -0.22, -0.18, -0.07 },
+                                { 0.24, 0.14, -0.11 },
+                                { -0.2, 0.2, -0.08 },
+                                { 0.22, -0.16, -0.06 },
+                                { -0.12, -0.1, 0.07 },
+                                { 0.14, 0.08, 0.11 },
+                                { -0.10, 0.12, 0.08 },
+                                { 0.12, -0.09, 0.05 }
+                            };
+                            break;
+                        }
+                        case 2:
+                        {
+                            tLeaderXHat =
+                                    // Node coordinate matrix
+                                    {
+                                        { -1.0, -1.0, -1.0 },
+                                        { +1.0, -1.0, -1.0 },
+                                        { +1.0, +1.0, -1.0 },
+                                        { -1.0, +1.0, -1.0 },
+                                        { -1.0, -1.0, +1.5 },
+                                        { +1.0, -1.0, +1.5 },
+                                        { +1.0, +1.0, +1.5 },
+                                        { -1.0, +1.0, +1.5 },
+                                        { +0.0, -1.0, -1.0 },
+                                        { +1.0, 0.0, -1.0 },
+                                        { 0.0, +1.0, -1.0 },
+                                        { -1.0, 0.0, -1.0 },
+                                        { -1.0, -1.0, 0.0 },
+                                        { +1.0, -1.0, 0.0 },
+                                        { +1.0, +1.0, 0.0 },
+                                        { -1.0, +1.0, 0.0 },
+                                        { 0.0, -1.0, +1.5 },
+                                        { +1.0, 0.0, +1.5 },
+                                        { 0.0, +1.0, +1.5 },
+                                        { -1.0, 0.0, +1.5 },
+                                        { 0.0, 0.0, 0.0 },
+                                        { 0.0, 0.0, -1.0 },
+                                        { 0.0, 0.0, +1.5 },
+                                        { -1.0, 0.0, 0.0 },
+                                        { +1.0, 0.0, 0.0 },
+                                        { 0.0, -1.0, 0.0 },
+                                        { 0.0, +1.0, 0.0 }
+                                    };
+
+                            tFollowerXHat = tLeaderXHat;
+
+                            // if ( aUseConsistentDeformedConfig )
+                            // {
+                            // quadratic TRI side in parent coordinates: 3 vertices + 3 edge mids
+                            tLeaderSideNodesParam = {
+                                { -0.65, -0.55, -0.50 },
+                                { 0.55, 0.15, -0.50 },
+                                { -0.10, 0.65, -0.50 },
+                                { -0.05, -0.20, -0.50 },
+                                { 0.225, 0.40, -0.50 },
+                                { -0.375, 0.05, -0.50 }
+                            };
+
+                            tFollowerSideNodesParam = {
+                                { -0.65, -0.55, 0.45 },
+                                { 0.55, 0.15, 0.45 },
+                                { -0.10, 0.65, 0.45 },
+                                { -0.05, -0.20, 0.45 },
+                                { 0.225, 0.40, 0.45 },
+                                { -0.375, 0.05, 0.45 }
+                            };
+                            // }
+                            // else
+                            // {
+                            //     tLeaderSideNodesParam   = { { -0.65, -0.55, -0.50 }, { 0.55, 0.15, -0.50 }, { -0.10, 0.65, -0.50 } };
+                            //     tFollowerSideNodesParam = { { -0.65, -0.55, 0.45 }, { 0.55, 0.15, 0.45 }, { -0.10, 0.65, 0.45 } };
+                            // }
+
+                            tLeaderDOFHatDisp = {
+                                { 0.0, 0.0, 0.0 },
+                                { -0.200, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.200, 0.0 },
+                                { 0.0, 0.0, 0.6600 },
+                                { 0.0, 0.200, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.200, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { -0.4000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.4000, 0.0 },
+                                { 0.0, 0.0, 0.5500 },
+                                { 0.0, 0.4000, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.4000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { -0.5200, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.5200, 0.0 },
+                                { 0.0, 0.0, 0.6600 },
+                                { 0.0, 0.5200, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.5200, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 }
+                            };
+
+                            tFollowerDOFHatDisp = {
+                                { 0.0, 0.2, 0.0 },
+                                { -0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.92000, 0.0 },
+                                { 0.0, 0.0, -0.92000 },
+                                { 0.0, 0.92000, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { -0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.92000, 0.0 },
+                                { 0.0, 0.0, -0.92000 },
+                                { 0.0, 0.92000, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { -0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.0, -0.92000, 0.0 },
+                                { 0.0, 0.0, -0.92000 },
+                                { 0.0, 0.92000, 0.0 },
+                                { 0.0, 0.0, 0.0 },
+                                { 0.92000, 0.0, 0.0 },
+                                { 0.0, 0.0, 0.0 }
+
+                            };
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "3D interpolation order not implemented." );
+                        }
+                    }
+                    break;
+                }
                 default:
                     MORIS_ERROR( false, "Space dimension not implemented." );
             }
@@ -343,8 +533,33 @@ void Test_IWG_Struc_Contact_Remap(
 
             for ( uint iNode = 0; iNode < tLeaderSideNodesParam.n_rows(); iNode++ )
             {
+                // if ( iSpaceDim == 3 )
+                // {
+                //     // for 3D, map side nodes to physical coords by sampling face nodes from the 3D element
+                //     // ensure we don't exceed available leader nodes
+                //     uint             tSrcRow    = std::min( iNode, (uint)tLeaderXHat.n_rows() - 1 );
+                //     Matrix< DDRMat > tSrcRowVec = tLeaderXHat.get_row( tSrcRow );
+                //     // If source/target column counts differ, truncate or repeat to match target
+                //     size_t tTargetCols = tLeaderSideXHat.n_cols();
+                //     size_t tCopyCols   = std::min( tSrcRowVec.n_cols(), tTargetCols );
+                //     for ( size_t c = 0; c < tCopyCols; ++c )
+                //     {
+                //         tLeaderSideXHat( iNode, (uint)c ) = tSrcRowVec( 0, (uint)c );
+                //     }
+                //     if ( tCopyCols < tTargetCols )
+                //     {
+                //         double tFill = ( tCopyCols > 0 ) ? tSrcRowVec( 0, (uint)tCopyCols - 1 ) : 0.0;
+                //         for ( size_t c = tCopyCols; c < tTargetCols; ++c )
+                //         {
+                //             tLeaderSideXHat( iNode, (uint)c ) = tFill;
+                //         }
+                //     }
+                // }
+                // else
+                // {
                 tLeaderGI.set_space( trans( tLeaderSideNodesParam.get_row( iNode ) ) );
                 tLeaderSideXHat.get_row( iNode ) = tLeaderGI.valx().matrix_data();
+                // }
             }
 
             tLeaderSideGI.set_coeff( tLeaderSideXHat, tTHat );
@@ -356,8 +571,30 @@ void Test_IWG_Struc_Contact_Remap(
 
             for ( uint iNode = 0; iNode < tFollowerSideNodesParam.n_rows(); iNode++ )
             {
+                // if ( iSpaceDim == 3 )
+                // {
+                //     uint             tSrcRow     = std::min( iNode, (uint)tFollowerXHat.n_rows() - 1 );
+                //     Matrix< DDRMat > tSrcRowVec  = tFollowerXHat.get_row( tSrcRow );
+                //     size_t           tTargetCols = tFollowerSideXHat.n_cols();
+                //     size_t           tCopyCols   = std::min( tSrcRowVec.n_cols(), tTargetCols );
+                //     for ( size_t c = 0; c < tCopyCols; ++c )
+                //     {
+                //         tFollowerSideXHat( iNode, (uint)c ) = tSrcRowVec( 0, (uint)c );
+                //     }
+                //     if ( tCopyCols < tTargetCols )
+                //     {
+                //         double tFill = ( tCopyCols > 0 ) ? tSrcRowVec( 0, (uint)tCopyCols - 1 ) : 0.0;
+                //         for ( size_t c = tCopyCols; c < tTargetCols; ++c )
+                //         {
+                //             tFollowerSideXHat( iNode, (uint)c ) = tFill;
+                //         }
+                //     }
+                // }
+                // else
+                // {
                 tFollowerGI.set_space( trans( tFollowerSideNodesParam.get_row( iNode ) ) );
                 tFollowerSideXHat.get_row( iNode ) = tFollowerGI.valx().matrix_data();
+                // }
             }
 
             tFollowerSideGI.set_coeff( tFollowerSideXHat, tTHat );
@@ -460,7 +697,7 @@ void Test_IWG_Struc_Contact_Remap(
 
                 Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
                         tIWG->mUseDeformedGeometryForGap,
-                        tIWG->mUseConsistentDeformedGeometryForGap,
+                        // tIWG->mUseConsistentDeformedGeometryForGap,
                         tDispDofTypes( 0 ),
                         tIWG->mSet->mLeaderFIManager,
                         tIWG->mSet->mFollowerFIManager,
@@ -488,7 +725,7 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                // tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
@@ -500,7 +737,7 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                // tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
@@ -526,9 +763,23 @@ void Test_IWG_Struc_Contact_Remap(
                         Matrix< DDRMat > tFdEta2du2 = ( tPertGapData->mdEtadu - tCurrentGapData->mdEtadu ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdEta2duv = ( tPertGapData->mdEtadv - tCurrentGapData->mdEtadv ) / 2 / tPerturbation;
 
-                        real tErrordEtadu   = 100.0 * norm( tFdEtadu - tNominalGapData->mdEtadu( tCounter ) ) / norm( tFdEtadu );
-                        real tErrordEta2du2 = 100.0 * norm( tFdEta2du2 - tNominalGapData->mdEta2du2.get_row( tCounter ) ) / norm( tFdEta2du2 );
-                        real tErrordEta2duv = 100.0 * norm( tFdEta2duv - tNominalGapData->mdEta2duv.get_row( tCounter ) ) / norm( tFdEta2duv );
+                        const uint       tNumEtaLeader = iSpaceDim - 1;
+                        Matrix< DDRMat > tNomEtadu     = tNominalGapData->mdEtadu.get_column( tCounter );
+                        Matrix< DDRMat > tNomEta2du2( tNumEtaLeader, tNumDofs, 0.0 );
+                        Matrix< DDRMat > tNomEta2duv( tNumEtaLeader, tNumDofs, 0.0 );
+
+                        for ( uint iEta = 0; iEta < tNumEtaLeader; ++iEta )
+                        {
+                            for ( uint jdof = 0; jdof < tNumDofs; ++jdof )
+                            {
+                                tNomEta2du2( iEta, jdof ) = tNominalGapData->mdEta2du2( iEta * tNumDofs + tCounter, jdof );
+                                tNomEta2duv( iEta, jdof ) = tNominalGapData->mdEta2duv[ iEta ]( tCounter, jdof );
+                            }
+                        }
+
+                        real tErrordEtadu   = 100.0 * norm( tFdEtadu - tNomEtadu ) / norm( tFdEtadu );
+                        real tErrordEta2du2 = 100.0 * norm( tFdEta2du2 - tNomEta2du2 ) / norm( tFdEta2du2 );
+                        real tErrordEta2duv = 100.0 * norm( tFdEta2duv - tNomEta2duv ) / norm( tFdEta2duv );
 
                         if ( tErrordEtadu + tErrordEta2du2 + tErrordEta2duv > 100.0 * tEpsilon )
                         {
@@ -537,7 +788,6 @@ void Test_IWG_Struc_Contact_Remap(
                             fprintf( stdout, "percent error dEta2duv: %e\n", tErrordEta2duv );
                             tPassedCheck = false;
                         }
-
                         Matrix< DDRMat > tFdLeaderNormaldu    = ( tPertGapData->mLeaderNormal - tCurrentGapData->mLeaderNormal ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdLeaderdNormal2du2 = ( tPertGapData->mLeaderdNormaldu - tCurrentGapData->mLeaderdNormaldu ) / 2 / tPerturbation;
 
@@ -584,10 +834,11 @@ void Test_IWG_Struc_Contact_Remap(
                 }
                 // reset the leader dof hat displacement
                 tLeaderFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderDOFHatDisp );
-
-                // FD wrt displacements on leader side
-                tCounter       = 0;
-                uint tNumNodes = tFollowerDOFHatDisp.n_rows();
+                // FD wrt displacements on follower side
+                tCounter = 0;
+                // use follower DOF count for follower-side extractions
+                tNumDofs = tFollowerDOFHatDisp.numel();
+                // uint tNumNodes = tFollowerDOFHatDisp.n_rows();
 
                 for ( uint idir = 0; idir < tFollowerDOFHatDisp.n_cols(); idir++ )
                 {
@@ -598,7 +849,7 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                // tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
@@ -610,7 +861,7 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
+                                // tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
@@ -619,11 +870,13 @@ void Test_IWG_Struc_Contact_Remap(
                         real             tFdGapdv   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2dv2 = ( tPertGapData->mdGapdv - tCurrentGapData->mdGapdv ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGap2duv = ( tPertGapData->mdGapdu - tCurrentGapData->mdGapdu ) / 2 / tPerturbation;
+                        // fprintf( stdout, "tFdGapdv: %d %d %e\n", (int)iInterpOrder, (int)tCounter, tFdGapdv );
 
-                        real tErrordGapdv   = 100.0 * std::abs( tFdGapdv - tNominalGapData->mdGapdv( tCounter ) ) / std::abs( tFdGapdv );
-                        real tErrordGap2dv2 = 100.0 * norm( tFdGap2dv2 - tNominalGapData->mdGap2dv2.get_row( tCounter ) ) / norm( tFdGap2dv2 );
+                        real tErrordGapdv   = 100.0 * std::abs( tFdGapdv - tNominalGapData->mdGapdv( 0, tCounter ) ) / std::abs( tFdGapdv );
+                        real tErrordGap2dv2 = 100.0 * norm( tFdGap2dv2 - trans( tNominalGapData->mdGap2dv2.get_column( tCounter ) ) ) / norm( tFdGap2dv2 );
                         real tErrordGap2duv = 100.0 * norm( tFdGap2duv - trans( tNominalGapData->mdGap2duv.get_column( tCounter ) ) ) / norm( tFdGap2duv );
 
+                        // const real tFollowerGapTolScale = ( iSpaceDim == 3 ) ? 1.0: 1.0;
                         if ( tErrordGapdv + tErrordGap2dv2 + tErrordGap2duv > 100.0 * tEpsilon )
                         {
                             fprintf( stdout, "percent error dGapdv:  %e\n", tErrordGapdv );
@@ -636,9 +889,23 @@ void Test_IWG_Struc_Contact_Remap(
                         Matrix< DDRMat > tFdEta2dv2 = ( tPertGapData->mdEtadv - tCurrentGapData->mdEtadv ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdEta2duv = ( tPertGapData->mdEtadu - tCurrentGapData->mdEtadu ) / 2 / tPerturbation;
 
-                        real tErrordEtadv   = 100.0 * norm( tFdEtadv - tNominalGapData->mdEtadv( tCounter ) ) / norm( tFdEtadv );
-                        real tErrordEta2dv2 = 100.0 * norm( tFdEta2dv2 - tNominalGapData->mdEta2dv2.get_row( tCounter ) ) / norm( tFdEta2dv2 );
-                        real tErrordEta2duv = 100.0 * norm( tFdEta2duv - trans( tNominalGapData->mdEta2duv.get_column( tCounter ) ) ) / norm( tFdEta2duv );
+                        const uint       tNumEtaFollower = iSpaceDim - 1;
+                        Matrix< DDRMat > tNomEtadv       = tNominalGapData->mdEtadv.get_column( tCounter );
+                        Matrix< DDRMat > tNomEta2dv2( tNumEtaFollower, tNumDofs, 0.0 );
+                        Matrix< DDRMat > tNomEta2duv( tNumEtaFollower, tNumDofs, 0.0 );
+
+                        for ( uint iEta = 0; iEta < tNumEtaFollower; ++iEta )
+                        {
+                            for ( uint jdof = 0; jdof < tNumDofs; ++jdof )
+                            {
+                                tNomEta2dv2( iEta, jdof ) = tNominalGapData->mdEta2dv2( iEta * tNumDofs + tCounter, jdof );
+                                tNomEta2duv( iEta, jdof ) = tNominalGapData->mdEta2duv[ iEta ]( jdof, tCounter );
+                            }
+                        }
+
+                        real tErrordEtadv   = 100.0 * norm( tFdEtadv - tNomEtadv ) / norm( tFdEtadv );
+                        real tErrordEta2dv2 = 100.0 * norm( tFdEta2dv2 - tNomEta2dv2 ) / norm( tFdEta2dv2 );
+                        real tErrordEta2duv = 100.0 * norm( tFdEta2duv - tNomEta2duv ) / norm( tFdEta2duv );
 
                         if ( tErrordEtadv + tErrordEta2dv2 + tErrordEta2duv > 100.0 * tEpsilon )
                         {
@@ -657,20 +924,20 @@ void Test_IWG_Struc_Contact_Remap(
                             tPassedCheck = false;
                         }
 
-                        std::pair< moris::size_t, moris::size_t > tRowBlk = { 0, iSpaceDim - 1 };
-                        std::pair< moris::size_t, moris::size_t > tColBlk = { tCounter * tNumDofs, ( tCounter + 1 ) * tNumDofs - 1 };
-
                         Matrix< DDRMat > tFdGapVecdv   = ( tPertGapData->mGapVec - tCurrentGapData->mGapVec ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGapvec2dv2 = ( tPertGapData->mdGapvecdv - tCurrentGapData->mdGapvecdv ) / 2 / tPerturbation;
                         Matrix< DDRMat > tFdGapvec2duv = ( tPertGapData->mdGapvecdu - tCurrentGapData->mdGapvecdu ) / 2 / tPerturbation;
 
-                        real tErrordGapVectordv = 100.0 * norm( tFdGapVecdv - tNominalGapData->mdGapvecdv.get_column( tCounter ) ) / norm( tFdGapVecdv );
-                        real tErrordGapvec2dv2  = 100.0 * norm( tFdGapvec2dv2 - tNominalGapData->mdGapvec2dv2( tRowBlk, tColBlk ) ) / norm( tFdGapvec2dv2 );
+                        real             tErrordGapVectordv     = 100.0 * norm( tFdGapVecdv - tNominalGapData->mdGapvecdv.get_column( tCounter ) ) / norm( tFdGapVecdv );
+                        Matrix< DDRMat > tdGapvec2dv2Extraction = tNominalGapData->mdGapvec2dv2( { 0, iSpaceDim - 1 }, { tCounter * tNumDofs, ( tCounter + 1 ) * tNumDofs - 1 } );
 
-                        Matrix< DDRMat > tdGapvec2duvExtraction( iSpaceDim, tNumDofs );
-                        for ( uint id = 0; id < tNumDofs; id++ )
+                        real tErrordGapvec2dv2 = 100.0 * norm( tFdGapvec2dv2 - tdGapvec2dv2Extraction ) / norm( tFdGapvec2dv2 );
+
+                        Matrix< DDRMat > tdGapvec2duvExtraction( iSpaceDim, tNumDofs, 0.0 );
+                        for ( uint id = 0; id < tNumDofs; ++id )
                         {
-                            tdGapvec2duvExtraction.get_column( id ) = tNominalGapData->mdGapvec2duv.get_column( in + idir * tNumNodes + id * tNumDofs );
+                            // mdGapvec2duv is stored leader-major: col = leaderIndex * followerDofs + followerIndex
+                            tdGapvec2duvExtraction.get_column( id ) = tNominalGapData->mdGapvec2duv.get_column( id * tNumDofs + tCounter );
                         }
 
                         real tErrordGapvec2duv = 100.0 * norm( tFdGapvec2duv - tdGapvec2duvExtraction ) / norm( tFdGapvec2duv );
@@ -693,21 +960,30 @@ void Test_IWG_Struc_Contact_Remap(
                 tFollowerFIs.clear();
 
                 // check if the test passed
+                if ( !tPassedCheck )
+                {
+                    std::cout << "TEST FAILED for configuration: "
+                              << " spaceDim=" << (int)iSpaceDim
+                              << " interpOrder=" << (int)iInterpOrder
+                              << " useDeformed=" << (int)aUseDeformedConfig
+                              << " dispScale=" << aDisplacementScaling
+                              << std::endl;
+                }
                 REQUIRE( tPassedCheck );
             }
         }
     }
 }
 
-TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Linear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Linear]" )
-{
-    // check with contact
-    Test_IWG_Struc_Contact_Remap(
-            fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
-            true,     // use deformed geometry
-            false,    // use linear displacement assumption
-            1.0 );
-}
+// TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Linear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Linear]" )
+// {
+//     // check with contact
+//     Test_IWG_Struc_Contact_Remap(
+//             fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
+//             true,     // use deformed geometry
+//             false,    // use linear displacement assumption
+//             1.0 );
+// }
 
 TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Nonlinear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Nonlinear]" )
 {
@@ -715,8 +991,209 @@ TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Nonlinear", "[moris],[fem],[IWG_Str
     Test_IWG_Struc_Contact_Remap(
             fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             true,    // use deformed geometry
-            true,    // use consistent deformed geometry
+            // true,    // use consistent deformed geometry
             1.0 );
+}
+TEST_CASE( "IWG_compact_hessian_chain_rule_helper", "[moris],[fem],[IWG_compact_hessian_chain_rule_helper]" )
+{
+    Matrix< DDRMat > tDqgByEta( 2, 3, 0.0 );
+    tDqgByEta( 0, 0 ) = 1.0;
+    tDqgByEta( 0, 1 ) = 0.5;
+    tDqgByEta( 0, 2 ) = 0.25;
+    tDqgByEta( 1, 0 ) = 0.0;
+    tDqgByEta( 1, 1 ) = 1.0;
+    tDqgByEta( 1, 2 ) = -0.5;
+
+    Matrix< DDRMat > tCompactHessian( 2, 6, 0.0 );
+    tCompactHessian( 0, 0 ) = 2.0;
+    tCompactHessian( 0, 1 ) = 3.0;
+    tCompactHessian( 0, 2 ) = 4.0;
+    tCompactHessian( 0, 3 ) = 5.0;
+    tCompactHessian( 0, 4 ) = 6.0;
+    tCompactHessian( 0, 5 ) = 7.0;
+    tCompactHessian( 1, 0 ) = 11.0;
+    tCompactHessian( 1, 1 ) = 13.0;
+    tCompactHessian( 1, 2 ) = 17.0;
+    tCompactHessian( 1, 3 ) = 19.0;
+    tCompactHessian( 1, 4 ) = 23.0;
+    tCompactHessian( 1, 5 ) = 29.0;
+
+    Matrix< DDRMat > tWeights = IWG::compute_eta_pair_hessian_weights( tDqgByEta, tCompactHessian, 0, 1 );
+
+    Matrix< DDRMat > tExpected( 2, 1, 0.0 );
+    Matrix< DDRMat > tH1( 3, 3, 0.0 );
+    tH1( 0, 0 ) = 2.0;
+    tH1( 1, 1 ) = 3.0;
+    tH1( 2, 2 ) = 4.0;
+    tH1( 1, 2 ) = 5.0;
+    tH1( 2, 1 ) = 5.0;
+    tH1( 0, 2 ) = 6.0;
+    tH1( 2, 0 ) = 6.0;
+    tH1( 0, 1 ) = 7.0;
+    tH1( 1, 0 ) = 7.0;
+
+    Matrix< DDRMat > tDqI( 3, 1, 0.0 );
+    tDqI( 0, 0 ) = 1.0;
+    tDqI( 1, 0 ) = 0.5;
+    tDqI( 2, 0 ) = 0.25;
+
+    Matrix< DDRMat > tDqJ( 3, 1, 0.0 );
+    tDqJ( 0, 0 ) = 0.0;
+    tDqJ( 1, 0 ) = 1.0;
+    tDqJ( 2, 0 ) = -0.5;
+
+    Matrix< DDRMat > tH2( 3, 3, 0.0 );
+    tH2( 0, 0 ) = 11.0;
+    tH2( 1, 1 ) = 13.0;
+    tH2( 2, 2 ) = 17.0;
+    tH2( 1, 2 ) = 19.0;
+    tH2( 2, 1 ) = 19.0;
+    tH2( 0, 2 ) = 23.0;
+    tH2( 2, 0 ) = 23.0;
+    tH2( 0, 1 ) = 29.0;
+    tH2( 1, 0 ) = 29.0;
+
+    Matrix< DDRMat > tVal1 = trans( tDqI ) * ( tH1 * tDqJ );
+    Matrix< DDRMat > tVal2 = trans( tDqI ) * ( tH2 * tDqJ );
+    tExpected( 0, 0 )      = tVal1( 0, 0 );
+    tExpected( 1, 0 )      = tVal2( 0, 0 );
+
+    REQUIRE( norm( tWeights - tExpected ) < 1e-12 );
+}
+
+TEST_CASE( "IWG_compact_hessian_2D_ordering", "[moris],[fem],[IWG_compact_hessian_2D_ordering]" )
+{
+    Matrix< DDRMat > tDqgByEta( 2, 2, 0.0 );
+    tDqgByEta( 0, 0 ) = 1.0;
+    tDqgByEta( 0, 1 ) = 0.0;
+    tDqgByEta( 1, 0 ) = 0.0;
+    tDqgByEta( 1, 1 ) = 1.0;
+
+    Matrix< DDRMat > tCompactHessian( 2, 3, 0.0 );
+    tCompactHessian( 0, 0 ) = 2.0;
+    tCompactHessian( 0, 1 ) = 3.0;
+    tCompactHessian( 0, 2 ) = 4.0;
+    tCompactHessian( 1, 0 ) = 5.0;
+    tCompactHessian( 1, 1 ) = 6.0;
+    tCompactHessian( 1, 2 ) = 7.0;
+
+    Matrix< DDRMat > tWeights = IWG::compute_eta_pair_hessian_weights( tDqgByEta, tCompactHessian, 0, 1 );
+
+    Matrix< DDRMat > tExpected( 2, 1, 0.0 );
+    Matrix< DDRMat > tH( 2, 2, 0.0 );
+    tH( 0, 0 ) = 2.0;
+    tH( 1, 1 ) = 3.0;
+    tH( 0, 1 ) = 4.0;
+    tH( 1, 0 ) = 4.0;
+
+    Matrix< DDRMat > tH2( 2, 2, 0.0 );
+    tH2( 0, 0 ) = 5.0;
+    tH2( 1, 1 ) = 6.0;
+    tH2( 0, 1 ) = 7.0;
+    tH2( 1, 0 ) = 7.0;
+
+    Matrix< DDRMat > tDqI( 2, 1, 0.0 );
+    tDqI( 0, 0 ) = 1.0;
+    tDqI( 1, 0 ) = 0.0;
+
+    Matrix< DDRMat > tDqJ( 2, 1, 0.0 );
+    tDqJ( 0, 0 ) = 0.0;
+    tDqJ( 1, 0 ) = 1.0;
+
+    Matrix< DDRMat > tVal1  = tH * tDqJ;
+    Matrix< DDRMat > tVal2  = tH2 * tDqJ;
+    Matrix< DDRMat > tProd1 = trans( tDqI ) * tVal1;
+    Matrix< DDRMat > tProd2 = trans( tDqI ) * tVal2;
+    tExpected( 0, 0 )       = tProd1( 0, 0 );
+    tExpected( 1, 0 )       = tProd2( 0, 0 );
+
+    REQUIRE( norm( tWeights - tExpected ) < 1e-12 );
+}
+
+TEST_CASE( "GapData_second_order_storage_layout", "[moris],[fem],[GapData_second_order_storage_layout]" )
+{
+    GapData tGapData;
+    tGapData.set_matrix_sizes( 2, 2, 2 );
+
+    Matrix< DDRMat > tdGap2du2( 2, 2, 0.0 );
+    tdGap2du2( 0, 0 ) = 1.0;
+    tdGap2du2( 0, 1 ) = 2.0;
+    tdGap2du2( 1, 0 ) = 3.0;
+    tdGap2du2( 1, 1 ) = 4.0;
+
+    Matrix< DDRMat > tdGap2dv2( 2, 2, 0.0 );
+    tdGap2dv2( 0, 0 ) = 5.0;
+    tdGap2dv2( 0, 1 ) = 6.0;
+    tdGap2dv2( 1, 0 ) = 7.0;
+    tdGap2dv2( 1, 1 ) = 8.0;
+
+    Matrix< DDRMat > tdGap2duv( 2, 2, 0.0 );
+    tdGap2duv( 0, 0 ) = 9.0;
+    tdGap2duv( 0, 1 ) = 10.0;
+    tdGap2duv( 1, 0 ) = 11.0;
+    tdGap2duv( 1, 1 ) = 12.0;
+
+    Matrix< DDRMat > tdEta2du2( 2, 2, 0.0 );
+    tdEta2du2( 0, 0 ) = 13.0;
+    tdEta2du2( 0, 1 ) = 14.0;
+    tdEta2du2( 1, 0 ) = 15.0;
+    tdEta2du2( 1, 1 ) = 16.0;
+
+    Matrix< DDRMat > tdEta2dv2( 2, 2, 0.0 );
+    tdEta2dv2( 0, 0 ) = 17.0;
+    tdEta2dv2( 0, 1 ) = 18.0;
+    tdEta2dv2( 1, 0 ) = 19.0;
+    tdEta2dv2( 1, 1 ) = 20.0;
+
+    Matrix< DDRMat > tdEta2duv( 2, 2, 0.0 );
+    tdEta2duv( 0, 0 ) = 21.0;
+    tdEta2duv( 0, 1 ) = 22.0;
+    tdEta2duv( 1, 0 ) = 23.0;
+    tdEta2duv( 1, 1 ) = 24.0;
+
+    Matrix< DDRMat > tLeaderdNormal2dU2( 2, 4, 0.0 );
+    for ( uint i = 0; i < 4; ++i )
+    {
+        tLeaderdNormal2dU2( 0, i ) = 100.0 + i;
+        tLeaderdNormal2dU2( 1, i ) = 200.0 + i;
+    }
+
+    Matrix< DDRMat > tdGapvec2du2( 2, 4, 0.0 );
+    Matrix< DDRMat > tdGapvec2dv2( 2, 4, 0.0 );
+    Matrix< DDRMat > tdGapvec2duv( 2, 4, 0.0 );
+
+    for ( uint i = 0; i < 4; ++i )
+    {
+        tdGapvec2du2( 0, i ) = 30.0 + i;
+        tdGapvec2du2( 1, i ) = 40.0 + i;
+        tdGapvec2dv2( 0, i ) = 50.0 + i;
+        tdGapvec2dv2( 1, i ) = 60.0 + i;
+        tdGapvec2duv( 0, i ) = 70.0 + i;
+        tdGapvec2duv( 1, i ) = 80.0 + i;
+    }
+
+    tGapData.set_second_order_derivatives(
+            2,
+            1,
+            2,
+            tdGap2du2,
+            tdGap2dv2,
+            tdGap2duv,
+            tdEta2du2,
+            tdEta2dv2,
+            tdEta2duv,
+            tLeaderdNormal2dU2,
+            tdGapvec2du2,
+            tdGapvec2dv2,
+            tdGapvec2duv );
+
+    REQUIRE( tGapData.mdGap2du2( 0, 1 ) == Approx( 2.0 ) );
+    REQUIRE( tGapData.mdGap2duv( 1, 0 ) == Approx( 11.0 ) );
+    REQUIRE( tGapData.mdEta2du2( 0, 1 ) == Approx( 14.0 ) );
+    REQUIRE( tGapData.mdEta2dv2( 1, 0 ) == Approx( 19.0 ) );
+    REQUIRE( tGapData.mdEta2duv_mat( 0, 1 ) == Approx( 22.0 ) );
+    REQUIRE( tGapData.mdEta2duv[ 0 ]( 0, 1 ) == Approx( 22.0 ) );
+    REQUIRE( tGapData.mdGapvec2duv( 0, 1 ) == Approx( 71.0 ) );
 }
 
 /* END_TEST_CASE */
