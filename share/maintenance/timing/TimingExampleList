@@ -53,8 +53,6 @@ Mach_Leading_Edge
 Solver_Examples
 HeatMethod-1-procs
 SA_Cluster_Measure-1-procs
-Channel2D-1-procs
-Channel2D-3-procs
 ChannelTurbulent2D-1-procs
 ChannelTurbulent2D-3-procs
 Contact_Sensitivity_Test-1-procs
