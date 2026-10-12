@@ -173,8 +173,9 @@ namespace moris::prm
                 }
                 case gen::Field_Type::USER_DEFINED:
                 {
-                    aParameterList.insert( "field_function_name", "" );          // Function name for evaluating the geometry field
-                    aParameterList.insert( "sensitivity_function_name", "" );    // Function name for evaluating the sensitivity of the field
+                    aParameterList.insert( "field_function_name", "" );               // Function name for evaluating the geometry field
+                    aParameterList.insert( "sensitivity_function_name", "" );         // Function name for evaluating the sensitivity of the field
+                    aParameterList.insert( "spatial_gradient_function_name", "" );    // Function name for evaluating the spatial gradient of the field. Optional, uses FD if not provided.
                     break;
                 }
             }
