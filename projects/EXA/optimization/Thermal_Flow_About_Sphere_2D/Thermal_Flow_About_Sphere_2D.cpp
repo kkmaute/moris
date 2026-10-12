@@ -135,11 +135,11 @@ namespace moris
     uint tInterfaceRefinementSphere = 0;
     uint tInterfaceRefinementWalls  = 0;
 
-    moris::real tElementEdgeLength = tApproxEleSize / ( std::pow( 2, tDispInitialRef ) );
-    moris::real tGeoShift          = 0.1 * tElementEdgeLength;
+    real tElementEdgeLength = tApproxEleSize / ( std::pow( 2, tDispInitialRef ) );
+    real tGeoShift          = 0.1 * tElementEdgeLength;
 
     // Bspline limit
-    moris::real tBSplineLimit = 5.0 * tElementEdgeLength;
+    real tBSplineLimit = 5.0 * tElementEdgeLength;
 
     /* ------------------------------------------------------------------------ */
     // loading parameters
@@ -185,7 +185,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
 
     // number of constraints (here: number of design criteria)
-    moris::uint tNumConstraints = 9;
+    uint tNumConstraints = 9;
 
     // max dof IQI
     std::string tRefTemp         = moris_to_string( 250.0 * tTempScale );    // about 0.5 of inlet temperature
@@ -194,12 +194,12 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // solver parameters
 
-    moris::real tNLA_rel_res_norm_drop    = 1e-8;
-    moris::real tNLA_relaxation_parameter = 1.0;
-    int         tNLA_max_iter             = 20;
+    real tNLA_rel_res_norm_drop    = 1e-8;
+    real tNLA_relaxation_parameter = 1.0;
+    int  tNLA_max_iter             = 20;
 
-    int         tTSA_Num_Time_Steps = 1;
-    moris::real tTSA_Time_Frame     = 1.0;
+    int  tTSA_Num_Time_Steps = 1;
+    real tTSA_Time_Frame     = 1.0;
 
     /* ------------------------------------------------------------------------ */
     // Output Config
@@ -209,7 +209,7 @@ namespace moris
     std::string tAllPhases  = tFluidPhase + "," + tSolidPhase;
 
     bool
-    Output_Criterion( moris::tsa::Time_Solver* aTimeSolver )
+    Output_Criterion( tsa::Time_Solver* aTimeSolver )
     {
         return true;
     }
@@ -222,12 +222,12 @@ namespace moris
     // geometry parameters & LS functions
 
     // Minimum level set value
-    moris::real tMinLevs = 1.0e-8;
+    real tMinLevs = 1.0e-8;
 
-    moris::real
+    real
     Func_Sphere(
-            const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&          aGeometryParameters )
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -242,21 +242,38 @@ namespace moris
 
     void
     Func_Sphere_Deriv(
-            const moris::Matrix< moris::DDRMat >&           aCoordinates,
-            const Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::Matrix< DDRMat >&                        aFieldSensitivity )
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aParameters,
+            Matrix< DDRMat >&       aFieldSensitivity )
     {
         // derivative of level set function wrt sphere radius
         aFieldSensitivity = { { 1.0 } };
     }
 
+    void
+    Func_Sphere_Grad(
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aParameters,
+            Matrix< DDRMat >&       aFieldSensitivity )
+    {
+        // get coordinates
+        real tX = aCoordinates( 0 );
+        real tY = aCoordinates( 1 );
+
+        real tTerm = -std::pow( std::pow( tX - tSpherePosX, tSphereExpon ) + std::pow( tY - tSpherePosY, tSphereExpon ), ( 1.0 / tSphereExpon ) - 1.0 );
+
+        // derivative of level set function wrt coordinates
+        aFieldSensitivity( 0 ) = tTerm * std::pow( tX - tSpherePosX, tSphereExpon - 1.0 );
+        aFieldSensitivity( 1 ) = tTerm * std::pow( tY - tSpherePosY, tSphereExpon - 1.0 );
+    }
+
     /* ------------------------------------------------------------------------ */
     // geometry parameters & LS functions
 
-    moris::real
+    real
     Func_Plane(
-            const moris::Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&          aGeometryParameters )
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -514,6 +531,7 @@ namespace moris
         aParameterLists( GEN::GEOMETRIES ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::USER_DEFINED ) );
         aParameterLists.set( "field_function_name", "Func_Sphere" );
         aParameterLists.set( "sensitivity_function_name", "Func_Sphere_Deriv" );
+        aParameterLists.set( "spatial_gradient_function_name", "Func_Sphere_Grad" );
         aParameterLists( 1 ).insert( "radius", Design_Variable( tSphereRadius * 0.9, tSphereRadius, tSphereRadius * 1.1 ) );
         aParameterLists.set( "number_of_refinements", tInterfaceRefinementSphere );
         aParameterLists.set( "refinement_mesh_index", 0 );
@@ -631,7 +649,7 @@ namespace moris
             std::cout << "Reynolds number     = " << 1.0 / std::stod( tFluidViscosity ) << " (" << reynolds << ")\n";
         }
 
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseFluid" );
@@ -1218,27 +1236,27 @@ namespace moris
         //------------------------------------------------------------------------------
 
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();    // nonlinear algorithm index 0
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         aParameterLists.set( "NLA_max_iter", tNLA_max_iter );
 
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
         aParameterLists.set( "NLA_max_iter", 1 );
 
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();    // nonlinear algorithm index 1
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NLBGS_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 0 );
         aParameterLists.set( "NLA_rel_res_norm_drop", 1.0 );
         aParameterLists.set( "NLA_max_iter", 1 );
 
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_Linear_solver", 1 );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
@@ -1247,18 +1265,18 @@ namespace moris
         //------------------------------------------------------------------------------
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 0: fluid subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );     // set nonlinear algorithm with index 0
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "VX,VY,P" );
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "1" );             // set nonlinear algorithm with index 0
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "1" );     // set nonlinear algorithm with index 0
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 2: one-way coupling via NLBGS
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "2" );             // set nonlinear algorithm with index 1.
-        aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "2" );     // set nonlinear algorithm with index 1.
+        aParameterLists.set( "NLA_Solver_Implementation", NLA::NonlinearSolverType::NLBGS_SOLVER );
         aParameterLists.set( "NLA_Sub_Nonlinear_Solver", "0,1" );    // set sub nonlinear solvers with index 0 and 1
         aParameterLists.set( "NLA_DofTypes", "VX,VY,P;TEMP" );
 
@@ -1282,7 +1300,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void

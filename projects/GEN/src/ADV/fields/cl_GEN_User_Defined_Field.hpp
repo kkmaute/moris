@@ -19,19 +19,26 @@ namespace moris::gen
     // User-defined field functions
     typedef real ( *Field_Function )(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aParameters );
+            const Vector< real >&   aParameters );
     typedef void ( *Sensitivity_Function )(
             const Matrix< DDRMat >& aCoordinates,
-            const Vector< real >&     aParameters,
+            const Vector< real >&   aParameters,
             Matrix< DDRMat >&       aSensitivities );
+
+    // std::function for sensitivities used internally to allow for FD if no sensitivity function is provided
+    using Sensitivity_Callable = std::function< void(
+            const Matrix< DDRMat >&,
+            const Vector< real >&,
+            Matrix< DDRMat >& ) >;
 
     class User_Defined_Field : public Field_Analytic< 0 >    // TODO consider templating user-defined field against reference dimensions as well
     {
 
       private:
         Vector< real >       mFieldVariables;
-        Field_Function       get_field_value_user_defined;
-        Sensitivity_Function get_dfield_dadvs_user_defined;
+        Field_Function       get_field_value_user_defined;      // Field value evaluation
+        Sensitivity_Callable get_dfield_dadvs_user_defined;     // Sensitivity with respect to mFieldVariables
+        Sensitivity_Callable get_dfield_dcoordinates_select;    // Spatial gradient (Analytic if provided, FD if not)
 
       public:
         /**
@@ -47,12 +54,14 @@ namespace moris::gen
          */
         User_Defined_Field(
                 Field_Function       aFieldFunction,
-                Sensitivity_Function aSensitivityFunction,
+                Sensitivity_Function aFieldVariableSensitivity,
+                Sensitivity_Function aSpatialGradientSensitivity,
                 ADV_ARG_TYPES )
                 : Field_Analytic< 0 >( ADV_ARGS )
                 , mFieldVariables( aFieldVariableIndices.size() + aConstants.size() )
                 , get_field_value_user_defined( aFieldFunction )
-                , get_dfield_dadvs_user_defined( aSensitivityFunction )
+                , get_dfield_dadvs_user_defined( aFieldVariableSensitivity )
+                , get_dfield_dcoordinates_select( aSpatialGradientSensitivity )
         {
             this->import_advs( nullptr );
             this->validate_user_defined_functions();
@@ -68,7 +77,8 @@ namespace moris::gen
          */
         User_Defined_Field(
                 Field_Function       aFieldFunction,
-                Sensitivity_Function aSensitivityFunction,
+                Sensitivity_Function aFieldVariableSensitivity,
+                Sensitivity_Function aSpatialGradientSensitivity,
                 const Vector< ADV >& aADVs = {},
                 std::string          aName = "" );
 
@@ -132,5 +142,17 @@ namespace moris::gen
                 const Matrix< DDRMat >& aCoordinates,
                 const Vector< real >&   aParameters,
                 Matrix< DDRMat >&       aSensitivities );
+
+        /**
+         * Given nodal coordinates, returns a vector of the spatial gradient with respect to the nodal
+         * coordinates computed via FD. Used when the user does not provide a sensitivity function for the spatial gradient.
+         *
+         * @param aCoordinates Vector of coordinate values
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        void get_dfield_dcoordinates_FD(
+                const Matrix< DDRMat >& aCoordinates,
+                const Vector< real >&   aParameters,
+                Matrix< DDRMat >&       aSensitivities );
     };
-}
+}    // namespace moris::gen

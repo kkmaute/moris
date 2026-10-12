@@ -28,14 +28,16 @@ namespace moris::prm
         Parameter_List tGENParameterList( "General" );
 
         // Level set parameters
-        tGENParameterList.insert( "output_mesh_file", "" );                 // File name for exodus mesh, if default no mesh is written
-        tGENParameterList.insert( "geometry_field_file", "" );              // Base file name (without extension) for saving geometry fields
-        tGENParameterList.insert( "time_offset", 0.0 );                     // Time offset for writing files in optimization process
+        tGENParameterList.insert( "output_mesh_file", "" );       // File name for exodus mesh, if default no mesh is written
+        tGENParameterList.insert( "geometry_field_file", "" );    // Base file name (without extension) for saving geometry fields
+        tGENParameterList.insert( "time_offset", 0.0 );           // Time offset for writing files in optimization process
 
         // IQIs/PDVs
-        tGENParameterList.insert( "IQI_types", Vector< std::string >(),      // Requested IQI types for sensitivity analysis
-                Entry_Type::SELECTION, "IQI_name",
-                Module_Type::FEM, 4 );
+        tGENParameterList.insert( "IQI_types", Vector< std::string >(),    // Requested IQI types for sensitivity analysis
+                Entry_Type::SELECTION,
+                "IQI_name",
+                Module_Type::FEM,
+                4 );
         tGENParameterList.insert( "PDV_types", Vector< std::string >() );    // Requested PDV types for sensitivity analysis
 
         // Phase table
@@ -163,16 +165,17 @@ namespace moris::prm
                     aParameterList.insert( "image_file", "" );
                     aParameterList.insert( "image_dimensions", Vector< real >() );
                     aParameterList.insert( "image_offset", Vector< real >() );
-                    aParameterList.insert( "image_sdf_scaling", 0.0 );                // sdf scaling factor (0: automatic scaling)
-                    aParameterList.insert( "image_sdf_shift", 0.0 );                  // sdf shift value
-                    aParameterList.insert( "image_sdf_default", 1.0 );               // sdf value outside image
-                    aParameterList.insert( "image_sdf_interpolate", false );          // whether sdf value is interpolated
+                    aParameterList.insert( "image_sdf_scaling", 0.0 );          // sdf scaling factor (0: automatic scaling)
+                    aParameterList.insert( "image_sdf_shift", 0.0 );            // sdf shift value
+                    aParameterList.insert( "image_sdf_default", 1.0 );          // sdf value outside image
+                    aParameterList.insert( "image_sdf_interpolate", false );    // whether sdf value is interpolated
                     break;
                 }
                 case gen::Field_Type::USER_DEFINED:
                 {
-                    aParameterList.insert( "field_function_name", "" );          // Function name for evaluating the geometry field
-                    aParameterList.insert( "sensitivity_function_name", "" );    // Function name for evaluating the sensitivity of the field
+                    aParameterList.insert( "field_function_name", "" );               // Function name for evaluating the geometry field
+                    aParameterList.insert( "sensitivity_function_name", "" );         // Function name for evaluating the sensitivity of the field
+                    aParameterList.insert( "spatial_gradient_function_name", "" );    // Function name for evaluating the spatial gradient of the field. Optional, uses FD if not provided.
                     break;
                 }
             }
@@ -234,8 +237,8 @@ namespace moris::prm
     static Parameter_List create_geometry_parameter_list()
     {
         Parameter_List tGeometryParameterList = create_design_parameter_list();
-        tGeometryParameterList.set( "design_type", "geometry" ); // Set the design type to a geometry
-        tGeometryParameterList.insert( "geometry_type", "" );    // Insert the geometry type parameter
+        tGeometryParameterList.set( "design_type", "geometry" );    // Set the design type to a geometry
+        tGeometryParameterList.insert( "geometry_type", "" );       // Insert the geometry type parameter
 
         return tGeometryParameterList;
     }
@@ -252,12 +255,12 @@ namespace moris::prm
     inline Parameter_List
     create_level_set_geometry_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tLevelSetParameterList = create_geometry_parameter_list();  // Inserts all geometry parameters
-        insert_design_field_parameters( tLevelSetParameterList, aFieldType );      // Inserts all design parameters
-        tLevelSetParameterList.set( "geometry_type", "level_set" );                // Sets the geometry type to level set
-        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );              // Level set isocontour level
-        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );            // Interface tolerance based on geometry value
-        tLevelSetParameterList.insert( "intersection_tolerance", 1e-12 );          // Interface tolerance based on intersection distance
+        Parameter_List tLevelSetParameterList = create_geometry_parameter_list();    // Inserts all geometry parameters
+        insert_design_field_parameters( tLevelSetParameterList, aFieldType );        // Inserts all design parameters
+        tLevelSetParameterList.set( "geometry_type", "level_set" );                  // Sets the geometry type to level set
+        tLevelSetParameterList.insert( "isocontour_threshold", 0.0 );                // Level set isocontour level
+        tLevelSetParameterList.insert( "isocontour_tolerance", 1e-12 );              // Interface tolerance based on geometry value
+        tLevelSetParameterList.insert( "intersection_tolerance", 1e-12 );            // Interface tolerance based on intersection distance
 
         return tLevelSetParameterList;
     }
@@ -358,13 +361,13 @@ namespace moris::prm
     inline Parameter_List
     create_gen_property_parameter_list( gen::Field_Type aFieldType )
     {
-        Parameter_List tPropertyParameterList = create_design_parameter_list();         // Create a design parameter list
-        tPropertyParameterList.set( "design_type", "property" );                        // Set the design type to a property
-        insert_design_field_parameters( tPropertyParameterList, aFieldType );           // Inserts all design field parameters
-        tPropertyParameterList.insert( "pdv_type", "" );                                // The type of PDV that this property will be assigned to
-        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );              // Mesh type for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_names", Vector< std::string >() ); // Mesh set names for assigning PDVs
-        tPropertyParameterList.insert( "pdv_mesh_set_indices", Vector< uint >() );                    // Mesh set indices for assigning PDVs
+        Parameter_List tPropertyParameterList = create_design_parameter_list();            // Create a design parameter list
+        tPropertyParameterList.set( "design_type", "property" );                           // Set the design type to a property
+        insert_design_field_parameters( tPropertyParameterList, aFieldType );              // Inserts all design field parameters
+        tPropertyParameterList.insert( "pdv_type", "" );                                   // The type of PDV that this property will be assigned to
+        tPropertyParameterList.insert( "pdv_mesh_type", "interpolation" );                 // Mesh type for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_names", Vector< std::string >() );    // Mesh set names for assigning PDVs
+        tPropertyParameterList.insert( "pdv_mesh_set_indices", Vector< uint >() );         // Mesh set indices for assigning PDVs
 
         return tPropertyParameterList;
     }

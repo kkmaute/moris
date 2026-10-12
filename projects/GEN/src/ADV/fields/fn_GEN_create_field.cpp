@@ -190,12 +190,20 @@ namespace moris::gen
                 // get field function
                 auto tFieldFunction = aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) );
 
-                // Get sensitivity function if needed
+                // Get parameter sensitivity function if needed
                 Sensitivity_Function tSensitivityFunction     = nullptr;
                 std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
                 if ( not tSensitivityFunctionName.empty() )
                 {
                     tSensitivityFunction = aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName );
+                }
+
+                // Get spatial gradient sensitivity function if needed
+                Sensitivity_Function tGradientFunction = nullptr;
+                tSensitivityFunctionName               = aFieldParameterList.get< std::string >( "spatial_gradient_function_name" );
+                if ( not tSensitivityFunctionName.empty() )
+                {
+                    tGradientFunction = aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName );
                 }
 
                 // Loop over parameters to create ADVs
@@ -214,6 +222,7 @@ namespace moris::gen
                 tField = std::make_shared< User_Defined_Field >(
                         tFieldFunction,
                         tSensitivityFunction,
+                        tGradientFunction,
                         tADVs,
                         tName );
                 break;
