@@ -1,13 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# -----------------------------------------------------------------------------
-# PETSc libraries and includes ------------------------------------------------
-# -----------------------------------------------------------------------------
+# PETSc libraries and includes
 
 #> does not seem to do anything
 # if ( USE_INTEL )
@@ -23,7 +17,7 @@
 #         SET(PETSC_DIR  "$ENV{HOME}/tpls/petsc-dbg/gcc-openmpi")
 #     endif()
 # endif()
-# 
+
 # MESSAGE("\nLooking for ${PETSC_PATH}\n\n")
 
 if(NOT PETSC_FOUND_ONCE)
@@ -31,7 +25,7 @@ if(NOT PETSC_FOUND_ONCE)
     if(PETSC_FOUND)
         #set(PETSC_FOUND_ONCE TRUE CACHE INTERNAL "PETSc was found." FORCE)
         set(PETSC_FOUND_ONCE TRUE)
-        
+
         #set(MORIS_PETSC_INCLUDE_DIRS ${PETSC_INCLUDE_DIR} ${PETSC_ARCH_INCLUDE_DIR}
         #	CACHE PATH "PETSc include directories." )
         #set(MORIS_PETSC_LIBRARY_DIR ${PETSC_LIBRARY_DIR}
@@ -44,11 +38,11 @@ if(NOT PETSC_FOUND_ONCE)
         set(MORIS_PETSC_LIBRARY_DIRS ${PETSC_LIBRARY_DIR})
         set(MORIS_PETSC_LIBRARIES ${PETSC_LIBRARY_RELEASE})
         set(MORIS_PETSC_DEFINITIONS "-DMORIS_HAVE_PETSC")
-        
-        mark_as_advanced(MORIS_PETSC_INCLUDE_DIRS
-        	MORIS_PETSC_LIBRARY_DIRS
-        	MORIS_PETSC_LIBRARIES
-        	MORIS_PETSC_DEFINITIONS )
+
+        mark_as_advanced(
+            MORIS_PETSC_INCLUDE_DIRS MORIS_PETSC_LIBRARY_DIRS MORIS_PETSC_LIBRARIES
+            MORIS_PETSC_DEFINITIONS
+        )
     endif()
     message(STATUS "PETSC_INCLUDE_DIRS:    ${MORIS_PETSC_INCLUDE_DIRS}")
     message(STATUS "PETSC_LIBRARY_DIR:     ${MORIS_PETSC_LIBRARY_DIRS}")
@@ -56,19 +50,14 @@ if(NOT PETSC_FOUND_ONCE)
 endif()
 
 if(NOT TARGET ${MORIS}::petsc)
-	set(MORIS_PETSC_TPLS
-		superlu
-		trilinos
-		)
+    set(MORIS_PETSC_TPLS superlu trilinos)
 
-	foreach(TPL ${MORIS_PETSC_TPLS})
-		include(${TPL}_new)
-		list(APPEND MORIS_PETSC_TPLS_TARGETS ${MORIS}::${TPL})
-	endforeach()
-	
-	add_library(${MORIS}::petsc STATIC IMPORTED GLOBAL)
-	set_target_properties(${MORIS}::petsc PROPERTIES 
-		IMPORTED_LOCATION "${MORIS_PETSC_LIBRARIES}" )
-	target_link_libraries(${MORIS}::petsc INTERFACE ${MORIS_PETSC_TPLS_TARGETS})
+    foreach(TPL ${MORIS_PETSC_TPLS})
+        include(${TPL}_new)
+        list(APPEND MORIS_PETSC_TPLS_TARGETS ${MORIS}::${TPL})
+    endforeach()
+
+    add_library(${MORIS}::petsc STATIC IMPORTED GLOBAL)
+    set_target_properties(${MORIS}::petsc PROPERTIES IMPORTED_LOCATION "${MORIS_PETSC_LIBRARIES}")
+    target_link_libraries(${MORIS}::petsc INTERFACE ${MORIS_PETSC_TPLS_TARGETS})
 endif()
-

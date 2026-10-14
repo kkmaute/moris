@@ -1,17 +1,12 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# XTK Tests -------------------------------------------------------------
-# -------------------------------------------------------------------------
+# XTK Tests
 
-# List source files
+# Sources.
 
 set(TEST_SOURCES
-	main.cpp
+    main.cpp
     #xtk/UT_fn_flood_fill.cpp
     xtk/UT_MTK_Cell_Cluster_XTK_Impl.cpp
     xtk/UT_Snapping.cpp
@@ -39,15 +34,13 @@ set(TEST_SOURCES
     xtk/UT_XTK_Octree_Refinement.cpp
     xtk/UT_XTK_Unenrichment.cpp
     xtk/UT_XTK_Basis_Extention.cpp
-	)
-
+)
 
 # List additional includes
 include_directories(../src)
 include_directories(../include)
 
-
-set(XTK_INCLUDES                                          
+set(XTK_INCLUDES
     "assert"
     "containers"
     "core"
@@ -57,59 +50,47 @@ set(XTK_INCLUDES
     "tools"
     "topology"
     "xtk"
-    )
-# Include depedency directories                                                                                                                                                                                                                                                
-foreach(XTK_INCLUDE ${XTK_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
-endforeach()   
+)
+# Include dependency directories.
+foreach(XTK_INCLUDE ${XTK_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})
+endforeach()
 
 # GEN directories
-set(GEN_INCLUDES
-	"ADV"
-	"ADV/fields"
-	"PDV"
-	)
+set(GEN_INCLUDES "ADV" "ADV/fields" "PDV")
 
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 
-# List test dependencies
+# Test dependencies.
 set(TEST_DEPENDENCIES
-	test-libs
-	${ALG}-lib
-	${MTK}-lib
-	${XTK}-lib
-	${MAP}-lib
-	${MDL}-lib
-	${INT}-lib
+    test-libs
+    ${ALG}-lib
+    ${MTK}-lib
+    ${XTK}-lib
+    ${MAP}-lib
+    ${MDL}-lib
+    ${INT}-lib
     ${HMR}-lib
     ${PRM}-lib
-	${GEN}-lib
+    ${GEN}-lib
     ${MORIS_BASE_LIBS}
-    )
+)
 
-# Set the output path for test
+# Test output directory.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Set test name
 set(XTK_TEST ${XTK}-test)
 
-# Create executable
+# Define the executable and its dependencies.
 add_executable(${XTK_TEST} ${TEST_SOURCES})
 target_link_libraries(${XTK_TEST} PRIVATE ${TEST_DEPENDENCIES} ${HMR_TEST_DEPENDENCIES})
 set_target_properties(${XTK_TEST} PROPERTIES OUTPUT_NAME ${XTK_TEST}${EXE_EXT})
 
-# Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
-	set(XTK_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${XTK_TEST_PROCS})
-		set(XTK_PARALLEL_TEST ${XTK_TEST}-${PROCS}-procs)
-		add_test(NAME ${XTK_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${XTK_TEST}>)
-	endforeach()
-endif()
-
+# Register tests for the configured MPI process counts.
+moris_register_unit_tests(${XTK_TEST} ${MORIS_TEST_PROCS})

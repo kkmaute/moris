@@ -213,7 +213,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------------
 
-    inline moris::Matrix< moris::IndexMat >
+    moris::Matrix< moris::IndexMat >
     Cell_Info_Tet4::get_node_map_outward_normal( moris::uint aSideOrdinal ) const
     {
         switch ( aSideOrdinal )

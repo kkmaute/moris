@@ -1,17 +1,12 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# HMR Source --------------------------------------------------------------
-# -------------------------------------------------------------------------
+# HMR Source
 
-# Set version
+# Package version.
 set(${HMR}_VERSION ${MORIS_VERSION})
 
-# List header files
+# Public headers.
 set(HEADERS
     cl_HMR_Background_Edge.hpp
     cl_HMR_Background_Element_Base.hpp
@@ -88,14 +83,13 @@ set(HEADERS
     fn_HMR_refinement_transition_locations.hpp
     HMR_Globals.hpp
     HMR_Tools.hpp
-    )
+)
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # hmr Library
 
-# List library source files
+# Library sources.
 set(LIB_SOURCES
-        cl_HMR_Background_Edge.cpp
+    cl_HMR_Background_Edge.cpp
     cl_HMR_Background_Facet.cpp
     cl_HMR_Background_Mesh_Base.cpp
     cl_HMR_BSpline_Mesh_Base.cpp
@@ -112,16 +106,16 @@ set(LIB_SOURCES
     cl_HMR_Mesh_Base.cpp
     cl_HMR_Mesh.cpp
     cl_HMR_Parameters.cpp
-        cl_HMR_STK.cpp
+    cl_HMR_STK.cpp
     cl_HMR_T_Matrix_Base.cpp
     cl_HMR_T_Matrix_2D.cpp
     cl_HMR_T_Matrix_3D.cpp
     cl_HMR_Cell_Cluster.cpp
     cl_HMR_Side_Cluster.cpp
     fn_HMR_bspline_shape.cpp
-   )
+)
 
-# List library dependencies
+# MORIS library dependencies.
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
     ${CNT}-lib
@@ -130,93 +124,49 @@ set(LIB_DEPENDENCIES
     ${MTK}-lib
     ${MAP}-lib
     ${MORIS_BASE_LIBS}
-    )
+)
 
-# Set the output path for library
+# Library output directories.
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
-# Create library
-add_library(${HMR}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
-target_include_directories(${HMR}-lib PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${${HMR}_HEADER_INSTALL_DIR}> )
-target_link_libraries(${HMR}-lib PUBLIC ${LIB_DEPENDENCIES})
-set_target_properties(${HMR}-lib PROPERTIES OUTPUT_NAME ${HMR})
+# Define the library and its public build requirements.
+moris_add_module(${HMR}-lib HMR_BUILD_TARGET ${LIB_SOURCES})
+target_include_directories(
+    ${HMR_BUILD_TARGET} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                               $<INSTALL_INTERFACE:${${HMR}_HEADER_INSTALL_DIR}>
+)
+target_link_libraries(${HMR_BUILD_TARGET} PUBLIC ${LIB_DEPENDENCIES})
+set_target_properties(${HMR_BUILD_TARGET} PROPERTIES OUTPUT_NAME ${HMR})
 
-foreach(TPL ${HMR_TPL_DEPENDENCIES})
+foreach(TPL IN LISTS HMR_TPL_DEPENDENCIES)
     string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    target_link_libraries(${HMR}-lib
-        PUBLIC ${MORIS}::${tpl})
-    
+    include("${MORIS_TPL_DIR}/${tpl}_new.cmake")
+    target_link_libraries(${HMR_BUILD_TARGET} PUBLIC ${MORIS}::${tpl})
+
     string(TOUPPER ${TPL} TPL)
-    target_include_directories(${HMR}-lib
-        PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_compile_definitions(${HMR}-lib
-        PUBLIC ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# hmr Config Files
-
-# Makes sure all tpl dependencies are searched for in the config file
-foreach(TPL ${HMR_TPL_DEPENDENCIES})
-    string(TOLOWER ${TPL} tpl)
-    string(APPEND HMR_CONFIG_TPL_DEPENDENCIES
-        "include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
-endforeach()
-
-# Makes sure all moris library dependencies are included in the config file
-foreach(LIB_TARGET ${LIB_DEPENDENCIES})
-    # skip if -lfoo format
-    string(FIND ${LIB_TARGET} "-" pos)
-    if(pos EQUAL "0")
-        continue()
-    endif()
-    
-    string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-    string(APPEND HMR_CONFIG_MORIS_DEPENDENCIES
-        "include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
-endforeach()
-
-# Properties to be coppied into config file
-get_target_property(HMR_COMPILE_DEFINITIONS ${HMR}-lib COMPILE_DEFINITIONS)
-
-# Build *Config and *ConfigVersion files
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${HMR}Config.cmake.in
-    ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake
-    INSTALL_DESTINATION 
-    ${${HMR}_CONFIG_INSTALL_DIR}
-    PATH_VARS 
-    ${HMR}_CONFIG_INSTALL_DIR
+    target_include_directories(
+        ${HMR_BUILD_TARGET} PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS}
     )
+    target_compile_definitions(${HMR_BUILD_TARGET} PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
-write_basic_package_version_file(
-    ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
-    COMPATIBILITY AnyNewerVersion )
+# Generate and install the common component package configuration.
+moris_install_component_package(
+    HMR
+    TARGET
+    ${HMR_BUILD_TARGET}
+    DEPENDENCIES
+    ${LIB_DEPENDENCIES}
+    TPLS
+    ${HMR_TPL_DEPENDENCIES}
+)
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# hmr Installation
-
-# Install *Config and *ConfigVersion files
-install(FILES ${${HMR}_CONFIG_BUILD_DIR}/${HMR}Config.cmake 
-    ${${HMR}_CONFIG_BUILD_DIR}/${HMR}ConfigVersion.cmake
-    DESTINATION ${${HMR}_CONFIG_INSTALL_DIR} )
-
-# Install header files
-install(FILES ${HEADERS}
-    DESTINATION ${${HMR}_HEADER_INSTALL_DIR} )
+# Install public headers.
+install(FILES ${HEADERS} DESTINATION ${${HMR}_HEADER_INSTALL_DIR})
 
 # Install library
-install(TARGETS ${HMR}-lib
-    DESTINATION ${${HMR}_LIB_INSTALL_DIR}
-    EXPORT ${HMR}Targets )
+install(TARGETS ${HMR}-lib DESTINATION ${${HMR}_LIB_INSTALL_DIR} EXPORT ${HMR}Targets)
 
 # Export library into *Targets file
-install(EXPORT ${HMR}Targets
-    DESTINATION ${${HMR}_CONFIG_INSTALL_DIR} )
-
+install(EXPORT ${HMR}Targets DESTINATION ${${HMR}_CONFIG_INSTALL_DIR})

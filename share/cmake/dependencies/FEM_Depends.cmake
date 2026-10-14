@@ -1,12 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# FEM Dependencies --------------------------------------------------------
-# -------------------------------------------------------------------------
+# FEM Dependencies
 
 # Check if FEM has already been included
 if(DEFINED FEM_CONFIGURED_ONCE)
@@ -27,5 +22,3 @@ include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
 
 set(BUILD_MSI ON CACHE BOOL "Build the model solver interface executable." FORCE)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
-
-

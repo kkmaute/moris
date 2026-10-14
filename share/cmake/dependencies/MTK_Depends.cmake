@@ -1,12 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# MTK Dependencies --------------------------------------------------------
-# -------------------------------------------------------------------------
+# MTK Dependencies
 
 # Check if MTK has already been included
 if(DEFINED MTK_CONFIGURED_ONCE)
@@ -19,20 +14,17 @@ set(MTK_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${MTK})
 
 # Third party libraries needed by MTK-lib
-set(MTK_TPL_DEPENDENCIES
-    "trilinos"
-    )
+set(MTK_TPL_DEPENDENCIES "trilinos")
 
 # if ArborX is used, add it to the list of dependencies
 if(MORIS_HAVE_ARBORX)
     list(APPEND MTK_TPL_DEPENDENCIES "arborx")
 endif()
 
-# Make sure needed moris libraries are built
+# Include required MORIS modules.
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/ENM_Depends.cmake)
 
 # for test
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
-

@@ -1,15 +1,10 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Integration and Interpolation Tests -------------------------------------
-# -------------------------------------------------------------------------
+# Integration and Interpolation Tests
 include_directories(DLA_Test_Proxys)
 
-# List source files
+# Sources.
 set(TEST_SOURCES
     cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     cl_MDL_DiffusionElement_Cut_Mesh.cpp
@@ -36,14 +31,9 @@ set(TEST_SOURCES
     test_main.cpp
     #MDL_Test_Proxys/cl_MDL_Element_Proxy.hpp
     #MDL_Test_Proxys/cl_MDL_Node_Proxy.hpp
-    )
+)
 
-
-set(GEN_INCLUDES
-    "ADV"
-    "ADV/fields"
-    "PDV"
-    )
+set(GEN_INCLUDES "ADV" "ADV/fields" "PDV")
 
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
@@ -52,7 +42,7 @@ endforeach()
 # Include WRK directory
 include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 
-# List test dependencies
+# Test dependencies.
 set(TEST_DEPENDENCIES
     test-libs
     ${MTK}-lib
@@ -65,27 +55,18 @@ set(TEST_DEPENDENCIES
     ${GEN}-lib
     ${MORIS_BASE_LIBS}
     ${PRM}-lib
-    )
+)
 
-# Set the output path for test
+# Test output directory.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Set test name
 set(MDL_TEST ${MDL}-test)
 
-# Create executable
+# Define the executable and its dependencies.
 add_executable(${MDL_TEST} ${TEST_SOURCES})
 target_link_libraries(${MDL_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${MDL_TEST} PROPERTIES OUTPUT_NAME ${MDL_TEST}${EXE_EXT})
 
-# Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
-    set(MDL_TEST_PROCS ${MORIS_TEST_PROCS})
-    foreach(PROCS ${MDL_TEST_PROCS})
-        set(MDL_PARALLEL_TEST ${MDL_TEST}-${PROCS}-procs)
-        add_test(NAME ${MDL_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${MDL_TEST}>)
-    endforeach()
-endif()
-
-
+# Register tests for the configured MPI process counts.
+moris_register_unit_tests(${MDL_TEST} ${MORIS_TEST_PROCS})

@@ -1,13 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# -------------------------------------------------------------
 # @MORIS@ configuration file
-# -------------------------------------------------------------
 
 # Users execute find_package(moris [COMPONENTS COMP_LIST])
 # in their CMake files and find this package. The subpackages
@@ -15,17 +9,17 @@
 # subpackages are specified, all moris packages that were built
 # will be included.
 
-if(@MORIS@_CONFIGURED)
-    return()
+# CMake Automated Configuration
+# #########################################################
+@PACKAGE_INIT@
+set(_moris_package_prefix "${PACKAGE_PREFIX_DIR}")
+
+# Resolve the imported target referenced by libraries built with OpenMP.
+if(@MORIS_USE_OPENMP@)
+    include(CMakeFindDependencyMacro)
+    find_dependency(OpenMP COMPONENTS CXX)
 endif()
 
-set(@MORIS@_CONFIGURED TRUE)
-
-# CMake Automated Configuration
-###############################################################
-@PACKAGE_INIT@
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Variables used in build; repeated for user debugging
 
 set(@MORIS@_C_COMPILER "@MORIS_C_COMPILER@")
@@ -36,7 +30,6 @@ set(@MORIS@_DEFINITIONS "@MORIS_DEFINITIONS@")
 set(@MORIS@_TPLS "@MORIS_BASE_LIBS@")
 set(@MORIS@_VERSION "@MORIS_VERSION@")
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Find requested subpackages
 
 set(MORIS "@MORIS@")
@@ -47,55 +40,51 @@ list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
 list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
 include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
 
-set(MORIS_COMPONENT_DIRS "@MORIS_SOURCE_DIRS@")
-
-# if no subpackages were specified, find all built subpackages
-if(NOT @MORIS@_FIND_COMPONENTS)
-    string(REGEX REPLACE "([^\\/;]*)\\/" "" COMPONENTS "${MORIS_COMPONENT_DIRS}")
-    set(@MORIS@_FIND_COMPONENTS "${COMPONENTS}")
-
-    # if @MORIS@ is required, so are all built subpackages
-    if(@MORIS@_FIND_REQUIRED)
-        foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
-            set(@MORIS@_FIND_REQUIRED_${COMPONENT} TRUE)
-        endforeach()
-    endif()
+if(@MORIS_HAS_RUNTIME_TARGET@)
+    include("${_moris_package_prefix}/@CONFIG_INSTALL_DIR@/@MORIS@/morisRuntimeTargets.cmake")
 endif()
 
+if(MORIS_HAVE_SHARED)
+    include("${PACKAGE_PREFIX_DIR}/@CONFIG_INSTALL_DIR@/@MORIS@/morisSharedConfig.cmake")
+    list(APPEND @MORIS@_LIBRARIES moris_shared)
+endif()
 
-foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
-    string(REGEX MATCH "([^;]+\\/${COMPONENT}|${COMPONENT})" COMPONENT_DIR "${MORIS_COMPONENT_DIRS}")
-    if(${COMPONENT_DIR} STREQUAL "")
-        message(FATAL_ERROR "${COMPONENT} is not a @MORIS@ component. Check documentation to see which components are available.")
+set(MORIS_AVAILABLE_COMPONENTS "@MORIS_INSTALLED_COMPONENTS@")
+set(MORIS_COMPONENT_CONFIG_DIRS "@MORIS_INSTALLED_COMPONENT_DIRS@")
+
+# With no explicit component list, import every installed library package.
+if(NOT @MORIS@_FIND_COMPONENTS)
+    set(@MORIS@_FIND_COMPONENTS "${MORIS_AVAILABLE_COMPONENTS}")
+    foreach(COMPONENT IN LISTS @MORIS@_FIND_COMPONENTS)
+        set(@MORIS@_FIND_REQUIRED_${COMPONENT} "${@MORIS@_FIND_REQUIRED}")
+    endforeach()
+endif()
+
+foreach(COMPONENT IN LISTS @MORIS@_FIND_COMPONENTS)
+    list(FIND MORIS_AVAILABLE_COMPONENTS "${COMPONENT}" component_index)
+    if(component_index EQUAL -1)
+        set(@MORIS@_${COMPONENT}_FOUND FALSE)
+        continue()
     endif()
-
-    if(${COMPONENT_DIR} STREQUAL "mains")
-     set(@MORIS@_${COMPONENT}_FOUND TRUE)
-     continue()
+    list(GET MORIS_COMPONENT_CONFIG_DIRS ${component_index} component_directory)
+    find_package(
+        ${COMPONENT} QUIET CONFIG PATHS "${_moris_package_prefix}/${component_directory}"
+        NO_DEFAULT_PATH
+    )
+    set(@MORIS@_${COMPONENT}_FOUND "${${COMPONENT}_FOUND}")
+    if(NOT ${COMPONENT}_FOUND)
+        continue()
     endif()
-    
-    if(${COMPONENT_DIR} STREQUAL "EXA")
-     set(@MORIS@_${COMPONENT}_FOUND TRUE)
-     continue()
-    endif()
-    
-    message("ADDING COMPONENT = ${COMPONENT_DIR}")
-
-    # returns fatal error if component config file not found
-    set_and_check(COMP_INCLUDE "@PACKAGE_CONFIG_INSTALL_DIR@/${COMPONENT_DIR}/${COMPONENT}Config.cmake")
-
-    set(@MORIS@_${COMPONENT}_FOUND TRUE)
-
-    include(${COMP_INCLUDE})
-
     list(APPEND @MORIS@_INCLUDE_DIRS ${${COMPONENT}_INCLUDE_DIRS})
     list(APPEND @MORIS@_LIBRARY_DIRS ${${COMPONENT}_LIBRARY_DIRS})
     list(APPEND @MORIS@_LIBRARIES ${${COMPONENT}_LIBRARIES})
     list(APPEND @MORIS@_DEFINITIONS ${${COMPONENT}_DEFINITIONS})
-
-    add_library(@MORIS@::${COMPONENT} INTERFACE IMPORTED GLOBAL)
-    target_link_libraries(@MORIS@::${COMPONENT} INTERFACE ${${COMPONENT}_LIBRARIES})
+    if(NOT TARGET @MORIS@::${COMPONENT})
+        add_library(@MORIS@::${COMPONENT} INTERFACE IMPORTED GLOBAL)
+        target_link_libraries(@MORIS@::${COMPONENT} INTERFACE ${${COMPONENT}_LIBRARIES})
+    endif()
 endforeach()
+set(PACKAGE_PREFIX_DIR "${_moris_package_prefix}")
 set(@MORIS@_FOUND TRUE)
 
 # Check that all subpackages were found
@@ -106,6 +95,8 @@ include("@PACKAGE_CONFIG_INSTALL_DIR@/@MORIS@/@MORIS@Targets.cmake")
 list(INSERT @MORIS@_LIBRARIES 0 @MORIS@_general)
 
 # Create target for all built moris subpackages
-add_library(@MORIS@::all_libs INTERFACE IMPORTED GLOBAL)
-target_link_libraries(@MORIS@::all_libs INTERFACE ${@MORIS@_LIBRARIES})
-
+list(REMOVE_DUPLICATES @MORIS@_LIBRARIES)
+if(NOT TARGET @MORIS@::all_libs)
+    add_library(@MORIS@::all_libs INTERFACE IMPORTED GLOBAL)
+endif()
+set_property(TARGET @MORIS@::all_libs PROPERTY INTERFACE_LINK_LIBRARIES "${@MORIS@_LIBRARIES}")

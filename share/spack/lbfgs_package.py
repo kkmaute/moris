@@ -46,6 +46,11 @@ class Lbfgs(Package):
     # FIXME: Add dependencies if required.
     # depends_on("foo")
 
+    def flag_handler(self, name, flags):
+        if name == "fflags":
+            flags = list(flags) + ["-fPIC"]
+        return (flags, None, None)
+
     def install(self, spec, prefix):
         # FIXME: Unknown build system
                 

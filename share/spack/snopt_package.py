@@ -45,6 +45,11 @@ class Snopt(Package):
     # FIXME: Add dependencies if required.
     # depends_on("foo")
 
+    def flag_handler(self, name, flags):
+        if name == "fflags":
+            flags = list(flags) + ["-fPIC"]
+        return (flags, None, None)
+
     def install(self, spec, prefix):
 
         make('prefix={0}'.format(self.prefix), parallel=False)

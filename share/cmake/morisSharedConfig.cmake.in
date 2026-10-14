@@ -1,0 +1,23 @@
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+
+# Loaded by component packages after PACKAGE_INIT establishes PACKAGE_PREFIX_DIR.
+if(TARGET moris_shared)
+    return()
+endif()
+set(MORIS "@MORIS@")
+set(MORIS_HAVE_DEBUG "@MORIS_HAVE_DEBUG@")
+set(MORIS_USE_MPI "@MORIS_USE_MPI@")
+set(MORIS_HAVE_PARALLEL "@MORIS_HAVE_PARALLEL@")
+list(APPEND CMAKE_MODULE_PATH "${PACKAGE_PREFIX_DIR}/@CONFIG_INSTALL_DIR@/find_modules"
+     "${PACKAGE_PREFIX_DIR}/@CONFIG_INSTALL_DIR@/find_wrappers"
+)
+include("${PACKAGE_PREFIX_DIR}/@CONFIG_INSTALL_DIR@/utilities/moris_macros.cmake")
+set(_moris_shared_prefix "${PACKAGE_PREFIX_DIR}")
+foreach(_moris_tpl @MORIS_SHARED_TPLS@)
+    include("${_moris_shared_prefix}/@CONFIG_INSTALL_DIR@/find_wrappers/${_moris_tpl}_new.cmake")
+endforeach()
+set(PACKAGE_PREFIX_DIR "${_moris_shared_prefix}")
+unset(_moris_shared_prefix)
+unset(_moris_tpl)
+include("${PACKAGE_PREFIX_DIR}/@CONFIG_INSTALL_DIR@/@MORIS@/morisSharedTargets.cmake")

@@ -22,5 +22,5 @@ namespace moris
     // #define NARGS_SEQ( _1, _2, _3, _4, _5, _6, _7, _8, _9, 10, N, ... ) N
     // #define NARGS( ... ) NARGS_SEQ( __VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 )
 
-#include "../../../PRM/ENM/src/fn_enum_macros_generated.hpp"
+#include "fn_enum_macros_generated.hpp"
 }    // namespace moris

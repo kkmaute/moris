@@ -1,12 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Main Dependencies ---------------------------------
-# ---------------------------------------------------
+# Main Dependencies
 
 # Check if MAIN has already been included
 if(DEFINED MAIN_CONFIGURED_ONCE)
@@ -19,9 +14,7 @@ set(MAIN_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${MAIN})
 
 # Include all libraries for MAIN
-set(MAIN_TPL_DEPENDENCIES
-    "trilinos"
-    )
+set(MAIN_TPL_DEPENDENCIES "trilinos")
 
 # Moris packages needed by main
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
@@ -47,4 +40,3 @@ include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/WRK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MIG_Depends.cmake)
-

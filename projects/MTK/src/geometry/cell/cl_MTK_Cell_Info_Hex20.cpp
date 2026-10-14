@@ -196,7 +196,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------------
 
-    inline moris::Matrix< moris::IndexMat >
+    moris::Matrix< moris::IndexMat >
     Cell_Info_Hex20::get_node_to_face_map() const
     {
         return { { 0, 1, 5, 4, 8, 13, 16, 12 },
@@ -217,7 +217,7 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------------
 
-    inline moris::Matrix< moris::IndexMat >
+    moris::Matrix< moris::IndexMat >
     Cell_Info_Hex20::get_node_to_face_map( moris::uint aSideOrdinal ) const
     {
         switch ( aSideOrdinal )
@@ -2110,7 +2110,7 @@ namespace moris::mtk
     }
 
     // ----------------------------------------------------------------------------------
-    inline moris::Matrix< moris::IndexMat >
+    moris::Matrix< moris::IndexMat >
     Cell_Info_Hex20::get_node_map_outward_normal( moris::uint aSideOrdinal ) const
     {
         switch ( aSideOrdinal )

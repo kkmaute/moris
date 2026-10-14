@@ -32,62 +32,70 @@
 #   ARMADILLO_VERSION_NAME - name of the version (ex: "Antipodean Antileech")
 
 # UNIX paths are standard, no need to write.
-find_library(ARMADILLO_LIBRARY
-  NAMES armadillo
-  PATHS "$ENV{ProgramFiles}/Armadillo/lib"  "$ENV{ProgramFiles}/Armadillo/lib64" "$ENV{ProgramFiles}/Armadillo"
-  )
-find_path(ARMADILLO_INCLUDE_DIR
-  NAMES armadillo
-  PATHS "$ENV{ProgramFiles}/Armadillo/include"
-  )
-
+find_library(
+    ARMADILLO_LIBRARY NAMES armadillo
+    PATHS "$ENV{ProgramFiles}/Armadillo/lib" "$ENV{ProgramFiles}/Armadillo/lib64"
+          "$ENV{ProgramFiles}/Armadillo"
+)
+find_path(ARMADILLO_INCLUDE_DIR NAMES armadillo PATHS "$ENV{ProgramFiles}/Armadillo/include")
 
 if(ARMADILLO_INCLUDE_DIR)
 
-  # ------------------------------------------------------------------------
-  #  Extract version information from <armadillo>
-  # ------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
+    #  Extract version information from <armadillo>
+    # ------------------------------------------------------------------------
 
-  # WARNING: Early releases of Armadillo didn't have the arma_version.hpp file.
-  # (e.g. v.0.9.8-1 in ubuntu maverick packages (2001-03-15))
-  # If the file is missing, set all values to 0
-  set(ARMADILLO_VERSION_MAJOR 0)
-  set(ARMADILLO_VERSION_MINOR 0)
-  set(ARMADILLO_VERSION_PATCH 0)
-  set(ARMADILLO_VERSION_NAME "EARLY RELEASE")
+    # WARNING: Early releases of Armadillo didn't have the arma_version.hpp file.
+    # (e.g. v.0.9.8-1 in ubuntu maverick packages (2001-03-15))
+    # If the file is missing, set all values to 0
+    set(ARMADILLO_VERSION_MAJOR 0)
+    set(ARMADILLO_VERSION_MINOR 0)
+    set(ARMADILLO_VERSION_PATCH 0)
+    set(ARMADILLO_VERSION_NAME "EARLY RELEASE")
 
-  if(EXISTS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/arma_version.hpp")
+    if(EXISTS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/arma_version.hpp")
 
-    # Read and parse armdillo version header file for version number
-    file(STRINGS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/arma_version.hpp" _armadillo_HEADER_CONTENTS REGEX "#define ARMA_VERSION_[A-Z]+ ")
-    string(REGEX REPLACE ".*#define ARMA_VERSION_MAJOR ([0-9]+).*" "\\1" ARMADILLO_VERSION_MAJOR "${_armadillo_HEADER_CONTENTS}")
-    string(REGEX REPLACE ".*#define ARMA_VERSION_MINOR ([0-9]+).*" "\\1" ARMADILLO_VERSION_MINOR "${_armadillo_HEADER_CONTENTS}")
-    string(REGEX REPLACE ".*#define ARMA_VERSION_PATCH ([0-9]+).*" "\\1" ARMADILLO_VERSION_PATCH "${_armadillo_HEADER_CONTENTS}")
+        # Read and parse armdillo version header file for version number
+        file(STRINGS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/arma_version.hpp"
+             _armadillo_HEADER_CONTENTS REGEX "#define ARMA_VERSION_[A-Z]+ "
+        )
+        string(REGEX REPLACE ".*#define ARMA_VERSION_MAJOR ([0-9]+).*" "\\1"
+                             ARMADILLO_VERSION_MAJOR "${_armadillo_HEADER_CONTENTS}"
+        )
+        string(REGEX REPLACE ".*#define ARMA_VERSION_MINOR ([0-9]+).*" "\\1"
+                             ARMADILLO_VERSION_MINOR "${_armadillo_HEADER_CONTENTS}"
+        )
+        string(REGEX REPLACE ".*#define ARMA_VERSION_PATCH ([0-9]+).*" "\\1"
+                             ARMADILLO_VERSION_PATCH "${_armadillo_HEADER_CONTENTS}"
+        )
 
-    # WARNING: The number of spaces before the version name is not one.
-    string(REGEX REPLACE ".*#define ARMA_VERSION_NAME +\"([0-9a-zA-Z _-]+)\".*" "\\1" ARMADILLO_VERSION_NAME "${_armadillo_HEADER_CONTENTS}")
+        # WARNING: The number of spaces before the version name is not one.
+        string(REGEX REPLACE ".*#define ARMA_VERSION_NAME +\"([0-9a-zA-Z _-]+)\".*" "\\1"
+                             ARMADILLO_VERSION_NAME "${_armadillo_HEADER_CONTENTS}"
+        )
 
-    unset(_armadillo_HEADER_CONTENTS)
-  endif()
+        unset(_armadillo_HEADER_CONTENTS)
+    endif()
 
-  set(ARMADILLO_VERSION_STRING "${ARMADILLO_VERSION_MAJOR}.${ARMADILLO_VERSION_MINOR}.${ARMADILLO_VERSION_PATCH}")
-endif ()
+    set(ARMADILLO_VERSION_STRING
+        "${ARMADILLO_VERSION_MAJOR}.${ARMADILLO_VERSION_MINOR}.${ARMADILLO_VERSION_PATCH}"
+    )
+endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Armadillo
-  REQUIRED_VARS ARMADILLO_LIBRARY ARMADILLO_INCLUDE_DIR
-  VERSION_VAR ARMADILLO_VERSION_STRING)
+find_package_handle_standard_args(
+    Armadillo REQUIRED_VARS ARMADILLO_LIBRARY ARMADILLO_INCLUDE_DIR
+    VERSION_VAR ARMADILLO_VERSION_STRING
+)
 # version_var fails with cmake < 2.8.4.
 
-if (ARMADILLO_FOUND)
-  set(ARMADILLO_INCLUDE_DIRS ${ARMADILLO_INCLUDE_DIR})
-  set(ARMADILLO_LIBRARIES ${ARMADILLO_LIBRARY})
-endif ()
+if(ARMADILLO_FOUND)
+    set(ARMADILLO_INCLUDE_DIRS ${ARMADILLO_INCLUDE_DIR})
+    set(ARMADILLO_LIBRARIES ${ARMADILLO_LIBRARY})
+endif()
 
 # Hide internal variables
-mark_as_advanced(
-  ARMADILLO_INCLUDE_DIR
-  ARMADILLO_LIBRARY)
+mark_as_advanced(ARMADILLO_INCLUDE_DIR ARMADILLO_LIBRARY)
 
 ############################################################################
 #
@@ -104,8 +112,6 @@ find_package(${ACML_LAPACK_MKL})
 find_package(ARPACK) #need the targets in these two
 
 add_library(Armadillo::armadillo STATIC IMPORTED)
-set_target_properties(Armadillo::armadillo PROPERTIES 
-	IMPORTED_LOCATION "${ARMADILLO_LIBRARIES}")
+set_target_properties(Armadillo::armadillo PROPERTIES IMPORTED_LOCATION "${ARMADILLO_LIBRARIES}")
 target_include_directories(Armadillo::armadillo "${ARMADILLO_INCLUDE_DIRS}")
 target_link_libraries(Armadillo::armadillo ${ACML_LAPACK_MKL_TARGET} ARPACK::arpack)
-	

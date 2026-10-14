@@ -1,46 +1,29 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Parameters Tests ----------------------------------------------------
-# -------------------------------------------------------------------------
+# Parameters Tests
 
-# List source files
-set(TEST_SOURCES 
-    test_main.cpp
-    UT_WRK_Workflow.cpp
-    UT_WRK_Remeshing_Mini_Performer.cpp )
+# Sources.
+set(TEST_SOURCES test_main.cpp UT_WRK_Workflow.cpp UT_WRK_Remeshing_Mini_Performer.cpp)
 
-# List test dependencies
-set(TEST_DEPENDENCIES
-    test-libs
-    ${WRK}-lib
-    ${XTK}-lib
-    ${HMR}-lib
-    )
+# Test dependencies.
+set(TEST_DEPENDENCIES test-libs ${WRK}-lib ${XTK}-lib ${HMR}-lib)
 
-set(GEN_INCLUDES
-	"ADV"
-	"ADV/fields"
-	"PDV"
-    )
+set(GEN_INCLUDES "ADV" "ADV/fields" "PDV")
 
-# Include depedency directories
-foreach(GEN_INCLUDES ${GEN_INCLUDES})  
+# Include dependency directories.
+foreach(GEN_INCLUDES ${GEN_INCLUDES})
     include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/IP)
 
-# Set the output path for test
+# Test output directory.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Set test name
 set(WRK_TEST ${WRK}-test)
 
-# Create executable
+# Define the executable and its dependencies.
 add_executable(${WRK_TEST} ${TEST_SOURCES})
 target_link_libraries(${WRK_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${WRK_TEST} PROPERTIES OUTPUT_NAME ${WRK_TEST}${EXE_EXT})
@@ -48,23 +31,20 @@ set_target_properties(${WRK_TEST} PROPERTIES OUTPUT_NAME ${WRK_TEST}${EXE_EXT})
 ## create dynamically linked .so files
 set(WRK_TEST_INPUT_FILE_BASE WRK_Input_1)
 
-set(SO_TPLS
-"trilinos"
-${ARMADILLO_EIGEN}
-)
+set(SO_TPLS "trilinos" ${ARMADILLO_EIGEN})
 
 # get list of INT subfolders
 get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
 get_property(MTK_SRC_LIST GLOBAL PROPERTY MTK_SRC_LIST)
 
-SET(SO_INCLUDES
+set(SO_INCLUDES
     ${MORIS_BOOST_INCLUDE_DIRS}
     ${MORIS_TRILINOS_INCLUDE_DIRS}
     ${MORIS_PACKAGE_DIR}/ALG/src
     ${MORIS_PACKAGE_DIR}/FEM/INT/src
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
-    ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
+    ${MORIS_PACKAGE_DIR}/FEM/MSI/src
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src
     ${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src
     ${MORIS_PACKAGE_DIR}/SOL/DLA/src
@@ -86,7 +66,7 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/FEM/INT/src/SP
     ${MORIS_PACKAGE_DIR}/FEM/INT/src/ELEM
 )
-    
+
 foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
@@ -96,13 +76,5 @@ foreach(base_name ${WRK_TEST_INPUT_FILE_BASE})
     dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
 endforeach()
 
-# Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
-    set(WRK_TEST_PROCS ${MORIS_TEST_PROCS})
-    foreach(PROCS ${WRK_TEST_PROCS})
-        set(WRK_PARALLEL_TEST ${WRK_TEST}-${PROCS}-procs)
-        add_test(NAME ${WRK_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${WRK_TEST}>)
-    endforeach()
-endif()
-
+# Register tests for the configured MPI process counts.
+moris_register_unit_tests(${WRK_TEST} ${MORIS_TEST_PROCS})

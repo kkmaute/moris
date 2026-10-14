@@ -1,3 +1,6 @@
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+
 cmake_minimum_required(VERSION 3.5)
 # Set executable output location
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -18,52 +21,46 @@ find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 message("QT version: ${QT_VERSION_MAJOR}")
-  
+
 set(PROJECT_SOURCES
-       main_gui.cpp
-       main.cpp 
-       cl_line_edit.cpp
-       cl_combo_box.cpp
-       cl_bool_combo_box.cpp
-       TestWindow.cpp
-       cl_double_spin_box.cpp
-       cl_int_spin_box.cpp
-       cl_pair_box.cpp
-       cl_tree_widget_item.cpp
-       fn_read_file_dialog.cpp
-       fn_write_file_dialog.cpp
-       cl_group_box.cpp
-       )
+    main_gui.cpp
+    main.cpp
+    cl_line_edit.cpp
+    cl_combo_box.cpp
+    cl_bool_combo_box.cpp
+    TestWindow.cpp
+    cl_double_spin_box.cpp
+    cl_int_spin_box.cpp
+    cl_pair_box.cpp
+    cl_tree_widget_item.cpp
+    fn_read_file_dialog.cpp
+    fn_write_file_dialog.cpp
+    cl_group_box.cpp
+)
 
 set(HEADERS
-       main_gui.hpp
-       cl_line_edit.hpp
-       cl_combo_box.hpp
-       cl_bool_combo_box.hpp
-       TestWindow.hpp
-       cl_double_spin_box.hpp
-       cl_int_spin_box.hpp
-       cl_pair_box.hpp
-       cl_tree_widget_item.hpp
-       fn_read_file_dialog.hpp
-       fn_write_file_dialog.hpp
-       cl_group_box.hpp
-
+    main_gui.hpp
+    cl_line_edit.hpp
+    cl_combo_box.hpp
+    cl_bool_combo_box.hpp
+    TestWindow.hpp
+    cl_double_spin_box.hpp
+    cl_int_spin_box.hpp
+    cl_pair_box.hpp
+    cl_tree_widget_item.hpp
+    fn_read_file_dialog.hpp
+    fn_write_file_dialog.hpp
+    cl_group_box.hpp
 )
- 
- # List include directories
-set(MAIN_INCLUDES
-    ${COM}
-    ${IOS}
-    ${WRK}
-    ${LINALG}
-        )
+
+# Include directories.
+set(MAIN_INCLUDES ${COM} ${IOS} ${WRK} ${LINALG})
 
 foreach(MAIN_INCLUDE ${MAIN_INCLUDES})
     include_directories(../${MAIN_INCLUDE}/src)
 endforeach()
- 
- # List executable dependencies
+
+# Executable dependencies.
 set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
@@ -77,19 +74,14 @@ set(MAIN_DEPENDENCIES
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     ${MORIS_BASE_LIBS}
-    )
+)
 
 string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${PROJECT_SOURCES})
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(moris_gui
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
+    qt_add_executable(moris_gui MANUAL_FINALIZATION ${PROJECT_SOURCES})
 else()
-    add_executable(moris_gui
-        ${PROJECT_SOURCES}
-    )
+    add_executable(moris_gui ${PROJECT_SOURCES})
 endif()
 
 target_link_libraries(moris_gui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
@@ -103,5 +95,4 @@ target_link_libraries(moris_gui PRIVATE ${MAIN_DEPENDENCIES})
 list(APPEND MAIN_EXECUTABLES moris_gui)
 
 # Install executables
-install(TARGETS ${MAIN_EXECUTABLES}
-    DESTINATION ${EXE_INSTALL_DIR} )
+install(TARGETS ${MAIN_EXECUTABLES} DESTINATION ${EXE_INSTALL_DIR})

@@ -1,13 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Core --------------------------------------------------------------------
-# -------------------------------------------------------------------------
+# Core
 
-# Add source directory
+# Build the module library.
 add_subdirectory(src)
-

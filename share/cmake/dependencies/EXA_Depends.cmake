@@ -1,12 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Example Dependencies ------------------------------
-# ---------------------------------------------------
+# Example Dependencies
 
 # Check if MAIN has already been included
 if(DEFINED EXA_CONFIGURED_ONCE)
@@ -19,9 +14,7 @@ set(EXA_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${EXA})
 
 # Include all libraries for EXA
-set(MAIN_TPL_DEPENDENCIES
-    "trilinos"
-    )
+set(MAIN_TPL_DEPENDENCIES "trilinos")
 
 # Moris packages needed by main
 include(${MORIS_DEPENDS_DIR}/main_includes.cmake)

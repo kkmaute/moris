@@ -1,0 +1,53 @@
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+
+# Shared package contract for compiled and header-only MORIS components.
+if(@MORIS_COMPONENT@_CONFIGURED)
+    return()
+endif()
+
+@PACKAGE_INIT@
+
+# Keep a component-specific prefix: nested find_package calls can change
+# PACKAGE_PREFIX_DIR on older supported CMake versions.
+set(_@MORIS_COMPONENT@_PREFIX "${PACKAGE_PREFIX_DIR}")
+include(CMakeFindDependencyMacro)
+if(@MORIS_USE_OPENMP@)
+    find_dependency(OpenMP COMPONENTS CXX)
+endif()
+set(@MORIS_COMPONENT@_CONFIGURED TRUE)
+
+set(MORIS "@MORIS@")
+set(MORIS_USE_MPI "@MORIS_USE_MPI@")
+set(MORIS_HAVE_PARALLEL "@MORIS_HAVE_PARALLEL@")
+set(MORIS_HAVE_DEBUG "@MORIS_HAVE_DEBUG@")
+list(APPEND CMAKE_MODULE_PATH "${_@MORIS_COMPONENT@_PREFIX}/@CONFIG_INSTALL_DIR@/find_modules"
+     "${_@MORIS_COMPONENT@_PREFIX}/@CONFIG_INSTALL_DIR@/find_wrappers"
+)
+include("${_@MORIS_COMPONENT@_PREFIX}/@CONFIG_INSTALL_DIR@/utilities/moris_macros.cmake")
+
+# Retain the diagnostic variables used by existing consumers, including the
+# historical C_COMPLIER spelling; imported targets carry the build requirements.
+set(@MORIS_COMPONENT@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@MORIS_COMPONENT@_C_COMPILER "@MORIS_C_COMPILER@")
+set(@MORIS_COMPONENT@_C_COMPLIER "@MORIS_C_COMPILER@")
+set(@MORIS_COMPONENT@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@MORIS_COMPONENT_DEFINITIONS@")
+set(@MORIS_COMPONENT@_C_FLAGS "@MORIS_C_FLAGS@" "@MORIS_COMPONENT_DEFINITIONS@")
+
+if(@MORIS_HAS_RUNTIME_TARGET@)
+    include("${_@MORIS_COMPONENT@_PREFIX}/@CONFIG_INSTALL_DIR@/@MORIS@/morisRuntimeTargets.cmake")
+endif()
+
+if(@MORIS_HAVE_SHARED@)
+    set(PACKAGE_PREFIX_DIR "${_@MORIS_COMPONENT@_PREFIX}")
+    include("${PACKAGE_PREFIX_DIR}/@CONFIG_INSTALL_DIR@/@MORIS@/morisSharedConfig.cmake")
+else()
+    @MORIS_COMPONENT_TPLS@
+    @MORIS_COMPONENT_DEPENDENCIES@
+endif()
+
+set(PACKAGE_PREFIX_DIR "${_@MORIS_COMPONENT@_PREFIX}")
+include("${PACKAGE_PREFIX_DIR}/@MORIS_COMPONENT_CONFIG_DIR@/@MORIS_COMPONENT@Targets.cmake")
+set(@MORIS_COMPONENT@_LIBRARIES @MORIS_COMPONENT@-lib)
+list(APPEND ALL_MRS_LIBS @MORIS_COMPONENT@-lib)
+list(REMOVE_DUPLICATES ALL_MRS_LIBS)

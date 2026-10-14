@@ -1,22 +1,17 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# MTK ---------------------------------------------------------------------
-# -------------------------------------------------------------------------
+# MTK
 
-# Add source directory
+# Build the module library.
 add_subdirectory(src)
 
-# Add test directory
+# Build tests when this module is selected.
 if(MORIS_USE_TESTS AND BUILD_MTK)
-     add_subdirectory(test) #> no tests
+    add_subdirectory(test)
 endif()
 
-# Add test directory
+# Build tutorials when requested.
 if(BUILD_TUTORIALS AND BUILD_MTK)
-     add_subdirectory(tutorial) #> no tests
+    add_subdirectory(tutorial)
 endif()

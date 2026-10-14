@@ -1,12 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# NonLinear Algebra Dependencies ---------------------------------
-# -------------------------------------------------------------------------
+# NonLinear Algebra Dependencies
 
 # Check if NLA has already been included
 if(DEFINED NLA_CONFIGURED_ONCE)
@@ -19,11 +14,9 @@ set(NLA_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${SOL}/${NLA})
 
 # Include libraries needed by NLA
-set(NLA_TPL_DEPENDENCIES
-    ""
-    )
+set(NLA_TPL_DEPENDENCIES "")
 
-# Make sure needed moris libraries are built
+# Include required MORIS modules.
 include(${MORIS_DEPENDS_DIR}/SOL_CORE_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
@@ -32,4 +25,3 @@ include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 
 # Includes needed for tests
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
-

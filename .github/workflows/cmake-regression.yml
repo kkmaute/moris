@@ -1,0 +1,32 @@
+name: CMake framework regression
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  framework:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install formatting tool
+        run: python -m pip install cmakelang==0.6.13
+      - name: Check CMake formatting
+        run: python share/cmake/tests/check_format.py
+      - name: Run dependency-light regression tests
+        run: |
+          python share/cmake/tests/test_build_configuration.py
+          python share/cmake/tests/test_shared_library.py
+          python share/cmake/tests/test_module_selection.py
+          python share/cmake/tests/test_package_configuration.py
+          python share/cmake/tests/test_runtime_configuration.py
+          python share/cmake/tests/test_test_registration.py

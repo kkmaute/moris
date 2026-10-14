@@ -1,12 +1,7 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# MORIS main -------------------------------------------------------------
-# -------------------------------------------------------------------------
+# MORIS main
 
 # Third party libraries
 list(REMOVE_DUPLICATES MAIN_TPL_DEPENDENCIES)
@@ -18,16 +13,10 @@ endforeach()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 # main moris file
-set(MAIN
-    main.cpp )
+set(MAIN main.cpp)
 
-# List include directories
-set(MAIN_INCLUDES
-    ${COM}
-    ${IOS}
-    ${WRK}
-    ${LINALG}
-        )
+# Include directories.
+set(MAIN_INCLUDES ${COM} ${IOS} ${WRK} ${LINALG})
 
 foreach(MAIN_INCLUDE ${MAIN_INCLUDES})
     include_directories(../${MAIN_INCLUDE}/src)
@@ -36,7 +25,7 @@ endforeach()
 # Additonal (optional) includes
 include_directories(../STK/src/Hierarchical)
 
-# List executable dependencies
+# Executable dependencies.
 set(MAIN_DEPENDENCIES
     ${HMR}-lib
     ${COM}-lib
@@ -50,9 +39,7 @@ set(MAIN_DEPENDENCIES
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
     ${MORIS_BASE_LIBS}
-    )
-
-# ------------------------------------------------------------------------
+)
 
 # Create and link main executables
 string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
@@ -62,23 +49,16 @@ target_link_libraries(moris ${MORIS}::trilinos)
 list(APPEND MAIN_EXECUTABLES moris)
 
 # Install executables
-install(TARGETS ${MAIN_EXECUTABLES}
-    DESTINATION ${EXE_INSTALL_DIR} )
+install(TARGETS ${MAIN_EXECUTABLES} DESTINATION ${EXE_INSTALL_DIR})
 
-# -------------------------------------------------------------------------
-# Making of input file shared object --------------------------------------
-# -------------------------------------------------------------------------
+# Making of input file shared object
 
 ## create dynamically linked .so files
 set(HARDCODED_INPUT_FILE input_file)
 
-set(SO_TPLS
-"trilinos"
-${ARMADILLO_EIGEN}
-"HDF5"
-)
+set(SO_TPLS "trilinos" ${ARMADILLO_EIGEN} "HDF5")
 
-# List header dependencies in /FEM/INT/src                                                                                                                                                                                                                                                    
+# List header dependencies in /FEM/INT/src
 set(INT_INCLUDES
     "CORE"
     "ELEM"
@@ -87,60 +67,62 @@ set(INT_INCLUDES
     "CM"
     "SP"
     "IWG"
-    "IQI")
+    "IQI"
+)
 
 set(INT_INTERNAL_INCLUDES)
 
-# Include depedency directories
+# Include dependency directories.
 foreach(INT_INCLUDES ${INT_INCLUDES})
     list(APPEND INT_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES}")
 endforeach()
 
-# List header dependencies in /MTK/src                                                                                                                                                                                                                                                    
+# List header dependencies in /MTK/src
 set(MTK_INCLUDES
-        "cluster"
-        "contact"
-        "field"
-        "geometry"
-        "geometry/cell"
-        "geometry/vertex"
-        "integration"
-        "interpolation"
-        "intersection"
-        "io"
-        "mesh"
-        "set"
+    "cluster"
+    "contact"
+    "field"
+    "geometry"
+    "geometry/cell"
+    "geometry/vertex"
+    "integration"
+    "interpolation"
+    "intersection"
+    "io"
+    "mesh"
+    "set"
 )
 
 set(MTK_INTERNAL_INCLUDES)
 
-# Include depedency directories
+# Include dependency directories.
 foreach(MTK_INCLUDES ${MTK_INCLUDES})
     list(APPEND MTK_INTERNAL_INCLUDES "${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDES}")
 endforeach()
 
-SET(SO_INCLUDES
+set(SO_INCLUDES
     ${MORIS_BOOST_INCLUDE_DIRS}
     ${MORIS_TRILINOS_INCLUDE_DIRS}
     ${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_INTERNAL_INCLUDES}
-    ${MTK_INTERNAL_INCLUDES} 
-    ${MORIS_PACKAGE_DIR}/PRM/src/ 
-    ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
+    ${MTK_INTERNAL_INCLUDES}
+    ${MORIS_PACKAGE_DIR}/PRM/src/
+    ${MORIS_PACKAGE_DIR}/FEM/MSI/src
     ${MORIS_PACKAGE_DIR}/FEM/VIS/src
-    ${MORIS_PACKAGE_DIR}/HMR/src 
-    ${MORIS_PACKAGE_DIR}/SOL/DLA/src 
+    ${MORIS_PACKAGE_DIR}/HMR/src
+    ${MORIS_PACKAGE_DIR}/SOL/DLA/src
     ${MORIS_PACKAGE_DIR}/SOL/TSA/src
-    ${MORIS_PACKAGE_DIR}/SOL/NLA/src 
-    ${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src 
+    ${MORIS_PACKAGE_DIR}/SOL/NLA/src
+    ${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src
     ${MORIS_PACKAGE_DIR}/LINALG/src
     ${MORIS_PACKAGE_DIR}/LINALG/src/${LINALG_IMPLEMENTATION_INCLUDES}
-    ${MORIS_PACKAGE_DIR}/COM/src 
+    ${MORIS_PACKAGE_DIR}/COM/src
     ${MORIS_PACKAGE_DIR}/PRM/ENM/src
     ${MORIS_PACKAGE_DIR}/MTK/src
     ${MORIS_PACKAGE_DIR}/HMR/src
     ${MORIS_PACKAGE_DIR}/XTK/src/
-    ${MORIS_PACKAGE_DIR}/MRS/COR/src)
+    ${MORIS_PACKAGE_DIR}/MRS/COR/src
+)
 
 # make SO_INCLUDES available as global list
 set_property(GLOBAL PROPERTY INT_SRC_LIST "${SO_INCLUDES}")
@@ -151,6 +133,6 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-dynamic_link_input("shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp  ${SO_INCLUDES})
-
-
+dynamic_link_input(
+    "shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp ${SO_INCLUDES}
+)

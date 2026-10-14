@@ -1,14 +1,9 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Linear Algebra Tests --------------------------------------------------------------
-# -------------------------------------------------------------------------
+# Linear Algebra Tests
 
-# List source files
+# Sources.
 set(TEST_SOURCES
     cl_Matrix.cpp
     cl_Matrix3x1.cpp
@@ -68,33 +63,22 @@ set(TEST_SOURCES
     op_plus.cpp
     op_times.cpp
     fn_max.cpp
-    test_main.cpp)
+    test_main.cpp
+)
 
-# List test dependencies
-set(TEST_DEPENDENCIES
-    test-libs
-    ${ALG}-lib
-    ${MORIS_BASE_LIBS}
-    )
+# Test dependencies.
+set(TEST_DEPENDENCIES test-libs ${ALG}-lib ${MORIS_BASE_LIBS})
 
-# Set the output path for test
+# Test output directory.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Set test name
 set(LINALG_TEST ${LINALG}-test)
 
-# Create executable
+# Define the executable and its dependencies.
 add_executable(${LINALG_TEST} ${TEST_SOURCES})
 target_link_libraries(${LINALG_TEST} PRIVATE ${TEST_DEPENDENCIES})
 set_target_properties(${LINALG_TEST} PROPERTIES OUTPUT_NAME ${LINALG_TEST}${EXE_EXT})
 
-# Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
-    set(LINALG_TEST_PROCS ${MORIS_TEST_PROCS})
-    foreach(PROCS ${LINALG_TEST_PROCS})
-        set(LINALG_PARALLEL_TEST ${LINALG_TEST}-${PROCS}-procs)
-        add_test(NAME ${LINALG_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${LINALG_TEST}>)
-    endforeach()
-endif()
-
+# Register tests for the configured MPI process counts.
+moris_register_unit_tests(${LINALG_TEST} ${MORIS_TEST_PROCS})

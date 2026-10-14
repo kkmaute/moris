@@ -1,17 +1,12 @@
-#
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#------------------------------------------------------------------------------------
-#
 
-# Integration and Interpolation Source ------------------------------------
-# -------------------------------------------------------------------------
+# Integration and Interpolation Source
 
-# Set version
+# Package version.
 set(${INT}_VERSION ${MORIS_VERSION})
 
-# List header dependencies                                                                                                                                                                                                                                                     
+# Header directories.
 set(INT_INCLUDES
     "CORE"
     "ELEM"
@@ -21,25 +16,24 @@ set(INT_INCLUDES
     "SP"
     "IWG"
     "IQI"
-    "MEA")
+    "MEA"
+)
 
 set(INT_INTERNAL_INCLUDES)
 
-# Include depedency directories
-foreach(INT_INCLUDES ${INT_INCLUDES})
+# Include dependency directories.
+foreach(INT_INCLUDES IN LISTS INT_INCLUDES)
     list(APPEND INT_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${INT_INCLUDES}")
-	include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/${INT_INCLUDES})
 endforeach()
 
 # create global list for .../INT/src/ includes
 set_property(GLOBAL PROPERTY INT_SRC_LIST "${INT_INTERNAL_INCLUDES}")
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # INT Library
 
-# List header files
+# Public headers.
 set(HEADERS
-
     CORE/cl_FEM_Set.hpp
     CORE/cl_FEM_NodeProxy.hpp
     CORE/cl_FEM_Node_Base.hpp
@@ -55,12 +49,10 @@ set(HEADERS
     CORE/cl_FEM_Model.hpp
     CORE/fn_FEM_Check.hpp
     CORE/fn_FEM_FD_Scheme.hpp
-
     ELEM/cl_FEM_Cluster.hpp
     ELEM/cl_FEM_Element_Factory.hpp
     ELEM/cl_FEM_ElementProxy.hpp
     ELEM/cl_FEM_Element.hpp
-
     ELEM/cl_FEM_Element_Bulk.hpp
     ELEM/cl_FEM_Element_Sideset.hpp
     ELEM/cl_FEM_Element_Double_Sideset.hpp
@@ -68,27 +60,21 @@ set(HEADERS
     ELEM/cl_FEM_Element_Time_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Final_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Boundary.hpp
-
     IP/cl_FEM_Geometry_Interpolator.hpp
     IP/cl_FEM_Field_Interpolator.hpp
     IP/cl_FEM_Field_Interpolator_Manager.hpp
-
     MM/cl_FEM_Material_Model.hpp
     MM/cl_FEM_MM_Factory.hpp
-
     MM/cl_FEM_MM_Perfect_Gas.hpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.hpp
-
     CM/cl_FEM_Constitutive_Model.hpp
     CM/cl_FEM_CM_Factory.hpp
-
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     CM/fn_FEM_CM_Phase_State_Functions.hpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Smagorinsky.hpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Spalart_Allmaras.hpp
-
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.hpp
@@ -97,20 +83,16 @@ set(HEADERS
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
     CM/cl_FEM_CM_Struc_Linear.hpp
-
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
     CM/cl_FEM_CM_Fluid_Incompressible_Turbulence.hpp
     CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.hpp
     CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras.hpp
     CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
-
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid.hpp
-
     SP/cl_FEM_Stabilization_Parameter.hpp
     SP/cl_FEM_SP_Factory.hpp
-
     SP/cl_FEM_SP_Dirichlet_Nitsche.hpp
     SP/cl_FEM_SP_Robin_Nitsche.hpp
     SP/cl_FEM_SP_Nitsche_Interface.hpp
@@ -137,10 +119,8 @@ set(HEADERS
     SP/cl_FEM_SP_Penalty_Contact.hpp
     SP/cl_FEM_SP_Measure.hpp
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.hpp
-
     IWG/cl_FEM_IWG_Factory.hpp
     IWG/cl_FEM_IWG.hpp
-
     IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.hpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.hpp
@@ -148,7 +128,6 @@ set(HEADERS
     #IWG/cl_FEM_IWG_LSNormal_Bulk.hpp
     #IWG/cl_FEM_IWG_Olsson_CLS_Bulk.hpp
     #IWG/cl_FEM_IWG_Olsson_CLS_Interface.hpp
-
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
@@ -167,16 +146,13 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp
-
     IWG/cl_FEM_IWG_Struc_Stress.hpp
     IWG/cl_FEM_IWG_Nonlocal_Interface.hpp
     IWG/cl_FEM_IWG_L2_Damage_Bulk.hpp
-
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Interface.hpp
-
     IWG/cl_FEM_IWG_Advection_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
@@ -186,7 +162,6 @@ set(HEADERS
     IWG/cl_FEM_IWG_Diffusion_Radiation.hpp
     IWG/cl_FEM_IWG_Diffusion_Interface.hpp
     IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
-
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.hpp
@@ -198,7 +173,6 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
     IWG/fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp
-
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.hpp
@@ -209,31 +183,24 @@ set(HEADERS
     IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.hpp
-
     IWG/cl_FEM_IWG_Compressible_NS_Base.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Boundary.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp
     IWG/fn_FEM_IWG_Compressible_NS.hpp
-
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.hpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.hpp
     IWG/fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp
-
     IWG/cl_FEM_IWG_User_Defined.hpp
-
     #IWG/cl_FEM_IWG_Helmholtz_Bulk.hpp
     #IWG/cl_FEM_IWG_Helmholtz_Bulk2.hpp
     #IWG/cl_FEM_IWG_Helmholtz_Interface.hpp
-
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
-    #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp 
+    #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
-
     IQI/cl_FEM_IQI.hpp
     IQI/cl_FEM_IQI_Factory.hpp
-
     IQI/cl_FEM_IQI_Volume.hpp
     IQI/cl_FEM_IQI_Strain_Energy.hpp
     IQI/cl_FEM_IQI_Stress.hpp
@@ -280,15 +247,12 @@ set(HEADERS
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.hpp
     IQI/cl_FEM_IQI_Normal_Vector.hpp
     MEA/cl_FEM_Cluster_Measure.hpp
-    )
+)
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fem/int Library
 
-# List library source files
+# Library sources.
 set(LIB_SOURCES
-
-
     CORE/cl_FEM_Set.cpp
     CORE/cl_FEM_Property.cpp
     CORE/cl_FEM_Model_Initializer.cpp
@@ -296,7 +260,6 @@ set(LIB_SOURCES
     CORE/cl_FEM_Model_Initializer_Phasebased.cpp
     CORE/cl_FEM_Model.cpp
     CORE/cl_FEM_Field.cpp
-
     ELEM/cl_FEM_Cluster.cpp
     ELEM/cl_FEM_Element_Factory.cpp
     ELEM/cl_FEM_Element_Bulk.cpp
@@ -307,11 +270,9 @@ set(LIB_SOURCES
     ELEM/cl_FEM_Element_Time_Final_Sideset.cpp
     ELEM/cl_FEM_Element_Time_Boundary.cpp
     ELEM/cl_FEM_Interpolation_Element.cpp
-
     IP/cl_FEM_Geometry_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator.cpp
     IP/cl_FEM_Field_Interpolator_Manager.cpp
-
     MM/cl_FEM_Material_Model.cpp
     MM/cl_FEM_MM_Factory.cpp
     MM/cl_FEM_Material_Model_Density_Functions.cpp
@@ -319,19 +280,15 @@ set(LIB_SOURCES
     MM/cl_FEM_Material_Model_Temperature_Functions.cpp
     MM/cl_FEM_Material_Model_Thermodynamic_Quantities.cpp
     MM/cl_FEM_Material_Model_FD_Functions.cpp
-
     MM/cl_FEM_MM_Perfect_Gas.cpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.cpp
-
     CM/cl_FEM_Constitutive_Model.cpp
     CM/cl_FEM_CM_Factory.cpp
-
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Smagorinsky.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence_Spalart_Allmaras.cpp
-
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Compressible_Neo_Hookean_Bonet.cpp
@@ -340,23 +297,19 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
     CM/cl_FEM_CM_Struc_Linear.cpp
-
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
     CM/cl_FEM_CM_Fluid_Incompressible_Turbulence.cpp
     CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.cpp
     CM/cl_FEM_CM_Fluid_Incompressible_Turbulence_Spalart_Allmaras.cpp
     CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.cpp
-
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.cpp
     CM/cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals_Test_Tractions.cpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid.cpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid_Test_Tractions.cpp
-
     SP/cl_FEM_Stabilization_Parameter.cpp
     SP/cl_FEM_SP_Factory.cpp
-
     SP/cl_FEM_SP_Dirichlet_Nitsche.cpp
     SP/cl_FEM_SP_Robin_Nitsche.cpp
     SP/cl_FEM_SP_Nitsche_Interface.cpp
@@ -383,19 +336,15 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Penalty_Contact.cpp
     SP/cl_FEM_SP_Measure.cpp
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.cpp
-
     IWG/cl_FEM_IWG.cpp
     IWG/cl_FEM_IWG_Factory.cpp
-
     IWG/cl_FEM_IWG_L2.cpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.cpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.cpp
     #IWG/cl_FEM_IWG_LSNormal_Bulk.cpp
     #IWG/cl_FEM_IWG_Olsson_CLS_Bulk.cpp
     #IWG/cl_FEM_IWG_Olsson_CLS_Interface.cpp
-
     IWG/cl_FEM_IWG_FS_Struc_Interface.cpp
-
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Bulk.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
@@ -415,16 +364,13 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.cpp
-
     IWG/cl_FEM_IWG_Struc_Stress.cpp
     IWG/cl_FEM_IWG_Nonlocal_Interface.cpp
     IWG/cl_FEM_IWG_L2_Damage_Bulk.cpp
-
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Interface.cpp
-
     IWG/cl_FEM_IWG_Advection_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
@@ -434,7 +380,6 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Diffusion_Radiation.cpp
     IWG/cl_FEM_IWG_Diffusion_Interface.cpp
     IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
-
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Convective_Velocity_Ghost.cpp
@@ -446,7 +391,6 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
     IWG/fn_FEM_IWG_Crosswind_Stabilization_Tools.cpp
-
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
@@ -457,7 +401,6 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Compressible_NS_Heat_Flux_Neumann.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Temperature_Dirichlet_Nitsche.cpp
-
     IWG/cl_FEM_IWG_Compressible_NS_Base.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Bulk.cpp
     #IWG/cl_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
@@ -470,23 +413,18 @@ set(LIB_SOURCES
     IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices.cpp
     IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices_Dof_Derivs.cpp
     IWG/fn_FEM_IWG_Compressible_NS_Flux_Matrices_Var_Derivs.cpp
-
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     IWG/cl_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
     IWG/fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.cpp
-
     IWG/cl_FEM_IWG_User_Defined.cpp
-
     #IWG/cl_FEM_IWG_Helmholtz_Bulk.cpp
     #IWG/cl_FEM_IWG_Helmholtz_Bulk2.cpp
     #IWG/cl_FEM_IWG_Helmholtz_Interface.cpp
-
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.cpp
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.cpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.cpp
-
-	IQI/cl_FEM_IQI.cpp
+    IQI/cl_FEM_IQI.cpp
     IQI/cl_FEM_IQI_Factory.cpp
     IQI/cl_FEM_IQI_Volume.cpp
     IQI/cl_FEM_IQI_Strain_Energy.cpp
@@ -534,112 +472,61 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Traction.cpp
     IQI/cl_FEM_IQI_Linear_Elasticity_Damage.cpp
     IQI/cl_FEM_IQI_Normal_Vector.cpp
-    
     MEA/cl_FEM_Cluster_Measure.cpp
-    )
+)
 
-# List library dependencies
-set(LIB_DEPENDENCIES
-    ${LINALG}-lib
-    ${MTK}-lib
-    ${MSI}-lib
-    ${VIS}-lib
-    ${PRM}-lib
-    ${ENM}-lib
-    )
+# MORIS library dependencies.
+set(LIB_DEPENDENCIES ${LINALG}-lib ${MTK}-lib ${MSI}-lib ${VIS}-lib ${PRM}-lib ${ENM}-lib)
 
-set(MTK_INCLUDES
-	"IG/"
-	"IP/"
-	)
+set(MTK_INCLUDES "IG/" "IP/")
 
-# Include depedency directories
-foreach(MTK_INCLUDE ${MTK_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDE})
+# Include dependency directories.
+foreach(MTK_INCLUDE IN LISTS MTK_INCLUDES)
+    include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDE})
 endforeach()
 
-# Set the output path for library
+# Library output directories.
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
-# Create library
-add_library(${INT}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
-target_include_directories(${INT}-lib PUBLIC
-	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${INT_INTERNAL_INCLUDES};>"
-	$<INSTALL_INTERFACE:${${INT}_HEADER_INSTALL_DIR}> )
-target_link_libraries(${INT}-lib PUBLIC ${LIB_DEPENDENCIES})
-set_target_properties(${INT}-lib PROPERTIES OUTPUT_NAME ${INT})
+# Define the library and its public build requirements.
+moris_add_module(${INT}-lib INT_BUILD_TARGET ${LIB_SOURCES})
+target_include_directories(
+    ${INT_BUILD_TARGET}
+    PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${INT_INTERNAL_INCLUDES};>"
+           $<INSTALL_INTERFACE:${${INT}_HEADER_INSTALL_DIR}>
+)
+target_link_libraries(${INT_BUILD_TARGET} PUBLIC ${LIB_DEPENDENCIES})
+set_target_properties(${INT_BUILD_TARGET} PROPERTIES OUTPUT_NAME ${INT})
 
-foreach(TPL ${INT_TPL_DEPENDENCIES})
+foreach(TPL IN LISTS INT_TPL_DEPENDENCIES)
     string(TOLOWER ${TPL} tpl)
-    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    target_link_libraries(${INT}-lib
-        PUBLIC ${MORIS}::${tpl})
+    include("${MORIS_TPL_DIR}/${tpl}_new.cmake")
+    target_link_libraries(${INT_BUILD_TARGET} PUBLIC ${MORIS}::${tpl})
 
     string(TOUPPER ${TPL} TPL)
-    target_include_directories(${INT}-lib
-        PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_compile_definitions(${INT}-lib
-        PUBLIC ${MORIS_${TPL}_DEFINITIONS})
-endforeach()
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Executable
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Config Files
-
-# Makes sure all tpl dependencies are searched for in the config file
-foreach(TPL ${INT_TPL_DEPENDENCIES})
-    string(TOLOWER ${TPL} tpl)
-    string(APPEND INT_CONFIG_TPL_DEPENDENCIES
-        "include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
-endforeach()
-
-# Makes sure all moris library dependencies are included in the config file
-foreach(LIB_TARGET ${LIB_DEPENDENCIES})
-    string(REGEX REPLACE "([^-]+).*" "\\1" LIB ${LIB_TARGET})
-    string(APPEND INT_CONFIG_MORIS_DEPENDENCIES
-        "include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
-endforeach()
-
-# Properties to be coppied into config file
-get_target_property(INT_COMPILE_DEFINITIONS ${INT}-lib COMPILE_DEFINITIONS)
-
-# Build *Config and *ConfigVersion files
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${INT}Config.cmake.in
-    ${${INT}_CONFIG_BUILD_DIR}/${INT}Config.cmake
-    INSTALL_DESTINATION
-    ${${INT}_CONFIG_INSTALL_DIR}
-    PATH_VARS
-    ${INT}_CONFIG_INSTALL_DIR
+    target_include_directories(
+        ${INT_BUILD_TARGET} PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS}
     )
+    target_compile_definitions(${INT_BUILD_TARGET} PUBLIC ${MORIS_${TPL}_DEFINITIONS})
+endforeach()
 
-write_basic_package_version_file(
-    ${${INT}_CONFIG_BUILD_DIR}/${INT}ConfigVersion.cmake
-    COMPATIBILITY AnyNewerVersion )
+# Generate and install the common component package configuration.
+moris_install_component_package(
+    INT
+    TARGET
+    ${INT_BUILD_TARGET}
+    DEPENDENCIES
+    ${LIB_DEPENDENCIES}
+    TPLS
+    ${INT_TPL_DEPENDENCIES}
+)
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fem/int Installation
-
-# Install *Config and *ConfigVersion files
-install(FILES ${${INT}_CONFIG_BUILD_DIR}/${INT}Config.cmake
-    ${${INT}_CONFIG_BUILD_DIR}/${INT}ConfigVersion.cmake
-    DESTINATION ${${INT}_CONFIG_INSTALL_DIR} )
-
-# Install header files
-install(FILES ${HEADERS}
-    DESTINATION ${${INT}_HEADER_INSTALL_DIR} )
+# Install public headers.
+install(FILES ${HEADERS} DESTINATION ${${INT}_HEADER_INSTALL_DIR})
 
 # Install library
-install(TARGETS ${INT}-lib
-    DESTINATION ${${INT}_LIB_INSTALL_DIR}
-    EXPORT ${INT}Targets )
+install(TARGETS ${INT}-lib DESTINATION ${${INT}_LIB_INSTALL_DIR} EXPORT ${INT}Targets)
 
 # Export library into *Targets file
-install(EXPORT ${INT}Targets
-    DESTINATION ${${INT}_CONFIG_INSTALL_DIR} )
-
+install(EXPORT ${INT}Targets DESTINATION ${${INT}_CONFIG_INSTALL_DIR})
