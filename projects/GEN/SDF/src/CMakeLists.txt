@@ -77,20 +77,21 @@ foreach(TPL IN LISTS SDF_TPL_DEPENDENCIES)
 endforeach()
 
 # SDF Executable
+if(BUILD_SDF_EXE)
+    # List executable source files
+    set(EXE_SOURCES main.cpp)
 
-# List executable source files
-set(EXE_SOURCES main.cpp)
+    # Executable dependencies.
+    set(EXE_DEPENDENCIES ${CHR}-lib ${SDF}-lib ${MTK}-lib ${COM}-lib ${MORIS_BASE_LIBS})
 
-# Executable dependencies.
-set(EXE_DEPENDENCIES ${CHR}-lib ${SDF}-lib ${MTK}-lib ${COM}-lib ${MORIS_BASE_LIBS})
+    # Set the output path for executable
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
-# Set the output path for executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
-
-# Define the executable and its dependencies.
-add_executable(${SDF}-exe ${EXE_SOURCES})
-target_link_libraries(${SDF}-exe PRIVATE ${EXE_DEPENDENCIES})
-set_target_properties(${SDF}-exe PROPERTIES OUTPUT_NAME sdf)
+    # Define the executable and its dependencies.
+    add_executable(${SDF}-exe ${EXE_SOURCES})
+    target_link_libraries(${SDF}-exe PRIVATE ${EXE_DEPENDENCIES})
+    set_target_properties(${SDF}-exe PROPERTIES OUTPUT_NAME sdf)
+endif()
 
 # Generate and install the common component package configuration.
 moris_install_component_package(
@@ -110,7 +111,9 @@ install(FILES ${HEADERS} DESTINATION ${${SDF}_HEADER_INSTALL_DIR})
 install(TARGETS ${SDF}-lib DESTINATION ${${SDF}_LIB_INSTALL_DIR} EXPORT ${SDF}Targets)
 
 # Install executable
-install(TARGETS ${SDF}-exe DESTINATION ${${SDF}_EXE_INSTALL_DIR} EXPORT ${SDF}Targets)
+if(BUILD_SDF_EXE)
+    install(TARGETS ${SDF}-exe DESTINATION ${${SDF}_EXE_INSTALL_DIR} EXPORT ${SDF}Targets)
+endif()
 
 # Export library into *Targets file
 install(EXPORT ${SDF}Targets DESTINATION ${${SDF}_CONFIG_INSTALL_DIR})

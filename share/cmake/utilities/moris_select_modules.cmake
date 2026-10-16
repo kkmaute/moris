@@ -37,13 +37,14 @@ macro(moris_select_modules)
         moris_set_build_option(MORIS_USE_EXAMPLES ON)
         message(
             STATUS
-                "BUILD_ALL: maintained modules and examples enabled; GUI and tutorials remain opt-in; MOD/STK unavailable."
+                "BUILD_ALL: maintained modules and examples enabled; GUI, tutorials, and the SDF executable remain opt-in; MOD/STK unavailable."
         )
     elseif(BUILD_NONE)
         foreach(component IN LISTS MORIS_BUILD_MODULES)
             moris_set_build_option(BUILD_${component} OFF)
         endforeach()
         moris_set_build_option(BUILD_MAIN OFF)
+        moris_set_build_option(BUILD_SDF_EXE OFF)
         moris_set_build_option(BUILD_TUTORIALS OFF)
         moris_set_build_option(MORIS_USE_EXAMPLES OFF)
     endif()

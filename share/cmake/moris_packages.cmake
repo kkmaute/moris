@@ -10,6 +10,10 @@ if(BUILD_MAIN)
     include(${MORIS_DEPENDS_DIR}/main_includes.cmake)
 endif()
 
+if(BUILD_SDF_EXE)
+    include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
+endif()
+
 # Dependency files establish module ordering as well as transitive dependencies.
 foreach(component IN LISTS MORIS_BUILD_MODULES)
     if(BUILD_${component}

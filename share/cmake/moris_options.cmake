@@ -90,6 +90,7 @@ option(MORIS_USE_CLANG_TIDY " Use clang-tidy" OFF)
 # Package Options
 
 option(BUILD_MAIN "Build main executable." OFF)
+option(BUILD_SDF_EXE "Build the standalone SDF executable." OFF)
 
 option(BUILD_ALL "Build all executables." OFF)
 

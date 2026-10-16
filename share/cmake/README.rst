@@ -30,15 +30,22 @@ Module selection
 
 ``BUILD_ALL=ON`` enables maintained modules (including MIG), the main executable,
 and examples. GUI requires Qt6 and remains opt-in; an explicit ``BUILD_GUI=ON``
-is preserved. Tutorials also remain opt-in. MOD is disabled in this checkout,
-and no standalone STK module exists, so ALL disables those two selectors.
+is preserved. Tutorials and the standalone SDF executable also remain opt-in.
+MOD is disabled in this checkout, and no standalone STK module exists, so ALL
+disables those two selectors.
 ``BUILD_STK`` does not control the STK dependency supplied by Trilinos.
 
 ``BUILD_NONE=ON`` disables all module executable/test selectors, the main
-executable, tutorials, and examples. Required core libraries are still built.
+executable, the SDF executable, tutorials, and examples. Required core libraries
+are still built.
 Both controls reset to OFF after configuration; enabling both is an error.
 Individual ``BUILD_<module>`` selectors can be changed on later configurations.
 ``MORIS_USE_TESTS`` remains the master switch for unit-test compilation.
+
+``BUILD_SDF_EXE=ON`` builds and installs the standalone ``sdf`` executable and
+selects its required libraries. It defaults to OFF, independently of
+``BUILD_SDF`` (SDF unit tests) and ``BUILD_ALL``. The SDF library remains available
+to dependent modules when the executable is disabled.
 
 ``MORIS_USE_EXAMPLES`` is the canonical examples option. ``BUILD_EXA`` is a
 synchronized legacy alias: it initializes a fresh cache if the canonical option
