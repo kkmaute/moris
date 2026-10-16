@@ -3,8 +3,8 @@ function main
 clear all
 close all
 
-titan              =''; %'/home/maute/codes/moris_titan/build_opt';
-titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
+titan              =''; %'/home/maute/codes/moris_titan/build_opt/TimingResults';
+titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt/TimingResults';
 github             = [getenv('MORISROOT'), '/build_opt/TimingResults'];
 
 system(['chmod -R +w ' github])

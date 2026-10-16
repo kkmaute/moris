@@ -31,9 +31,7 @@ namespace moris::prm
     inline Parameter_List
     create_opt_problem_parameter_list()
     {
-        std::cout << "A\n";
         Parameter_List tParameterList( "Problem" );
-        std::cout << "B\n";
 
         tParameterList.insert( "is_optimization_problem", false );    // Whether or not to use OPT
 

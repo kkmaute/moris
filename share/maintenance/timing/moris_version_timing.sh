@@ -24,20 +24,21 @@ branch=main
 # file with list of examples 
 exalist=$MORISROOTORG/share/maintenance/timing/TimingExampleList
 
-# set current version (t13 or t15)
-ctvers=t15
+# set current version (t13 or t150 or 151)
+ctvers=t151
 
 # resource file for current and old versions
-bashrc_t13=$HOME/BASHRC_MORIS_T13
-bashrc_t15=$HOME/.bashrc_moris
+bashrc_t13="na"
+bashrc_t150="na"
+bashrc_t151=$HOME/.bashrc_moris
 
 # file with git versions to processed in additon to current git version one;  
 # leave empty if only current git version should be checked
 # set to "local" if local (not pushed) version should be checked
 
-#gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
+gitlist=$MORISROOTORG/share/maintenance/timing/CheckGitList_github
 #gitlist="current"
-gitlist="local"
+#gitlist="local"
 
 #=================================================================================
 # end of user input
@@ -67,6 +68,7 @@ id=0
 cd $here
 
 cp $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.cmake 
+cp $MORISROOTORG/share/cmake/find_wrappers/trilinos_new.cmake /tmp/trilinos_new.cmake 
 
 if [ ! -d "TimingResults" ];then
     mkdir TimingResults
@@ -82,59 +84,80 @@ if [ ! "$vlist" = "na" ] && [ ! "$1" = "skip" ];then
         
         urs=`echo $ulist | awk -v id=$id '{split($0, list);print list[id]}'`
 
-        make clean >& /dev/null
+        echo " ==============================================="
 
-        git checkout $branch
-        
-        git pull
-        
-        tmpdate=`git log | awk -v gh=$vers  'BEGIN{n=0} 
-        { 
-            if( match($0,gh) > 0){n=1}
-            if ( match($0,"Date") > 0 && n==1 )
-            {
-               split($0,a," ")
-               n=0
-               print a[2]" "a[3]" "a[4]" "a[5]" "a[6]
-            }
-        }'`
-        
-        date=`date -d "$tmpdate" +%m-%d-%Y`
+        echo " Checkig timing test $id - processing git $vers for $urs"
 
         echo " ==============================================="
 
-        echo " processing $id ( $vers / $date )"
-
-        echo " ==============================================="
-                        
-        doskip=0
+        doskip=1
         
-        if [ "$urs" = "t13" ]; then    
+        if [ "$urs" = "t13" ] && [ ! "$bashrc_t13" = "na" ]; then    
             if [ ! -f $bashrc_t13 ]; then
                 echo "bashrc_t13: $bashrc_t13 does not exist"
-                echo "skipping timing test for $vers"
-                doskip=1
             else
                 echo "trilinos version 13"
                 source $bashrc_t13
                 echo $Trilinos_DIR
+                doskip=0
             fi
         fi
          
-        if [ "$urs" = "t15" ]; then    
-            if [ ! -f $bashrc_t15 ]; then
-                echo "bashrc_t15: $bashrc_t15 does not exist"
-                echo "skipping timing test for $vers"
-                doskip=1
-            else
-                echo "trilinos version 15"
-                source $bashrc_t15
+        if [ "$urs" = "t150" ] && [ ! "$bashrc_t150" = "na" ]; then    
+            if [ ! -f $bashrc_t150 ]; then
+                echo "bashrc_t150: $bashrc_t150 does not exist"
+             else
+                echo "trilinos version 15.0"
+                source $bashrc_t150
                 echo $Trilinos_DIR
+                doskip=0
             fi
         fi
         
-        if [ "$doskip" = "0" ];then
+        if [ "$urs" = "t151" ] && [ ! "$bashrc_t151" = "na" ]; then    
+            if [ ! -f $bashrc_t151 ]; then
+                echo "bashrc_t151: $bashrc_t151 does not exist"
+                echo "skipping timing test for $vers"
+                doskip=1
+            else
+                echo "trilinos version 15.1"
+                source $bashrc_t151
+                echo $Trilinos_DIR
+                doskip=0
+            fi
+        fi
+
+        if [ "$doskip" = "1" ];then
+
+            echo " Skipping timing test $id for $vers"
+
+        else
+
+            make clean >& /dev/null
+
+            git checkout $branch
         
+            git pull
+        
+            tmpdate=`git log | awk -v gh=$vers  'BEGIN{n=0} 
+            { 
+                if( match($0,gh) > 0){n=1}
+                if ( match($0,"Date") > 0 && n==1 )
+                {
+                   split($0,a," ")
+                   n=0
+                   print a[2]" "a[3]" "a[4]" "a[5]" "a[6]
+                }
+            }'`
+        
+            date=`date -d "$tmpdate" +%m-%d-%Y`
+
+            echo " ==============================================="
+
+            echo " processing $id ( $vers / $date )"
+
+            echo " ==============================================="
+                                
             git checkout $vers
         
             rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
@@ -142,13 +165,15 @@ if [ ! "$vlist" = "na" ] && [ ! "$1" = "skip" ];then
             rm -r -f lib Makefile share
             
             mv $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake /tmp/FindOPENBLAS.cmake.current
+            mv $MORISROOTORG/share/cmake/find_wrappers/trilinos_new.cmake /tmp/trilinos_new.cmake.current
 
             cp /tmp/FindOPENBLAS.cmake $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake
+            cp /tmp/trilinos_new.cmake $MORISROOTORG/share/cmake/find_wrappers/trilinos_new.cmake
         
             echo "MORIS cmake for $vers at $date"            > TimingResults/cmake.$date
             echo " "                                        >> TimingResults/cmake.$date
-            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1
-            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON .. >> TimingResults/cmake.$date 2>&1 
+            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PEDANTIC=OFF .. >> TimingResults/cmake.$date 2>&1
+            cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PEDANTIC=OFF .. >> TimingResults/cmake.$date 2>&1 
         
             echo "MORIS compilation log for $vers at $date"  > TimingResults/compile.$date
             echo " "                                        >> TimingResults/compile.$date
@@ -159,7 +184,8 @@ if [ ! "$vlist" = "na" ] && [ ! "$1" = "skip" ];then
             ctest -V                              >> TimingResults/ctest.$date 2>&1            
             
             mv /tmp/FindOPENBLAS.cmake.current $MORISROOTORG/share/cmake/find_modules/FindOPENBLAS.cmake
-            
+            mv /tmp/trilinos_new.cmake.current $MORISROOTORG/share/cmake/find_wrappers/trilinos_new.cmake
+           
         fi        
     done
     

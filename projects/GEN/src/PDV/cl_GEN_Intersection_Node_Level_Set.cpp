@@ -26,13 +26,13 @@ namespace moris::gen
             mtk::Interpolation_Order          aBackgroundInterpolationOrder,
             Level_Set_Geometry&               aInterfaceGeometry )
             : Intersection_Node(
-                    aNodeIndex,
-                    aBackgroundNodes,
-                    aFirstParentNode,
-                    aSecondParentNode,
-                    aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
-                    aBackgroundGeometryType,
-                    aBackgroundInterpolationOrder )
+                      aNodeIndex,
+                      aBackgroundNodes,
+                      aFirstParentNode,
+                      aSecondParentNode,
+                      aInterfaceGeometry.compute_intersection_local_coordinate( aBackgroundNodes, aFirstParentNode, aSecondParentNode ),
+                      aBackgroundGeometryType,
+                      aBackgroundInterpolationOrder )
             , mInterfaceGeometry( aInterfaceGeometry )
     {
     }

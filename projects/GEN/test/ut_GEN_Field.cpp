@@ -62,6 +62,18 @@ namespace moris
         aSensitivities = { { 2 * aCoordinates( 0 ) * aParameters( 0 ), 3 * aCoordinates( 1 ) * pow( aParameters( 1 ), 2 ) } };
     }
 
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    user_defined_geometry_spatial_gradient(
+            const Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&   aParameters,
+            Matrix< DDRMat >&       aSensitivities )
+    {
+        aSensitivities = { { pow( aParameters( 0 ), 2 ), pow( aParameters( 1 ), 3 ) } };
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
 }    // namespace moris
@@ -560,6 +572,7 @@ namespace moris::gen
         auto tUserDefinedField = std::make_shared< User_Defined_Field >(
                 &user_defined_geometry_field,
                 &user_defined_geometry_sensitivity,
+                &user_defined_geometry_spatial_gradient,
                 tADVs );
 
         // Set coordinates for checking
