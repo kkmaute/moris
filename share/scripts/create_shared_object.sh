@@ -5,176 +5,78 @@
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
 #
 #====================================================================================
-#
-echo ""
-echo "=============================================================="
-echo ""
-echo " Script to build shared object for input files"
-echo ""
-echo " Input: 1. name of working directory of source file and share object"
-echo "        2. name of moris build directory under "'$MORISROOT'
-echo "        3. name of input file (without cpp suffix)"
-echo "        4. optional: keyword dbg to keep link to input file"
-echo ""
-echo " Output: .so file"
-echo ""
-echo " Example: "
-echo ""
-echo " To create the shared objective file use:"
-echo ""
-echo " $MORISROOT/share/scripts/create_shared_object.sh . build myinput"
-echo ""
-echo " To run moris with this input file use:"
-echo ""
-echo " $MORISROOT/build/main/moris myinput.so "
-echo ""
-echo "=============================================================="
-echo ""
 
-if [ ! $MORISROOT ];then
-    echo " Error: MORISROOT environment variable not set"
-    echo ""
-    exit
-fi 
+# Usage: create_shared_object.sh workdir builddir input_basename [dbg]
+# Relative build directories are resolved under MORISROOT. The source and output
+# are resolved under workdir. No files in the MORIS source/build tree are changed.
+# Stop on failed commands so a failed compilation cannot publish a new .so.
+set -eu
 
-if [ ! -d $MORISROOT ];then
-    echo " Error: $MORISROOT does not exist"
-    echo ""
-    exit
-fi 
-
-if [ "$1" ];then
-    workdir=$1
-    
-    if [ ! -d "$workdir" ];then
-       echo " Error: $workdir does not exist"
-       echo ""
-       exit
-    fi
-else
-    echo " Error: no working directory provided"
-    echo ""
-    exit
-fi
-
-if [ "$2" ];then
-    builddir=$2
-
-    if [ ! -d "$MORISROOT/$builddir" ];then
-       echo " Error: $MORISROOT/$builddir does not exist"
-       echo ""
-       exit
-    fi
-else
-    echo " Error: no moris build directory provided"
-    echo ""
-    exit
-fi
- 
-if [ "$3" ];then
-    cppfile=$3
-
-    if [ ! -f "$cppfile.cpp" ];then
-       echo " Error: $cppfile.cpp does not exist"
-       echo ""
-       exit
-    fi
-else
-    echo " Error: no source file provided"
-    echo ""
-    exit
-fi
-
-dbgflag=0
-
-if [ "$4" ];then
-    if [ "$4" = 'dbg' ];then
-        dbgflag=1
-    fi
-fi
-
-if [ ! -d "$MORISROOT/tmp" ];then
-    mkdir "$MORISROOT/tmp"
-fi
-
-TMPDIR="$MORISROOT/tmp"
-
-cd "$workdir"
-
-workdir=`pwd`
-
-rm -f $cppfile.so
-
-while [ -f $MORISROOT/projects/mains/input_file.locked ];do
-    echo ""
-    echo "Warning: lock file $MORISROOT/projects/mains/input_file.locked exits. "
-    echo ""
-    echo "This may indicate that a build process is currently running."
-    echo "This process is waiting until lock is released."
-    echo "If you are sure that there is no other build process is running, "
-    echo "kill this process, remove the lock file manually using the following command:"
-    echo ""
-    echo "rm $MORISROOT/projects/mains/input_file.locked"
-    echo ""
-    echo "and restart this build process."
-    echo ""
-    sleep 5
-done
-
-touch $MORISROOT/projects/mains/input_file.locked
-
-mv "$MORISROOT/projects/mains/input_file.cpp" "$TMPDIR/."
-
-ln -s "$workdir/$cppfile.cpp" "$MORISROOT/projects/mains/input_file.cpp"
-
-rm -f "MORISROOT/$builddir/lib/input_file.so"
-
-touch "$MORISROOT/projects/mains/input_file.cpp"
-
-cd "$MORISROOT/$builddir"
-
-if [ -f "Makefile" ]; then
-    make shared_object_file
-elif [ -f "build.ninja" ]; then
-    ninja shared_object_file
-else
-    echo "No known build system found in $MORISROOT/$builddir"
+fail()
+{
+    echo "Error: $*" >&2
     exit 1
-fi
+}
 
-cd "$workdir"
+# Validate and resolve paths before allocating scratch space. Quoting supports
+# spaces in the working directory, build directory, and input filename.
+[ -n "${MORISROOT:-}" ] || fail "MORISROOT environment variable not set"
+[ -d "$MORISROOT" ] || fail "$MORISROOT does not exist"
+[ "$#" -ge 3 ] && [ "$#" -le 4 ] || fail "Usage: $0 workdir builddir input_basename [dbg]"
+[ -d "$1" ] || fail "Working directory $1 does not exist"
+workdir=$(cd "$1" && pwd)
+case "$2" in
+    /*) builddir=$2 ;;
+    *) builddir="$MORISROOT/$2" ;;
+esac
+[ -d "$builddir" ] || fail "Build directory $builddir does not exist"
+builddir=$(cd "$builddir" && pwd)
+case "$3" in
+    /*) source_file="$3.cpp"; output_file="$3.so" ;;
+    *) source_file="$workdir/$3.cpp"; output_file="$workdir/$3.so" ;;
+esac
+[ -f "$source_file" ] || fail "Source file $source_file does not exist"
+case "${4:-}" in
+    ""|dbg) ;;
+    *) fail "Unknown option: $4" ;;
+esac
 
-if [ -f "$MORISROOT/$builddir/lib/input_file.so" ];then
-    mv "$MORISROOT/$builddir/lib/input_file.so" $cppfile.so
-else
-    echo ""
-    echo " .so file does not exist due to compiler error"
-    echo ""
-fi
+# Read the project exported by the MORIS CMake configure/generate step.
+# Runtime compilation never invokes CMake on the original MORIS build tree.
+project_dir="$builddir/input_file"
+[ -f "$project_dir/default-config" ] || fail "Reconfigure MORIS with CMake to generate the input-file build project"
+generator=$(cat "$project_dir/generator")
+config=${MORIS_INPUT_BUILD_CONFIG:-$(cat "$project_dir/default-config")}
+project_dir="$project_dir/$config"
+[ -f "$project_dir/CMakeLists.txt" ] || fail "No input-file build project for configuration $config"
 
-if [ "$dbgflag" = '0' ];then
-    rm "$MORISROOT/projects/mains/input_file.cpp"
-
-    tmpfilehead=`head -1 "$TMPDIR/input_file.cpp"`
-
-    if [ "$tmpfilehead" = '//dummy file - placeholder for dynamically linked object file' ];then
-        echo ""
-        echo " restoring input_file.cpp from $TMPDIR"
-        echo ""
-        mv "$TMPDIR/input_file.cpp" "$MORISROOT/projects/mains/."
+# TMPDIR belongs to the caller; never redirect it into MORISROOT.
+# mktemp creates a different directory for every invocation. No shared source,
+# object file, or input_file.locked is used, so builds need no common lock.
+scratch=$(mktemp -d "${TMPDIR:-/tmp}/moris-input.XXXXXXXX")
+cleanup()
+{
+    if [ "${4:-}" = dbg ]; then
+        echo "Input build files retained in $scratch"
     else
-        echo ""
-        echo " restoring input_file.cpp from git repository"
-        echo ""
-    
-        cd "$MORISROOT"
-        git checkout -- "$MORISROOT/projects/mains/input_file.cpp"
+        rm -rf "$scratch"
     fi
-else
-    echo ""
-    echo " keep soft link from $cppfile.cpp to input_file.cpp"
-    echo ""
-fi
+}
+# Pass the original arguments to cleanup so the legacy dbg option keeps scratch
+# artifacts available for inspection. Debug symbols still name the real source.
+trap 'cleanup "$@"' 0
+# Convert termination signals into exits so the cleanup trap also runs on them.
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
-rm -f $MORISROOT/projects/mains/input_file.locked
-
+# Copy only the generated project, so even CMake's source directory is writable.
+cp "$project_dir/CMakeLists.txt" "$scratch/CMakeLists.txt"
+cmake -S "$scratch" -B "$scratch/build" -G "$generator" \
+    "-DMORIS_INPUT_FILE:FILEPATH=$source_file"
+cmake --build "$scratch/build" --target shared_object_file
+[ -f "$scratch/build/lib/input_file.so" ] || fail "Compiler did not produce input_file.so"
+# Publish only a successful build. Concurrent callers should use distinct output
+# paths (different basenames or working directories) to retain both libraries.
+mv -f "$scratch/build/lib/input_file.so" "$output_file"
+echo "Created $output_file"

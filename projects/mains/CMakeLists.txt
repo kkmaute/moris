@@ -152,5 +152,8 @@ foreach(TPL ${SO_TPLS})
 endforeach()
 
 dynamic_link_input("shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp  ${SO_INCLUDES})
+# Generate reusable compiler settings now, while the MORIS build is writable.
+# Runtime input builds read these settings and use their own scratch directories.
+generate_input_build_project(shared_object_file)
 
 
