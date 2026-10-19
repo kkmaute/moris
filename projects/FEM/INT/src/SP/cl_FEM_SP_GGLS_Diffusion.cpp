@@ -12,7 +12,7 @@
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "fn_FEM_CM_Phase_State_Functions.hpp"
-//LINALG/src
+// LINALG/src
 #include "fn_norm.hpp"
 
 namespace moris::fem
@@ -155,7 +155,7 @@ namespace moris::fem
         // check if tAlpha is close to zero
         if ( tAlpha > mEpsilon )
         {
-            tXibar = ( std::cosh( std::sqrt( 6.0 * tAlpha ) ) + 2.0 ) / ( std::cosh( std::sqrt( 6.0 * tAlpha ) ) - 1.0 ) - ( 1.0 / tAlpha );
+            tXibar = 1 + 3.0 / ( std::cosh( std::sqrt( 6.0 * tAlpha ) ) - 1 ) - 1.0 / tAlpha;
         }
 
         // compute stabilization parameter value
@@ -315,4 +315,3 @@ namespace moris::fem
 //         2.0 * std::pow(std::cosh(std::sqrt(6.0*tAlpha)), 2.0) +
 //         3.0 * std::sqrt(6.0 * std::pow(tAlpha,3.0) ) * std::sinh(std::sqrt(6.0*tAlpha)) - 2.0 ) /
 //         ( 2.0 * std::pow(tAlpha,2.0) * std::pow((std::cosh(std::sqrt(6.0*tAlpha)) - 1.0), 2.0) );
-

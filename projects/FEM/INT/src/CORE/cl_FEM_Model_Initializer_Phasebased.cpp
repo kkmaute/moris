@@ -899,6 +899,10 @@ namespace moris::fem
             mIQIs( iIQI )->set_time_final( tTimeFinal );
             if ( tTimeFinal > -1.0 ) { mIQIs( iIQI )->set_time_boundary( true ); }
 
+            // set final time
+            mIQIs( iIQI )->set_time_final( tTimeFinal );
+            if ( tTimeFinal > -1.0 ) { mIQIs( iIQI )->set_time_boundary( true ); }
+
             // init string for leader or follower
             std::string          tIsLeaderString = "leader";
             mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;

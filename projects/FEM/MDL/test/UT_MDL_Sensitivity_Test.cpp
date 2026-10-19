@@ -192,7 +192,8 @@ TEST_CASE( "Sensitivity test", "[Sensitivity test]" )
                 Matrix< DDUMat >( 0, 0 ),
                 Matrix< DDRMat >( 0, 0 ),
                 &plane_evaluate_field_value,
-                &evaluate_sensitivity );
+                &evaluate_sensitivity,
+                nullptr );
         tGeometryVector( 0 )    = std::make_shared< Level_Set_Field >( tField );
 
         size_t                      tModelDimension = 2;

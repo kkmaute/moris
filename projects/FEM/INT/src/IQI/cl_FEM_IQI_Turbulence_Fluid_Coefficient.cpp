@@ -12,6 +12,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Turbulence_Fluid_Coefficient.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible_Turbulence.hpp"
+#include "cl_FEM_CM_Fluid_Incompressible_Turbulence_Smagorinsky.hpp"
 
 namespace moris::fem
 {
@@ -66,6 +67,14 @@ namespace moris::fem
             case 2:
             {
                 aQI = tCMPtr->effective_dynamic_viscosity();
+                break;
+            }
+            case 3:
+            {
+                // cast constitutive model base class pointer to SA constitutive model
+                CM_Fluid_Incompressible_Turbulence_Smagorinsky* tCMSmagPtr =
+                        dynamic_cast< CM_Fluid_Incompressible_Turbulence_Smagorinsky* >( tCM.get() );
+                aQI = tCMSmagPtr->fluid_strain_rate();
                 break;
             }
             // if none of the above

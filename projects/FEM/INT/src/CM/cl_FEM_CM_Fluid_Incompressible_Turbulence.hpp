@@ -37,8 +37,8 @@ namespace moris::fem
         // property type for CM
         enum class CM_Property_Type
         {
-            DENSITY,      // fluid density
-            VISCOSITY,    // fluid dynamic viscosity
+            DENSITY,          // fluid density
+            VISCOSITY,        // fluid dynamic viscosity
             MAX_ENUM
         };
 
@@ -88,7 +88,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~CM_Fluid_Incompressible_Turbulence() override {};
+        ~CM_Fluid_Incompressible_Turbulence() override{};
 
         //------------------------------------------------------------------------------
         /*
@@ -111,19 +111,6 @@ namespace moris::fem
         Constitutive_Type get_constitutive_type() const override
         {
             return Constitutive_Type::FLUID_INCOMPRESSIBLE_TURBULENCE;
-        }
-
-        //------------------------------------------------------------------------------
-        /**
-         * set constitutive model dv types
-         * @param[ in ] aDvTypes   a list of group of dv types
-         * @param[ in ] aDvStrings a list of strings to describe the dv types
-         */
-        void set_dv_type_list(
-                const Vector< gen::PDV_Type > &aDvTypes,
-                const Vector< std::string >   &aDvStrings ) override
-        {
-            Constitutive_Model::set_dv_type_list( aDvTypes );
         }
 
         //------------------------------------------------------------------------------

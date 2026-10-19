@@ -283,12 +283,7 @@ namespace moris
     void
     VISParameterList( Module_Parameter_Lists& aParameterList )
     {
-
-        std::string tMorisOutput = std::getenv( "MORISOUTPUT" );
-
-        MORIS_ERROR( tMorisOutput.size() > 0,
-                "Environment variable MORISOUTPUT not set." );
-        aParameterList( 0 ).set( "File_Name", std::pair< std::string, std::string >( tMorisOutput, "MDL_input_test.exo" ) );
+        aParameterList( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "MDL_input_test.exo" ) );
         aParameterList( 0 ).set( "Set_Names", "HMR_dummy_n_p1" );
         aParameterList( 0 ).set( "Field_Names", "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" );
         aParameterList( 0 ).set( "Field_Type", "ELEMENTAL_AVG,GLOBAL,NODAL" );

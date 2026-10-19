@@ -1,0 +1,42 @@
+# Generated from the MORIS input target. Configure only in a writable scratch
+# directory; the MORIS source tree and original build tree are read-only inputs.
+cmake_minimum_required(VERSION 3.17)
+# Select MORIS's compiler before project() performs compiler detection.
+set(CMAKE_CXX_COMPILER [==[@CMAKE_CXX_COMPILER@]==])
+set(CMAKE_CXX_COMPILER_ARG1 [==[@CMAKE_CXX_COMPILER_ARG1@]==])
+project(MORISInput LANGUAGES CXX)
+
+# Match MORIS's configuration and compiler/linker flags to keep the input
+# compatible with its executable. Bracket arguments preserve literal values.
+set(CMAKE_BUILD_TYPE [==[$<CONFIG>]==])
+set(CMAKE_CXX_FLAGS [==[@CMAKE_CXX_FLAGS@]==])
+set(CMAKE_CXX_FLAGS_DEBUG [==[@CMAKE_CXX_FLAGS_DEBUG@]==])
+set(CMAKE_CXX_FLAGS_RELEASE [==[@CMAKE_CXX_FLAGS_RELEASE@]==])
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO [==[@CMAKE_CXX_FLAGS_RELWITHDEBINFO@]==])
+set(CMAKE_CXX_FLAGS_MINSIZEREL [==[@CMAKE_CXX_FLAGS_MINSIZEREL@]==])
+set(CMAKE_SHARED_LINKER_FLAGS [==[@CMAKE_SHARED_LINKER_FLAGS@]==])
+set(CMAKE_SHARED_LINKER_FLAGS_DEBUG [==[@CMAKE_SHARED_LINKER_FLAGS_DEBUG@]==])
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASE [==[@CMAKE_SHARED_LINKER_FLAGS_RELEASE@]==])
+set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO [==[@CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO@]==])
+set(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL [==[@CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL@]==])
+
+# Compile the real source path without moving, touching, or symlinking it;
+# this preserves source-relative includes and debugger source locations.
+if(NOT IS_ABSOLUTE "${MORIS_INPUT_FILE}" OR NOT EXISTS "${MORIS_INPUT_FILE}")
+    message(FATAL_ERROR "MORIS_INPUT_FILE must name an existing absolute source path")
+endif()
+add_library(@INPUT_TARGET@ SHARED "${MORIS_INPUT_FILE}")
+# Reuse the parent's target settings, with output confined to this invocation's
+# private build tree. Identical target/output names are safe in separate trees.
+set_target_properties(@INPUT_TARGET@ PROPERTIES
+    PREFIX "" OUTPUT_NAME input_file
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    INCLUDE_DIRECTORIES [==[$<TARGET_PROPERTY:@INPUT_TARGET@,INCLUDE_DIRECTORIES>]==]
+    COMPILE_DEFINITIONS [==[$<TARGET_PROPERTY:@INPUT_TARGET@,COMPILE_DEFINITIONS>]==]
+    COMPILE_OPTIONS [==[$<TARGET_PROPERTY:@INPUT_TARGET@,COMPILE_OPTIONS>]==]
+    COMPILE_FEATURES [==[$<TARGET_PROPERTY:@INPUT_TARGET@,COMPILE_FEATURES>]==]
+    LINK_DIRECTORIES [==[$<TARGET_PROPERTY:@INPUT_TARGET@,LINK_DIRECTORIES>]==]
+    LINK_OPTIONS [==[$<TARGET_PROPERTY:@INPUT_TARGET@,LINK_OPTIONS>]==]
+    LINK_LIBRARIES [==[$<TARGET_PROPERTY:@INPUT_TARGET@,LINK_LIBRARIES>]==])
+# Additional optional target properties captured by generate_input_build_project.
+@INPUT_TARGET_PROPERTIES@

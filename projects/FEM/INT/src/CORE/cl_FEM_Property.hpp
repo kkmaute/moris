@@ -84,8 +84,8 @@ namespace moris::fem
         PropertyFunc mValFunction = Property_Function_Constant;
 
         // space derivative info
-        uint             mMaxSpaceDerOrder = 1;    // max order allowed
-        bool             mSpaceDependency  = false;    // active order
+        uint mMaxSpaceDerOrder = 1;        // max order allowed
+        bool mSpaceDependency  = false;    // active order
 
         // space derivative functions
         Vector< PropertyFunc > mSpaceDerFunctions;
@@ -96,10 +96,10 @@ namespace moris::fem
         Vector< PropertyFunc > mDvDerFunctions;
 
         // storage
-        Matrix< DDRMat >           mProp;
-        Vector< Matrix< DDRMat > > mPropDofDer;
-        Vector< Matrix< DDRMat > > mPropDvDer;
-        Vector< Matrix< DDRMat > > mPropSpaceDer;
+        Matrix< DDRMat >                     mProp;
+        Vector< Matrix< DDRMat > >           mPropDofDer;
+        Vector< Matrix< DDRMat > >           mPropDvDer;
+        Vector< Matrix< DDRMat > >           mPropSpaceDer;
         Vector< Vector< Matrix< DDRMat > > > mPropSpaceDofDer;
 
         // property name
@@ -114,11 +114,11 @@ namespace moris::fem
         moris::Matrix< DDBMat > mPropDvDerEval;
 
         // flag for setting functions
-        bool                    mSetValFunction = false;
-        bool                    mSetSpaceDerFunctions = false;
-        bool                    mSetDofDerFunctions = false;
-        bool                    mSetSpaceDofDerFunctions = false;
-        bool                    mSetDvDerFunctions  = false;
+        bool mSetValFunction          = false;
+        bool mSetSpaceDerFunctions    = false;
+        bool mSetDofDerFunctions      = false;
+        bool mSetSpaceDofDerFunctions = false;
+        bool mSetDvDerFunctions       = false;
 
         //------------------------------------------------------------------------------
 

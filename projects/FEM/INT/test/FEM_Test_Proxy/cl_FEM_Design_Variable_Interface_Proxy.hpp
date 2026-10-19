@@ -149,8 +149,8 @@ namespace moris::fem
 
         void
         get_ip_dv_types_for_set(
-                const moris::moris_index      aIntegrationMeshSetIndex,
-                Vector< enum gen::PDV_Type >& aDvTypes ) override
+                moris::moris_index       aIntegrationMeshSetIndex,
+                Vector< gen::PDV_Type >& aDvTypes ) const override
         {
             aDvTypes = mDvTypesUnique;
         };
@@ -163,16 +163,6 @@ namespace moris::fem
                 Vector< enum gen::PDV_Type >& aDvTypes ) const override
         {
             MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_ig_unique_dv_types_for_set() - not implemented in the child class" );
-        };
-
-        //------------------------------------------------------------------------------
-
-        void
-        get_ip_dv_types_for_set(
-                const moris_index                       aIntegrationMeshSetIndex,
-                Vector< Vector< enum gen::PDV_Type > >& aDvTypes ) const override
-        {
-            aDvTypes = mDvTypes;
         };
 
         //------------------------------------------------------------------------------

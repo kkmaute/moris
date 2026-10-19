@@ -564,10 +564,10 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         // --------------------------------------------------------------------------------------
         // Define outputs
         vis::Output_Manager tOutputData;
-        std::string         tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_bl_2_mat_l" + std::to_string( tLagrangeOrder ) + "_b" + std::to_string( tBsplineOrder ) + ".e";
+        std::string         tMeshOutputFile = "xtk_hmr_bar_plane_hole_bl_2_mat_l" + std::to_string( tLagrangeOrder ) + "_b" + std::to_string( tBsplineOrder ) + ".e";
         tOutputData.set_outputs( 0,
                 vis::VIS_Mesh_Type::STANDARD,
-                "./",
+                "./mdl_exo",
                 tMeshOutputFile,
                 "./",
                 "temp.exo",
@@ -736,7 +736,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_3", mtk::CellTopology::HEX8 );
 
         moris::mtk::Writer_Exodus writer( &tEnrIgMesh );
-        writer.write_mesh( "", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo", "", "temp.exo" );
+        writer.write_mesh( "./mdl_exo", "xtk_hmr_bar_hole_integ_ghost.exo", "", "temp.exo" );
 
         // Write the fields
         writer.set_time( 0.0 );
