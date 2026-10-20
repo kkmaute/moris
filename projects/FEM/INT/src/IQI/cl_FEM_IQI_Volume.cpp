@@ -23,6 +23,9 @@ namespace moris::fem
 
         // populate the property map
         mPropertyMap[ "Density" ] = static_cast< uint >( IQI_Property_Type::DENSITY );
+
+        // Set the IQI type
+        mFEMIQIType = IQI_Type::VOLUME;
     }
 
     //------------------------------------------------------------------------------
@@ -96,8 +99,7 @@ namespace moris::fem
         sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
         // get density property
-        const std::shared_ptr< Property > &tPropDensity =
-                mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+        const std::shared_ptr< Property > &tPropDensity = mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
         // get the number of leader dof type dependencies
         uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
