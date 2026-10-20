@@ -728,7 +728,7 @@ namespace moris::fem
                         tDvTypes,
                         mMSIDvTypeMap );
 
-                if ( tDvTypes.size() > 1 )
+                if ( tDvTypes.size() > 0 )
                 {
                     MORIS_ERROR( tDvTypes.size() == 1,
                             "Model_Initializer_Legacy::create_iqis - DV dependencies must be a single list of DV types" );
