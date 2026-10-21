@@ -479,6 +479,23 @@ namespace moris
         {
             MORIS_ERROR( false, "not implemented" );
         };
+        
+        //------------------------------------------------------------------------------
+
+        virtual const bool
+        is_assembly_affected( )
+        {
+            MORIS_ERROR( false, "Solver_Interface::set_assembly_affected: not implemented" );
+            return false;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual void
+        reset_assembly_affected_flag()
+        {
+            MORIS_ERROR( false, "Solver_Interface::reset_assembly_affected_flag: not implemented" );
+        };
 
         //------------------------------------------------------------------------------
 

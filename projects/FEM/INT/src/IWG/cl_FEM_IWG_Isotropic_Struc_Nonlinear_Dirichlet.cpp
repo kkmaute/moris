@@ -119,17 +119,30 @@ namespace moris::fem
             // compute jump
             Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
 
-            // compute the residual
-            mSet->get_residual()( 0 )(
-                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                                                                 //
-                    aWStar * (                                                                                                         //
-                             mTheta *-tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType )                                //
-                            + mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tJump    //
-                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
+            // Assemble penalty independently of the optional constitutive terms.
+            auto tRes = mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } );
+            tRes += aWStar * tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump;
+
+            // Do not evaluate inactive terms: zero times NaN still contaminates assembly.
+            if ( mTheta != 0 )
+            {
+                tRes -= aWStar * mTheta * tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType );
+            }
+            if ( mBeta != 0 )
+            {
+                tRes += aWStar * mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tJump;
+            }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Isotropic_Struc_Nonlinear_Dirichlet::compute_residual - Residual contains NAN or INF, exiting!" );
+            bool tIsFinite = isfinite( mSet->get_residual()( 0 ) );
+            if ( !tIsFinite )
+            {
+                mSet->set_assembly_affected( !tIsFinite );
+            }
+
+            // check for nan, infinity
+            //MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
+            //        "IWG_Isotropic_Struc_Nonlinear_Dirichlet::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -212,27 +225,34 @@ namespace moris::fem
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute the jacobian for direct dof dependencies
-                    tJac += aWStar * (                                                                                                               //
-                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tFIDispl->N()    //
-                                    + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
+                    tJac += aWStar * tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N();
+                    if ( mBeta != 0 )
+                    {
+                        tJac += aWStar * mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tFIDispl->N();
+                    }
                 }
 
                 // if dependency on the dof type
                 if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
-                    // add contribution to jacobian
-                    tJac -= aWStar * (                                                                                                                                       //
-                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
-                                    + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                    tJac -= aWStar * tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType );
+                    if ( mBeta != 0 )
+                    {
+                        tJac -= aWStar * mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tM * tPropDirichlet->dPropdDOF( tDofType );
+                    }
                 }
 
-                // if dependency on the dof type
-                if ( tCMElasticity->check_dof_dependency( tDofType ) )
+                // Constitutive derivatives are needed only for active Nitsche terms.
+                if ( ( mTheta != 0 || mBeta != 0 ) && tCMElasticity->check_dof_dependency( tDofType ) )
                 {
-                    // add contribution to jacobian
-                    tJac += aWStar * (                                                                                            //
-                                    -tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal, mStressType )    //
-                                    + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ), mStressType ) );
+                    if ( mTheta != 0 )
+                    {
+                        tJac -= aWStar * mTheta * tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal, mStressType );
+                    }
+                    if ( mBeta != 0 )
+                    {
+                        tJac += aWStar * mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ), mStressType );
+                    }
                 }
 
                 // if dependency on the dof type
@@ -242,10 +262,16 @@ namespace moris::fem
                     tJac += aWStar * ( tFIDispl->N_trans() * tM * tJump * tSPNitsche->dSPdLeaderDOF( tDofType ) );
                 }
             }
+            // check for nan, infinity
+            bool tIsFinite = isfinite( mSet->get_jacobian() );
+            if ( !tIsFinite )
+            {
+                mSet->set_assembly_affected( !tIsFinite );
+            }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
-                    "IWG_Isotropic_Struc_Nonlinear_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
+            //MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+            //        "IWG_Isotropic_Struc_Nonlinear_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------

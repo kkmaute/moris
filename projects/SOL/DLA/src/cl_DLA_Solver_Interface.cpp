@@ -339,6 +339,12 @@ void Solver_Interface::fill_matrix_and_RHS(
             Vector< Matrix< DDRMat > > tElementRHS;
             this->get_equation_object_operator_and_rhs( iSet, iEquationObject, tElementMatrix, tElementRHS );
 
+            // // if the assembly has been affected, terminate the assembly
+            // if ( this->is_assembly_affected( ) )
+            // {
+            //     return;
+            // }
+
             // If not looped over pdof make element matrix and rhs zero matrix and vector respectively
             if ( tElementMatrix.numel() == 0 && tElementRHS.size() == 0 )
             {

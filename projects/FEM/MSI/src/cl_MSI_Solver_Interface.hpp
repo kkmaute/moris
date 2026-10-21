@@ -515,6 +515,40 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            const bool
+            is_assembly_affected() override
+            {
+                // Get total number of equation sets
+                moris::uint tNumSets = mMSI->get_num_equation_sets();
+                
+                // Loop over all equation sets to check if any assembly is affected
+                for ( moris::uint Ii = 0; Ii < tNumSets; Ii++ )
+                {
+                    if ( mMSI->get_equation_set( Ii )->is_assembly_affected( ) )
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            //------------------------------------------------------------------------------
+
+            void
+            reset_assembly_affected_flag() override
+            {
+                // Get total number of equation sets
+                moris::uint tNumSets = mMSI->get_num_equation_sets();
+                
+                // Loop over all equation sets to reset the assembly affected flag
+                for ( moris::uint Ii = 0; Ii < tNumSets; Ii++ )
+                {
+                    mMSI->get_equation_set( Ii )->set_assembly_affected( false );
+                }
+            };
+
+            //------------------------------------------------------------------------------
+
             mtk::Mesh*
             get_mesh_pointer_for_multigrid() override
             {

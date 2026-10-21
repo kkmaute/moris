@@ -41,6 +41,7 @@
 // logging includes
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+#include "HDF5_Tools.hpp"
 //------------------------------------------------------------------------------
 using namespace moris;
 using namespace NLA;
@@ -113,7 +114,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             tLoadFactor );
 
     // Zero out the initial guess
-    mNonlinearProblem->get_full_vector()->vec_put_scalar( 0.0 );
+    //mNonlinearProblem->get_full_vector()->vec_put_scalar( 0.0 );
 
     // Set trust region flag to true for solver interface
     mNonlinearProblem->get_solver_interface()->set_trust_region_flag( true );
@@ -183,6 +184,9 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
     // Set update preconditioner flag - true bases the preconditioner on the current iteration.
     mLinSolverManager->set_update_preconditioner_flag( true );
 
+    // Get IQI names for trust region solver
+    Vector< std::string > tIQINames = mParameterListNonlinearSolver.get< Vector< std::string > >( "NLA_trust_region_objective" );
+
     // trust region loop
     for ( sint It = 1; It <= tMaxIts; ++It )
     {
@@ -240,22 +244,26 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         Vector< real > tNorm = mGlobalRHS->vec_norm2();
 
         // Declare Cauchy point dist vector and its norm
-        //sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
-        sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
+        sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        sol::Dist_Vector* tCauchyPointForNewton = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_full_vector()->get_map(), 1 );
+        sol::Dist_Vector* tSolutionUpdate = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_full_vector()->get_map(), 1 );
+        //sol::Dist_Vector* tCauchyPoint = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
         tCauchyPoint->vec_put_scalar(0.0);
+        tCauchyPointForNewton->vec_put_scalar(0.0);
+        tSolutionUpdate->vec_put_scalar(0.0);
 
         Vector< real > tCauchyPointNorm;
         real tCauchyPointNormSquared;
 
         // Declare Solution update
-        //sol::Dist_Vector* tD = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
-        sol::Dist_Vector* tD = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
+        sol::Dist_Vector* tD = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        //sol::Dist_Vector* tD = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
         tD->vec_put_scalar( 0.0 );
         Matrix< DDRMat > tmatD;
 
         // Get hessian - gradient product (dist vec as well as matrix)
-        //sol::Dist_Vector* tKg = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
-        sol::Dist_Vector* tKg = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
+        sol::Dist_Vector* tKg = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+        //sol::Dist_Vector* tKg = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
         tKg->vec_put_scalar( 0.0 );
 
         mJac->mat_vec_product( *mGlobalRHS, *tKg, false );
@@ -265,12 +273,15 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         // Premultiply hes-grad prod with grad
         Matrix< DDRMat > tmatGlobalRHS;
         mGlobalRHS->extract_copy( tmatGlobalRHS );
+        // real tgKg = 0.0;
+        // tKg->vec_transpose_vec( 1.0, mGlobalRHS, 0.0, tgKg );
         Matrix< DDRMat > tgKg = trans(tmatGlobalRHS)*tmatKg;
 
         // Based on sign of grad-hes-grad product determine the Cauchy solution
         if ( tgKg( 0 ) > 0 )
         {
-            real tAlpha = std::pow( norm( tmatGlobalRHS ), 2) / tgKg( 0 );            
+            real tAlpha = std::pow( norm( tmatGlobalRHS ), 2) / tgKg( 0 );
+            //real tAlpha = std::pow( mGlobalRHS->vec_norm2()( 0 ), 2 ) / tgKg;
             tCauchyPoint->vec_plus_vec( -tAlpha, *mGlobalRHS, 0.0);
             tCauchyPointNorm = tCauchyPoint->vec_norm2();
             tCauchyPointNormSquared = std::pow(tCauchyPointNorm( 0 ),2);
@@ -278,7 +289,8 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         }
         else
         {
-            real tScaleFact = tTrSize * norm( tmatGlobalRHS );
+            real tScaleFact = tTrSize / norm( tmatGlobalRHS );
+            //real tScaleFact = tTrSize / mGlobalRHS->vec_norm2()( 0 );
             tCauchyPoint->vec_plus_vec( -tScaleFact, *mGlobalRHS, 0.0);
             tCauchyPointNormSquared = std::pow( tTrSize, 2 ); 
             MORIS_LOG("Negative curvature unpreconditioned cauchy point found");
@@ -290,7 +302,10 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         {
             MORIS_LOG("Unpreconditioned gradient cauchy point outside trust region");
             tCauchyPoint->scale_vector(tTrSize/std::pow(tCauchyPointNormSquared,0.5));
-            mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( tCauchyPoint ); 
+            tCauchyPointForNewton->vec_plus_vec( -1.0, *tCauchyPoint, 0.0 );
+
+            mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( tCauchyPointForNewton );
+            
             tCauchyPointNormSquared = std::pow( tTrSize, 2 );
             tStepType = "Boundary";
         }
@@ -307,29 +322,44 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
         real tCondEst = mNonlinearProblem->get_linearized_problem()->get_condition_number_estimate();
         MORIS_LOG_SPEC( "Condition Number Estimate", tCondEst );
 
-        Matrix< DDRMat > testResidual;
-        mGlobalRHS->extract_copy(testResidual);
+        // Matrix< DDRMat > testResidual;
+        // tCauchyPoint->extract_copy(testResidual);
+
+        // hid_t  tFileID = create_hdf5_file( "Cauchy_Point_Value" );
+        // herr_t tStatus = 0;
+
+        // // save the index to ID map to the .hdf5
+        // save_matrix_to_hdf5_file( tFileID, "Vec", testResidual, tStatus );
+
+        // close_hdf5_file( tFileID);
+
+
+        //real tNorCauchy = norm(testResidual);
+        //std::cout<<"Cauchy Point Norm: "<<tNorCauchy<<std::endl;
         //Matrix< DDRMat > tSol;
         //(mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS())->extract_copy(tSol);
 
         // Set preconditioner update flag to false - should be factorized only once per nonlinear solve - unless conv is slow.
-        //mLinSolverManager->set_update_preconditioner_flag( false );
+        mLinSolverManager->set_update_preconditioner_flag( false );
 
         bool tAcceptTrSize = false;
 
         while (tAcceptTrSize == false)
         {
+            // Log solution update (newton step/cauchy step)
+            tSolutionUpdate->vec_plus_vec( 1.0, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 0.0 );
+            
             // Decide which update to use (Cauchy/Newton) based on Dogleg step -- check if full solver stays even after you rebuild system
-            //tD = this->dogleg_step( (mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()), 
-            //tCauchyPoint, tTrSize);
-            tD = this->dogleg_step( ( mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS() ),
-                    tCauchyPoint,
-                    tTrSize );
+            tD = this->dogleg_step( (mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS()), 
+            tCauchyPoint, tTrSize);
+            //tD = this->dogleg_step( ( mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS() ),
+            //        tCauchyPoint,
+            //        tTrSize );
             tD->extract_copy(tUpdateOld);
 
             // compute Jd, dJd, and modelObjective
-            //sol::Dist_Vector* tJd = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
-            sol::Dist_Vector* tJd = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
+            sol::Dist_Vector* tJd = tMatFactory.create_vector(mNonlinearProblem->get_solver_interface(),mNonlinearProblem->get_full_vector()->get_map(), 1);
+            //sol::Dist_Vector* tJd = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->get_map(), 1 );
             mJac->mat_vec_product(*tD, *tJd, false);
         
             Matrix< DDRMat > tmatJd;
@@ -337,9 +367,14 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             tD->extract_copy( tmatD );
             tJd->extract_copy( tmatJd );
             mGlobalRHS->extract_copy(tmatGlobalRHS);
+            //real tDJd = 0.0;
+            //tJd->vec_transpose_vec( 1.0, tD, 0.0, tDJd );
         
             Matrix< DDRMat > tDJd = trans(tmatD) * tmatJd;
             Matrix< DDRMat > tModelObjective = trans(tmatGlobalRHS) * tmatD + 0.5*tDJd;
+            //real tRHStD = 0.0;
+            //tD->vec_transpose_vec( 1.0, mGlobalRHS, 0.0, tRHStD );
+            //real tModelObjective = tRHStD + 0.5 * tDJd;
 
             // Update full solver LHS with trust region step
             mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( tD ); 
@@ -355,12 +390,18 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
                      1.0 );
              mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
 
-             bool tIsConverged = tConvergence.check_for_convergence(
-                     this,
-                     It,
-                     tMaxIts,
-                     tHardBreak );
+             // Check if assembly had NaNs/ inf
+             bool tAssemblyAffected = mNonlinearProblem->get_solver_interface()->is_assembly_affected();
+             bool tIsConverged = false;
 
+             if ( !tAssemblyAffected )
+             {
+                 tIsConverged = tConvergence.check_for_convergence(
+                         this,
+                         It,
+                         tMaxIts,
+                         tHardBreak );
+             }
 
              // exit if convergence criterion is met
              if ( tIsConverged && tLoadFactor >= 1.0 )
@@ -396,13 +437,21 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
             mNonlinearProblem->get_solver_interface()->compute_IQI();
             Vector< Matrix< DDRMat > > tIQI = mNonlinearProblem->get_solver_interface()->get_IQI();
             
-            MORIS_LOG_SPEC( "Incremental objective value at this iteration:", (tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )) );
-            MORIS_LOG_SPEC( "Incremental Strain Energy", tIQI( 0 )( 0 ) - tInitIQIVal( 0 )( 0 ) );
-            MORIS_LOG_SPEC( "Incremental External work", tIQI( 1 )( 0 ) - tInitIQIVal( 1 )( 0 ) );
-            MORIS_LOG_SPEC( "Incremental Traction Potential Work", tIQI( 2 )( 0 ) - tInitIQIVal( 2 )( 0 ) );
+            //MORIS_LOG_SPEC( "Incremental objective value at this iteration:", (tIQI( 0 )( 0 ) + tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) + tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )) );
+            //MORIS_LOG_SPEC( "Incremental Strain Energy", tIQI( 0 )( 0 ) - tInitIQIVal( 0 )( 0 ) );
+            //MORIS_LOG_SPEC( "Incremental External work", tIQI( 1 )( 0 ) - tInitIQIVal( 1 )( 0 ) );
+            //MORIS_LOG_SPEC( "Incremental Traction Potential Work", tIQI( 2 )( 0 ) - tInitIQIVal( 2 )( 0 ) );
             //MORIS_LOG_SPEC( "Incremental Bedding Work", tIQI( 3 )( 0 ) - tInitIQIVal( 3 )( 0 ) );
             // Compute rho
-            real tRho = -((tIQI( 0 )( 0 ) - tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ))  - (tInitIQIVal( 0 )( 0 ) - tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 )))/(-tModelObjective( 0 ));
+            real tActualObjective = 0.0;
+            for (uint iIQI = 0; iIQI < tIQIs.size(); iIQI++)
+            {
+                MORIS_LOG_SPEC( "Incremental objective value for IQI " + tIQINames( iIQI ) + ":", tIQI( iIQI )( 0 ) - tInitIQIVal( iIQI )( 0 ) );
+                tActualObjective += tIQI( iIQI )( 0 ) - tInitIQIVal( iIQI )( 0 );
+            }
+            //real tRho = -( ( tIQI( 0 )( 0 ) + tIQI( 1 )( 0 ) + tIQI( 2 )( 0 ) ) - ( tInitIQIVal( 0 )( 0 ) + tInitIQIVal( 1 )( 0 ) + tInitIQIVal( 2 )( 0 ) ) ) / ( -tModelObjective( 0 ) );
+            real tRho = -( tActualObjective ) / ( -tModelObjective( 0 ) );
+            //real tRho = -( tActualObjective ) / ( -tModelObjective );
             //real tIQIVal = tIQI(0)(0) ;//+ tIQI(1)(0) + tIQI(2)(0);
             //real tRho = -(tIQIVal - (tInitialIQI( 0 )( 0 )))/(-tModelObjective(0));
             // if ( tRho < 0.0 )
@@ -428,20 +477,27 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
                 tStepType = "Boundary";
                 MORIS_LOG_INFO("KSP converged - Boundary step");
             }
-            else
-            {
-                tStepType = "Interior";
-                MORIS_LOG_INFO("KSP converged - Interior step");
-            }
-            if ((tRho <= mParameterListNonlinearSolver.get< real >("NLA_trust_region_eta2")))
+            //else
+            //{
+            //    tStepType = "Interior";
+            //    MORIS_LOG_INFO("KSP converged");
+            //}
+            if (!(tRho >= mParameterListNonlinearSolver.get< real >("NLA_trust_region_eta2")) || tAssemblyAffected)
             {
                 tTrSize = mParameterListNonlinearSolver.get< real >("NLA_trust_region_t1") * tTrSize; 
                 mLinSolverManager->set_trust_region_size( tTrSize );
+
+                if ( mNonlinearProblem->get_solver_interface()->is_assembly_affected() )
+                {
+                    MORIS_LOG_INFO("NaN/Inf detected in assembly. Shrinking Trust region size.");
+                }
+
             }
             else if ((tRho > mParameterListNonlinearSolver.get< real >("NLA_trust_region_eta3")) && (tStepType == "Boundary"))
             { 
                 tTrSize = mParameterListNonlinearSolver.get< real >("NLA_trust_region_t2") * tTrSize;
                 mLinSolverManager->set_trust_region_size( tTrSize );
+                tStepType = "Interior";
             }
             
             // Compute updated residual norm
@@ -449,7 +505,7 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
             bool tWillAccept = false;
 
-            if ((tRho >= mParameterListNonlinearSolver.get< real >("NLA_trust_region_eta1") ) || ((tRho >= 0.0) && ( tNormNew( 0 ) < tNorm( 0 ) ))) 
+            if (((tRho >= mParameterListNonlinearSolver.get< real >("NLA_trust_region_eta1") ) || ((tRho >= 0.0) && ( tNormNew( 0 ) < tNorm( 0 ) ))) && !tAssemblyAffected) 
             {
                 tInitIQIVal = tIQI;
                 tWillAccept = true;
@@ -465,6 +521,8 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
                 *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS( tD ),
                 1.0 );
 
+                mNonlinearProblem->get_linearized_problem()->set_free_solver_LHS( tSolutionUpdate );
+
                 // ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
                 //-1.0,
                 //*tD,
@@ -472,6 +530,12 @@ void Trust_Region_Solver::solver_nonlinear_system( Nonlinear_Problem *aNonlinear
 
                 MORIS_LOG_INFO("Trust region solver iteration not accepted. Rebuilding linear system");
                 mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
+
+                if ( tAssemblyAffected )
+                {
+                    MORIS_LOG_INFO("Nan/Inf detected in assembly. Rebuilding linear system and resetting assembly affected flag");
+                    mNonlinearProblem->get_solver_interface()->reset_assembly_affected_flag();
+                }
 
                 tStepType = "Boundary";
             
@@ -706,6 +770,7 @@ void Trust_Region_Solver::extract_my_values(
 //--------------------------------------------------------------------------------------------------------------------------
 sol::Dist_Vector* Trust_Region_Solver::preconditioned_project_to_boundary( sol::Dist_Vector* aZ,
                                                               sol::Dist_Vector* aD,
+                                                              sol::Dist_Vector* aDnew,
                                                               real          &aTrSize,
                                                               real          &aZz)
                                                 
@@ -717,15 +782,16 @@ sol::Dist_Vector* Trust_Region_Solver::preconditioned_project_to_boundary( sol::
     Matrix< DDRMat > tZ;
     aD->extract_copy(tD);
     aZ->extract_copy(tZ);
-
+    
     Matrix< DDRMat > tDd = trans( tD ) * tD;
     Matrix< DDRMat > tZd = trans( tZ ) * tD;
 
     moris::real tTau = ( std::pow( (aTrSize * aTrSize - aZz ) * tDd(0) + tZd(0) * tZd(0), 0.5 ) - tZd(0) ) / tDd(0);
 
+    aDnew->vec_plus_vec( 1.0, *aZ, 0.0 );
     //return aZ + tTau * aD;
-    aZ->vec_plus_vec( tTau, *aD, 1.0 );
-    return aZ;
+    aDnew->vec_plus_vec( tTau, *aD, 1.0 );
+    return aDnew;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
@@ -792,6 +858,7 @@ sol::Dist_Vector* Trust_Region_Solver::dogleg_step(sol:: Dist_Vector* aZ,
 
     sol::Matrix_Vector_Factory tMatFactory(sol::MapType::Petsc);
     sol::Dist_Vector* tD = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), aZ->get_map(), 1 );
+    sol::Dist_Vector* tZrev = tMatFactory.create_vector( mNonlinearProblem->get_solver_interface(), aZ->get_map(), 1 );
     tD->vec_put_scalar( 0.0 );
 
     Vector< real > tCc = aQ->vec_norm2();
@@ -820,8 +887,8 @@ sol::Dist_Vector* Trust_Region_Solver::dogleg_step(sol:: Dist_Vector* aZ,
     {
         real tCCrev = std::pow( tCc(0), 2);
         aZ->vec_plus_vec(-1.0, *aQ, -1.0);
-        sol::Dist_Vector* aZRev = this->preconditioned_project_to_boundary( aQ, aZ, aTrSize, tCCrev );
-        tD->vec_plus_vec(1.0, *aZRev, 0.0);
+        this->preconditioned_project_to_boundary( aQ, aZ, tZrev, aTrSize, tCCrev );
+        tD->vec_plus_vec(1.0, *tZrev, 0.0);
 
         return tD;
     }

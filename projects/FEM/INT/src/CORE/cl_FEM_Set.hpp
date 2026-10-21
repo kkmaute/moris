@@ -154,6 +154,9 @@ namespace moris
             // bool for time boundary integral
             bool mTimeBoundary = false;
 
+            // bool for identifying issues with assembly due to element inversion
+            bool mIsAssemblyAffected = false;
+
             // bool for analytical/FD SA
             bool mIsAnalyticalFA = true;
 
@@ -325,6 +328,26 @@ namespace moris
             get_element_type() const override
             {
                 return mElementType;
+            }
+
+            //-------------------------------------------------------------------------------------------------
+            /**
+             * check if assembly is affected due to negative jacobians or anything similar
+             */
+            const bool
+            is_assembly_affected() const override
+            {
+                return mIsAssemblyAffected;
+            }
+
+            //-------------------------------------------------------------------------------------------------
+            /**
+             * let set know assembly is affected due to negative jacobians or anything similar
+             */
+            void
+            set_assembly_affected( bool aIsAffected ) override
+            {
+                mIsAssemblyAffected = aIsAffected;
             }
 
             //------------------------------------------------------------------------------

@@ -108,8 +108,15 @@ namespace moris::fem
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Isotropic_Struc_Nonlinear_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
+            bool tIsFinite = isfinite( mSet->get_residual()( 0 ) );
+            if ( !tIsFinite )
+            {
+                mSet->set_assembly_affected( !tIsFinite );
+            }
+
+
+            //MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
+            //        "IWG_Isotropic_Struc_Nonlinear_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -208,8 +215,14 @@ namespace moris::fem
                 }
             }
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Isotropic_Struc_Nonlinear_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            bool tIsFinite = isfinite( mSet->get_jacobian() );
+            if ( !tIsFinite )
+            {
+                mSet->set_assembly_affected( !tIsFinite );
+            }
+            // check for nan, infinity
+            //MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
+            //        "IWG_Isotropic_Struc_Nonlinear_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

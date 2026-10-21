@@ -422,6 +422,28 @@ namespace moris
                 return fem::Element_Type::END_ELEMENT_TYPE;
             }
 
+            //-------------------------------------------------------------------------------------------------
+            /**
+             * check if assembly is affected due to negative jacobians or anything similar
+             */
+
+            virtual const bool
+            is_assembly_affected() const
+            {
+                MORIS_ERROR( false, "Equation_Set::is_assembly_affected - not implemented for virtual member function" );
+                return false;
+            }
+            //-------------------------------------------------------------------------------------------------
+
+            /**
+             * let set know assembly is affected due to negative jacobians or anything similar
+             */
+            virtual void
+            set_assembly_affected( bool aIsAffected )
+            {
+                MORIS_ERROR( false, "Equation_Set::set_assembly_affected - not implemented for virtual member function" );
+            }
+
             //------------------------------------------------------------------------------
             /**
              * get QI assembly map

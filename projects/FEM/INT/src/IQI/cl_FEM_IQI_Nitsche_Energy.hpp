@@ -39,6 +39,7 @@ namespace moris::fem
         enum class IQI_Property_Type
         {
             DIRICHLET,
+            SELECT,
             MAX_ENUM
         };
 

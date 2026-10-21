@@ -165,7 +165,7 @@ void Preconditioner_PETSc::build_icc_preconditioner( Linear_Problem *aLinearSyst
             mParameterList.get< moris::sint >( "CholeskyFill" ) );
 
     // Set PC type
-    PCSetType( mpc, "sor" );
+    PCSetType( mpc, "icc" );
 
     // Set operators
     PCSetOperators(
@@ -205,7 +205,7 @@ void Preconditioner_PETSc::build_icc_preconditioner( sol::Dist_Matrix *aMatrix, 
             mParameterList.get< moris::sint >( "CholeskyFill" ) );
 
     // Set PC type
-    PCSetType( mpc, "sor" );
+    PCSetType( mpc, "icc" );
 
     // Set operators
     PCSetOperators(

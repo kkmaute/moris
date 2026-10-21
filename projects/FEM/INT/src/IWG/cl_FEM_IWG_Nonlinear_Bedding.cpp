@@ -70,18 +70,24 @@ namespace moris::fem
             real tBeddingValue = tPropBedding->val()( 0 );
             real tBeddingThresholdValue = 2.0*1e-26;
 
-            // compute the residual
-            Matrix< DDRMat > tTerm1 = 2.0 * ( 1.0 - std::tanh( tDispTDisp(0)/tBeddingThresholdValue ) ) * trans( tN ) * tDisp ; 
-            Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0/( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue , 2 ) ) ) * tDispTDisp( 0 ) * trans( tN ) * tDisp ;
+            // Differentiate 0.5 * k * s * (1 - tanh(s / threshold)), s = u^T u.
+            real tZ      = tDispTDisp( 0 ) / tBeddingThresholdValue;
+            real tTanh   = std::tanh( tZ );
+            real tSechSq = ( 1.0 - tTanh ) * ( 1.0 + tTanh );
+            real tA      = 1.0 - tTanh - tZ * tSechSq;
 
-            tRes += aWStar * 0.5 * tBeddingValue * ( tTerm1 + tTerm2 );
-            //tRes += trans(aWStar * 0.5 * tBeddingValue * (( tDispTDisp( 0 ) ) * (-2.0 / ( 1.0 + std::pow((tDispTDisp( 0 ) / tBeddingThresholdValue ), 2)) ) * ( trans( tDisp ) * tN ) +
-            //        2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * ( trans( tDisp ) * tN ) ));
-            
+            Matrix< DDRMat > tV = trans( tN ) * tDisp;
+            tRes += aWStar * tBeddingValue * tA * tV;
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Isotropic_Struc_Linear_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
+            bool tIsFinite = isfinite( mSet->get_residual()( 0 ) );
+            if ( !tIsFinite )
+            {
+                mSet->set_assembly_affected( !tIsFinite );
+            }
+            // check for nan, infinity
+            //MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
+            //        "IWG_Isotropic_Struc_Linear_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -137,30 +143,28 @@ namespace moris::fem
                 real tBeddingValue = tPropBedding->val()( 0 );
                 real tBeddingThresholdValue = 2.0*1e-26;
 
-                // Compute the jacobian
-                real tDen = std::pow( 1.0 + std::pow( tDispTDisp( 0 )/tBeddingThresholdValue , 2 ) , 2); 
+                // Consistent Hessian of the bedding energy.
+                real tZ      = tDispTDisp( 0 ) / tBeddingThresholdValue;
+                real tTanh   = std::tanh( tZ );
+                real tSechSq = ( 1.0 - tTanh ) * ( 1.0 + tTanh );
+                real tA      = 1.0 - tTanh - tZ * tSechSq;
+                real tB      = 4.0 * tSechSq * ( tZ * tTanh - 1.0 ) / tBeddingThresholdValue;
 
-                Matrix< DDRMat > tTerm1 = -2.0 * ( 1.0 / tDen ) * ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) * ( trans( tN ) * tDisp ) * trans( trans( tN ) * tDisp ) * 2.0;
-                Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0 / tDen ) * ( -2.0 * tDispTDisp( 0 ) ) * ( 2.0 * tDispTDisp( 0 ) / ( tBeddingThresholdValue ) ) * ( trans( tN ) * tDisp ) * trans( trans( tN ) * tDisp );
-                Matrix< DDRMat > tTerm3 = -2.0 * ( tDispTDisp( 0 ) ) * ( 1.0 / (1.0 + std::pow( tDispTDisp( 0 )/tBeddingThresholdValue, 2 ) ) ) * ( trans(tN) * tN );
+                Matrix< DDRMat > tV = trans( tN ) * tDisp;
+                tJac += aWStar * tBeddingValue
+                        * ( tA * trans( tN ) * tN + tB * tV * trans( tV ) );
 
-                Matrix< DDRMat > tTerm4 = 2.0 * -2.0 * ( 1.0 / ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) ) * ( trans( tN ) * tDisp ) * trans( trans( tN ) * tDisp );
-                Matrix< DDRMat > tTerm5 = 2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * ( trans( tN ) * tN );
-
-                tJac += aWStar * 0.5 * tBeddingValue * ( tTerm1 + tTerm2 + tTerm3 + tTerm4 + tTerm5 );
-
-
-                //tJac += aWStar * 0.5 * tBeddingValue * ( -2.0 * ( ( 1.0 + std::pow( tDispTDisp( 0 )/tBeddingThresholdValue , 2) ) * 2.0 * trans( tDisp ) * tN +  )   )
-                
-                //tJac += trans(aWStar * 0.5 * tBeddingValue * ( -4.0 * tDispTDisp( 0 ) * ( trans( tN ) * ( tN ) ) * std::pow( ( 1.0 + std::pow( ( tDispTDisp( 0 )/ tBeddingThresholdValue ) , 2 ) ), 2 ) *  ( ( 1.0 +  std::pow( ( tDispTDisp( 0 )/ tBeddingThresholdValue ) , 2)  ) -
-                //                                          tDispTDisp( 0 ) * ( 2.0 * tDispTDisp( 0 )/ tBeddingThresholdValue )) - 2.0 * tDispTDisp( 0 ) * ( trans( tN ) * tN ) * ( 1.0 / ( 1.0 + std::pow( (tDispTDisp( 0 )/tBeddingThresholdValue ), 2 ))) +
-                //                                          2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 )/ tBeddingThresholdValue ) ) * ( trans( tN ) * tN ) - 4.0 * tDispTDisp( 0 ) * ( trans( tN ) * tN ) * ( 1.0 / ( 1.0 + std::pow( ( tDispTDisp( 0 )/tBeddingThresholdValue ), 2 ) ) ) ));
-
+            }
+            // check for nan, infinity
+            bool tIsFinite = isfinite( mSet->get_jacobian() );
+            if ( !tIsFinite )
+            {
+                mSet->set_assembly_affected( !tIsFinite );
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            //MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
+            //        "IWG_Isotropic_Struc_Linear_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------

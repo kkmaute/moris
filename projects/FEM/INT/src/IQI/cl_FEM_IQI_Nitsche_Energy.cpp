@@ -13,6 +13,7 @@
 #include "cl_FEM_IQI_Nitsche_Energy.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
+#include "fn_eye.hpp"
 
 namespace moris::fem
 {
@@ -45,7 +46,9 @@ namespace moris::fem
         // populate the constitutive map, property map and stabilization map
         mConstitutiveMap[ "TractionCM" ] = (uint)IQI_Constitutive_Type::TRACTION_CM;
         mPropertyMap["Dirichlet"] = (uint)IQI_Property_Type::DIRICHLET;
+        mPropertyMap["Select"] = (uint)IQI_Property_Type::SELECT;
         mStabilizationMap["DirichletNitsche"] = (uint)IQI_Stabilization_Type::DIRICHLET_NITSCHE;
+
     }
 
     //------------------------------------------------------------------------------
@@ -60,6 +63,10 @@ namespace moris::fem
         // get the specified displacement        
         const std::shared_ptr< Property >& tPropDirichlet =
                     mLeaderProp( static_cast< uint >( IQI_Property_Type::DIRICHLET ) );
+        
+        // Get the projection matrix property
+        const std::shared_ptr< Property >& tPropSelect =
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
 
         // get the stabilization parameter
         const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -69,20 +76,42 @@ namespace moris::fem
         Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
         //Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
-        MORIS_ASSERT( mNormal.numel() > 0,
-                "IQI_Nitsche_Energy::compute_QI() - "
-                "Normal is not set. IQIs requiring a normal must be evaluated elementally "
-                "and averaged such that there is a well-defined normal." );
+        Matrix< DDRMat > tM;
+        if ( tPropSelect == nullptr )
+        {
+            // get number of fields which should equal spatial dimension
+            const uint tSpaceDim = tFILeader->get_number_of_fields();
 
-        // evaluate traction
-        const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal , mStressType );
+            // set selection matrix as identity
+            eye( tSpaceDim, tSpaceDim, tM );
+        }
+        else
+        {
+            tM = tPropSelect->val();
 
-        // Get Displacement-
-        const Matrix< DDRMat > tDisplacement = tFILeader->val();
+            // skip computing residual if projection matrix is zero
+            if ( norm( tM ) < MORIS_REAL_EPS )
+            {
+                aQI.set_size( 1, 1, 0.0 );
+                return;
+            }
+        }
 
-        // Compute the integrand
-        aQI = mNitscheType *trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
+        const Matrix< DDRMat > tJump = tFILeader->val() - tPropDirichlet->val();
+
+        aQI = 0.5 * tSPNitsche->val() * ( trans( tJump ) * tM * tJump );
+
+        // Pure penalty does not require traction; zero times an invalid traction is NaN.
+        if ( mNitscheType != 0 )
+        {
+            MORIS_ASSERT( mNormal.numel() > 0,
+                    "IQI_Nitsche_Energy::compute_QI() - "
+                    "Normal is not set. IQIs requiring a normal must be evaluated elementally "
+                    "and averaged such that there is a well-defined normal." );
+
+            const Matrix< DDRMat > tTraction = tCMLeader->traction( mNormal, mStressType );
+            aQI += mNitscheType * trans( tTraction ) * tM * tJump;
+        }
 
     }
 
@@ -101,6 +130,10 @@ namespace moris::fem
         // get the specified displacement        
         const std::shared_ptr< Property >& tPropDirichlet =
                     mLeaderProp( static_cast< uint >( IQI_Property_Type::DIRICHLET ) );
+        
+        // Get the projection matrix property
+        const std::shared_ptr< Property >& tPropSelect =
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
 
         // get the stabilization parameter
         const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -109,21 +142,39 @@ namespace moris::fem
         // Obtain leader and follower field interpolators to get the displacement
         Field_Interpolator* tFILeader   = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
         //Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+        
+        Matrix< DDRMat > tM;
+        if ( tPropSelect == nullptr )
+        {
+            // get number of fields which should equal spatial dimension
+            const uint tSpaceDim = tFILeader->get_number_of_fields();
 
-        MORIS_ASSERT( mNormal.numel() > 0,
-                "IQI_Nitsche_Energy::compute_QI() - "
-                "Normal is not set. IQIs requiring a normal must be evaluated elementally "
-                "and averaged such that there is a well-defined normal." );
+            // set selection matrix as identity
+            eye( tSpaceDim, tSpaceDim, tM );
+        }
+        else
+        {
+            tM = tPropSelect->val();
 
-        // evaluate traction
-        const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal , mStressType );
+            // skip computing residual if projection matrix is zero
+            if ( norm( tM ) < MORIS_REAL_EPS ) return;
+        }
 
-        // Get Displacement-
-        const Matrix< DDRMat > tDisplacement = tFILeader->val();
+        const Matrix< DDRMat > tJump = tFILeader->val() - tPropDirichlet->val();
 
-        // Compute the integrand
-        Matrix < DDRMat > tQI = mNitscheType * trans( tTraction ) * ( tDisplacement - tPropDirichlet->val()) + 0.5*tSPNitsche->val() * (trans( tDisplacement - tPropDirichlet->val()) * ( tDisplacement - tPropDirichlet->val()));
+        Matrix< DDRMat > tQI = 0.5 * tSPNitsche->val() * ( trans( tJump ) * tM * tJump );
+
+        // Evaluate the constitutive traction only when its contribution is active.
+        if ( mNitscheType != 0 )
+        {
+            MORIS_ASSERT( mNormal.numel() > 0,
+                    "IQI_Nitsche_Energy::compute_QI() - "
+                    "Normal is not set. IQIs requiring a normal must be evaluated elementally "
+                    "and averaged such that there is a well-defined normal." );
+
+            const Matrix< DDRMat > tTraction = tCMLeader->traction( mNormal, mStressType );
+            tQI += mNitscheType * trans( tTraction ) * tM * tJump;
+        }
 
         // add the contribution
         mSet->get_QI()( tQIIndex ) += aWStar * tQI;

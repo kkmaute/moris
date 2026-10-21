@@ -51,7 +51,7 @@ namespace moris::fem
         real tBeddingThreshold = 2.0*1e-26;
 
         // compute the bedding IQI value
-        aQI = 0.5 * tPropLeader->val()( 0 ) * std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) ) * ( tDispDotDisp( 0 ) );
+        aQI = 0.5 * tPropLeader->val()( 0 ) * ( 1.0 - std::tanh( tDispDotDisp( 0 ) / tBeddingThreshold ) ) * tDispDotDisp( 0 );
     }
 
     //------------------------------------------------------------------------------
@@ -138,18 +138,16 @@ namespace moris::fem
                 // declare bedding threshold
                 real tBeddingThresholdValue = 2.0 * 1e-26;
 
-                // compute the residual
-                Matrix< DDRMat > tTerm1 = 2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * trans( tN ) * tDisp;
-                Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0 / ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) ) * tDispTDisp( 0 ) * trans( tN ) * tDisp;
+                // Gradient of the same bedding energy used by the IWG.
+                real tZ      = tDispTDisp( 0 ) / tBeddingThresholdValue;
+                real tTanh   = std::tanh( tZ );
+                real tSechSq = ( 1.0 - tTanh ) * ( 1.0 + tTanh );
+                real tA      = 1.0 - tTanh - tZ * tSechSq;
 
-                // compute bedding contribution - displacements
-
+                Matrix< DDRMat > tV = trans( tN ) * tDisp;
                 mSet->get_residual()( tQIIndex )(
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * tBeddingValue * ( tTerm1 + tTerm2 );
-                ;
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * tBeddingValue * tA * tV;
 
-                //trans(aWStar * 0.5 * tPropLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( -2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tBeddingThreshold ), 2 ) ) )
-                 //       + 2.0 * ( 1.0 - std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) ) ) * ( trans( tDisplacement ) * tN ) ));
             }
         }
     }
@@ -191,24 +189,21 @@ namespace moris::fem
             // Displacment transpose times displacement
             Matrix< DDRMat > tDispTDisp = trans( tDisp ) * tDisp ;
 
-            // // declare bedding threshold
-            // real tBeddingThreshold = 2.0*1e-26;
-
-            // // compute dQIdu
-            // adQIdu = trans(0.5 * tPropLeader->val() * ( ( tDispDotDisp( 0 ) ) * ( trans( tDisplacement ) * tN ) * ( -2.0 / ( 1.0 + std::pow( tDispDotDisp( 0 ) / ( tBeddingThreshold ), 2 ) ) )
-            //          + 2.0 * ( 1.0 - std::tanh( tDispDotDisp( 0 ) / ( tBeddingThreshold ) ) ) * ( trans( tDisplacement ) * tN ) ));
-
             // Declare bedding value
             real tBeddingValue = tPropLeader->val()( 0 );
 
             // declare bedding threshold
             real tBeddingThresholdValue = 2.0 * 1e-26;
 
-            // compute the residual
-            Matrix< DDRMat > tTerm1 = 2.0 * ( 1.0 - std::tanh( tDispTDisp( 0 ) / tBeddingThresholdValue ) ) * trans( tN ) * tDisp;
-            Matrix< DDRMat > tTerm2 = -2.0 * ( 1.0 / ( 1.0 + std::pow( tDispTDisp( 0 ) / tBeddingThresholdValue, 2 ) ) ) * tDispTDisp( 0 ) * trans( tN ) * tDisp;
+            // Gradient of the same bedding energy used by the IWG.
+            real tZ      = tDispTDisp( 0 ) / tBeddingThresholdValue;
+            real tTanh   = std::tanh( tZ );
+            real tSechSq = ( 1.0 - tTanh ) * ( 1.0 + tTanh );
+            real tA      = 1.0 - tTanh - tZ * tSechSq;
 
-            adQIdu = 0.5 * tBeddingValue * ( tTerm1 + tTerm2 );
+            Matrix< DDRMat > tV = trans( tN ) * tDisp;
+            adQIdu = tBeddingValue * tA * tV;
+
         }
 
     }

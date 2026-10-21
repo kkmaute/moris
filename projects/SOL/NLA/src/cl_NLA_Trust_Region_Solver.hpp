@@ -102,6 +102,7 @@ namespace NLA
 
         sol::Dist_Vector* preconditioned_project_to_boundary( sol::Dist_Vector* aZ,
                                                               sol::Dist_Vector* aD,
+                                                              sol::Dist_Vector* aDnew,
                                                               real          &aTrSize,
                                                               real          &aZz     );
        

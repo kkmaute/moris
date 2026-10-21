@@ -181,6 +181,13 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
+            const bool is_assembly_affected() override
+            {
+                return false;
+            }
+
+            // ----------------------------------------------------------------------------
+
             uint
             get_max_num_global_dofs() override
             {

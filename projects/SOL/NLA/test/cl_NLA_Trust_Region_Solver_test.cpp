@@ -156,6 +156,9 @@ namespace moris
                 tNonlinearSolverParameterList.set( "NLA_max_trust_region_iter" , 1000);
                 tNonlinearSolverParameterList.set( "NLA_tot_res_norm" , 2e-10);
                 tNonlinearSolverParameterList.set( "NLA_rel_res_norm_drop", 2e-10 );
+                tNonlinearSolverParameterList.set(
+                        "NLA_trust_region_objective",
+                        Vector< std::string >{ "test_objective" } );
                 Nonlinear_Solver_Factory               tNonlinFactory;
                 std::shared_ptr< Nonlinear_Algorithm > tNonlLinSolverAlgorithm =
                         tNonlinFactory.create_nonlinear_solver( tNonlinearSolverParameterList );
@@ -168,31 +171,34 @@ namespace moris
                 Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
                 Parameter_List tPreconditionerParameterList = prm::create_preconditioner_parameter_list(sol::PreconditionerType::PETSC);
                 tLinearSolverParameterList.set( "KSPType", std::string( "stcg" ) );
-                tLinearSolverParameterList.set( "PCType", std::string( "cholesky" ));
+                //tLinearSolverParameterList.set( "PCType", std::string( "icc" ));
+                tPreconditionerParameterList.set( "PCType", std::string( "icc" ) );
                 dla::Preconditioner* tPrec1 = tSolFactory.create_preconditioner( tPreconditionerParameterList );
                 std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver1 = tSolFactory.create_solver( tLinearSolverParameterList );
                 //std::shared_ptr< dla::Linear_Solver_Algorithm > tLinSolver2 = tSolFactory.create_solver( tLinearSolverParameterList );
                 tLinSolver1->set_preconditioner( tPrec1 );
 
-                // // Set nasty initial guess
-                // sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
-                // sol::Dist_Vector* tInitGuess = tMatFactory.create_vector(tNonlinearProblem.get_solver_interface(),tNonlinearProblem.get_full_vector()->get_map(), 1);
-                // sint tLength = tInitGuess->vec_global_length();
-                // std::cout<<"Length"<< tLength;
-                // // declare IDs and vec
-                // Matrix< DDSMat > tIDs(3,1,0);
-                // Matrix< DDRMat > tVals(3,1,0.0);
-                // tIDs( 1, 0 ) = 1;
-                // tIDs( 2, 0 ) = 2;
+                // Set nasty initial guess
+                //sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+                //sol::Dist_Vector* tInitGuess = tMatFactory.create_vector(tNonlinearProblem.get_solver_interface(),tNonlinearProblem.get_full_vector()->get_map(), 1);
+                sol::Dist_Vector* tInitGuess = tNonlinearProblem.get_full_vector();
+                tInitGuess->vec_put_scalar( 0.0 );
+                sint tLength = tInitGuess->vec_global_length();
+                std::cout<<"Length"<< tLength;
+                // declare IDs and vec
+                Matrix< DDSMat > tIDs(3,1,0);
+                Matrix< DDRMat > tVals(3,1,0.0);
+                tIDs( 1, 0 ) = 1;
+                tIDs( 2, 0 ) = 2;
 
-                // tVals( 0, 0 ) = (2.0);
-                // tVals( 1, 0 ) = (7.0);
-                // tVals( 2, 0 ) = (-1.0);
-                // tInitGuess->sum_into_global_values(tIDs, tVals);
-                // tInitGuess->vector_global_assembly();
+                tVals( 0, 0 ) = (2.0);
+                tVals( 1, 0 ) = (7.0);
+                tVals( 2, 0 ) = (-1.0);
+                tInitGuess->sum_into_global_values(tIDs, tVals);
+                tInitGuess->vector_global_assembly();
 
                 // // Replace original initial guess with current initial guess
-                // tSolverInput->set_solution_vector( tInitGuess );
+                tSolverInput->set_solution_vector( tInitGuess );
 
                 tLinSolManager.set_linear_algorithm( 0, tLinSolver1 );
                 
