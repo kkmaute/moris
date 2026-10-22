@@ -137,9 +137,13 @@ Eigen_Solver::solve_linear_system(
         Linear_Problem*   aLinearSystem,
         const moris::sint aIter )
 {
+    
+    // assembler the jacobian of the linear system for eigen analysis
+    aLinearSystem->assemble_jacobian_eigenanalysis();
+    
     // get stiffness matrix of class Epetra_FECrs
     mMat = aLinearSystem->get_matrix()->get_matrix();
-
+    
     // assemble the right hand side of the matrix as it is needed for generalized eigenvalue problem
     aLinearSystem->assemble_rhs_matrix();
 

@@ -2161,14 +2161,21 @@ namespace moris::fem
                             // check whether only time continuity IWG should be considered
                             if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::TIME_CONTINUITY_ONLY )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF )
+                                if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF && !mIWGs( iIWG )->get_eigenanalysis_flag() )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
                             }
                             else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::NO_TIME_CONTINUITY )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF )
+                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF && !mIWGs( iIWG )->get_eigenanalysis_flag() )
+                                {
+                                    mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                }
+                            }
+                            else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::EIGENANALYSIS_ONLY )
+                            {
+                                if ( mIWGs( iIWG )->get_eigenanalysis_flag() )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
@@ -2182,7 +2189,7 @@ namespace moris::fem
                             }
                             else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::DEFAULT )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS )
+                                if ( !mIWGs( iIWG )->get_eigenanalysis_flag() && mIWGs( iIWG )->get_IWG_type() != IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
@@ -2229,8 +2236,12 @@ namespace moris::fem
                             }
                             else
                             {
-                                // add the IWG to the requested IWG list
-                                mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                //do not add to list if it is geometric stiffness or eigenanalysis IWG
+                                if ( mIWGs( iIWG )->get_IWG_type() != moris::fem::IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS && !mIWGs( iIWG )->get_eigenanalysis_flag() )
+                                {
+                                  // add the IWG to the requested IWG list
+                                  mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                }
                             }
 
                             // mark IWG as active

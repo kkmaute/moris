@@ -367,4 +367,15 @@ namespace moris::dla
             MORIS_LOG_INFO( "Saved Jacobian to Matlab File: %s ", tMassFileName.c_str() );
         }
     }
+
+    //----------------------------------------------------------------------------------------
+
+    void
+    Linear_Problem::assemble_jacobian_eigenanalysis()
+    {
+        mMat->mat_put_scalar( 0.0 );
+        mSolverInterface->assemble_jacobian( mMat, moris::fem::Time_Continuity_Flag::EIGENANALYSIS_ONLY );
+
+    }
+
 }    // namespace moris::dla

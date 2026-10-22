@@ -193,6 +193,7 @@ namespace moris::prm
         tParameterList.insert( "time_continuity", false );
         tParameterList.insert( "time_boundary", false );
         tParameterList.insert( "time_final", -1.0 );
+        tParameterList.insert( "is_eigen_analysis", false );
 
         return tParameterList;
     }
@@ -246,6 +247,8 @@ namespace moris::prm
         tParameterList.insert( "time_final", -1.0 );
 
         tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
+
+        tParameterList.insert( "compute_state_variable_sensitivity_with_finite_differencing", false );
 
         return tParameterList;
     }

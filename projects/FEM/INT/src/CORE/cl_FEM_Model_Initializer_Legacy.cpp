@@ -385,6 +385,8 @@ namespace moris::fem
 
             tIWG->set_is_fd_jacobian( not tIWGParameter.get< bool >( "analytical_jacobian" ) );    // warning: this is a negation
 
+            tIWG->set_eigenanalysis_flag( tIWGParameter.get< bool >( "is_eigen_analysis" ) ); // is the IWG only for eigenanalysis?
+
             // fill IWG map
             mIWGMap[ tIWGName ] = iIWG;
 
@@ -648,6 +650,9 @@ namespace moris::fem
             // get the treated IQI bulk type
             auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
+            // get whether IQI dQIdu needs to be finite differenced or not
+            auto tIsFDdQIdu = tIQIParameter.get< bool >( "compute_state_variable_sensitivity_with_finite_differencing" );
+
             // create an IQI pointer
             mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
 
@@ -655,6 +660,9 @@ namespace moris::fem
             mIQIs( iIQI )->set_name( tIQIName );
 
             mIQIs( iIQI )->set_bulk_type( tIQIBulkType );
+
+            // set whether dqidu needs to be finite differenced or not
+            mIQIs( iIQI )->set_dQIdu_FD( tIsFDdQIdu );
 
             // fill IQI map
             mIQIMap[ tIQIName ] = iIQI;

@@ -84,7 +84,8 @@
 #include "cl_FEM_IWG_FS_Struc_Interface.hpp"
 // Time continuity
 #include "cl_FEM_IWG_Time_Continuity_Dof.hpp"
-// Geometric Stiffness
+// Geometric Stiffness and eigenanalysis
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Load_Independent_Stiffness.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness.hpp"
 // Turbulence
 #include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
@@ -276,6 +277,9 @@ namespace moris::fem
 
             case IWG_Type::STRUC_NON_LINEAR_GEOMETRIC_STIFFNESS:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Geometric_Stiffness >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
+
+            case IWG_Type::STRUC_NON_LINEAR_LOAD_INDEPENDENT_STIFFNESS:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Load_Independent_Stiffness >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
 
             case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, -1 );

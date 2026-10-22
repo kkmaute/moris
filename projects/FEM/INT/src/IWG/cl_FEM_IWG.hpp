@@ -124,6 +124,9 @@ namespace moris::fem
         // Local string to int map for constitutive models
         std::map< std::string, uint > mConstitutiveMap;
 
+        // denotes whether being used for eigenanalysis or not
+        bool mIsEigenAnalysis = false;
+
         // stabilization parameters
         Vector< std::shared_ptr< fem::Stabilization_Parameter > > mStabilizationParam;
 
@@ -352,6 +355,30 @@ namespace moris::fem
          * print name
          */
         void print_names();
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * set eigenanalysis flag
+         * param[ in ] aIsEigenAnalysis bool true if IWG for eigenanalysis
+         */
+        void
+        set_eigenanalysis_flag( bool aIsEigenAnalysis )
+        {
+            mIsEigenAnalysis = aIsEigenAnalysis;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * get eigenanalysis flag
+         * param[ out ] mIsEigenAnalysis bool true if IWG for eigenanalysis
+         */
+        const bool
+        get_eigenanalysis_flag()
+        {
+            return mIsEigenAnalysis;
+        }
 
         //------------------------------------------------------------------------------
 

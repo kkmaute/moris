@@ -70,6 +70,39 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
     // set nonlinear system
     mNonlinearProblem = aNonlinearProblem;
 
+    // The eigen backends assemble their own operators. Run once without
+    // displacement-residual convergence checks, relaxation, or a Newton update.
+    if ( mParameterListNonlinearSolver.get< bool >( "NLA_is_eigen_problem" ) )
+    {
+        sint tRestart = mParameterListNonlinearSolver.get< sint >( "NLA_restart" );
+        if ( tRestart != 0 )
+        {
+            mNonlinearProblem->restart_from_sol_vec( tRestart );
+        }
+
+        MORIS_LOG_ITERATION();
+
+        // Preserve the configured reference load without advancing load control.
+        real tLoadFactor = mParameterListNonlinearSolver.get< real >( "NLA_load_control_factor" );
+        MORIS_LOG_SPEC( "LoadFactor", tLoadFactor );
+        gLogger.set_action_data(
+                "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor", tLoadFactor );
+
+        // An eigen stage has no residual history or load steps. If remapping is
+        // enabled, refresh once at the reference state, after any restart load.
+        if ( static_cast< sol::SolverRaytracingStrategy >(
+                     mParameterListNonlinearSolver.get< uint >( "NLA_remap_strategy" ) )
+                != sol::SolverRaytracingStrategy::None )
+        {
+            mNonlinearProblem->update_fem_model();
+        }
+
+        sint tIteration = 1;
+        bool tHardBreak = false;
+        this->solve_linear_system( tIteration, tHardBreak );
+        return;
+    }
+
     // get maximum number of iterations
     sint tMaxIts = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
 
@@ -214,11 +247,6 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                     tLoadFactor );
         }
 
-        // if it is an eigen problem do not update the solution
-        if ( mParameterListNonlinearSolver.get< bool >( "NLA_is_eigen_problem" ) )
-        {
-            return;
-        }
         // Update solution
         ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
                 -tRelaxationParameter,

@@ -724,6 +724,9 @@ namespace moris::prm
 
         // Flag for RHS Matrix Type if Eigen Solver is set to true
         tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
+        
+        // Flag for LHS Matrix Type if Eigen Solver is set to true
+        tLinSolverParameterList.insert( "LHS_Matrix_Type", std::string( "" ) );
 
         // operaotr and precondioned opeartor condition number with arma/eigen
         tLinSolverParameterList.insert( "DLA_operator_condition_number_with_moris", "" );         // "" : do not compute, "dense", "sparse"

@@ -97,7 +97,7 @@ namespace moris::MSI
                 this->get_requested_IQI_names().size();
 
         // Print the IQI names
-        PRINT(this->get_requested_IQI_names());
+        //PRINT(this->get_requested_IQI_names());
 
         
 
@@ -171,19 +171,19 @@ namespace moris::MSI
             }
         }
         // Revert the requested IQI names back to the saved ones
-        if ( mGlobalIQIVal.size() > 0 )
-        {
-            PRINT( mGlobalIQIVal );
-        }
+        // if ( mGlobalIQIVal.size() > 0 )
+        // {
+        //     PRINT( mGlobalIQIVal );
+        // }
 
         this->set_requested_IQI_names( mSavedIQINames );
         
         
 
-        if (mGlobalIQIVal.size() > 0)
-        {
-            PRINT( mGlobalIQIVal );
-        }
+        // if (mGlobalIQIVal.size() > 0)
+        // {
+        //     PRINT( mGlobalIQIVal );
+        // }
         
 
         // Normalization

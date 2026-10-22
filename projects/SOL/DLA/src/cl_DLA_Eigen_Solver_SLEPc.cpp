@@ -238,18 +238,21 @@ Eigen_Solver_SLEPc::determine_problem_type( Linear_Problem *aLinearSystem )
     // determine the problem type based on symmetry and right hand side type
     if ( tRHSType == "IdentityMat" )
     {
+        aLinearSystem->assemble_jacobian_eigenanalysis();
         EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), nullptr );
         return tAssumeSymmetric ? EPS_HEP : EPS_NHEP;
     }
     else if ( tRHSType == "MassMat" )
     {
         aLinearSystem->assemble_rhs_matrix();
+        aLinearSystem->assemble_jacobian_eigenanalysis();
         EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_mass_matrix()->get_petsc_matrix() );
         return tAssumeSymmetric ? EPS_GHEP : EPS_GNHEP;
     }
     else if ( tRHSType == "GeomStiffMat" )
     {
         aLinearSystem->assemble_rhs_matrix();
+        aLinearSystem->assemble_jacobian_eigenanalysis();
         EPSSetOperators( mEps, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_mass_matrix()->get_petsc_matrix() );
         return tAssumeSymmetric ? EPS_GHEP : EPS_GNHEP;
     }

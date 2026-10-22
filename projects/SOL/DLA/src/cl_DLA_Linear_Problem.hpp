@@ -198,6 +198,15 @@ namespace moris
 
             //------------------------------------------------------------------
 
+            /**
+             * @brief this function uses
+             *
+             */
+            void
+            assemble_jacobian_eigenanalysis();
+
+            //------------------------------------------------------------------
+
             void
             set_rhs_matrix_type( std::string const & aRHSMatType )
             {
@@ -211,6 +220,7 @@ namespace moris
             {
                 return mRHSMatType;
             }
+
             //------------------------------------------------------------------
 
             real 
