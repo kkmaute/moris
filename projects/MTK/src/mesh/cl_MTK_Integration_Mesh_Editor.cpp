@@ -21,6 +21,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Set_Communicator.hpp"
+#include "cl_Communication_Tools.hpp"
 
 namespace moris::mtk
 {

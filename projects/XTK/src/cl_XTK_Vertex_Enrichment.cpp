@@ -113,6 +113,86 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
+    Vertex_Enrichment::add_basis_weight_per_leader_basis( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< real > > const &                   aBasisWeightPerLeaderBasis )
+    {
+        // Resize vector of vectors to match the number of basis indices
+        mBasisWeightPerLeaderBasis.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightPerLeaderBasis( tBasisLocInd ) = aBasisWeightPerLeaderBasis( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void 
+    Vertex_Enrichment::add_basis_weight_denominators( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< moris_index > > const &                   aBasisWeightDenominators )
+    {
+        // Resize vector of vectors to match the number of basis indices
+        mBasisWeightDenominators.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightDenominators( tBasisLocInd ) = aBasisWeightDenominators( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void 
+    Vertex_Enrichment::add_basis_weight_numerators( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< moris_index > > const &                   aBasisWeightNumerators )
+    {
+        // Resize vector of vectors to match the number of basis indices
+        mBasisWeightNumerators.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightNumerators( tBasisLocInd ) = aBasisWeightNumerators( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Vertex_Enrichment::add_basis_weight_denominator_count( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< uint > > const &                                          aBasisWeightDenominatorIndices )
+    {
+        // Resize vector of vectors to match the number of basis indices
+        mBasisWeightDenominatorCount.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightDenominatorCount( tBasisLocInd ) = aBasisWeightDenominatorIndices( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Vertex_Enrichment::add_basis_weight_numerator_count( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< uint > > const &                                       aBasisWeightNumeratorIndices )
+    {
+        // Resize vector of vectors to match the number of basis indices
+        mBasisWeightNumeratorCount.resize( aBasisIndices.numel() ); 
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightNumeratorCount( tBasisLocInd ) = aBasisWeightNumeratorIndices( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
     Vertex_Enrichment::add_basis_owners( Matrix< IndexMat > const & aBasisIndices,
             Matrix< IndexMat > const &                              aBasisOwners )
     {
@@ -216,10 +296,40 @@ namespace moris::xtk
         return mBasisWeights;
     }
 
+    Vector< Vector< moris_index > > const &
+    Vertex_Enrichment::get_basis_weight_numerators() const
+    {
+        return mBasisWeightNumerators;
+    }
+
+    Vector< Vector< moris_index > > const &
+    Vertex_Enrichment::get_basis_weight_denominators() const
+    {
+        return mBasisWeightDenominators;
+    }
+
+    Vector< Vector< real > > const &
+    Vertex_Enrichment::get_basis_weight_per_leader_basis() const
+    {
+        return mBasisWeightPerLeaderBasis;
+    }
+
     Matrix< IndexMat > const &
     Vertex_Enrichment::get_basis_ids() const
     {
         return mBasisIds;
+    }
+
+    Vector< Vector< uint > > const &
+    Vertex_Enrichment::get_basis_weight_denominator_count() const
+    {
+        return mBasisWeightDenominatorCount;
+    }
+
+    Vector< Vector< uint > > const &
+    Vertex_Enrichment::get_basis_weight_numerator_count() const
+    {
+        return mBasisWeightNumeratorCount;
     }
 
     //------------------------------------------------------------------------------

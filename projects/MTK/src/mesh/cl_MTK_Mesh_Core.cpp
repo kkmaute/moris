@@ -1397,12 +1397,65 @@ namespace moris::mtk
     }
     //--------------------------------------------------------------------------------------------------------------
 
+    bool
+    Mesh::get_basis_extension_flag( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_extension_flag not implemented" );
+        return false;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     real*
     Mesh::get_basis_weights( moris_index aVertexIndex, moris_index aOrder )
     {
         MORIS_ERROR( 0, "get_basis_weights not implemented" );
         return nullptr;
     }
+
+    Vector< moris_index >*
+    Mesh::get_basis_weight_numerators( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_numerators not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< moris_index >*
+    Mesh::get_basis_weight_denominators( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_denominators not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris::Vector< moris::real >*
+    Mesh::get_basis_weights_per_leader_basis( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weights_per_leader_basis not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris::Vector< uint >*
+    Mesh::get_basis_weight_numerator_indices( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_numerator_indices not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris::Vector< uint >*
+    Mesh::get_basis_weight_denominator_indices( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_denominator_indices not implemented" );
+        return nullptr;
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     moris_id*

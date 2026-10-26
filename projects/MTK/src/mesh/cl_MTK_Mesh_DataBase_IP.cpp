@@ -401,12 +401,71 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    bool
+    Interpolation_Mesh_DataBase_IP::get_basis_extension_flag( moris_index aVertexIndex, moris_index aOrder )
+    {
+        return mBasisExtensionFlags( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     moris::real*
     Interpolation_Mesh_DataBase_IP::get_basis_weights( moris_index aVertexIndex, moris_index aOrder )
     {
         real* tBasisWeightsPointer = const_cast< real* >( mWeights( aOrder ).memptr() + mOffSetTMatrix( aOrder )( aVertexIndex ) );
 
         return tBasisWeightsPointer;
+    }
+    //--------------------------------------------------------------------------------------------------------------
+    Vector< moris_index >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_numerators(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightNumerators( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< moris_index >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_denominators(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightDenominators( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    Vector< moris::real >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weights_per_leader_basis(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightPerLeaderBasis( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }   
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< moris::uint >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_numerator_indices(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightNumeratorIndices( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    Vector< moris::uint >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_denominator_indices(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightDenominatorIndices( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------

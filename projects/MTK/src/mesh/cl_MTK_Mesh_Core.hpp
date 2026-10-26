@@ -1579,9 +1579,38 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------------
 
+            virtual bool
+            get_basis_extension_flag( moris_index aVertexIndex, moris_index aOrder );
+
+            //--------------------------------------------------------------------------------------------------------------
+
             virtual real*
             get_basis_weights( moris_index aVertexIndex,
                     moris_index            aOrder );
+
+            virtual moris::Vector< moris::moris_index >*
+            get_basis_weight_numerators( moris_index aVertexIndex,
+                    moris_index            aOrder );
+
+            //--------------------------------------------------------------------------------------------------------------
+
+            virtual moris::Vector< moris::moris_index >*
+            get_basis_weight_denominators( moris_index aVertexIndex,
+                    moris_index            aOrder );
+
+            virtual moris::Vector< moris::real >*
+            get_basis_weights_per_leader_basis( moris_index aVertexIndex,
+                    moris_index            aOrder );
+
+            //--------------------------------------------------------------------------------------------------------------
+
+            virtual moris::Vector< uint >*
+            get_basis_weight_denominator_indices( moris_index aVertexIndex,
+                    moris_index                        aOrder );
+
+            virtual moris::Vector< uint >*
+            get_basis_weight_numerator_indices( moris_index aVertexIndex,
+                    moris_index                        aOrder );
 
             //--------------------------------------------------------------------------------------------------------------
 

@@ -44,9 +44,16 @@ namespace moris::mtk
 
         // outer cell is the bspline mesh index
         // inner cell is the combined nodal t-matrices
+        // outer cell is the bspline mesh index, inner cell is the vertex index
+        Vector< Vector< bool > > mBasisExtensionFlags;
         Vector< Vector< size_t > >             mOffSetTMatrix;
         Vector< Vector< moris::real > >        mWeights;
         Vector< Vector< moris::moris_id > >    mBasisIds;
+        Vector< Vector< Vector< moris::moris_index > > > mBasisWeightNumerators;
+        Vector< Vector< Vector< moris::moris_index > > > mBasisWeightDenominators;
+        Vector< Vector< Vector< moris::real > > >        mBasisWeightPerLeaderBasis;
+        Vector< Vector< Vector< moris::uint > > >        mBasisWeightNumeratorIndices;
+        Vector< Vector< Vector< moris::uint > > >        mBasisWeightDenominatorIndices;
         Vector< Vector< moris::moris_index > > mBasisOwners;
         Vector< Vector< moris::moris_index > > mBasisIndices;
 
@@ -446,10 +453,76 @@ namespace moris::mtk
          * @return real* const
          */
 
+        bool
+        get_basis_extension_flag( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
         real*
         get_basis_weights( moris_index aVertexIndex, moris_index aOrder ) override;
 
         // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight numerators
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+
+        Vector< moris_index >*
+        get_basis_weight_numerators( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight denominators
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< moris_index >*
+        get_basis_weight_denominators( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight per leader basis
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< moris::real >*
+        get_basis_weights_per_leader_basis( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight numerator indices
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< uint >*
+        get_basis_weight_numerator_indices( moris_index aVertexIndex, moris_index aOrder ) override;    
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight denominator indices
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< uint >*
+        get_basis_weight_denominator_indices( moris_index aVertexIndex, moris_index aOrder ) override;
+        // -------------------------------------------------------------------------------
+
 
         /**
          * @brief Get the basis owners

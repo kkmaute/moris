@@ -84,6 +84,77 @@ namespace moris::mtk
         get_weights() const = 0;
 
         //------------------------------------------------------------------------------
+
+        /**
+         * returns if interpolation contains extended basis
+         */
+        virtual bool
+        contains_extended_basis() const 
+        {
+            return false;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the SPG for which a given extended basis is associated with. This is only relevant for extended basis functions
+         */
+        virtual Vector< Vector< moris_index > > const &
+        get_basis_weight_numerators() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_numerators not implemented in base vertex interpolation" );
+            static Vector< Vector< moris_index > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns all the SPGs a given extended basis' averaging weights are associated with. This is only relevant for extended basis functions
+         */
+
+        virtual Vector< Vector< moris_index > > const &
+        get_basis_weight_denominators() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_denominators not implemented in base vertex interpolation" );
+            static Vector< Vector< moris_index > >tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the per-bad basis weights for a given extended basis. This is only relevant for extended basis functions
+         */
+
+        virtual Vector< Vector< real > > const &
+        get_basis_weight_per_leader_basis() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_per_leader_basis not implemented in base vertex interpolation" );
+            static Vector< Vector< real > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual Vector< Vector< uint > > const &
+        get_basis_weight_denominator_count() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_denominator_count not implemented in base vertex interpolation" );
+            static Vector< Vector< uint > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual Vector< Vector< uint > > const &
+        get_basis_weight_numerator_count() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_numerator_count not implemented in base vertex interpolation" );
+            static Vector< Vector< uint > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
         /**
          * set the coefficient objects
          */

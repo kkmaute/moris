@@ -33,13 +33,19 @@ namespace moris::xtk
         //------------------------------------------------------------------------------
 
       protected:
-        moris::moris_index         mNodeIndex;
-        Matrix< IndexMat >         mBasisIndices;
-        Matrix< IndexMat >         mBasisIds;
-        Matrix< IndexMat >         mBasisOwners;
-        Matrix< DDRMat >           mBasisWeights;
-        mtk::Vertex_Interpolation* mBaseVertexInterp;
-        IndexMap                   mBasisMap; /*From basis to local index*/
+        moris::moris_index              mNodeIndex;
+        Matrix< IndexMat >              mBasisIndices;
+        Matrix< IndexMat >              mBasisIds;
+        Matrix< IndexMat >              mBasisOwners;
+        Matrix< DDRMat >                mBasisWeights;
+        Vector< Vector< moris_index > > mBasisWeightDenominators;
+        Vector< Vector< moris_index > > mBasisWeightNumerators;
+        Vector< Vector< real > >        mBasisWeightPerLeaderBasis;
+        Vector< Vector< uint > >        mBasisWeightDenominatorCount;
+        Vector< Vector< uint > >        mBasisWeightNumeratorCount;
+        mtk::Vertex_Interpolation*      mBaseVertexInterp;
+        IndexMap                        mBasisMap; /*From basis to local index*/
+        bool                            mContainsExtendedBasis = false;
 
                                               //------------------------------------------------------------------------------
 
@@ -147,8 +153,41 @@ namespace moris::xtk
 
         //------------------------------------------------------------------------------
 
+        void
+        set_contains_extended_basis( bool aIsExtendedBasis )
+        {
+            mContainsExtendedBasis = aIsExtendedBasis;
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool
+        contains_extended_basis() const override
+        {
+            return mContainsExtendedBasis;
+        }
+
+        //------------------------------------------------------------------------------
+
         mtk::Vertex_Interpolation const *
         get_base_vertex_interpolation() const;
+
+        //------------------------------------------------------------------------------
+
+        Vector< Vector< moris_index > > const &
+        get_basis_weight_numerators() const override;
+
+        Vector< Vector< moris_index > > const &
+        get_basis_weight_denominators() const override;
+
+        Vector< Vector< real > > const &
+        get_basis_weight_per_leader_basis() const override;
+
+        Vector< Vector< uint > > const &
+        get_basis_weight_denominator_count() const override;
+
+        Vector< Vector< uint > > const &
+        get_basis_weight_numerator_count() const override;
 
         //------------------------------------------------------------------------------
 
@@ -166,6 +205,34 @@ namespace moris::xtk
         add_basis_weights(
                 Matrix< IndexMat > const & aBasisIndices,
                 Matrix< DDRMat > const &   aBasisWeight );
+        
+        void
+        add_basis_weight_denominators(
+                Matrix< IndexMat > const & aBasisIndices,
+                Vector< Vector< moris_index > > const & aBasisWeightDenominators
+        );
+
+        void
+        add_basis_weight_numerators(
+                Matrix< IndexMat > const &              aBasisIndices,
+                Vector< Vector< moris_index > > const & aBasisWeightNumerators
+        );
+
+        void 
+        add_basis_weight_per_leader_basis(
+                Matrix< IndexMat > const &              aBasisIndices,
+                Vector< Vector< real > > const & aBasisWeightPerLeaderBasis
+        );
+
+        void
+        add_basis_weight_numerator_count(
+                Matrix< IndexMat > const &       aBasisIndices,
+                Vector< Vector< uint > > const & aBasisWeightNumeratorCount );
+
+        void
+        add_basis_weight_denominator_count(
+                Matrix< IndexMat > const &       aBasisIndices,
+                Vector< Vector< uint > > const & aBasisWeightDenominatorCount );
 
         void
         add_basis_owners(

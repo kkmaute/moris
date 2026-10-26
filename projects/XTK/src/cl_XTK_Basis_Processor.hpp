@@ -41,6 +41,8 @@ namespace moris::xtk
         // The following maps are required to construct the follower basis in terms of leader basis
         Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasis;           // input: enriched BF index || output: list of leader basis corresponding to the follower basis
         Vector< Vector< moris::real > >              mFollowerToLeaderBasisWeights;    // input: enriched BF index || output: list of leader basis corresponding to the follower basis          // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasisWeightNumerators;     // input: enriched BF index || output: which SPG is the averaging weight corresponding to
+        Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasisWeightDenominators;   // input: enriched BF index || output: averaging weight denominator (i.e., how many SPGs) corresponding to given follower basis.
         Vector< Vector< moris::real > >              mFollowerToLeaderBasisOwners;     // input: enriched BF index || output: list of leader basis corresponding to the follower basis
         Vector< Vector< Subphase_Group* > >     mSubphaseGroupsAssociatedWithBasis;    // Input: enriched BF index || output: list of SPGs corresponding to the LEADER basis
         std::multimap< moris_index, moris_id >    mEliminatedBasis;                 // input: bulk subphase index || output: list of basis IDs deleted due to not having a root cell.
@@ -50,9 +52,17 @@ namespace moris::xtk
         // input: enriched BF index |  output: the list of weights corresponding to each SPGs that the basis is active
         Vector< Vector< real > > mAveragingWeights;
 
+        // averaging weight denominator indices for each enriched BF index
+        // input: enriched BF index |  output: the list of weights corresponding to each SPGs that the basis is active
+        Vector< Vector< moris_index > > mAveragingWeightDenominatorIndices;
+
         // averaging weights for each enriched SPG indices
         // input: SPG index |  output: the list of weights corresponding to each enriched BF active on the SPG
         std::unordered_map< moris_index, Vector< real > > mAveragingWeightsSPGBased;
+
+        // averaging weights for each enriched SPG indices
+        // input: SPG index |  output: the list of weights corresponding to each enriched BF active on the SPG
+        std::unordered_map< moris_index, Vector< Vector< moris_index > > > mAveragingWeightDenominatorIndicesSPGBased;
 
         // Subspaces that will be used for blocking in Schwartz method
         // input: # of block || output: list of enriched BFs  on the block

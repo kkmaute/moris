@@ -23,6 +23,12 @@ namespace moris::mtk
         moris_index mVertexIndex;
         moris_index mVertexOrder;
         mtk::Mesh*  mMesh = nullptr;
+        Vector< Vector< moris_index > > mWeightNumerators;
+        Vector< Vector< moris_index > > mWeightDenominators;
+        Vector< Vector< moris::real > > mWeightsPerLeader;
+        Vector< Vector< moris::uint > > mWeightNumeratorIndices;
+        Vector< Vector< moris::uint > > mWeightDenominatorIndices;
+        bool       mHasExtendedBasis = false;
 
       public:
         // default constrctor
@@ -71,10 +77,59 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         /**
+         * set the basis extension flag
+         */
+        void
+        set_basis_extension_flag( bool aHasExtendedBasis );
+
+        //------------------------------------------------------------------------------
+
+        bool
+        contains_extended_basis() const override;
+
+        //------------------------------------------------------------------------------
+
+        /**
          * returns the interpolation weights
          */
         const Matrix< DDRMat >*
         get_weights() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the numerators associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris_index > >&
+        get_basis_weight_numerators() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the denominators associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris_index > >&
+        get_basis_weight_denominators() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the per-leader weights associated with basis weights (when basis extension is being used )
+         */
+        const Vector< Vector< real > >&
+        get_basis_weight_per_leader_basis() const override;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the numerator indices associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris::uint > >&
+        get_basis_weight_numerator_count() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the denominator indices associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris::uint > >&
+        get_basis_weight_denominator_count() const override;
 
         //------------------------------------------------------------------------------
         /**
