@@ -16,9 +16,112 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Warehouse.hpp"
 #include "fn_stringify_matrix.hpp"
+#include "cl_MTK_Mesh.hpp"
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Vertex.hpp"
+#include "cl_MTK_Vertex_Interpolation.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <set>
 
 namespace moris::MSI
 {
+
+    //-------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > MSI_Solver_Interface::get_subdomain_corner_dof_ids()
+    {
+        mtk::Mesh* tMesh = mMSI->get_mesh_pointer_for_multigrid();
+        MORIS_ERROR( tMesh, "BDDC geometric corners require a FEM mesh." );
+        uint                tDimension = tMesh->get_spatial_dim();
+        std::vector< real > tMin( tDimension, std::numeric_limits< real >::max() );
+        std::vector< real > tMax( tDimension, std::numeric_limits< real >::lowest() );
+        std::set< uint >    tNodes;
+
+        // Use owned interpolation cells, excluding aura, to recover the actual
+        // subdomain bounds. No assumption about HMR node or algebraic DOF IDs is made.
+        for ( uint e = 0; e < tMesh->get_num_elems(); ++e )
+        {
+            const auto& tCell = tMesh->get_mtk_cell( e );
+            if ( tCell.get_owner() != par_rank() )
+            {
+                continue;
+            }
+            const auto tCellNodes = tCell.get_vertex_inds();
+            for ( auto tNode : tCellNodes )
+            {
+                tNodes.insert( tNode );
+                const auto tX = tMesh->get_node_coordinate( tNode );
+                for ( uint d = 0; d < tDimension; ++d )
+                {
+                    tMin[ d ] = std::min( tMin[ d ], tX( d ) );
+                    tMax[ d ] = std::max( tMax[ d ], tX( d ) );
+                }
+            }
+        }
+        MORIS_ERROR( !tNodes.empty(), "BDDC geometric corners require owned mesh cells on every rank." );
+
+        std::vector< uint > tCornerNodes;
+        for ( uint tNode : tNodes )
+        {
+            const auto tX      = tMesh->get_node_coordinate( tNode );
+            bool       tCorner = true;
+            for ( uint d = 0; d < tDimension; ++d )
+            {
+                real tTolerance = 1.e-10 * std::max( 1.0, tMax[ d ] - tMin[ d ] );
+                tCorner         = tCorner && ( std::abs( tX( d ) - tMin[ d ] ) < tTolerance || std::abs( tX( d ) - tMax[ d ] ) < tTolerance );
+            }
+            if ( tCorner )
+            {
+                tCornerNodes.push_back( tNode );
+            }
+        }
+        MORIS_ERROR( tCornerNodes.size() == size_t( 1u << tDimension ), "BDDC geometric corners currently require Cartesian subdomains." );
+
+        // At a Q1 nodal corner the interpolation contains exactly one unit-weight
+        // coefficient. Use MTK coefficient IDs and MSI's DOF metadata to recover
+        // application IDs; never infer their numbering from vertex indices.
+        std::set< sint > tCornerDofs;
+        for ( auto tType : mListOfDofTypes )
+        {
+            uint                 tMeshIndex = mMSI->get_adof_index_for_type( tType );
+            std::set< moris_id > tBasisIds;
+            for ( uint tNode : tCornerNodes )
+            {
+                const auto* tInterpolation = tMesh->get_mtk_vertex( tNode ).get_interpolation( tMeshIndex );
+                MORIS_ERROR( tInterpolation, "BDDC corner has no interpolation metadata." );
+                const auto  tIds     = tInterpolation->get_ids();
+                const auto& tWeights = *tInterpolation->get_weights();
+                uint        tActive  = 0;
+                for ( uint i = 0; i < tIds.numel(); ++i )
+                {
+                    if ( std::abs( tWeights( i ) ) > 1.e-12 )
+                    {
+                        MORIS_ERROR( std::abs( tWeights( i ) - 1.0 ) < 1.e-12, "BDDC geometric corners require nodal interpolation at the corners." );
+                        tBasisIds.insert( tIds( i ) );
+                        ++tActive;
+                    }
+                }
+                MORIS_ERROR( tActive == 1, "BDDC geometric corners require one active coefficient per corner." );
+            }
+            const auto tAdofs = mDofMgn->get_adofs( { tType } );
+            for ( auto* tAdof : tAdofs )
+            {
+                if ( tBasisIds.count( tAdof->get_adof_external_id() ) )
+                {
+                    tCornerDofs.insert( tAdof->get_adof_id() );
+                }
+            }
+        }
+
+        MORIS_ERROR( !tCornerDofs.empty(), "MSI could not associate the subdomain corners with algebraic DOFs." );
+
+        Matrix< DDSMat > tResult( tCornerDofs.size(), 1 );
+        std::copy( tCornerDofs.begin(), tCornerDofs.end(), tResult.data() );
+        return tResult;
+    }
 
     //-------------------------------------------------------------------------------------------------------
 

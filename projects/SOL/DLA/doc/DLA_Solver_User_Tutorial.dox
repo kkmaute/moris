@@ -11,6 +11,8 @@ namespace moris {
 
     cl_Linear_Solver_Test.cpp
 
+    See \ref dla_bddc for PETSc MATIS assembly and BDDC configuration.
+
 */
 }
 

@@ -78,7 +78,7 @@ SOL_Warehouse::~SOL_Warehouse()
     {
         PetscFinalize();
 #ifdef MORIS_HAVE_SLEPC
-	SlepcFinalize();
+        SlepcFinalize();
 #endif
     }
 #endif
@@ -95,6 +95,11 @@ void SOL_Warehouse::initialize()
 {
     // Load parameters from parameterlist
     mTPLType = static_cast< moris::sol::MapType >( mParameterlist( 6 )( 0 ).get< moris::uint >( "SOL_TPL_Type" ) );
+
+    // Select matrix storage before the factory constructs any solver matrices.
+    mPETScMatrixType = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_PETSc_Mat_Type" );
+    MORIS_ERROR( mPETScMatrixType == "aij" || mPETScMatrixType == "is",
+            "SOL_PETSc_Mat_Type must be aij or is." );
 
     mOperatorToMatlab      = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_operator_to_matlab" );
     mSaveFinalSolVecToFile = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
@@ -115,11 +120,32 @@ void SOL_Warehouse::initialize()
 #ifdef MORIS_HAVE_PETSC
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
-        PetscInitializeNoArguments();
+        PetscCallAbort( PETSC_COMM_WORLD, PetscInitializeNoArguments() );
+
+        // Expert overrides remain optional; ordinary inputs use named SOL/KSP/PC
+        // parameters. Logging is a PETSc-wide service owned by this warehouse.
+        const auto& tWarehouseParameters = mParameterlist( 6 )( 0 );
+        if ( tWarehouseParameters.exists( "SOL_PETSc_Log_File" ) )
+        {
+            const auto& tLogFile = tWarehouseParameters.get< std::string >( "SOL_PETSc_Log_File" );
+            if ( !tLogFile.empty() )
+            {
+                PetscCallAbort( PETSC_COMM_WORLD, PetscLogDefaultBegin() );
+                PetscBool tHasLogOption = PETSC_FALSE;
+                PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsHasName( nullptr, nullptr, "-log_view", &tHasLogOption ) );
+                if ( !tHasLogOption )
+                {
+                    PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsSetValue( nullptr, "-log_view", ( ":" + tLogFile ).c_str() ) );
+                }
+            }
+        }
+        if ( tWarehouseParameters.exists( "SOL_PETSc_Options" ) )
+        {
+            PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsInsertString( nullptr, tWarehouseParameters.get< std::string >( "SOL_PETSc_Options" ).c_str() ) );
+        }
 #ifdef MORIS_HAVE_SLEPC
-	SlepcInitializeNoArguments();
+        SlepcInitializeNoArguments();
 #endif
-    
     }
 #endif
 

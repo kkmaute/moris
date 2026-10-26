@@ -97,6 +97,9 @@ namespace moris
             // TPL type
             enum sol::MapType mTPLType = sol::MapType::Epetra;
 
+            // PETSc storage type: assembled AIJ by default, MATIS for BDDC.
+            std::string mPETScMatrixType = "aij";
+
             // save operator to matlab string
             std::string mOperatorToMatlab = std::string( "" );
 
@@ -184,17 +187,15 @@ namespace moris
              */
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface )
                     : mSolverInterface( aSolverInterface )
-                    , mParameterlist( Module_Type::SOL )
-            {
-            };
+                    , mParameterlist( Module_Type::SOL ) {
+                    };
 
             SOL_Warehouse( moris::Solver_Interface* aSolverInterface,
                     std::shared_ptr< Library_IO >   aLibrary )
                     : mSolverInterface( aSolverInterface )
                     , mParameterlist( Module_Type::SOL )
-                    , mLibrary( std::move( aLibrary ) )
-            {
-            };
+                    , mLibrary( std::move( aLibrary ) ) {
+                    };
 
             SOL_Warehouse()
                     : mParameterlist( Module_Type::SOL )
@@ -250,6 +251,14 @@ namespace moris
             {
                 return mTimeSolvers( 0 );
             };
+
+            //--------------------------------------------------------------------------------------------------------
+
+            // Matrix storage must be selected before graph construction and assembly.
+            const std::string& get_petsc_matrix_type() const
+            {
+                return mPETScMatrixType;
+            }
 
             //--------------------------------------------------------------------------------------------------------
 

@@ -42,7 +42,6 @@ namespace moris
           protected:
 
           public:
-
             /**
              * Constructor
              *
@@ -79,6 +78,10 @@ namespace moris
              */
 
             void build_preconditioner( Linear_Problem* aLinearSystem, KSP aPetscKSPProblem );
+
+            // Supply options without public PETSc setters to the solver's temporary
+            // options database. The caller retains native PETSc override precedence.
+            void set_parameter_options( PetscOptions aOptions );
 
             //-----------------------------------------------------------------------------------
         };

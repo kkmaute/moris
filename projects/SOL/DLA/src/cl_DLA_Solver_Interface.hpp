@@ -371,6 +371,15 @@ namespace moris
 
         virtual moris::Matrix< DDUMat > get_constrained_Ids() = 0;
 
+        // Optional geometric primal DOFs for BDDC on nodal Cartesian subdomains.
+        // Other solver interfaces must implement this only when explicitly used.
+        virtual Matrix< DDSMat > get_subdomain_corner_dof_ids()
+        {
+            MORIS_ERROR( false, "This solver interface does not provide subdomain corner DOFs." );
+            return {};
+        }
+
+
         //------------------------------------------------------------------------------
 
         virtual void get_equation_object_operator(

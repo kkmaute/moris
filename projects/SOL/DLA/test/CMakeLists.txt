@@ -20,6 +20,10 @@ set(TEST_SOURCES
     vector.mtx
 )
 
+if(MORIS_HAVE_PETSC)
+    list(APPEND TEST_SOURCES ut_PETSc_BDDC.cpp)
+endif()
+
 if(${MORIS_HAVE_SLEPC})
     list(APPEND TEST_SOURCES cl_Eigen_Solver_Slepc.cpp)
 endif()
@@ -40,3 +44,19 @@ set_target_properties(${DLA_TEST} PROPERTIES OUTPUT_NAME ${DLA_TEST}${EXE_EXT})
 
 # Register tests for the configured MPI process counts.
 moris_register_unit_tests(${DLA_TEST} ${MORIS_TEST_PROCS})
+
+# PETSc cannot be initialized again after finalization. Run BDDC in separate
+# processes from legacy tests that manage their own PETSc lifetime.
+if(MORIS_HAVE_PETSC)
+    set(bddc_process_counts 1)
+    if(MORIS_HAVE_PARALLEL_TESTS)
+        set(bddc_process_counts ${MORIS_TEST_PROCS})
+    endif()
+    foreach(procs IN LISTS bddc_process_counts)
+        add_test(NAME DLA-BDDC-test-${procs}-procs
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${procs} ${VALGRIND} ${VALGRIND_OPTIONS}
+                         $<TARGET_FILE:${DLA_TEST}> "[PETSc_BDDC]"
+        )
+        set_tests_properties(DLA-BDDC-test-${procs}-procs PROPERTIES PROCESSORS ${procs})
+    endforeach()
+endif()

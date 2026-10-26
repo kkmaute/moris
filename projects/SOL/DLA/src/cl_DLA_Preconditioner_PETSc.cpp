@@ -11,6 +11,7 @@
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Dist_Map_Custom.hpp"
 
 #include "fn_inv.hpp"
 
@@ -580,6 +581,21 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
         PCFactorSetUpMatSolverType( mpc );
     }
 
+    // Generic LU path: choose the factor package through the parameter list.
+    // Unlike the legacy mumps branch, availability is determined by PETSc itself.
+    else if ( mParameterList.get< std::string >( "PCType" ) == "lu" )
+    {
+        PetscCallAbort( PETSC_COMM_WORLD, PCSetType( mpc, PCLU ) );
+        const std::string tSolver = mParameterList.exists( "factor_solver_type" )
+                                          ? mParameterList.get< std::string >( "factor_solver_type" )
+                                          : "";
+
+        if ( !tSolver.empty() )
+        {
+            PetscCallAbort( PETSC_COMM_WORLD, PCFactorSetMatSolverType( mpc, tSolver.c_str() ) );
+        }
+    }
+
     // set direct solver: mumps
     else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mumps" ) )
     {
@@ -637,6 +653,197 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
     {
         this->build_algebaric_multigrid_preconditioner( aLinearSystem );
     }
+    else if ( mParameterList.get< std::string >( "PCType" ) == "bddc" )
+    {
+        // BDDC requires the overlapping subdomain matrices retained by MATIS.
+        Mat       tMatrix  = aLinearSystem->get_matrix()->get_petsc_matrix();
+        PetscBool tIsMATIS = PETSC_FALSE;
+
+        PetscCallAbort( PETSC_COMM_WORLD, PetscObjectTypeCompare( (PetscObject)tMatrix, MATIS, &tIsMATIS ) );
+        MORIS_ERROR( tIsMATIS,
+                "BDDC requires MATIS. Set SOL_PETSc_Mat_Type to is before assembly (or use PETSc -mat_type is)." );
+
+        // Set the preconditioner type before supplying BDDC metadata.
+        MORIS_LOG_INFO( "KSP Preconditioner: bddc" );
+        PetscCallAbort( PETSC_COMM_WORLD, PCSetType( mpc, PCBDDC ) );
+
+        // Overlap maps may include ghost DOFs with no locally integrated terms.
+        // Compress a preconditioning copy so BDDC never factors these empty rows;
+        // retain the original map and matrix for subsequent MORIS reassembly.
+        Mat tLocal;
+        IS  tZeroRows;
+        PetscCallAbort( PETSC_COMM_WORLD, MatISGetLocalMat( tMatrix, &tLocal ) );
+        PetscCallAbort( PETSC_COMM_WORLD, MatFindZeroRows( tLocal, &tZeroRows ) );
+
+        PetscInt tNumZeroRows = 0;
+        if ( tZeroRows )
+        {
+            PetscCallAbort( PETSC_COMM_WORLD, ISGetLocalSize( tZeroRows, &tNumZeroRows ) );
+        }
+
+        PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tZeroRows ) );
+
+        // All ranks must participate in compaction if any rank has empty rows.
+        PetscInt tGlobalZeroRows;
+        MPI_Allreduce( &tNumZeroRows, &tGlobalZeroRows, 1, MPIU_INT, MPI_SUM, PETSC_COMM_WORLD );
+
+        Mat tPreconditioningMatrix = tMatrix;
+
+        if ( tGlobalZeroRows )
+        {
+            // PETSc 3.23's MatISFixLocalEmpty takes different MPIU_Allreduce
+            // call sites when only some ranks have empty rows. Build the compact
+            // MATIS explicitly so every rank follows the same collective sequence.
+            // Retain the union of numerical row/column support for nonsymmetric A.
+            PetscInt tLocalSize;
+            PetscCallAbort( PETSC_COMM_WORLD, MatGetSize( tLocal, &tLocalSize, nullptr ) );
+
+            std::vector< bool > tActive( tLocalSize, false );
+
+            for ( PetscInt i = 0; i < tLocalSize; ++i )
+            {
+                PetscInt           tCount;
+                const PetscInt    *tColumns;
+                const PetscScalar *tValues;
+                PetscCallAbort( PETSC_COMM_WORLD, MatGetRow( tLocal, i, &tCount, &tColumns, &tValues ) );
+
+                for ( PetscInt j = 0; j < tCount; ++j )
+                {
+                    if ( PetscAbsScalar( tValues[ j ] ) > 0.0 )
+                    {
+                        tActive[ i ]             = true;
+                        tActive[ tColumns[ j ] ] = true;
+                    }
+                }
+
+                PetscCallAbort( PETSC_COMM_WORLD, MatRestoreRow( tLocal, i, &tCount, &tColumns, &tValues ) );
+            }
+
+            // Preserve the global IDs associated with the retained local indices.
+            ISLocalToGlobalMapping tOriginalMap;
+            PetscCallAbort( PETSC_COMM_WORLD, MatISGetLocalToGlobalMapping( tMatrix, &tOriginalMap, nullptr ) );
+
+            const PetscInt *tOriginalIds;
+            PetscCallAbort( PETSC_COMM_WORLD, ISLocalToGlobalMappingGetIndices( tOriginalMap, &tOriginalIds ) );
+
+            std::vector< PetscInt > tKeep, tGlobalIds;
+
+            for ( PetscInt i = 0; i < tLocalSize; ++i )
+            {
+                if ( tActive[ i ] )
+                {
+                    tKeep.push_back( i );
+                    tGlobalIds.push_back( tOriginalIds[ i ] );
+                }
+            }
+
+            PetscCallAbort( PETSC_COMM_WORLD, ISLocalToGlobalMappingRestoreIndices( tOriginalMap, &tOriginalIds ) );
+
+            // Extract the active rows and columns from the subdomain matrix.
+            IS tKeepIS;
+            PetscCallAbort( PETSC_COMM_WORLD, ISCreateGeneral( PETSC_COMM_SELF, tKeep.size(), tKeep.data(), PETSC_COPY_VALUES, &tKeepIS ) );
+
+            Mat tCompactLocal;
+            PetscCallAbort( PETSC_COMM_WORLD, MatCreateSubMatrix( tLocal, tKeepIS, tKeepIS, MAT_INITIAL_MATRIX, &tCompactLocal ) );
+
+            // Change the overlap map while preserving the owned global layout.
+            ISLocalToGlobalMapping tCompactMap;
+            PetscCallAbort( PETSC_COMM_WORLD, ISLocalToGlobalMappingCreate( PETSC_COMM_WORLD, 1, tGlobalIds.size(), tGlobalIds.data(), PETSC_COPY_VALUES, &tCompactMap ) );
+
+            PetscInt tOwnedSize, tGlobalSize;
+            PetscCallAbort( PETSC_COMM_WORLD, MatGetLocalSize( tMatrix, &tOwnedSize, nullptr ) );
+            PetscCallAbort( PETSC_COMM_WORLD, MatGetSize( tMatrix, &tGlobalSize, nullptr ) );
+
+            PetscCallAbort( PETSC_COMM_WORLD, MatCreateIS( PETSC_COMM_WORLD, 1, tOwnedSize, tOwnedSize, tGlobalSize, tGlobalSize, tCompactMap, tCompactMap, &tPreconditioningMatrix ) );
+            PetscCallAbort( PETSC_COMM_WORLD, MatISSetLocalMat( tPreconditioningMatrix, tCompactLocal ) );
+            PetscCallAbort( PETSC_COMM_WORLD, MatAssemblyBegin( tPreconditioningMatrix, MAT_FINAL_ASSEMBLY ) );
+            PetscCallAbort( PETSC_COMM_WORLD, MatAssemblyEnd( tPreconditioningMatrix, MAT_FINAL_ASSEMBLY ) );
+
+            // Carry the near-nullspace metadata to the preconditioning copy.
+            MatNullSpace tNearNullSpace;
+            PetscCallAbort( PETSC_COMM_WORLD, MatGetNearNullSpace( tMatrix, &tNearNullSpace ) );
+            PetscCallAbort( PETSC_COMM_WORLD, MatSetNearNullSpace( tPreconditioningMatrix, tNearNullSpace ) );
+
+            // MATIS retains references to its local matrix and map.
+            PetscCallAbort( PETSC_COMM_WORLD, ISLocalToGlobalMappingDestroy( &tCompactMap ) );
+            PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tKeepIS ) );
+            PetscCallAbort( PETSC_COMM_WORLD, MatDestroy( &tCompactLocal ) );
+        }
+
+        // Keep the assembled MORIS matrix as the operator for the linear solve.
+        PetscCallAbort( PETSC_COMM_WORLD, PCSetOperators( mpc, tMatrix, tPreconditioningMatrix ) );
+
+        if ( tGlobalZeroRows )
+        {
+            // PCSetOperators retains the preconditioning matrix.
+            PetscCallAbort( PETSC_COMM_WORLD, MatDestroy( &tPreconditioningMatrix ) );
+        }
+
+        // Obtain the constrained DOFs in the original subdomain ordering.
+        auto *tMorisMatrix = dynamic_cast< Matrix_PETSc * >( aLinearSystem->get_matrix() );
+        MORIS_ERROR( tMorisMatrix, "BDDC requires a MORIS PETSc matrix." );
+
+        auto                   tBoundaryDofs = tMorisMatrix->get_constrained_subdomain_dofs();
+        ISLocalToGlobalMapping tMap;
+        PetscCallAbort( PETSC_COMM_WORLD, MatGetLocalToGlobalMapping( tMatrix, &tMap, nullptr ) );
+
+        // Global boundary numbering remains valid if the preconditioning copy
+        // has removed unused local DOFs and changed its local ordering.
+        PetscCallAbort( PETSC_COMM_WORLD, ISLocalToGlobalMappingApply( tMap, tBoundaryDofs.size(), tBoundaryDofs.data(), tBoundaryDofs.data() ) );
+
+        IS tBoundary;
+        PetscCallAbort( PETSC_COMM_WORLD, ISCreateGeneral( PETSC_COMM_WORLD, tBoundaryDofs.size(), tBoundaryDofs.data(), PETSC_COPY_VALUES, &tBoundary ) );
+        PetscCallAbort( PETSC_COMM_WORLD, PCBDDCSetDirichletBoundaries( mpc, tBoundary ) );
+        PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tBoundary ) );
+
+        // Optionally identify each requested DOF type as a separate BDDC field.
+        if ( mParameterList.exists( "bddc_use_dof_splitting" ) && mParameterList.get< bool >( "bddc_use_dof_splitting" ) )
+        {
+            auto *tInput  = aLinearSystem->get_solver_input();
+            auto *tDofMap = dynamic_cast< Dist_Map_Custom * >( aLinearSystem->get_matrix()->get_map() );
+            MORIS_ERROR( tInput && tDofMap, "BDDC DOF splitting requires a solver interface and a PETSc DOF map." );
+
+            const auto       &tDofTypes = tInput->get_requested_dof_types();
+            std::vector< IS > tFields( tDofTypes.size() );
+
+            // The solver interface supplies owned MORIS IDs; PETSc expects global IDs.
+            for ( uint i = 0; i < tDofTypes.size(); ++i )
+            {
+                Matrix< DDSMat > tIds = tInput->get_my_local_global_map( { tDofTypes( i ) } );
+                tDofMap->map_from_moris_ids_to_petsc_ids( tIds );
+                PetscCallAbort( PETSC_COMM_WORLD, ISCreateGeneral( PETSC_COMM_WORLD, tIds.numel(), tIds.data(), PETSC_COPY_VALUES, &tFields[ i ] ) );
+            }
+
+            PetscCallAbort( PETSC_COMM_WORLD, PCBDDCSetDofsSplitting( mpc, tFields.size(), tFields.data() ) );
+
+            for ( auto &tField : tFields )
+            {
+                PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tField ) );
+            }
+        }
+
+        // Optionally supplement graph vertices with geometric mesh corners.
+        // This is needed for floating elastic subdomains whose physical-boundary
+        // endpoints are not graph vertices. The original AIJ path is unaffected.
+        if ( mParameterList.exists( "bddc_use_subdomain_corners" ) && mParameterList.get< bool >( "bddc_use_subdomain_corners" ) )
+        {
+            auto *tInput = aLinearSystem->get_solver_input();
+            MORIS_ERROR( tInput, "BDDC geometric corners require a solver interface." );
+
+            auto  tCorners = tInput->get_subdomain_corner_dof_ids();
+            auto *tDofMap  = dynamic_cast< Dist_Map_Custom * >( aLinearSystem->get_matrix()->get_map() );
+            MORIS_ERROR( tDofMap, "BDDC geometric corners require a PETSc DOF map." );
+            tDofMap->map_from_moris_ids_to_petsc_ids( tCorners );
+
+            IS tVertices;
+            PetscCallAbort( PETSC_COMM_WORLD, ISCreateGeneral( PETSC_COMM_WORLD, tCorners.numel(), tCorners.data(), PETSC_COPY_VALUES, &tVertices ) );
+            PetscCallAbort( PETSC_COMM_WORLD, PCBDDCSetPrimalVerticesIS( mpc, tVertices ) );
+            PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tVertices ) );
+        }
+
+        // KSPSetFromOptions/SetUp follows this call. Managed BDDC options are
+        // supplied by set_parameter_options; native PETSc overrides remain available.
+    }
     else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "none" ) )
     {
         // Set PC type to none
@@ -646,5 +853,75 @@ void Preconditioner_PETSc::build_preconditioner( Linear_Problem *aLinearSystem, 
     {
         MORIS_ERROR( false,
                 "Linear_Solver_PETSc::construct_solver_and_preconditioner - no valid preconditioner was found." );
+    }
+}
+
+//----------------------------------------------------------------------------------------
+
+void Preconditioner_PETSc::set_parameter_options( PetscOptions aOptions )
+{
+    if ( mParameterList.get< std::string >( "PCType" ) != "bddc" )
+    {
+        return;
+    }
+
+    // PETSc exposes these BDDC switches through its options parser rather than
+    // public setters. Keep the translation here, next to the BDDC implementation,
+    // and honor the PC prefix so independent solvers do not share option names.
+    const char *tPrefix = nullptr;
+    PetscCallAbort( PETSC_COMM_WORLD, PCGetOptionsPrefix( mpc, &tPrefix ) );
+    const std::string tOptionPrefix = "-" + std::string( tPrefix ? tPrefix : "" );
+
+    if ( mParameterList.exists( "use_bddc_defaults" ) && !mParameterList.get< bool >( "use_bddc_defaults" ) )
+    {
+        const struct
+        {
+            const char *mParameter;
+            const char *mOption;
+        } tBDDCOptions[] = {
+            { "bddc_symmetric", "pc_bddc_symmetric" },
+            { "bddc_detect_disconnected", "pc_bddc_detect_disconnected" },
+            { "bddc_use_vertices", "pc_bddc_use_vertices" },
+            { "bddc_use_edges", "pc_bddc_use_edges" },
+            { "bddc_use_faces", "pc_bddc_use_faces" },
+            { "bddc_use_stiffness_scaling", "pc_is_use_stiffness_scaling" },
+            { "bddc_use_deluxe_scaling", "pc_bddc_use_deluxe_scaling" },
+            { "bddc_sub_schurs_symmetric", "sub_schurs_symmetric" },
+            { "bddc_sub_schurs_posdef", "sub_schurs_posdef" }
+        };
+
+        // The sub_schurs options use the PC prefix directly; PETSc does not
+        // prepend pc_bddc_ to their names.
+        for ( const auto &tOption : tBDDCOptions )
+        {
+            const char *tValue = mParameterList.get< bool >( tOption.mParameter ) ? "true" : "false";
+            PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsSetValue( aOptions, ( tOptionPrefix + tOption.mOption ).c_str(), tValue ) );
+        }
+    }
+
+    const char *tParameters[] = { "bddc_dirichlet_solver", "bddc_neumann_solver", "bddc_coarse_solver" };
+    const char *tOptions[]    = { "pc_bddc_dirichlet_pc_factor_mat_solver_type",
+           "pc_bddc_neumann_pc_factor_mat_solver_type",
+           "pc_bddc_coarse_pc_factor_mat_solver_type" };
+
+    for ( uint i = 0; i < 3; ++i )
+    {
+        if ( !mParameterList.exists( tParameters[ i ] ) )
+        {
+            continue;
+        }
+
+        const auto &tSolver = mParameterList.get< std::string >( tParameters[ i ] );
+
+        if ( !tSolver.empty() )
+        {
+            PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsSetValue( aOptions, ( tOptionPrefix + tOptions[ i ] ).c_str(), tSolver.c_str() ) );
+
+            if ( i == 2 )
+            {
+                // An explicitly selected coarse factor package requires LU.
+                PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsSetValue( aOptions, ( tOptionPrefix + "pc_bddc_coarse_pc_type" ).c_str(), "lu" ) );
+            }
+        }
     }
 }

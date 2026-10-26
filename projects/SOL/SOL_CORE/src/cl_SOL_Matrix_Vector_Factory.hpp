@@ -12,6 +12,7 @@
 #define SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_
 
 #include <memory>
+#include <string>
 #include "cl_Matrix.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_SOL_Enums.hpp"
@@ -36,10 +37,11 @@ namespace moris
             Matrix_Vector_Factory( const enum MapType aMapType = MapType::Epetra );
 
             Dist_Matrix *create_matrix(
-                    Solver_Interface *aInput,
-                    Dist_Map         *aMap,
-                    bool              aPointMap   = false,
-                    bool              aBuildGraph = false );
+                    Solver_Interface  *aInput,
+                    Dist_Map          *aMap,
+                    bool               aPointMap        = false,
+                    bool               aBuildGraph      = false,
+                    const std::string &aPETScMatrixType = "aij" );
 
             Dist_Matrix *create_matrix(
                     Dist_Map *aRowMap,
@@ -92,7 +94,7 @@ namespace moris
              * @param aMyGlobalIds Owned global IDs
              * @return Distributed map
              */
-            Dist_Map* create_map( const Vector< sint >& aMyGlobalIds );
+            Dist_Map *create_map( const Vector< sint > &aMyGlobalIds );
 
             /**
              * Creates a distributed vector map specifically for full vector

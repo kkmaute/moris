@@ -1,0 +1,131 @@
+/** \page dla_bddc PETSc BDDC preconditioning
+
+Select PETSc as the solver backend and set these MORIS parameters:
+
+\code{.cpp}
+// Solver warehouse parameter list:
+tWarehouse.set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
+tWarehouse.set( "SOL_PETSc_Mat_Type", "is" );
+
+// PETSc preconditioner parameter list, referenced by the linear algorithm:
+tPreconditioner.set( "PCType", "bddc" );
+
+// PETSc linear algorithm parameter list:
+tLinearAlgorithm.set( "KSPType", "fgmres" );
+\endcode
+
+SOL_PETSc_Mat_Type defaults to "aij". Existing AIJ assembly and preconditioners
+remain available. BDDC requires "is" (MATIS), selected before matrix construction;
+selecting BDDC with AIJ reports an error. Direct Matrix_PETSc construction also
+accepts "is" as its third argument. PETSc's -mat_type is option overrides the
+constructor selection, but is global and can affect auxiliary matrices; prefer
+the warehouse parameter for production runs.
+
+Each MPI rank supplies its local element/integration contributions once. Its
+owned-and-shared DOF map must contain all DOFs in those contributions. Shared
+DOFs have the same PETSc global ID on all ranks, while the local MATIS matrix
+includes both owned and shared DOFs. Ghost elements must not duplicate physical
+contributions. MATIS uses the same global vector ownership as AIJ. If the overlap
+map contains ghost DOFs without local contributions, BDDC uses a compressed
+preconditioning copy; the original MATIS map is retained for reassembly.
+
+The implementation supports both element-by-element graph construction and
+owned-row sparsity preallocation through MatISSetPreallocation. The latter
+scatters the global row counts to the subdomains and may overallocate. Repeated
+assembly zeros the existing local matrix values and preserves the graph.
+
+Strongly constrained DOFs retained in the global system receive unit rows and
+columns; their Newton-correction RHS must be zero. The constraint flags are
+communicated to all subdomains, and Dirichlet indices are supplied to BDDC.
+Nonzero essential data must already be treated consistently in the residual.
+Weak boundary terms continue to be assembled as element contributions.
+
+BDDC tuning belongs to the PETSc preconditioner parameter list:
+
+\code{.cpp}
+tPreconditioner.set( "use_bddc_defaults", false );
+tPreconditioner.set( "bddc_symmetric", true );
+tPreconditioner.set( "bddc_detect_disconnected", true );
+tPreconditioner.set( "bddc_use_vertices", true );
+tPreconditioner.set( "bddc_use_edges", true );
+tPreconditioner.set( "bddc_use_faces", true );
+tPreconditioner.set( "bddc_use_stiffness_scaling", true );
+tPreconditioner.set( "bddc_dirichlet_solver", "mumps" );
+tPreconditioner.set( "bddc_neumann_solver", "mumps" );
+// Select a parallel coarse factor package only for a nonempty coarse problem.
+tPreconditioner.set( "bddc_coarse_solver", "mumps" );
+\endcode
+
+use_bddc_defaults defaults to true, preserving native PETSc switches for existing
+inputs. Set it to false to apply managed boolean switches, including the deluxe/sub-Schur
+settings below. Empty
+factor-package strings retain PETSc defaults regardless of use_bddc_defaults.
+A nonempty bddc_coarse_solver also selects LU for the coarse problem; leave it
+empty for the serial example's potentially empty coarse problem. PETSc must have
+been built with any requested factor package. For a general direct AIJ solve,
+use PCType = "lu" and factor_solver_type = "mumps" (or another PETSc factor package).
+The legacy PCType = "mumps" path remains available with its existing behavior.
+
+These options are translated in cl_DLA_Preconditioner_PETSc.cpp because PETSc
+exposes several switches only through its options parser. The linear solver
+pushes a temporary options database during KSPSetFromOptions and KSPSetUp, so
+nested Dirichlet, Neumann, and coarse solvers receive the settings without
+leaking them to other MORIS solvers. Prefixes are honored, and explicit native
+PETSc options override managed parameter values. For nonsymmetric problems set
+bddc_symmetric to false with use_bddc_defaults = false. Native -pc_bddc_* options
+remain available as expert overrides.
+
+For strongly varying interface stiffness (material jumps, cut cells, or ghost
+penalties), start with bddc_use_stiffness_scaling = true. Deluxe scaling instead
+uses local interface Schur complements. PETSc's sub-Schur symmetry and positive-
+definiteness assumptions are independent of bddc_symmetric. For a nonsymmetric
+coupled problem such as the thermoelastic pressure vessel, use:
+
+\code{.cpp}
+tPreconditioner.set( "use_bddc_defaults", false );
+tPreconditioner.set( "bddc_symmetric", false );
+tPreconditioner.set( "bddc_use_deluxe_scaling", true );
+tPreconditioner.set( "bddc_sub_schurs_symmetric", false );
+tPreconditioner.set( "bddc_sub_schurs_posdef", false );
+\endcode
+
+The new defaults are deluxe off and both sub-Schur assumptions true, matching
+PETSc. Their native option names are -pc_bddc_use_deluxe_scaling,
+-sub_schurs_symmetric, and -sub_schurs_posdef, all preceded by the PC prefix.
+Deluxe weights supersede diagonal stiffness weights when enabled. The pressure-
+vessel parallel tests use MUMPS for robust pivoting; simply enabling deluxe with
+its SPD assumptions caused a zero-pivot Cholesky failure in PETSc 3.23.2.
+Adaptive spectral constraints documented by PETSc require an SPD problem; do not
+assume that recipe applies to a full nonsymmetric thermoelastic operator.
+
+KSPErrorIfNotConverged, KSPMonitorTrueResidual, and KSPConvergedReason belong to
+the PETSc linear algorithm list and default to false for backward compatibility.
+SOL_PETSc_Log_File belongs to the solver warehouse; a nonempty filename starts
+PETSc logging and writes its event table at finalization. SOL_PETSc_Options is
+an optional warehouse string for expert overrides; ordinary BDDC inputs should
+use the named preconditioner and linear-algorithm parameters.
+
+The implementation uses PETSc's default interface constraints. Set the PETSc
+preconditioner parameter bddc_use_dof_splitting to true to construct separate
+constraints for each requested physical DOF type, using MORIS's owned DOF maps.
+This is useful for coupled problems with multiple displacement/temperature fields.
+For Cartesian nodal FEM subdomains, bddc_use_subdomain_corners optionally
+supplements graph vertices with geometric corners obtained from MTK/MSI metadata.
+It requires one active unit-weight coefficient at each corner and is disabled by
+default. See projects/EXA/structure/linear/bddc for HMR/FEM examples and tests.
+
+Rigid-body modes and other custom primal constraints are not derived automatically;
+these may be needed for robust elasticity, enriched, or high-contrast problems. Disconnected subdomains may require
+-pc_bddc_detect_disconnected.
+
+Regression test: run DLA-test with the Catch filter [PETSc_BDDC] using 1, 2, and
+4 MPI ranks. It compares AIJ/MATIS actions with an analytic assembled operator,
+checks column-major nonsymmetric element input, and solves with BDDC after
+repeated assembly, with and without retained Dirichlet DOFs.
+
+PETSc references:
+https://petsc.org/release/manualpages/Mat/MATIS/
+https://petsc.org/release/manualpages/Mat/MatISSetPreallocation/
+https://petsc.org/release/manualpages/PC/PCBDDC/
+https://github.com/petsc/petsc/blob/v3.23.2/src/ksp/pc/impls/bddc/bddcschurs.c
+*/

@@ -39,7 +39,7 @@ fn_KSPMonitorResidual( KSP ksp, PetscInt n, PetscReal rnorm, void *dummy )
 
 //----------------------------------------------------------------------------------------
 
-Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::Parameter_List& aParameterlist )
+Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::Parameter_List &aParameterlist )
         : Linear_Solver_Algorithm_Petsc( aParameterlist )
 {
 }
@@ -96,8 +96,8 @@ Linear_Solver_PETSc::solve_linear_system(
 
     this->compute_eigenspectrum( aLinearSystem );
 
-    Mat tRHSVecs = static_cast< MultiVector_PETSc* >( aLinearSystem->get_solver_RHS() )->get_petsc_vector();
-    Mat tLHSVecs = static_cast< MultiVector_PETSc* >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector();
+    Mat tRHSVecs = static_cast< MultiVector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector();
+    Mat tLHSVecs = static_cast< MultiVector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector();
 
     for ( uint iNumRHS = 0; iNumRHS < mSolverInterface->get_num_rhs(); iNumRHS++ )
     {
@@ -110,7 +110,7 @@ Linear_Solver_PETSc::solve_linear_system(
         VecAssemblyBegin( tLHSVec );
         VecAssemblyEnd( tLHSVec );
 
-        KSPSolve( mPetscKSPProblem,tRHSVec,tLHSVec );
+        PetscCallAbort( PETSC_COMM_WORLD, KSPSolve( mPetscKSPProblem, tRHSVec, tLHSVec ) );
         MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
         MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
     }
@@ -191,11 +191,58 @@ void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *a
     // set convergence options
     this->set_solver_analysis_options();
 
-    // finalize solver setup
-    KSPSetFromOptions( mPetscKSPProblem );
+    // Some BDDC controls have no public setters. Supply managed parameters to
+    // a temporary options database while PETSc constructs the complete solver
+    // hierarchy, including its local and coarse KSPs. No settings leak to the
+    // next solver. Explicit native options override MORIS parameter defaults.
+    PetscOptions tOptions;
+    PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsCreate( &tOptions ) );
 
-    // finalize solver setup
-    KSPSetUp( mPetscKSPProblem );
+    if ( mPreconditioner != nullptr )
+    {
+        mPreconditioner->set_parameter_options( tOptions );
+    }
+
+    const char *tPrefix = nullptr;
+    PetscCallAbort( PETSC_COMM_WORLD, KSPGetOptionsPrefix( mPetscKSPProblem, &tPrefix ) );
+    const std::string tOptionPrefix  = "-" + std::string( tPrefix ? tPrefix : "" );
+    const char       *tParameters[]  = { "KSPErrorIfNotConverged", "KSPMonitorTrueResidual", "KSPConvergedReason" };
+    const char       *tOptionNames[] = { "ksp_error_if_not_converged", "ksp_monitor_true_residual", "ksp_converged_reason" };
+
+    for ( uint i = 0; i < 3; ++i )
+    {
+        if ( mParameterList.exists( tParameters[ i ] ) && mParameterList.get< bool >( tParameters[ i ] ) )
+        {
+            PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsSetValue( tOptions, ( tOptionPrefix + tOptionNames[ i ] ).c_str(), nullptr ) );
+        }
+    }
+
+    char *tManagedOptions = nullptr;
+    PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsGetAll( tOptions, &tManagedOptions ) );
+    const bool tHasManagedOptions = tManagedOptions && tManagedOptions[ 0 ] != '\0';
+    PetscCallAbort( PETSC_COMM_WORLD, PetscFree( tManagedOptions ) );
+
+    if ( tHasManagedOptions )
+    {
+        char *tNativeOptions = nullptr;
+        PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsGetAll( nullptr, &tNativeOptions ) );
+        PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsInsertString( tOptions, tNativeOptions ) );
+        PetscCallAbort( PETSC_COMM_WORLD, PetscFree( tNativeOptions ) );
+
+        PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsPush( tOptions ) );
+        PetscCallAbort( PETSC_COMM_WORLD, KSPSetFromOptions( mPetscKSPProblem ) );
+        PetscCallAbort( PETSC_COMM_WORLD, KSPSetUp( mPetscKSPProblem ) );
+        PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsPop() );
+    }
+    else
+    {
+        // Keep the original database, including native option-usage tracking,
+        // when an existing input has not enabled any managed settings.
+        PetscCallAbort( PETSC_COMM_WORLD, KSPSetFromOptions( mPetscKSPProblem ) );
+        PetscCallAbort( PETSC_COMM_WORLD, KSPSetUp( mPetscKSPProblem ) );
+    }
+
+    PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsDestroy( &tOptions ) );
 
     // KSPSetComputeEigenvalues(mPetscKSPProblem,PETSC_TRUE);
 

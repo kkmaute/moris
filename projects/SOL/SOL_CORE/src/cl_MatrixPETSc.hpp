@@ -14,6 +14,8 @@
 // C++ system files
 #include <cstdio>
 #include <iostream>
+#include <string>
+#include <vector>
 
 // MORIS header files.
 #include "cl_Matrix.hpp"
@@ -35,6 +37,15 @@ namespace moris
       private:
         moris::Matrix< DDUMat > mDirichletBCVec;
 
+        // Owned-and-shared subdomain numbering; null for the AIJ path.
+        ISLocalToGlobalMapping mSubdomainMap = nullptr;
+
+        // Global flag keeps constraint elimination collective across all ranks.
+        bool mHasConstrainedDofs = false;
+
+        // Convert PETSc global IDs to subdomain indices, retaining negative sentinels.
+        void map_to_subdomain( Matrix< DDSMat >& aIds ) const;
+
         void dirichlet_BC_vector(
                 moris::Matrix< DDUMat >&       aDirichletBCVec,
                 const moris::Matrix< DDUMat >& aMyConstraintDofs ) override;
@@ -45,10 +56,14 @@ namespace moris
         /** Default constructor */
         Matrix_PETSc(
                 moris::Solver_Interface* aInput,
-                sol::Dist_Map*           aMap );
+                sol::Dist_Map*           aMap,
+                const std::string&       aMatrixType = "aij" );
 
         Matrix_PETSc( const moris::uint aRows,
                 const moris::uint       aCols );
+
+        // Constrained DOFs in the MATIS local ordering, for BDDC boundary metadata.
+        std::vector< PetscInt > get_constrained_subdomain_dofs() const;
 
         /** Destructor */
         ~Matrix_PETSc() override;
@@ -126,10 +141,10 @@ namespace moris
 
         /**
          * @brief Multiply the input multivector and store it in the result multivector
-         * 
-         * @param aInputVec 
-         * @param aResult 
-         * @param aUseTranspose 
+         *
+         * @param aInputVec
+         * @param aResult
+         * @param aUseTranspose
          */
         void
         mat_vec_product(
@@ -141,9 +156,9 @@ namespace moris
 
         void save_matrix_to_matlab_file( const char* aFilename ) override;
 
-        void save_matrix_to_matrix_market_file( const char* aFilename ) override{};
+        void save_matrix_to_matrix_market_file( const char* aFilename ) override {};
 
-        void save_matrix_map_to_matrix_market_file( const char* aFilename ) override{};
+        void save_matrix_map_to_matrix_market_file( const char* aFilename ) override {};
 
         // ----------------------------------------------------------------------------
 

@@ -28,6 +28,13 @@ namespace moris::prm
         // TPL type. can be epetra or petsc
         tSolverWarehouseList.insert_enum( "SOL_TPL_Type", sol::MapType_String::values );
 
+        // PETSc system matrix storage: aij (default) or is (required by BDDC).
+        tSolverWarehouseList.insert( "SOL_PETSc_Mat_Type", std::string( "aij" ) );
+
+        // Optional PETSc-wide diagnostics and expert overrides; empty preserves defaults.
+        tSolverWarehouseList.insert( "SOL_PETSc_Log_File", std::string( "" ) );
+        tSolverWarehouseList.insert( "SOL_PETSc_Options", std::string( "" ) );
+
         // save operator to matlab file
         tSolverWarehouseList.insert( "SOL_save_operator_to_matlab", std::string( "" ) );
 
@@ -190,7 +197,10 @@ namespace moris::prm
         aParameterlist.set( "Preconditioner_Implementation", sol::PreconditionerType::PETSC );
 
         // Set default preconditioner
-        aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "ilu", "mg", "asm", "mat", "gamg", "none"
+        aParameterlist.insert( "PCType", std::string( "ilu" ) );    // "superlu-dist", "mumps", "lu", "ilu", "mg", "asm", "mat", "gamg", "bddc", "none"
+
+        // Optional factor package for PCType = lu (e.g. mumps); empty uses PETSc's default.
+        aParameterlist.insert( "factor_solver_type", std::string( "" ) );
 
         // Sets the number of levels of fill to use for ILU
         aParameterlist.insert( "ILUFill", 0 );
@@ -215,6 +225,35 @@ namespace moris::prm
 
         // GAMG preconditioner
         aParameterlist.insert( "num_pde_equations", (sint)1 );
+
+        // Split BDDC interface constraints by the requested physical DOF types.
+        aParameterlist.insert( "bddc_use_dof_splitting", false );
+
+        // Select Cartesian corners from nodal FEM mesh metadata (optional).
+        aParameterlist.insert( "bddc_use_subdomain_corners", false );
+
+        // Leave existing BDDC configurations unchanged unless managed tuning is enabled.
+        aParameterlist.insert( "use_bddc_defaults", true );
+        aParameterlist.insert( "bddc_symmetric", true );
+        aParameterlist.insert( "bddc_detect_disconnected", false );
+        aParameterlist.insert( "bddc_use_vertices", true );
+        aParameterlist.insert( "bddc_use_edges", true );
+        aParameterlist.insert( "bddc_use_faces", false );
+        aParameterlist.insert( "bddc_use_stiffness_scaling", false );
+
+        // Deluxe scaling has separate sub-Schur symmetry/definiteness assumptions.
+        // Nonsymmetric coupled operators must disable both, independently of the
+        // symmetry setting used to construct the BDDC coarse basis.
+        aParameterlist.insert( "bddc_use_deluxe_scaling", false );
+        aParameterlist.insert( "bddc_sub_schurs_symmetric", true );
+        aParameterlist.insert( "bddc_sub_schurs_posdef", true );
+
+        // Empty factor packages retain PETSc defaults. Select a parallel coarse
+        // package only when the coarse problem is nonempty (not in serial examples).
+        aParameterlist.insert( "bddc_dirichlet_solver", std::string( "" ) );
+        aParameterlist.insert( "bddc_neumann_solver", std::string( "" ) );
+        aParameterlist.insert( "bddc_coarse_solver", std::string( "" ) );
+
         aParameterlist.insert( "amg_type", "agg" );
         aParameterlist.insert( "use_gamg_defaults", true );
     }
@@ -659,6 +698,11 @@ namespace moris::prm
 
         // Sets tolerance for KSP
         tLinAlgorithmParameterList.insert( "KSPTol", 1e-10 );
+
+        // Optional solver diagnostics; default values preserve existing behavior.
+        tLinAlgorithmParameterList.insert( "KSPErrorIfNotConverged", false );
+        tLinAlgorithmParameterList.insert( "KSPMonitorTrueResidual", false );
+        tLinAlgorithmParameterList.insert( "KSPConvergedReason", false );
 
         // Sets the number of levels of fill to use for ILU
         tLinAlgorithmParameterList.insert( "ILUFill", 0 );

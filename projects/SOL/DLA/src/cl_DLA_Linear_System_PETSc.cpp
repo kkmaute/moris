@@ -54,11 +54,11 @@ Linear_System_PETSc::Linear_System_PETSc(
         // create map object
         mMap = tMatFactory.create_map(
                 aInput->get_my_local_global_map(),
-                aInput->get_my_local_global_overlapping_map()  );   
+                aInput->get_my_local_global_overlapping_map() );
 
         mMapFree = tMatFactory.create_full_map(
                 aInput->get_my_local_global_map(),
-                aInput->get_my_local_global_overlapping_map() );    
+                aInput->get_my_local_global_overlapping_map() );
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMap );
@@ -104,7 +104,7 @@ Linear_System_PETSc::Linear_System_PETSc(
     sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
     // Build matrix
-    mMat = tMatFactory.create_matrix( aInput, aFreeMap );
+    mMat = tMatFactory.create_matrix( aInput, aFreeMap, false, false, aSolverWarehouse->get_petsc_matrix_type() );
 
     uint tNumRHS = aInput->get_num_rhs();
 
@@ -114,7 +114,7 @@ Linear_System_PETSc::Linear_System_PETSc(
     mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
     mPointVectorLHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
 
-    mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap , tNumRHS);
+    mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHS );
 
     // start timer
     tic tTimer;
@@ -162,7 +162,6 @@ Linear_System_PETSc::~Linear_System_PETSc()
         delete mMassMat;
         mMassMat = nullptr;
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -209,7 +208,7 @@ Linear_System_PETSc::solve_linear_system()
     for ( uint iNumRHS = 0; iNumRHS < mSolverInterface->get_num_rhs(); iNumRHS++ )
     {
         Vec tRHSVec, tLHSVec;
-        
+
         MatDenseGetColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
         MatDenseGetColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
 
@@ -219,7 +218,7 @@ Linear_System_PETSc::solve_linear_system()
         VecAssemblyBegin( tLHSVec );
         VecAssemblyEnd( tLHSVec );
 
-        KSPSolve( tPetscKSPProblem,tRHSVec,tLHSVec );
+        KSPSolve( tPetscKSPProblem, tRHSVec, tLHSVec );
 
         MatDenseRestoreColumnVec( tRHSVecs, iNumRHS, &tRHSVec );
         MatDenseRestoreColumnVec( tLHSVecs, iNumRHS, &tLHSVec );
@@ -233,8 +232,7 @@ Linear_System_PETSc::solve_linear_system()
 
 //------------------------------------------------------------------------------
 
-void
-Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
+void Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
 {
     mPointVectorLHS->extract_copy( LHSValues );
 }
@@ -243,13 +241,13 @@ Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
 
 void Linear_System_PETSc::construct_rhs_matrix()
 {
-       //delete the previous mass matrix if it exits
+    // delete the previous mass matrix if it exits
     if ( mMassMat != nullptr )
     {
         delete mMassMat;
         mMassMat = nullptr;
     }
-    
+
     // use copy constructor to create mass matrix
     sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 

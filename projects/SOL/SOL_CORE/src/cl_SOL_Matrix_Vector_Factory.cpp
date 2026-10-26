@@ -35,11 +35,13 @@ namespace moris::sol
 
     Dist_Matrix*
     sol::Matrix_Vector_Factory::create_matrix(
-            Solver_Interface* aInput,
-            Dist_Map*         aMap,
-            bool              aPointMap,
-            bool              aBuildGraph )
+            Solver_Interface*  aInput,
+            Dist_Map*          aMap,
+            bool               aPointMap,
+            bool               aBuildGraph,
+            const std::string& aPETScMatrixType )
     {
+        (void)aPETScMatrixType;
         Dist_Matrix* tSparseMatrix = nullptr;
 
         switch ( mMapType )
@@ -52,67 +54,67 @@ namespace moris::sol
             case MapType::Petsc:
             {
 #ifdef MORIS_HAVE_PETSC
-                    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+                tSparseMatrix = new Matrix_PETSc( aInput, aMap, aPETScMatrixType );
 #else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No matrix type specified." );
-                    break;
-                }
+                break;
             }
-            return tSparseMatrix;
-        }
-
-        //-------------------------------------------------------------------------------------------
-
-        Dist_Matrix*
-        sol::Matrix_Vector_Factory::create_matrix(
-                Dist_Map* aRowMap,
-                Dist_Map* aColMap )
-        {
-            Dist_Matrix* tSparseMatrix = nullptr;
-
-            switch ( mMapType )
+            default:
             {
-                case MapType::Epetra:
-                {
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
-                    break;
-                }
-                // case (MapType::Petsc):
-                //     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
-                //     break;
-                default:
-                {
-                    MORIS_ERROR( false, "No matrix type specified." );
-                    break;
-                }
+                MORIS_ERROR( false, "No matrix type specified." );
+                break;
             }
-            return tSparseMatrix;
         }
+        return tSparseMatrix;
+    }
 
-        //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
 
-        Dist_Matrix*
-        sol::Matrix_Vector_Factory::create_matrix(
-                const uint aRows,
-                const uint aCols )
+    Dist_Matrix*
+    sol::Matrix_Vector_Factory::create_matrix(
+            Dist_Map* aRowMap,
+            Dist_Map* aColMap )
+    {
+        Dist_Matrix* tSparseMatrix = nullptr;
+
+        switch ( mMapType )
         {
-            Dist_Matrix* tSparseMatrix = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
-                    break;
-                }
-                case MapType::Petsc:
-                {
+                tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
+                break;
+            }
+            // case (MapType::Petsc):
+            //     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+            //     break;
+            default:
+            {
+                MORIS_ERROR( false, "No matrix type specified." );
+                break;
+            }
+        }
+        return tSparseMatrix;
+    }
+
+    //-------------------------------------------------------------------------------------------
+
+    Dist_Matrix*
+    sol::Matrix_Vector_Factory::create_matrix(
+            const uint aRows,
+            const uint aCols )
+    {
+        Dist_Matrix* tSparseMatrix = nullptr;
+
+        switch ( mMapType )
+        {
+            case MapType::Epetra:
+            {
+                tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
+                break;
+            }
+            case MapType::Petsc:
+            {
 #ifdef MORIS_HAVE_PETSC
                     tSparseMatrix = new Matrix_PETSc( aRows, aCols );
 #else

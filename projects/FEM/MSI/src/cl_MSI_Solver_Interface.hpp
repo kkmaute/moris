@@ -397,6 +397,10 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            Matrix< DDSMat > get_subdomain_corner_dof_ids() override;
+
+            //------------------------------------------------------------------------------
+
             void
             get_equation_object_operator(
                     const moris::uint& aMyElementInd,
