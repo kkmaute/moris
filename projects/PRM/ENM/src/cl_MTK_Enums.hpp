@@ -286,7 +286,7 @@ namespace moris::mtk
         FIELD_7,
         FIELD_8,
         FIELD_9,
-        FIELD_10, // BRENDAN ?????
+        FIELD_10,
         FIELD_11,
         FIELD_12,
         FIELD_13,

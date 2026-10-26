@@ -50,7 +50,6 @@ namespace moris::prm
         tGENParameterList.insert( "diagnostics", false );
         tGENParameterList.insert( "diagnostics_id", "" );
         tGENParameterList.insert( "diagnostics_path", "" );
-
         return tGENParameterList;
     }
 

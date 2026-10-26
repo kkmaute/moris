@@ -132,8 +132,7 @@ namespace moris::MSI
 
         delete mdQIdpMap;
 
-        mdQIdpMap = tMatFactory.create_map(
-                mDesignVariableInterface->get_my_local_global_map() );
+        mdQIdpMap = tMatFactory.create_map( mDesignVariableInterface->get_owned_ADV_IDs() );
 
         // get number of requested iqis
         uint tNumIQIs = this->get_num_IQIs();

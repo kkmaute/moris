@@ -31,7 +31,7 @@ namespace moris::fem
         /**
          * trivial constructor
          */
-        Element_Bulk(){};
+        Element_Bulk() {};
 
         /**
          * constructor
@@ -152,6 +152,12 @@ namespace moris::fem
          * using the mesh only
          */
         void init_ig_geometry_interpolator();
+
+        /**
+         * initialize the geometry interpolator for the IG element
+         * using the mesh only
+         */
+        void init_adjoint_ig_geometry_interpolator();
     };
 
     //------------------------------------------------------------------------------

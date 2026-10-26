@@ -30,9 +30,10 @@
 #include "cl_FEM_Set.hpp"        //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"    //FEM/INT/src
 
+#include "cl_MSI_Equation_Model.hpp"    //FEM/MSI/src
+
 namespace moris::fem
 {
-    class Set;
     //------------------------------------------------------------------------------
     /**
      * \brief element class that communicates with the mesh interface
@@ -119,7 +120,7 @@ namespace moris::fem
         /**
          * trivial constructor
          */
-        Element(){};
+        Element() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -180,7 +181,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        virtual ~Element(){};
+        virtual ~Element() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -594,9 +595,99 @@ namespace moris::fem
             MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
             return 0.0;
         }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_ig_field_interpolator_coefficients()
+        {
+            if ( !mSet->mEquationModel->is_forward_analysis() )
+            {                                                                                                          // get leader dv type list from set
+                Vector< gen::PDV_Type > tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );    // note this makes a copy
+                Vector< gen::PDV_Type > tIGDvTypeList;
+
+                // Find DXDP in the leader list
+                for ( uint iDv = 0; iDv < tLeaderDvTypeList.size(); ++iDv )
+                {
+                    if ( tLeaderDvTypeList( iDv ) == gen::PDV_Type::DXDP )
+                    {
+                        tIGDvTypeList.push_back( tLeaderDvTypeList( iDv ) );
+                        tLeaderDvTypeList.erase( tLeaderDvTypeList.begin() + iDv );
+                        break;
+                    }
+                }
+
+                // dv interpolators
+                if ( tIGDvTypeList.size() > 0 )
+                {
+                    // Get the vertex inds and convert them to a vector
+                    Matrix< DDSMat > tInds = mLeaderCell->get_vertex_inds();
+
+                    // set field interpolator coefficients
+                    for ( uint i = 0; i < tIGDvTypeList.size(); i++ )
+                    {
+                        Matrix< DDRMat > tCoeff = mSet->get_equation_model()->get_design_variable_interface()->get_dxdp( tInds, 0 );    // BRENDAN hard coded ADV 1
+
+                        mSet->get_field_interpolator_manager()->set_coeff_for_type( tIGDvTypeList( i ), tCoeff );
+
+                        if ( not mSet->mEquationModel->is_forward_analysis() )
+                        {
+                            mSet->get_field_interpolator_manager_adjoint_vectors()->set_coeff_for_type( tIGDvTypeList( i ), tCoeff );
+                        }
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_ig_field_interpolator_coefficients( uint aSideOrdinal )
+        {
+            if ( !mSet->mEquationModel->is_forward_analysis() )
+            {                                                                                                          // get leader dv type list from set
+                Vector< gen::PDV_Type > tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );    // note this makes a copy
+                Vector< gen::PDV_Type > tIGDvTypeList;
+
+                // Find DXDP in the leader list
+                for ( uint iDv = 0; iDv < tLeaderDvTypeList.size(); ++iDv )
+                {
+                    if ( tLeaderDvTypeList( iDv ) == gen::PDV_Type::DXDP )
+                    {
+                        tIGDvTypeList.push_back( tLeaderDvTypeList( iDv ) );
+                        tLeaderDvTypeList.erase( tLeaderDvTypeList.begin() + iDv );
+                        break;
+                    }
+                }
+
+                // dv interpolators
+                if ( tIGDvTypeList.size() > 0 )
+                {
+                    // get the vertices indices for IG element
+                    Matrix< IndexMat > tVertexIndices = mLeaderCell->get_vertices_ind_on_side_ordinal( aSideOrdinal );
+                    Matrix< IndexMat > tGENIndices    = mCluster->get_sensitivity_vertex_index_from_vis_index( tVertexIndices );
+
+                    // get new geo asssembly indices
+                    mSet->create_geo_adv_assembly_data( tGENIndices );
+
+                    // set field interpolator coefficients
+                    for ( uint i = 0; i < tIGDvTypeList.size(); i++ )
+                    {
+                        Matrix< DDRMat > tCoeff = mSet->get_equation_model()->get_design_variable_interface()->get_dxdp( tGENIndices, 0 );    // BRENDAN hard coded ADV 1
+
+                        mSet->get_field_interpolator_manager()->set_coeff_for_type( tIGDvTypeList( i ), tCoeff );
+
+                        if ( not mSet->mEquationModel->is_forward_analysis() )
+                        {
+                            mSet->get_field_interpolator_manager_adjoint_vectors()->set_coeff_for_type( tIGDvTypeList( i ), tCoeff );
+                        }
+                    }
+                }
+            }
+        }
     };
 
-    //------------------------------------------------------------------------------
-}    // namespace moris::fem
+};    // namespace moris::fem
 
+//------------------------------------------------------------------------------
 #endif /* SRC_FEM_CL_FEM_ELEMENT_HPP_ */

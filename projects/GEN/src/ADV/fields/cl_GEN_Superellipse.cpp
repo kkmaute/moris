@@ -46,9 +46,7 @@ namespace moris::gen
         real tRegularization = mADVHandler.get_variable( 6 );
 
         // Evaluate field
-        real tConstant = pow(
-                                 pow( ( aCoordinates( 0 ) - tXCenter ) / tXSemidiameter, tExponent ) + pow( ( aCoordinates( 1 ) - tYCenter ) / tYSemidiameter, tExponent ) + pow( tRegularization, tExponent ), 1.0 / tExponent )
-                       - tRegularization;
+        real tConstant = pow( pow( ( aCoordinates( 0 ) - tXCenter ) / tXSemidiameter, tExponent ) + pow( ( aCoordinates( 1 ) - tYCenter ) / tYSemidiameter, tExponent ) + pow( tRegularization, tExponent ), 1.0 / tExponent ) - tRegularization;
 
         real tLevelset = tScaling * ( tConstant - 1.0 );
 

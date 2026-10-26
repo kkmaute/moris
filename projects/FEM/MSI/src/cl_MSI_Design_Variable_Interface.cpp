@@ -214,4 +214,17 @@ namespace moris::MSI
     }
     //------------------------------------------------------------------------------
 
+    Matrix< DDRMat > Design_Variable_Interface::get_dxdp( const Matrix< DDSMat >& aNodeIndices, uint aADVID ) const
+    {
+        // Initialize the dxdp matrix
+        Matrix< DDRMat > tDxDp( 1, 1, 0.0 );
+
+        MORIS_ERROR( false, "Design_Variable_Interface::get_dxdp - This function should be implemented in a derived class to return the dxdp sensitivities." );
+
+        return tDxDp;
+    }
+
+    //------------------------------------------------------------------------------
+
+
 }    // namespace moris::MSI

@@ -50,6 +50,8 @@ namespace moris::gen
         Vector< std::shared_ptr< Geometry > > mGeometries;
         Vector< std::shared_ptr< Property > > mProperties;
 
+        uint mNumCuts = 0;    // brendan delete
+
       private:
         // Phase Table
         Phase_Table mPhaseTable;

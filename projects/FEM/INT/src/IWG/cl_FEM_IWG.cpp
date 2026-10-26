@@ -3554,6 +3554,7 @@ namespace moris::fem
                 for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                 {
                     // reset the perturbed coefficients
+                    // brendan check that this`moves along the edge if the sensitivities are consistent
                     Matrix< DDRMat > tCoeffPert = tCoeff + tFDScheme( 0 )( iPoint ) * tDeltaH * tDCoordDAdvLocal;
 
                     // setting the perturbed coefficients
@@ -4425,7 +4426,13 @@ namespace moris::fem
             fem::FDScheme_Type aFDSchemeType )
     {
         // get the requested ip pdv types
-        const Vector< gen::PDV_Type >& tRequestedPdvTypes = mSet->get_ip_dv_types_for_set();
+        Vector< gen::PDV_Type > tRequestedPdvTypes = mSet->get_ip_dv_types_for_set();
+        moris_index             tDxDp              = tRequestedPdvTypes.find( gen::PDV_Type::DXDP );
+        if ( tDxDp >= 0 )
+        {
+            tRequestedPdvTypes.erase( tDxDp );
+        }    // brendan really hacky dumb way to do this
+
 
         // get number of requested dv types
         uint tNumDvType = tRequestedPdvTypes.size();
@@ -4602,12 +4609,22 @@ namespace moris::fem
             fem::FDScheme_Type aFDSchemeType )
     {
         // get the requested ip pdv types
-        const Vector< gen::PDV_Type >& tRequestedPdvTypesLeader =
-                mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::LEADER );
+        Vector< gen::PDV_Type > tRequestedPdvTypesLeader = mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::LEADER );
+        moris_index             tDxDp                    = tRequestedPdvTypesLeader.find( gen::PDV_Type::DXDP );
+        if ( tDxDp >= 0 )
+        {
+            tRequestedPdvTypesLeader.erase( tDxDp );
+        }    // brendan really hacky dumb way to do this
+
 
         // get the requested ip pdv types for the follower side
-        const Vector< enum gen::PDV_Type >& tRequestedPdvTypesFollower =
-                mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
+        Vector< enum gen::PDV_Type > tRequestedPdvTypesFollower = mSet->get_ip_dv_types_for_set( mtk::Leader_Follower::FOLLOWER );
+        tDxDp                                                   = tRequestedPdvTypesFollower.find( gen::PDV_Type::DXDP );
+        if ( tDxDp >= 0 )
+        {
+            tRequestedPdvTypesFollower.erase( tDxDp );
+        }    // brendan really hacky dumb way to do this
+
 
         // get number of requested dv types
         uint tNumDvTypeLeader   = tRequestedPdvTypesLeader.size();

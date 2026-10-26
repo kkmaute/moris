@@ -98,6 +98,9 @@ namespace moris::wrk
                 mPerformerManager->mReinitializePerformer( 0 ) = std::make_shared< wrk::Reinitialize_Performer >( mPerformerManager->mLibrary );
             }
         }
+
+        // brendan delete
+        std::remove( "dv_dp.txt" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -335,6 +338,10 @@ namespace moris::wrk
         // XTK perform - enrich - ghost - multigrid
         tXTKPerformer->perform_enrichment();
 
+        // FIXME: This should likely be done inside xtk::Model::perform() and be made private and kept out of the main workflow,
+        // but we need to wait until the PDVs are created to be able to map XQI sensitivities to PDV IDs
+        // tXTKPerformer->compute_XQIs( mPerformerManager->mLibrary );
+
         if ( tDeleteXTK )
         {
             // construct the data base with the mtk performer from xtk
@@ -430,10 +437,6 @@ namespace moris::wrk
 
         // Assign PDVs
         mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
-
-        // FIXME: This should likely be done inside xtk::Model::perform() and be made private and kept out of the main workflow,
-        // but we need to wait until the PDVs are created to be able to map XQI sensitivities to PDV IDs
-        // tXTKPerformer->compute_XQIs( mPerformerManager->mLibrary );
 
         if ( tDeleteXTK )
         {

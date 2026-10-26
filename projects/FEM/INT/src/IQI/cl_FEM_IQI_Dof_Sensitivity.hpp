@@ -27,6 +27,12 @@ namespace moris::fem
 
     class IQI_Dof_Sensitivity : public IQI
     {
+        enum class IQI_Property_Type
+        {
+            L2_CHECK,
+            MAX_ENUM
+        };
+
       private:
         //! optimization variable id
         uint mOptimizationVariableId = 0;

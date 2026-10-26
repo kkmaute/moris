@@ -344,6 +344,16 @@ namespace moris::fem
             return true;
         }
 
+        //------------------------------------------------------------------------------
+
+        /**
+         * Design velocities for nodes. This is used in the UT_FEM_IQI_Dof_Sensitivity test to test the integration over IG elements
+         */
+        Matrix< DDRMat > get_dxdp( Matrix< IndexMat > aInds, uint aADVID )
+        {
+            
+        }
+
     };    // class FEM_Design_Variable_Interface_Proxy
 
     //------------------------------------------------------------------------------

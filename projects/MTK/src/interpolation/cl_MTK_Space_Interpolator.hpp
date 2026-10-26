@@ -163,7 +163,7 @@ namespace moris::mtk
         /**
          * trivial constructor
          */
-        Space_Interpolator(){};
+        Space_Interpolator() {};
 
         /**
          * constructor
@@ -360,6 +360,14 @@ namespace moris::mtk
             aParamPoint.set_size( mNumSpaceParamDim + 1, 1 );
 
             aParamPoint( { 0, mNumSpaceParamDim - 1 } ) = mXiLocal.matrix_data();
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool
+        is_space_set()
+        {
+            return mXiLocal.numel() > 0;
         }
 
         //------------------------------------------------------------------------------
@@ -803,7 +811,12 @@ namespace moris::mtk
                 Matrix< DDRMat >&       aJ3ct,
                 const Matrix< DDRMat >& ad3NdXi3,
                 const Matrix< DDRMat >& aXHat );
+
+        real space_detJ_constant( const Matrix< DDRMat >& );
+
+        real space_detJ_deriv_constant( const Matrix< DDRMat >& );
     };
+
 
     //------------------------------------------------------------------------------
 }    // namespace moris::mtk

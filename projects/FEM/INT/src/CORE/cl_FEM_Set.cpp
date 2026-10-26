@@ -3782,7 +3782,7 @@ namespace moris::fem
 
     void Set::create_geo_adv_assembly_data_base(
             const Matrix< IndexMat >&   aVertexMeshIndices,
-            Vector< Matrix< DDRMat > >& aAdvGeoWeights )
+            Vector< Matrix< DDRMat > >& aAdvGeoWeights )    // aAdvGeoWeight contains dPDV/dADV for each vertex in the cluster wrt to all ADVs that influence the node
     {
         // get number of vertices in cluster
         uint tNumVertices = aVertexMeshIndices.numel();
@@ -3800,7 +3800,7 @@ namespace moris::fem
             return;
         }
 
-        // get design variable interfac
+        // get design variable interface
         std::shared_ptr< const MSI::Design_Variable_Interface > tDVInterface = mEquationModel->get_design_variable_interface();
 
         // loop over all vertices in cluster

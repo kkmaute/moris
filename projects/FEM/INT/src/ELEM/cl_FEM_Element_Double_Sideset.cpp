@@ -362,7 +362,11 @@ namespace moris::fem
                 // compute dRdp if direct sensitivity analysis
                 if ( tComputedRdp )
                 {
-                    Vector< Matrix< IndexMat > > tVertexIndices( 0 );
+                    // get the vertices indices
+                    Vector< Matrix< IndexMat > > tVertexIndices( 2 );
+                    tVertexIndices( 0 ) = mLeaderCell->get_vertices_ind_on_side_ordinal( tLeaderSideOrd );
+                    tVertexIndices( 1 ) = mFollowerCell->get_vertices_ind_on_side_ordinal( tFollowerSideOrd );
+
                     ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
             }

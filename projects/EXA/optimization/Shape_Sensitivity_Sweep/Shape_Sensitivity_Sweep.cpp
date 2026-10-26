@@ -326,6 +326,7 @@ namespace moris
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF_SENSITIVITY );
         aParameterLists.set( "dof_quantity", "UX,UY" );
         aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
+        aParameterLists.set( "leader_dv_dependencies", "DXDP" );
         aParameterLists.set( "vectorial_field_index", 0 );
         aParameterLists.set( "function_parameters", "0" );
         aParameterLists.set( "mesh_set_names", tMeshSets );
@@ -335,6 +336,7 @@ namespace moris
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF_SENSITIVITY );
         aParameterLists.set( "dof_quantity", "UX,UY" );
         aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
+        aParameterLists.set( "leader_dv_dependencies", "DXDP" );
         aParameterLists.set( "vectorial_field_index", 1 );
         aParameterLists.set( "function_parameters", "0" );
         aParameterLists.set( "mesh_set_names", tMeshSets );

@@ -204,16 +204,16 @@ namespace moris::mtk
     {
         map< std::string, Field_Type > tFieldTypeMap;
 
-        tFieldTypeMap[ "FIELD_0" ] = Field_Type::FIELD_0;
-        tFieldTypeMap[ "FIELD_1" ] = Field_Type::FIELD_1;
-        tFieldTypeMap[ "FIELD_2" ] = Field_Type::FIELD_2;
-        tFieldTypeMap[ "FIELD_3" ] = Field_Type::FIELD_3;
-        tFieldTypeMap[ "FIELD_4" ] = Field_Type::FIELD_4;
-        tFieldTypeMap[ "FIELD_5" ] = Field_Type::FIELD_5;
-        tFieldTypeMap[ "FIELD_6" ] = Field_Type::FIELD_6;
-        tFieldTypeMap[ "FIELD_7" ] = Field_Type::FIELD_7;
-        tFieldTypeMap[ "FIELD_8" ] = Field_Type::FIELD_8;
-        tFieldTypeMap[ "FIELD_9" ] = Field_Type::FIELD_9;
+        tFieldTypeMap[ "FIELD_0" ]  = Field_Type::FIELD_0;
+        tFieldTypeMap[ "FIELD_1" ]  = Field_Type::FIELD_1;
+        tFieldTypeMap[ "FIELD_2" ]  = Field_Type::FIELD_2;
+        tFieldTypeMap[ "FIELD_3" ]  = Field_Type::FIELD_3;
+        tFieldTypeMap[ "FIELD_4" ]  = Field_Type::FIELD_4;
+        tFieldTypeMap[ "FIELD_5" ]  = Field_Type::FIELD_5;
+        tFieldTypeMap[ "FIELD_6" ]  = Field_Type::FIELD_6;
+        tFieldTypeMap[ "FIELD_7" ]  = Field_Type::FIELD_7;
+        tFieldTypeMap[ "FIELD_8" ]  = Field_Type::FIELD_8;
+        tFieldTypeMap[ "FIELD_9" ]  = Field_Type::FIELD_9;
         tFieldTypeMap[ "FIELD_10" ] = Field_Type::FIELD_10;
         tFieldTypeMap[ "FIELD_11" ] = Field_Type::FIELD_11;
         tFieldTypeMap[ "FIELD_12" ] = Field_Type::FIELD_12;
@@ -224,7 +224,7 @@ namespace moris::mtk
         tFieldTypeMap[ "FIELD_17" ] = Field_Type::FIELD_17;
         tFieldTypeMap[ "FIELD_18" ] = Field_Type::FIELD_18;
         tFieldTypeMap[ "FIELD_19" ] = Field_Type::FIELD_19;
-        tFieldTypeMap[ "" ]        = Field_Type::UNDEFINED;
+        tFieldTypeMap[ "" ]         = Field_Type::UNDEFINED;
         return tFieldTypeMap;
     }
 

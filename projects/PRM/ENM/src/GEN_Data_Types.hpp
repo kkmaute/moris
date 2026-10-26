@@ -58,6 +58,7 @@ namespace moris::gen
             ELASTIC_MODULUS,
             LS1,
             LS2,
+            DXDP,
             UNDEFINED )
 
     // Surface mesh regularization type enum

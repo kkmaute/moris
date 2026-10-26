@@ -152,8 +152,8 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent() const
     {
-        MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
-        return { {} };
+        // MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
+        return { { 0.0, 0.0 } };
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -161,8 +161,8 @@ namespace moris::gen
     Matrix< DDRMat >
     Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent() const
     {
-        MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
-        return { {} };
+        // MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
+        return { { 0.0, 0.0 } };
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -241,11 +241,11 @@ namespace moris::fem
         /**
          * get dof type
          */
-        //        gen::PDV_Type
-        //        get_dv_type() const
-        //        {
-        //            return mDvType;
-        //        }
+        gen::PDV_Type
+        get_dv_type() const
+        {
+            return mDvType;
+        }
 
         //------------------------------------------------------------------------------
         /**
@@ -255,6 +255,23 @@ namespace moris::fem
         get_space_dim() const
         {
             return mNSpaceDim;
+        }
+
+        //------------------------------------------------------------------------------
+
+        mtk::Geometry_Type get_space_geometry_type() const
+        {
+            return mGeometryInterpolator->get_space_geometry_type();
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * get the number of time dimension
+         */
+        uint
+        get_time_dim() const
+        {
+            return mNTimeDim;
         }
 
         //------------------------------------------------------------------------------
@@ -321,6 +338,15 @@ namespace moris::fem
         void set_discretization_mesh_index( const moris_index aDiscretizationMeshIndex );
 
         //------------------------------------------------------------------------------
+
+        /**
+         * BRENDAN you should not be able to do this - but it is needed for the dxdp FI to do point evaluation
+         *
+         */
+        void change_interpolation_rule( mtk::Interpolation_Rule& aInterpRule, Geometry_Interpolator* aGeometryInterpolator );
+
+        //------------------------------------------------------------------------------
+
         /**
          * set the parametric point where field is interpolated
          * @param[ in ] aParamPoint evaluation point in space and time

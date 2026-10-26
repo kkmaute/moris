@@ -20,8 +20,6 @@
 #include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
-// #include "cl_GEN_Geometry_Engine.hpp" // brendan delete?
-// #include "cl_XTK_Model.hpp" // brendan delete
 #include "cl_MDL_Model.hpp"
 #include "cl_MSI_QI_Manager_STK.hpp"
 
@@ -160,15 +158,16 @@ namespace moris::wrk
     {
         Tracer tTracer( "STK", "Compute SQIs" );
 
-        Submodule_Parameter_Lists tSQIParameterLists = aLibrary->get_parameters_for_module( Module_Type::STK )( 1 );
-
-        // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
-        std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mPerformerManager->mMDLPerformer( 0 )->get_design_variable_interface();
-
-        uint tNumSQIs = tSQIParameterLists.size();
+        MORIS_LOG_INFO( "SQIs DO NOT WORK ON THIS BRANCH" );
+        uint tNumSQIs = 0;
 
         if ( tNumSQIs > 0 )    // todo brendan be more elegant
         {
+            Submodule_Parameter_Lists tSQIParameterLists = aLibrary->get_parameters_for_module( Module_Type::STK )( 1 );
+
+            // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
+            std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mPerformerManager->mMDLPerformer( 0 )->get_design_variable_interface();
+
             // Create a dist vector to store the sensitivities
             sol::Matrix_Vector_Factory tDistFactory;
             sol::Dist_Map*             tMap      = tDistFactory.create_map( tDesignCriteriaManager->get_my_local_global_map() );

@@ -33,7 +33,6 @@
 
 namespace moris::fem
 {
-    class Set;
     //------------------------------------------------------------------------------
     /**
      * Field interpolator manager
@@ -42,50 +41,34 @@ namespace moris::fem
     {
 
       private:
-        // dof type list for the FI manager
-        const Vector< Vector< enum MSI::Dof_Type > >& mDofTypes;
-
         // pointer to the equation set
         MSI::Equation_Set* mEquationSet = nullptr;
 
         // enum for leader or follower
         mtk::Leader_Follower mIsLeader;
 
-        // dof type map
-        Matrix< DDSMat > mDofTypeMap;
-
-        // list of field interpolators
-        Vector< Field_Interpolator* > mFI;
-
-        // maximum number of field interpolators for all dof types
-        moris::uint mMaxNumDofFI;
-
-        // number of solution sets
-        moris::uint mNumSolutionSets = 1;
-
-        // dof type list for the FI manager
-        const Vector< enum gen::PDV_Type > mDvTypes;
-
-        // dof type map
-        Vector< sint > mDvTypeMap;
-
-        // list of field interpolators
-        Vector< Field_Interpolator* > mDvFI;
-
-        // maximum number of field interpolators
-        moris::uint mMaxNumDvFI;
-
-        // field type list for the FI manager
+        // List of dof, dv, field, and foreground types for all field interpolators
+        const Vector< Vector< MSI::Dof_Type > >&  mDofTypes;
+        const Vector< gen::PDV_Type >             mDvTypes;
         const Vector< Vector< mtk::Field_Type > > mFieldTypes;
 
-        // field type map
+        // type maps for dofs, dvs, fields, and foreground dofs
+        Matrix< DDSMat > mDofTypeMap;
+        Vector< sint >   mDvTypeMap;
         Matrix< DDSMat > mFieldTypeMap;
 
-        // list of field interpolators
+        // list of dofs, dvs, fields, and foreground dofs field interpolator objects
+        Vector< Field_Interpolator* > mFI;
+        Vector< Field_Interpolator* > mDvFI;
         Vector< Field_Interpolator* > mFieldFI;
 
-        // maximum number of mtk::field field interpolators
-        moris::uint mMaxNumFieldFI;
+        // maximum number of field interpolators
+        uint mMaxNumDofFI;
+        uint mMaxNumDvFI;
+        uint mMaxNumFieldFI;
+
+        // number of solution sets
+        uint mNumSolutionSets = 1;
 
         // pointer to geometry interpolator for IP element
         Geometry_Interpolator* mIPGeometryInterpolator = nullptr;
@@ -260,14 +243,25 @@ namespace moris::fem
          * get the field interpolator for a given dv type
          * @param[ in ] aDvType a dv type enum
          */
-        Field_Interpolator* get_field_interpolators_for_type( enum gen::PDV_Type aDvType );
+        Field_Interpolator* get_field_interpolators_for_type( enum gen::PDV_Type aDvType, uint aSolutionSetIndex = 0 );
 
         //------------------------------------------------------------------------------
+        // /**
+        //  * get the field interpolator for a given field type
+        //  * @param[ in ] aFieldType a field type enum
+        //  */
+        // Field_Interpolator* get_field_interpolators_for_type( mtk::Field_Type aFieldType );
+
+        //------------------------------------------------------------------------------
+
         /**
          * get the field interpolator for a given field type
          * @param[ in ] aFieldType a field type enum
+         * @param[ in ] aSolutionSetIndex index of the solution set
          */
-        Field_Interpolator* get_field_interpolators_for_type( mtk::Field_Type aFieldType );
+        Field_Interpolator* get_field_interpolators_for_type(
+                mtk::Field_Type aFieldType,
+                const uint      aSolutionSetIndex = 0 );
 
         //------------------------------------------------------------------------------
         /**
@@ -347,6 +341,11 @@ namespace moris::fem
         {
             return mFieldManagerPrevious;
         }
+        //------------------------------------------------------------------------------
+
+        // BRENDAN you should not be able to do this - but it is needed for the dxdp FI to do point evaluation
+        void
+        reset_dxdp_interpolation_rule();
         //------------------------------------------------------------------------------
     };
 

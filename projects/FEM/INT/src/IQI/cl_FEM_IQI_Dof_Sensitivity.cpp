@@ -17,7 +17,14 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    IQI_Dof_Sensitivity::IQI_Dof_Sensitivity() {}
+    IQI_Dof_Sensitivity::IQI_Dof_Sensitivity()
+    {
+        mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+
+        mPropertyMap[ "L2Check" ] = static_cast< uint >( IQI_Property_Type::L2_CHECK );
+
+        mFEMIQIType = fem::IQI_Type::DOF_SENSITIVITY;
+    }
 
     //------------------------------------------------------------------------------
 
@@ -54,11 +61,9 @@ namespace moris::fem
     IQI_Dof_Sensitivity::compute_QI( Matrix< DDRMat >& aQI )
     {
         // get field interpolator for a given dof type
-        Field_Interpolator* tFI =
-                mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+        Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
-        Field_Interpolator* tFIsens =
-                mLeaderAdjointFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ), mOptimizationVariableId );
+        Field_Interpolator* tFIsens = mLeaderAdjointFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ), mOptimizationVariableId );
 
         // check that field interpolator exists
         MORIS_ASSERT( tFI != nullptr,
@@ -80,22 +85,47 @@ namespace moris::fem
         if ( tLocalAdvIndex >= 0 )
         {
             // get partial derivative of node location wrt adv
-            const Matrix< DDRMat >& tDxDp = mSet->get_current_adv_geo_weight();
+            // For nodal QIs, need to change this FI to be a point with a background element that is also a point. Can just get the current adv geo weight from the set to set the coefficient
+            const Matrix< DDRMat >& tDxDp = mLeaderAdjointFIManager->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->val();
+            // const Matrix< DDRMat >& tDxDp = mSet->get_current_adv_geo_weight();
 
             if ( tDxDp.numel() > 0 )
             {
                 const Matrix< DDRMat >& tSpatialGradient = tFI->gradx( 1 );
 
-                if ( mQuantityDofType.size() > 0 && mIQITypeIndex != -1 )
-                {
+                // if ( mQuantityDofType.size() > 0 && mIQITypeIndex != -1 )
+                // {
+                //     aQI( 0 ) += dot( tSpatialGradient, tDxDp.get_column( tLocalAdvIndex ) );
+                // }
+                // else
+                // {
+                //     aQI( 0 ) += dot( tSpatialGradient, tDxDp );
+                // }
+                aQI( 0 ) += dot( tSpatialGradient, tDxDp );
 
-                    aQI( 0 ) += dot( tSpatialGradient.get_column( mIQITypeIndex ), tDxDp.get_column( tLocalAdvIndex ) );
-                }
-                else
-                {
-                    aQI( 0 ) += dot( tSpatialGradient, tDxDp );
-                }
+
+                // aQI = { { tDxDp( 0 ) } };
+                // std::cout << mLeaderFIManager->get_IG_geometry_interpolator()->valx()( 0 ) << " " << aQI( 0 );
             }
+        }
+
+        // See if we want to do a check on the L2 value
+        std::shared_ptr< Property >& tPropL2Check = mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+        if ( tPropL2Check != nullptr )
+        {
+            Matrix< DDRMat > tL2CheckVal = tPropL2Check->val();
+            real             tJumpNorm   = norm( aQI - tL2CheckVal );
+
+            // if ( tJumpNorm > 0.03 )
+            // {
+            //     PRINT( mLeaderFIManager->get_IG_geometry_interpolator()->valx() );
+            //     PRINT( tFI->gradx( 1 ) );
+            //     PRINT( mLeaderAdjointFIManager->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->get_coeff() );
+            //     PRINT( mLeaderAdjointFIManager->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->val() );
+            //     PRINT( tFIsens->val() );
+            // }
+
+            aQI = { tJumpNorm * tJumpNorm };
         }
     }
 

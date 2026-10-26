@@ -106,7 +106,7 @@ namespace moris
         }
 
       public:
-        Logger(){};
+        Logger() {};
 
         //------------------------------------------------------------------------------
 
@@ -372,7 +372,7 @@ namespace moris
         log_info_all_proc( const char* tFormat, const Args... aArgs )
         {
             int tOutputRank = mOutputRank;
-            mOutputRank = logger_par_rank();
+            mOutputRank     = logger_par_rank();
             this->log_info( tFormat, aArgs... );
             mOutputRank = tOutputRank;
         }
@@ -688,8 +688,7 @@ extern moris::Logger gLogger;
 #ifdef __GNUC__
 __attribute__( ( format( printf, 1, 2 ) ) )
 #endif
-void
-check_args( const char* tFormat, ... );
+void check_args( const char* tFormat, ... );
 
 /**
  * Log an section severity message.
@@ -744,14 +743,14 @@ check_args( const char* tFormat, ... );
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG_INFO_ALL_PROCS( ... )                 \
-    do                                                  \
-    {                                                   \
-        if ( gLogger.get_severity_level() < 2 )         \
-        {                                               \
-            if ( false ) check_args( __VA_ARGS__ );     \
-            gLogger.log_info_all_proc( __VA_ARGS__ );   \
-        }                                               \
+#define MORIS_LOG_INFO_ALL_PROCS( ... )               \
+    do                                                \
+    {                                                 \
+        if ( gLogger.get_severity_level() < 2 )       \
+        {                                             \
+            if ( false ) check_args( __VA_ARGS__ );   \
+            gLogger.log_info_all_proc( __VA_ARGS__ ); \
+        }                                             \
     } while ( false )
 
 // -----------------------------------------------------------------------------

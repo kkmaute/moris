@@ -146,6 +146,14 @@ namespace moris::fem
 
         /**
          * initialize the geometry interpolator for the IG element
+         * @param[ in ] aSideOrdinal side ordinal for the leader element
+         */
+        void init_adjoint_ig_geometry_interpolator( uint aSideOrdinal );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * initialize the geometry interpolator for the IG element
          * @param[ in ] aSideOrdinal      side ordinal for the leader element
          * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
          *                                ( NumVertexIndices x NumPdvTypes )

@@ -129,6 +129,55 @@ namespace moris::fem
             tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
             tIGGI->set_time_param_coeff( tIGParamTimeCoords );
         }
+
+        // Set coefficients for field interpolators that use the IG element geometry
+        this->set_ig_field_interpolator_coefficients();
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Element_Bulk::init_adjoint_ig_geometry_interpolator()
+    {
+        // get leader physical space and time coordinates for IG element
+        Matrix< DDRMat > tIGPhysSpaceCoords =
+                mLeaderCell->get_vertex_coords();
+        Matrix< DDRMat > tIGPhysTimeCoords =
+                mCluster->mInterpolationElement->get_time();
+
+        // get leader parametric space and time coordinates for IG element
+        Matrix< DDRMat > tIGParamSpaceCoords =
+                mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
+        // FIXME not true if time is not linear
+        Matrix< DDRMat > tIGParamTimeCoords = { { -1.0 }, { 1.0 } };
+
+        // get geometry interpolator for IG element
+        Geometry_Interpolator* tIGGI = mSet->get_field_interpolator_manager_adjoint_vectors()->get_IG_geometry_interpolator();
+
+        // set physical space and time coefficients for IG element GI
+        tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+        tIGGI->set_time_coeff( tIGPhysTimeCoords );
+
+        // set parametric space and time coefficients for IG element GI
+        tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+        tIGGI->set_time_param_coeff( tIGParamTimeCoords );
+
+        // set geometry interpolator of eigen vector FI
+        if ( mSet->mNumEigenVectors > 0 )
+        {
+            Geometry_Interpolator* tIGGI =
+                    mSet->get_field_interpolator_manager_eigen_vectors()->get_IG_geometry_interpolator();
+
+            // set physical space and time coefficients for IG element GI
+            tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+            tIGGI->set_time_coeff( tIGPhysTimeCoords );
+
+            // set parametric space and time coefficients for IG element GI
+            tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+            tIGGI->set_time_param_coeff( tIGParamTimeCoords );
+        }
+
+        // Set coefficients for field interpolators that use the IG element geometry
+        this->set_ig_field_interpolator_coefficients();
     }
 
     //------------------------------------------------------------------------------
@@ -441,6 +490,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator();
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator();
+        }
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -706,6 +759,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator();
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator();
+        }
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -713,11 +770,15 @@ namespace moris::fem
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
             // get the ith integration point in the IG param space
-            const Matrix< DDRMat >& tLocalIntegPoint =
-                    mSet->get_integration_points().get_column( iGP );
+            const Matrix< DDRMat >& tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
             // set evaluation point for interpolators (FIs and GIs)
             mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+            if ( not mSet->mEquationModel->is_forward_analysis() )
+            {
+                mSet->get_field_interpolator_manager_adjoint_vectors()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+            }
 
             // compute detJ of integration domain
             real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -960,7 +1021,5 @@ namespace moris::fem
         // return the volume value
         return tVolume / tTimeStep;
     }
-
-    //------------------------------------------------------------------------------
 
 }    // namespace moris::fem

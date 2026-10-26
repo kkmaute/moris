@@ -575,193 +575,199 @@ namespace moris::xtk
     void
     Model::compute_XQIs( const std::shared_ptr< Library_IO > aLibrary )
     {
-        Tracer tTracer( "XTK", "Compute XQIs" );
+        Tracer                             tTracer( "XTK", "Compute XQIs" );
+        Vector< std::string >              tMeshSetNames = { "iside_b0_0_b1_1" };
+        mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), tMeshSetNames );
+        mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
 
-        // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
-        std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mGeometryEngine->get_design_variable_interface();
+        // Brendan delete
+        tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
 
-        uint tNumXQIs = mParameterList( 1 ).size();
+        // // Get the design criteria manager from the geometry engine (PDV_Host_Manager/Design_Variable_Interface) brendan fix naming
+        // std::shared_ptr< MSI::Design_Variable_Interface > tDesignCriteriaManager = mGeometryEngine->get_design_variable_interface();
 
-        if ( tNumXQIs > 0 )    // todo brendan be more elegant
-        {
-            // Create a dist vector to store the sensitivities
-            sol::Matrix_Vector_Factory tDistFactory;
-            sol::Dist_Map             *tMap      = tDistFactory.create_map( tDesignCriteriaManager->get_my_local_global_map() );
-            sol::Dist_Vector          *tdXQIdPDV = tDistFactory.create_vector( tMap, tNumXQIs );
+        // uint tNumXQIs = mParameterList( 1 ).size();
 
-            // Loop through requested XQIs and compute them
-            for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
-            {
-                // Get the XQI name and type
-                std::string                  tXQIName      = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
-                mtk::QI_Type                 tXQIType      = static_cast< mtk::QI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
-                const Vector< std::string > &tMeshSetNames = mParameterList( 1 )( iXQI ).get_vector< std::string >( "mesh_set_names" );    // FIXME brendan, make this able to be retrieved by phase name
+        // if ( tNumXQIs > 0 )    // todo brendan be more elegant
+        // {
+        //     // Create a dist vector to store the sensitivities
+        //     sol::Matrix_Vector_Factory tDistFactory;
+        //     sol::Dist_Map             *tMap      = tDistFactory.create_map( tDesignCriteriaManager->get_my_local_global_map() );
+        //     sol::Dist_Vector          *tdXQIdPDV = tDistFactory.create_vector( tMap, tNumXQIs );
 
-                // Create a surface mesh from the IG mesh for surface XQIs
-                mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), tMeshSetNames );
-                mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
+        //     // Loop through requested XQIs and compute them
+        //     for ( uint iXQI = 0; iXQI < tNumXQIs; iXQI++ )
+        //     {
+        //         // Get the XQI name and type
+        //         std::string                  tXQIName      = mParameterList( 1 )( iXQI ).get< std::string >( "XQI_name" );
+        //         mtk::QI_Type                 tXQIType      = static_cast< mtk::QI_Type >( mParameterList( 1 )( iXQI ).get< uint >( "XQI_type" ) );
+        //         const Vector< std::string > &tMeshSetNames = mParameterList( 1 )( iXQI ).get_vector< std::string >( "mesh_set_names" );    // FIXME brendan, make this able to be retrieved by phase name
 
-                // Brendan delete
-                tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
+        //         // Create a surface mesh from the IG mesh for surface XQIs
+        //         mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mEnrichedIntegMesh( 0 ), tMeshSetNames );
+        //         mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
 
-                // // brendan delete
-                // std::ofstream tSensitivityFile( "dqi_dpdv_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
-                // Vector< Vector< uint > > tVerticesOfInterest( tADVs.size() );
-                // Vector< std::ifstream >  tVertexFiles( tADVs.size() );
-                // Vector< std::ofstream >  tVertexOutputFile( tADVs.size() );
-                // for ( uint iA = 0; iA < tADVs.size(); iA++ )
-                // {
-                //     tVertexFiles( iA )      = std::ifstream( "vertices_dependent_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
-                //     tVertexOutputFile( iA ) = std::ofstream( "vertex_sensitivities_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+        //         // Brendan delete
+        //         tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
 
-                //     if ( tVertexFiles( iA ).is_open() )
-                //     {
-                //         luint tID;
-                //         real  x, y, dx, dy;
-                //         while ( tVertexFiles( iA ) >> tID >> x >> y >> dx >> dy )
-                //         {
-                //             tVerticesOfInterest( iA ).push_back( static_cast< uint >( tID ) );
-                //         }
-                //         tVertexFiles( iA ).close();
-                //     }
-                // }
-                std::ofstream tMapFile( "vertex_map_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+        //         // // brendan delete
+        //         // std::ofstream tSensitivityFile( "dqi_dpdv_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+        //         // Vector< Vector< uint > > tVerticesOfInterest( tADVs.size() );
+        //         // Vector< std::ifstream >  tVertexFiles( tADVs.size() );
+        //         // Vector< std::ofstream >  tVertexOutputFile( tADVs.size() );
+        //         // for ( uint iA = 0; iA < tADVs.size(); iA++ )
+        //         // {
+        //         //     tVertexFiles( iA )      = std::ifstream( "vertices_dependent_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
+        //         //     tVertexOutputFile( iA ) = std::ofstream( "vertex_sensitivities_on_adv_" + std::to_string( tADVs( iA ) ) + ".txt" );
 
-                // Get the IG to PDV ID map for this surface mesh
-                Vector< Vector< moris_index > > tPDVIDs;
-                Vector< gen::PDV_Type >         tPDVTypes = this->get_spatial_dim() == 2 ? Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE } )
-                                                                                         : Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE } );
-                tDesignCriteriaManager->get_ig_dv_ids_for_type_and_ind( tSurfaceMeshData.mLocalToGlobalVertexIndex, tPDVTypes, tPDVIDs );
+        //         //     if ( tVertexFiles( iA ).is_open() )
+        //         //     {
+        //         //         luint tID;
+        //         //         real  x, y, dx, dy;
+        //         //         while ( tVertexFiles( iA ) >> tID >> x >> y >> dx >> dy )
+        //         //         {
+        //         //             tVerticesOfInterest( iA ).push_back( static_cast< uint >( tID ) );
+        //         //         }
+        //         //         tVertexFiles( iA ).close();
+        //         //     }
+        //         // }
+        //         std::ofstream tMapFile( "vertex_map_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
 
-                // Determine the XQI type and compute it
-                real tXQIValue = MORIS_REAL_MAX;
-                switch ( tXQIType )
-                {
-                    case ( mtk::QI_Type::VOLUME ):
-                        tXQIValue = tSurfaceMesh.compute_volume();
-                        tSurfaceMesh.compute_QI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
-                        break;
-                    case ( mtk::QI_Type::RAYCAST_SHAPE_DIAMETER ):
-                    {
-                        real                                             tConeAngle      = mParameterList( 1 )( iXQI ).get< real >( "cone_angle" );
-                        uint                                             tNumPolarRays   = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) );
-                        uint                                             tNumAzimuthRays = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) );
-                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom         = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
+        //         // Get the IG to PDV ID map for this surface mesh
+        //         Vector< Vector< moris_index > > tPDVIDs;
+        //         Vector< gen::PDV_Type >         tPDVTypes = this->get_spatial_dim() == 2 ? Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE } )
+        //                                                                                  : Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE } );
+        //         tDesignCriteriaManager->get_ig_dv_ids_for_type_and_ind( tSurfaceMeshData.mLocalToGlobalVertexIndex, tPDVTypes, tPDVIDs );
 
-                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter_raycast(
-                                *tAgglom,
-                                tConeAngle,
-                                tNumPolarRays,
-                                tNumAzimuthRays );
+        //         // Determine the XQI type and compute it
+        //         real tXQIValue = MORIS_REAL_MAX;
+        //         switch ( tXQIType )
+        //         {
+        //             case ( mtk::QI_Type::VOLUME ):
+        //                 tXQIValue = tSurfaceMesh.compute_volume();
+        //                 tSurfaceMesh.compute_QI_sensitivities( tXQIType, tPDVIDs, tdXQIdPDV, iXQI );
+        //                 break;
+        //             case ( mtk::QI_Type::RAYCAST_SHAPE_DIAMETER ):
+        //             {
+        //                 real                                             tConeAngle      = mParameterList( 1 )( iXQI ).get< real >( "cone_angle" );
+        //                 uint                                             tNumPolarRays   = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_polar_rays" ) );
+        //                 uint                                             tNumAzimuthRays = static_cast< uint >( mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_azimuth_rays" ) );
+        //                 std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom         = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
 
-                        tSurfaceMesh.compute_QI_sensitivities(
-                                tXQIType,
-                                tPDVIDs,
-                                tdXQIdPDV,
-                                iXQI );
+        //                 tXQIValue = tSurfaceMesh.compute_global_shape_diameter_raycast(
+        //                         *tAgglom,
+        //                         tConeAngle,
+        //                         tNumPolarRays,
+        //                         tNumAzimuthRays );
 
-                        // brendan delete
-                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-                        {
-                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
-                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+        //                 tSurfaceMesh.compute_QI_sensitivities(
+        //                         tXQIType,
+        //                         tPDVIDs,
+        //                         tdXQIdPDV,
+        //                         iXQI );
 
-                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
-                        }
+        //                 // brendan delete
+        //                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+        //                 {
+        //                     uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+        //                     Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
 
-                        // brendan delete
-                        std::ofstream tSensFile( "sens_raycast_" + std::to_string( (uint)tConeAngle ) + ".txt" );
-                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-                        {
-                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
-                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
-                        }
-                        tSensFile.close();
+        //                     tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+        //                 }
+
+        //                 // brendan delete
+        //                 std::ofstream tSensFile( "sens_raycast_" + std::to_string( (uint)tConeAngle ) + ".txt" );
+        //                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+        //                 {
+        //                     Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+        //                     tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+        //                 }
+        //                 tSensFile.close();
 
 
-                        break;
-                    }
-                    case ( mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
-                    {
-                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
+        //                 break;
+        //             }
+        //             case ( mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
+        //             {
+        //                 std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
 
-                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle(
-                                *tAgglom,
-                                mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
-                                mParameterList( 1 )( iXQI ).get< real >( "minimum_relative_chord_length" ),
-                                mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
+        //                 tXQIValue = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle(
+        //                         *tAgglom,
+        //                         mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
+        //                         mParameterList( 1 )( iXQI ).get< real >( "minimum_relative_chord_length" ),
+        //                         mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
 
-                        tSurfaceMesh.compute_QI_sensitivities(
-                                tXQIType,
-                                tPDVIDs,
-                                tdXQIdPDV,
-                                iXQI );
+        //                 tSurfaceMesh.compute_QI_sensitivities(
+        //                         tXQIType,
+        //                         tPDVIDs,
+        //                         tdXQIdPDV,
+        //                         iXQI );
 
-                        // brendan delete
-                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-                        {
-                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
-                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+        //                 // brendan delete
+        //                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+        //                 {
+        //                     uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+        //                     Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
 
-                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
-                        }
+        //                     tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+        //                 }
 
-                        // brendan delete
-                        std::ofstream tSensFile( "sens_inscribed_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
-                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-                        {
-                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
-                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
-                        }
-                        tSensFile.close();
+        //                 // brendan delete
+        //                 std::ofstream tSensFile( "sens_inscribed_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
+        //                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+        //                 {
+        //                     Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+        //                     tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+        //                 }
+        //                 tSensFile.close();
 
-                        break;
-                    }
-                    case ( mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
-                    {
-                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
+        //                 break;
+        //             }
+        //             case ( mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
+        //             {
+        //                 std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( mParameterList( 1 )( iXQI ), aLibrary );
 
-                        tXQIValue = tSurfaceMesh.compute_global_shape_diameter_shortest_distance(
-                                *tAgglom,
-                                mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
-                                mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
+        //                 tXQIValue = tSurfaceMesh.compute_global_shape_diameter_shortest_distance(
+        //                         *tAgglom,
+        //                         mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ),
+        //                         mParameterList( 1 )( iXQI ).get< moris_index >( "number_of_samples" ) );
 
-                        tSurfaceMesh.compute_QI_sensitivities(
-                                tXQIType,
-                                tPDVIDs,
-                                tdXQIdPDV,
-                                iXQI );
+        //                 tSurfaceMesh.compute_QI_sensitivities(
+        //                         tXQIType,
+        //                         tPDVIDs,
+        //                         tdXQIdPDV,
+        //                         iXQI );
 
-                        // brendan delete
-                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-                        {
-                            uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
-                            Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
+        //                 // brendan delete
+        //                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+        //                 {
+        //                     uint             tGlobalIndex = tSurfaceMesh.get_global_vertex_index( iV );
+        //                     Matrix< DDRMat > tVertexCoord = tSurfaceMesh.get_vertex_coordinates( iV );
 
-                            tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
-                        }
+        //                     tMapFile << iV << " " << tGlobalIndex << " " << tVertexCoord( 0 ) << " " << tVertexCoord( 1 ) << "\n";
+        //                 }
 
-                        // brendan delete
-                        std::ofstream tSensFile( "sens_shortest_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
-                        for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
-                        {
-                            Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
-                            tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
-                        }
-                        tSensFile.close();
+        //                 // brendan delete
+        //                 std::ofstream tSensFile( "sens_shortest_" + std::to_string( (uint)mParameterList( 1 )( iXQI ).get< real >( "cone_angle" ) ) + ".txt" );
+        //                 for ( uint iV = 0; iV < tSurfaceMesh.get_number_of_vertices(); iV++ )
+        //                 {
+        //                     Matrix< DDRMat > tSensitivity = tSurfaceMesh.compute_ddiameter_dvertex( iV );
+        //                     tSensFile << iV << " " << tSensitivity( 0 ) << " " << tSensitivity( 1 ) << "\n";
+        //                 }
+        //                 tSensFile.close();
 
-                        break;
-                    }
-                    default:
-                        MORIS_ERROR( false, "XTK::Model::compute_XQIs - XQI Type not implemented." );
-                }
+        //                 break;
+        //             }
+        //             default:
+        //                 MORIS_ERROR( false, "XTK::Model::compute_XQIs - XQI Type not implemented." );
+        //         }
 
-                tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue );
-            }
+        //         tDesignCriteriaManager->register_QI( tXQIName, Module_Type::XTK, tXQIValue );
+        //     }
 
-            tdXQIdPDV->vector_global_assembly();
-            tDesignCriteriaManager->update_QI_sensitivity( Module_Type::XTK, tdXQIdPDV );
-        }
+        //     tdXQIdPDV->vector_global_assembly();
+        //     tDesignCriteriaManager->update_QI_sensitivity( Module_Type::XTK, tdXQIdPDV );
+        // }
     }
 
     // ----------------------------------------------------------------------------------

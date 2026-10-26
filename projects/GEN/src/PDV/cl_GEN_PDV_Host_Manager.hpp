@@ -305,6 +305,8 @@ namespace moris::gen
          */
         const Matrix< DDSMat >& get_my_local_global_map() override;
 
+        Matrix< IndexMat > get_owned_ADV_IDs() override;
+
         const Matrix< DDSMat >& get_my_local_global_overlapping_map();
 
         /**
@@ -511,5 +513,9 @@ namespace moris::gen
          * be unnecessary.
          */
         virtual bool is_gen_workflow() const final;
+
+        //-------------------------------------------------------------------------------
+
+        Matrix< DDRMat > get_dxdp( const Matrix< DDSMat >& aNodeIndices, uint aADVID ) const final;
     };
 }    // namespace moris::gen

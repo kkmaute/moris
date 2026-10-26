@@ -177,6 +177,10 @@ namespace moris::fem
                 moris::Matrix< moris::IndexMat > &aVerticesIndices );
 
         //------------------------------------------------------------------------------
+
+        Matrix< IndexMat > get_sensitivity_vertex_index_from_vis_index( Matrix< IndexMat > &aVisIndices );
+
+        //------------------------------------------------------------------------------
         /**
          * get the vertices indices in cluster for visualization
          * @param[ in ] aVerticesIndices matrix of vertex indices on cluster to be filled
@@ -472,11 +476,6 @@ namespace moris::fem
         real compute_volume_drop_threshold(
                 const Matrix< DDRMat > &tRelativeCellVolume,
                 const real             &tVolumeError );
-
-        //------------------------------------------------------------------------------
-
-        const Vector< Vector< Matrix< DDRMat > > > &getAdvPropWeights(
-                mtk::Leader_Follower aLeaderFollowerType = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
     };

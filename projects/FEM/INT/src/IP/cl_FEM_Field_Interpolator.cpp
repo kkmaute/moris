@@ -269,6 +269,10 @@ namespace moris::fem
                             aParamPoint( Ik ) );
                     break;
                 }
+                case mtk::Geometry_Type::POINT:
+                {
+                    break;
+                }
 
                 default:
                     MORIS_ERROR( false, "Field_Interpolator::set_space_time - unknown geometry type." );
@@ -291,10 +295,49 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
+    Field_Interpolator::change_interpolation_rule( mtk::Interpolation_Rule& aInterpRule, Geometry_Interpolator* aGeometryInterpolator )
+    {
+        mGeometryInterpolator = aGeometryInterpolator;
+
+        // create space and time interpolation function
+        mSpaceInterpolation = aInterpRule.create_space_interpolation_function();
+        mTimeInterpolation  = aInterpRule.create_time_interpolation_function();
+
+        // get number of space, time dimensions
+        mNSpaceDim = mSpaceInterpolation->get_number_of_dimensions();
+        mNTimeDim  = mTimeInterpolation->get_number_of_dimensions();
+
+        // get number of space parametric dimensions
+        mNSpaceParamDim = mSpaceInterpolation->get_number_of_param_dimensions();
+
+        // // check dimensions consistency
+        // MORIS_ERROR( ( mNSpaceDim == mGeometryInterpolator->get_number_of_space_dimensions() ),
+        //         "Field_Interpolator - Space dimension inconsistency." );
+        // MORIS_ERROR( ( mNTimeDim == mGeometryInterpolator->get_number_of_time_dimensions() ),
+        //         "Field_Interpolator - Time dimension inconsistency." );
+
+        // get number of space, time, and space time basis
+        mNSpaceBases = mSpaceInterpolation->get_number_of_bases();
+        mNTimeBases  = mTimeInterpolation->get_number_of_bases();
+        mNFieldBases = mNSpaceBases * mNTimeBases;
+
+        // get number of coefficients
+        mNFieldCoeff = mNFieldBases * mNumberOfFields;
+
+        // init storage size
+        mN.set_size( mNumberOfFields, mNFieldCoeff, 0.0 );
+        mdNdx.set_size( mNSpaceDim, mNFieldBases, 0.0 );
+        mdNdt.set_size( mNTimeDim, mNFieldBases, 0.0 );
+        md2Ndxt.set_size( mNSpaceDim, mNFieldBases, 0.0 );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
     Field_Interpolator::set_coeff( const Matrix< DDRMat >& aUHat )
     {
         // check the input size
-        MORIS_ASSERT( ( ( aUHat.n_cols() == mNumberOfFields ) && ( aUHat.n_rows() == mNFieldBases ) ),
+        MORIS_ASSERT( ( aUHat.n_rows() == mNFieldBases ) and ( aUHat.n_cols() == mNumberOfFields ),
                 "Field_Interpolator::set_coeff - Wrong input size (aUHat)." );
 
         // set the coefficients

@@ -455,6 +455,9 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::calculate_basis_ids()
     {
+        // Brendan delete output the basis ids to a file for debugging
+        std::ofstream tFile( "node_ijkl_ids_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
+
         // loop over all basis
         for ( auto tBasis : mAllBasisOnProc )
         {
@@ -464,8 +467,19 @@ namespace moris::hmr
             // calc id and write into basis
             uint  tLevel   = tBasis->get_level();
             luint tBasisId = this->calculate_basis_id( tLevel, tIJK );
+
+            if ( tLevel == 0 )
+            {
+                for ( uint iD = 0; iD < mParameters->get_number_of_dimensions(); iD++ )
+                {
+                    tFile << tIJK[ iD ] << " ";
+                }
+                tFile << tBasisId << std::endl;
+            }
             tBasis->set_domain_id( tBasisId );
         }
+
+        tFile.close();
     }
 
     //------------------------------------------------------------------------------

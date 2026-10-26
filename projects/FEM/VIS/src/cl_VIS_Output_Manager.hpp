@@ -354,7 +354,8 @@ namespace moris
                     Vector< Vector< std::string > > const &aIQINames,
                     Vector< Vector< std::string > > const &aFieldNames,
                     Matrix< DDRMat >                      *aGlobalFieldValues,
-                    Matrix< DDRMat >                      *aNodalFieldValues );
+                    Matrix< DDRMat >                      *aNodalFieldValues,
+                    bool                                   aIsFowardAnalysis );
 
             //-----------------------------------------------------------------------------------------------------------
 

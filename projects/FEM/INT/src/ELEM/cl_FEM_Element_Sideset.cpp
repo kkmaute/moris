@@ -17,6 +17,8 @@
 // FEM/MSI/src
 #include "cl_MSI_Equation_Model.hpp"
 
+#include "fn_dot.hpp"
+
 namespace moris::fem
 {
 
@@ -40,18 +42,14 @@ namespace moris::fem
     void Element_Sideset::init_ig_geometry_interpolator( uint aSideOrdinal )
     {
         // get geometry interpolator for IG element
-        Geometry_Interpolator *tIGGI =
-                mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
+        Geometry_Interpolator *tIGGI = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
         // get leader physical space and time coordinates for IG element
-        Matrix< DDRMat > tIGPhysSpaceCoords =
-                mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
-        Matrix< DDRMat > tIGPhysTimeCoords =
-                mCluster->mInterpolationElement->get_time();
+        Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
+        Matrix< DDRMat > tIGPhysTimeCoords  = mCluster->mInterpolationElement->get_time();
 
         // get leader parametric space and time coordinates for IG element
-        Matrix< DDRMat > tIGParamSpaceCoords =
-                mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal );
+        Matrix< DDRMat > tIGParamSpaceCoords = mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal );
 
         // FIXME not true if time is not linear
         Matrix< DDRMat > tIGParamTimeCoords = { { -1.0 }, { 1.0 } };
@@ -67,6 +65,34 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    void Element_Sideset::init_adjoint_ig_geometry_interpolator( uint aSideOrdinal )
+    {
+        // get geometry interpolator for IG element
+        Geometry_Interpolator *tIGGI = mSet->get_field_interpolator_manager_adjoint_vectors()->get_IG_geometry_interpolator();
+
+        // get leader physical space and time coordinates for IG element
+        Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
+        Matrix< DDRMat > tIGPhysTimeCoords  = mCluster->mInterpolationElement->get_time();
+
+        // get leader parametric space and time coordinates for IG element
+        Matrix< DDRMat > tIGParamSpaceCoords = mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal );
+
+        // FIXME not true if time is not linear
+        Matrix< DDRMat > tIGParamTimeCoords = { { -1.0 }, { 1.0 } };
+
+        // set physical space and time coefficients for IG element GI
+        tIGGI->set_space_coeff( tIGPhysSpaceCoords );
+        tIGGI->set_time_coeff( tIGPhysTimeCoords );
+
+        // set parametric space and time coefficients for IG element GI
+        tIGGI->set_space_param_coeff( tIGParamSpaceCoords );
+        tIGGI->set_time_param_coeff( tIGParamTimeCoords );
+
+        this->set_ig_field_interpolator_coefficients( aSideOrdinal );
+    }
+
+    //------------------------------------------------------------------------------
+
     void Element_Sideset::init_ig_geometry_interpolator(
             uint              aSideOrdinal,
             Matrix< DDSMat > &aGeoLocalAssembly )
@@ -76,10 +102,8 @@ namespace moris::fem
                 mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
         // get leader physical space and time coordinates for IG element
-        Matrix< DDRMat > tIGPhysSpaceCoords =
-                mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
-        Matrix< DDRMat > tIGPhysTimeCoords =
-                mCluster->mInterpolationElement->get_time();
+        Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
+        Matrix< DDRMat > tIGPhysTimeCoords  = mCluster->mInterpolationElement->get_time();
 
         // get leader parametric space and time coordinates for IG element
         Matrix< DDRMat > tIGParamSpaceCoords =
@@ -92,8 +116,7 @@ namespace moris::fem
         if ( mSet->get_geo_pdv_assembly_flag() )
         {
             // get the vertices indices for IG element
-            Matrix< IndexMat > tVertexIndices =
-                    mLeaderCell->get_vertices_ind_on_side_ordinal( aSideOrdinal );
+            Matrix< IndexMat > tVertexIndices = mLeaderCell->get_vertices_ind_on_side_ordinal( aSideOrdinal );
 
             // get the requested geo pdv types
             Vector< enum gen::PDV_Type > tGeoPdvType;
@@ -136,6 +159,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator( tSideOrd );
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator( tSideOrd );
+        }
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -209,6 +236,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator( tSideOrd );
+        if ( mSet->mAdjointPdofValues.size() > 0 and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator( tSideOrd );
+        }
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -465,6 +496,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator( tSideOrd );
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator( tSideOrd );
+        }
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -640,6 +675,9 @@ namespace moris::fem
                 // compute dQIdp at evaluation point
                 Vector< Matrix< IndexMat > > tVertexIndices( 0 );
                 ( this->*m_compute_dQIdp )( tReqIQI, tWStar, tGeoLocalAssembly, tVertexIndices );
+
+                // brendan this goes to a finite differencing so it does not call the analytic detJ
+                // figure out what
             }
         }
     }
@@ -740,6 +778,10 @@ namespace moris::fem
 
     void Element_Sideset::compute_quantity_of_interest_global( const uint aFemMeshIndex )
     {
+        // brendan delete previous version of the file
+        std::ofstream tIntegFile( "dv_dp_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt", std::ios::app );
+        tIntegFile.precision( 16 );
+
         // get number of active local IQIs
         uint tNumLocalIQIs = mSet->get_number_of_requested_global_IQIs_for_visualization();
 
@@ -754,6 +796,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator( tSideOrd );
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator( tSideOrd );
+        }
 
         // loop over integration points
         uint tNumIntegPoints = mSet->get_number_of_integration_points();
@@ -761,11 +807,15 @@ namespace moris::fem
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
         {
             // get the ith integration point in the IG param space
-            const Matrix< DDRMat > &tLocalIntegPoint =
-                    mSet->get_integration_points().get_column( iGP );
+            const Matrix< DDRMat > &tLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
 
             // set evaluation point for interpolators (FIs and GIs)
             mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+            if ( mSet->mAdjointPdofValues.size() > 0 )
+            {
+                mSet->get_field_interpolator_manager_adjoint_vectors()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+            }
 
             // compute detJ of integration domain
             real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -778,6 +828,54 @@ namespace moris::fem
 
             // compute integration point weight
             real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+            // brendan delete
+            if ( not mSet->mEquationModel->is_forward_analysis() )
+            {
+                Geometry_Interpolator *tIGGI = mSet->get_field_interpolator_manager_adjoint_vectors()->get_IG_geometry_interpolator();
+                // write integration point data to file
+                // PRINT( mSet->get_field_interpolator_manager_adjoint_vectors()->get_IG_geometry_interpolator()->get_space_coeff() );
+                Matrix< DDRMat > tCoord   = tIGGI->valx();
+                Matrix< DDRMat > tdNdXi   = tIGGI->dNdXi();
+                Matrix< DDRMat > tdDetJdX = trans( tdNdXi ) * tIGGI->d_space_det_J_dJ();
+
+                // // Compute dDetJ/dX via FD
+                // Matrix< DDRMat > tSpaceCoeff = tIGGI->get_space_coeff();
+                // Matrix< DDRMat > tdDetJdXFD( tdDetJdX.n_rows(), tdDetJdX.n_cols(), 0.0 );
+                // real             tEpsilon = 1e-6;
+                // for ( uint i = 0; i < tSpaceCoeff.n_rows(); i++ )
+                // {
+                //     for ( uint j = 0; j < tSpaceCoeff.n_cols(); j++ )
+                //     {
+                //         Matrix< DDRMat > tSpaceCoeffPerturbed = tSpaceCoeff;
+
+                //         // Positive perturbation
+                //         tSpaceCoeffPerturbed( i, j ) += tEpsilon;
+                //         tIGGI->set_space_coeff( tSpaceCoeffPerturbed );
+                //         real tDetJPlus = tIGGI->space_det_J();
+
+                //         // Negative perturbation
+                //         tSpaceCoeffPerturbed( i, j ) -= 2.0 * tEpsilon;
+                //         tIGGI->set_space_coeff( tSpaceCoeffPerturbed );
+                //         real tDetJMinus    = tIGGI->space_det_J();
+                //         tdDetJdXFD( i, j ) = ( tDetJPlus - tDetJMinus ) / ( 2.0 * tEpsilon );
+                //     }
+                // }
+
+                real tSpaceDetJ = tIGGI->space_det_J();
+                real tdDetJdP   = dot( tdDetJdX, mSet->get_field_interpolator_manager_adjoint_vectors()->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->get_coeff() );
+
+                // real tdDetJdPFD = dot( tdDetJdXFD, mSet->get_field_interpolator_manager_adjoint_vectors()->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->get_coeff() );
+                // PRINT( tdNdXi );
+                // PRINT( tdDetJdX );
+                // PRINT( mSet->get_field_interpolator_manager_adjoint_vectors()->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->get_coeff() );
+                // std::cout << tdDetJdP << "\n";
+                for ( uint iD = 0; iD < tCoord.numel(); iD++ )
+                {
+                    tIntegFile << tCoord( iD ) << " ";
+                }
+                tIntegFile << mSet->get_integration_weights()( iGP ) << " " << tSpaceDetJ << " " << tdDetJdP << "\n";    //  << tdDetJdPFD << "\n";
+            }
 
             // get the normal from mesh
             Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
@@ -809,6 +907,7 @@ namespace moris::fem
             }    // end for: each IQI on the current element
 
         }    // end for: each integration point
+        tIntegFile.close();
 
     }    // end function: Element_Sideset::compute_quantity_of_interest_global()
 
@@ -856,6 +955,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator( tSideOrd );
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator( tSideOrd );
+        }
 
         // initialize space - time volume
         real tSpaceTimeVolume = 0.0;
@@ -941,6 +1044,10 @@ namespace moris::fem
 
         // set physical and parametric space and time coefficients for IG element
         this->init_ig_geometry_interpolator( tSideOrd );
+        if ( not mSet->mEquationModel->is_forward_analysis() and not mSet->mEquationModel->is_adjoint_sensitivity_analysis() )
+        {
+            this->init_adjoint_ig_geometry_interpolator( tSideOrd );
+        }
 
         // get number of integration points
         uint tNumOfIntegPoints = mSet->get_number_of_integration_points();

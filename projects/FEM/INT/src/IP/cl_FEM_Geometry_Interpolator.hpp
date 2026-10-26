@@ -146,7 +146,7 @@ namespace moris::fem
         /**
          * trivial constructor
          */
-        Geometry_Interpolator(){};
+        Geometry_Interpolator() {};
 
         /**
          * constructor
@@ -430,6 +430,13 @@ namespace moris::fem
         }
 
         //------------------------------------------------------------------------------
+
+        bool is_space_set()
+        {
+            return mSpaceInterpolator->is_space_set();
+        }
+
+        //------------------------------------------------------------------------------
         /**
          * gets the space shape functions at a given evaluation point
          * @param[ out ] aNXi shape functions ( 1 x <number of nodes> )
@@ -561,6 +568,11 @@ namespace moris::fem
         real        det_J();
         const real& space_det_J();
         const real& time_det_J();
+
+        /**
+         * Derivative of det_J wrt to the space coordinates xHat
+         */
+        Matrix< DDRMat > d_space_det_J_dJ();
 
         //------------------------------------------------------------------------------
         /**

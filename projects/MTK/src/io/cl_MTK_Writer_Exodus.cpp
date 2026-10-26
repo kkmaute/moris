@@ -293,15 +293,21 @@ namespace moris::mtk
     void
     Writer_Exodus::set_global_variables( Vector< std::string > aVariableNames )
     {
+        mGlobalVariableNamesMap.clear();
+
         if ( aVariableNames.size() > 0 )
         {
             // Write the number of global fields
-            ex_put_variable_param( mExoID, EX_GLOBAL, aVariableNames.size() );
+            int tErrMsg = ex_put_variable_param( mExoID, EX_GLOBAL, aVariableNames.size() );
+            MORIS_ERROR( tErrMsg == 0, "Global variable count could not be written to exodus file." );
 
             // Write the global field names and store as a map
             for ( uint tVariableIndex = 0; tVariableIndex < aVariableNames.size(); tVariableIndex++ )
             {
-                ex_put_variable_name( mExoID, EX_GLOBAL, tVariableIndex + 1, aVariableNames( tVariableIndex ).c_str() );
+                MORIS_ERROR( !mGlobalVariableNamesMap.key_exists( aVariableNames( tVariableIndex ) ),
+                        "Duplicate global variable name: %s.", aVariableNames( tVariableIndex ).c_str() );
+                tErrMsg = ex_put_variable_name( mExoID, EX_GLOBAL, tVariableIndex + 1, aVariableNames( tVariableIndex ).c_str() );
+                MORIS_ERROR( tErrMsg == 0, "Global variable name could not be written to exodus file." );
                 mGlobalVariableNamesMap[ aVariableNames( tVariableIndex ) ] = tVariableIndex;
             }
         }
@@ -598,44 +604,44 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Writer_Exodus::write_global_variables(
-            Vector< std::string >&  aVariableNames,
-            const Matrix< DDRMat >& aVariableValues )
+    Writer_Exodus::write_global_variable(
+            const std::string& aVariableName,
+            real               aVariableValue )
     {
-        // number of global variables
-        uint tNumVariables = aVariableNames.size();
+        MORIS_ERROR( mGlobalVariableNamesMap.key_exists( aVariableName ),
+                "%s is not a global variable name on this mesh!", aVariableName.c_str() );
+        MORIS_ERROR( mTimeStep > 0, "Set the time before writing global variables." );
 
-        // check that number of variables names is not larger than number of values
-        MORIS_ASSERT( tNumVariables <= aVariableValues.numel(),
-                "Number of global variables names larger than number of values." );
-
-        // allocated vector of sorted global variables
-        Matrix< DDRMat > tSortedValues( tNumVariables, 1 );
-
-        for ( uint ig = 0; ig < tNumVariables; ++ig )
-        {
-            // Variable name to index
-            uint tVariableIndex = mGlobalVariableNamesMap[ aVariableNames( ig ) ];
-
-            // check that index is valid
-            MORIS_ASSERT( tVariableIndex < tNumVariables, "Global variable index too large." );
-
-            // store global variable in sorted list
-            tSortedValues( tVariableIndex ) = aVariableValues( ig );
-        }
-
-        // Write the variables
-        int tErrMsg = ex_put_var(
+        // Global variables share one array per time step. Select the slot with
+        // start_index (1-based); var_index stays 1 for a single time step.
+        int tErrMsg = ex_put_partial_var(
                 mExoID,
                 mTimeStep,
                 EX_GLOBAL,
                 1,
                 0,
-                tNumVariables,
-                tSortedValues.data() );
+                mGlobalVariableNamesMap.find( aVariableName ) + 1,
+                1,
+                &aVariableValue );
 
-        // check for error
-        MORIS_ERROR( tErrMsg == 0, "Global variables could not be written to exodus file." );
+        MORIS_ERROR( tErrMsg == 0,
+                "Global variable %s could not be written to exodus file.", aVariableName.c_str() );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Writer_Exodus::write_global_variables(
+            const Vector< std::string >& aVariableNames,
+            const Matrix< DDRMat >&      aVariableValues )
+    {
+        MORIS_ERROR( aVariableNames.size() <= aVariableValues.numel(),
+                "Number of global variable names larger than number of values." );
+
+        for ( uint ig = 0; ig < aVariableNames.size(); ++ig )
+        {
+            this->write_global_variable( aVariableNames( ig ), aVariableValues( ig ) );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

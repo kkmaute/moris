@@ -574,7 +574,8 @@ namespace moris::mtk
 
         // check that number of nodes match with the field nodes
         MORIS_ERROR( tNumNodes == mValues.n_rows(),
-                "Field::load_field_from_exodus - number of nodes in exodus file incorrect (Got %u, Expected %lu).\n",
+                "Field::load_field_from_exodus - %s has incorrect number of nodes in exodus file (Got %u, Expected %lu).\n",
+                aFileName.c_str(),
                 tNumNodes,
                 mValues.n_rows() );
 

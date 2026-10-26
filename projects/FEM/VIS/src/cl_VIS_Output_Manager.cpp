@@ -18,6 +18,7 @@
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Model.hpp"
 #include "fn_Parsing_Tools.hpp"
 
 // Logging package
@@ -500,20 +501,17 @@ namespace moris::vis
     void
     Output_Manager::add_global_fields( const uint aVisMeshIndex )
     {
-        Vector< std::string > tGlobalFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
+        Vector< std::string > tGlobalFieldNames;
 
-        uint tCounter = 0;
-
-        // loop over field names and check if fields are global fields
+        // Register the complete Exodus namespace once. Forward and sensitivity
+        // evaluations write their respective subsets later.
         for ( uint iField = 0; iField < mOutputData( aVisMeshIndex ).mFieldNames.size(); iField++ )
         {
             if ( mOutputData( aVisMeshIndex ).mFieldType( iField ) == Field_Type::GLOBAL )
             {
-                tGlobalFieldNames( tCounter++ ) = mOutputData( aVisMeshIndex ).mFieldNames( iField );
+                tGlobalFieldNames.push_back( mOutputData( aVisMeshIndex ).mFieldNames( iField ) );
             }
         }
-
-        tGlobalFieldNames.resize( tCounter );
 
         mWriter( aVisMeshIndex )->set_global_variables( tGlobalFieldNames );
     }
@@ -693,7 +691,7 @@ namespace moris::vis
             const uint                                    aVisMeshIndex,
             const real                                    aTime,
             const std::shared_ptr< MSI::Equation_Model >& aEquationModel,
-            const bool                                    aIsFowardAnalysis )
+            const bool                                    aIsForwardAnalysis )
     {
         // log/time this operation
         Tracer tTracer( "VIS", "Output Manager", "Write Fields" );
@@ -710,7 +708,7 @@ namespace moris::vis
                 tIQINames,
                 tFieldNames,
                 tNumIQIsForFieldType,
-                aIsFowardAnalysis );
+                aIsForwardAnalysis );
 
         // increment field write counter (signal that another output has been performed)
         mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
@@ -778,7 +776,8 @@ namespace moris::vis
                     tIQINames,
                     tFieldNames,
                     &tGlobalValues,
-                    &tNodalValues );
+                    &tNodalValues,
+                    aIsForwardAnalysis );
 
         }    // end for: each set requested for output mesh
 
@@ -836,7 +835,7 @@ namespace moris::vis
             Vector< Vector< std::string > >& aIQINames,
             Vector< Vector< std::string > >& aFieldNames,
             Vector< uint >&                  aNumIQIsForFieldType,
-            const bool                       aIsFowardAnalysis )
+            const bool                       aIsForwardAnalysis )
     {
         // number of fields in vis mesh
         uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
@@ -853,8 +852,8 @@ namespace moris::vis
         for ( uint iField = 0; iField < tNumFields; iField++ )
         {
             // check that analysis type matches the requested one
-            if ( ( aIsFowardAnalysis && mOutputData( aVisMeshIndex ).mAnalysisType( iField ) != vis::Analysis_Type::FORWARD ) ||    //
-                    ( !aIsFowardAnalysis && mOutputData( aVisMeshIndex ).mAnalysisType( iField ) != vis::Analysis_Type::SENSITIVITY ) )
+            if ( ( aIsForwardAnalysis && mOutputData( aVisMeshIndex ).mAnalysisType( iField ) != vis::Analysis_Type::FORWARD ) ||    //
+                    ( !aIsForwardAnalysis && mOutputData( aVisMeshIndex ).mAnalysisType( iField ) != vis::Analysis_Type::SENSITIVITY ) )
             {
                 continue;
             }
@@ -892,7 +891,8 @@ namespace moris::vis
             Vector< Vector< std::string > > const & aIQINames,
             Vector< Vector< std::string > > const & aFieldNames,
             Matrix< DDRMat >*                       aGlobalFieldValues,
-            Matrix< DDRMat >*                       aNodalFieldValues )
+            Matrix< DDRMat >*                       aNodalFieldValues,
+            bool                                    aIsForwardAnalysis )
     {
         // compute fields for each type
         for ( uint iFieldType = 0; iFieldType < (uint)Field_Type::END_ENUM; iFieldType++ )

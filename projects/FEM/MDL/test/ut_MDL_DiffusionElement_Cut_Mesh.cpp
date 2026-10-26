@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_MDL_DiffusionElement_Cut_Mesh.cpp
+ * ut_MDL_DiffusionElement_Cut_Mesh.cpp
  *
  */
 

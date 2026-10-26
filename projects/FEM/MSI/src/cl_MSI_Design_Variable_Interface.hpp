@@ -317,6 +317,8 @@ namespace moris
             virtual const Matrix< DDSMat >& get_my_local_global_map() = 0;
             // BRENDAN to make this work in parallel
 
+            virtual Matrix< IndexMat > get_owned_ADV_IDs() = 0;
+
             //------------------------------------------------------------------------------
 
             /**
@@ -369,6 +371,14 @@ namespace moris
              * be unnecessary.
              */
             virtual bool is_gen_workflow() const = 0;
+
+            /**
+             * Gets dxdp sensitivities for all the requested nodes and the requested adv index
+             * @param[ in ] aNodeIndices List of node indices to get sensitivities for
+             * @param[ in ] aADVIndex Index of the adv to get sensitivities for
+             * @return Matrix of dxdp sensitivities, with rows corresponding to the node indices and columns corresponding to the spatial dimensions
+             */
+            virtual Matrix< DDRMat > get_dxdp( const Matrix< DDSMat >& aNodeIndices, uint aADVID ) const;
 
             //------------------------------------------------------------------------------
 

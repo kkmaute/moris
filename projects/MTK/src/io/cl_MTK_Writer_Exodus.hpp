@@ -45,12 +45,12 @@ namespace moris::mtk
         moris::mtk::Mesh* mMesh;
 
         // name maps
-        moris::map< std::string, int > mBlockNamesMap;
-        moris::map< std::string, int > mSideSetNamesMap;
-        moris::map< std::string, int > mNodalFieldNamesMap;
-        moris::map< std::string, int > mElementalFieldNamesMap;
-        moris::map< std::string, int > mSideSetFieldNamesMap;
-        moris::map< std::string, int > mGlobalVariableNamesMap;
+        moris::map< std::string, int >           mBlockNamesMap;
+        moris::map< std::string, int >           mSideSetNamesMap;
+        moris::map< std::string, int >           mNodalFieldNamesMap;
+        moris::map< std::string, int >           mElementalFieldNamesMap;
+        moris::map< std::string, int >           mSideSetFieldNamesMap;
+        moris::map< std::string, int >           mGlobalVariableNamesMap;
 
         // indices of non-empty sets across all procs
         Vector< uint > mElementBlockIndices;
@@ -231,7 +231,8 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         /**
-         * Sets the number of variables to be written globally
+         * Registers all global variable names once per output file, including
+         * fields evaluated during both forward and sensitivity analyses.
          *
          * @param aFieldNames The names of the fields that can be written
          */
@@ -302,14 +303,21 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         /**
-         *  Writes all global variables at the current time step.
+         *  Writes the named subset of global variables at the current time step.
          *
          *  @param aVariableNames  cell of names of the variable being written
          *  @param aVariableValues vector of values of the global variables
          */
         void write_global_variables(
-                Vector< std::string >&  aVariableNames,
-                const Matrix< DDRMat >& aVariableValues );
+                const Vector< std::string >& aVariableNames,
+                const Matrix< DDRMat >&      aVariableValues );
+
+        /**
+         * Writes one registered global variable without changing other globals.
+         */
+        void write_global_variable(
+                const std::string& aVariableName,
+                real               aVariableValue );
 
         //------------------------------------------------------------------------------
 
@@ -323,11 +331,7 @@ namespace moris::mtk
          * @param aTempPath The path of the temporary file
          * @param aTempName The name of a temporary file
          */
-        void create_file(
-                std::string        aFilePath,
-                const std::string& aFileName,
-                std::string        aTempPath,
-                const std::string& aTempName );
+        void create_file( std::string aFilePath, const std::string& aFileName, std::string aTempPath, const std::string& aTempName );
 
         //------------------------------------------------------------------------------
 

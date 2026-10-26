@@ -26,6 +26,7 @@ namespace moris::gen
         tPdvTypeMap[ "ELASTIC_MODULUS" ] = PDV_Type::ELASTIC_MODULUS;
         tPdvTypeMap[ "LS1" ]             = PDV_Type::LS1;
         tPdvTypeMap[ "LS2" ]             = PDV_Type::LS2;
+        tPdvTypeMap[ "DXDP" ]            = PDV_Type::DXDP;
         tPdvTypeMap[ "" ]                = PDV_Type::UNDEFINED;
 
         return tPdvTypeMap;

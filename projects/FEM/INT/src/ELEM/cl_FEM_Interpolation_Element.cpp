@@ -31,6 +31,9 @@
 #include <utility>
 #include <ml_utils.h>
 
+// brendan delete
+#include "fn_norm.hpp"
+
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
@@ -248,7 +251,17 @@ namespace moris::fem
         // dv field interpolators------------------------------------------
 
         // get leader dv type list from set
-        const Vector< gen::PDV_Type >& tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
+        Vector< gen::PDV_Type > tLeaderDvTypeList = mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
+
+        // Remove DXDP in the leader list if it exists
+        for ( uint iDv = tLeaderDvTypeList.size(); iDv > 0; --iDv )
+        {
+            if ( tLeaderDvTypeList( iDv - 1 ) == gen::PDV_Type::DXDP )
+            {
+                tLeaderDvTypeList.erase( tLeaderDvTypeList.begin() + iDv - 1 );
+                break;
+            }
+        }
 
         if ( tLeaderDvTypeList.size() > 0 )
         {
@@ -472,7 +485,12 @@ namespace moris::fem
                 mSet->mEquationModel->get_design_variable_interface();
 
         // get the list of requested dv types by the opt solver
-        const Vector< enum gen::PDV_Type >& tRequestedDvTypesLeader = mSet->get_ip_dv_types_for_set();
+        Vector< enum gen::PDV_Type > tRequestedDvTypesLeader = mSet->get_ip_dv_types_for_set();
+        moris_index                  tDxDp                   = tRequestedDvTypesLeader.find( gen::PDV_Type::DXDP );
+        if ( tDxDp >= 0 )
+        {
+            tRequestedDvTypesLeader.erase( tDxDp );
+        }    // brendan really hacky dumb way to do this
 
         // reset material pdv assembly vector
         mSet->get_mat_pdv_assembly_vector().fill( -1 );
@@ -505,8 +523,7 @@ namespace moris::fem
         //
 
         // get dv ids for this type and node indices
-        Vector< Matrix< IdMat > >
-                tPdvIds;
+        Vector< Matrix< IdMat > > tPdvIds;
 
         // get the pdv ids for requested vertices and pdv type
         tDVInterface->get_ip_dv_ids_for_type_and_ind(
@@ -557,7 +574,7 @@ namespace moris::fem
                     mSet->mIPAdvIds,
                     mSet->mIPDVTypeAdvMapFollower );
 
-            std::cout << "Rank " << par_rank() << " " << mSet->mIPAdvIds.size() << " " << std::endl;
+            // std::cout << "Rank " << par_rank() << " " << mSet->mIPAdvIds.size() << " " << std::endl;
 
             // get dv ids for this type and node indices
             Vector< Matrix< IdMat > >
@@ -1609,6 +1626,20 @@ namespace moris::fem
         // get number of vertices on the treated mesh cluster
         uint tNumVertices = tVertexLocalCoords.n_rows();
 
+        // Make a new point geometry interpolator to set for dxdp
+        mtk::Interpolation_Rule tPointInterpRule = mtk::Interpolation_Rule(
+                mtk::Geometry_Type::POINT,
+                mtk::Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Order::CONSTANT,
+                mtk::Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Order::CONSTANT );
+        Geometry_Interpolator tPointInterpolator = Geometry_Interpolator(
+                tPointInterpRule,
+                tPointInterpRule,
+                mtk::CellShape::GENERAL,
+                false,
+                false );
+
         if ( !mSet->mEquationModel->is_forward_analysis() )
         {
             // get the vertices indices for IG element
@@ -1622,6 +1653,7 @@ namespace moris::fem
 
             // get new geo asssembly indices
             mSet->create_geo_adv_assembly_data( tVertexIndicesForSensitivities );
+            mSet->get_field_interpolator_manager_adjoint_vectors()->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->change_interpolation_rule( tPointInterpRule, &tPointInterpolator );
         }
 
         // loop over the vertices on the treated mesh cluster
@@ -1643,14 +1675,35 @@ namespace moris::fem
                 mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tNodalPointLocalCoords );
             }
 
-            if ( mSet->mAdjointPdofValues.size() > 0 )
-            {
-                mSet->get_field_interpolator_manager_adjoint_vectors()->set_space_time( tNodalPointLocalCoords );
-            }
-
             if ( !mSet->mEquationModel->is_forward_analysis() )
             {
+                // Set the point geometry interpolator space time
+                mSet->get_field_interpolator_manager_adjoint_vectors()->set_space_time( tNodalPointLocalCoords );
                 mSet->set_geo_weights_for_cluster_node_index( iVertex );
+
+                Field_Interpolator* tFI         = mSet->get_field_interpolator_manager_adjoint_vectors()->get_field_interpolators_for_type( gen::PDV_Type::DXDP );
+                Matrix< DDRMat >    tGeoWeight  = mSet->get_current_adv_geo_weight();
+                moris_index         tLocalIndex = mSet->get_current_adv_geo_index( 0 );    // BRENDAN hard coded ADV 1
+                if ( tGeoWeight.numel() != 0 && tLocalIndex >= 0 )
+                {
+                    tGeoWeight = trans( tGeoWeight.get_column( tLocalIndex ) );    // BRENDAN hard coded ADV 0
+                }
+                else
+                {
+                    tGeoWeight.set_size( tFI->get_number_of_space_time_bases(), tFI->get_number_of_fields(), 0.0 );
+                }
+
+                tFI->set_coeff( tGeoWeight );
+
+                // Set dummy space time
+                Matrix< DDRMat > tSpaceTimeDummy( tFI->get_space_dim() + tFI->get_time_dim(), 1 );
+                tFI->set_space_time( tSpaceTimeDummy );
+
+                // // brendan delete
+                // Matrix< DDRMat > tCoords = mSet->get_field_interpolator_manager_adjoint_vectors()->get_IP_geometry_interpolator()->valx();
+                // real             tDetJ   = mSet->get_field_interpolator_manager_adjoint_vectors()->get_IG_geometry_interpolator()->det_J();
+                // real             tdVdp   = 0.0;
+                // std::cout << tCoords( 0 ) << " " << tCoords( 1 ) << " " << tCoords( 2 ) << " " << tDetJ << " " << tdVdp << std::endl;
             }
 
             // get the current vertex's coordinates
@@ -1663,12 +1716,10 @@ namespace moris::fem
             for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
             {
                 // get requested IQI
-                const std::shared_ptr< IQI >& tReqIQI =
-                        mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
+                const std::shared_ptr< IQI >& tReqIQI = mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
 
                 // get IQI global index
-                moris_index tGlobalIqiIndex =
-                        mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
+                moris_index tGlobalIqiIndex = mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
 
                 // reset the requested IQI
                 tReqIQI->reset_eval_flags();
@@ -1683,6 +1734,11 @@ namespace moris::fem
 
         }    // end for: vertices on cluster
 
+        // Reset the geometry interpolator for dxdp to the original one (not point interpolator)
+        if ( !mSet->mEquationModel->is_forward_analysis() )
+        {
+            mSet->get_field_interpolator_manager_adjoint_vectors()->reset_dxdp_interpolation_rule();
+        }
     }    // end function: Interpolation_Element::compute_nodal_QIs()
 
     //------------------------------------------------------------------------------

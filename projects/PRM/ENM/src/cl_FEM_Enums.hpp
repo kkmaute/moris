@@ -209,6 +209,7 @@ namespace moris::fem
             ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
             LINEAR_ELASTICITY_DAMAGE,
             DOF_SENSITIVITY,
+            PDV_SENSITIVITY,
             NODE_SENSITIVITY,
             MAX_DAMAGE,
             END_IQI_TYPE )

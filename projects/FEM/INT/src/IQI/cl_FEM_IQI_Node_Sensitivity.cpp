@@ -61,7 +61,7 @@ namespace moris::fem
         if ( tLocalAdvIndex >= 0 )
         {
             // get dxdp field
-            const Matrix< DDRMat >& tDxDp = mSet->get_current_adv_geo_weight();
+            const Matrix< DDRMat >& tDxDp = mLeaderAdjointFIManager->get_field_interpolators_for_type( gen::PDV_Type::DXDP )->val();
 
             if ( tDxDp.numel() > 0 )
             {
@@ -73,7 +73,7 @@ namespace moris::fem
         }
 
         // if optimization variable has no influence, set criterion to zero
-        aQI = { 0 };
+        aQI = { 0.0 };
     }
 
     //------------------------------------------------------------------------------

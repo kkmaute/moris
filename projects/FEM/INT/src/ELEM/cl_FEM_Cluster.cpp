@@ -300,6 +300,53 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    Matrix< IndexMat > Cluster::get_sensitivity_vertex_index_from_vis_index(
+            Matrix< IndexMat > &aVisIndices )
+    {
+        // if mesh cluster is not trivial
+        if ( !mMeshCluster->is_trivial( mtk::Leader_Follower::LEADER ) )
+        {
+            // for bulk and single-sided elements, get the leader vertices, for double-sided both leader and follower
+            mtk::Leader_Follower tLeaderFollower = mtk::Leader_Follower::LEADER;
+
+            if ( this->get_element_type() == Element_Type::DOUBLE_SIDESET || this->get_element_type() == Element_Type::NONCONFORMAL_SIDESET )
+            {
+                tLeaderFollower = mtk::Leader_Follower::UNDEFINED;
+            }
+
+            // Check if this cluster is a visualization cluster. If so, we need the FEM indices and not the VIS indices, so have to do some mapping
+            if ( mIsVisCluster )
+            {
+                std::map< moris_index, moris_index > tVisToFEMVertexMap;
+                // Get the vertices in the cluster, cast them to visualization vertices
+                Vector< const mtk::Vertex * > tVertices = mMeshCluster->get_vertices_in_cluster( tLeaderFollower );
+
+                // Loop over all of the vertices in the cluster
+                for ( uint iVertex = 0; iVertex < tVertices.size(); ++iVertex )
+                {
+                    // Convert to VIS vertex
+                    auto tVertexVIS = dynamic_cast< const vis::Vertex_Visualization * >( tVertices( iVertex ) );
+
+                    // Grab the FEM index associated with this VIS vertex
+                    tVisToFEMVertexMap[ tVertices( iVertex )->get_index() ] = tVertexVIS->get_integration_index();
+                }
+
+                // Build output
+                Matrix< IndexMat > tFEMIndices( aVisIndices.numel(), 1 );
+                for ( uint iV = 0; iV < aVisIndices.numel(); ++iV )
+                {
+                    tFEMIndices( iV ) = tVisToFEMVertexMap.at( aVisIndices( iV ) );
+                }
+
+                return tFEMIndices;
+            }
+        }
+
+        return aVisIndices;
+    }
+    //------------------------------------------------------------------------------
+
+
     void
     Cluster::get_vertex_indices_in_cluster_for_visualization(
             Matrix< IndexMat >  &aVerticesIndices,

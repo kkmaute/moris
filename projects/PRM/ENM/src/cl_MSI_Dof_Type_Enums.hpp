@@ -164,8 +164,7 @@ namespace moris::MSI
 
         tMSIDofTypeMap[ MSI::Dof_Type::NLEQSTRAIN ] = "NLEQSTRAIN";
         tMSIDofTypeMap[ MSI::Dof_Type::HISTORY ]    = "HISTORY";
-
-        tMSIDofTypeMap[ MSI::Dof_Type::UNDEFINED ] = "UNDEFINED";
+        tMSIDofTypeMap[ MSI::Dof_Type::UNDEFINED ]  = "UNDEFINED";
 
         return tMSIDofTypeMap;
     }

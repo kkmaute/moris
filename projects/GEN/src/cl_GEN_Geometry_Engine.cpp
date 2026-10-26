@@ -243,6 +243,7 @@ namespace moris::gen
     Matrix< DDRMat >
     Geometry_Engine::get_dcriteria_dadv()
     {
+        std::cout << "BRENDAN NUM CUTS: " << mNumCuts << std::endl;
         return mPDVHostManager->compute_dqi_dadv( mFullADVIds, mdGQIdADV );
     }
 
@@ -368,6 +369,11 @@ namespace moris::gen
     {
         // Add new derived node to the node manager
         mNodeManager.add_derived_node( mQueuedIntersectionNode );
+
+        if ( mActiveGeometryIndex == 3 )
+        {
+            mNumCuts++;
+        }
 
         // Set to nullptr to let the geometry engine know it was admitted
         mQueuedIntersectionNode = nullptr;

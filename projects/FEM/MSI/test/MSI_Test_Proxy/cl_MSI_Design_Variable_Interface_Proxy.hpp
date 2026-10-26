@@ -273,6 +273,14 @@ namespace moris::MSI
 
         //------------------------------------------------------------------------------
 
+        Matrix< IndexMat > get_owned_ADV_IDs() override
+        {
+            MORIS_ERROR( false, "Design_Variable_Interface_Proxy::get_owned_ADV_IDs() - not implemented in the child class" );
+            return mDvIds( 0 );
+        }
+
+        //------------------------------------------------------------------------------
+
         void get_ip_dv_ids_for_type_and_ind( const Matrix< IndexMat >& aNodeIndices,
                 const Vector< enum gen::PDV_Type >&                    aDvTypes,
                 Vector< moris::Matrix< IdMat > >&                      aDvIds ) const override

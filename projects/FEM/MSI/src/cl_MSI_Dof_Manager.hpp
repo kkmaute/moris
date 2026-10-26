@@ -194,7 +194,7 @@ namespace moris::MSI
                 Matrix< IndexMat >& tDiscretizationIndexPerTypeAndTime );
 
       public:
-        Dof_Manager(){};
+        Dof_Manager() {};
 
         //-----------------------------------------------------------------------------------------------------------
         Dof_Manager( const Matrix< IdMat >& aCommTable )

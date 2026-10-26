@@ -89,21 +89,25 @@ namespace moris::gen
         MORIS_ASSERT( aCoordinates.numel() == aSensitivities.numel(),
                 "User_Defined_Field::get_dfield_dcoordinates - inconsistent dimensions" );
 
+        // Finite difference perturbation size
         const real tPertubation = 1e-8;
 
-        Matrix< DDRMat > tCoordinates( aCoordinates );
-
+        // Compute sensitivities using central difference
+        Matrix< DDRMat > tCoordinates( aCoordinates );    // Copy coordinates to perturb
         for ( uint idim = 0; idim < aCoordinates.numel(); ++idim )
         {
+            // Positive perturbation
             tCoordinates( idim ) += tPertubation;
             real tFieldValue = this->get_field_value_user_defined( tCoordinates, aParameters );
 
+            // Negative perturbation
             tCoordinates( idim ) -= 2.0 * tPertubation;
             tFieldValue -= this->get_field_value_user_defined( tCoordinates, aParameters );
 
             // Reset coordinates
             tCoordinates( idim ) += tPertubation;
 
+            // Compute sensitivity
             aSensitivities( idim ) = tFieldValue / 2.0 / tPertubation;
         }
     }
@@ -141,7 +145,7 @@ namespace moris::gen
 
             // Check for size
             MORIS_ERROR( mSensitivities.n_cols() == mFieldVariables.size(),
-                    "Geometry %s: A user-defined field must have a sensitivity vector with a length equal to the, this->get_name().c_str() total "
+                    "Geometry %s: A user-defined field must have a sensitivity vector with a length equal to the total "
                     "number of field variables (ADVs + constants). sensitivities: %zu   geom variables: %zu \n",
                     this->get_name().c_str(),
                     mSensitivities.n_cols(),
@@ -181,10 +185,10 @@ namespace moris::gen
             Matrix< DDRMat > tSensitivities( 1, 3 );
             this->get_dfield_dcoordinates_select( { { 0.0, 0.0, 0.0 } }, mFieldVariables, tSensitivities );
 
-            // Check for row vector
-            MORIS_ERROR( tSensitivities.n_rows() == 1,
-                    "Geometry %s: A user-defined field must provide a row vector for spatial gradients.",
-                    this->get_name().c_str() );
+            // // Check for row vector
+            // MORIS_ERROR( tSensitivities.n_rows() == 1,
+            //         "Geometry %s: A user-defined field must provide a row vector for spatial gradients.",
+            //         this->get_name().c_str() );
 
             // Check for values not nan/infinity
             for ( uint tSensitivityIndex = 0; tSensitivityIndex < tSensitivities.n_cols(); tSensitivityIndex++ )

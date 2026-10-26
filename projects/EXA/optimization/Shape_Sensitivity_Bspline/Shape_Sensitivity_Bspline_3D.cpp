@@ -56,6 +56,7 @@ namespace moris
 
     void SM_Perturbation_Sensitivity( const Matrix< DDRMat >& aFacetVertexCoordinates,
             const Vector< real >&                             aADVs,
+            uint                                              aVertexIndex,
             Matrix< DDRMat >&                                 aSensitivity )
     {
         // Sensitivity of the coordinate perturbation by the ADV

@@ -617,24 +617,21 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Level_Set_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
+    void Level_Set_Geometry::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         return Design_Field::import_advs( aOwnedADVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Level_Set_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
+    void Level_Set_Geometry::reset_nodal_data( mtk::Interpolation_Mesh* aInterpolationMesh )
     {
         Design_Field::reset_nodal_data( aInterpolationMesh );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Level_Set_Geometry::discretize(
+    void Level_Set_Geometry::discretize(
             mtk::Mesh_Pair    aMeshPair,
             sol::Dist_Vector* aOwnedADVs )
     {
@@ -653,8 +650,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Level_Set_Geometry::discretize(
+    void Level_Set_Geometry::discretize(
             std::shared_ptr< mtk::Field > aMTKField,
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs )
@@ -704,16 +700,14 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Level_Set_Geometry::get_discretization_lower_bound() const
+    real Level_Set_Geometry::get_discretization_lower_bound() const
     {
         return mParameters.mDiscretizationLowerBound;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real
-    Level_Set_Geometry::get_discretization_upper_bound() const
+    real Level_Set_Geometry::get_discretization_upper_bound() const
     {
         return mParameters.mDiscretizationUpperBound;
     }

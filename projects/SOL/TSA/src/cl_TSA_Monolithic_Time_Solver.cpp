@@ -167,13 +167,12 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
 
         mNonlinearSolverForSensitivityAnalysis->solve( aFullAdjointVector( 0 ) );
 
-        //        aFullAdjointVector( 0 )->print();
+        // aFullAdjointVector( 0 )->print();
 
-        //  print the adjoint solution vector
-        //        Matrix< DDRMat >
-        //                tSolVec;
-        //        aFullAdjointVector( 0 )->extract_copy( tSolVec );
-        //        print( tSolVec, "aFullAdjointVector" );
+        // // print the adjoint solution vector
+        // Matrix< DDRMat > tSolVec;
+        // aFullAdjointVector( 0 )->extract_copy( tSolVec );
+        // print( tSolVec, "aFullAdjointVector" );
 
         Vector< enum MSI::Dof_Type > tDofTypeUnion = mMyTimeSolver->get_dof_type_union();
 

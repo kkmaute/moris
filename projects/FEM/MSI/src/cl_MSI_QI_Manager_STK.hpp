@@ -84,6 +84,12 @@ namespace moris
             virtual const Matrix< DDSMat >& get_my_local_global_map() override;
             // BRENDAN to make this work in parallel
 
+            Matrix< IndexMat > get_owned_ADV_IDs()
+            {
+                MORIS_ERROR( false, "QI_Manager_STK::get_owned_ADV_IDs - function not implemented." );
+                return mPDVIds;
+            }
+
             //------------------------------------------------------------------------------
 
             /**

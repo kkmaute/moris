@@ -19,6 +19,9 @@
 #include "fn_min.hpp"
 #include "fn_max.hpp"
 
+// brendan delete
+#include "fn_dot.hpp"
+
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
@@ -80,31 +83,31 @@ namespace moris::fem
         // switch on element type
         switch ( mSet->get_element_type() )
         {
-            case fem::Element_Type::BULK:
+            case Element_Type::BULK:
             {
                 m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                 m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
                 m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_bulk;
                 break;
             }
-            case fem::Element_Type::SIDESET:
+            case Element_Type::SIDESET:
             {
                 m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                 m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
                 m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_sideset;
                 break;
             }
-            case fem::Element_Type::TIME_SIDESET:
-            case fem::Element_Type::TIME_FINAL_SIDESET:
-            case fem::Element_Type::TIME_BOUNDARY:
+            case Element_Type::TIME_SIDESET:
+            case Element_Type::TIME_FINAL_SIDESET:
+            case Element_Type::TIME_BOUNDARY:
             {
                 m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                 m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material;
                 m_compute_dQIdp_FD_geometry = &IQI::select_dQIdp_FD_geometry_bulk;
                 break;
             }
-            case fem::Element_Type::DOUBLE_SIDESET:
-            case fem::Element_Type::NONCONFORMAL_SIDESET:
+            case Element_Type::DOUBLE_SIDESET:
+            case Element_Type::NONCONFORMAL_SIDESET:
             {
                 m_compute_dQIdu_FD          = &IQI::select_dQIdu_FD;
                 m_compute_dQIdp_FD_material = &IQI::select_dQIdp_FD_material_double;
@@ -118,12 +121,12 @@ namespace moris::fem
         // switch on perturbation strategy
         switch ( mSet->get_perturbation_strategy() )
         {
-            case fem::Perturbation_Type::RELATIVE:
+            case Perturbation_Type::RELATIVE:
             {
                 m_build_perturbation_size = &IQI::build_perturbation_size_relative;
                 break;
             }
-            case fem::Perturbation_Type::ABSOLUTE:
+            case Perturbation_Type::ABSOLUTE:
             {
                 m_build_perturbation_size = &IQI::build_perturbation_size_absolute;
                 break;
@@ -686,7 +689,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Vector< std::shared_ptr< fem::Property > >&
+    Vector< std::shared_ptr< Property > >&
     IQI::get_properties(
             mtk::Leader_Follower aIsLeader )
     {
@@ -734,7 +737,7 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Vector< std::shared_ptr< fem::Constitutive_Model > >&
+    Vector< std::shared_ptr< Constitutive_Model > >&
     IQI::get_constitutive_models(
             mtk::Leader_Follower aIsLeader )
     {
@@ -1648,9 +1651,9 @@ namespace moris::fem
 
     void
     IQI::select_dQIdu_FD(
-            real               aWStar,
-            real               aPerturbation,
-            fem::FDScheme_Type aFDSchemeType )
+            real          aWStar,
+            real          aPerturbation,
+            FDScheme_Type aFDSchemeType )
     {
         // get the column index to assemble in residual
         sint tQIIndex = mSet->get_QI_assembly_index( mName );
@@ -1718,8 +1721,8 @@ namespace moris::fem
                     uint tStartPoint = 0;
 
                     // if backward or forward fd
-                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                            ( aFDSchemeType == FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdu
                         mSet->get_residual()( tQIIndex )(
@@ -1816,8 +1819,8 @@ namespace moris::fem
                     uint tStartPoint = 0;
 
                     // if backward or forward fd
-                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( aFDSchemeType == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                            ( aFDSchemeType == FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdu
                         mSet->get_residual()( tQIIndex )(
@@ -1876,13 +1879,13 @@ namespace moris::fem
 
     bool
     IQI::check_dQIdu_FD(
-            real               aWStar,
-            real               aPerturbation,
-            real               aEpsilon,
-            Matrix< DDRMat >&  adQIdu,
-            Matrix< DDRMat >&  adQIduFD,
-            bool               aErrorPrint,
-            fem::FDScheme_Type aFDSchemeType )
+            real              aWStar,
+            real              aPerturbation,
+            real              aEpsilon,
+            Matrix< DDRMat >& adQIdu,
+            Matrix< DDRMat >& adQIduFD,
+            bool              aErrorPrint,
+            FDScheme_Type     aFDSchemeType )
     {
         // get the column index to assemble in residual
         sint tQIIndex = mSet->get_QI_assembly_index( mName );
@@ -1955,12 +1958,18 @@ namespace moris::fem
 
     void
     IQI::select_dQIdp_FD_material(
-            moris::real        aWStar,
-            moris::real        aPerturbation,
-            fem::FDScheme_Type aFDSchemeType )
+            real          aWStar,
+            real          aPerturbation,
+            FDScheme_Type aFDSchemeType )
     {
         // get the requested ip pdv types
-        const Vector< gen::PDV_Type >& tRequestedPdvTypes = mSet->get_ip_dv_types_for_set();
+        Vector< gen::PDV_Type > tRequestedPdvTypes = mSet->get_ip_dv_types_for_set();
+        moris_index             tDxDp              = tRequestedPdvTypes.find( gen::PDV_Type::DXDP );
+        if ( tDxDp >= 0 )
+        {
+            tRequestedPdvTypes.erase( tDxDp );
+        }    // brendan really hacky dumb way to do this
+
 
         // get number of requested dv types
         uint tNumPdvType = tRequestedPdvTypes.size();
@@ -2044,8 +2053,8 @@ namespace moris::fem
                 uint tStartPoint = 0;
 
                 // if backward or forward fd
-                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                if ( ( aFDSchemeType == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == FDScheme_Type::POINT_1_FORWARD ) )
                 {
                     // add unperturbed QI contribution to dQIdp
                     //                    mSet->get_dqidpmat()( tIQIAssemblyIndex )(tPdvAssemblyIndex)
@@ -2171,10 +2180,10 @@ namespace moris::fem
 
     real
     IQI::check_ig_coordinates_inside_ip_element(
-            const real&         aPerturbation,
-            const real&         aCoefficientToPerturb,
-            const uint&         aSpatialDirection,
-            fem::FDScheme_Type& aUsedFDScheme )
+            const real&    aPerturbation,
+            const real&    aCoefficientToPerturb,
+            const uint&    aSpatialDirection,
+            FDScheme_Type& aUsedFDScheme )
     {
         // FIXME: only works for rectangular IP elements
         // FIXME: only works for forward, backward, central, not for higher as 5-point FD
@@ -2210,7 +2219,7 @@ namespace moris::fem
         // check point location
         if ( aCoefficientToPerturb + tDeltaH >= tMaxIP )
         {
-            aUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+            aUsedFDScheme = FDScheme_Type::POINT_1_BACKWARD;
 
             // check for correctness of perturbation size for backward FD
             MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
@@ -2228,7 +2237,7 @@ namespace moris::fem
         {
             if ( aCoefficientToPerturb - tDeltaH <= tMinIP )
             {
-                aUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                aUsedFDScheme = FDScheme_Type::POINT_1_FORWARD;
 
                 // check for correctness of perturbation size for backward FD
                 MORIS_ASSERT( tDeltaH < tMaxIP - aCoefficientToPerturb,
@@ -2265,9 +2274,9 @@ namespace moris::fem
 
     void
     IQI::select_dQIdp_FD_geometry_bulk(
-            moris::real                   aWStar,
-            moris::real                   aPerturbation,
-            fem::FDScheme_Type            aFDSchemeType,
+            real                          aWStar,
+            real                          aPerturbation,
+            FDScheme_Type                 aFDSchemeType,
             Matrix< DDSMat >&             aGeoLocalAssembly,
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
@@ -2336,8 +2345,8 @@ namespace moris::fem
                     real tDQiDgeo = 0.0;
 
                     // check point location and define perturbation size and FD scheme accordingly
-                    fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                    tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
+                    FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                    tDeltaH                     = this->check_ig_coordinates_inside_ip_element(
                             aPerturbation,
                             tCoeff( iCoeffRow, iCoeffCol ),
                             iCoeffCol,
@@ -2351,8 +2360,8 @@ namespace moris::fem
                     uint tStartPoint = 0;
 
                     // if backward or forward fd
-                    if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    if ( ( tUsedFDScheme == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                            ( tUsedFDScheme == FDScheme_Type::POINT_1_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdp
                         tDQiDgeo += tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
@@ -2444,9 +2453,9 @@ namespace moris::fem
 
     void
     IQI::select_dQIdp_FD_geometry_sideset(
-            moris::real                   aWStar,
-            moris::real                   aPerturbation,
-            fem::FDScheme_Type            aFDSchemeType,
+            real                          aWStar,
+            real                          aPerturbation,
+            FDScheme_Type                 aFDSchemeType,
             Matrix< DDSMat >&             aGeoLocalAssembly,
             Vector< Matrix< IndexMat > >& aVertexIndices )
     {
@@ -2463,7 +2472,9 @@ namespace moris::fem
                 mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
         // store unperturbed xyz coordinates
-        Matrix< DDRMat > tCoeff = tIGGI->get_space_coeff();
+        Matrix< DDRMat > tCoeff  = tIGGI->get_space_coeff();
+        Matrix< DDRMat > tEdge   = tCoeff.get_row( 1 ) - tCoeff.get_row( 0 );    // edge vector of line segment brendan delete
+        real             tLength = norm( tEdge );                                // length of line segment brendan delete
 
         // store unperturbed local coordinates
         Matrix< DDRMat > tParamCoeff = tIGGI->get_space_param_coeff();
@@ -2500,6 +2511,15 @@ namespace moris::fem
         uint tDerNumBases      = tIGGI->get_number_of_space_bases();
         uint tDerNumDimensions = tIPGI->get_number_of_space_dimensions();
 
+// // brendan delete
+#if MORIS_HAVE_DEBUG
+        // Vector< Vector< FDScheme_Type > > tFDTypes( tDerNumDimensions, Vector< FDScheme_Type >( tDerNumBases ) );    // used FD type
+        Vector< Vector< real > > tGeoSens( tDerNumDimensions, Vector< real >( tDerNumBases ) );    // sensitivity of QI wrt geometry perturbation
+        std::ofstream            tFile( "dQIdp_FD_geometry.txt", std::ios::app );
+        tFile.precision( 16 );
+        tFile << tCoeff( 0, 0 ) << " " << tCoeff( 0, 1 ) << " " << tCoeff( 1, 0 ) << " " << tCoeff( 1, 1 ) << " ";
+#endif
+
         // loop over the spatial directions/loop on pdv type
         for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
         {
@@ -2522,83 +2542,184 @@ namespace moris::fem
                 {
                     real tDQiDgeo = 0.0;
 
-                    // check point location and define perturbation size and FD scheme accordingly
-                    fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                    tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
-                            aPerturbation,
-                            tCoeff( iCoeffRow, iCoeffCol ),
-                            iCoeffCol,
-                            tUsedFDScheme );
-
-                    // finalize FD scheme
-                    fd_scheme( tUsedFDScheme, tFDScheme );
-                    uint tNumFDPoints = tFDScheme( 0 ).size();
-
-                    // set starting point for FD
-                    uint tStartPoint = 0;
-
-                    // if backward or forward fd
-                    if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    //
+                    if ( mFEMIQIType == IQI_Type::VOLUME && tDerNumDimensions == 2 )
                     {
-                        // add unperturbed QI contribution to dQIdp
-                        tDQiDgeo += tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        real tSign = iCoeffRow == 0 ? -1.0 : 1.0;    // sign of the normal for the two nodes of the line segment
+                        tDQiDgeo   = 0.25 * tGPWeight * tSign * tEdge( iCoeffCol ) / tLength;
 
-                        // skip first point in FD
-                        tStartPoint = 1;
+#if MORIS_HAVE_DEBUG
+                        real tDQiDgeoCheck = 0.0;
+
+                        // check point location and define perturbation size and FD scheme accordingly
+                        FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        tDeltaH                     = this->check_ig_coordinates_inside_ip_element(
+                                aPerturbation,
+                                tCoeff( iCoeffRow, iCoeffCol ),
+                                iCoeffCol,
+                                tUsedFDScheme );
+
+                        // finalize FD scheme
+                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward fd
+                        if ( ( tUsedFDScheme == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDScheme == FDScheme_Type::POINT_1_FORWARD ) )
+                        {
+                            // add unperturbed QI contribution to dQIdp
+                            tDQiDgeoCheck += tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
+                        }
+
+                        // loop over point of FD scheme
+                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                        {
+                            // reset the perturbed coefficients
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                            // perturb the coefficient
+                            tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                            // setting the perturbed coefficients
+                            tIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
+                            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
+
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+
+                            tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->    //
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset the normal
+                            Matrix< DDRMat > tNormalPert;
+                            tIGGI->get_normal( tNormalPert );
+                            this->set_normal( tNormalPert );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset the QI
+                            mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+                            // compute the QI
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_QI( tWStarPert );
+
+                            // evaluate dQIdpGeo
+                            tDQiDgeoCheck +=
+                                    tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
+
+                        std::cout << "Difference: " << std::abs( tDQiDgeo - tDQiDgeoCheck ) << std::endl;
+#endif
+                    }
+                    // else if ( mFEMIQIType == IQI_Type::VOLUME && tDerNumDimensions == 3 )
+                    // {
+                    //     MORIS_ERROR( false, "IQI::select_dQIdp_FD_geometry_sideset - BRENDAN not implemented for 3D volume IQI" );
+                    // }
+                    else
+                    {
+                        // check point location and define perturbation size and FD scheme accordingly
+                        FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        tDeltaH                     = this->check_ig_coordinates_inside_ip_element(
+                                aPerturbation,
+                                tCoeff( iCoeffRow, iCoeffCol ),
+                                iCoeffCol,
+                                tUsedFDScheme );
+
+                        // finalize FD scheme
+                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
+
+                        // tFDTypes( iCoeffCol )( iCoeffRow ) = tUsedFDScheme;    // brendan delete
+
+                        // set starting point for FD
+                        uint tStartPoint = 0;
+
+                        // if backward or forward fd
+                        if ( ( tUsedFDScheme == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDScheme == FDScheme_Type::POINT_1_FORWARD ) )
+                        {
+                            // add unperturbed QI contribution to dQIdp
+                            tDQiDgeo += tFDScheme( 1 )( 0 ) * tQI( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                            // skip first point in FD
+                            tStartPoint = 1;
+                        }
+
+                        // loop over point of FD scheme
+                        for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
+                        {
+                            // reset the perturbed coefficients
+                            Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                            // perturb the coefficient
+                            tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                            // setting the perturbed coefficients
+                            tIGGI->set_space_coeff( tCoeffPert );
+
+                            // update local coordinates
+                            Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
+                            Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
+                            tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
+
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+
+                            tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+
+                            tIGGI->set_space_param_coeff( tParamCoeffPert );
+
+                            // set evaluation point for interpolators (FIs and GIs)
+                            mSet->get_field_interpolator_manager()->    //
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            // reset the normal
+                            Matrix< DDRMat > tNormalPert;
+                            tIGGI->get_normal( tNormalPert );
+                            this->set_normal( tNormalPert );
+
+                            // reset properties, CM and SP for IWG
+                            this->reset_eval_flags();
+
+                            // reset the QI
+                            mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
+
+                            // compute the QI
+                            real tWStarPert = tGPWeight * tIGGI->det_J();
+                            this->compute_QI( tWStarPert );
+
+                            // evaluate dQIdpGeo
+                            tDQiDgeo +=
+                                    tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                        }
                     }
 
-                    // loop over point of FD scheme
-                    for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
-                    {
-                        // reset the perturbed coefficients
-                        Matrix< DDRMat > tCoeffPert = tCoeff;
-
-                        // perturb the coefficient
-                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
-
-                        // setting the perturbed coefficients
-                        tIGGI->set_space_coeff( tCoeffPert );
-
-                        // update local coordinates
-                        Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
-                        Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
-
-                        tIPGI->update_parametric_coordinates( tXCoords, tXiCoords );
-
-                        Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
-
-                        tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
-
-                        tIGGI->set_space_param_coeff( tParamCoeffPert );
-
-                        // set evaluation point for interpolators (FIs and GIs)
-                        mSet->get_field_interpolator_manager()->    //
-                                set_space_time_from_local_IG_point( tEvaluationPoint );
-
-                        // reset the normal
-                        Matrix< DDRMat > tNormalPert;
-                        tIGGI->get_normal( tNormalPert );
-                        this->set_normal( tNormalPert );
-
-                        // reset properties, CM and SP for IWG
-                        this->reset_eval_flags();
-
-                        // reset the QI
-                        mSet->get_QI()( tIQIAssemblyIndex ).fill( 0.0 );
-
-                        // compute the QI
-                        real tWStarPert = tGPWeight * tIGGI->det_J();
-                        this->compute_QI( tWStarPert );
-
-                        // evaluate dQIdpGeo
-                        tDQiDgeo +=
-                                tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
-                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
-                    }
+#if MORIS_HAVE_DEBUG
+                    tGeoSens( iCoeffCol )( iCoeffRow ) = tDQiDgeo;
+#endif
                     mSet->get_dqidpgeo()( tIQIAssemblyIndex ) += tDQiDgeo * dIGNodeCorddAdv;
                 }
             }
+
             // reset xyz values
             tIGGI->set_space_coeff( tCoeff );
 
@@ -2610,7 +2731,27 @@ namespace moris::fem
 
             // reset normal
             this->set_normal( tNormal );
+
+#if MORIS_HAVE_DEBUG
+            real tSum = std::accumulate( tGeoSens( iCoeffCol ).cbegin(), tGeoSens( iCoeffCol ).cend(), 0.0 );
+
+            if ( std::abs( tSum ) > 0.0 )
+            {
+                PRINT( tGeoSens( iCoeffCol ) );
+            }
+#endif
         }
+
+#if MORIS_HAVE_DEBUG
+        for ( uint iN = 0; iN < tDerNumBases; iN++ )
+        {
+            for ( uint iD = 0; iD < tDerNumDimensions; iD++ )
+            {
+                tFile << tGeoSens( iD )( iN ) << " ";
+            }
+        }
+        tFile << std::endl;
+#endif
 
         // reset QI value
         mSet->get_QI()( tIQIAssemblyIndex ) = tQIStore;
@@ -2634,9 +2775,9 @@ namespace moris::fem
 
     void
     IQI::add_cluster_measure_dQIdp_FD_geometry(
-            moris::real        aWStar,
-            moris::real        aPerturbation,
-            fem::FDScheme_Type aFDSchemeType )
+            real          aWStar,
+            real          aPerturbation,
+            FDScheme_Type aFDSchemeType )
     {
         // get the IQI index
         uint tIQIAssemblyIndex = mSet->get_QI_assembly_index( mName );
@@ -2677,8 +2818,8 @@ namespace moris::fem
             uint tStartPoint = 0;
 
             // if backward or forward fd
-            if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                    ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+            if ( ( aFDSchemeType == FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                    ( aFDSchemeType == FDScheme_Type::POINT_1_FORWARD ) )
             {
                 // add unperturbed QI contribution to dQIdp
                 mSet->get_dqidpgeo()( tIQIAssemblyIndex ) +=

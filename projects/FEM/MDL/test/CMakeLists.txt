@@ -11,7 +11,7 @@ include_directories(DLA_Test_Proxys)
 
 # List source files
 set(TEST_SOURCES
-    cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
+    ut_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
     ut_MDL_DiffusionElement_Cut_Mesh.cpp
     #UT_MDL_Mesh_Model_Helper.cpp
     UT_MDL_XTK_DiffusionElement.cpp

@@ -281,6 +281,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Normal_Vector.hpp
     IQI/cl_FEM_IQI_Dof_Sensitivity.hpp
     IQI/cl_FEM_IQI_Node_Sensitivity.hpp
+    IQI/cl_FEM_IQI_PDV_Sensitivity.hpp
 
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -539,7 +540,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Normal_Vector.cpp
     IQI/cl_FEM_IQI_Dof_Sensitivity.cpp
     IQI/cl_FEM_IQI_Node_Sensitivity.cpp
-    
+    IQI/cl_FEM_IQI_PDV_Sensitivity.cpp
+
     MEA/cl_FEM_Cluster_Measure.cpp
     )
 

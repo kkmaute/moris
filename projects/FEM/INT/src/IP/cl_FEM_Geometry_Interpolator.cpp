@@ -694,6 +694,41 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    Matrix< DDRMat >
+    Geometry_Interpolator::d_space_det_J_dJ()
+    {
+        // BRENDAN: specialized for sidesets
+        Matrix< DDRMat > tJacobian = this->space_jacobian();
+
+        // 2D
+        if ( tJacobian.numel() == 2 )
+        {
+            real tDetJ = norm( tJacobian );
+
+            return tJacobian / tDetJ;
+        }
+        else
+        {
+            real tA = norm( cross( tJacobian.get_row( 0 ), tJacobian.get_row( 1 ) ) ) / 2.0;
+
+            Matrix< DDRMat > tNormal = cross( tJacobian.get_row( 0 ), tJacobian.get_row( 1 ) ) / ( 2.0 * tA );
+
+            Matrix< DDRMat > tGradJ( 2, 3 );
+
+            // dA / d(x1 - x3)
+            tGradJ.set_row( 0, cross( tJacobian.get_row( 1 ), tNormal ) );
+
+            // dA / d(x2 - x3)
+            tGradJ.set_row( 1, cross( tNormal, tJacobian.get_row( 0 ) ) );
+
+            tGradJ = tGradJ / 2.0;
+
+            return tGradJ;
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
     const real&
     Geometry_Interpolator::space_det_J()
     {

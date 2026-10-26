@@ -235,7 +235,6 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
 
             // fill coefficients for leader FI
             Matrix< DDRMat > tLeaderDOFHatVel;
-            ;
             fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
             Matrix< DDRMat > tLeaderDOFHatP;
             fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );

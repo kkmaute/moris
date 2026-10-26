@@ -21,6 +21,7 @@
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
+#include "cl_MTK_Set.hpp"
 // FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Node_Base.hpp"
@@ -30,6 +31,7 @@
 #include <cl_FEM_Cluster_Measure.hpp>
 #include "cl_FEM_Set_User_Info.hpp"
 #include "cl_FEM_IQI.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -41,7 +43,6 @@ namespace moris
     namespace mtk
     {
         class Cell;
-        class Set;
     }    // namespace mtk
     namespace MSI
     {
@@ -55,7 +56,6 @@ namespace moris
         class Field;
         class Field_Interpolator;
         class Geometry_Interpolator;
-        class Field_Interpolator_Manager;
 
         //------------------------------------------------------------------------------
         /**

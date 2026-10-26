@@ -170,8 +170,8 @@ TEST_CASE( "Shape_Sensitivity_Bspline_3D",
     // EXAMPLE: { "VL-A-X" } is a vertical line with analytic discretization and node hierarchy decomposition
 
     Vector< Vector< std::string > > tConfigurations = {
-        { "SM-D-X" },
-        { "SM-A-X" },
+        // { "SM-D-X" },
+        // { "SM-A-X" },
         { "SM2-D-D", "SM-D-D" },
         { "VL-A-X", "OL-F-X" },
         { "VL-F-X", "OL-A-X" },

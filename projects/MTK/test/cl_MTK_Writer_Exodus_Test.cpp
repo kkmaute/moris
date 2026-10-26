@@ -8,6 +8,8 @@
  *
  */
 
+#include <exodusII.h>
+
 #include <cl_MTK_Writer_Exodus.hpp>
 #include <cl_MTK_Reader_Exodus.hpp>
 #include <cl_MTK_Integration_Mesh.hpp>
@@ -312,9 +314,11 @@ namespace moris::mtk
         moris::Matrix< moris::DDRMat > hexField( 3, 1, 5 );
 
         // Global Fields
-        Vector< std::string > tGlobalVariableNames( 2 );
+        Vector< std::string > tGlobalVariableNames( 4 );
         tGlobalVariableNames( 0 ) = "mass";
-        tGlobalVariableNames( 1 ) = "time";
+        tGlobalVariableNames( 1 ) = "dmass";
+        tGlobalVariableNames( 2 ) = "time";
+        tGlobalVariableNames( 3 ) = "dtime";
         moris::Matrix< DDRMat > tGlobalVariableValues( 2, 1 );
         tGlobalVariableValues( 0 ) = 99;
         tGlobalVariableValues( 1 ) = 1;
@@ -329,7 +333,44 @@ namespace moris::mtk
         writer.write_nodal_field( "uz", zField );
         writer.write_elemental_field( "Omega_0_tets", "pressure", tetField );
         writer.write_elemental_field( "Omega_0_hex", "pressure", hexField );
-        writer.write_global_variables( tGlobalVariableNames, tGlobalVariableValues );
+        // Write forward globals as a subset in reverse registration order.
+        Vector< std::string > tForwardNames = { "time", "mass" };
+        tGlobalVariableValues( 0 ) = 1;
+        tGlobalVariableValues( 1 ) = 99;
+        writer.write_global_variables( tForwardNames, tGlobalVariableValues );
+        writer.save_mesh();
+
+        // Sensitivity writes at the same time must preserve the forward values,
+        // including after the file has been closed and reopened by save_mesh().
+        writer.set_time( 0.0 );
+        writer.write_global_variable( "dtime", 0.5 );
+        writer.write_global_variable( "dmass", -2.0 );
+        writer.write_global_variable( "dmass", -3.0 );
+
+        Matrix< DDRMat > tReadGlobals( 4, 1 );
+        REQUIRE( ex_get_var( writer.mExoID, 1, EX_GLOBAL, 1, 0, 4, tReadGlobals.data() ) == 0 );
+        CHECK( tReadGlobals( 0 ) == 99.0 );
+        CHECK( tReadGlobals( 1 ) == -3.0 );
+        CHECK( tReadGlobals( 2 ) == 1.0 );
+        CHECK( tReadGlobals( 3 ) == 0.5 );
+
+        // At a new time step the subsets may also arrive in the opposite order.
+        writer.set_time( 1.0 );
+        Vector< std::string > tSensitivityNames = { "dmass", "dtime" };
+        Matrix< DDRMat > tSensitivityValues = { { -4.0 }, { 0.25 } };
+        writer.write_global_variables( tSensitivityNames, tSensitivityValues );
+        writer.write_global_variable( "mass", 100.0 );
+        writer.write_global_variable( "time", 2.0 );
+        REQUIRE( ex_get_var( writer.mExoID, 2, EX_GLOBAL, 1, 0, 4, tReadGlobals.data() ) == 0 );
+        CHECK( tReadGlobals( 0 ) == 100.0 );
+        CHECK( tReadGlobals( 1 ) == -4.0 );
+        CHECK( tReadGlobals( 2 ) == 2.0 );
+        CHECK( tReadGlobals( 3 ) == 0.25 );
+        REQUIRE( ex_get_var( writer.mExoID, 1, EX_GLOBAL, 1, 0, 4, tReadGlobals.data() ) == 0 );
+        CHECK( tReadGlobals( 0 ) == 99.0 );
+        CHECK( tReadGlobals( 1 ) == -3.0 );
+        CHECK( tReadGlobals( 2 ) == 1.0 );
+        CHECK( tReadGlobals( 3 ) == 0.5 );
         writer.close_file();
 
         delete tIntegMeshData;

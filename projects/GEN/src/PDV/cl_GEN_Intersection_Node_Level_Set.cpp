@@ -45,9 +45,7 @@ namespace moris::gen
     {
         Matrix< DDRMat > tSensitivitiesToAdd;
 
-        std::cout << this->get_index() << " " << ( this->compute_sensitivity_along_edges() ? "c" : "i" ) << std::endl;
-
-        // Node sensitivity must be consistent if any I am consistent and any parent nodes are consistent
+        // Node sensitivity must be consistent if I or any of my parents are consistent
         if ( this->compute_sensitivity_along_edges() )
         {
             Vector< Basis_Node > tFieldBasisNodes = this->get_field_basis_nodes();
