@@ -1,0 +1,186 @@
+/**
+ * \page EXA_structure_linear_bddc BDDC: HMR/FEM elasticity examples
+ *
+ * \section bddc_model Model and workflow
+ *
+ * BDDC_Plane_Stress.cpp and BDDC_Elasticity_3D.cpp are ordinary EXA input
+ * libraries. They define OPT, HMR, XTK, GEN, FEM, SOL, MSI, and VIS parameter
+ * lists directly in their respective .cpp files. Configuration globals are
+ * defined in example_test_case.cpp and declared extern in the input libraries,
+ * following the neighboring structural examples. Catch cases invoke
+ * fn_WRK_Workflow_Main_Interface. The local example_main.cpp follows the shared
+ * EXA initialization and adds command-line options for performance studies. The former standalone element kernel,
+ * connectivity builder, Solver_Interface adapter, and direct KSP driver have
+ * been removed.
+ *
+ * HMR creates a uniform first-order interpolation/B-spline mesh. GEN defines
+ * one uncut material phase, and XTK supplies its standard enriched mesh and
+ * set interfaces without triangulating the QUAD4/HEX8 cells. FEM constructs
+ * the linear isotropic constitutive model, bulk, clamp, and traction IWGs,
+ * and displacement, energy, volume, and load IQIs. FEM chooses full 2x2 or
+ * 2x2x2 quadrature for these first-order cells. SOL constructs the nonlinear
+ * and time-solver stack and PETSc MATIS/BDDC or AIJ/direct-LU solver. VIS
+ * writes the standard Exodus displacement fields and global IQIs.
+ *
+ * The physical problems follow the structured elasticity examples in section 3
+ * of C. R. Dohrmann, SIAM J. Sci. Comput. 25(1), 246–258 (2003),
+ * https://doi.org/10.1137/S1064827502412887, supplied as Dohrman.pdf.
+ * The domain is the unit square in plane stress (unit thickness) or unit cube
+ * in full 3D elasticity, with E = 30e6 and nu = 0.3. The left edge/face is
+ * clamped and the opposite edge/face receives horizontal loading. The material
+ * inclusion variant uses E = 1 outside [1/4,3/4]^d and E = sigma inside,
+ * retaining nu = 0.3. Inclusion boundaries coincide with HMR cell boundaries.
+ *
+ * The clamp uses MORIS's symmetric Nitsche IWG with stabilization parameter
+ * 100. The current MSI workflow exposes no strongly constrained DOF list.
+ * This is a deliberate difference from the strong clamp in the paper and
+ * the removed standalone driver; their iteration counts are not regression
+ * targets for this workflow model.
+ *
+ * A constant unit traction acts in the positive x direction on the right
+ * edge/face through FEM's standard Neumann IWG. With unit thickness in 2D
+ * and a unit loaded edge/face, the total applied horizontal force is one,
+ * independently of mesh refinement. The load IQI verifies this integral.
+ * This differs from the paper's unit force at every loaded boundary node;
+ * iteration counts obtained with the former nodal loading do not directly
+ * describe this constant-traction example.
+ *
+ * \section bddc_solver BDDC configuration
+ *
+ * The warehouse selects SOL_TPL_Type = Petsc and SOL_PETSc_Mat_Type = "is".
+ * The linear algorithm references the PETSc preconditioner with PCType = "bddc".
+ * bddc_use_dof_splitting identifies displacement components. The optional
+ * bddc_use_subdomain_corners obtains Cartesian subdomain corners from owned
+ * FEM interpolation cells and maps their MTK coefficients through MSI's DOF
+ * metadata. It requires one active unit-weight coefficient at each corner
+ * (as in these Q1 meshes); it does not infer algebraic IDs from node numbers.
+ * It supplements PETSc's graph vertices, including boundary endpoints needed
+ * to constrain floating subdomain rotations. Both options remain off by default
+ * in general solver configurations.
+ *
+ * The test harness selects C (vertices only) or CE (vertices, edges, and faces)
+ * through the preconditioner parameters bddc_use_edges/bddc_use_faces and
+ * enables diagonal stiffness scaling with bddc_use_stiffness_scaling. PETSc's edge/
+ * face distinctions and constraint/scaling construction differ from the paper.
+ * The standard MORIS FGMRES linear algorithm is used; additional PETSc options
+ * can select a different KSP. Nonlinear residual correction can produce more
+ * than one linear solve. Compare the first linear solve and total iterations
+ * separately rather than treating their sum as a paper CG iteration count.
+ *
+ * Managed preconditioner tuning is enabled with use_bddc_defaults = false.
+ * The examples set bddc_symmetric, bddc_detect_disconnected, bddc_use_vertices,
+ * bddc_use_edges, bddc_use_faces, and bddc_use_stiffness_scaling explicitly.
+ * bddc_dirichlet_solver and bddc_neumann_solver select the factor package;
+ * bddc_coarse_solver is set only for parallel runs. The AIJ variant uses
+ * PCType = lu and factor_solver_type. The driver selects MUMPS only when
+ * PETSc was built with that package; the existing serial fallback is retained.
+ *
+ * Linear algorithm parameters KSPErrorIfNotConverged, KSPMonitorTrueResidual,
+ * and KSPConvergedReason control solver checks and diagnostics. The warehouse
+ * SOL_PETSc_Log_File = petsc.log enables event logging. The DLA implementation
+ * handles PETSc's internal options bridge and preserves native overrides.
+ *
+ * \section bddc_build Build and run
+ *
+ * The examples are enabled with PETSc. Parallel tests additionally require
+ * PETSc built with MUMPS, checked using PETSC_HAVE_MUMPS. Build and test from
+ * the repository root:
+ *
+ * \code{.sh}
+ * cmake -S . -B build_dbg
+ * cmake --build build_dbg --target Main_BDDC_Benchmark BDDC_Plane_Stress BDDC_Elasticity_3D --parallel 4
+ * ctest --test-dir build_dbg -R '^EXA-structure-linear-bddc-' --output-on-failure
+ * \endcode
+ *
+ * To run an individual regression case, from its binary directory:
+ *
+ * \code{.sh}
+ * cd build_dbg/projects/EXA/structure/linear/bddc/bin
+ * mpirun -n 4 ./Main_BDDC_Benchmark.exe BDDC_Plane_Stress
+ * mpirun -n 8 ./Main_BDDC_Benchmark.exe BDDC_Elasticity_3D_Jump
+ * \endcode
+ *
+ * Each dimension has a homogeneous base case and _Jump, _Corners, and _AIJ
+ * variants. Serial tests use one rank; parallel tests use four ranks in 2D
+ * and eight in 3D. CTest selects the Catch case explicitly and creates a
+ * separate working directory for its Exodus files, receipts, and PETSc log.
+ * Each process runs one case because PETSc cannot be reinitialized after
+ * finalization.
+ *
+ * Configuration follows the usual EXA global-variable convention:
+ * - gElementsPerSubdomain: Q1 elements per subdomain direction (4 in tests).
+ * - gUseMaterialJump: enables the central material inclusion.
+ * - gYoungsModulusRatio: inclusion modulus (1000 in jump tests; outside E = 1).
+ * - gLinearSolver: bddc, aij (PETSc/LU), or amesos.
+ * - gUseEdges: enables PETSc edge and face constraints in addition to corners.
+ * - gLinearTolerance: linear relative tolerance (1e-9 in regression tests).
+ * - gOutputFileName: Exodus filename assigned by the selected test case.
+ * - gCaseIndex: selects stored reference values for dimension, rank count,
+ *   and material case. C/CE and AIJ use the same physical reference values.
+ * - gPrintReferenceValues: prints reference data instead of comparing it.
+ *
+ * Input libraries declare the model globals extern and use them directly in
+ * their parameter lists. No example configuration is read from environment
+ * variables. Input files configure PETSc through SOL parameter lists;
+ * gPetscOptions is passed to the optional SOL_PETSc_Options warehouse string
+ * for expert overrides. The test driver contains no direct PETSc setup.
+ *
+ * check_results follows the neighboring examples: the last rank reads Exodus
+ * and checks dimension, local node/element counts, reference-node coordinates,
+ * time, displacement, strain energy, volume, and load against stored values.
+ * The reference node is the upper-right corner of the unit domain. Numerical
+ * references were recorded from the Amesos solve of the constant-traction FEM
+ * model with four elements per subdomain direction. Displacement and energy
+ * comparisons use relative tolerance 1e-6. VIS prepends Node_Id and Node_Index,
+ * so physical displacement fields begin at index 2.
+ *
+ * \section bddc_scaling Performance studies
+ *
+ * run_scaling.py supports weak, strong, refine, and jump studies, C/CE
+ * comparisons, repeats, and an AIJ/direct baseline. It passes command-line
+ * arguments to example_main.cpp, which assigns the shared globals. For example:
+ *
+ * \code{.sh}
+ * mpirun -n 4 ./Main_BDDC_Benchmark.exe BDDC_Plane_Stress --benchmark \
+ *   --elements 8 --solver bddc --use-edges true --rtol 1e-6 --csv result.csv
+ * \endcode
+ *
+ * The --benchmark flag retains user-selected globals instead of resetting them
+ * to the fixed regression configuration. Arbitrary benchmark meshes are checked
+ * for finite displacement, expected global cell count, unit volume, and unit
+ * total force; the stored regression references apply only to the fixed tests.
+ * There is no additional reference solve during tests or performance runs.
+ * --print-reference-values prints data for a fixed regression configuration.
+ * Additional benchmark options are --jump, --sigma, and
+ * --petsc-options="-ksp_max_it 200" (use the equals sign for leading dashes).
+ *
+ * The runner creates a separate working directory, log, command/metadata record,
+ * and CSV for every run. PETSc's converged-reason and true-residual monitors
+ * provide iteration diagnostics; petsc.log supplies KSPSolve and PCSetUp times.
+ * Workflow time includes model creation and Exodus output. PETSc event times
+ * may be nested and are not disjoint phases.
+ *
+ * \code{.sh}
+ * python3 projects/EXA/structure/linear/bddc/run_scaling.py \
+ *   --exe build_dbg/projects/EXA/structure/linear/bddc/bin/Main_BDDC_Benchmark.exe \
+ *   --dim 2 --study weak --subdomains 2 4 --elements 8 \
+ *   --constraints c ce --repeat 3 --output bddc-plane-weak
+ *
+ * python3 projects/EXA/structure/linear/bddc/run_scaling.py \
+ *   --exe build_dbg/projects/EXA/structure/linear/bddc/bin/Main_BDDC_Benchmark.exe \
+ *   --dim 3 --study refine --subdomains 2 --elements 4 8 \
+ *   --output bddc-3d-refine
+ *
+ * python3 projects/EXA/structure/linear/bddc/run_scaling.py \
+ *   --exe build_dbg/projects/EXA/structure/linear/bddc/bin/Main_BDDC_Benchmark.exe \
+ *   --dim 2 --study jump --subdomains 4 3 --global-elements 24 \
+ *   --sigmas 0.001 1 1000 --output bddc-plane-jumps
+ * \endcode
+ *
+ * For paper-sized studies use --dim 2 --subdomains 4 8 12 16 20 --elements 8,
+ * or --dim 3 --subdomains 4 6 8 10 --elements 4. Refinement studies fix one
+ * --subdomains value and vary --elements. Strong studies fix --global-elements.
+ * Use --dry-run to review commands before launching large cluster jobs.
+ * Keep builds, placement, thread settings, and numerical tolerances consistent.
+ * The existing replicated DOF map and constraint flags remain scalability costs.
+ */
