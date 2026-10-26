@@ -22,7 +22,85 @@ This example highlights the use of the following features:
 
 # Developer Notes
 
-None.
+The standard regression cases use Amesos. With MORIS_HAVE_PETSC enabled,
+additional Pressure_Vessel_3D_BDDC and Pressure_Vessel_3D_Immersed_BDDC Catch
+cases select PETSc FGMRES, MATIS storage, and PCBDDC. They compare displacement,
+temperature, and IQI output with the existing linear reference values.
+
+CTest runs each BDDC case in a separate process on one and four MPI ranks
+(one rank only when parallel tests are disabled or PETSc lacks MUMPS support).
+CMake checks PETSc's configured MUMPS capability. This isolates PETSc's
+initialization/finalization lifetime. Run the additional cases with:
+
+\code
+ctest --test-dir <build> -R '^Pressure_Vessel_3D(_Immersed)?-BDDC-' --output-on-failure
+\endcode
+
+All Amesos and BDDC CTest cases write to separate `cases/<test-name>/` directories.
+The driver loads the input libraries from their absolute build output paths,
+so concurrent tests cannot overwrite VIS temporary Exodus files or parameter
+receipts. CTest accounts for each test's MPI process count when scheduling work.
+
+BDDC output filenames contain the _BDDC suffix. The input files configure
+BDDC through the SOL preconditioner parameters; CTest does not inject solver
+settings through PETSC_OPTIONS. Explicit PETSc options can still override the
+managed values for experiments.
+
+The coupled displacement/temperature operator is nonsymmetric because of thermal
+expansion, so FGMRES and bddc_symmetric = false are retained. Disconnected-subdomain
+detection and vertex, edge, and face constraints are enabled. The input also sets
+bddc_use_dof_splitting so UX, UY, UZ, and temperature have separate interface
+constraints. Cartesian box corner metadata is not requested for the enriched cut
+meshes. Ghost stabilization remains enabled and its terms use the same local
+MATIS element-assembly path as the bulk terms.
+
+Diagonal stiffness scaling is enabled as the baseline weighting. Serial BDDC
+has no shared interfaces. On four ranks, deluxe scaling uses local interface
+Schur complements in place of diagonal weights, with MUMPS for
+pivoting Dirichlet, Neumann, and coarse factorizations. Both
+bddc_sub_schurs_symmetric and bddc_sub_schurs_posdef are explicitly false: PETSc
+3.23.2 otherwise independently assumes SPD sub-Schur problems, even when
+bddc_symmetric is false, and enabling deluxe alone failed with a Cholesky zero
+pivot. Serial tests retain PETSc's default local solvers and empty-coarse-problem
+handling, without enabling deluxe.
+
+The linear relative tolerance is 1e-13, with a restart of 50 and at most 2000
+iterations. Shorter restarts control the drift between Krylov residual estimates
+and the assembled residual in these ill-conditioned cut-cell systems; tightening
+the linear tolerance alone with restart 1000 was insufficient. The Newton
+relative residual threshold is 1e-8, matching the direct cases. A single Newton
+update is followed by the usual residual convergence check; a second Newton-loop
+entry for that check is not a second linear solve. Linear convergence reasons
+are printed and failure to converge is an error. Numerical result checks retain
+their existing 1e-5 tolerances. Existing Amesos tests retain their original solver
+and filenames. In the verified one-/four-rank cases, each model needed one
+linear solve and one Newton update: one Krylov iteration in serial and 125/123
+iterations for the two parallel models in one diagnostic run.
+
+All BDDC cases reuse check_results() with the same references as the direct
+cases. In parallel the reference rank is still rank 1, but its report is forwarded
+to rank 0 and printed there. The report is also saved to
+`Pressure_Vessel_3D_Case_<index>_BDDC.check.log` in the case directory, so it can
+be read when CTest hides successful-test output. Use `ctest -V` for live reports.
+Failed comparisons still fail the Catch test after the report is transferred.
+
+Before the restart/tolerance adjustment, the first four-rank immersed comparison
+with PETSc 3.23.2 used multiplicity scaling with 885, 911, 923, and 924 linear
+iterations (3643 total). Diagonal
+stiffness scaling took 94, 112, 113, and 117 (436 total). Nonsymmetric deluxe
+scaling took 70, 97, and 98 (265 total), requiring one fewer Newton correction.
+The accumulated PETSc KSPSolve times were about 58.7, 3.3, and 3.0 seconds,
+respectively, including the same true-residual monitoring in each comparison.
+All three passed the original displacement, temperature, mesh, and IQI checks.
+For Pressure_Vessel_3D on four ranks, the corresponding totals were 3450
+(multiplicity), 429 (stiffness), and 256 (nonsymmetric deluxe); accumulated
+KSPSolve times were about 57.9, 3.8, and 2.6 seconds. All passed their reference
+checks. These are diagnostics from one machine/run, not iteration or timing guarantees.
+Krylov residual estimates can differ from explicitly computed residuals in this
+ill-conditioned system; assembled residual and field checks remain necessary. The checked-in inputs use one active material with E = 1 and
+conductivity = 1 despite multiple geometry phases. Separate multi-material inputs
+need their own verification; these measurements do not establish robustness for
+arbitrary material contrasts or process counts.
 */
 }
 

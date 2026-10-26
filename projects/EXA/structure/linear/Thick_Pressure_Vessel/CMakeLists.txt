@@ -40,6 +40,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 # Define the executable and its dependencies.
 add_executable(${EXAMPLE_MAIN} ${EXAMPLE_SOURCES})
 target_link_libraries(${EXAMPLE_MAIN} PRIVATE ${EXAMPLE_DEPENDENCIES})
+# Inputs stay in the build output directory while each test writes to its own case directory.
+target_compile_definitions(
+    ${EXAMPLE_MAIN} PRIVATE PRESSURE_VESSEL_INPUT_DIRECTORY="$<TARGET_FILE_DIR:Pressure_Vessel_3D>"
+)
 set_target_properties(${EXAMPLE_MAIN} PROPERTIES OUTPUT_NAME ${EXAMPLE_MAIN}${EXE_EXT})
 
 set(SO_TPLS "trilinos" ${ARMADILLO_EIGEN})
@@ -86,11 +90,61 @@ endforeach()
 # Register tests for the configured MPI process counts.
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(
-            NAME Thick_Pressure_Vessel-${PROCS}-procs
-            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
-                    $<TARGET_FILE:${EXAMPLE_MAIN}>
+        set(test_name Thick_Pressure_Vessel-${PROCS}-procs)
+        set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name})
+        file(MAKE_DIRECTORY "${test_directory}")
+        add_test(NAME ${test_name} WORKING_DIRECTORY "${test_directory}"
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                         $<TARGET_FILE:${EXAMPLE_MAIN}>
         )
+        set_tests_properties(${test_name} PROPERTIES PROCESSORS ${PROCS})
+    endforeach()
+endif()
+
+# Keep each PETSc lifetime in a separate process and compare against the same
+# reference fields as the corresponding Amesos example.
+if(MORIS_HAVE_PETSC)
+    # Cut-cell subdomains need a pivoting factorization. Check PETSc's actual
+    # capabilities rather than MORIS_USE_MUMPS, which also controls other TPLs.
+    include(CMakePushCheckState)
+    include(CheckCXXSourceCompiles)
+    cmake_push_check_state(RESET)
+    set(CMAKE_REQUIRED_INCLUDES ${PETSC_INCLUDE_DIR})
+    if(PETSC_ARCH_INCLUDE_DIR)
+        list(APPEND CMAKE_REQUIRED_INCLUDES ${PETSC_ARCH_INCLUDE_DIR})
+    endif()
+    check_cxx_source_compiles(
+        "#include <petscconf.h>
+         #ifndef PETSC_HAVE_MUMPS
+         #error PETSc was built without MUMPS
+         #endif
+         int main() { return 0; }"
+        MORIS_PRESSURE_VESSEL_PETSC_HAS_MUMPS
+    )
+    cmake_pop_check_state()
+
+    set(bddc_process_counts 1)
+    if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_PRESSURE_VESSEL_PETSC_HAS_MUMPS)
+        set(bddc_process_counts ${EXAMPLE_PROCS})
+    elseif(MORIS_HAVE_PARALLEL_TESTS)
+        message(
+            STATUS
+                "Parallel pressure-vessel BDDC tests require PETSc with MUMPS; registering serial coverage only."
+        )
+    endif()
+    foreach(EXAMPLE_FILE IN LISTS EXAMPLE_FILES)
+        foreach(PROCS IN LISTS bddc_process_counts)
+            # VIS temporary Exodus files and parameter receipts must not be shared
+            # between concurrent cases, even when final output names are distinct.
+            set(test_name ${EXAMPLE_FILE}-BDDC-${PROCS}-procs)
+            set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name})
+            file(MAKE_DIRECTORY "${test_directory}")
+            add_test(
+                NAME ${test_name} WORKING_DIRECTORY "${test_directory}"
+                COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                        $<TARGET_FILE:${EXAMPLE_MAIN}> "${EXAMPLE_FILE}_BDDC"
+            )
+            set_tests_properties(${test_name} PROPERTIES PROCESSORS ${PROCS} TIMEOUT 600)
+        endforeach()
     endforeach()
 endif()

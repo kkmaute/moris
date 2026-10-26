@@ -12,6 +12,7 @@
 #include <iostream>
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
+#include "cl_Communication_Tools.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"
@@ -31,6 +32,10 @@ extern uint gInterpolationOrder;
 
 // global variable for case index
 extern uint gCaseIndex;
+
+// Select the additional PETSc/BDDC regression configuration.
+extern bool        gUsePETScBDDC;
+extern std::string gBDDCFactorSolverType;
 
 //---------------------------------------------------------------
 
@@ -104,7 +109,7 @@ namespace moris
     // Output Config
 
     std::string tOutputFileName =
-            "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + ".exo";
+            "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + ( gUsePETScBDDC ? "_BDDC.exo" : ".exo" );
 
     /* ------------------------------------------------------------------------ */
 
@@ -543,12 +548,42 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
+        if ( gUsePETScBDDC )
+        {
+            // Thermal expansion couples temperature into displacement, so the
+            // monolithic operator requires a nonsymmetric Krylov method.
+            aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::PETSC );
+            aParameterLists.set( "KSPType", "fgmres" );
+            aParameterLists.set( "KSPTol", 1.e-13 );
+            aParameterLists.set( "KSPMaxits", 2000 );
+            // Restart before residual estimates drift from the assembled residual
+            // in these ill-conditioned cut-cell systems.
+            aParameterLists.set( "KSPMGMRESRestart", 50 );
+            aParameterLists.set( "KSPErrorIfNotConverged", true );
+            aParameterLists.set( "KSPConvergedReason", true );
+            aParameterLists.set( "preconditioners", "0" );
+
+            // BDDC requires element contributions retained in MATIS subdomains.
+            aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type", sol::MapType::Petsc );
+            aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_PETSc_Mat_Type", "is" );
+        }
+        else
+        {
+            aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
+        }
 
         aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_combined_res_jac_assembly", true );
+
+        if ( gUsePETScBDDC )
+        {
+            // Solve this linear model accurately in the first Newton update.
+            // The nonlinear check uses the same relative drop as the direct cases;
+            // field and IQI checks below independently guard solution accuracy.
+            aParameterLists.set( "NLA_rel_res_norm_drop", 1.e-8 );
+        }
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_DofTypes", "UX,UY,UZ;TEMP" );
@@ -562,7 +597,48 @@ namespace moris
         aParameterLists.set( "TSA_Output_Indices", "0" );
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        if ( gUsePETScBDDC )
+        {
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
+            aParameterLists.set( "PCType", "bddc" );
+
+            // Preserve the nonsymmetric thermoelastic coupling in the coarse
+            // basis. Cut geometry can leave disconnected pieces on a subdomain.
+            aParameterLists.set( "use_bddc_defaults", false );
+            aParameterLists.set( "bddc_symmetric", false );
+            aParameterLists.set( "bddc_detect_disconnected", true );
+
+            // Separate physical fields and constrain vertices, edges, and faces.
+            // Cartesian box corners are unsuitable for these enriched cut meshes.
+            aParameterLists.set( "bddc_use_dof_splitting", true );
+            aParameterLists.set( "bddc_use_vertices", true );
+            aParameterLists.set( "bddc_use_edges", true );
+            aParameterLists.set( "bddc_use_faces", true );
+
+            // Weight interface averaging by local stiffness rather than subdomain
+            // multiplicity. Cut cells and ghost penalties produce unequal weights
+            // even with uniform material properties; material jumps add to this.
+            aParameterLists.set( "bddc_use_stiffness_scaling", true );
+
+            if ( par_size() > 1 )
+            {
+                // Use pivoting local/coarse factorizations when PETSc has MUMPS.
+                // Keep PETSc's empty-coarse-problem handling on a single rank.
+                aParameterLists.set( "bddc_dirichlet_solver", gBDDCFactorSolverType );
+                aParameterLists.set( "bddc_neumann_solver", gBDDCFactorSolverType );
+                aParameterLists.set( "bddc_coarse_solver", gBDDCFactorSolverType );
+
+                // Deluxe scaling uses local interface Schur complements. Their
+                // default SPD assumptions are invalid for thermoelastic coupling.
+                aParameterLists.set( "bddc_use_deluxe_scaling", true );
+                aParameterLists.set( "bddc_sub_schurs_symmetric", false );
+                aParameterLists.set( "bddc_sub_schurs_posdef", false );
+            }
+        }
+        else
+        {
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
+        }
     }
 
     /* ------------------------------------------------------------------------ */

@@ -9,6 +9,15 @@
  */
 
 #include <catch.hpp>
+#include <cstdio>
+#include <exception>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+#ifdef MORIS_HAVE_PETSC
+#include <petscconf.h>
+#endif
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -30,6 +39,16 @@ bool gPrintReferenceValues = false;
 // text case index
 uint gCaseIndex;
 
+// Existing cases retain their Amesos solver.
+bool gUsePETScBDDC = false;
+
+// Select the factor package supported by PETSc, independently of MORIS_USE_MUMPS.
+#ifdef PETSC_HAVE_MUMPS
+std::string gBDDCFactorSolverType = "mumps";
+#else
+std::string gBDDCFactorSolverType;
+#endif
+
 //---------------------------------------------------------------
 
 int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
@@ -39,7 +58,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 extern "C" void check_results()
 {
     std::string tExoFileName =
-            "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + ".exo";
+            "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + ( gUsePETScBDDC ? "_BDDC.exo" : ".exo" );
 
     MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", gCaseIndex, par_size() );
@@ -94,15 +113,15 @@ extern "C" void check_results()
     MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
             tReferenceNumDims( gCaseIndex ),
             tNumDims,
-            std::abs( ( tNumDims - tReferenceNumDims( gCaseIndex ) ) / tReferenceNumDims( gCaseIndex ) * 100.0 ) );
+            std::abs( ( real( tNumDims ) - real( tReferenceNumDims( gCaseIndex ) ) ) / real( tReferenceNumDims( gCaseIndex ) ) * 100.0 ) );
     MORIS_LOG_INFO( "Check number of nodes:      reference %12d, actual %12d, percent error %12.5e.",
             tReferenceNumNodes( gCaseIndex ),
             tNumNodes,
-            std::abs( ( tNumNodes - tReferenceNumNodes( gCaseIndex ) ) / tReferenceNumNodes( gCaseIndex ) * 100.0 ) );
+            std::abs( ( real( tNumNodes ) - real( tReferenceNumNodes( gCaseIndex ) ) ) / real( tReferenceNumNodes( gCaseIndex ) ) * 100.0 ) );
     MORIS_LOG_INFO( "Check number of elements:   reference %12d, actual %12d, percent error %12.5e.",
             tReferenceNumElems( gCaseIndex ),
             tNumElems,
-            std::abs( ( tNumElems - tReferenceNumElems( gCaseIndex ) ) / tReferenceNumElems( gCaseIndex ) * 100.0 ) );
+            std::abs( ( real( tNumElems ) - real( tReferenceNumElems( gCaseIndex ) ) ) / real( tReferenceNumElems( gCaseIndex ) ) * 100.0 ) );
 
     REQUIRE( tNumDims == tReferenceNumDims( gCaseIndex ) );
     REQUIRE( tNumNodes == tReferenceNumNodes( gCaseIndex ) );
@@ -152,7 +171,7 @@ extern "C" void check_results()
     MORIS_LOG_INFO( "Check time:                 reference %12.5e, actual %12.5e, percent error %12.5e.",
             tReferenceTime( gCaseIndex ),
             tActualTime,
-            tRelDiffNorm * 100.0 );
+            tRelTimeDifference * 100.0 );
 
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
@@ -227,10 +246,10 @@ TEST_CASE( "Pressure_Vessel_3D_Linear",
     // define command line call
     int argc = 2;
 
-    char tString1[] = "";
-    char tString2[] = "./Pressure_Vessel_3D.so";
+    char        tString1[] = "";
+    std::string tString2   = std::string( PRESSURE_VESSEL_INPUT_DIRECTORY ) + "/Pressure_Vessel_3D.so";
 
-    char *argv[ 2 ] = { tString1, tString2 };
+    char *argv[ 2 ] = { tString1, tString2.data() };
 
     // set interpolation order
     gInterpolationOrder = 1;
@@ -286,10 +305,10 @@ TEST_CASE( "Pressure_Vessel_3D_Immersed_Linear",
     // define command line call
     int argc = 2;
 
-    char tString1[] = "";
-    char tString2[] = "./Pressure_Vessel_3D_Immersed.so";
+    char        tString1[] = "";
+    std::string tString2   = std::string( PRESSURE_VESSEL_INPUT_DIRECTORY ) + "/Pressure_Vessel_3D_Immersed.so";
 
-    char *argv[ 2 ] = { tString1, tString2 };
+    char *argv[ 2 ] = { tString1, tString2.data() };
 
     // set interpolation order
     gInterpolationOrder = 1;
@@ -354,10 +373,10 @@ TEST_CASE( "Pressure_Vessel_3D_Immersed_Quadratic",
     // define command line call
     int argc = 2;
 
-    char tString1[] = "";
-    char tString2[] = "./Pressure_Vessel_3D_Immersed.so";
+    char        tString1[] = "";
+    std::string tString2   = std::string( PRESSURE_VESSEL_INPUT_DIRECTORY ) + "/Pressure_Vessel_3D_Immersed.so";
 
-    char *argv[ 2 ] = { tString1, tString2 };
+    char *argv[ 2 ] = { tString1, tString2.data() };
 
     // set interpolation order
     gInterpolationOrder = 2;
@@ -394,3 +413,100 @@ TEST_CASE( "Pressure_Vessel_3D_Immersed_Quadratic",
         }
     }
 }
+
+#ifdef MORIS_HAVE_PETSC
+namespace
+{
+    void run_bddc_case( const std::string &aLibraryName, uint aSerialCase, uint aParallelCase )
+    {
+        REQUIRE( ( par_size() == 1 || par_size() == 4 ) );
+        gInterpolationOrder = 1;
+        gCaseIndex          = par_size() == 1 ? aSerialCase : aParallelCase;
+        gUsePETScBDDC       = true;
+
+        // A failed workflow must not reuse results or a report from an earlier run.
+        const std::string tReportFileName = "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + "_BDDC.check.log";
+        if ( par_rank() == 0 )
+        {
+            std::remove( tReportFileName.c_str() );
+        }
+
+        std::string tOutput = "Pressure_Vessel_3D_Case_" + std::to_string( gCaseIndex ) + "_BDDC.exo";
+        if ( par_size() > 1 )
+        {
+            tOutput += "." + std::to_string( par_size() ) + "." + std::to_string( par_rank() );
+        }
+        std::remove( tOutput.c_str() );
+        barrier();
+
+        // Run the same workflow and numerical checks as the direct-solver cases.
+        char        tProgram[]   = "";
+        std::string tLibrary     = std::string( PRESSURE_VESSEL_INPUT_DIRECTORY ) + "/" + aLibraryName + ".so";
+        char       *tArguments[] = { tProgram, tLibrary.data() };
+        REQUIRE( fn_WRK_Workflow_Main_Interface( 2, tArguments ) == 0 );
+
+        // Read the same rank-local reference data as the direct tests, but
+        // forward its report to rank 0 for launchers that retain only root output.
+        const sint         tCheckRank = par_size() == 1 ? 0 : 1;
+        std::ostringstream tReport;
+        std::exception_ptr tCheckFailure;
+        if ( par_rank() == tCheckRank )
+        {
+            auto *tConsole = std::cout.rdbuf( tReport.rdbuf() );
+            gLogger.set_screen_output_rank( tCheckRank );
+            try
+            {
+                check_results();
+            } catch ( ... )
+            {
+                // Restore output and finish the collective report transfer even
+                // when a Catch assertion fails on the reference rank.
+                tCheckFailure = std::current_exception();
+            }
+            gLogger.set_screen_output_rank( 0 );
+            std::cout.rdbuf( tConsole );
+        }
+
+        std::string tReportText   = tReport.str();
+        int         tReportLength = tReportText.size();
+        MPI_Bcast( &tReportLength, 1, MPI_INT, tCheckRank, get_comm() );
+        tReportText.resize( tReportLength );
+        MPI_Bcast( tReportText.data(), tReportLength, MPI_CHAR, tCheckRank, get_comm() );
+
+        if ( par_rank() == 0 )
+        {
+            std::cout << tReportText << std::flush;
+
+            // CTest hides successful-test stdout unless -V is requested. Keep
+            // the comparison report beside the results so it is always available.
+            std::ofstream tReportFile( tReportFileName );
+            REQUIRE( tReportFile.good() );
+            tReportFile << tReportText;
+            tReportFile.close();
+            REQUIRE( tReportFile.good() );
+        }
+
+        if ( tCheckFailure )
+        {
+            std::rethrow_exception( tCheckFailure );
+        }
+
+        gUsePETScBDDC = false;
+    }
+}    // namespace
+
+// PETSc owns a process-wide lifetime. CTest selects each hidden case separately.
+// Exercise the ghost-stabilized thermoelastic vessel with nonsymmetric BDDC
+// and interface scaling; compare all fields/IQIs with the Amesos references.
+TEST_CASE( "Pressure_Vessel_3D_BDDC", "[.][Pressure_Vessel_BDDC]" )
+{
+    run_bddc_case( "Pressure_Vessel_3D", 0, 1 );
+}
+
+// Exercise the fully immersed geometry, including its poorly conditioned cut
+// cells and ghost penalties, without changing the original result tolerances.
+TEST_CASE( "Pressure_Vessel_3D_Immersed_BDDC", "[.][Pressure_Vessel_BDDC]" )
+{
+    run_bddc_case( "Pressure_Vessel_3D_Immersed", 2, 3 );
+}
+#endif
