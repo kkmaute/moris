@@ -56,6 +56,13 @@ moris_initialize_shared_library()
 add_subdirectory(projects)
 moris_finalize_shared_library()
 
+# External input files reuse this build's requirements without replacing a source
+# file or rebuilding a shared input target in the MORIS tree.
+if(TARGET shared_object_file)
+    include("${MORIS_CMAKE_DIR}/utilities/moris_input_build.cmake")
+    moris_export_input_build(shared_object_file)
+endif()
+
 add_subdirectory(share/cmake/find_modules)
 add_subdirectory(share/cmake/find_wrappers)
 add_subdirectory(share/cmake/utilities)

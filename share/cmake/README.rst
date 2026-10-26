@@ -149,6 +149,7 @@ require the MORIS TPL stack::
 
     python3 share/cmake/tests/test_build_configuration.py
     python3 share/cmake/tests/test_shared_library.py
+    python3 share/cmake/tests/test_external_input.py
     python3 share/cmake/tests/test_module_selection.py
     python3 share/cmake/tests/test_package_configuration.py
     python3 share/cmake/tests/test_runtime_configuration.py
@@ -159,6 +160,9 @@ It exercises user flags, Debug/Release and symbolic modes, PIC, IPO, plugin
 includes, and Ninja Multi-Config when Ninja is available. The shared-library
 test checks cyclic component dependencies, runtime linking, relocated exports,
 and the static build path.
+The external-input test checks problem-local plugin builds in static/shared and
+multi-config modes, paths with spaces, wrapper arguments, and compiler-error
+propagation without modifying the source-tree placeholder.
 The module-selection test covers ALL/NONE, exclusions, cache transitions, and
 the examples alias. The package-configuration test builds and runs relocated
 static/shared consumers with OpenMP off and on, including cyclic dependencies,
@@ -170,7 +174,7 @@ the real profiler. The runtime test covers explicit prefixes, cache changes,
 Intel/non-Intel discovery, and absence of directory-wide link requirements.
 The registration test covers serial/MPI transitions and CTest processor counts.
 
-``.github/workflows/cmake-regression.yml`` runs these six tests and
+``.github/workflows/cmake-regression.yml`` runs these seven tests and
 ``python3 share/cmake/tests/check_format.py`` on a runner without the MORIS TPL
 stack. The integration workflows explicitly build debug/shared and
 optimized/static configurations on the configured self-hosted runners.
@@ -183,3 +187,28 @@ without the expensive application examples::
     ctest --test-dir build-check -R '^(CNT|COM)-test-1-procs$' --output-on-failure
 
 Repeat with ``-DMORIS_HAVE_SHARED=ON`` to exercise the shared installation.
+
+External input libraries
+------------------------
+
+When the mains targets are enabled, configuration exports ``input_build/<config>/MorisInputConfig.cmake``
+and ``input_build/MorisInputTargets.cmake`` in the selected MORIS build directory.
+Each configuration also exports ``MorisExecutable.txt`` with the actual MORIS
+executable path, including configuration subdirectories or custom output paths.
+``share/cmake/input`` consumes these settings to compile an absolute input-source
+path in an independent build directory. ``create_shared_object.sh`` selects this
+configuration and keeps object files under the problem's ``.moris-input-build``
+directory, writing the resulting ``.so`` beside the original source.
+``moris.sh`` and the compile-only wrappers use the shared shell functions in
+``share/scripts/moris_input_build.sh`` to invoke CMake directly. They require no
+Python helper or ``cmake -P`` script. Cache identities remain compatible with
+those created by the former Python helper.
+The run wrapper uses the same configuration selection as the input build and
+reads the exported executable path. Older builds retain the standard executable
+path fallback.
+
+Reconfigure existing MORIS builds once to create the exported settings. External
+input builds then read those settings without modifying the MORIS source or build
+tree. They do not compile ``projects/mains/input_file.cpp`` or use its shared output,
+backup, or lock. The legacy ``shared_object_file`` target remains available for
+compatibility; the scripts no longer invoke it.

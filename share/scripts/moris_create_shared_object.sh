@@ -1,42 +1,17 @@
 #!/bin/sh
-
-#====================================================================================
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#====================================================================================
-
-#
-# script to compile moris input file in either debug or optimized mode
-#
-# requires environment variabes MORISBUILDDBG and MORISBUILDOPT 
-#
-# input: 1 - "dbg" or "opt"
-#        2 - basename of input file (without .cpp)
-#        3 - keyword dbg to keep link to input file
-
-if [ ! "$MORISBUILDDBG" -o ! "$MORISBUILDOPT" ];then
-   echo ""
-   echo " Error - environment variabes MORISBUILDDBG and MORISBUILDOPT required"
-   echo ""
-   exit
+# Copyright (c) 2026 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt in the MORIS root.
+# Usage: moris_create_shared_object.sh <dbg|opt> <input basename or .cpp> [dbg]
+set -eu
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+    echo "Usage: $0 <dbg|opt> <input basename or .cpp> [dbg]" >&2
+    exit 1
 fi
-
-if [ $1 = "opt" ];then
-    echo ""
-    echo " ... compiling against optimized moris"
-    echo ""
-    $MORISROOT/share/scripts/create_shared_object.sh . $MORISBUILDOPT $2 $3
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+. "$script_dir/moris_input_build.sh"
+build_dir=$(moris_build_directory_for_mode "$1")
+if [ "$#" -eq 3 ]; then
+    moris_build_input . "$build_dir" "$2" "$3"
 else
-   if [ $1 = "dbg" ];then
-       echo ""
-       echo " ... compiling against debug moris"
-       echo ""
-       $MORISROOT/share/scripts/create_shared_object.sh . $MORISBUILDDBG $2 $3
-   else
-       echo ""
-       echo " Error - incorrect option"
-       echo ""
-   fi
+    moris_build_input . "$build_dir" "$2"
 fi
-

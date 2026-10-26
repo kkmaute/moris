@@ -136,3 +136,7 @@ endforeach()
 dynamic_link_input(
     "shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp ${SO_INCLUDES}
 )
+
+# Keep the legacy target available on explicit request, but normal builds and
+# external-input scripts do not need its placeholder library.
+set_target_properties(shared_object_file PROPERTIES EXCLUDE_FROM_ALL TRUE)

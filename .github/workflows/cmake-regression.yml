@@ -26,6 +26,7 @@ jobs:
         run: |
           python share/cmake/tests/test_build_configuration.py
           python share/cmake/tests/test_shared_library.py
+          python share/cmake/tests/test_external_input.py
           python share/cmake/tests/test_module_selection.py
           python share/cmake/tests/test_package_configuration.py
           python share/cmake/tests/test_runtime_configuration.py

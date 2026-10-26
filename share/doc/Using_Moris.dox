@@ -135,28 +135,58 @@ name in the matlab script to produce plots that look like the following.
 \anchor InputFileImageSweepCompare
 \image html InputFile_ConstraintSweep.png "Figure: Constraint sensitivities compared against FD schemes" width=600px
 
-@section InputFileCompileRun Compiling and Running Input Files 
-In order to compile the input file into a shared object the user can run the following command from the directory location
-of the input file:
+@section InputFileCompileRun Compiling and Running Input Files
 
-    $MORISROOT/share/scripts/create_shared_object.sh . <build directory name> <input file name>
+Configure the selected MORIS build once after updating MORIS. This exports the
+compiler, header, definition, and linker settings used to build external input
+libraries. For example:
 
-The user can execute the shared object using the following command:
+    cmake -S "$MORISROOT" -B "$MORISROOT/build_dbg"
 
-    $MORISROOT/<build directory name>/projects/mains/moris ./<input file name>.so
+From your problem directory, compile the original input source directly:
 
-For example, with a build directory of \c build_opt and an input file of <code>test_file.cpp</code>, the commands will look like the following:
+    "$MORISROOT/share/scripts/create_shared_object.sh" . build_dbg test_file
 
-    $MORISROOT/share/scripts/create_shared_object.sh . build_opt test_file
-    $MORISROOT/build_opt/projects/mains/moris ./test_file.so
+The source can be a basename or a .cpp path; the working directory and build
+directory may also be absolute paths. The result is test_file.so beside the
+source. CMake caches and object files are kept under
+.moris-input-build/test_file/<build-identity>/ in the source's directory.
+Different inputs and MORIS build configurations have separate caches. The selected
+MORIS build supplies the compiler, C++17 settings, flags, includes, definitions,
+MPI requirements, and shared MORIS library when enabled.
 
-The user can also execute the above commands using the bash file located in the \c scripts folder of the github repository:
+No source file in MORIS is replaced or linked, and neither MORISROOT/tmp nor the
+shared lib/input_file.so output is used. There is no global input-file lock.
+The MORIS executable and, for shared mode, the MORIS shared library must already
+be built. External compilation does not rebuild MORIS itself. For a multi-config
+MORIS build, set MORIS_INPUT_CONFIGURATION to the configuration to use, such as
+Debug or Release. For a single-config build, it must match CMAKE_BUILD_TYPE.
+The run wrapper selects the same configuration and uses CMake's exported MORIS
+executable path, including any configuration subdirectory or custom output path.
 
-    moris.sh <opt or dbg> np <input file name>
+Run the resulting library by passing its path directly to MORIS:
 
-For example, using the same directory and file name above: 
+    mpirun -np 4 "$MORISROOT/build_dbg/projects/mains/moris" "$PWD/test_file.so"
 
-    moris.sh opt np test_file
+moris.sh invokes CMake directly from shell functions shared with the compile-only
+entry points. No Python helper or cmake -P orchestration is required. Existing
+problem-local caches are reused, and the command syntax is unchanged.
+
+The existing convenience entry points retain their calling convention. Set
+MORISBUILDDBG or MORISBUILDOPT to the appropriate build directory, relative to
+MORISROOT or absolute. Only the variable for the selected mode is required:
+
+    export MORISBUILDDBG=build_dbg
+    "$MORISROOT/share/scripts/moris.sh" dbg 4 test_file
+
+To compile without running, use moris_create_shared_object.sh dbg test_file.
+To run an already compiled library, use moris_run.sh dbg 4 test_file, or supply
+the .so path. Paths containing spaces must be quoted. A compiler failure returns
+a nonzero status and prevents moris.sh from running an older library. Optional
+run prefixes such as "valgrind --quiet" remain supported; use a wrapper script
+if prefix arguments themselves contain spaces. The legacy final dbg argument to
+create_shared_object.sh is accepted, but no source link is created: debug symbols
+refer directly to the original problem source.
 
 */
 }
