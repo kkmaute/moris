@@ -219,7 +219,7 @@ namespace moris::mtk
         moris::real
         compute_cell_measure_deriv( uint aLocalVertexID, uint aDirection ) const override
         {
-            return mCellInfo->compute_cell_size_deriv_general( this, aLocalVertexID, aDirection );
+            return mCellInfo->compute_cell_size_deriv_general( this, aLocalVertexID, aDirection )( aDirection );
         }
 
         //------------------------------------------------------------------------------

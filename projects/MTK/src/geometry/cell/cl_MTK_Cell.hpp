@@ -321,6 +321,13 @@ namespace moris::mtk
 
             //------------------------------------------------------------------------------
 
+            moris::Matrix< moris::DDRMat >
+            compute_cell_measure_deriv_general(
+                    uint aLocalVertexID,
+                    int aDirection ) const;
+
+            //------------------------------------------------------------------------------
+
             /*
              * Surface Area on side of cell in 3D, line length on side in 2D
              */

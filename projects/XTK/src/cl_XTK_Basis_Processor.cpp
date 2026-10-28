@@ -618,6 +618,7 @@
          mBasisData( aMeshIndex ).mFollowerBasis.resize( tNumEnrichedBasis, 1 );
          mBasisData( aMeshIndex ).mFollowerToLeaderBasis.resize( tNumEnrichedBasis );
          mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights.resize( tNumEnrichedBasis );
+         mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightsWithoutVolFraction.resize( tNumEnrichedBasis );
          mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightNumerators.resize( tNumEnrichedBasis );
          mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightDenominators.resize( tNumEnrichedBasis );
          mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners.resize( tNumEnrichedBasis, 0 );
@@ -1079,6 +1080,7 @@
                                  // obtain the replacement basis
                                  Vector< moris_index > const & tFollowerBasis        = mBasisData( aMeshIndex ).mFollowerToLeaderBasis( tBasisIndex );
                                  Vector< real > const &        tFollowerBasisWeights = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( tBasisIndex );
+                                 Vector< real > const &        tFollowerBasisWeightsWithoutVolumeFraction = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightsWithoutVolFraction( tBasisIndex );
                                  Vector< real > const &        tFollowerBasisOwners  = mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( tBasisIndex );
                                  Vector< moris_index > const & tFollowerBasisDerivativeDenominators     = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightDenominators( tBasisIndex );
                                  Vector< moris_index > const & tFollowerBasisDerivativeNumerators       = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightNumerators( tBasisIndex );
@@ -1102,7 +1104,7 @@
                                          tAgglomeratedBasisIndices( tBasisCounter ) = tFollowerBasisIndex;
                                          tAgglomeratedBasisIds( tBasisCounter )     = tEnrInterpMesh.get_enr_basis_id_from_enr_basis_index( aMeshIndex, tFollowerBasisIndex );
                                          tAgglomeratedBasisWeights( tBasisCounter ) = tBasisWeight * tFollowerBasisWeights( iSlaveBasisOrd );
-                                         tAgglomeratedBasisWeightsPerLeaderBasis( tBasisCounter ).push_back( tBasisWeight * tFollowerBasisWeights( iSlaveBasisOrd ) );
+                                         tAgglomeratedBasisWeightsPerLeaderBasis( tBasisCounter ).push_back( tBasisWeight * tFollowerBasisWeightsWithoutVolumeFraction( iSlaveBasisOrd ) );
 
                                          // check if the given basis only depends on a single root SPG
                                          if ( tFollowerBasisDerivativeDenominators.size() == 1 )
@@ -1121,7 +1123,7 @@
                                              for ( const auto& iFollowerBasisDenominators : tFollowerBasisDerivativeDenominators )
                                              {
                                                  // Find the SPs associated with the SPGs in the denominator
-                                                 const Vector< moris_index >& tSPDenominator = tSPGs( iFollowerBasisDenominators )->get_SP_indices_in_group();
+                                                 const Vector< moris_index >& tSPDenominator = tSPGs( iFollowerBasisDenominators )->get_ig_cell_indices_in_group();
                                                  // Add the SPs to the agglomerated basis weights per follower basis denominator vector
                                                  for ( const auto& iSP : tSPDenominator )
                                                  {
@@ -1136,7 +1138,7 @@
 
                                              // Get SPs associated with SPG in the numerator
                                              // Get the SPs associated with the SPG in the numerator
-                                             const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_SP_indices_in_group();
+                                             const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_ig_cell_indices_in_group();
                                              // initialize counter for indices
                                              uint tCounter2 = 0;
 
@@ -1164,7 +1166,7 @@
                                          // find the local index and add the weight
                                          moris_index tLocalBasisIndex = tBasisMap[ tFollowerBasisIndex ];
                                          tAgglomeratedBasisWeights( tLocalBasisIndex ) += tBasisWeight * tFollowerBasisWeights( iSlaveBasisOrd );
-                                         tAgglomeratedBasisWeightsPerLeaderBasis( tLocalBasisIndex ).push_back( tBasisWeight * tFollowerBasisWeights( iSlaveBasisOrd ) );
+                                         tAgglomeratedBasisWeightsPerLeaderBasis( tLocalBasisIndex ).push_back( tBasisWeight * tFollowerBasisWeightsWithoutVolumeFraction( iSlaveBasisOrd ) );
                                          // Get SPs associated with SPG in the numerator
                                          //const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_SP_indices_in_group();
 
@@ -1191,7 +1193,7 @@
                                              for ( const auto& iFollowerBasisDenominators : tFollowerBasisDerivativeDenominators )
                                              {
                                                  // Find the SPs associated with the SPGs in the denominator
-                                                 const Vector< moris_index >& tSPDenominator = tSPGs( iFollowerBasisDenominators )->get_SP_indices_in_group();
+                                                 const Vector< moris_index >& tSPDenominator = tSPGs( iFollowerBasisDenominators )->get_ig_cell_indices_in_group();
                                                  // Add the SPs to the agglomerated basis weights per follower basis denominator vector
                                                  for ( const auto& iSP : tSPDenominator )
                                                  {
@@ -1204,7 +1206,7 @@
                                              tAgglomeratedBasisDenominatorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( tCounter );
                                              // Get SPs associated with SPG in the numerator
                                              // Get the SPs associated with the SPG in the numerator
-                                             const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_SP_indices_in_group();
+                                             const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_ig_cell_indices_in_group();
 
                                              // initialize counter for indices
                                              uint tCounter2 = 0;
@@ -2605,6 +2607,9 @@
  
                          // add the projection coefficient to the follower to leader basis relationship
                          mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( iEneBFExtended ).push_back( tAveragingWeights * tProjectionCoefficient );
+
+                         // add the projection coefficient without the averaging weights to the leader follower basis relationship
+                         mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightsWithoutVolFraction( iEneBFExtended ).push_back( tProjectionCoefficient );
 
                          // Add the numerator of averaging weight derivative (that is, the index of the SPG whose volume is the numerator of tAveragingWeight)
                          mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightNumerators( iEneBFExtended ).push_back( iSPGIndex );

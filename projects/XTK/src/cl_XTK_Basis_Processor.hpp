@@ -41,6 +41,7 @@ namespace moris::xtk
         // The following maps are required to construct the follower basis in terms of leader basis
         Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasis;           // input: enriched BF index || output: list of leader basis corresponding to the follower basis
         Vector< Vector< moris::real > >              mFollowerToLeaderBasisWeights;    // input: enriched BF index || output: list of leader basis corresponding to the follower basis          // input: enriched BF index || output: list of leader basis corresponding to the follower basis
+        Vector< Vector< moris::real > >              mFollowerToLeaderBasisWeightsWithoutVolFraction;    // input: enriched BF index || output: leader basis weight corresponding to the follower basis without volume fraction
         Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasisWeightNumerators;     // input: enriched BF index || output: which SPG is the averaging weight corresponding to
         Vector< Vector< moris::moris_index > >       mFollowerToLeaderBasisWeightDenominators;   // input: enriched BF index || output: averaging weight denominator (i.e., how many SPGs) corresponding to given follower basis.
         Vector< Vector< moris::real > >              mFollowerToLeaderBasisOwners;     // input: enriched BF index || output: list of leader basis corresponding to the follower basis

@@ -328,11 +328,11 @@ namespace moris::mtk
          *
          * @return return the cell size.
          */
-        virtual moris::real
+        virtual moris::Matrix< moris::DDRMat >
         compute_cell_size_deriv_general(
                 moris::mtk::Cell const *aCell,
                 uint                    aLocalVertexID,
-                uint                    aDirection ) const;
+                int                    aDirection ) const;
 
         // ---------------------------------------------------------------------------------
         /*!

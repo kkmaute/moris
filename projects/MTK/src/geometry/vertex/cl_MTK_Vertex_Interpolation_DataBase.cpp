@@ -202,7 +202,7 @@ namespace moris::mtk
         mWeightNumeratorIndices.resize( tOffset );
         mWeightDenominatorIndices.resize( tOffset );
 
-        for (uint i = 0; i < tOffset; ++i )
+        for (int i = 0; i < tOffset; ++i )
         {
             mWeightNumerators( i )         = tBasisWeightNumeratorsPtr[ i ];
             mWeightDenominators( i )       = tBasisWeightDenominatorsPtr[ i ];

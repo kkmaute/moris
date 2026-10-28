@@ -445,6 +445,17 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat >
+    Cell::compute_cell_measure_deriv_general(
+            uint aLocalVertexID,
+            int aDirection ) const
+    {
+        return this->get_cell_info()->compute_cell_size_deriv_general( this, aLocalVertexID, aDirection );
+    }
+
+
+    //------------------------------------------------------------------------------
+
+    moris::Matrix< moris::DDRMat >
     Cell::get_cell_geometric_coords_on_side_ordinal( moris::moris_index aSideOrdinal ) const
     {
         MORIS_ASSERT( mCellInfo != nullptr, "Cell info null ptr" );

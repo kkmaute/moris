@@ -419,6 +419,33 @@ namespace moris::mtk
                 Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsX,
                 Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsY,
                 Vector< Matrix< DDRMat > > &aIGtoIPGradientWeightsZ );
+        // ----------------------------------------------------------------------------
+
+        void
+        get_IG_to_BS_nodal_T_matrices(
+                Vector< Matrix< IdMat > >                      &aIGtoBSIds,
+                Vector< Matrix< IdMat > >                      &aIGtoBSIdsForSensitivityX,
+                Vector< Matrix< IdMat > >                      &aIGtoBSIdsForSensitivityY,
+                Vector< Matrix< IdMat > >                      &aIGtoBSIdsForSensitivityZ,
+                Vector< Vector< Vector< moris_id > > >         &aIGtoBSSensitivityIdsX,
+                Vector< Vector< Vector< moris_id > > >         &aIGtoBSSensitivityIdsY,
+                Vector< Vector< Vector< moris_id > > >         &aIGtoBSSensitivityIdsZ,
+                Vector< Matrix< DDRMat > >                     &aIGtoBSWeights,
+                Vector< Vector< Vector< real > > >             &aIGtoBSGradientWeightsX,
+                Vector< Vector< Vector< real > > >             &aIGtoBSGradientWeightsY,
+                Vector< Vector< Vector< real > > >             &aIGtoBSGradientWeightsZ,
+                Vector< Matrix< IdMat > >                      &aIPtoBSIds,
+                Vector< Matrix< DDRMat > >                     &aIPtoBSWeights,
+                Vector< Vector< Vector< Matrix< DDRMat > > > > &aIPtoBSSensitivityWeights,
+                Vector< Vector< Vector< moris_id > > >         &aSensitivityIGIDs,
+                Vector< Matrix< IdMat > >                      &aIGtoIPIds,
+                Vector< Matrix< IdMat > >                      &aIGtoIPIdsX,
+                Vector< Matrix< IdMat > >                      &aIGtoIPIdsY,
+                Vector< Matrix< IdMat > >                      &aIGtoIPIdsZ,
+                Vector< Matrix< DDRMat > >                     &aIGtoIPWeights,
+                Vector< Matrix< DDRMat > >                     &aIGtoIPGradientWeightsX,
+                Vector< Matrix< DDRMat > >                     &aIGtoIPGradientWeightsY,
+                Vector< Matrix< DDRMat > >                     &aIGtoIPGradientWeightsZ );
 
         // ----------------------------------------------------------------------------
 
@@ -448,6 +475,36 @@ namespace moris::mtk
                 Matrix< DDRMat >           &aGradientWeightsY,
                 Matrix< DDRMat >           &aGradientWeightsZ,
                 std::unordered_map< moris_index, moris_id > &aIGNodeIDMap );
+
+        void build_sparse_extraction_operator(
+                Vector< Matrix< IdMat > >                   &aIGtoBSIds,
+                Vector< Matrix< IdMat > >                   &aIGtoBSIdsForSensitivitiesX,
+                Vector< Matrix< IdMat > >                   &aIGtoBSIdsForSensitivitiesY,
+                Vector< Matrix< IdMat > >                   &aIGtoBSIdsForSensitivitiesZ,
+                Vector< Vector< Vector< moris_id > > >      &aIGtoBSSensitivityIdsX,
+                Vector< Vector< Vector< moris_id > > >      &aIGtoBSSensitivityIdsY,
+                Vector< Vector< Vector< moris_id > > >      &aIGtoBSSensitivityIdsZ,
+                Vector< Matrix< DDRMat > >                  &aIGtoBSWeights,
+                Vector< Vector< Vector< real > > >          &aIGtoBSGradientWeightsX,
+                Vector< Vector< Vector< real > > >          &aIGtoBSGradientWeightsY,
+                Vector< Vector< Vector< real > > >          &aIGtoBSGradientWeightsZ,
+                Matrix< DDUMat >                            &aSparseIndices,
+                Matrix< DDUMat >                            &aSparseIndicesX,
+                Matrix< DDUMat >                            &aSparseIndicesY,
+                Matrix< DDUMat >                            &aSparseIndicesZ,
+                Matrix< DDRMat >                            &aWeights,
+                Matrix< DDRMat >                            &aGradientWeightsX,
+                Matrix< DDRMat >                            &aGradientWeightsY,
+                Matrix< DDRMat >                            &aGradientWeightsZ,
+                std::unordered_map< moris_index, moris_id > &aIGNodeIDMap );
+
+        // ----------------------------------------------------------------------------
+
+        void get_IP_to_BS_nodal_T_matrix_sensitivities(
+                Vector< Matrix< IdMat > >  &aIPtoBSIds,
+                Vector< Vector< Vector< Matrix< DDRMat > > > > &aIPtoBSSensitivityWeights,
+                Vector< Vector< Vector< moris_id > > > &aSensitivityIGIDs,
+                uint                        aSetIndex );
 
         // ----------------------------------------------------------------------------
         /**

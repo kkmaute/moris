@@ -9,6 +9,7 @@
  */
 #include <string>
 #include <iomanip>
+#include <numeric>
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
@@ -944,6 +945,261 @@ namespace moris::mtk
         }    // end if: cluster is non-empty
     }
 
+    //----------------------------------------------------------------------------
+
+    void
+    Integration_Mesh::get_IP_to_BS_nodal_T_matrix_sensitivities(
+        Vector< Matrix< IdMat > >  &aIPtoBSIds,
+        Vector< Vector< Vector< Matrix< DDRMat > > > > &aIPtoBSSensitivityWeights,
+        Vector< Vector< Vector< moris_id > > > &aSensitivityIGIDs,
+        uint                        aSetIndex )
+    {
+        // aIPtoBSIds is same as in get_IP_to_BS_nodal_T_matrices, but aIPtoBSWeights is now a vector of matrices, one vector per BS vertex in IP to BS IDs.
+        // aSensitivityIGIDs is a vector of matrices, one per BS vertex in IP to BS IDs. 
+        // Per BS vertex, essentially we have all the IG nodes w.r.t. which it has sensitivities and their values.
+        
+        // trace this function
+        Tracer tTracer( "MTK", "Compute IP to B-Spline T-Matrix Sensitivities" );
+
+        // get number of IP nodes on mesh
+        uint tNumIpNodes = this->get_max_IP_ID_on_set( aSetIndex );
+
+        // initialize map size
+        aIPtoBSIds.resize( tNumIpNodes );
+        aIPtoBSSensitivityWeights.resize( tNumIpNodes );
+        aSensitivityIGIDs.resize( tNumIpNodes );
+
+        // matrices that mark which ID pairs have been found
+        Matrix< DDSMat > tIdentifierMatIP( tNumIpNodes, 1, 0 );
+
+        // get number of clusters on current set
+        uint tNumClustersOnSet = this->get_set_by_index( aSetIndex )->get_num_clusters_on_set();
+
+        // check if cluster is empty, if so skip procedure
+        if ( tNumClustersOnSet > 0 )
+        {
+            // loop over all clusters in current bulk set
+            for ( uint iCluster = 0; iCluster < tNumClustersOnSet; iCluster++ )
+            {
+                // get current cluster
+                const Cluster *tCluster = this->get_set_by_index( aSetIndex )->get_clusters_by_index( iCluster );
+
+                // get IP cell current cluster is on
+                const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
+
+                // get list of all vertices on IP cell associated with current cluster
+                Vector< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
+
+                // go through all IP vertices, build BSp - Lag map
+                for ( uint iIpVert = 0; iIpVert < tIPVertices.size(); iIpVert++ )
+                {
+                    // FIXME: this check needs to go back in when we have a method for checking whether a vertex has an associated interpolation
+                    // check if current IP vertex is empty
+                    // MORIS_ASSERT( tIPVertices( iIpVert )->has_interpolation( 0 ), "IP Vertex does not have a B-spline interpolation 0.");
+
+                    // get IP vertex ID
+                    uint tIP_ID = tIPVertices( iIpVert )->get_id();
+
+                    MORIS_ERROR( tIP_ID > 0, "Integration_Mesh::get_IP_to_BS_nodal_T_matrices() - ID expected to be greater equal 1." );
+
+                    // check if IP vertex has already been treated
+                    if ( tIdentifierMatIP( tIP_ID - 1 ) == 0 )
+                    {
+                        // get list of B-spline IDs associated with current IP vertex
+                        Matrix< IdMat >  tBSpIDs    = tIPVertices( iIpVert )->get_interpolation( 0 )->get_ids();
+                        Vector< Vector< real >  > tBSWeights = tIPVertices( iIpVert )->get_interpolation( 0 )->get_basis_weight_per_leader_basis();
+
+                        // get list of numerator and denominator SPs associated with the B-Spline basis associated with the current IP vertex
+                        Vector< Vector< moris_index > > tNumeratorSPs = tIPVertices( iIpVert )->get_interpolation( 0 )->get_basis_weight_numerators();
+                        Vector< Vector< moris_index > > tDenominatorSPs = tIPVertices( iIpVert )->get_interpolation( 0 )->get_basis_weight_denominators();
+                        Vector< Vector< uint > > tNumNumeratorSPs = tIPVertices( iIpVert )->get_interpolation( 0 )->get_basis_weight_numerator_count();
+                        Vector< Vector< uint > > tNumDenominatorSPs = tIPVertices( iIpVert )->get_interpolation( 0 )->get_basis_weight_denominator_count();
+
+                        // get number of B-splines associated with current IP vertex
+                        uint tNumBspOnIpNode = tBSpIDs.numel();
+
+                        // resize nodal T-matrix sensitivity IDs to accommodate all B-spline IDs, weights and associated SP IDs
+                        aIPtoBSIds( tIP_ID - 1 ).set_size( 1, tNumBspOnIpNode, gNoID );
+                        aIPtoBSSensitivityWeights( tIP_ID - 1 ).resize( tNumBspOnIpNode );
+                        aSensitivityIGIDs( tIP_ID - 1 ).resize( tNumBspOnIpNode );
+                        
+
+                        // create T-matrix derivatives - copy list of associated B-spline IDs and their weights
+                        for ( uint iBsp = 0; iBsp < tNumBspOnIpNode; iBsp++ )
+                        {
+                            // clear before proceeding to ensure that the sensitivity weights and IG IDs are empty before filling them in
+                            aSensitivityIGIDs( tIP_ID - 1 )( iBsp ).clear();
+                            aIPtoBSSensitivityWeights( tIP_ID - 1 )( iBsp ).clear();
+
+                            std::unordered_map< moris_id, Matrix< DDRMat > > tVolumeFractionDerivMap;
+                            aIPtoBSIds( tIP_ID - 1 )( iBsp )     = tBSpIDs( iBsp );
+                            Vector< real > tBSpWtsPerLeaderBasis = tBSWeights( iBsp );
+                            
+                            // figure out which IG IDs are associated with each numerator/denominator pair for current B-Spline basis' volume fraction
+                            // if numerator/denominator indices are empty/ only have a single -1 entry, then the sensitivity is zero and we don't need to store any IG IDs or weights
+                            if ( tNumNumeratorSPs( iBsp ).size() >= 1 && tNumDenominatorSPs( iBsp ).size() >= 1 )
+                            {
+                                uint tNumeratorOffset   = 0;
+                                uint tDenominatorOffset = 0;
+                                for ( uint iNumSP = 0; iNumSP < tNumNumeratorSPs( iBsp ).size(); iNumSP++ )
+                                {
+                                    // get numerator and denominator IG cell indices
+                                    const auto &tNumeratorIndices = tNumeratorSPs( iBsp );
+                                    uint        tNumeratorCount   = tNumNumeratorSPs( iBsp )( iNumSP );
+
+                                    Vector< moris_index > tNumIGIndex;
+                                    tNumIGIndex.insert(
+                                            0,
+                                            tNumeratorIndices.begin() + tNumeratorOffset,
+                                            tNumeratorIndices.begin() + tNumeratorOffset + tNumeratorCount );
+                                    tNumeratorOffset += tNumeratorCount;
+
+                                    const auto &tDenominatorIndices = tDenominatorSPs( iBsp );
+                                    uint        tDenominatorCount   = tNumDenominatorSPs( iBsp )( iNumSP );
+
+                                    Vector< moris_index > tDenIGIndex;
+                                    tDenIGIndex.insert(
+                                            0,
+                                            tDenominatorIndices.begin() + tDenominatorOffset,
+                                            tDenominatorIndices.begin() + tDenominatorOffset + tDenominatorCount );
+                                    tDenominatorOffset += tDenominatorCount;
+
+                                    // Compute measure of each IG cell in the numerator and denominator and store them in a vector
+                                    // also compute sensitivities of cell measure w.r.t the IG vertices
+                                    Vector< real > tNumIGAreas( tNumIGIndex.size() );
+                                    std::unordered_map< moris_id, Matrix< DDRMat > > tNumIGVertexMap; 
+                                    for ( uint iNumIG = 0; iNumIG < tNumIGIndex.size(); iNumIG++ )
+                                    {
+                                        // skip if the IG cell index is -1, which indicates that the there is a single extension operator for the current basis - not multiple (volume fraction 1)
+                                        if ( tNumIGIndex( iNumIG ) == -1 )
+                                        {
+                                            continue;
+                                        }
+                                        // compute cell measure
+                                        tNumIGAreas( iNumIG ) = this->get_mtk_cell( tNumIGIndex( iNumIG ) ).compute_cell_measure();
+
+                                        // compute the sensitivities of the cell measure w.r.t the IG vertices
+                                        for (uint iIGNodeID = 0; iIGNodeID < this->get_mtk_cell( tNumIGIndex( iNumIG ) ).get_vertex_ids().numel(); iIGNodeID++)
+                                        {
+                                            moris_id tIGNodeID = this->get_mtk_cell( tNumIGIndex( iNumIG ) ).get_vertex_ids()( iIGNodeID );
+                                            Matrix< DDRMat > tCellSensitivities = this->get_mtk_cell( tNumIGIndex( iNumIG ) ).compute_cell_measure_deriv_general( iIGNodeID, -1 );
+                                            if (tNumIGVertexMap.find( tIGNodeID ) == tNumIGVertexMap.end())
+                                            {
+                                                tNumIGVertexMap[tIGNodeID] = tCellSensitivities;
+                                            }
+                                            else
+                                            {
+                                                tNumIGVertexMap[tIGNodeID] += tCellSensitivities;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Repeat the same process for the denominator IG cells
+                                    Vector< real > tDenIGAreas( tDenIGIndex.size() );
+                                    std::unordered_map< moris_id, Matrix< DDRMat > > tDenIGVertexMap;
+                                    for ( uint iDenIG = 0; iDenIG < tDenIGIndex.size(); iDenIG++ )
+                                    {
+                                        // skip if the IG cell index is -1, which indicates that the there is a single extension operator for the current basis - not multiple, so no derivatives (volume fraction 1)
+                                        if ( tDenIGIndex( iDenIG ) == -1 )
+                                        {
+                                            continue;
+                                        }
+                                        // compute cell measure
+                                        tDenIGAreas( iDenIG ) = this->get_mtk_cell( tDenIGIndex( iDenIG ) ).compute_cell_measure();
+
+                                        // compute the sensitivities of the cell measure w.r.t the IG vertices
+                                        for ( uint iIGNodeID = 0; iIGNodeID < this->get_mtk_cell( tDenIGIndex( iDenIG ) ).get_vertex_ids().numel(); iIGNodeID++ )
+                                        {
+                                            moris_id         tIGNodeID          = this->get_mtk_cell( tDenIGIndex( iDenIG ) ).get_vertex_ids()( iIGNodeID );
+                                            Matrix< DDRMat > tCellSensitivities = this->get_mtk_cell( tDenIGIndex( iDenIG ) ).compute_cell_measure_deriv_general( iIGNodeID, -1 );
+                                            if ( tDenIGVertexMap.find( tIGNodeID ) == tDenIGVertexMap.end() )
+                                            {
+                                                tDenIGVertexMap[ tIGNodeID ] = tCellSensitivities;
+                                            }
+                                            else
+                                            {
+                                                tDenIGVertexMap[ tIGNodeID ] += tCellSensitivities;
+                                            }
+                                        }
+                                    }
+
+                                    // compute the derivative of the volume fraction w.r.t the IG vertices using the quotient rule
+                                    for ( const auto &tPair : tDenIGVertexMap )
+                                    {
+                                        // get the vertex ID
+                                        moris_id tIGNodeID = tPair.first;
+
+                                        // get the derivative of denominator IG cells w.r.t. to this vertex
+                                        Matrix< DDRMat > tDenDeriv = tPair.second;
+
+                                        // check if this vertex is also in the numerator IG cells
+                                        if ( tNumIGVertexMap.find( tIGNodeID ) != tNumIGVertexMap.end() )
+                                        {
+                                            // get the derivative of numerator IG cells w.r.t. to this vertex
+                                            Matrix< DDRMat > tNumDeriv = tNumIGVertexMap[ tIGNodeID ];
+
+                                            const real tNumArea =
+                                                    std::accumulate( tNumIGAreas.begin(), tNumIGAreas.end(), real( 0 ) );
+                                            const real tDenArea =
+                                                    std::accumulate( tDenIGAreas.begin(), tDenIGAreas.end(), real( 0 ) );
+
+                                            // compute the derivative of the volume fraction w.r.t this vertex using the quotient rule
+                                            Matrix< DDRMat > tVolumeFractionDeriv = ( tNumDeriv * tDenArea - tDenDeriv * tNumArea ) / ( tDenArea * tDenArea );
+
+                                            // compute derivative of b-spline weight this numerator-denominator pairing.
+                                            if ( tVolumeFractionDerivMap.find( tIGNodeID ) == tVolumeFractionDerivMap.end() )
+                                            {
+                                                tVolumeFractionDerivMap[ tIGNodeID ] = tBSpWtsPerLeaderBasis( iNumSP ) * tVolumeFractionDeriv;
+                                            }
+                                            else
+                                            {
+                                                tVolumeFractionDerivMap[ tIGNodeID ] += tBSpWtsPerLeaderBasis( iNumSP ) * tVolumeFractionDeriv;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // No contribution from numerator, so derivative is just the negative of the denominator contribution
+                                            const real tNumArea =
+                                                    std::accumulate( tNumIGAreas.begin(), tNumIGAreas.end(), real( 0 ) );
+                                            const real tDenArea =
+                                                    std::accumulate( tDenIGAreas.begin(), tDenIGAreas.end(), real( 0 ) );
+                                            Matrix< DDRMat > tVolumeFractionDeriv = ( -tDenDeriv * tNumArea ) / ( tDenArea * tDenArea );
+
+                                            // compute derivative of b-spline weight this numerator-denominator pairing.
+                                            if ( tVolumeFractionDerivMap.find( tIGNodeID ) == tVolumeFractionDerivMap.end() )
+                                            {
+                                                tVolumeFractionDerivMap[ tIGNodeID ] = tBSpWtsPerLeaderBasis( iNumSP ) * tVolumeFractionDeriv;
+                                            }
+                                            else
+                                            {
+                                                tVolumeFractionDerivMap[ tIGNodeID ] += tBSpWtsPerLeaderBasis( iNumSP ) * tVolumeFractionDeriv;
+                                            }
+
+                                        }
+                                        
+                                    }
+
+
+                                }
+                            }
+                            //  populate the output vectors with the IG IDs and their corresponding sensitivities for the current B-Spline basis
+                            for ( const auto &tPair : tVolumeFractionDerivMap )
+                            {
+                                moris_id tIGNodeID = tPair.first;
+                                Matrix< DDRMat > tVolumeFractionDeriv = tPair.second;
+                                aSensitivityIGIDs( tIP_ID - 1 )( iBsp ).push_back( tIGNodeID );
+                                aIPtoBSSensitivityWeights( tIP_ID - 1 )( iBsp ).push_back( tVolumeFractionDeriv );
+                            }                         
+                        }
+
+                        // tick off IP vertex as treated
+                        tIdentifierMatIP( tIP_ID - 1 ) = 1;
+                    }
+                }    // end for: IP vertices
+            }    // end for: clusters
+        }    // end if: cluster is non-empty
+    }
+
     // ----------------------------------------------------------------------------
 
     void
@@ -1329,6 +1585,629 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
+    void
+    Integration_Mesh::get_IG_to_BS_nodal_T_matrices(
+            Vector< Matrix< IdMat > >                      &aIGtoBSIds,
+            Vector< Matrix< IdMat > >                      &aIGtoBSIdsForSensitivityX,
+            Vector< Matrix< IdMat > >                      &aIGtoBSIdsForSensitivityY,
+            Vector< Matrix< IdMat > >                      &aIGtoBSIdsForSensitivityZ,
+            Vector< Vector< Vector< moris_id > > >         &aIGtoBSSensitivityIdsX,
+            Vector< Vector< Vector< moris_id > > >         &aIGtoBSSensitivityIdsY,
+            Vector< Vector< Vector< moris_id > > >         &aIGtoBSSensitivityIdsZ,
+            Vector< Matrix< DDRMat > >                     &aIGtoBSWeights,
+            Vector< Vector< Vector< real > > >             &aIGtoBSGradientWeightsX,
+            Vector< Vector< Vector< real > > >             &aIGtoBSGradientWeightsY,
+            Vector< Vector< Vector< real > > >             &aIGtoBSGradientWeightsZ,
+            Vector< Matrix< IdMat > >                      &aIPtoBSIds,
+            Vector< Matrix< DDRMat > >                     &aIPtoBSWeights,
+            Vector< Vector< Vector< Matrix< DDRMat > > > > &aIPtoBSSensitivityWeights,
+            Vector< Vector< Vector< moris_id > > >         &aSensitivityIGIDs,
+            Vector< Matrix< IdMat > >                      &aIGtoIPIds,
+            Vector< Matrix< IdMat > >                      &aIGtoIPIdsX,
+            Vector< Matrix< IdMat > >                      &aIGtoIPIdsY,
+            Vector< Matrix< IdMat > >                      &aIGtoIPIdsZ,
+            Vector< Matrix< DDRMat > >                     &aIGtoIPWeights,
+            Vector< Matrix< DDRMat > >                     &aIGtoIPGradientWeightsX,
+            Vector< Matrix< DDRMat > >                     &aIGtoIPGradientWeightsY,
+            Vector< Matrix< DDRMat > >                     &aIGtoIPGradientWeightsZ )
+    {
+        // trace this function
+        Tracer tTracer( "MTK", "Compute IG to IP T-Matrices" );
+
+        // get number of IG vertices
+        uint tNumIgNodes = aIGtoIPIds.size();
+        MORIS_ERROR( tNumIgNodes == aIGtoIPWeights.size(),
+                "Integration_Mesh::get_IG_to_BS_nodal_T_matrices() - Size of ID/weight maps for IG-IP T-Matrices don't match." );
+
+        // initialize size of T-Matrix cells
+        aIGtoBSIds.resize( tNumIgNodes );
+        aIGtoBSIdsForSensitivityX.resize( tNumIgNodes );
+        aIGtoBSIdsForSensitivityY.resize( tNumIgNodes );
+        
+        aIGtoBSSensitivityIdsX.resize( tNumIgNodes );
+        aIGtoBSSensitivityIdsY.resize( tNumIgNodes );
+        
+        if ( this->get_spatial_dim() == 3 )
+        {
+            aIGtoBSIdsForSensitivityZ.resize( tNumIgNodes );
+            aIGtoBSSensitivityIdsZ.resize( tNumIgNodes );
+        }
+
+        aIGtoBSWeights.resize( tNumIgNodes );
+        aIGtoBSGradientWeightsX.resize( tNumIgNodes );
+        aIGtoBSGradientWeightsY.resize( tNumIgNodes );
+
+        if ( this->get_spatial_dim() == 3 )
+        {
+            aIGtoBSGradientWeightsZ.resize( tNumIgNodes );
+        }
+
+        // loop over all IG vertices
+        for ( uint iIgNode = 0; iIgNode < tNumIgNodes; iIgNode++ )
+        {
+            // initialize temporary vectors containing all
+            Matrix< IdMat >              tNodalIGtoBSIds( 0, 0 );
+            Vector< Vector< moris_id > > tNodalIGtoBSSensitivityIdsX( 0 );
+            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityX( 0 );
+            Vector< Vector< moris_id > > tNodalIGtoBSSensitivityIdsY( 0 );
+            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityY( 0 );
+            Vector< Vector< moris_id > > tNodalIGtoBSSensitivityIdsZ( 0 );
+            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityZ( 0 );
+            
+
+            Matrix< DDRMat >          tNodalIGtoBSWeights( 0, 0 );
+            Vector< Vector< real > >  tNodalIGtoBSGradientWeightsX( 0 );
+            Vector< Vector< real > >  tNodalIGtoBSGradientWeightsY( 0 );
+            Vector< Vector< real > >  tNodalIGtoBSGradientWeightsZ( 0 );
+
+            // number of IP nodes associated with current IG node
+            uint tNumIpBfs = aIGtoIPIds( iIgNode ).numel();
+
+            // loop over all IP nodes current IG node is related to
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfs; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIds( iIgNode )( jIpNode );
+
+                // skip if IP-ID doesn't exist
+                if ( tIpId > gNoID )
+                {
+                    // get what B-spline IDs and Weights are associated with current Node
+                    const Matrix< IdMat > &tAddIdList     = aIPtoBSIds( tIpId - 1 );
+                    Matrix< DDRMat >       tAddWeightList = aIGtoIPWeights( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                    // append vectors of IDs and weights
+                    tNodalIGtoBSIds     = join_horiz( tNodalIGtoBSIds, tAddIdList );
+                    tNodalIGtoBSWeights = join_horiz( tNodalIGtoBSWeights, tAddWeightList );
+                }
+            }    // end: loop over all IP Nodes
+
+            
+
+            // get unique list of B-Spline IDs associated with each IG node
+            moris::unique( tNodalIGtoBSIds, aIGtoBSIds( iIgNode ) );
+
+            // get number of unique IDs in list
+            uint tNumUniqueIDs = aIGtoBSIds( iIgNode ).numel();
+
+
+            // initialize list of weights associated with unique list of IDs
+            aIGtoBSWeights( iIgNode ).set_size( tNumUniqueIDs, 1, 0.0 );
+
+            // create list of weights associated with unique list of IDs
+            for ( uint iUnique = 0; iUnique < tNumUniqueIDs; iUnique++ )
+            {
+                for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIds.numel(); jNonUnique++ )
+                {
+                    if ( aIGtoBSIds( iIgNode )( iUnique ) == tNodalIGtoBSIds( jNonUnique ) )
+                    {
+                        aIGtoBSWeights( iIgNode )( iUnique ) = aIGtoBSWeights( iIgNode )( iUnique ) + tNodalIGtoBSWeights( jNonUnique );
+                    }
+                }
+            }
+
+            // There are two terms here - one is derivative of FG Lagrange to BG Lagrange times Lagrange extrarction and second term is 
+            // derivative of Lagrange extraction times FG Lagrange to BG Lagrange. 
+
+            // Computing the first term - derivative of FG Lagrange to BG Lagrange times Lagrange extraction
+            uint tNumIpBfsX = aIGtoIPIdsX( iIgNode ).numel();
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfsX; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIdsX( iIgNode )( jIpNode );
+                if ( tIpId > gNoID )
+                {
+                    const Matrix< IdMat > &tAddIdList  = aIPtoBSIds( tIpId - 1 );
+                    Matrix< DDRMat >       tAddWeightList = aIGtoIPGradientWeightsX( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                    // append vectors of IDs and weights
+                    tNodalIGtoBSIdsForSensitivityX = join_horiz( tNodalIGtoBSIdsForSensitivityX, tAddIdList );
+
+                    for ( uint iBf = 0; iBf < tAddWeightList.numel(); iBf++ )
+                    {
+                        Vector< real > tAddGradientWeightList( 1 );
+                        tAddGradientWeightList( 0 ) = tAddWeightList( iBf );
+                        tNodalIGtoBSGradientWeightsX.push_back( tAddGradientWeightList );
+                    }
+
+                    // append IG element IDs for sensitivity
+                    for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
+                    {
+                        Vector< moris_id > tAddGradientIdList( 1 );
+                        const moris_id     tIGNodeId = this->get_mtk_vertex( iIgNode ).get_id();
+                        tAddGradientIdList( 0 )      = tIGNodeId;
+                        tNodalIGtoBSSensitivityIdsX.push_back( tAddGradientIdList );
+                    }
+                }
+            }
+            // computing second term - derivative of Lagrange extraction times FG Lagrange to BG Lagrange
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfs; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIds( iIgNode )( jIpNode );
+                if ( tIpId > gNoID )
+                {
+                    const Matrix< IdMat > &tAddIdList  = aIPtoBSIds( tIpId - 1 );
+                    tNodalIGtoBSIdsForSensitivityX = join_horiz( tNodalIGtoBSIdsForSensitivityX, tAddIdList );
+
+                    // loop over the sensitivities and multiply with IG to IP weights for all 
+                    // B spline basis functions associated with this node.
+                    for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
+                    {
+                        // get basis function ID
+                        moris_id tBfId = tAddIdList( iBf );
+                        
+                        // get all the sensitivities corresponding to this basis function ID
+                        Vector< Matrix< DDRMat > > tSensitivityWeights = aIPtoBSSensitivityWeights( tIpId - 1 )( iBf );
+
+                        // if tSensitivityWeights is empty the loop below won't run.
+
+                        // declare vectors for holding sensitivity values and IDs
+                        Vector< real > tAddGradientWeightList;
+                        Vector< moris_id > tAddGradientIdList;
+                        const auto        &tSensitivityIds = aSensitivityIGIDs( tIpId - 1 )( iBf );
+
+                        MORIS_ERROR(
+                                tSensitivityWeights.size() == tSensitivityIds.size(),
+                                "Sensitivity weights and IG node IDs have different lengths." );
+
+                        // we are assembling the x gradient here, so we need to multiply x component of tSensitivityWeights with the IG to IP weights
+                        for ( uint iSens = 0; iSens < tSensitivityWeights.size(); iSens++ )
+                        {
+                            // get the sensitivity weight
+                            Matrix< DDRMat > tSensWeight = tSensitivityWeights( iSens );
+
+                            MORIS_ERROR(
+                                    tSensWeight.n_rows() == this->get_spatial_dim()
+                                            && tSensWeight.n_cols() == 1,
+                                    "Sensitivity gradient has an unexpected shape." );
+
+                            // multiply with IG to IP weight
+                            real tWeight = aIGtoIPWeights( iIgNode )( jIpNode ) * tSensWeight( 0 );
+
+                            tAddGradientWeightList.push_back( tWeight );
+                            tAddGradientIdList.push_back( tSensitivityIds( iSens ) );
+                        }
+
+                        // Append these vectors into the main vectors
+                        tNodalIGtoBSGradientWeightsX.push_back( tAddGradientWeightList );
+                        tNodalIGtoBSSensitivityIdsX.push_back( tAddGradientIdList );
+                    }
+
+                    MORIS_ASSERT(
+                            tNodalIGtoBSIdsForSensitivityX.numel()
+                                            == tNodalIGtoBSGradientWeightsX.size()
+                                    && tNodalIGtoBSGradientWeightsX.size()
+                                               == tNodalIGtoBSSensitivityIdsX.size(),
+                            "Temporary X sensitivity arrays are misaligned." );
+                }
+            }
+
+            // repeating for Y components
+            // Computing the first term - derivative of FG Lagrange to BG Lagrange times Lagrange extraction
+            uint tNumIpBfsY = aIGtoIPIdsY( iIgNode ).numel();
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfsY; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIdsY( iIgNode )( jIpNode );
+                if ( tIpId > gNoID )
+                {
+                    const Matrix< IdMat > &tAddIdList     = aIPtoBSIds( tIpId - 1 );
+                    Matrix< DDRMat >       tAddWeightList = aIGtoIPGradientWeightsY( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                    // append vectors of IDs and weights
+                    tNodalIGtoBSIdsForSensitivityY = join_horiz( tNodalIGtoBSIdsForSensitivityY, tAddIdList );
+
+                    for ( uint iBf = 0; iBf < tAddWeightList.numel(); iBf++ )
+                    {
+                        Vector< real > tAddGradientWeightList( 1 );
+                        tAddGradientWeightList( 0 ) = tAddWeightList( iBf );
+                        tNodalIGtoBSGradientWeightsY.push_back( tAddGradientWeightList );
+                    }
+
+                    // append IG element IDs for sensitivity
+                    for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
+                    {
+                        Vector< moris_id > tAddGradientIdList( 1 );
+                        const moris_id     tIGNodeId = this->get_mtk_vertex( iIgNode ).get_id();
+                        tAddGradientIdList( 0 )      = tIGNodeId;
+                        tNodalIGtoBSSensitivityIdsY.push_back( tAddGradientIdList );
+                    }
+                }
+            }
+            // computing second term - derivative of Lagrange extraction times FG Lagrange to BG Lagrange
+            for ( uint jIpNode = 0; jIpNode < tNumIpBfs; jIpNode++ )
+            {
+                // get current IP ID
+                moris_id tIpId = aIGtoIPIds( iIgNode )( jIpNode );
+                if ( tIpId > gNoID )
+                {
+                    const Matrix< IdMat > &tAddIdList = aIPtoBSIds( tIpId - 1 );
+                    tNodalIGtoBSIdsForSensitivityY    = join_horiz( tNodalIGtoBSIdsForSensitivityY, tAddIdList );
+
+                    // loop over the sensitivities and multiply with IG to IP weights for all
+                    // B spline basis functions associated with this node.
+                    for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
+                    {
+                        // get basis function ID
+                        moris_id tBfId = tAddIdList( iBf );
+
+                        // get all the sensitivities corresponding to this basis function ID
+                        Vector< Matrix< DDRMat > > tSensitivityWeights = aIPtoBSSensitivityWeights( tIpId - 1 )( iBf );
+
+                        // declare vectors for holding sensitivity values and IDs
+                        Vector< real >     tAddGradientWeightList;
+                        Vector< moris_id > tAddGradientIdList;
+                        const auto        &tSensitivityIds = aSensitivityIGIDs( tIpId - 1 )( iBf );
+
+                        MORIS_ERROR(
+                                tSensitivityWeights.size() == tSensitivityIds.size(),
+                                "Sensitivity weights and IG node IDs have different lengths." );
+
+                        // we are assembling the x gradient here, so we need to multiply x component of tSensitivityWeights with the IG to IP weights
+                        for ( uint iSens = 0; iSens < tSensitivityWeights.size(); iSens++ )
+                        {
+                            // get the sensitivity weight
+                            Matrix< DDRMat > tSensWeight = tSensitivityWeights( iSens );
+
+                            MORIS_ERROR(
+                                    tSensWeight.n_rows() == this->get_spatial_dim()
+                                            && tSensWeight.n_cols() == 1,
+                                    "Sensitivity gradient has an unexpected shape." );
+
+                            // multiply with IG to IP weight
+                            real tWeight = aIGtoIPWeights( iIgNode )( jIpNode ) * tSensWeight( 1 );
+
+                            tAddGradientWeightList.push_back( tWeight );
+                            tAddGradientIdList.push_back( tSensitivityIds( iSens ) );
+                        }
+
+                        // Append these vectors into the main vectors
+                        tNodalIGtoBSGradientWeightsY.push_back( tAddGradientWeightList );
+                        tNodalIGtoBSSensitivityIdsY.push_back( tAddGradientIdList );
+                    }
+
+                    MORIS_ASSERT(
+                            tNodalIGtoBSIdsForSensitivityY.numel()
+                                            == tNodalIGtoBSGradientWeightsY.size()
+                                    && tNodalIGtoBSGradientWeightsY.size()
+                                               == tNodalIGtoBSSensitivityIdsY.size(),
+                            "Temporary X sensitivity arrays are misaligned." );
+                }
+            }
+
+            // if problem is 3D, repeat for Z components
+            if ( this->get_spatial_dim() == 3 )
+            {
+                // Computing the first term - derivative of FG Lagrange to BG Lagrange times Lagrange extraction
+                uint tNumIpBfsZ = aIGtoIPIdsZ( iIgNode ).numel();
+                for ( uint jIpNode = 0; jIpNode < tNumIpBfsZ; jIpNode++ )
+                {
+                    // get current IP ID
+                    moris_id tIpId = aIGtoIPIdsZ( iIgNode )( jIpNode );
+                    if ( tIpId > gNoID )
+                    {
+                        const Matrix< IdMat > &tAddIdList     = aIPtoBSIds( tIpId - 1 );
+                        Matrix< DDRMat >       tAddWeightList = aIGtoIPGradientWeightsZ( iIgNode )( jIpNode ) * aIPtoBSWeights( tIpId - 1 );
+
+                        // append vectors of IDs and weights
+                        tNodalIGtoBSIdsForSensitivityZ = join_horiz( tNodalIGtoBSIdsForSensitivityZ, tAddIdList );
+
+                        for ( uint iBf = 0; iBf < tAddWeightList.numel(); iBf++ )
+                        {
+                            Vector< real > tAddGradientWeightList( 1 );
+                            tAddGradientWeightList( 0 ) = tAddWeightList( iBf );
+                            tNodalIGtoBSGradientWeightsZ.push_back( tAddGradientWeightList );
+                        }
+
+                        // append IG element IDs for sensitivity
+                        for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
+                        {
+                            Vector< moris_id > tAddGradientIdList( 1 );
+                            const moris_id     tIGNodeId = this->get_mtk_vertex( iIgNode ).get_id();
+                            tAddGradientIdList( 0 )      = tIGNodeId;
+                            tNodalIGtoBSSensitivityIdsZ.push_back( tAddGradientIdList );
+                        }
+                    }
+                }
+                // computing second term - derivative of Lagrange extraction times FG Lagrange to BG Lagrange
+                for ( uint jIpNode = 0; jIpNode < tNumIpBfs; jIpNode++ )
+                {
+                    // get current IP ID
+                    moris_id tIpId = aIGtoIPIds( iIgNode )( jIpNode );
+                    if ( tIpId > gNoID )
+                    {
+                        const Matrix< IdMat > &tAddIdList = aIPtoBSIds( tIpId - 1 );
+                        tNodalIGtoBSIdsForSensitivityZ    = join_horiz( tNodalIGtoBSIdsForSensitivityZ, tAddIdList );
+
+                        // loop over the sensitivities and multiply with IG to IP weights for all
+                        // B spline basis functions associated with this node.
+                        for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
+                        {
+                            // get basis function ID
+                            moris_id tBfId = tAddIdList( iBf );
+
+                            // get all the sensitivities corresponding to this basis function ID
+                            Vector< Matrix< DDRMat > > tSensitivityWeights = aIPtoBSSensitivityWeights( tIpId - 1 )( iBf );
+
+                            // declare vectors for holding sensitivity values and IDs
+                            Vector< real >     tAddGradientWeightList;
+                            Vector< moris_id > tAddGradientIdList;
+                            const auto        &tSensitivityIds = aSensitivityIGIDs( tIpId - 1 )( iBf );
+
+                            MORIS_ERROR(
+                                    tSensitivityWeights.size() == tSensitivityIds.size(),
+                                    "Sensitivity weights and IG node IDs have different lengths." );
+
+                            // we are assembling the x gradient here, so we need to multiply x component of tSensitivityWeights with the IG to IP weights
+                            for ( uint iSens = 0; iSens < tSensitivityWeights.size(); iSens++ )
+                            {
+                                // get the sensitivity weight
+                                Matrix< DDRMat > tSensWeight = tSensitivityWeights( iSens );
+
+                                MORIS_ERROR(
+                                        tSensWeight.n_rows() == this->get_spatial_dim()
+                                                && tSensWeight.n_cols() == 1,
+                                        "Sensitivity gradient has an unexpected shape." );
+
+                                // multiply with IG to IP weight
+                                real tWeight = aIGtoIPWeights( iIgNode )( jIpNode ) * tSensWeight( 2 );
+
+                                tAddGradientWeightList.push_back( tWeight );
+                                tAddGradientIdList.push_back( tSensitivityIds( iSens ) );
+                            }
+
+                            // Append these vectors into the main vectors
+                            tNodalIGtoBSGradientWeightsZ.push_back( tAddGradientWeightList );
+                            tNodalIGtoBSSensitivityIdsZ.push_back( tAddGradientIdList );
+
+                        }
+
+                        MORIS_ASSERT(
+                                tNodalIGtoBSIdsForSensitivityZ.numel()
+                                                == tNodalIGtoBSGradientWeightsZ.size()
+                                        && tNodalIGtoBSGradientWeightsZ.size()
+                                                   == tNodalIGtoBSSensitivityIdsZ.size(),
+                                "Temporary X sensitivity arrays are misaligned." );
+                    }
+                }
+            }
+
+            // create a list of unique B Spline IDs associated with each IG node for sensitivity X
+            moris::unique( tNodalIGtoBSIdsForSensitivityX, aIGtoBSIdsForSensitivityX( iIgNode ) );
+
+            // get number of unique IDs in list
+            uint tNumUniqueIDsX = aIGtoBSIdsForSensitivityX( iIgNode ).numel();
+
+            // initialize list of weights associated with unique list of IDs
+            aIGtoBSGradientWeightsX( iIgNode ).resize( tNumUniqueIDsX );
+
+            aIGtoBSSensitivityIdsX( iIgNode ).resize( tNumUniqueIDsX );
+
+            // create a list of unique B Spline IDs associated with each IG node for sensitivity Y
+            moris::unique( tNodalIGtoBSIdsForSensitivityY, aIGtoBSIdsForSensitivityY( iIgNode ) );
+
+            // get number of unique IDs in list
+            uint tNumUniqueIDsY = aIGtoBSIdsForSensitivityY( iIgNode ).numel();
+
+            // initialize list of weights associated with unique list of IDs
+            aIGtoBSGradientWeightsY( iIgNode ).resize( tNumUniqueIDsY );
+
+            aIGtoBSSensitivityIdsY( iIgNode ).resize( tNumUniqueIDsY );
+
+            uint tNumUniqueIDsZ = 0;
+            if ( this->get_spatial_dim() == 3 )
+            {
+                // create a list of unique B Spline IDs associated with each IG node for sensitivity Z
+                moris::unique( tNodalIGtoBSIdsForSensitivityZ, aIGtoBSIdsForSensitivityZ( iIgNode ) );
+
+                // get number of unique IDs in list
+                tNumUniqueIDsZ = aIGtoBSIdsForSensitivityZ( iIgNode ).numel();
+
+                // initialize list of weights associated with unique list of IDs
+                aIGtoBSGradientWeightsZ( iIgNode ).resize( tNumUniqueIDsZ );
+
+                aIGtoBSSensitivityIdsZ( iIgNode ).resize( tNumUniqueIDsZ );
+            }
+
+            // Loop over the sensitivity weights and see if there are repeated contributions from the same B-spline functions.
+            // if that is the case, if the IG node with respect to which there are derivatives also match, we add contributions.
+            // otherwise, the vector of sensitivities associated with each B-spline function will get an append, so will the vector of IG nodes with respect to which the sensitivities are computed.
+
+            for ( uint iUnique = 0; iUnique < tNumUniqueIDsX; iUnique++ )
+            {
+                aIGtoBSGradientWeightsX( iIgNode )( iUnique ).clear();
+                aIGtoBSSensitivityIdsX( iIgNode )( iUnique ).clear();
+                for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIdsForSensitivityX.numel(); jNonUnique++ )
+                {
+                    if ( aIGtoBSIdsForSensitivityX( iIgNode )( iUnique ) == tNodalIGtoBSIdsForSensitivityX( jNonUnique ) )
+                    {
+                        // get the vector of weights from the non-unique list
+                        Vector< real > tWeightVector = tNodalIGtoBSGradientWeightsX( jNonUnique );
+
+                        // get the vector of IG nodes from the non-unique list
+                        Vector< moris_id > tIGNodeVector = tNodalIGtoBSSensitivityIdsX( jNonUnique );
+
+                        // get the vector of weights from the unique list
+                        Vector< real > &tUniqueWeightVector = aIGtoBSGradientWeightsX( iIgNode )( iUnique );
+
+                        // get the vector of IG nodes from the unique list
+                        Vector< moris_id > &tUniqueIGNodeVector = aIGtoBSSensitivityIdsX( iIgNode )( iUnique );
+
+                        // skip if it is first instance, because unique list will be empty and we can just append the non-unique list to it.
+                        if ( tUniqueWeightVector.size() == 0 )
+                        {
+                            tUniqueWeightVector = tWeightVector;
+                            tUniqueIGNodeVector = tIGNodeVector;    
+                        }
+                        else
+                        {
+                            // loop over the non-unique list and see if there are any IG nodes that match with the unique list. If so, add contributions.
+                            for ( uint iNonUnique = 0; iNonUnique < tIGNodeVector.size(); iNonUnique++ )
+                            {
+                                moris_id tNonUniqueIGNode = tIGNodeVector( iNonUnique );
+                                real tNonUniqueWeight = tWeightVector( iNonUnique );
+
+                                // check if this IG node is already in the unique list
+                                auto it = std::find( tUniqueIGNodeVector.begin(), tUniqueIGNodeVector.end(), tNonUniqueIGNode );
+                                if ( it != tUniqueIGNodeVector.end() )
+                                {
+                                    // if found, add the weight to the corresponding index in the unique weight vector
+                                    uint index = std::distance( tUniqueIGNodeVector.begin(), it );
+                                    tUniqueWeightVector( index ) += tNonUniqueWeight;
+                                }
+                                else
+                                {
+                                    // if not found, append the IG node and weight to the unique lists
+                                    tUniqueIGNodeVector.push_back( tNonUniqueIGNode );
+                                    tUniqueWeightVector.push_back( tNonUniqueWeight );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // repeat for Y and Z components
+            for ( uint iUnique = 0; iUnique < tNumUniqueIDsY; iUnique++ )
+            {
+                aIGtoBSGradientWeightsY( iIgNode )( iUnique ).clear();
+                aIGtoBSSensitivityIdsY( iIgNode )( iUnique ).clear();
+                for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIdsForSensitivityY.numel(); jNonUnique++ )
+                {
+                    if ( aIGtoBSIdsForSensitivityY( iIgNode )( iUnique ) == tNodalIGtoBSIdsForSensitivityY( jNonUnique ) )
+                    {
+                        // get the vector of weights from the non-unique list
+                        Vector< real > tWeightVector = tNodalIGtoBSGradientWeightsY( jNonUnique );
+
+                        // get the vector of IG nodes from the non-unique list
+                        Vector< moris_id > tIGNodeVector = tNodalIGtoBSSensitivityIdsY( jNonUnique );
+
+                        // get the vector of weights from the unique list
+                        Vector< real > &tUniqueWeightVector = aIGtoBSGradientWeightsY( iIgNode )( iUnique );
+
+                        // get the vector of IG nodes from the unique list
+                        Vector< moris_id > &tUniqueIGNodeVector = aIGtoBSSensitivityIdsY( iIgNode )( iUnique );
+
+                        // skip if it is first instance, because unique list will be empty and we can just append the non-unique list to it.
+                        if ( tUniqueWeightVector.size() == 0 )
+                        {
+                            tUniqueWeightVector = tWeightVector;
+                            tUniqueIGNodeVector = tIGNodeVector;
+                        }
+                        else
+                        {
+                            // loop over the non-unique list and see if there are any IG nodes that match with the unique list. If so, add contributions.
+                            for ( uint iNonUnique = 0; iNonUnique < tIGNodeVector.size(); iNonUnique++ )
+                            {
+                                moris_id tNonUniqueIGNode = tIGNodeVector( iNonUnique );
+                                real     tNonUniqueWeight = tWeightVector( iNonUnique );
+
+                                // check if this IG node is already in the unique list
+                                auto it = std::find( tUniqueIGNodeVector.begin(), tUniqueIGNodeVector.end(), tNonUniqueIGNode );
+                                if ( it != tUniqueIGNodeVector.end() )
+                                {
+                                    // if found, add the weight to the corresponding index in the unique weight vector
+                                    uint index = std::distance( tUniqueIGNodeVector.begin(), it );
+                                    tUniqueWeightVector( index ) += tNonUniqueWeight;
+                                }
+                                else
+                                {
+                                    // if not found, append the IG node and weight to the unique lists
+                                    tUniqueIGNodeVector.push_back( tNonUniqueIGNode );
+                                    tUniqueWeightVector.push_back( tNonUniqueWeight );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // repeat for Z component if 3D
+            if ( this->get_spatial_dim() == 3 )
+            {
+                for ( uint iUnique = 0; iUnique < tNumUniqueIDsZ; iUnique++ )
+                {
+                    aIGtoBSGradientWeightsZ( iIgNode )( iUnique ).clear();
+                    aIGtoBSSensitivityIdsZ( iIgNode )( iUnique ).clear();
+
+                    for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIdsForSensitivityZ.numel(); jNonUnique++ )
+                    {
+                        if ( aIGtoBSIdsForSensitivityZ( iIgNode )( iUnique ) == tNodalIGtoBSIdsForSensitivityZ( jNonUnique ) )
+                        {
+                            // get the vector of weights from the non-unique list
+                            Vector< real > tWeightVector = tNodalIGtoBSGradientWeightsZ( jNonUnique );
+
+                            // get the vector of IG nodes from the non-unique list
+                            Vector< moris_id > tIGNodeVector = tNodalIGtoBSSensitivityIdsZ( jNonUnique );
+
+                            // get the vector of weights from the unique list
+                            Vector< real > &tUniqueWeightVector = aIGtoBSGradientWeightsZ( iIgNode )( iUnique );
+
+                            // get the vector of IG nodes from the unique list
+                            Vector< moris_id > &tUniqueIGNodeVector = aIGtoBSSensitivityIdsZ( iIgNode )( iUnique );
+
+                            // skip if it is first instance, because unique list will be empty and we can just append the non-unique list to it.
+                            if ( tUniqueWeightVector.size() == 0 )
+                            {
+                                tUniqueWeightVector = tWeightVector;
+                                tUniqueIGNodeVector = tIGNodeVector;
+                            }
+                            else
+                            {
+                                // loop over the non-unique list and see if there are any IG nodes that match with the unique list. If so, add contributions.
+                                for ( uint iNonUnique = 0; iNonUnique < tIGNodeVector.size(); iNonUnique++ )
+                                {
+                                    moris_id tNonUniqueIGNode = tIGNodeVector( iNonUnique );
+                                    real     tNonUniqueWeight = tWeightVector( iNonUnique );
+
+                                    // check if this IG node is already in the unique list
+                                    auto it = std::find( tUniqueIGNodeVector.begin(), tUniqueIGNodeVector.end(), tNonUniqueIGNode );
+                                    if ( it != tUniqueIGNodeVector.end() )
+                                    {
+                                        // if found, add the weight to the corresponding index in the unique weight vector
+                                        uint index = std::distance( tUniqueIGNodeVector.begin(), it );
+                                        tUniqueWeightVector( index ) += tNonUniqueWeight;
+                                    }
+                                    else
+                                    {
+                                        // if not found, append the IG node and weight to the unique lists
+                                        tUniqueIGNodeVector.push_back( tNonUniqueIGNode );
+                                        tUniqueWeightVector.push_back( tNonUniqueWeight );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        }    // end: loop over all IG Nodes
+    }
+
+    // ----------------------------------------------------------------------------
+
     uint
     Integration_Mesh::get_max_IP_ID_on_set( uint aSetIndex )
     {
@@ -1583,6 +2462,229 @@ namespace moris::mtk
 
                         // increment index
                         tIndexZ++;
+                    }
+                }
+            }
+        }    // end: loop over all IG nodes
+    }
+
+    //----------------------------------------------------------------------------
+
+    // new function to incorporate IG-IP sensitivities and IP-BS sensitivities into the IG-BS sensitivities.
+    // IP-BS sensitivities due to basis extension.
+    void
+    Integration_Mesh::build_sparse_extraction_operator(
+            Vector< Matrix< IdMat > >                   &aIGtoBSIds,
+            Vector< Matrix< IdMat > >                   &aIGtoBSIdsForSensitivitiesX,
+            Vector< Matrix< IdMat > >                   &aIGtoBSIdsForSensitivitiesY,
+            Vector< Matrix< IdMat > >                   &aIGtoBSIdsForSensitivitiesZ,
+            Vector< Vector< Vector< moris_id > > >      &aIGtoBSSensitivityIdsX,
+            Vector< Vector< Vector< moris_id > > >      &aIGtoBSSensitivityIdsY,
+            Vector< Vector< Vector< moris_id > > >      &aIGtoBSSensitivityIdsZ,
+            Vector< Matrix< DDRMat > >                  &aIGtoBSWeights,
+            Vector< Vector< Vector< real > > >          &aIGtoBSGradientWeightsX,
+            Vector< Vector< Vector< real > > >          &aIGtoBSGradientWeightsY,
+            Vector< Vector< Vector< real > > >          &aIGtoBSGradientWeightsZ,
+            Matrix< DDUMat >                            &aSparseIndices,
+            Matrix< DDUMat >                            &aSparseIndicesX,
+            Matrix< DDUMat >                            &aSparseIndicesY,
+            Matrix< DDUMat >                            &aSparseIndicesZ,
+            Matrix< DDRMat >                            &aWeights,
+            Matrix< DDRMat >                            &aGradientWeightsX,
+            Matrix< DDRMat >                            &aGradientWeightsY,
+            Matrix< DDRMat >                            &aGradientWeightsZ,
+            std::unordered_map< moris_index, moris_id > &aIGNodeIDMap )
+    {
+        // the intention is to store the sensitivities in a format like thus -
+        // (IG node ID, B-Spline Node ID, IG sensitivity node ID, weight) 
+        // for each of the X, Y and Z components. 
+        // The IG sensitivity node ID is the ID of the IG node with respect to which the derivative is being taken. 
+        // The B-Spline Node ID is the ID of the B-Spline basis function with respect to which the derivative is being taken. 
+        // The weight is the value of the derivative of the B-Spline basis function with respect to the IG node.
+        
+        // trace this function
+        Tracer tTracer( "MTK", "Build Sparse Extraction Operator Matrix" );
+
+        // get number of IG nodes
+        uint tNumIgNodes = aIGtoBSIds.size();
+
+        // initialize length of global sparse operator
+        uint tNumIdWeightPairs = 0;
+
+        // initialize length of global sparse operator X
+        uint tNumIdWeightPairsX = 0;
+
+        // initialize length of global sparse operator Y
+        uint tNumIdWeightPairsY = 0;
+
+        // initialize length of global sparse operator Z
+        uint tNumIdWeightPairsZ = 0;
+
+        // loop over all IG Nodes to figure out total number of weights
+        for ( uint iG = 0; iG < tNumIgNodes; iG++ )
+        {
+            tNumIdWeightPairs += aIGtoBSIds( iG ).numel();
+
+            // for the sensitivities we have multiple weights corresponding to same B-Spline function. Need to count them all
+            //tNumIdWeightPairsX += aIGtoBSIdsForSensitivitiesX( iG ).numel();
+            for ( uint iBf = 0; iBf < aIGtoBSIdsForSensitivitiesX( iG ).numel(); iBf++ )
+            {
+                tNumIdWeightPairsX += aIGtoBSGradientWeightsX( iG )( iBf ).size();
+            }
+
+            //tNumIdWeightPairsY += aIGtoBSIdsForSensitivitiesY( iG ).numel();
+            for ( uint iBf = 0; iBf < aIGtoBSIdsForSensitivitiesY( iG ).numel(); iBf++ )
+            {
+                tNumIdWeightPairsY += aIGtoBSGradientWeightsY( iG )( iBf ).size();
+            }
+
+
+            if ( this->get_spatial_dim() == 3 )
+            {
+                //tNumIdWeightPairsZ += aIGtoBSIdsForSensitivitiesZ( iG ).numel();
+                for ( uint iBf = 0; iBf < aIGtoBSIdsForSensitivitiesZ( iG ).numel(); iBf++ )
+                {
+                    tNumIdWeightPairsZ += aIGtoBSGradientWeightsZ( iG )( iBf ).size();
+                }
+            }
+        }
+
+        // initialize sparse matrix
+        aSparseIndices.set_size( tNumIdWeightPairs, 2 );
+        aSparseIndicesX.set_size( tNumIdWeightPairsX, 3 );
+        aSparseIndicesY.set_size( tNumIdWeightPairsY, 3 );
+        if ( this->get_spatial_dim() == 3 )
+        {
+            aSparseIndicesZ.set_size( tNumIdWeightPairsZ, 3 );
+        }
+
+        aWeights.set_size( tNumIdWeightPairs, 1 );
+        aGradientWeightsX.set_size( tNumIdWeightPairsX, 1 );
+        aGradientWeightsY.set_size( tNumIdWeightPairsY, 1 );
+
+        if ( this->get_spatial_dim() == 3 )
+        {
+            aGradientWeightsZ.set_size( tNumIdWeightPairsZ, 1 );
+        }
+
+        // initialize index counter
+        uint tIndex = 0;
+
+        // initialize index counter x
+        uint tIndexX = 0;
+
+        // initialize index counter y
+        uint tIndexY = 0;
+
+        // initialize index counter z
+        uint tIndexZ = 0;
+
+        // loop over all IG Nodes
+        for ( uint iG = 0; iG < tNumIgNodes; iG++ )
+        {
+            // check if IG node has interpolation
+            if ( aIGtoBSIds( iG ).numel() > 0 )
+            {
+                // loop over B-splines interpolating into current IG node
+                for ( uint iBsp = 0; iBsp < aIGtoBSIds( iG ).numel(); iBsp++ )
+                {
+                    // get
+                    uint tBspId = aIGtoBSIds( iG )( iBsp );
+
+                    // write IG/BS indices and weights to list
+                    // aSparseIndices( tIndex, 0 ) = iG + 1;
+                    aSparseIndices( tIndex, 0 ) = aIGNodeIDMap.at( iG );
+                    aSparseIndices( tIndex, 1 ) = tBspId;
+                    aWeights( tIndex )          = aIGtoBSWeights( iG )( iBsp );
+                    // aGradientWeightsX( tIndex ) = aIGtoBSGradientWeightsX( iG )( iBsp );
+                    // aGradientWeightsY( tIndex ) = aIGtoBSGradientWeightsY( iG )( iBsp );
+
+                    // increment index
+                    tIndex++;
+                }
+            }
+            // Populate the derivative contributions to the IG-BS sensitivities. The IG-BS sensitivities are stored in a format like thus -
+            // (IG node ID, B-Spline Node ID, IG sensitivity node ID, weight) for each of the X, Y and Z components.  
+            // The IG sensitivity node ID is the ID of the IG node with respect to which the derivative is being taken.
+            // check if IG node has interpolation x
+            if ( aIGtoBSIdsForSensitivitiesX( iG ).numel() > 0 )
+            {
+                // loop over B-splines interpolating into current IG node x
+                for ( uint iBsp = 0; iBsp < aIGtoBSIdsForSensitivitiesX( iG ).numel(); iBsp++ )
+                {
+                    // get B Spline ID for the current sensitivity.
+                    uint tBspId = aIGtoBSIdsForSensitivitiesX( iG )( iBsp );
+
+                    for ( uint iSens = 0; iSens < aIGtoBSGradientWeightsX( iG )( iBsp ).size(); iSens++ )
+                    {
+                        // write IG/BS indices and weights to list
+
+                        // get node ID of the IG node with respect to which the derivative is being taken.
+                        uint tIGSensID = aIGtoBSSensitivityIdsX( iG )( iBsp )( iSens );
+                        // aSparseIndicesX( tIndexX, 0 ) = iG + 1;
+                        aSparseIndicesX( tIndexX, 0 ) = aIGNodeIDMap.at( iG );
+                        aSparseIndicesX( tIndexX, 1 ) = tBspId;
+                        aSparseIndicesX( tIndexX, 2 ) = tIGSensID;
+                        aGradientWeightsX( tIndexX )  = aIGtoBSGradientWeightsX( iG )( iBsp )( iSens );
+                        
+                        // increment index
+                        tIndexX++;
+                    }
+                }
+            }
+
+            if ( aIGtoBSIdsForSensitivitiesY( iG ).numel() > 0 )
+            {
+                // loop over B-splines interpolating into current IG node x
+                for ( uint iBsp = 0; iBsp < aIGtoBSIdsForSensitivitiesY( iG ).numel(); iBsp++ )
+                {
+                    // get B Spline ID for the current sensitivity.
+                    uint tBspId = aIGtoBSIdsForSensitivitiesY( iG )( iBsp );
+
+                    for ( uint iSens = 0; iSens < aIGtoBSGradientWeightsY( iG )( iBsp ).size(); iSens++ )
+                    {
+                        // write IG/BS indices and weights to list
+
+                        // get node ID of the IG node with respect to which the derivative is being taken.
+                        uint tIGSensID = aIGtoBSSensitivityIdsY( iG )( iBsp )( iSens );
+                        // aSparseIndicesX( tIndexX, 0 ) = iG + 1;
+                        aSparseIndicesY( tIndexY, 0 ) = aIGNodeIDMap.at( iG );
+                        aSparseIndicesY( tIndexY, 1 ) = tBspId;
+                        aSparseIndicesY( tIndexY, 2 ) = tIGSensID;
+                        aGradientWeightsY( tIndexY )  = aIGtoBSGradientWeightsY( iG )( iBsp )( iSens );
+
+                        // increment index
+                        tIndexY++;
+                    }
+                }
+            }
+
+            // check if IG node has interpolation Z
+            if ( this->get_spatial_dim() == 3 )
+            {
+                if ( aIGtoBSIdsForSensitivitiesZ( iG ).numel() > 0 )
+                {
+                    // loop over B-splines interpolating into current IG node x
+                    for ( uint iBsp = 0; iBsp < aIGtoBSIdsForSensitivitiesZ( iG ).numel(); iBsp++ )
+                    {
+                        // get B Spline ID for the current sensitivity.
+                        uint tBspId = aIGtoBSIdsForSensitivitiesZ( iG )( iBsp );
+
+                        for ( uint iSens = 0; iSens < aIGtoBSGradientWeightsZ( iG )( iBsp ).size(); iSens++ )
+                        {
+                            // write IG/BS indices and weights to list
+
+                            // get node ID of the IG node with respect to which the derivative is being taken.
+                            uint tIGSensID = aIGtoBSSensitivityIdsZ( iG )( iBsp )( iSens );
+                            // aSparseIndicesX( tIndexX, 0 ) = iG + 1;
+                            aSparseIndicesZ( tIndexZ, 0 ) = aIGNodeIDMap.at( iG );
+                            aSparseIndicesZ( tIndexZ, 1 ) = tBspId;
+                            aSparseIndicesZ( tIndexZ, 2 ) = tIGSensID;
+                            aGradientWeightsZ( tIndexZ )  = aIGtoBSGradientWeightsZ( iG )( iBsp )( iSens );
+
+                            // increment index
+                            tIndexZ++;
+                        }
                     }
                 }
             }

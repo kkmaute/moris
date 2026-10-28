@@ -244,21 +244,21 @@ namespace moris::mtk
             CHECK( tCell.compute_cell_measure_deriv( 0, 1 ) == Approx( -0.5 ) );
 
             // checking other nodes
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 0 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 1 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 )( 0 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 )( 1 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 )( 0 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 )( 1 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 0 )( 0 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 1 )( 1 ) == Approx( 0.5 ) );
 
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 0 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 1 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 0 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 1 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 0 )( 0 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 1 )( 1 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 )( 0 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 )( 1 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 )( 0 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 )( 1 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 0 )( 0 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 1 )( 1 ) == Approx( 0.5 ) );
         }
     }
 
@@ -336,12 +336,12 @@ namespace moris::mtk
             CHECK( tCell.compute_cell_measure_deriv( 2, 1 ) == Approx( 0.5 ) );
 
             // using general calc
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 0 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 1 ) == Approx( -0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 ) == Approx( 0.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 ) == Approx( 0.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 ) == Approx( 0.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 0 )( 0 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 1 )( 1 ) == Approx( -0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 )( 0 ) == Approx( 0.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 )( 1 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 )( 0 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 )( 1 ) == Approx( 0.5 ) );
         }
     }
 
@@ -430,22 +430,22 @@ namespace moris::mtk
             CHECK( tCell.compute_cell_measure_deriv( 3, 2 ) == Approx( 1.5 ) );
 
             // checking derivative in the 0 direction of nodes 0-3
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 0 ) == Approx( -3.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 ) == Approx( 3.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 ) == Approx( 0.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 0 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 0 )( 0 ) == Approx( -3.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 0 )( 0 ) == Approx( 3.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 0 )( 0 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 0 )( 0 ) == Approx( 0.0 ) );
 
             // checking derivative in the 1 direction of nodes 0-3
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 1 ) == Approx( -3.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 ) == Approx( 0.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 ) == Approx( 3.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 1 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 1 )( 1 ) == Approx( -3.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 1 )( 1 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 1 )( 1 ) == Approx( 3.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 1 )( 1 ) == Approx( 0.0 ) );
 
             // checking derivative in the 2 direction of nodes 0-3
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 2 ) == Approx( -1.5 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 2 ) == Approx( 0.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 2 ) == Approx( 0.0 ) );
-            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 2 ) == Approx( 1.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 0, 2 )( 2 ) == Approx( -1.5 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 1, 2 )( 2 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 2, 2 )( 2 ) == Approx( 0.0 ) );
+            CHECK( tCell.get_cell_info()->compute_cell_size_deriv_general( &tCell, 3, 2 )( 2 ) == Approx( 1.5 ) );
         }
     }
 

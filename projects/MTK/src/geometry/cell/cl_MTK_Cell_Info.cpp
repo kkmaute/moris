@@ -253,11 +253,11 @@ namespace moris::mtk
         return 0.0;
     }
 
-    moris::real
+    moris::Matrix< moris::DDRMat >
     Cell_Info::compute_cell_size_deriv_general(
             moris::mtk::Cell const *aCell,
             uint                    aLocalVertexID,
-            uint                    aDirection ) const
+            int                    aDirection ) const
     {
         // eventually this will be the non-virtual portion of "compute_cell_size_deriv"
         // pulling geometry
@@ -307,7 +307,7 @@ namespace moris::mtk
         uint tNumIntegPoints = tIntegWeights.numel();
 
         // init the surface of the integration mesh
-        real tCellSizeDeriv = 0;
+        Matrix< DDRMat > tCellSizeDeriv( aCell->get_vertex_coords().n_cols(), 1, 0.0 );
 
         // loop over the integration points
         for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -319,8 +319,19 @@ namespace moris::mtk
             tSpaceInterpolator.set_space( tIntegPointI );
 
             // add to area
-            tCellSizeDeriv +=
-                    tSpaceInterpolator.space_det_J_deriv( aLocalVertexID, aDirection ) * tIntegWeights( iGP );
+            if ( aDirection == -1 )
+            {
+                for ( uint iDim = 0; iDim < aCell->get_vertex_coords().n_cols(); iDim++ )
+                {
+                    tSpaceInterpolator.reset_eval_flags_deriv();
+                    tCellSizeDeriv( iDim ) += tSpaceInterpolator.space_det_J_deriv( aLocalVertexID, iDim ) * tIntegWeights( iGP );
+                }
+            }
+            else
+            {
+                tCellSizeDeriv( aDirection ) += tSpaceInterpolator.space_det_J_deriv( aLocalVertexID, aDirection ) * tIntegWeights( iGP );
+            }
+            
         }
 
         return tCellSizeDeriv;
