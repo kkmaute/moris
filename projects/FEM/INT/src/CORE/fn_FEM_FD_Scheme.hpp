@@ -55,6 +55,22 @@ namespace moris::fem
 
                 break;
             }
+            case fem::FDScheme_Type::POINT_3_FORWARD:
+            {
+                aFDScheme( 0 ) = { 0.0, 1.0, 2.0 };
+                aFDScheme( 1 ) = { -3.0, 4.0, -1.0 };
+                aFDScheme( 2 ) = { 2.0 };
+
+                break;
+            }
+            case fem::FDScheme_Type::POINT_3_BACKWARD:
+            {
+                aFDScheme( 0 ) = { 0.0, -1.0, -2.0 };
+                aFDScheme( 1 ) = { 3.0, -4.0, 1.0 };
+                aFDScheme( 2 ) = { 2.0 };
+
+                break;
+            }
             case fem::FDScheme_Type::POINT_3_CENTRAL:
             {
                 // fill points

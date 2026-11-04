@@ -314,6 +314,8 @@ namespace moris::fem
             POINT_1_BACKWARD,
             POINT_3_CENTRAL,
             POINT_5,
+            POINT_3_FORWARD,
+            POINT_3_BACKWARD,
             END_FD_SCHEME )
 
     ENUM_MACRO( Perturbation_Type,

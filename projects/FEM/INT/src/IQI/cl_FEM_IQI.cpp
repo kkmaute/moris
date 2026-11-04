@@ -1710,7 +1710,9 @@ namespace moris::fem
 
                     // if backward or forward fd
                     if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_3_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_3_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdu
                         mSet->get_residual()( tQIIndex )(
@@ -1808,7 +1810,9 @@ namespace moris::fem
 
                     // if backward or forward fd
                     if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_3_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_3_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdu
                         mSet->get_residual()( tQIIndex )(
@@ -2017,7 +2021,9 @@ namespace moris::fem
 
                     // if backward or forward fd
                     if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_3_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_3_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdp
                         mSet->get_dqidpmat()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -2147,7 +2153,11 @@ namespace moris::fem
             fem::FDScheme_Type& aUsedFDScheme )
     {
         // FIXME: only works for rectangular IP elements
-        // FIXME: only works for forward, backward, central, not for higher as 5-point FD
+        // Higher-order stencils reach two perturbation steps from the node.
+        const bool tUseThreePoint = aUsedFDScheme == fem::FDScheme_Type::POINT_5 ||
+                                   aUsedFDScheme == fem::FDScheme_Type::POINT_3_FORWARD ||
+                                   aUsedFDScheme == fem::FDScheme_Type::POINT_3_BACKWARD;
+        const real tStencilReach = tUseThreePoint ? 2.0 : 1.0;
 
         // get the IP element geometry interpolator
         Geometry_Interpolator* tIPGI =
@@ -2158,7 +2168,7 @@ namespace moris::fem
         real tMinIP = min( tIPGI->get_space_coeff().get_column( aSpatialDirection ) );    // get minimum values of coordinates of IP nodes
 
         // get maximum possible perturbation
-        real tMaxPerturb = ( tMaxIP - tMinIP ) / 3.0;
+        real tMaxPerturb = ( tMaxIP - tMinIP ) / ( 3.0 * tStencilReach );
 
         // compute the perturbation value
         real tDeltaH = build_perturbation_size(
@@ -2178,12 +2188,13 @@ namespace moris::fem
                 aCoefficientToPerturb );
 
         // check point location
-        if ( aCoefficientToPerturb + tDeltaH >= tMaxIP )
+        if ( aCoefficientToPerturb + tStencilReach * tDeltaH >= tMaxIP )
         {
-            aUsedFDScheme = fem::FDScheme_Type::POINT_1_BACKWARD;
+            aUsedFDScheme = tUseThreePoint ? fem::FDScheme_Type::POINT_3_BACKWARD
+                                          : fem::FDScheme_Type::POINT_1_BACKWARD;
 
             // check for correctness of perturbation size for backward FD
-            MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
+            MORIS_ASSERT( tStencilReach * tDeltaH < aCoefficientToPerturb - tMinIP,
                     "ERROR: backward perturbation size exceed limits of interpolation element:\n"
                     "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                     aSpatialDirection,
@@ -2196,12 +2207,13 @@ namespace moris::fem
         }
         else
         {
-            if ( aCoefficientToPerturb - tDeltaH <= tMinIP )
+            if ( aCoefficientToPerturb - tStencilReach * tDeltaH <= tMinIP )
             {
-                aUsedFDScheme = fem::FDScheme_Type::POINT_1_FORWARD;
+                aUsedFDScheme = tUseThreePoint ? fem::FDScheme_Type::POINT_3_FORWARD
+                                              : fem::FDScheme_Type::POINT_1_FORWARD;
 
-                // check for correctness of perturbation size for backward FD
-                MORIS_ASSERT( tDeltaH < tMaxIP - aCoefficientToPerturb,
+                // check for correctness of perturbation size for forward FD
+                MORIS_ASSERT( tStencilReach * tDeltaH < tMaxIP - aCoefficientToPerturb,
                         "ERROR: forward perturbation size exceeds limits of interpolation element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                         aSpatialDirection,
                         tMinIP,
@@ -2215,8 +2227,8 @@ namespace moris::fem
             {
                 // check for correctness of perturbation size for central FD
                 MORIS_ASSERT(
-                        tDeltaH < tMaxIP - aCoefficientToPerturb &&    //
-                                tDeltaH < aCoefficientToPerturb - tMinIP,
+                        tStencilReach * tDeltaH < tMaxIP - aCoefficientToPerturb &&    //
+                                tStencilReach * tDeltaH < aCoefficientToPerturb - tMinIP,
                         "ERROR: central perturbation size exceed limits of interpolation element: dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                         aSpatialDirection,
                         tMinIP,
@@ -2308,7 +2320,9 @@ namespace moris::fem
 
                     // if backward or forward fd
                     if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) ||
+                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_3_BACKWARD ) ||
+                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_3_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdp
                         mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -2474,7 +2488,9 @@ namespace moris::fem
 
                     // if backward or forward fd
                     if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) ||
+                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_3_BACKWARD ) ||
+                            ( tUsedFDScheme == fem::FDScheme_Type::POINT_3_FORWARD ) )
                     {
                         // add unperturbed QI contribution to dQIdp
                         mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
@@ -2613,7 +2629,9 @@ namespace moris::fem
 
             // if backward or forward fd
             if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                    ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) ||
+                    ( aFDSchemeType == fem::FDScheme_Type::POINT_3_BACKWARD ) ||
+                    ( aFDSchemeType == fem::FDScheme_Type::POINT_3_FORWARD ) )
             {
                 // add unperturbed QI contribution to dQIdp
                 mSet->get_dqidpgeo()( tIQIAssemblyIndex ) +=

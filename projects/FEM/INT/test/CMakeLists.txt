@@ -39,6 +39,7 @@ set(TEST_SOURCES
     #UT_FEM_Element.cpp
     UT_FEM_Property.cpp
     UT_FEM_IWG.cpp
+    UT_FEM_FD_Scheme.cpp
     
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp
