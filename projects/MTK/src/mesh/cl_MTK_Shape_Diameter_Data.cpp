@@ -225,8 +225,9 @@ namespace moris::mtk
 
                         tRotation = sdf::rotation_matrix( tRayCones.mTheta( iR ) );
 
-                        // The surface mesh has outward normals. Thus, we need to invert the cone direction to shoot inward
-                        Matrix< DDRMat > tConeRay = -tRotation * tFacetNormal;
+                        // Reverse the rotated outward normal; subtraction from +0.0 avoids
+                        // negative zero components in the inward ray passed to ArborX.
+                        Matrix< DDRMat > tConeRay = 0.0 - ( tRotation * tFacetNormal );
 
                         // Check that the ray is opposite of the facet normal
                         MORIS_ASSERT( dot( tConeRay, tFacetNormal ) < 0, "build_ray_cone_angles - Ray direction for cone is not opposite to facet normal." );
@@ -313,7 +314,7 @@ namespace moris::mtk
                             }
                             else
                             {
-                                tConeRay = -1.0 * tConeRay;
+                                tConeRay = 0.0 - tConeRay;
                             }
 
                             // Numerical adjustment if the norm is too small
