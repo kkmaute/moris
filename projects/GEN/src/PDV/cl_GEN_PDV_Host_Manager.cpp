@@ -211,7 +211,7 @@ namespace moris::gen
 
                 if ( mNodeManager.node_depends_on_advs( tGenMeshNodeIndex ) )
                 {
-                    aDvValues( tPDVTypeIndex )( tNode )   = mNodeManager.get_node_coordinate_value( aNodeIndices( tNode ), static_cast< uint >( aPDVTypes( tPDVTypeIndex ) ) );
+                    aDvValues( tPDVTypeIndex )( tNode )   = mNodeManager.get_node_coordinate_value( tGenMeshNodeIndex, static_cast< uint >( aPDVTypes( tPDVTypeIndex ) ) );
                     aIsActiveDv( tPDVTypeIndex )( tNode ) = true;
                 }
             }
