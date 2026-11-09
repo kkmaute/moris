@@ -34,6 +34,8 @@
 
 #ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Preconditioner_PETSc.hpp"
+#include "cl_Vector_PETSc_Multi.hpp"
+#include <cmath>
 #ifdef MORIS_HAVE_SLEPC
 #include "cl_DLA_Eigen_Solver_SLEPc.hpp"
 #endif
@@ -296,6 +298,159 @@ namespace moris::dla
             Solver_Factory tSolFactory;
 
             Linear_Problem* tLinProblem = tSolFactory.create_linear_system( tSolverInterface, sol::MapType::Petsc, true );
+
+            // Reuse this case's PETSc lifetime: PETSc cannot be reinitialized
+            // after finalization. Both one and three RHS columns must partition
+            // their column ownership correctly across four ranks while retaining
+            // all local row values for every RHS, including on zero-column ranks.
+            sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
+            sol::Dist_Map*             tMap = tLinProblem->get_solver_RHS()->get_map();
+
+            auto* tCustomMap = dynamic_cast< Dist_Map_Custom* >( tMap );
+
+            REQUIRE( tCustomMap != nullptr );
+
+            const Matrix< DDSMat > tOwnedIds = tCustomMap->get_moris_ids_owned();
+
+            // Keep this layout check independent of boundary-condition handling.
+            Solver_Interface_Proxy tVectorInput;
+            tVectorInput.mMyConstraintDofs.set_size( 0, 1 );
+
+            for ( uint tNumVectors : { 1u, 3u } )
+            {
+                sol::Dist_Vector* tVector = tMatFactory.create_vector( &tVectorInput, tMap, tNumVectors );
+
+                auto* tPetscVector = dynamic_cast< MultiVector_PETSc* >( tVector );
+
+                REQUIRE( tPetscVector != nullptr );
+
+                PetscInt tLocalColumns  = 0;
+                PetscInt tGlobalColumns = 0;
+
+                CHECK( MatGetLocalSize( tPetscVector->get_petsc_vector(), nullptr, &tLocalColumns ) == 0 );
+                CHECK( MatGetSize( tPetscVector->get_petsc_vector(), nullptr, &tGlobalColumns ) == 0 );
+                CHECK( sum_all( tLocalColumns ) == static_cast< PetscInt >( tNumVectors ) );
+                CHECK( tGlobalColumns == static_cast< PetscInt >( tNumVectors ) );
+
+                Matrix< DDRMat > tExpected( tOwnedIds.numel(), tNumVectors );
+
+                for ( uint iVector = 0; iVector < tNumVectors; ++iVector )
+                {
+                    Matrix< DDRMat > tValues( tOwnedIds.numel(), 1 );
+
+                    for ( uint iRow = 0; iRow < tOwnedIds.numel(); ++iRow )
+                    {
+                        tValues( iRow )            = 1.0 + iRow + 10.0 * par_rank() + 100.0 * iVector;
+                        tExpected( iRow, iVector ) = tValues( iRow );
+                    }
+
+                    tVector->sum_into_global_values( tOwnedIds, tValues, iVector );
+                }
+
+                tVector->vector_global_assembly();
+
+                Matrix< DDRMat > tActual;
+                tVector->extract_copy( tActual );
+
+                REQUIRE( tActual.n_rows() == tExpected.n_rows() );
+                REQUIRE( tActual.n_cols() == tNumVectors );
+
+                const Vector< real > tNorms = tVector->vec_norm2();
+
+                for ( uint iVector = 0; iVector < tNumVectors; ++iVector )
+                {
+                    real tLocalSquaredNorm = 0.0;
+
+                    for ( uint iRow = 0; iRow < tOwnedIds.numel(); ++iRow )
+                    {
+                        CHECK( tActual( iRow, iVector ) == Approx( tExpected( iRow, iVector ) ).margin( 1e-12 ) );
+                        tLocalSquaredNorm += tExpected( iRow, iVector ) * tExpected( iRow, iVector );
+                    }
+
+                    CHECK( tNorms( iVector ) == Approx( std::sqrt( sum_all( tLocalSquaredNorm ) ) ) );
+                }
+
+                delete tVector;
+            }
+
+            // Sparse, reordered MORIS IDs exercise both constraint lookup paths.
+            // Only rank zero announces the constraint; every rank contributes to
+            // it, including ranks that neither own nor announce that row.
+            Matrix< DDSMat > tSparseOwned( 2, 1 );
+            Matrix< DDSMat > tSparseShared( 8, 1 );
+
+            for ( uint iRow = 0; iRow < 8; ++iRow )
+            {
+                tSparseShared( iRow ) = 100 + 7 * ( 7 - iRow );
+            }
+
+            tSparseOwned( 0 ) = tSparseShared( 2 * par_rank() );
+            tSparseOwned( 1 ) = tSparseShared( 2 * par_rank() + 1 );
+
+            Dist_Map_Custom tSparseMap( tSparseOwned, tSparseShared );
+
+            if ( par_rank() == 0 )
+            {
+                tVectorInput.mMyConstraintDofs = { { static_cast< uint >( tSparseShared( 5 ) ) } };
+            }
+
+            for ( uint tNumVectors : { 1u, 3u } )
+            {
+                sol::Dist_Vector* tVector = tMatFactory.create_vector( &tVectorInput, &tSparseMap, tNumVectors );
+
+                for ( uint iPass = 0; iPass < 2; ++iPass )
+                {
+                    tVector->vec_put_scalar( 0.0 );
+
+                    for ( uint iVector = 0; iVector < tNumVectors; ++iVector )
+                    {
+                        Matrix< DDRMat > tValues( 8, 1, 1.0 + iVector + iPass );
+                        tVector->sum_into_global_values( tSparseShared, tValues, iVector );
+                    }
+
+                    tVector->vector_global_assembly();
+
+                    Matrix< DDRMat > tActual;
+                    tVector->extract_copy( tActual );
+
+                    for ( uint iVector = 0; iVector < tNumVectors; ++iVector )
+                    {
+                        for ( uint iRow = 0; iRow < 2; ++iRow )
+                        {
+                            const real tExpected = tSparseOwned( iRow ) == tSparseShared( 5 )
+                                                         ? 0.0
+                                                         : par_size() * ( 1.0 + iVector + iPass );
+
+                            CHECK( tActual( iRow, iVector ) == Approx( tExpected ).margin( 1e-12 ) );
+                        }
+                    }
+
+                    // Replace owned entries after additive assembly, preserving
+                    // zero constrained rows through repeated assembly cycles.
+                    for ( uint iVector = 0; iVector < tNumVectors; ++iVector )
+                    {
+                        Matrix< DDRMat > tValues( 2, 1, 10.0 + iVector + iPass );
+                        tVector->replace_global_values( tSparseOwned, tValues, iVector );
+                    }
+
+                    tVector->vector_global_assembly();
+                    tVector->extract_copy( tActual );
+
+                    for ( uint iVector = 0; iVector < tNumVectors; ++iVector )
+                    {
+                        for ( uint iRow = 0; iRow < 2; ++iRow )
+                        {
+                            const real tExpected = tSparseOwned( iRow ) == tSparseShared( 5 )
+                                                         ? 0.0
+                                                         : 10.0 + iVector + iPass;
+
+                            CHECK( tActual( iRow, iVector ) == Approx( tExpected ).margin( 1e-12 ) );
+                        }
+                    }
+                }
+
+                delete tVector;
+            }
 
             Parameter_List tLinearSolverParameterList = prm::create_linear_algorithm_parameter_list_petsc();
             tLinearSolverParameterList.set( "KSPType", std::string( "fgmres" ) );

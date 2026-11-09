@@ -125,7 +125,7 @@ void MultiVector_PETSc::sum_into_global_values(
     for ( uint Ij = 0; Ij < tNumMyDofs; Ij++ )
     {
         // set constrDof to neg value
-        if ( mDirichletBCVec( tTempElemDofs( Ij, 0 ), 0 ) == 1 )
+        if ( tTempElemDofs( Ij, 0 ) >= 0 && mDirichletBCVec( tTempElemDofs( Ij, 0 ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }
@@ -172,7 +172,7 @@ void MultiVector_PETSc::replace_global_values(
     for ( uint Ij = 0; Ij < tNumMyDofs; Ij++ )
     {
         // set constrDof to neg value
-        if ( mDirichletBCVec( aGlobalIds( Ij, 0 ), 0 ) == 1 )
+        if ( tTempElemDofs( Ij, 0 ) >= 0 && mDirichletBCVec( tTempElemDofs( Ij, 0 ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }
@@ -200,17 +200,34 @@ void MultiVector_PETSc::dirichlet_BC_vector(
         Matrix< DDUMat >&       aDirichletBCVec,
         const Matrix< DDUMat >& aMyConstraintDofs )
 {
-    // Constraint flags are indexed by PETSc global IDs rather than MORIS IDs.
-    Matrix< DDUMat > tPetscIds = aMyConstraintDofs;
-    mMap->map_from_moris_ids_to_petsc_ids( tPetscIds );
+    // Assembly uses PETSc row numbers. MORIS IDs may be sparse or reordered.
+    Matrix< DDUMat > tConstraintIds = aMyConstraintDofs;
+    mMap->map_from_moris_ids_to_petsc_ids( tConstraintIds );
 
-    for ( uint Ik = 0; Ik < tPetscIds.numel(); ++Ik )
+    // Constraints may be reported only on an owning rank, while contributions
+    // to those rows can originate anywhere. Exchange only the constrained IDs.
+    int tNumRanks = 0;
+    MPI_Comm_size( PETSC_COMM_WORLD, &tNumRanks );
+    int tLocalCount = static_cast< int >( tConstraintIds.numel() );
+    std::vector< int > tCounts( tNumRanks );
+    std::vector< int > tOffsets( tNumRanks, 0 );
+    MPI_Allgather( &tLocalCount, 1, MPI_INT, tCounts.data(), 1, MPI_INT, PETSC_COMM_WORLD );
+
+    int tGlobalCount = 0;
+
+    for ( int iRank = 0; iRank < tNumRanks; ++iRank )
     {
-        aDirichletBCVec( tPetscIds( Ik ), 0 ) = 1;
+        tOffsets[ iRank ] = tGlobalCount;
+        tGlobalCount += tCounts[ iRank ];
     }
 
-    // A contribution on a neighboring rank must also respect the constraint.
-    MPI_Allreduce( MPI_IN_PLACE, aDirichletBCVec.data(), aDirichletBCVec.numel(), get_comm_datatype( uint( 0 ) ), MPI_MAX, PETSC_COMM_WORLD );
+    std::vector< uint > tGlobalConstraintIds( tGlobalCount );
+    MPI_Allgatherv( tConstraintIds.data(), tLocalCount, MPI_UNSIGNED, tGlobalConstraintIds.data(), tCounts.data(), tOffsets.data(), MPI_UNSIGNED, PETSC_COMM_WORLD );
+
+    for ( uint tId : tGlobalConstraintIds )
+    {
+        aDirichletBCVec( tId, 0 ) = 1;
+    }
 }
 
 //-----------------------------------------------------------------------------
