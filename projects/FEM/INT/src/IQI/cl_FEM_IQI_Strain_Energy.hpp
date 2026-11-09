@@ -13,13 +13,13 @@
 
 #include <map>
 
-#include "moris_typedefs.hpp"                     //MRS/COR/src
-#include "cl_Vector.hpp"                          //MRS/CNT/src
+#include "moris_typedefs.hpp"    //MRS/COR/src
+#include "cl_Vector.hpp"         //MRS/CNT/src
 
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_IQI.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI.hpp"    //FEM/INT/src
 
 namespace moris::fem
 {
@@ -29,10 +29,11 @@ namespace moris::fem
     {
         //------------------------------------------------------------------------------
 
-        enum class IWG_Property_Type
+        enum class IQI_Property_Type
         {
             BEDDING,
             THICKNESS,
+            SELECT,
             MAX_ENUM
         };
 
@@ -53,7 +54,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~IQI_Strain_Energy() override{};
+        ~IQI_Strain_Energy() override {};
 
         //------------------------------------------------------------------------------
 
@@ -88,16 +89,7 @@ namespace moris::fem
         void compute_dQIdu(
                 Vector< MSI::Dof_Type > &aDofType,
                 Matrix< DDRMat >        &adQIdu ) override;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * @brief checks if the gauss point location lies with the box bounds specified in input(mParameters)
-         *
-         */
-        bool is_within_box_bounds();
     };
 }    // namespace moris::fem
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRAIN_ENERGY_HPP_ */
-

@@ -38,6 +38,7 @@
 #include "cl_MTK_Enums.hpp"
 //LINALG/src
 #include "op_equal_equal.hpp"
+#include "fn_norm.hpp"
 
 void tConstValFunction_UTIQISTRAINENERGY
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -287,5 +288,101 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
                                              false );
     CHECK( tCheckdQIdu );
 
-} /*END_TEST_CASE*/
+    // Exercise Select through direct and assembled values and derivatives.
+    // Bedding adds a displacement contribution independent of the constitutive
+    // model, so both energy terms must receive the same selection factor.
+    auto tPropSelect = std::make_shared< fem::Property >();
+    tPropSelect->set_val_function( tConstValFunction_UTIQISTRAINENERGY );
 
+    auto tPropBedding = std::make_shared< fem::Property >();
+    tPropBedding->set_parameters( { { { 1.3 } } } );
+    tPropBedding->set_val_function( tConstValFunction_UTIQISTRAINENERGY );
+
+    Vector< MSI::Dof_Type > tDofType      = { MSI::Dof_Type::UX };
+    const Vector< real >    tSelectValues = { 0.0, 0.25, 2.5 };
+    const real              tWeight       = 1.7;
+
+    for ( bool tBedding : { false, true } )
+    {
+        tIQI->set_property( tBedding ? tPropBedding : nullptr, "Bedding" );
+        tIQI->set_property( nullptr, "Select" );
+        tIQI->set_field_interpolator_manager( &tFIManager );
+        tIQI->reset_eval_flags();
+
+        Matrix< DDRMat > tReferenceQI;
+        Matrix< DDRMat > tReferenceDerivative( 48, 1, 0.0 );
+        tIQI->compute_QI( tReferenceQI );
+        tIQI->compute_dQIdu( tDofType, tReferenceDerivative );
+
+        REQUIRE( tReferenceQI( 0 ) > 0.0 );
+        REQUIRE( norm( tReferenceDerivative ) > 0.0 );
+
+        // The absent-property case retains the original behavior. Zero must
+        // clear direct outputs while leaving accumulated contributions intact.
+        for ( sint iSelect = -1; iSelect < 3; ++iSelect )
+        {
+            const real tSelect = iSelect < 0 ? 1.0 : tSelectValues( iSelect );
+            INFO( "Bedding=" << tBedding << " selector case=" << iSelect );
+            tPropSelect->set_parameters( { { { tSelect } } } );
+            tIQI->set_property( iSelect < 0 ? nullptr : tPropSelect, "Select" );
+            tIQI->set_field_interpolator_manager( &tFIManager );
+            tIQI->reset_eval_flags();
+
+            Matrix< DDRMat > tQI( 1, 1, 9.0 );
+            tIQI->compute_QI( tQI );
+
+            CHECK( tQI.n_rows() == 1 );
+            CHECK( tQI.n_cols() == 1 );
+            CHECK( tQI( 0 ) == Approx( tSelect * tReferenceQI( 0 ) ).margin( 1e-12 ) );
+
+            tIQI->mSet->mQI( 0 ).fill( 1.25 );
+            tIQI->compute_QI( tWeight );
+
+            CHECK( tIQI->mSet->mQI( 0 )( 0 ) == Approx( 1.25 + tWeight * tSelect * tReferenceQI( 0 ) ).margin( 1e-12 ) );
+
+            Matrix< DDRMat > tDerivative( 48, 1, 9.0 );
+            tIQI->compute_dQIdu( tDofType, tDerivative );
+
+            CHECK( norm( tDerivative - tSelect * tReferenceDerivative ) < 1e-10 );
+
+            tIQI->mSet->mResidual( 0 ).fill( 0.125 );
+
+            Matrix< DDRMat > tExpectedDerivative = tWeight * tSelect * tReferenceDerivative;
+
+            for ( uint iDof = 0; iDof < tExpectedDerivative.numel(); ++iDof )
+            {
+                tExpectedDerivative( iDof ) += 0.125;
+            }
+
+            tIQI->compute_dQIdu( tWeight );
+
+            CHECK( norm( tIQI->mSet->mResidual( 0 ) - tExpectedDerivative ) < 1e-10 );
+
+            tIQI->mSet->mResidual( 0 ).fill( 0.0 );
+            tIQI->reset_eval_flags();
+
+            CHECK( tIQI->check_dQIdu_FD( tWeight, tPerturbation, tEpsilon, tdQIdu, tdQIduFD, false ) );
+        }
+    }
+
+    // Nonzero DOF-dependent selectors are unsupported. Both derivative APIs
+    // must report the explicit restriction instead of silently omitting a term.
+    tPropSelect->set_parameters( { { { 1.0 } } } );
+    tPropSelect->set_dof_type_list( { { MSI::Dof_Type::UX } } );
+    tIQI->reset_eval_flags();
+
+    REQUIRE_THROWS_WITH( tIQI->compute_dQIdu( 1.0 ),
+            Catch::Matchers::Contains( "select property cannot depend on dof type" ) );
+    Matrix< DDRMat > tUnsupportedDerivative( 48, 1, 0.0 );
+
+    REQUIRE_THROWS_WITH( tIQI->compute_dQIdu( tDofType, tUnsupportedDerivative ),
+            Catch::Matchers::Contains( "select property cannot depend on dof type" ) );
+
+    // The field interpolator manager and model are owned by this fixture.
+    tIQI->mSet->mLeaderFIManager = nullptr;
+    tIQI->mSet = nullptr;
+    delete tSet;
+
+    tModel.set_design_variable_interface( nullptr );
+    delete tGENMSIInterface;
+} /*END_TEST_CASE*/

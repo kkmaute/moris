@@ -12,13 +12,13 @@
 #define SRC_FEM_CL_FEM_IWG_Ghost_Normal_Field_HPP_
 
 #include <map>
-//MRS/COR/src
+// MRS/COR/src
 #include "moris_typedefs.hpp"
 #include "cl_Vector.hpp"
-//LINALG/src
+// LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_IWG.hpp"
 
@@ -31,6 +31,12 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
       private:
+        enum class IWG_Property_Type
+        {
+            THICKNESS,
+            MAX_ENUM
+        };
+
         enum class IWG_Stabilization_Type
         {
             GHOST_SP,
@@ -48,7 +54,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~IWG_Ghost_Normal_Field() override{};
+        ~IWG_Ghost_Normal_Field() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -110,4 +116,3 @@ namespace moris::fem
 }    // namespace moris::fem
 
 #endif /* SRC_FEM_CL_FEM_IWG_Ghost_Normal_Field_HPP_ */
-

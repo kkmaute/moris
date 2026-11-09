@@ -22,11 +22,12 @@ namespace moris::fem
         mFEMIQIType = fem::IQI_Type::STRAIN_ENERGY;
 
         // set size for the property pointer cell
-        mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+        mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
         // populate the property map
-        mPropertyMap[ "Bedding" ]   = static_cast< uint >( IWG_Property_Type::BEDDING );
-        mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+        mPropertyMap[ "Bedding" ]   = static_cast< uint >( IQI_Property_Type::BEDDING );
+        mPropertyMap[ "Thickness" ] = static_cast< uint >( IQI_Property_Type::THICKNESS );
+        mPropertyMap[ "Select" ]    = static_cast< uint >( IQI_Property_Type::SELECT );
 
         // set size for the constitutive model pointer cell
         mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -39,9 +40,16 @@ namespace moris::fem
 
     void IQI_Strain_Energy::compute_QI( Matrix< DDRMat > &aQI )
     {
-        // check the point is inside the bounded box
-        if ( !this->is_within_box_bounds() )
+        // get select property
+        const std::shared_ptr< Property > &tPropSelect =
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+
+        real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
+
+        // check whether select is zero, if so return
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
         {
+            aQI.set_size( 1, 1, 0.0 );
             return;
         }
 
@@ -51,10 +59,10 @@ namespace moris::fem
 
         // get bedding property
         const std::shared_ptr< Property > &tPropBedding =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::BEDDING ) );
 
         // evaluate the QI
-        aQI = 0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain();
+        aQI = 0.5 * tSelect * trans( tCMElasticity->flux() ) * tCMElasticity->strain();
 
         // if bedding
         if ( tPropBedding != nullptr )
@@ -68,7 +76,7 @@ namespace moris::fem
                     "IQI_Strain_Energy::compute_QI - field interpolator for dof type UX does not exist." );
 
             // compute body load contribution
-            aQI += 0.5 * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->val();
+            aQI += 0.5 * tSelect * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->val();
         }
     }
 
@@ -76,8 +84,14 @@ namespace moris::fem
 
     void IQI_Strain_Energy::compute_QI( real aWStar )
     {
-        // check the point is inside the bounded box
-        if ( !this->is_within_box_bounds() )
+        // get select property
+        const std::shared_ptr< Property > &tPropSelect =
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+
+        real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
+
+        // check whether select is zero, if so return
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
         {
             return;
         }
@@ -91,17 +105,17 @@ namespace moris::fem
 
         // get bedding property
         const std::shared_ptr< Property > &tPropBedding =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::BEDDING ) );
 
         // get thickness property
         const std::shared_ptr< Property > &tPropThickness =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::THICKNESS ) );
 
         // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
         // evaluate the QI
-        mSet->get_QI()( tQIIndex ) += aWStar * ( 0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain() );
+        mSet->get_QI()( tQIIndex ) += aWStar * tSelect * ( 0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain() );
 
         // if bedding
         if ( tPropBedding != nullptr )
@@ -115,7 +129,8 @@ namespace moris::fem
                     "IQI_Strain_Energy::compute_QI - field interpolator for dof type UX does not exist." );
 
             // compute body load contribution
-            mSet->get_QI()( tQIIndex ) += aWStar * ( 0.5 * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->val() );
+            mSet->get_QI()( tQIIndex ) += aWStar * tSelect *    //
+                                          ( 0.5 * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->val() );
         }
     }
 
@@ -123,8 +138,14 @@ namespace moris::fem
 
     void IQI_Strain_Energy::compute_dQIdu( real aWStar )
     {
-        // check the point is inside the bounded box
-        if ( !this->is_within_box_bounds() )
+        // get select property
+        const std::shared_ptr< Property > &tPropSelect =
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+
+        real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
+
+        // check whether select is zero, if so return
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
         {
             return;
         }
@@ -138,11 +159,11 @@ namespace moris::fem
 
         // get bedding property
         const std::shared_ptr< Property > &tPropBedding =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::BEDDING ) );
 
         // get thickness property
         const std::shared_ptr< Property > &tPropThickness =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::THICKNESS ) );
 
         // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -166,7 +187,10 @@ namespace moris::fem
             {
                 // compute dQIdu
                 mSet->get_residual()( tQIIndex )(
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * 0.5 * ( trans( tCMElasticity->dFluxdDOF( tDofType ) ) * tCMElasticity->strain() + trans( tCMElasticity->dStraindDOF( tDofType ) ) * tCMElasticity->flux() );
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                   //
+                        aWStar * 0.5 * tSelect * (                                                           //
+                                trans( tCMElasticity->dFluxdDOF( tDofType ) ) * tCMElasticity->strain() +    //
+                                trans( tCMElasticity->dStraindDOF( tDofType ) ) * tCMElasticity->flux() );
             }
 
             // if bedding
@@ -180,13 +204,24 @@ namespace moris::fem
                 if ( tDofType( 0 ) == MSI::Dof_Type::UX )
                 {
                     mSet->get_residual()( tQIIndex )(
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val() );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=    //
+                            aWStar * tSelect * ( trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val() );
                 }
 
                 if ( tPropBedding->check_dof_dependency( tDofType ) )
                 {
                     mSet->get_residual()( tQIIndex )(
-                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * ( 0.5 * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->dPropdDOF( tDofType ) );
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=    //
+                            aWStar * tSelect * ( 0.5 * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->dPropdDOF( tDofType ) );
+                }
+            }
+
+            // if select property depends on dof type
+            if ( tPropSelect != nullptr )
+            {
+                if ( tPropSelect->check_dof_dependency( tDofType ) )
+                {
+                    MORIS_ERROR( false, "IQI_Strain_Energy::compute_dQIdu - select property cannot depend on dof type." );
                 }
             }
         }
@@ -198,8 +233,17 @@ namespace moris::fem
             Vector< MSI::Dof_Type > &aDofType,
             Matrix< DDRMat >        &adQIdu )
     {
-        // check the point is inside the bounded box
-        if ( !this->is_within_box_bounds() )
+        // initialize derivative
+        adQIdu.fill( 0.0 );
+
+        // get select property
+        const std::shared_ptr< Property > &tPropSelect =
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+
+        real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
+
+        // check whether select is zero, if so return
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
         {
             return;
         }
@@ -210,16 +254,15 @@ namespace moris::fem
 
         // get bedding property
         const std::shared_ptr< Property > &tPropBedding =
-                mLeaderProp( static_cast< uint >( IWG_Property_Type::BEDDING ) );
-
-        // initialize derivative
-        adQIdu.fill( 0.0 );
+                mLeaderProp( static_cast< uint >( IQI_Property_Type::BEDDING ) );
 
         // if elasticity CM depends on dof type
         if ( tCMElasticity->check_dof_dependency( aDofType ) )
         {
             // compute dQIdu
-            adQIdu = 0.5 * ( trans( tCMElasticity->dFluxdDOF( aDofType ) ) * tCMElasticity->strain() + trans( tCMElasticity->dStraindDOF( aDofType ) ) * tCMElasticity->flux() );
+            adQIdu = 0.5 * tSelect * (                                                                    //
+                             trans( tCMElasticity->dFluxdDOF( aDofType ) ) * tCMElasticity->strain() +    //
+                             trans( tCMElasticity->dStraindDOF( aDofType ) ) * tCMElasticity->flux() );
         }
 
         // if bedding
@@ -232,40 +275,22 @@ namespace moris::fem
             // compute bedding contribution - displacements
             if ( aDofType( 0 ) == MSI::Dof_Type::UX )
             {
-                adQIdu += trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val();
+                adQIdu += tSelect * trans( tDisplacementFI->N() ) * tDisplacementFI->val() * tPropBedding->val();
             }
 
             if ( tPropBedding->check_dof_dependency( aDofType ) )
             {
-                adQIdu += 0.5 * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->dPropdDOF( aDofType );
+                adQIdu += 0.5 * tSelect * trans( tDisplacementFI->val() ) * tDisplacementFI->val() * tPropBedding->dPropdDOF( aDofType );
             }
         }
-    }
 
-    //------------------------------------------------------------------------------
-
-    bool IQI_Strain_Energy::is_within_box_bounds()
-    {
-        // check if the box bounds are empty then skip
-        if ( mParameters.empty() )
+        // if select property depends on dof type
+        if ( tPropSelect != nullptr )
         {
-            return true;
-        }
-
-        // if the box bounds are not empty then check if it is inside the box
-        else
-        {
-            // get the coordinate
-            const Matrix< DDRMat > &tGaussPoint = mLeaderFIManager->get_IG_geometry_interpolator()->valx();
-
-            // check if the calculation point coordinates are more then lower corner of the box
-            bool tLowerBound = std::equal( mParameters( 0 ).begin(), mParameters( 0 ).end(), tGaussPoint.begin(), tGaussPoint.end(), []( real aA, real aB ) -> bool { return aA < aB; } );
-
-            // check if the calculation point coordinates are less then upper corner of the box
-            bool tUpperBound = std::equal( tGaussPoint.begin(), tGaussPoint.end(), mParameters( 1 ).begin(), mParameters( 1 ).end(), []( real aA, real aB ) -> bool { return aA < aB; } );
-
-            // combine the two bounds that satisfy both
-            return tUpperBound and tLowerBound;
+            if ( tPropSelect->check_dof_dependency( aDofType ) )
+            {
+                MORIS_ERROR( false, "IQI_Strain_Energy::compute_dQIdu - select property cannot depend on dof type." );
+            }
         }
     }
 

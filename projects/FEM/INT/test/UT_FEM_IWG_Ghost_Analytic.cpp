@@ -25,6 +25,7 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_Property.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Ghost_UT.cpp"
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
@@ -74,6 +75,11 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
     std::shared_ptr< fem::Property > tPropUnit = std::make_shared< fem::Property > ();
     tPropUnit->set_parameters( { {{ 1.0 }} } );
     tPropUnit->set_val_function( tConstValFunc );
+
+    // Thickness scales the existing nonzero analytical jump. Reusing the
+    // QUAD/HEX and linear-through-cubic cases covers every derivative order.
+    auto tPropThickness = std::make_shared< fem::Property >();
+    tPropThickness->set_val_function( tConstValFunc );
 
     // define a unit ghost stabilization parameter
     fem::SP_Factory tSPFactory;
@@ -265,6 +271,7 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
             tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
+            tPropThickness->set_field_interpolator_manager( &tLeaderFIManager );
 
             // set the interpolation order for the ghost sum
             tIWG->set_interpolation_order( iInterpOrder );
@@ -302,6 +309,65 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
                 tIWG->compute_residual( tIntegWeight );
                 tIWG->compute_jacobian( tIntegWeight );
 
+                // Compare every residual entry and all four Jacobian blocks
+                // against the unit-thickness analytical setup before integrating.
+                const Matrix< DDRMat > tUnitResidual = tIWG->mSet->mResidual( 0 );
+                const Matrix< DDRMat > tUnitJacobian = tIWG->mSet->mJacobian;
+
+                for ( real tThickness : { 0.0, 0.4, 2.5 } )
+                {
+                    INFO( "Dimension=" << iSpaceDim << " order=" << iInterpOrder
+                                       << " point=" << iGP << " thickness=" << tThickness );
+                    tPropThickness->set_parameters( { { { tThickness } } } );
+                    tIWG->set_property( tPropThickness, "Thickness" );
+                    tIWG->reset_eval_flags();
+                    tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                    tIWG->mSet->mJacobian.fill( 0.0 );
+                    tIWG->compute_residual( tIntegWeight );
+                    tIWG->compute_jacobian( tIntegWeight );
+
+                    CHECK( norm( tIWG->mSet->mResidual( 0 ) - tThickness * tUnitResidual )
+                            < 1e-12 * ( 1.0 + norm( tUnitResidual ) ) );
+
+                    CHECK( norm( tIWG->mSet->mJacobian - tThickness * tUnitJacobian )
+                            < 1e-12 * ( 1.0 + norm( tUnitJacobian ) ) );
+
+                    // A nonunit case also checks the Jacobian independently by
+                    // perturbing leader and follower coefficients at one point.
+                    if ( iGP == 0 && tThickness == 2.5 )
+                    {
+                        Matrix< DDRMat > tJacobian;
+                        Matrix< DDRMat > tJacobianFD;
+                        tIWG->mSet->mJacobian.fill( 0.0 );
+
+                        CHECK( tIWG->check_jacobian( 1e-6, 1e-5, tIntegWeight, tJacobian, tJacobianFD, false ) );
+                    }
+                }
+
+                if ( iGP == 0 )
+                {
+                    // Isolate both dependency loops: the follower check must
+                    // still reject thickness when no leader DOFs are requested.
+                    tPropThickness->set_dof_type_list( tDofTypes );
+                    tIWG->reset_eval_flags();
+
+                    REQUIRE_THROWS_WITH( tIWG->compute_jacobian( tIntegWeight ),
+                            Catch::Matchers::Contains( "Thickness property cannot depend on dof type" ) );
+                    tIWG->mRequestedLeaderGlobalDofTypes.clear();
+
+                    REQUIRE_THROWS_WITH( tIWG->compute_jacobian( tIntegWeight ),
+                            Catch::Matchers::Contains( "Thickness property cannot depend on dof type" ) );
+                    tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+                    tPropThickness->set_dof_type_list( {} );
+                }
+
+                // Restore the absent-property result for the stored integral
+                // references, which remain independent of the scaling checks.
+                tIWG->set_property( nullptr, "Thickness" );
+                tIWG->reset_eval_flags();
+                tIWG->mSet->mResidual( 0 ) = tUnitResidual;
+                tIWG->mSet->mJacobian      = tUnitJacobian;
+
                 // add to integral sum
                 tIntegrandFromResidual( { 0, 0 }, { 0, 0 } ) += tTransGlobalUHat * tIWG->mSet->mResidual( 0 );
                 tIntegrandFromJacobian( { 0, 0 }, { 0, 0 } ) += tTransGlobalUHat * tIWG->mSet->mJacobian * tGlobalUHat;
@@ -337,5 +403,13 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             tFollowerFIs.clear();
         }
     }
-}/* END_TEST_CASE */
 
+    // The set borrows the stack managers used by each interpolation case.
+    tIWG->mSet->mLeaderFIManager   = nullptr;
+    tIWG->mSet->mFollowerFIManager = nullptr;
+    tIWG->mSet                     = nullptr;
+    delete tSet;
+
+    tSP->set_cluster( nullptr );
+    delete tCluster;
+} /* END_TEST_CASE */
