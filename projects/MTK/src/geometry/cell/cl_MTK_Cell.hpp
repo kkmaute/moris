@@ -46,6 +46,10 @@ namespace moris::mtk
             moris_id mCellIndex;
             moris_id mCellOwner;
 
+            // Geometry belongs to this cell; Cell_Info can be shared by different shapes.
+            mutable CellShape mCellShape      = CellShape::UNDEFINED;
+            mutable bool      mCellShapeValid = false;
+
             //------------------------------------------------------------------------------
 
           public:
@@ -87,6 +91,34 @@ namespace moris::mtk
 
             void
             set_mtk_cell_info( std::shared_ptr< moris::mtk::Cell_Info > aCellInfo );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Classify the current geometry on first use. Initialize before concurrent reads.
+             */
+            CellShape
+            get_cell_shape() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Invalidate after changing coordinates, connectivity, or cell information.
+             * Coordinate storage can be borrowed: its owner must invalidate every affected
+             * cell after a write, including restoration of perturbed coordinates.
+             */
+            void
+            invalidate_cell_shape() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Integrate the measure without reading or updating the shape cache. Use for
+             * coordinate perturbations, which need not preserve rectangular geometry.
+             * Restore coordinates before using the cached shape again, or invalidate it.
+             */
+            moris::real
+            compute_cell_measure_general() const;
 
             //------------------------------------------------------------------------------
 
@@ -318,6 +350,17 @@ namespace moris::mtk
             compute_cell_measure_deriv(
                     uint aLocalVertexID,
                     uint aDirection ) const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Return vertex-by-coordinate derivatives. A nonempty mask selects
+             * requested entries; unrequested entries are zero. No geometry is cached.
+             */
+            virtual void
+            compute_cell_measure_derivatives(
+                    Matrix< DDRMat >       &aDerivatives,
+                    const Matrix< DDSMat > &aRequested = {} ) const;
 
             //------------------------------------------------------------------------------
 

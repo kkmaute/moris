@@ -445,7 +445,7 @@ namespace moris::xtk
             Vector< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
             // compute the cell shape of the first cell
-            tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+            tCellShape = tClusterCells( 0 )->get_cell_shape();
         }
 
         // within debug, checking all cells to make sure that they are the same Cell Shape
@@ -459,7 +459,7 @@ namespace moris::xtk
             // looping through the cells in the cluster
             for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
             {
-                MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
+                MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_shape() == tCellShape,
                         "Enriched_Interpolation_Mesh::get_IG_blockset_shape() - cell shape is not consistent in the block" );
             }
         }
@@ -485,7 +485,7 @@ namespace moris::xtk
             mtk::Cell const & tClusterCell = tSetClusters( 0 )->get_interpolation_cell();
 
             // compute the cell shape of the first cell
-            tCellShape = tClusterCell.get_cell_info()->compute_cell_shape( &tClusterCell );
+            tCellShape = tClusterCell.get_cell_shape();
         }
 
         // within debug, checking all cells to make sure that they are the same Cell Shape
@@ -495,7 +495,7 @@ namespace moris::xtk
             // looping through the clusters
             for ( uint iCluster = 1; iCluster < tSetClusters.size(); iCluster++ )
             {
-                MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_info()->compute_cell_shape( &tSetClusters( iCluster )->get_interpolation_cell() ) == tCellShape,
+                MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_shape() == tCellShape,
                         "Enriched_Interpolation_Mesh::get_IP_blockset_shape - cell shape is not consistent in the block" );
             }
         }

@@ -205,6 +205,16 @@ namespace moris::mtk
          * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
          * @return Derivative of Cell Measure
          */
+        /** Requested coordinate derivatives, one row per supplied vertex. */
+        Matrix< DDRMat >
+        compute_cluster_cell_measure_derivatives(
+                const Matrix< DDRMat > &aVertexCoordinates,
+                const Matrix< DDSMat > &aRequested,
+                mtk::Primary_Void       aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                mtk::Leader_Follower    aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
+
+        //------------------------------------------------------------------------------
+
         moris::real
         compute_cluster_cell_measure_derivative(
                 const Matrix< DDRMat >    &aPerturbedVertexCoords,

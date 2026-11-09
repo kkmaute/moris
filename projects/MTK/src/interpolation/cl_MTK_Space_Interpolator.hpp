@@ -490,6 +490,16 @@ namespace moris::mtk
         const real& space_det_J_deriv( const uint& aLocalVertexID, const uint& aDirection );
 
         //------------------------------------------------------------------------------
+
+        /**
+         * Compute bulk-cell determinant derivatives at the current point.
+         * The single-derivative cache is unchanged. An empty request mask selects
+         * every coordinate; unrequested entries are zero.
+         */
+        void space_det_J_derivatives( Matrix< DDRMat >& aDerivatives,
+                const Matrix< DDSMat >&                 aRequested = {} );
+
+        //------------------------------------------------------------------------------
         /**
          * evaluates the normal to the side
          * in the case of a space side interpolation

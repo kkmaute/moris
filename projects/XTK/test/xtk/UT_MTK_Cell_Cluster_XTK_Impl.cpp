@@ -11,6 +11,11 @@
 #include "catch.hpp"
 
 #include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_XTK_Cell_No_CM.hpp"
+#include "cl_MTK_Cell_Info_Quad4.hpp"
+#include "cl_MTK_Vertex_Proxy.hpp"
+
+#include <memory>
 #include "cl_XTK_Cut_Mesh.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -121,4 +126,48 @@ namespace moris::xtk
             delete tMeshData;
         }
     }
+
+}    // namespace moris::xtk
+
+namespace moris::xtk
+{
+    TEST_CASE( "XTK Cell Shape Cache Connectivity", "[XTK],[Cell_Measure_Cache]" )
+    {
+        // Mesh cleanup replaces vertex pointers on existing integration cells.
+        // A cached square must become a trapezoid after replacement and return
+        // to a square after resetting connectivity, with the corresponding area.
+        Vector< mtk::Vertex_Proxy > tVertices( 5 );
+        Matrix< DDRMat >            tCoordinates = {
+            { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 }, { 1.5, 1.0 }
+        };
+
+        Vector< mtk::Vertex* > tConnectivity( 4 );
+
+        for ( uint iVertex = 0; iVertex < tVertices.size(); ++iVertex )
+        {
+            tVertices( iVertex ).mVertexCoord = tCoordinates.get_row( iVertex );
+
+            if ( iVertex < tConnectivity.size() )
+            {
+                tConnectivity( iVertex ) = &tVertices( iVertex );
+            }
+        }
+
+        auto           tInfo = std::make_shared< mtk::Cell_Info_Quad4 >();
+        Cell_XTK_No_CM tCell( 0, 0, 0, tInfo, tConnectivity );
+
+        CHECK( tCell.get_cell_shape() == mtk::CellShape::RECTANGULAR );
+        CHECK( tCell.compute_cell_measure() == Approx( 1.0 ) );
+
+        tCell.replace_vertex_pointer( &tVertices( 4 ), 2 );
+
+        CHECK( tCell.get_cell_shape() == mtk::CellShape::STRAIGHT );
+        CHECK( tCell.compute_cell_measure() == Approx( 1.25 ) );
+
+        tCell.set_vertex_pointers( tConnectivity );
+
+        CHECK( tCell.get_cell_shape() == mtk::CellShape::RECTANGULAR );
+        CHECK( tCell.compute_cell_measure() == Approx( 1.0 ) );
+    }
+
 }    // namespace moris::xtk

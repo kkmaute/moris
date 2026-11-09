@@ -55,80 +55,7 @@ namespace moris::mtk
     enum CellShape
     Cell_Info_Hex8::compute_cell_shape( moris::mtk::Cell const *aCell ) const
     {
-        // getting vertices and storing them in a local matrix, since each node will be used a few times
-        Vector< Vertex * > tVertices = aCell->get_vertex_pointers();
-
-        // init cell shape
-        CellShape tCellShape = CellShape::RECTANGULAR;
-
-        // error threshold
-        real tEpsilon = 1.0E-8;
-
-        // init cell of face normals
-        Vector< moris::Matrix< DDRMat > > tFaceNormals( 6 );
-
-        // looping through each face
-        for ( uint iFace = 0; iFace < 6; iFace++ )
-        {
-            // getting nodes on the face
-            moris::Matrix< moris::IndexMat > tFaceNodes = this->get_node_to_face_map( iFace );
-
-            // get all of the face vertices
-            moris::Matrix< DDRMat > tVertex0 = tVertices( tFaceNodes( 0 ) )->get_coords();
-            moris::Matrix< DDRMat > tVertex1 = tVertices( tFaceNodes( 1 ) )->get_coords();
-            moris::Matrix< DDRMat > tVertex2 = tVertices( tFaceNodes( 2 ) )->get_coords();
-            moris::Matrix< DDRMat > tVertex3 = tVertices( tFaceNodes( 3 ) )->get_coords();
-
-            // get edges to define check plane
-            auto tEdge0           = tVertex1 - tVertex0;
-            auto tEdge1           = tVertex2 - tVertex1;
-            tFaceNormals( iFace ) = cross( tEdge0, tEdge1 );
-
-            // these are the other plane normals produced by the other 6 nodes.
-            // keeping node 0 to ensure the plane is at the same offset.
-            auto tEdge2     = tVertex1 - tVertex0;
-            auto tEdge3     = tVertex3 - tVertex1;
-            auto tFaceVec23 = cross( tEdge2, tEdge3 );
-
-            // All three of the plane normals must be parallel in order to be considered straight shape
-            if ( norm( cross( tFaceNormals( iFace ), tFaceVec23 ) ) > tEpsilon )
-            {
-                tCellShape = CellShape::GENERAL;
-                break;
-            }
-        }
-
-        // since the faces are planar, checking if it is rectangular (aligned), parallel, or straight
-
-        // if the cell shape is straight, determine if it is a parallel cell
-        if ( tCellShape == CellShape::RECTANGULAR )
-        {
-            // create the cross products of opposite faces
-            auto tCross02 = cross( tFaceNormals( 0 ), tFaceNormals( 2 ) );
-            auto tCross13 = cross( tFaceNormals( 1 ), tFaceNormals( 3 ) );
-            auto tCross45 = cross( tFaceNormals( 4 ), tFaceNormals( 5 ) );
-
-            // checking if these face normals are parallel
-            if ( norm( tCross02 ) > tEpsilon || norm( tCross13 ) > tEpsilon || norm( tCross45 ) > tEpsilon )
-            {
-                tCellShape = CellShape::STRAIGHT;
-            }
-            else
-            {
-                // get the some edges
-                moris::Matrix< DDRMat > tVertex1 = tVertices( 1 )->get_coords();
-                moris::Matrix< DDRMat > tEdge0   = tVertex1 - tVertices( 0 )->get_coords();
-                moris::Matrix< DDRMat > tEdge1   = tVertices( 2 )->get_coords() - tVertex1;
-
-                // checking that this cell fits requirements for being rectangular and aligned (CellShape::RECTANGULAR)
-                if ( std::abs( dot( tFaceNormals( 0 ), tFaceNormals( 1 ) ) ) > tEpsilon || std::abs( dot( tFaceNormals( 0 ), tFaceNormals( 4 ) ) ) > tEpsilon || std::abs( dot( tFaceNormals( 1 ), tFaceNormals( 4 ) ) ) > tEpsilon || std::abs( tEdge0( 1 ) ) > tEpsilon || std::abs( tEdge0( 2 ) ) > tEpsilon || std::abs( tEdge1( 0 ) ) > tEpsilon || std::abs( tEdge1( 2 ) ) > tEpsilon || tEdge0( 0 ) < 0.0 || tEdge1( 1 ) < 0.0 )
-                {
-                    tCellShape = CellShape::PARALLEL;
-                }
-            }
-        }
-
-        return tCellShape;
+        return this->compute_hex_cell_shape( aCell );
     }
 
     // ----------------------------------------------------------------------------------
@@ -509,6 +436,74 @@ namespace moris::mtk
         }
 
         return tVolume;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::real
+    Cell_Info_Hex8::compute_cell_size_deriv(
+            moris::mtk::Cell const *aCell,
+            uint                    aLocalVertexID,
+            uint                    aDirection ) const
+    {
+        MORIS_ASSERT( aLocalVertexID < 8,
+                "Cell_Info_Hex8::compute_cell_size_deriv - Vertex ordinal must be less than 8." );
+        MORIS_ASSERT( aDirection < 3,
+                "Cell_Info_Hex8::compute_cell_size_deriv - Direction must be 0, 1, or 2." );
+
+        const Matrix< DDRMat > tCoordinates = aCell->get_vertex_coords();
+        MORIS_ASSERT( tCoordinates.n_rows() == 8 && tCoordinates.n_cols() == 3,
+                "Cell_Info_Hex8::compute_cell_size_deriv - Expected eight vertices in three dimensions." );
+
+        // Signs of (xi, eta, zeta) in the standard HEX8 vertex ordering.
+        constexpr real tSigns[ 8 ][ 3 ] = {
+            { -1.0, -1.0, -1.0 }, { 1.0, -1.0, -1.0 }, { 1.0, 1.0, -1.0 }, { -1.0, 1.0, -1.0 }, { -1.0, -1.0, 1.0 }, { 1.0, -1.0, 1.0 }, { 1.0, 1.0, 1.0 }, { -1.0, 1.0, 1.0 }
+        };
+
+        // Write x = a0 + a1*xi + a2*eta + a3*zeta + a4*xi*eta
+        //             + a5*eta*zeta + a6*xi*zeta + a7*xi*eta*zeta.
+        // Subtracting vertex 0 avoids cancellation from a large coordinate origin.
+        // Only a1,...,a6 enter the integrated determinant; a0 and a7 cancel.
+        real tCoefficients[ 6 ][ 3 ] = {};
+
+        for ( uint iVertex = 0; iVertex < 8; ++iVertex )
+        {
+            const real tXi           = tSigns[ iVertex ][ 0 ];
+            const real tEta          = tSigns[ iVertex ][ 1 ];
+            const real tZeta         = tSigns[ iVertex ][ 2 ];
+            const real tWeights[ 6 ] = { tXi, tEta, tZeta, tXi * tEta, tEta * tZeta, tXi * tZeta };
+
+            for ( uint iCoefficient = 0; iCoefficient < 6; ++iCoefficient )
+            {
+                for ( uint iDirection = 0; iDirection < 3; ++iDirection )
+                {
+                    tCoefficients[ iCoefficient ][ iDirection ] += 0.125 * tWeights[ iCoefficient ]
+                                                                 * ( tCoordinates( iVertex, iDirection ) - tCoordinates( 0, iDirection ) );
+                }
+            }
+        }
+
+        const uint tFirstDirection  = ( aDirection + 1 ) % 3;
+        const uint tSecondDirection = ( aDirection + 2 ) % 3;
+        auto       tCrossComponent  = [ & ]( uint aFirst, uint aSecond ) {
+            return tCoefficients[ aFirst ][ tFirstDirection ] * tCoefficients[ aSecond ][ tSecondDirection ]
+                 - tCoefficients[ aFirst ][ tSecondDirection ] * tCoefficients[ aSecond ][ tFirstDirection ];
+        };
+
+        // Integrating det(J) exactly gives
+        // V = 8*det(a1,a2,a3) + 8/3*(det(a1,a4,a6) + det(a4,a2,a5) + det(a6,a5,a3)).
+        // Differentiate this polynomial using da_k/dx_vertex = sign_product/8.
+        // Array indices 0,...,5 represent a1,...,a6; cyclic components give each cross product.
+        const real tXi   = tSigns[ aLocalVertexID ][ 0 ];
+        const real tEta  = tSigns[ aLocalVertexID ][ 1 ];
+        const real tZeta = tSigns[ aLocalVertexID ][ 2 ];
+
+        return tXi * ( tCrossComponent( 1, 2 ) + tCrossComponent( 3, 5 ) / 3.0 )
+             + tEta * ( tCrossComponent( 2, 0 ) + tCrossComponent( 4, 3 ) / 3.0 )
+             + tZeta * ( tCrossComponent( 0, 1 ) + tCrossComponent( 5, 4 ) / 3.0 )
+             + tXi * tEta * ( tCrossComponent( 5, 0 ) + tCrossComponent( 1, 4 ) ) / 3.0
+             + tEta * tZeta * ( tCrossComponent( 3, 1 ) + tCrossComponent( 2, 5 ) ) / 3.0
+             + tXi * tZeta * ( tCrossComponent( 0, 3 ) + tCrossComponent( 4, 2 ) ) / 3.0;
     }
 
     // ----------------------------------------------------------------------------------

@@ -272,11 +272,7 @@ namespace moris::mtk
          * @return Cell size
          */
         moris::real
-        compute_cell_size( moris::mtk::Cell const *aCell ) const
-        {
-            // specialized cell size calculation
-            return compute_cell_size_special( aCell );
-        }
+        compute_cell_size( moris::mtk::Cell const *aCell ) const;
 
         // ---------------------------------------------------------------------------------
         /*!
@@ -288,7 +284,7 @@ namespace moris::mtk
 
         // ---------------------------------------------------------------------------------
         /*!
-         * Computes the cell size if this isn't a rectangular cell
+         * Topology-specific shortcut; the caller must ensure its geometric assumptions hold.
          * @return Cell size
          */
         virtual moris::real
@@ -335,6 +331,18 @@ namespace moris::mtk
                 uint                    aDirection ) const;
 
         // ---------------------------------------------------------------------------------
+        /**
+         * Integrate requested coordinate derivatives in one quadrature traversal.
+         * An empty request mask selects all entries; unrequested entries are zero.
+         */
+        virtual void
+        compute_cell_size_derivatives_general(
+                const Cell             *aCell,
+                Matrix< DDRMat >       &aDerivatives,
+                const Matrix< DDSMat > &aRequested = {} ) const;
+
+        // ---------------------------------------------------------------------------------
+
         /*!
          * Compute the side surface area of 3D cell or the side length of 2d cell
          * @return Cell side size
@@ -370,6 +378,19 @@ namespace moris::mtk
         eval_N(
                 const Matrix< DDRMat > &aXi,
                 Matrix< DDRMat >       &aNXi ) const;
+
+      protected:
+        // Shared dimensionless predicates for the QUAD and HEX classifiers.
+        // Zero or nonfinite directions cannot select the rectangular shortcut.
+        static bool normalize_shape_vector( Matrix< DDRMat > &aVector );
+
+        static bool shape_vectors_parallel( const Matrix< DDRMat > &aFirst,
+                const Matrix< DDRMat >                             &aSecond );
+
+        // Classify using the topology's edge/face maps and normalized directions.
+        CellShape compute_quad_cell_shape( const Cell *aCell ) const;
+
+        CellShape compute_hex_cell_shape( const Cell *aCell ) const;
     };
 }    // namespace moris::mtk
 

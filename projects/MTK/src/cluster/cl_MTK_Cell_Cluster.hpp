@@ -283,6 +283,24 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        Matrix< DDRMat >
+
+        compute_cluster_cell_measure_derivatives(
+
+                const Matrix< DDRMat > &aVertexCoordinates,
+                const Matrix< DDSMat > &aRequested,
+                mtk::Primary_Void       aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                mtk::Leader_Follower    aIsLeader      = mtk::Leader_Follower::LEADER ) const override
+        {
+            const auto &tCells = aPrimaryOrVoid == mtk::Primary_Void::PRIMARY
+                                       ? this->get_primary_cells_in_cluster()
+                                       : this->get_void_cells_in_cluster();
+
+            return compute_cell_measure_derivatives_from_cells( tCells, aVertexCoordinates, aRequested );
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::real
         compute_cluster_cell_measure_derivative(
                 const Matrix< DDRMat >    &aPerturbedVertexCoords,

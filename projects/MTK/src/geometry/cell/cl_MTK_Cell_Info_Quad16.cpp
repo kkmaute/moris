@@ -59,72 +59,7 @@ namespace moris::mtk
     enum CellShape
     Cell_Info_Quad16::compute_cell_shape( moris::mtk::Cell const * aCell ) const
     {
-        // throw error, since this function hasn't been tested. Would need to be able to create a cell without an STK mesh
-        //            MORIS_ERROR(false,"Cell_Info_Quad16::compute_cell_shape - this has not been tested. no Quad16 STK implementation");
-
-        // getting vertices and storing them in a local matrix, since each node will be used a few times
-        Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
-
-        // init cell shape
-        CellShape tCellShape = CellShape::RECTANGULAR;
-
-        // error threshold
-        real tEpsilon = 1.0E-8;
-
-        // init cell of edge vectors
-        Vector< moris::Matrix< DDRMat > > tEdgeVectors( 4 );
-
-        // looping through each Edge
-        for ( uint iEdge = 0; iEdge < 4; iEdge++ )
-        {
-            // getting nodes on the edge
-            moris::Matrix< moris::IndexMat > tEdgeNodes = this->get_node_to_edge_map( iEdge );
-
-            // get node 0 coordinates
-            moris::Matrix< DDRMat > tVertex0 = tVertices( tEdgeNodes( 0 ) )->get_coords();
-
-            // getting getting vectors on this edge
-            tEdgeVectors( iEdge )             = tVertices( tEdgeNodes( 1 ) )->get_coords() - tVertex0;
-            moris::Matrix< DDRMat > tEdgeVec1 = tVertices( tEdgeNodes( 2 ) )->get_coords() - tVertex0;
-            moris::Matrix< DDRMat > tEdgeVec2 = tVertices( tEdgeNodes( 3 ) )->get_coords() - tVertex0;
-
-            // perform cross product of the 2D vectors
-            auto tCross01 = tEdgeVectors( iEdge )( 0 ) * tEdgeVec1( 1 ) - tEdgeVectors( iEdge )( 1 ) * tEdgeVec1( 0 );
-            auto tCross12 = tEdgeVec1( 0 ) * tEdgeVec2( 1 ) - tEdgeVec1( 1 ) * tEdgeVec2( 0 );
-
-            // are the nodes on this edge on the same vector?
-            if ( std::abs( tCross01 ) > tEpsilon || std::abs( tCross12 ) > tEpsilon )
-            {
-                tCellShape = CellShape::GENERAL;
-                break;
-            }
-        }
-
-        // check if the cell is still rectangular check if it is parallel or straight
-        if ( tCellShape == CellShape::RECTANGULAR )
-        {
-            // get cross products of opposite edges
-            auto tCross02 = tEdgeVectors( 0 )( 0 ) * tEdgeVectors( 2 )( 1 ) - tEdgeVectors( 0 )( 1 ) * tEdgeVectors( 2 )( 0 );
-            auto tCross13 = tEdgeVectors( 1 )( 0 ) * tEdgeVectors( 3 )( 1 ) - tEdgeVectors( 1 )( 1 ) * tEdgeVectors( 3 )( 0 );
-
-            // if they aren't parallel, then it is a straight cell
-            if ( std::abs( tCross02 ) > tEpsilon || std::abs( tCross13 ) > tEpsilon )
-            {
-                tCellShape = CellShape::STRAIGHT;
-            }
-
-            // if they are parallel edges check if it is rectangular and aligned
-            else
-            {
-                // if the first two edges aren't perpendicular or if it isn't aligned
-                if ( std::abs( dot( tEdgeVectors( 0 ), tEdgeVectors( 1 ) ) ) > tEpsilon || std::abs( tEdgeVectors( 0 )( 1 ) ) > tEpsilon || tEdgeVectors( 0 )( 0 ) < 0.0 )
-                {
-                    tCellShape = CellShape::PARALLEL;
-                }
-            }
-        }
-
-        return tCellShape;
+        return this->compute_quad_cell_shape( aCell );
     }
 
     // ----------------------------------------------------------------------------------

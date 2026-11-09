@@ -778,6 +778,77 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
+    void
+    Space_Interpolator::space_det_J_derivatives(
+            Matrix< DDRMat >&       aDerivatives,
+            const Matrix< DDSMat >& aRequested )
+    {
+        MORIS_ERROR( !mSpaceSideset,
+                "Space_Interpolator::space_det_J_derivatives - Only bulk cells are supported." );
+        MORIS_ERROR( aRequested.numel() == 0 || ( aRequested.n_rows() == mXHat.n_rows() && aRequested.n_cols() == mXHat.n_cols() ),
+                "Space_Interpolator::space_det_J_derivatives - Invalid request mask." );
+
+        aDerivatives.set_size( mXHat.n_rows(), mXHat.n_cols(), 0.0 );
+
+        const Matrix< DDRMat >& tJacobian         = this->space_jacobian();
+        const Matrix< DDRMat >& tBasisDerivatives = this->dNdXi();
+        Matrix< DDRMat >        tReplacement      = tJacobian;
+
+        MORIS_ERROR( tJacobian.n_rows() <= 4 && tJacobian.n_cols() <= 3,
+                "Space_Interpolator::space_det_J_derivatives - Unsupported bulk dimensions." );
+
+        real tCofactors[ 4 ] = {};
+
+        for ( uint iDirection = 0; iDirection < mXHat.n_cols(); ++iDirection )
+        {
+            bool tRequested = aRequested.numel() == 0;
+
+            for ( uint iVertex = 0; !tRequested && iVertex < mXHat.n_rows(); ++iVertex )
+            {
+                tRequested = aRequested( iVertex, iDirection ) != 0;
+            }
+
+            if ( !tRequested )
+            {
+                continue;
+            }
+
+            // The bulk determinant is multilinear in its spatial columns.
+            // Replacing one column with unit vectors gives its cofactors. Using
+            // the existing evaluator also preserves TRI/TET barycentric scaling.
+            // No inverse is needed, so singular Jacobians remain differentiable.
+            for ( uint iParam = 0; iParam < tJacobian.n_rows(); ++iParam )
+            {
+                tReplacement( iParam, iDirection ) = 0.0;
+            }
+
+            for ( uint iParam = 0; iParam < tJacobian.n_rows(); ++iParam )
+            {
+                tReplacement( iParam, iDirection ) = 1.0;
+                tCofactors[ iParam ]               = ( this->*mSpaceDetJDerivFunc )( tReplacement );
+                tReplacement( iParam, iDirection ) = 0.0;
+            }
+
+            for ( uint iParam = 0; iParam < tJacobian.n_rows(); ++iParam )
+            {
+                tReplacement( iParam, iDirection ) = tJacobian( iParam, iDirection );
+            }
+
+            for ( uint iVertex = 0; iVertex < mXHat.n_rows(); ++iVertex )
+            {
+                if ( aRequested.numel() == 0 || aRequested( iVertex, iDirection ) != 0 )
+                {
+                    for ( uint iParam = 0; iParam < tJacobian.n_rows(); ++iParam )
+                    {
+                        aDerivatives( iVertex, iDirection ) += tCofactors[ iParam ] * tBasisDerivatives( iParam, iVertex );
+                    }
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
     real
     Space_Interpolator::eval_space_detJ_side_line(
             const Matrix< DDRMat >& aSpaceJt )

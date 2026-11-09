@@ -266,6 +266,31 @@ namespace moris::mtk
                 CHECK( tFollowerVertex->get_id() == tLeaderVerts( i )->get_id() );
             }
 
+            // Bulk volume sensitivities must delegate to the selected side,
+            // including follower requests whose local vertex ordering differs.
+            for ( auto tSide : { mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER } )
+            {
+                const auto       tVertices = tGhostDoubleSide( 0 )->get_vertices_in_cluster( tSide );
+                Matrix< DDRMat > tCoordinates( tVertices.size(), 3 );
+                Matrix< DDSMat > tRequested( tVertices.size(), 3, 1 );
+
+                for ( uint i = 0; i < tVertices.size(); ++i )
+                {
+                    tCoordinates.get_row( i ) = tVertices( i )->get_coords().matrix_data();
+                }
+
+                const Matrix< DDRMat > tBulk = tGhostDoubleSide( 0 )->compute_cluster_cell_measure_derivatives(
+                        tCoordinates, tRequested, mtk::Primary_Void::PRIMARY, tSide );
+
+                for ( uint i = 0; i < tVertices.size(); ++i )
+                {
+                    for ( uint d = 0; d < 3; ++d )
+                    {
+                        CHECK( tBulk( i, d ) == Approx( tGhostDoubleSide( 0 )->compute_cluster_cell_measure_derivative( tCoordinates.get_row( i ), d, mtk::Primary_Void::PRIMARY, tSide ) ).margin( 1e-11 ) );
+                    }
+                }
+            }
+
             // get_leader_side_cluster() const;
             // get_follower_side_cluster() const;
             // get_leader_side_cluster();

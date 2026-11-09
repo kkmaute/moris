@@ -45,6 +45,16 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        Cell_Info const *
+        get_cell_info() const override
+        {
+            MORIS_ASSERT( mCellInfo != nullptr, "Cell info not set" );
+
+            return mCellInfo;
+        }
+
+        //------------------------------------------------------------------------------
+
         /**
          * returns the domain wide id of the cell
          *

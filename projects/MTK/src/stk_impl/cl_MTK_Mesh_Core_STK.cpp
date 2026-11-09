@@ -959,7 +959,7 @@ namespace moris::mtk
             Vector< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
             // compute the cell shape of the first cell
-            tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+            tCellShape = tClusterCells( 0 )->get_cell_shape();
         }
 
         // checking all cells to make sure that they are the same Cell Shape; if not set cell shape to general
@@ -972,9 +972,7 @@ namespace moris::mtk
             // looping through the cells in the cluster
             for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
             {
-                auto tCellInfo = tClusterCellsCheck( iCheckCell )->get_cell_info();
-
-                CellShape tCurrentShape = tCellInfo->compute_cell_shape( tClusterCellsCheck( iCheckCell ) );
+                CellShape tCurrentShape = tClusterCellsCheck( iCheckCell )->get_cell_shape();
 
                 if ( tCurrentShape == tCellShape )
                 {
@@ -1004,16 +1002,14 @@ namespace moris::mtk
             Cell const & tClusterCell = tSetClusters( 0 )->get_interpolation_cell();
 
             // compute the cell shape of the first cell
-            tCellShape = tClusterCell.get_cell_info()->compute_cell_shape( &tClusterCell );
+            tCellShape = tClusterCell.get_cell_shape();
         }
 
         // checking all cells to make sure that they are the same Cell Shape; if not set cell shape to general
         // looping through the clusters
         for ( uint iCluster = 1; iCluster < tSetClusters.size(); iCluster++ )
         {
-            auto tCellInfo = tSetClusters( iCluster )->get_interpolation_cell().get_cell_info();
-
-            CellShape tCurrentShape = tCellInfo->compute_cell_shape( &tSetClusters( iCluster )->get_interpolation_cell() );
+            CellShape tCurrentShape = tSetClusters( iCluster )->get_interpolation_cell().get_cell_shape();
 
             if ( tCurrentShape == tCellShape )
             {

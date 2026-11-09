@@ -58,47 +58,7 @@ namespace moris::mtk
     enum CellShape
     Cell_Info_Quad4::compute_cell_shape( moris::mtk::Cell const * aCell ) const
     {
-        // getting vertices and storing them in a local matrix, since each node will be used a few times
-        Vector< Vertex* > tVertices = aCell->get_vertex_pointers();
-
-        // error threshold
-        real tEpsilon = 1.0E-8;
-
-        // get the vertex coordinates
-        moris::Matrix< DDRMat > tVertex0 = tVertices( 0 )->get_coords();
-        moris::Matrix< DDRMat > tVertex1 = tVertices( 1 )->get_coords();
-        moris::Matrix< DDRMat > tVertex2 = tVertices( 2 )->get_coords();
-        moris::Matrix< DDRMat > tVertex3 = tVertices( 3 )->get_coords();
-
-        // getting edge vectors
-        moris::Matrix< DDRMat > tEdge0 = tVertex1 - tVertex0;
-        moris::Matrix< DDRMat > tEdge1 = tVertex2 - tVertex1;
-        moris::Matrix< DDRMat > tEdge2 = tVertex3 - tVertex2;
-        moris::Matrix< DDRMat > tEdge3 = tVertex0 - tVertex3;
-
-        // cross products of opposite edges
-        auto tCross02 = tEdge0( 0 ) * tEdge2( 1 ) - tEdge0( 1 ) * tEdge2( 0 );
-        auto tCross13 = tEdge1( 0 ) * tEdge3( 1 ) - tEdge1( 1 ) * tEdge3( 0 );
-
-        // check if opposite edges are parallel
-        if ( std::abs( tCross02 ) > tEpsilon || std::abs( tCross13 ) > tEpsilon )
-        {
-            return CellShape::STRAIGHT;
-        }
-
-        // parallelogram cell
-        else
-        {
-            // if edge 1 is parallel to the x axis and perpindicular to the adjacent edge
-            if ( std::abs( tEdge0( 1 ) ) < tEpsilon && std::abs( dot( tEdge0, tEdge1 ) ) < tEpsilon )
-            {
-                return CellShape::RECTANGULAR;
-            }
-            else
-            {
-                return CellShape::PARALLEL;
-            }
-        }
+        return this->compute_quad_cell_shape( aCell );
     }
 
     // ----------------------------------------------------------------------------------

@@ -338,6 +338,23 @@ namespace moris::mtk
 
     //----------------------------------------------------------------
 
+    Matrix< DDRMat >
+    Side_Cluster_DataBase::compute_cluster_cell_measure_derivatives(
+            const Matrix< DDRMat >& aVertexCoordinates,
+            const Matrix< DDSMat >& aRequested,
+            mtk::Primary_Void       aPrimaryOrVoid,
+            mtk::Leader_Follower    aIsLeader ) const
+    {
+        if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY || aPrimaryOrVoid == mtk::Primary_Void::VOID )
+        {
+            return mMesh->get_associated_cell_cluster( mSideClusterIndex )->compute_cluster_cell_measure_derivatives( aVertexCoordinates, aRequested, aPrimaryOrVoid, aIsLeader );
+        }
+
+        return Matrix< DDRMat >( aVertexCoordinates.n_rows(), aVertexCoordinates.n_cols(), 0.0 );
+    }
+
+    //------------------------------------------------------------------------------
+
     moris::real
     Side_Cluster_DataBase::compute_cluster_cell_measure_derivative(
             const Matrix< DDRMat >&    aPerturbedVertexCoords,

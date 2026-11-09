@@ -255,12 +255,12 @@ namespace moris::mtk
             // compute the cell shape based on the first cell
             if ( tClusterCells.size() > 0 )
             {
-                tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+                tCellShape = tClusterCells( 0 )->get_cell_shape();
             }
             else    // in case there are void clusters, look at the void cells
             {
                 tClusterCells = tSetClusters( 0 )->get_void_cells_in_cluster();
-                tCellShape    = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+                tCellShape    = tClusterCells( 0 )->get_cell_shape();
             }
         }
 
@@ -279,7 +279,7 @@ namespace moris::mtk
                 // looping through the cells in the cluster
                 for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
                 {
-                    MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
+                    MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_shape() == tCellShape,
                             "Integration_Mesh_DataBase_IG::get_IG_blockset_shape - cell shape is not consistent in the block" );
                 }
             }
@@ -311,7 +311,7 @@ namespace moris::mtk
             mtk::Cell const & tClusterCell = tSetClusters( 0 )->get_interpolation_cell();
 
             // compute the cell shape of the first cell
-            tCellShape = tClusterCell.get_cell_info()->compute_cell_shape( &tClusterCell );
+            tCellShape = tClusterCell.get_cell_shape();
         }
 
         // within debug, checking all cells to make sure that they are the same Cell Shape
@@ -319,7 +319,7 @@ namespace moris::mtk
         // looping through the clusters
         for ( uint iCluster = 1; iCluster < tSetClusters.size(); iCluster++ )
         {
-            MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_info()->compute_cell_shape( &tSetClusters( iCluster )->get_interpolation_cell() ) == tCellShape,
+            MORIS_ASSERT( tSetClusters( iCluster )->get_interpolation_cell().get_cell_shape() == tCellShape,
                     "Enriched_Integration_Mesh::get_IP_blockset_shape - cell shape is not consistent in the block" );
         }
 

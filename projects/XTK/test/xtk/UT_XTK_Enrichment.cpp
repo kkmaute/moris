@@ -239,6 +239,37 @@ namespace moris::xtk
 
             for ( moris::uint i = 0; i < tDoubleSideCluster.size(); i++ )
             {
+                // Validate bulk routing through XTK's associated cell clusters
+                // on both sides of an interface, for primary and void measures.
+                if ( i == 0 )
+                {
+                    for ( auto tSide : { mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER } )
+                    {
+                        const auto       tVertices = tDoubleSideCluster( i )->get_vertices_in_cluster( tSide );
+                        Matrix< DDRMat > tCoordinates( tVertices.size(), 3 );
+                        Matrix< DDSMat > tRequested( tVertices.size(), 3, 1 );
+
+                        for ( uint j = 0; j < tVertices.size(); ++j )
+                        {
+                            tCoordinates.get_row( j ) = tVertices( j )->get_coords().matrix_data();
+                        }
+
+                        for ( auto tPhase : { mtk::Primary_Void::PRIMARY, mtk::Primary_Void::VOID } )
+                        {
+                            const Matrix< DDRMat > tBulk = tDoubleSideCluster( i )->compute_cluster_cell_measure_derivatives(
+                                    tCoordinates, tRequested, tPhase, tSide );
+
+                            for ( uint j = 0; j < tVertices.size(); ++j )
+                            {
+                                for ( uint d = 0; d < 3; ++d )
+                                {
+                                    CHECK( tBulk( j, d ) == Approx( tDoubleSideCluster( i )->compute_cluster_cell_measure_derivative( tCoordinates.get_row( j ), d, tPhase, tSide ) ).margin( 1e-11 ) );
+                                }
+                            }
+                        }
+                    }
+                }
+
                 moris::real tLeaderPrimaryVolume   = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Leader_Follower::LEADER );
                 moris::real tFollowerPrimaryVolume = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Leader_Follower::FOLLOWER );
                 moris::real tLeaderVoidVolume      = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Leader_Follower::LEADER );

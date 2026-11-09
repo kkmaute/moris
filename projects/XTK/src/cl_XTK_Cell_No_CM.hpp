@@ -89,6 +89,7 @@ namespace moris::xtk
         set_vertex_pointers( Vector< mtk::Vertex* >& aVertexPointers )
         {
             mCellVertices = aVertexPointers;
+            this->invalidate_cell_shape();
         }
 
         //------------------------------------------------------------------------------
@@ -97,6 +98,7 @@ namespace moris::xtk
         replace_vertex_pointer( mtk::Vertex* aVertex, moris_index aIndex )
         {
             mCellVertices( aIndex ) = aVertex;
+            this->invalidate_cell_shape();
         }
 
         //------------------------------------------------------------------------------
@@ -105,6 +107,7 @@ namespace moris::xtk
         remove_vertex_pointer( moris_index aIndex ) override
         {
             mCellVertices.erase( aIndex );
+            this->invalidate_cell_shape();
         }
 
         //------------------------------------------------------------------------------

@@ -602,6 +602,18 @@ namespace moris::mtk
 
     //----------------------------------------------------------------------------------
 
+    Matrix< DDRMat >
+    Double_Side_Cluster::compute_cluster_cell_measure_derivatives(
+            const Matrix< DDRMat > &aVertexCoordinates,
+            const Matrix< DDSMat > &aRequested,
+            mtk::Primary_Void       aPrimaryOrVoid,
+            mtk::Leader_Follower    aIsLeader ) const
+    {
+        return this->get_cluster( aIsLeader ).compute_cluster_cell_measure_derivatives( aVertexCoordinates, aRequested, aPrimaryOrVoid, aIsLeader );
+    }
+
+    //------------------------------------------------------------------------------
+
     moris::real
     Double_Side_Cluster::compute_cluster_cell_measure_derivative(
             const Matrix< DDRMat >    &aPerturbedVertexCoords,

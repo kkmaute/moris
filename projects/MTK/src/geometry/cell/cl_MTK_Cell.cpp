@@ -53,6 +53,37 @@ namespace moris::mtk
     Cell::set_mtk_cell_info( std::shared_ptr< moris::mtk::Cell_Info > aCellInfo )
     {
         mCellInfo = std::move( aCellInfo );
+        this->invalidate_cell_shape();
+    }
+
+    //------------------------------------------------------------------------------
+
+    CellShape
+    Cell::get_cell_shape() const
+    {
+        if ( !mCellShapeValid )
+        {
+            mCellShape      = this->get_cell_info()->compute_cell_shape( this );
+            mCellShapeValid = true;
+        }
+
+        return mCellShape;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Cell::invalidate_cell_shape() const
+    {
+        mCellShapeValid = false;
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    Cell::compute_cell_measure_general() const
+    {
+        return this->get_cell_info()->compute_cell_size_general( this );
     }
 
     //------------------------------------------------------------------------------
@@ -169,6 +200,7 @@ namespace moris::mtk
     Cell::remove_vertex( moris_index aIndex )
     {
         this->remove_vertex_pointer( aIndex );
+        this->invalidate_cell_shape();
     }
 
     //------------------------------------------------------------------------------
@@ -404,7 +436,61 @@ namespace moris::mtk
             uint aLocalVertexID,
             uint aDirection ) const
     {
-        return this->get_cell_info()->compute_cell_size_deriv( this, aLocalVertexID, aDirection );
+        const Cell_Info* tCellInfo = this->get_cell_info();
+
+        // These linear topologies have full geometric derivatives. The rectangular
+        // size shortcut is valid only on a restricted geometry and must not be
+        // differentiated for independent vertex-coordinate perturbations.
+        switch ( tCellInfo->get_cell_topology() )
+        {
+            case CellTopology::TRI3:
+            case CellTopology::TET4:
+            case CellTopology::QUAD4:
+            case CellTopology::HEX8:
+            {
+                return tCellInfo->compute_cell_size_deriv( this, aLocalVertexID, aDirection );
+            }
+
+            default:
+            {
+                return tCellInfo->compute_cell_size_deriv_general( this, aLocalVertexID, aDirection );
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Cell::compute_cell_measure_derivatives(
+            Matrix< DDRMat >&       aDerivatives,
+            const Matrix< DDSMat >& aRequested ) const
+    {
+        const Matrix< DDRMat > tCoordinates = this->get_vertex_coords();
+        MORIS_ERROR( aRequested.numel() == 0 || ( aRequested.n_rows() == tCoordinates.n_rows() && aRequested.n_cols() == tCoordinates.n_cols() ),
+                "Cell::compute_cell_measure_derivatives - Invalid request mask." );
+        const CellTopology tTopology = this->get_cell_info()->get_cell_topology();
+
+        if ( tTopology == CellTopology::TRI3 || tTopology == CellTopology::TET4
+                || tTopology == CellTopology::QUAD4 || tTopology == CellTopology::HEX8 )
+        {
+            aDerivatives.set_size( tCoordinates.n_rows(), tCoordinates.n_cols(), 0.0 );
+
+            for ( uint iVertex = 0; iVertex < tCoordinates.n_rows(); ++iVertex )
+            {
+                for ( uint iDirection = 0; iDirection < tCoordinates.n_cols(); ++iDirection )
+                {
+                    if ( aRequested.numel() == 0 || aRequested( iVertex, iDirection ) != 0 )
+                    {
+                        // Preserve analytical implementations and cell-specific overrides.
+                        aDerivatives( iVertex, iDirection ) = this->compute_cell_measure_deriv( iVertex, iDirection );
+                    }
+                }
+            }
+        }
+        else
+        {
+            this->get_cell_info()->compute_cell_size_derivatives_general( this, aDerivatives, aRequested );
+        }
     }
 
     //------------------------------------------------------------------------------

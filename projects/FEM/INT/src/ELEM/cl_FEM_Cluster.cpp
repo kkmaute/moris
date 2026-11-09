@@ -676,86 +676,100 @@ namespace moris::fem
             const mtk::Primary_Void    aPrimaryOrVoid,
             const mtk::Leader_Follower aIsLeader )
     {
-        // check that the mesh cluster was set
         MORIS_ASSERT( mMeshCluster != nullptr,
                 "Cluster::compute_cluster_cell_measure_derivative - empty cluster." );
-
-        // check that this function is not called on the VIS clusters, only makes sense on actual FEM clusters
         MORIS_ASSERT( !this->is_VIS_cluster(), "FEM cluster is actually VIS cluster." );
 
-        // get the vertex pointers in cluster
-        Vector< moris::mtk::Vertex const * > tVertices =
-                mMeshCluster->get_vertices_in_cluster( aIsLeader );
-
-        // get the requested geo pdv types
-        Vector< enum gen::PDV_Type > tGeoPdvType;
-        mSet->get_ig_unique_dv_types_for_set( tGeoPdvType );
-
-        // get number of pdv on cluster
-        uint tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
-
-        // fill matrix with derivatives
+        const uint       tNumPDV = mSet->get_geo_pdv_assembly_vector().numel();
         Matrix< DDRMat > tDerivatives( 1, tNumPDV, 0.0 );
 
-        // if pdv defined on cluster
-        if ( tNumPDV > 0 )
+        if ( tNumPDV == 0 )
         {
-            // loop over the vertices in cluster
-            for ( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
+            return tDerivatives;
+        }
+
+        // Collect assembly maps only for vertices with active coordinate PDVs.
+        const auto              tVertices = mMeshCluster->get_vertices_in_cluster( aIsLeader );
+        Vector< gen::PDV_Type > tGeoPdvTypes;
+        mSet->get_ig_unique_dv_types_for_set( tGeoPdvTypes );
+
+        MSI::Equation_Model *tEquationModel = mSet->get_equation_model();
+
+        Vector< Matrix< DDSMat > > tAssemblyMaps;
+        Vector< Matrix< DDRMat > > tCoordinates;
+
+        for ( auto const *tVertex : tVertices )
+        {
+            Matrix< DDSMat >         tAssembly;
+            const Matrix< IndexMat > tNodeIndex = { { tVertex->get_index() } };
+            tEquationModel->get_integration_xyz_pdv_assembly_indices( tNodeIndex, tGeoPdvTypes, tAssembly );
+
+            bool tActive = false;
+
+            for ( uint iDirection = 0; iDirection < tAssembly.n_cols(); ++iDirection )
             {
-                // get local assembly indices
-                Matrix< DDSMat >     tGeoLocalAssembly;
-                MSI::Equation_Model *tEquationModel    = mSet->get_equation_model();
-                Matrix< IndexMat >   tClusterNodeIndex = { { tVertices( iClusterNode )->get_index() } };
-                tEquationModel->get_integration_xyz_pdv_assembly_indices(
-                        tClusterNodeIndex,
-                        tGeoPdvType,
-                        tGeoLocalAssembly );
+                const moris_index tIndex = tAssembly( iDirection );
+                MORIS_ASSERT( tIndex != MORIS_INDEX_MAX,
+                        "FEM::Cluster::compute_cluster_cell_measure_derivative - Geometry assembly index is not initialized." );
 
-                // if cluster node is not associated with pdv
-                if ( sum( tGeoLocalAssembly ) == -2 || sum( tGeoLocalAssembly ) == -3 )
+                if ( tIndex != -1 )
                 {
-                    continue;
+                    MORIS_ASSERT( tIndex >= 0 && tIndex < static_cast< moris_index >( tNumPDV ),
+                            "FEM::Cluster::compute_cluster_cell_measure_derivative - Geometry assembly index is out of bounds." );
+                    tActive = true;
                 }
+            }
 
-                // get the node coordinates
-                const Matrix< DDRMat > &tPerturbedNodeCoords =
-                        tVertices( iClusterNode )->get_coords();
+            if ( tActive )
+            {
+                tAssemblyMaps.push_back( tAssembly );
+                tCoordinates.push_back( tVertex->get_coords() );
+            }
+        }
 
-                // loop over the space directions
-                for ( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
+        if ( tCoordinates.size() == 0 )
+        {
+            return tDerivatives;
+        }
+
+        // Evaluate all active coordinate PDVs together. Requests and cell results
+        // live only for this assembly call; geometry changes need no new cache.
+        const uint       tDimension = tCoordinates( 0 ).numel();
+        Matrix< DDRMat > tVertexCoordinates( tCoordinates.size(), tDimension );
+        Matrix< DDSMat > tRequested( tCoordinates.size(), tDimension, 0 );
+
+        for ( uint iVertex = 0; iVertex < tCoordinates.size(); ++iVertex )
+        {
+            tVertexCoordinates.get_row( iVertex ) = tCoordinates( iVertex ).matrix_data();
+            MORIS_ASSERT( tAssemblyMaps( iVertex ).n_cols() <= tDimension,
+                    "FEM::Cluster::compute_cluster_cell_measure_derivative - Invalid coordinate dimensions." );
+
+            for ( uint iDirection = 0; iDirection < tAssemblyMaps( iVertex ).n_cols(); ++iDirection )
+            {
+                tRequested( iVertex, iDirection ) = tAssemblyMaps( iVertex )( iDirection ) != -1;
+            }
+        }
+
+        const Matrix< DDRMat > tVertexDerivatives = mMeshCluster->compute_cluster_cell_measure_derivatives(
+                tVertexCoordinates, tRequested, aPrimaryOrVoid, aIsLeader );
+        MORIS_ASSERT( tVertexDerivatives.n_rows() == tVertexCoordinates.n_rows()
+                              && tVertexDerivatives.n_cols() == tDimension,
+                "FEM::Cluster::compute_cluster_cell_measure_derivative - Invalid bulk derivative dimensions." );
+
+        // Several vertex coordinates may contribute to the same PDV entry.
+        for ( uint iVertex = 0; iVertex < tCoordinates.size(); ++iVertex )
+        {
+            for ( uint iDirection = 0; iDirection < tAssemblyMaps( iVertex ).n_cols(); ++iDirection )
+            {
+                const moris_index tIndex = tAssemblyMaps( iVertex )( iDirection );
+
+                if ( tIndex != -1 )
                 {
-                    // get the pdv assembly index
-                    moris_index tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
-
-                    // sanity check
-                    MORIS_ASSERT( tPDVAssemblyIndex != MORIS_INDEX_MAX,
-                            "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
-                            "tPDVAssemblyIndex is MORIS_INDEX_MAX which likely means that mXYZLocalAssemblyIndices"
-                            "in the FEM-Model has not been set for this node and PDV type." );
-
-                    // if pdv assembly index is set
-                    if ( tPDVAssemblyIndex != -1 )
-                    {
-
-                        // check
-                        MORIS_ASSERT( tPDVAssemblyIndex < (moris_index)tDerivatives.numel(),
-                                "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
-                                "tPDVAssemblyIndex is out of bounds. Assembly index is %i, but number of PDVs only is: %zu",
-                                tPDVAssemblyIndex,
-                                tDerivatives.numel() );
-
-                        // add contribution from the cell to the cluster measure
-                        tDerivatives( tPDVAssemblyIndex ) +=
-                                mMeshCluster->compute_cluster_cell_measure_derivative(
-                                        tPerturbedNodeCoords,
-                                        iSpace,
-                                        aPrimaryOrVoid,
-                                        aIsLeader );
-                    }
+                    tDerivatives( tIndex ) += tVertexDerivatives( iVertex, iDirection );
                 }
             }
         }
+
         return tDerivatives;
     }
 

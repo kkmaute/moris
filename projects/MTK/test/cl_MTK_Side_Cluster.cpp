@@ -254,6 +254,30 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         std::string tInterfaceLabel = tIntegMesh1->get_side_set_label(tSideSetOrd);
         CHECK(tInterfaceLabel.compare("iside") == 0);
 
+        // Side clusters must preserve the volume-derivative interpretation and
+        // coordinate correspondence when routing a bulk request.
+        for ( Cluster const *tCluster : { tInterfaceSideClusters( 0 ), tFixedSideClusters( 0 ) } )
+        {
+            const auto       tVertices = tCluster->get_vertices_in_cluster();
+            Matrix< DDRMat > tCoordinates( tVertices.size(), 3 );
+            Matrix< DDSMat > tRequested( tVertices.size(), 3, 1 );
+
+            for ( uint i = 0; i < tVertices.size(); ++i )
+            {
+                tCoordinates.get_row( i ) = tVertices( i )->get_coords().matrix_data();
+            }
+
+            const Matrix< DDRMat > tBulk = tCluster->compute_cluster_cell_measure_derivatives( tCoordinates, tRequested );
+
+            for ( uint i = 0; i < tVertices.size(); ++i )
+            {
+                for ( uint d = 0; d < 3; ++d )
+                {
+                    CHECK( tBulk( i, d ) == Approx( tCluster->compute_cluster_cell_measure_derivative( tCoordinates.get_row( i ), d ) ).margin( 1e-11 ) );
+                }
+            }
+        }
+
         // cleanup
         delete tInterpMesh1;
         delete tIntegMesh1;

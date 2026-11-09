@@ -283,6 +283,20 @@ namespace moris::mtk
 
         //------------------------------------------------------------------------------
 
+        /**
+         * Compute coordinate derivatives of the cluster cell measure.
+         * Rows follow aVertexCoordinates; columns follow spatial directions.
+         * Only nonzero entries of aRequested are evaluated; other entries are zero.
+         */
+        virtual Matrix< DDRMat >
+        compute_cluster_cell_measure_derivatives(
+                const Matrix< DDRMat > &aVertexCoordinates,
+                const Matrix< DDSMat > &aRequested,
+                mtk::Primary_Void       aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                mtk::Leader_Follower    aIsLeader      = mtk::Leader_Follower::LEADER ) const;
+
+        //------------------------------------------------------------------------------
+
         virtual moris::real
         compute_cluster_group_cell_measure_derivative(
                 const moris_index          aDiscretizationMeshIndex,
@@ -572,6 +586,15 @@ namespace moris::mtk
         };
 
         //----------------------------------------------------------------
+
+      protected:
+        // Shared cell traversal for bulk and side clusters. Coordinate matching
+        // retains the scalar API's tolerance and first-local-node convention.
+        static Matrix< DDRMat >
+        compute_cell_measure_derivatives_from_cells(
+                const Vector< Cell const * > &aCells,
+                const Matrix< DDRMat >       &aVertexCoordinates,
+                const Matrix< DDSMat >       &aRequested );
 
     };    // class MTK_Cluster
 
