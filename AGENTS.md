@@ -25,9 +25,17 @@ python3 share/cmake/tests/test_shared_library.py
 
 ## Coding Style & Naming Conventions
 
-Use C++17 and the repository's `.clang-format`: four-space indentation and the configured brace/alignment rules. Format changed C++ files with `clang-format -i <file>`. Follow nearby naming conventions: `cl_*.hpp` for classes, `fn_*.hpp` for functions, and `ut_*` or `UT_*` for tests. Existing code commonly prefixes members with `m`, arguments with `a`, and temporaries with `t`. Keep CMake commands lowercase and explain non-obvious dependency or compatibility decisions.
+Use C++17 and the repository's `.clang-format`: four-space indentation and the configured brace/alignment rules. Format new C++ files completely with `clang-format -i <file>`. In existing files, format the touched functions or regions, including adjacent declarations whose alignment is affected, and avoid unrelated formatting changes. Follow nearby naming conventions: `cl_*.hpp` for classes, `fn_*.hpp` for functions, and `ut_*` or `UT_*` for tests. Existing code commonly prefixes members with `m`, arguments with `a`, and temporaries with `t`. Keep CMake commands lowercase and explain non-obvious dependency or compatibility decisions.
 
 Separate logical steps with blank lines, especially validation, map construction, assembly, metadata setup, and resource cleanup. Keep related declarations and operations together; avoid both dense uninterrupted blocks and blank lines between every statement. Add comments explaining intent, numbering conventions, collective participation, and compatibility workarounds rather than restating individual calls. Use braced, multiline control blocks in new solver code and tests, even though `.clang-format` permits short statements on one line. Preserve nearby method separators and review the result after formatting; automatic formatting does not supply this logical structure.
+
+## Cell Measures, Shape Sensitivities & Lumped Operators
+
+Invalidate cached cell-shape classifications whenever coordinates, connectivity, or cell information changes. Coordinate owners must also invalidate the cache when edits bypass cell setters. Use dimensionless direction checks for shape classification so the result is independent of cell size. Validate measure derivatives against finite differences after geometry edits, including curved higher-order cells; a rectangular unperturbed cell does not imply that coordinate perturbations remain rectangular.
+
+Batch requested coordinate derivatives so cluster traversal, interpolation setup, and quadrature work are shared. Skip inactive coordinates and retain the scalar path when only one derivative is requested. Preserve primary/void and leader/follower routing, coincident enriched-vertex correspondence, and repeated or permuted PDV assembly indices. Keep geometry-dependent derivative results local to the evaluation unless a separate cache has an explicit invalidation contract. Regressions should cover request masks, geometry edits, and independence from the scalar derivative cache.
+
+Keep spatially lumped operators compact through both matrix-vector products and matrix/block assembly. Document the field and temporal-basis ordering, including off-diagonal temporal blocks; preserve the formulation's time coupling when lumping spatial entries. Compare both supported operations against explicit dense references, and exercise the Armadillo and Eigen interfaces when changing the shared operator.
 
 ## EXA Example Setup & Result Checks
 
@@ -59,6 +67,8 @@ PETSc matrix storage is selected before matrix construction through the solver w
 
 `Matrix_PETSc` lives in `projects/SOL/SOL_CORE/src/`; BDDC setup is in `projects/SOL/DLA/src/cl_DLA_Preconditioner_PETSc.cpp`. Distinguish MORIS DOF IDs, PETSc global IDs, and MATIS subdomain indices. MATIS uses owned-and-shared DOFs for local assembly and the same global vector ownership as AIJ. Each physical element contribution must be assembled once, and MORIS element values use column-major storage.
 
+PETSc multivector constraint flags must use mapped PETSc row IDs consistently in both additive and replacement assembly. Propagate constraints to every rank that can contribute to those rows, including ranks that report no local constraints. Test sparse or reordered MORIS IDs, off-rank contributions, repeated assembly, and multiple RHS columns. Dense multivector local column ownership must sum to the global number of RHS columns, while local row storage retains every RHS column.
+
 Overlap maps can contain unused ghost DOFs. BDDC compacts a separate preconditioning matrix while retaining the original matrix and map for reassembly. Keep compaction collective on all ranks when any rank needs it, and preserve both row and column support for nonsymmetric matrices. Retained strongly constrained DOFs receive unit rows and columns and require zero Newton-correction RHS entries; constraint flags must reach every contributing subdomain. Optional `bddc_use_dof_splitting` identifies fields from the requested physical DOF types.
 
 Choose solver symmetry from the assembled coupled operator. The pressure-vessel thermoelastic operator is nonsymmetric because temperature drives displacement through thermal expansion; retain FGMRES and `bddc_symmetric = false`. Use disconnected-subdomain detection and separate physical-field constraints for these cut meshes. Cartesian subdomain-corner metadata is intended for supported nodal box meshes; do not enable it indiscriminately on enriched cut meshes. Ghost-stabilization matrices must reach the same MATIS assembly path as bulk contributions, with each ghost pair contributed once.
@@ -68,6 +78,8 @@ Cut cells and ghost penalties can produce unequal interface stiffness even witho
 ## Testing Guidelines
 
 Unit tests use Catch via `include/catch.hpp` and are registered with CTest. Add regression cases beside the affected module; register new sources in its test `CMakeLists.txt`. Test names commonly follow `<MODULE>-test-<N>-procs`. Exercise MPI process counts when changing communication behavior. No repository-wide numerical coverage threshold is established.
+
+Make fixture ownership explicit and release objects owned by the test. A FEM `Set` normally deletes its field-interpolator managers; when a fixture attaches stack managers, clear those pointers before deleting the set. Detach other borrowed pointers before their owners go out of scope, and respect setter preconditions: some setters configure behavior through the supplied object and cannot accept `nullptr`.
 
 For PETSc/BDDC changes, the dedicated `DLA-BDDC-test-{1,2,4}-procs` cases cover AIJ/MATIS assembly, repeated assembly, constraints, unused ghosts, multivectors, and BDDC solves. PETSc cannot be reinitialized after finalization, so the BDDC Catch cases run in separate processes. With a configured PETSc build, run:
 
