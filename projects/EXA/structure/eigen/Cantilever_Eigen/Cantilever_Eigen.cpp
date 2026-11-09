@@ -108,7 +108,7 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Output Config
-    std::string tOutputFileName = tName + "_"+ gPrecSolver + ".exo" ;
+    std::string tOutputFileName = tName + "_" + gPrecSolver + ".exo";
 
     std::string tLibraryName     = tName + ".so";
     std::string tHDF5Path        = tName + ".hdf5";
@@ -128,8 +128,8 @@ namespace moris
     // Back Wall
     moris::real
     Back_Wall(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         real tVal = aCoordinates( 0 ) - 100.0;
 
@@ -144,9 +144,9 @@ namespace moris
     // Constant function for properties
     void
     Func_Const(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
@@ -154,18 +154,18 @@ namespace moris
     // initial structure
     void
     Func_Initial_Condition_Struct(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         aPropMatrix = { { tInitialStruct }, { tInitialStruct } };
     }
 
     void
     Func_Neumann_U(
-            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Matrix< moris::DDRMat >&           aPropMatrix,
             Vector< moris::Matrix< moris::DDRMat > >& aParameters,
-            moris::fem::Field_Interpolator_Manager*        aFIManager )
+            moris::fem::Field_Interpolator_Manager*   aFIManager )
     {
         // aPropMatrix = { { aParameters( 0 )( 0 ) },{ 0.0 } };
         aPropMatrix = { { 0.0 }, { aParameters( 0 )( 0 ) } };
@@ -185,8 +185,8 @@ namespace moris
     // Dummy function for unused sensitivities if needed
     moris::Matrix< DDRMat >
     Func_Dummy_Sensitivity(
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const Vector< real >& aGeometryParameters )
+            const moris::Matrix< DDRMat >& aCoordinates,
+            const Vector< real >&          aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = { { 0.0 } };
         return aReturnValue;
@@ -323,11 +323,11 @@ namespace moris
             // linear elasticity
             aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
             aParameterLists.set( "constitutive_name", "CMStrucLinIso" );
-            aParameterLists.set( "model_type",  fem::Model_Type::PLANE_STRESS ) ;
-            aParameterLists.set( "constitutive_type",  fem::Constitutive_Type::STRUC_LIN_ISO ) ;
+            aParameterLists.set( "model_type", fem::Model_Type::PLANE_STRESS );
+            aParameterLists.set( "constitutive_type", fem::Constitutive_Type::STRUC_LIN_ISO );
             aParameterLists.set( "dof_dependencies", std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
             aParameterLists.set( "properties", std::string( "PropYoungsModulus,  YoungsModulus;" ) + std::string( "PropPoissonRatio,   PoissonRatio" ) );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // NITSCHE DIRICHLET
@@ -338,10 +338,10 @@ namespace moris
             // Displacements - Shell - back wall
             aParameterLists( FEM::STABILIZATION ).add_parameter_list();
             aParameterLists.set( "stabilization_name", "SPNitscheStruc" );
-            aParameterLists.set( "stabilization_type",  fem::Stabilization_Type::DIRICHLET_NITSCHE ) ;
+            aParameterLists.set( "stabilization_type", fem::Stabilization_Type::DIRICHLET_NITSCHE );
             aParameterLists.set( "function_parameters", "100.0" );
             aParameterLists.set( "leader_properties", "PropYoungsModulus,Material" );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // BULK IWGs
@@ -352,7 +352,7 @@ namespace moris
         {
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGStructShell" );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_BULK ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_BULK );
             aParameterLists.set( "dof_residual", "UX,UY" );
 
             {
@@ -362,7 +362,7 @@ namespace moris
             aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
             // aParameterLists.set( "leader_properties",          "PropBedding,Bedding" );
             aParameterLists.set( "mesh_set_names", tBulk );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // NEUMANN BCs - IWGs
@@ -373,7 +373,7 @@ namespace moris
         {
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGNeumannPressure" );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_NEUMANN ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_NEUMANN );
             aParameterLists.set( "dof_residual", "UX,UY" );
 
             {
@@ -382,7 +382,7 @@ namespace moris
 
             aParameterLists.set( "leader_properties", "PropTraction,Traction" );
             aParameterLists.set( "mesh_set_names", tLeft );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // DIRICHLET BCS - IWGs
@@ -393,7 +393,7 @@ namespace moris
         {
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", "IWGDirichletStruct" );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE );
             aParameterLists.set( "dof_residual", "UX,UY" );
 
             {
@@ -404,7 +404,7 @@ namespace moris
             aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
             aParameterLists.set( "stabilization_parameters", "SPNitscheStruc,DirichletNitsche" );
             aParameterLists.set( "mesh_set_names", tBottom );
-            }
+        }
 
         //------------------------------------------------------------------------------
         // IWGs - TIME CONTINUITY
@@ -415,22 +415,25 @@ namespace moris
         {
             aParameterLists( FEM::IWG ).add_parameter_list();
             aParameterLists.set( "IWG_name", std::string( "IWGTimeContinuityStruct" ) );
-            aParameterLists.set( "IWG_type",  fem::IWG_Type::TIME_CONTINUITY_DOF ) ;
+            aParameterLists.set( "IWG_type", fem::IWG_Type::TIME_CONTINUITY_DOF );
             aParameterLists.set( "dof_residual", std::string( "UX,UY" ) );
 
             {
                 aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
             }
 
-            aParameterLists.set( "leader_properties", std::string( "PropWeightCurrent,WeightCurrent;" ) + std::string( "PropWeightPrevious,WeightPrevious;" ) + std::string( "PropInitialConditionStruct,InitialCondition" ) );
+            aParameterLists.set( "leader_properties",                                //
+                    std::string( "PropWeightCurrent,WeightCurrent;" ) +              //
+                            std::string( "PropWeightPrevious,WeightPrevious;" ) +    //
+                            std::string( "PropInitialConditionStruct,InitialCondition" ) );
             aParameterLists.set( "mesh_set_names", tBulk );
             aParameterLists.set( "time_continuity", tTimeContinuity );
-            }
+        }
 
-        //Volume IQI - TotalDomain - use once to find total volume to compute max dof
+        // Volume IQI - TotalDomain - use once to find total volume to compute max dof
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQITotalVolume" );
-        aParameterLists.set( "IQI_type",  fem::IQI_Type::VOLUME ) ;
+        aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
 
         if ( tHaveStruct )
         {
@@ -459,7 +462,7 @@ namespace moris
             aParameterLists.set( "leader_dof_dependencies", "UX,UY" );
             aParameterLists.set( "vectorial_field_index", 1 );
             aParameterLists.set( "mesh_set_names", tBulk );
-            }
+        }
 
         // create computation parameter list
         aParameterLists( FEM::COMPUTATION );
@@ -470,7 +473,6 @@ namespace moris
     {
 
         gPrecSolver == "Slepc" ? create_petsc_parameter_list( aParameterLists ) : create_trilinos_parameter_list( aParameterLists );
-
     }
 
     void
@@ -483,7 +485,7 @@ namespace moris
     VISParameterList( Module_Parameter_Lists& aParameterLists )
     {
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
-        aParameterLists.set( "Mesh_Type",  vis::VIS_Mesh_Type::STANDARD ) ;
+        aParameterLists.set( "Mesh_Type", vis::VIS_Mesh_Type::STANDARD );
         aParameterLists.set( "Set_Names", tBulk );
 
         if ( tHaveStruct )
@@ -524,7 +526,7 @@ namespace moris
         // aParameterLists.set( "ml_prec_type", "NSSA"); // options: SA, NSSA, DD, DD-ML
 
         // Print eigenvector parameter
-        //aParameterLists.set( "Print_vector", "LINSOL_EXPORT_MATLAB" );
+        // aParameterLists.set( "Print_vector", "LINSOL_EXPORT_MATLAB" );
 
         aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "DLA_Linear_solver_algorithms", "0" );
@@ -552,7 +554,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "MassMat" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         // Ifpack Preconditioner parameters
         aParameterLists.set( "ifpack_prec_type", "Amesos" );
         aParameterLists.set( "amesos: solver type", gPrecSolver );    // Amesos_Umfpack or Amesos_Pardiso
@@ -579,12 +581,12 @@ namespace moris
         aParameterLists.set( "Num_Eig_Vals", 5 );
         aParameterLists.set( "STType", "shift_invert" );
         aParameterLists.set( "sub_linear_solver", "0" );    // 10 shift_invert
-        aParameterLists.set( "is_symmetric", true );       // 10 shift_invert
+        aParameterLists.set( "is_symmetric", true );        // 10 shift_invert
         aParameterLists.set( "Update_Flag", true );         // 10 shift_invert
         aParameterLists.set( "Verbosity", false );
 
         // precondioerr
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::PETSC );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::PETSC );
         aParameterLists.set( "PCType", "mumps" );
 
         aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
@@ -612,7 +614,7 @@ namespace moris
         aParameterLists.set( "TSA_time_level_per_type", "UX,1;UY,1" );
 
         // aParameterLists.set( "SOL_save_operator_to_matlab", "MassMat" );
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type",  sol::MapType::Petsc ) ;
+        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type", sol::MapType::Petsc );
     }
 
     /* ------------------------------------------------------------------------ */
