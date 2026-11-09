@@ -125,6 +125,13 @@ namespace moris
         }
         // -----------------------------------------------------------------
 
+        // Move owning storage using the backend's exception guarantees.
+        Matrix( Matrix&& ) = default;
+
+        Matrix& operator=( Matrix&& ) = default;
+
+        // -----------------------------------------------------------------
+
         // template constructor
         template< typename A >
         Matrix( A const & X )

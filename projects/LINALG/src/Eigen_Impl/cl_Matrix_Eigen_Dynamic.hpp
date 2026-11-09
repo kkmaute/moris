@@ -46,6 +46,14 @@ namespace moris
 
             };
 
+            // Preserve copying when explicitly declaring moves.
+            Matrix( const Matrix& ) = default;
+
+            // Move owning storage using the backend's exception guarantees.
+            Matrix( Matrix&& ) = default;
+
+            Matrix& operator=( Matrix&& ) = default;
+
             Matrix(size_t const & aNumRows,
                     size_t const & aNumCols):
                         mMatrix(aNumRows,aNumCols)
