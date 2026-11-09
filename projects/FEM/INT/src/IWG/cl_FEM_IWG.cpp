@@ -31,6 +31,104 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void
+    IWG::compute_lumped_matrix(
+            Field_Interpolator* aFIRow,
+            Field_Interpolator* aFIColumn,
+            Lumped_Matrix&      aMatrix )
+    {
+        MORIS_ERROR( aFIRow != nullptr && aFIColumn != nullptr,
+                "IWG::compute_lumped_matrix - Field interpolators must be provided." );
+
+        const uint tNumSpace  = aFIRow->get_number_of_space_bases();
+        const uint tNumTime   = aFIRow->get_number_of_time_bases();
+        const uint tNumFields = aFIRow->get_number_of_fields();
+
+        MORIS_ERROR( tNumTime == 1 || tNumTime == 2,
+                "IWG::compute_lumped_matrix - Only constant and linear time interpolation are supported." );
+        MORIS_ERROR( aFIColumn->get_number_of_space_bases() == tNumSpace
+                             && aFIColumn->get_number_of_time_bases() == tNumTime
+                             && aFIColumn->get_number_of_fields() == tNumFields,
+                "IWG::compute_lumped_matrix - Field interpolator dimensions must match." );
+
+        const Matrix< DDRMat >& tRowN    = aFIRow->N();
+        const Matrix< DDRMat >& tColumnN = aFIColumn->N();
+        aMatrix.set_size( tNumSpace, tNumTime, tNumFields );
+
+        for ( uint iField = 0; iField < tNumFields; ++iField )
+        {
+            const uint tOffset = iField * tNumTime * tNumSpace;
+
+            for ( uint jTime = 0; jTime < tNumTime; ++jTime )
+            {
+                // Sum only this field/time block. Multiplying by a row shape
+                // value gives the corresponding row sum of N_row^T N_column.
+                real tColumnSum = 0.0;
+
+                for ( uint iSpace = 0; iSpace < tNumSpace; ++iSpace )
+                {
+                    tColumnSum += tColumnN( iField, tOffset + jTime * tNumSpace + iSpace );
+                }
+
+                for ( uint iTime = 0; iTime < tNumTime; ++iTime )
+                {
+                    for ( uint iSpace = 0; iSpace < tNumSpace; ++iSpace )
+                    {
+                        aMatrix.diagonal( iField, iTime, jTime, iSpace ) =
+                                tRowN( iField, tOffset + iTime * tNumSpace + iSpace ) * tColumnSum;
+                    }
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    IWG::compute_lumped_matrices(
+            Field_Interpolator*     aFICurrent,
+            Field_Interpolator*     aFIPrevious,
+            Lumped_Matrix&          aLumpCurrent,
+            Lumped_Matrix&          aLumpPrevious,
+            Matrix< DDRMat >&       aInitialConditionCoeff,
+            const Matrix< DDRMat >& aInitialConditions,
+            bool                    aInitialTime )
+    {
+        compute_lumped_matrix( aFICurrent, aFICurrent, aLumpCurrent );
+
+        // Constant time interpolation uses the current operator on both sides.
+        if ( aFICurrent->get_number_of_time_bases() == 1 )
+        {
+            aLumpPrevious = aLumpCurrent;
+        }
+        else
+        {
+            compute_lumped_matrix( aFICurrent, aFIPrevious, aLumpPrevious );
+        }
+
+        aInitialConditionCoeff.set_size( 0, 0 );
+
+        if ( aInitialTime )
+        {
+            const uint tNumFields = aFICurrent->get_number_of_fields();
+            MORIS_ERROR( aInitialConditions.numel() == tNumFields,
+                    "IWG::compute_lumped_matrices - One initial value per field is required." );
+
+            const uint tNumBases = aFICurrent->get_number_of_space_bases() * aFICurrent->get_number_of_time_bases();
+            aInitialConditionCoeff.set_size( tNumBases, tNumFields );
+
+            for ( uint iField = 0; iField < tNumFields; ++iField )
+            {
+                for ( uint iBasis = 0; iBasis < tNumBases; ++iBasis )
+                {
+                    aInitialConditionCoeff( iBasis, iField ) = aInitialConditions( iField );
+                }
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
     IWG::print_names()
     {
         std::cout << "----------" << '\n';

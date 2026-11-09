@@ -27,7 +27,9 @@
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Enums.hpp"
+#include "cl_FEM_Lumped_Matrix.hpp"
 #include "fn_FEM_FD_Scheme.hpp"
+
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 // GEN/src
@@ -195,6 +197,31 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
       public:
+        // Shared compact storage and construction for spatial mass lumping.
+        using Lumped_Matrix = fem::Lumped_Matrix;
+
+        /**
+         * Row-sum lump each spatial block of N_row^T N_column. Time coupling
+         * remains intact. Field, time, and spatial basis counts must match.
+         */
+        static void compute_lumped_matrix( Field_Interpolator* aFIRow,
+                Field_Interpolator*                            aFIColumn,
+                Lumped_Matrix&                                 aMatrix );
+
+        /**
+         * Build current/previous operators and optionally initial coefficients.
+         * For constant time, the previous operator equals the current operator,
+         * preserving the time-continuity convention.
+         */
+        static void compute_lumped_matrices( Field_Interpolator* aFICurrent,
+                Field_Interpolator*                              aFIPrevious,
+                Lumped_Matrix&                                   aLumpCurrent,
+                Lumped_Matrix&                                   aLumpPrevious,
+                Matrix< DDRMat >&                                aInitialConditionCoeff,
+                const Matrix< DDRMat >&                          aInitialConditions,
+                bool                                             aInitialTime );
+
+
         //------------------------------------------------------------------------------
         /**
          * constructor

@@ -19,6 +19,7 @@
 #include "linalg_typedefs.hpp"    //LINALG/src
 
 #include "cl_FEM_IWG.hpp"    //FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"
 
 namespace moris::fem
 {
@@ -34,8 +35,11 @@ namespace moris::fem
         {
             WEIGHT_CURRENT,
             WEIGHT_PREVIOUS,
+            VELOCITY_WEIGHT_CURRENT,
+            VELOCITY_WEIGHT_PREVIOUS,
             WEIGHT_RESIDUAL,
             INITIAL_CONDITION,
+            INITIAL_VELOCITY,
             THICKNESS,
             LUMP,
             MAX_ENUM
@@ -51,7 +55,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~IWG_Time_Continuity_Dof() override{};
+        ~IWG_Time_Continuity_Dof() override {};
 
         //------------------------------------------------------------------------------
         /**

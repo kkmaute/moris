@@ -31,6 +31,7 @@ set(TEST_SOURCES
     #UT_FEM_Element.cpp
     UT_FEM_Property.cpp
     UT_FEM_IWG.cpp
+    UT_FEM_Lumped_Matrix.cpp
     UT_FEM_Cluster_Measure_Derivatives.cpp
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp

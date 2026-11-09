@@ -121,6 +121,7 @@ set(HEADERS
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.hpp
     IWG/cl_FEM_IWG_Factory.hpp
     IWG/cl_FEM_IWG.hpp
+    IWG/cl_FEM_Lumped_Matrix.hpp
     IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.hpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.hpp

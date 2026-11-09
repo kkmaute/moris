@@ -11,6 +11,8 @@
 #include <memory>
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
+#include "fn_norm.hpp"
+#include "fn_trans.hpp"
 #include "cl_FEM_Property.hpp"                 //FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp"    //FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"       //FEM/INT/src
@@ -230,4 +232,183 @@ namespace moris::fem
         delete ( tSet );
 
     } /* TEST_CASE */
+}    // namespace moris::fem
+
+namespace moris::fem
+{
+    TEST_CASE( "IWG Spatially Lumped Mass Construction", "[fem],[IWG_Lumped_Mass]" )
+    {
+        // Compare the shared builder with explicit dense block row sums. Different
+        // current/previous points make the cross operator nonsymmetric and exercise
+        // temporal off-diagonal blocks for scalar and vector QUAD/HEX fields.
+        for ( uint tDimension : { 2u, 3u } )
+        {
+            const auto              tGeometry = tDimension == 2 ? mtk::Geometry_Type::QUAD : mtk::Geometry_Type::HEX;
+            mtk::Interpolation_Rule tGeometryRule( tGeometry, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR );
+
+            Geometry_Interpolator tGI( tGeometryRule );
+            Matrix< DDRMat >      tXHat = tDimension == 2
+                                                ? Matrix< DDRMat >{ { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 } }
+                                                : Matrix< DDRMat >{ { 0.0, 0.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 1.0, 1.0, 0.0 }, { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 }, { 1.0, 0.0, 1.0 }, { 1.0, 1.0, 1.0 }, { 0.0, 1.0, 1.0 } };
+            tGI.set_coeff( tXHat, { { 0.0 }, { 1.0 } } );
+
+            for ( auto tSpaceOrder : { mtk::Interpolation_Order::LINEAR, mtk::Interpolation_Order::QUADRATIC } )
+            {
+                for ( auto tTimeOrder : { mtk::Interpolation_Order::CONSTANT, mtk::Interpolation_Order::LINEAR } )
+                {
+                    for ( uint tNumFields : { 1u, 3u } )
+                    {
+                        mtk::Interpolation_Rule tRule( tGeometry, mtk::Interpolation_Type::LAGRANGE, tSpaceOrder, tTimeOrder == mtk::Interpolation_Order::CONSTANT ? mtk::Interpolation_Type::CONSTANT : mtk::Interpolation_Type::LAGRANGE, tTimeOrder );
+
+                        const Vector< MSI::Dof_Type > tDofs = tNumFields == 1
+                                                                    ? Vector< MSI::Dof_Type >{ MSI::Dof_Type::TEMP }
+                                                                    : Vector< MSI::Dof_Type >{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ };
+                        Field_Interpolator            tCurrent( tNumFields, tRule, &tGI, tDofs );
+                        Field_Interpolator            tPrevious( tNumFields, tRule, &tGI, tDofs );
+                        const uint                    tNumSpace        = tCurrent.get_number_of_space_bases();
+                        const uint                    tNumTime         = tCurrent.get_number_of_time_bases();
+                        const uint                    tNumCoefficients = tNumFields * tNumTime * tNumSpace;
+                        Matrix< DDRMat >              tCoefficients( tNumTime * tNumSpace, tNumFields, 0.7 );
+                        tCurrent.set_coeff( tCoefficients );
+                        tPrevious.set_coeff( tCoefficients );
+
+                        for ( bool tInterior : { false, true } )
+                        {
+                            INFO( "Dimension=" << tDimension << " spatial order=" << static_cast< uint >( tSpaceOrder )
+                                               << " time bases=" << tNumTime << " fields=" << tNumFields << " interior=" << tInterior );
+                            Matrix< DDRMat > tCurrentPoint( tDimension + 1, 1 );
+                            Matrix< DDRMat > tPreviousPoint( tDimension + 1, 1 );
+
+                            for ( uint i = 0; i < tDimension; ++i )
+                            {
+                                tCurrentPoint( i )  = 0.2 - 0.1 * i;
+                                tPreviousPoint( i ) = -0.3 + 0.1 * i;
+                            }
+
+                            tCurrentPoint( tDimension )  = tInterior ? 0.2 : -1.0;
+                            tPreviousPoint( tDimension ) = tInterior ? -0.4 : 1.0;
+                            tCurrent.set_space_time( tCurrentPoint );
+                            tPrevious.set_space_time( tPreviousPoint );
+
+                            const Matrix< DDRMat > tDenseCurrent = trans( tCurrent.N() ) * tCurrent.N();
+                            const Matrix< DDRMat > tDenseCross   = trans( tCurrent.N() ) * tPrevious.N();
+                            Matrix< DDRMat >       tReferenceCurrent( tNumCoefficients, tNumCoefficients, 0.0 );
+                            Matrix< DDRMat >       tReferenceCross( tNumCoefficients, tNumCoefficients, 0.0 );
+
+                            for ( uint iField = 0; iField < tNumFields; ++iField )
+                            {
+                                for ( uint iTime = 0; iTime < tNumTime; ++iTime )
+                                {
+                                    for ( uint jTime = 0; jTime < tNumTime; ++jTime )
+                                    {
+                                        const uint tRowStart    = ( iField * tNumTime + iTime ) * tNumSpace;
+                                        const uint tColumnStart = ( iField * tNumTime + jTime ) * tNumSpace;
+
+                                        for ( uint iSpace = 0; iSpace < tNumSpace; ++iSpace )
+                                        {
+                                            for ( uint jSpace = 0; jSpace < tNumSpace; ++jSpace )
+                                            {
+                                                tReferenceCurrent( tRowStart + iSpace, tColumnStart + iSpace ) +=
+                                                        tDenseCurrent( tRowStart + iSpace, tColumnStart + jSpace );
+                                                tReferenceCross( tRowStart + iSpace, tColumnStart + iSpace ) +=
+                                                        tDenseCross( tRowStart + iSpace, tColumnStart + jSpace );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            IWG::Lumped_Matrix tCurrentLump;
+                            IWG::Lumped_Matrix tPreviousLump;
+                            IWG::compute_lumped_matrix(
+                                    &tCurrent, &tPrevious, tPreviousLump );
+
+                            Matrix< DDRMat > tCross( tNumCoefficients, tNumCoefficients, 0.0 );
+                            tCross += tPreviousLump;
+
+                            CHECK( norm( tCross - tReferenceCross ) < 1e-12 );
+
+                            Matrix< DDRMat > tInitialValues( tNumFields, 1 );
+
+                            for ( uint iField = 0; iField < tNumFields; ++iField )
+                            {
+                                tInitialValues( iField ) = -0.5 + 1.3 * iField;
+                            }
+
+                            Matrix< DDRMat > tInitialCoefficients;
+                            IWG::compute_lumped_matrices(
+                                    &tCurrent, &tPrevious, tCurrentLump, tPreviousLump, tInitialCoefficients, tInitialValues, true );
+
+                            Matrix< DDRMat > tActualCurrent( tNumCoefficients, tNumCoefficients, 0.0 );
+                            Matrix< DDRMat > tActualPrevious = tActualCurrent;
+                            tActualCurrent += tCurrentLump;
+                            tActualPrevious += tPreviousLump;
+
+                            CHECK( norm( tActualCurrent - tReferenceCurrent ) < 1e-12 );
+                            CHECK( norm( tActualPrevious - ( tNumTime == 1 ? tReferenceCurrent : tReferenceCross ) ) < 1e-12 );
+                            CHECK( tCurrentLump.num_stored_entries() == tNumSpace * tNumFields * tNumTime * tNumTime );
+                            CHECK( tInitialCoefficients.n_rows() == tNumTime * tNumSpace );
+                            CHECK( tInitialCoefficients.n_cols() == tNumFields );
+
+                            for ( uint iField = 0; iField < tNumFields; ++iField )
+                            {
+                                for ( uint iBasis = 0; iBasis < tNumSpace * tNumTime; ++iBasis )
+                                {
+                                    CHECK( tInitialCoefficients( iBasis, iField ) == Approx( tInitialValues( iField ) ) );
+                                }
+                            }
+
+                            const Matrix< DDRMat > tInitialProduct = tPreviousLump * vectorize( tInitialCoefficients );
+
+                            CHECK( norm( tInitialProduct - tActualPrevious * vectorize( tInitialCoefficients ) ) < 1e-12 );
+
+                            // No initial data or previous interpolator is needed for
+                            // the constant-time previous=current convention.
+                            IWG::compute_lumped_matrices(
+                                    &tCurrent, tNumTime == 1 ? nullptr : &tPrevious, tCurrentLump, tPreviousLump, tInitialCoefficients, {}, false );
+
+                            CHECK( tInitialCoefficients.numel() == 0 );
+                            REQUIRE_THROWS( IWG::compute_lumped_matrix(
+                                    nullptr, &tPrevious, tPreviousLump ) );
+                            REQUIRE_THROWS( IWG::compute_lumped_matrices(
+                                    &tCurrent, &tPrevious, tCurrentLump, tPreviousLump, tInitialCoefficients, {}, true ) );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}    // namespace moris::fem
+
+namespace moris::fem
+{
+    TEST_CASE( "IWG Lumped Mass Validation", "[fem],[IWG_Lumped_Mass]" )
+    {
+        // Reject incompatible field layouts and unsupported temporal orders before
+        // evaluating shape functions or allocating the compact operator.
+        mtk::Interpolation_Rule tLinearRule( mtk::Geometry_Type::QUAD, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR );
+        mtk::Interpolation_Rule tConstantRule( mtk::Geometry_Type::QUAD, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR, mtk::Interpolation_Type::CONSTANT, mtk::Interpolation_Order::CONSTANT );
+        mtk::Interpolation_Rule tQuadraticSpaceRule( mtk::Geometry_Type::QUAD, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::QUADRATIC, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR );
+        mtk::Interpolation_Rule tQuadraticTimeRule( mtk::Geometry_Type::QUAD, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::LINEAR, mtk::Interpolation_Type::LAGRANGE, mtk::Interpolation_Order::QUADRATIC );
+
+        Geometry_Interpolator   tGI( tLinearRule );
+        Field_Interpolator      tScalar( 1, tLinearRule, &tGI, { MSI::Dof_Type::TEMP } );
+        Field_Interpolator      tVector( 3, tLinearRule, &tGI, { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } );
+        Field_Interpolator      tConstant( 1, tConstantRule, &tGI, { MSI::Dof_Type::TEMP } );
+        Field_Interpolator      tQuadraticSpace( 1, tQuadraticSpaceRule, &tGI, { MSI::Dof_Type::TEMP } );
+        Field_Interpolator      tQuadraticTime( 1, tQuadraticTimeRule, &tGI, { MSI::Dof_Type::TEMP } );
+        IWG::Lumped_Matrix      tLump;
+
+        REQUIRE_THROWS( IWG::compute_lumped_matrix(
+                &tScalar, &tVector, tLump ) );
+        REQUIRE_THROWS( IWG::compute_lumped_matrix(
+                &tScalar, &tConstant, tLump ) );
+        REQUIRE_THROWS( IWG::compute_lumped_matrix(
+                &tScalar, &tQuadraticSpace, tLump ) );
+        REQUIRE_THROWS( IWG::compute_lumped_matrix(
+                &tQuadraticTime, &tQuadraticTime, tLump ) );
+        CHECK( tLump.num_stored_entries() == 0 );
+    }
+
 }    // namespace moris::fem
