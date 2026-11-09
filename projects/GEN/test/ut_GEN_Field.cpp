@@ -8,6 +8,7 @@
  *
  */
 
+#include <cmath>
 #include <memory>
 
 #include "catch.hpp"
@@ -388,6 +389,94 @@ namespace moris::gen
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX,
                         MORIS_REAL_MAX } } ), );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    TEST_CASE( "Superellipse Scaling", "[gen], [field], [superellipse]" )
+    {
+        // Use the same ellipse and reference points as the existing field test.
+        // Construct through Design_Factory so the scaling parameter is exercised
+        // through both PRM defaults and GEN field creation.
+        Submodule_Parameter_Lists tFieldParameterLists( "FIELDS" );
+        tFieldParameterLists.add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::SUPERELLIPSE ) );
+
+        const Vector< std::string > tParameterNames = { "center_x", "center_y", "semidiameter_x", "semidiameter_y" };
+        const Vector< real >        tParameters     = { 3.0, 4.0, 1.0, 2.0 };
+
+        // Keep geometric parameters unlocked for the finite-difference perturbations.
+        for ( uint iParameter = 0; iParameter < tParameters.size(); ++iParameter )
+        {
+            tFieldParameterLists( 0 ).set( tParameterNames( iParameter ), tParameters( iParameter ), false );
+        }
+
+        tFieldParameterLists( 0 ).set( "exponent", 2.0 );
+
+        Vector< Matrix< DDRMat > > tCoordinates            = { { { 2.0, 2.0 } }, { { 3.0, 3.0 } }, { { 4.0, 4.0 } } };
+        const Vector< real >       tReferenceValues        = { std::sqrt( 2.0 ) - 1.0, -0.5, 0.0 };
+        const real                 tRootHalf               = 1.0 / std::sqrt( 2.0 );
+        const Matrix< DDRMat >     tReferenceSensitivities = {
+            { tRootHalf, 0.5 * tRootHalf, -tRootHalf, -0.5 * tRootHalf },
+            { 0.0, 0.5, 0.0, -0.25 },
+            { -1.0, 0.0, -1.0, 0.0 }
+        };
+
+        const real tStep = 1e-6;
+
+        // Positive scaling preserves the zero contour, negative scaling reverses
+        // its sign, and zero scaling must also zero all supported sensitivities.
+        for ( real tScaling : { 0.0, 0.25, 2.5, -1.0 } )
+        {
+            INFO( "Scaling=" << tScaling );
+            tFieldParameterLists( 0 ).set( "scaling", tScaling, false );
+
+            ADV_Manager    tADVManager;
+            Design_Factory tDesignFactory( tFieldParameterLists, tADVManager );
+
+            auto tSuperellipse = std::dynamic_pointer_cast< Level_Set_Geometry >( tDesignFactory.get_geometries()( 0 ) );
+
+            REQUIRE( tSuperellipse != nullptr );
+
+            for ( uint iPoint = 0; iPoint < tCoordinates.size(); ++iPoint )
+            {
+                CHECK( tSuperellipse->get_field_value( 0, tCoordinates( iPoint ) )
+                        == Approx( tScaling * tReferenceValues( iPoint ) ).margin( 1e-12 ) );
+                const Matrix< DDRMat > tSensitivities = tSuperellipse->get_dfield_dadvs( 0, tCoordinates( iPoint ) );
+
+                REQUIRE( tSensitivities.numel() == 7 );
+
+                for ( uint iParameter = 0; iParameter < tParameters.size(); ++iParameter )
+                {
+                    CHECK( tSensitivities( iParameter )
+                            == Approx( tScaling * tReferenceSensitivities( iPoint, iParameter ) ).margin( 1e-12 ) );
+
+                    // Perturb factory parameters independently of the analytical
+                    // sensitivity implementation; scaling is a real parameter,
+                    // so only the four supported geometric derivatives are checked.
+                    tFieldParameterLists( 0 ).set( tParameterNames( iParameter ), tParameters( iParameter ) + tStep, false );
+
+                    ADV_Manager    tPlusADVManager;
+                    Design_Factory tPlusFactory( tFieldParameterLists, tPlusADVManager );
+                    auto           tPlus      = std::dynamic_pointer_cast< Level_Set_Geometry >( tPlusFactory.get_geometries()( 0 ) );
+                    const real     tPlusValue = tPlus->get_field_value( 0, tCoordinates( iPoint ) );
+
+                    tFieldParameterLists( 0 ).set( tParameterNames( iParameter ), tParameters( iParameter ) - tStep, false );
+
+                    ADV_Manager    tMinusADVManager;
+                    Design_Factory tMinusFactory( tFieldParameterLists, tMinusADVManager );
+                    auto           tMinus      = std::dynamic_pointer_cast< Level_Set_Geometry >( tMinusFactory.get_geometries()( 0 ) );
+                    const real     tMinusValue = tMinus->get_field_value( 0, tCoordinates( iPoint ) );
+                    tFieldParameterLists( 0 ).set( tParameterNames( iParameter ), tParameters( iParameter ), false );
+
+                    CHECK( tSensitivities( iParameter ) == Approx( ( tPlusValue - tMinusValue ) / ( 2.0 * tStep ) ).margin( 1e-8 ) );
+                }
+
+                for ( uint iParameter = 4; iParameter < 7; ++iParameter )
+                {
+                    CHECK( tSensitivities( iParameter ) == MORIS_REAL_MAX );
+                }
+            }
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------

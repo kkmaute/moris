@@ -102,6 +102,7 @@ namespace moris::prm
                     aParameterList.insert< Design_Variable >( "semidiameter_x", 1.0, 0.0, MORIS_REAL_MAX );
                     aParameterList.insert< Design_Variable >( "semidiameter_y", 1.0, 0.0, MORIS_REAL_MAX );
                     aParameterList.insert( "exponent", 2.0 );
+                    aParameterList.insert( "scaling", 1.0 );
                     break;
                 }
                 case gen::Field_Type::PLANE:
