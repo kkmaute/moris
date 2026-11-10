@@ -64,7 +64,8 @@ namespace moris::gen
     ENUM_MACRO( GQI_Type,
             RAYCAST_SHAPE_DIAMETER,
             INSCRIBED_CIRCLE_SHAPE_DIAMETER,
-            SHORTEST_DISTANCE_SHAPE_DIAMETER )
+            SHORTEST_DISTANCE_SHAPE_DIAMETER,
+            USER_DEFINED )
 
     // Surface mesh regularization type enum
     ENUM_MACRO( Regularization_Type,
