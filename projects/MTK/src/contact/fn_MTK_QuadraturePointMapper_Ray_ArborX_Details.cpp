@@ -72,7 +72,8 @@ namespace moris::mtk::arborx
                         ArborX::Point const tOrigin = coordinate_to_arborx_point< ArborX::Point >( tCoord );
 
                         tRays( tIndex )     = ArborX::Experimental::Ray{ tOrigin, coordinate_to_arborx_point< ArborX::Experimental::Vector >( tNormal ) };
-                        tRays( tIndex + 1 ) = ArborX::Experimental::Ray{ tOrigin, coordinate_to_arborx_point< ArborX::Experimental::Vector >( -1.0 * tNormal ) };
+                        // Reverse the normal without introducing -0.0 in axis-aligned rays.
+                        tRays( tIndex + 1 ) = ArborX::Experimental::Ray{ tOrigin, coordinate_to_arborx_point< ArborX::Experimental::Vector >( 0.0 - tNormal ) };
 
                         tCellIndices( tIndex )     = aMappingResult.mSourceCellIndex( iRay );    // ray in the positive direction
                         tCellIndices( tIndex + 1 ) = aMappingResult.mSourceCellIndex( iRay );    // ray in the negative direction
