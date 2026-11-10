@@ -62,8 +62,8 @@ namespace moris::mtk
         // Remove the unused vertices, update the facet connectivity
         this->clean_extraneous_vertices();
 
-        // Initialize distortion vectors/matrices
-        this->reset_coordinates();
+        // Match the displacement matrix to the remaining vertices before building the BVH.
+        mDisplacements.set_size( this->get_spatial_dimension(), this->get_number_of_vertices(), 0.0 );
 
         // Compute the normals of the facets
         this->initialize_facet_normals();
@@ -73,6 +73,9 @@ namespace moris::mtk
 
         // Build the vertex to facet connectivity
         this->build_vertex_to_facet_connectivity();
+
+        // Build the facet to facet connectivity
+        this->build_facet_to_facet_connectivity();
 
 #if MORIS_HAVE_ARBORX
         // Construct the ArborX BVH
@@ -173,8 +176,13 @@ namespace moris::mtk
         // Recompute the normals of the facets connected to this vertex
         for ( moris_index iF : this->get_vertexs_facet_indices( aVertexIndex ) )
         {
-            this->compute_facet_normal( iF );
+            mFacetNormals.set_column( iF, this->compute_facet_normal( iF ) );
         }
+
+#if MORIS_HAVE_ARBORX
+        // Candidate boxes must enclose the moved facets used by the intersection test.
+        this->construct_bvh();
+#endif
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -275,6 +283,13 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    const Vector< Vector< moris_index > >& Surface_Mesh::get_facet_to_facet_connectivity() const
+    {
+        return mFacetToFacetConnectivity;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     uint Surface_Mesh::get_spatial_dimension() const
     {
         return mVertexCoordinates.n_rows();
@@ -321,6 +336,11 @@ namespace moris::mtk
     {
         // Initialize distortion vectors/matrices
         mDisplacements.set_size( this->get_spatial_dimension(), this->get_number_of_vertices(), 0.0 );
+
+#if MORIS_HAVE_ARBORX
+        // Restore the boxes as well as the coordinates after a deformed-mesh query.
+        this->construct_bvh();
+#endif
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1042,49 +1062,6 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Surface_Mesh::sech( real aValue )
-    {
-        return 1.0 / std::cosh( aValue );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::tanh_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
-    {
-        return std::pow( aValue - aAgglom.get_ref( aCoords, aIndex ), aAgglom.get_exp() ) * ( 1.0 - std::tanh( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) ) );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::dtanh_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
-    {
-        return aAgglom.get_exp() * std::pow( aValue - aAgglom.get_ref( aCoords, aIndex ), aAgglom.get_exp() - 1.0 ) * ( 1.0 - std::tanh( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) ) )
-             - 10.0 * std::pow( aValue - aAgglom.get_ref( aCoords, aIndex ), aAgglom.get_exp() ) * Surface_Mesh::sech( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) ) * Surface_Mesh::sech( 10.0 * ( aValue - aAgglom.get_ref( aCoords, aIndex ) ) );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::max_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
-    {
-        return std::pow( std::max( 1.0 - ( ( aValue - aAgglom.get_shift() ) / aAgglom.get_ref( aCoords, aIndex ) ), 0.0 ), aAgglom.get_exp() );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::dmax_clip( real aValue, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex )
-    {
-        return ( ( 1.0 - ( ( aValue - aAgglom.get_shift() ) / aAgglom.get_ref( aCoords, aIndex ) ) ) > 0.0 ) ? aAgglom.get_exp() * std::pow( 1.0 - ( ( aValue - aAgglom.get_shift() ) / aAgglom.get_ref( aCoords, aIndex ) ), aAgglom.get_exp() - 1.0 ) / -aAgglom.get_ref( aCoords, aIndex ) : 0.0;
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::dnormal_dsigma( real aValue, real aStdDev )
-    {
-        return ( aValue * aValue - aStdDev * aStdDev ) * std::exp( -0.5 * std::pow( aValue / aStdDev, 2.0 ) ) / ( aStdDev * aStdDev * aStdDev * aStdDev * std::sqrt( 2.0 * M_PI ) );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     real Surface_Mesh::compute_dot_absolute( const Matrix< DDRMat >& aVectorA, const Matrix< DDRMat >& aVectorB )
     {
         real tDotProduct = std::abs( dot( aVectorA, aVectorB ) );    // Use absolute value to get the smallest angle between the vectors
@@ -1257,8 +1234,12 @@ namespace moris::mtk
         // Get the number of origins
         const uint tNumOrigins = aOrigins.n_cols();
 
-        // Initialize the return vector
+        // Preserve one candidate list per ray even if the entire batch misses the BVH.
         Vector< Vector< Vector< uint > > > tFacetIndices( tNumOrigins );
+        for ( uint iOrigin = 0; iOrigin < tNumOrigins; iOrigin++ )
+        {
+            tFacetIndices( iOrigin ).resize( aDirections( iOrigin ).n_cols() );
+        }
 
         // Initialize the results and offsets
         Kokkos::View< arborx::QueryResult*, MemorySpace > tResults( "values", 0 );
@@ -1280,9 +1261,6 @@ namespace moris::mtk
             {
                 // Get the number of directions for this origin
                 const uint tNumDirections = aDirections( iOrigin ).n_cols();
-
-                // Initialize the return vector for this origin and a temporary vector to store intersection results for this ray
-                tFacetIndices( iOrigin ).resize( tNumDirections );
 
                 // Loop through the directions for this origin point
                 for ( uint iDirection = 0; iDirection < tNumDirections; iDirection++ )
@@ -1413,18 +1391,6 @@ namespace moris::mtk
         tFile.close();
     }
 
-    void Surface_Mesh::write_shape_diameters_to_file( const std::string& aFilePath ) const
-    {
-        std::ofstream tFile( aFilePath );
-        tFile << std::fixed << std::setprecision( 8 );
-
-        for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
-        {
-            tFile << mShapeDiameters( iF ) << "\n";
-        }
-        tFile.close();
-    }
-
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh::build_vertex_connectivity()
@@ -1479,6 +1445,64 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Surface_Mesh::build_facet_to_facet_connectivity()
+    {
+        mFacetToFacetConnectivity.resize( this->get_number_of_facets(), Vector< moris_index >( this->get_spatial_dimension() ) );
+
+        if ( this->get_spatial_dimension() == 2 )
+        {
+            for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
+            {
+                const Vector< moris_index >& tFacetVertices = this->get_facets_vertex_indices( iF );
+
+                // Find the neighboring facet connected at each endpoint
+                for ( uint iV = 0; iV < tFacetVertices.size(); iV++ )
+                {
+                    moris_index tVertexIndex = tFacetVertices( iV );
+
+                    // Find the other facet sharing this vertex.
+                    for ( const auto& tNeighborFacet : mVertexToFacetConnectivity( tVertexIndex ) )
+                    {
+                        if ( tNeighborFacet != (moris_index)iF )
+                        {
+                            mFacetToFacetConnectivity( iF )( iV ) = tNeighborFacet;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
+            {
+                const Vector< moris_index >& tFacetVertices = this->get_facets_vertex_indices( iF );
+
+                for ( uint iV = 0; iV < tFacetVertices.size(); iV++ )
+                {
+                    moris_index tVertexIndex     = tFacetVertices( iV );
+                    moris_index tNextVertexIndex = tFacetVertices( ( iV + 1 ) % tFacetVertices.size() );
+
+                    // Find the facet that shares the edge defined by tVertexIndex and tNextVertexIndex
+                    for ( auto& tNeighborFacet : mVertexToFacetConnectivity( tVertexIndex ) )
+                    {
+                        if ( tNeighborFacet != (moris_index)iF )
+                        {
+                            const Vector< moris_index >& tNeighborFacetVertices = this->get_facets_vertex_indices( tNeighborFacet );
+                            if ( std::find( tNeighborFacetVertices.begin(), tNeighborFacetVertices.end(), tNextVertexIndex ) != tNeighborFacetVertices.end() )
+                            {
+                                mFacetToFacetConnectivity( iF )( iV ) = tNeighborFacet;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Surface_Mesh::set_vertex_coordinates( const uint aVertexIndex, const Matrix< DDRMat >& aCoordinates )
     {
         mVertexCoordinates.set_column( aVertexIndex, aCoordinates );
@@ -1486,7 +1510,7 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDRMat > Surface_Mesh::compute_facet_normal( const uint aFacetIndex )
+    Matrix< DDRMat > Surface_Mesh::compute_facet_normal( const uint aFacetIndex ) const
     {
         uint const tDim = this->get_spatial_dimension();
 
@@ -1516,8 +1540,6 @@ namespace moris::mtk
                 MORIS_ERROR( false, "Surface Mesh facet normals only implemented for 2D (lines) or 3D (triangles) meshes" );
             }
         }
-
-        mFacetNormals.set_column( aFacetIndex, tNormal );
 
         return tNormal;
     }
@@ -1571,31 +1593,7 @@ namespace moris::mtk
     }
 
     // --------------------------------------------------------------------------------------------------------------
-    // Quantities of Interest
-    // --------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::compute_volume() const
-    {
-        real tVolume = 0.0;
-
-        // Apply shoelace formula for 2D surface mesh BRENDAN NOT GENERALIZABLE
-        if ( this->get_spatial_dimension() == 2 )
-        {
-            for ( uint iFacet = 0; iFacet < this->get_number_of_facets(); iFacet++ )
-            {
-                Matrix< DDRMat > tCoords = this->get_all_vertex_coordinates_of_facet( iFacet );
-
-                tVolume += 0.5 * ( tCoords( 0, 0 ) * tCoords( 1, 1 ) - tCoords( 0, 1 ) * tCoords( 1, 0 ) );
-            }
-        }
-        else
-        {
-            MORIS_ERROR( false, "Surface Mesh volume computation only implemented for 2D (lines) meshes" );
-        }
-
-        return tVolume;
-    }
-
+    // Geometric queries
     // --------------------------------------------------------------------------------------------------------------
 
     Matrix< DDRMat > Surface_Mesh::compute_facet_centroid( const uint aFacetIndex ) const
@@ -1640,536 +1638,6 @@ namespace moris::mtk
         }
 
         return tCentroids;
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Shape_Diameter_Data Surface_Mesh::cast_shape_diameter_ray_cones( const real aConeAngle, const uint aNumPolarRays, uint aNumAzimuthRays ) const
-    {
-        // Get the current vertex coordinates for the entire surface mesh
-        Matrix< DDRMat > tRayOrigins = this->compute_facet_centroids();
-
-        // Initialize the output struct - get the direction weights from the ray cones
-        Shape_Diameter_Data tDiameterData( aConeAngle, aNumPolarRays, aNumAzimuthRays, this->get_all_facet_normals(), aNumPolarRays * aNumAzimuthRays );
-
-        // Batch process all rays for all vertices
-        Vector< Vector< bool > >                tWarnings;
-        Vector< Vector< Intersection_Vector > > tIntersections = this->cast_batch_of_rays( tRayOrigins, tDiameterData.get_directions(), tWarnings );
-
-        // Get just the nearest intersection for each ray
-        tDiameterData.store_nearest_nontrivial_intersections( tIntersections );
-
-        return tDiameterData;
-    }
-
-    //-------------------------------------------------------------------------------------------------------------
-
-    Vector< real > Surface_Mesh::compute_raycast_shape_diameter(
-            const Agglomeration_Parameters& aAgglom,
-            real                            aConeAngle,
-            uint                            aNumPolarRays,
-            uint                            aNumAzimuthRays )
-    {
-        bool tRayDropping = false;    // brendan delete, temporary for debugging
-        real tAlphaPower  = 4.0;      // brendan delete, temporary for debugging
-
-        // Get the minimum distance for every ray cone at every facet
-        Shape_Diameter_Data tDiameterData = this->cast_shape_diameter_ray_cones( aConeAngle, aNumPolarRays, aNumAzimuthRays );
-
-        // Get the number of facets in the mesh
-        uint tNumFacets = this->get_number_of_facets();
-
-        // Get the number of rays per facet
-        uint tNumRays = tDiameterData.get_num_rays_per_cone();
-
-        // Check that we got a distance for every facet and ray
-        MORIS_ASSERT( tDiameterData.get_distances().size() == tNumFacets, "Inconsistent number of facets in the shape diameter distances." );
-
-        // Initialize return variable
-        Vector< real > tShapeDiameterValues( tNumFacets, MORIS_REAL_MAX );
-
-        // Reset the derivative
-        mdShapeDiameterdVertex.set_size( this->get_number_of_vertices(), this->get_spatial_dimension(), 0.0 );
-
-        // Centroids needed for raycast sensitivities
-        Matrix< DDRMat > tCentroids = this->compute_facet_centroids();
-
-        // Get the facet measures for sensitivity calculations
-        Vector< real > tFacetMeasures = this->compute_facet_measure();
-
-        // Loop through every facet in this surface mesh
-        for ( uint iF = 0; iF < tNumFacets; iF++ )
-        {
-            MORIS_ASSERT( tDiameterData.get_distances()( iF ).size() == tNumRays, "Inconsistent number of rays in cone for facet %d (Expected %d, Got %ld)", iF, tNumRays, tDiameterData.get_distances()( iF ).size() );
-
-            // Get the ray distances for this facet (one distance per ray)
-            const Intersection_Vector& tRaysOnFacet = tDiameterData.get_distances()( iF );
-
-            Intersection_Vector tSortedRaysOnFacet = tRaysOnFacet;    // FIXME annoying copy
-
-            // Get the vertex indices for the origin facet, these vertices need their sensitivities updated
-            const Vector< moris_index >& tFacetVertices          = this->get_facets_vertex_indices( iF );
-            Matrix< DDRMat >             tFacetVertexCoordinates = this->get_all_vertex_coordinates_of_facet( iF );
-
-            // Compute the median ray distance for this facet
-            std::sort( tSortedRaysOnFacet.begin(), tSortedRaysOnFacet.end(), []( const std::pair< moris_index, real >& aR1, const std::pair< moris_index, real >& aR2 ) { return aR1.second < aR2.second; } );
-            real tMedian;
-            if ( tNumRays % 2 == 0 )
-            {
-                tMedian = ( tSortedRaysOnFacet( tNumRays / 2 - 1 ).second + tSortedRaysOnFacet( tNumRays / 2 ).second ) / 2;
-            }
-            else
-            {
-                tMedian = tSortedRaysOnFacet( tNumRays / 2 ).second;
-            }
-
-            // Compute the mean ray distance for this facet
-            real tMean = 0.0;
-            for ( const auto& tDistance : tRaysOnFacet )
-            {
-                tMean += tDistance.second;
-            }
-            tMean = tMean / tNumRays;
-
-            // Compute the standard deviation ray distances for this facet
-            real tStdDeviation = 0.0;
-            for ( const auto& tDistance : tRaysOnFacet )
-            {
-                tStdDeviation += ( tDistance.second - tMean ) * ( tDistance.second - tMean );    // variance
-            }
-            tStdDeviation = std::sqrt( tStdDeviation / (real)tNumRays );    // take sqrt for std deviation
-
-            // Compute the weighted sum for entries within one standard deviation from the median
-            real tDiamWeightedSum   = 0.0;
-            real tSumOfValidWeights = 0.0;
-
-            // Compute the sum of weights. Need to do this first to have ready for sensitivities
-            for ( uint iR = 0; iR < tNumRays; iR++ )
-            {
-                if ( !tRayDropping or std::abs( tRaysOnFacet( iR ).second - tMedian ) <= tStdDeviation )
-                {
-                    // Compute the angle between the ray direction and the intersected facets normal
-                    Matrix< DDRMat > tIntersectedFacetNormal = this->get_facet_normal( tRaysOnFacet( iR ).first );
-
-                    real tAngle = Surface_Mesh::compute_dot_absolute( tDiameterData.get_ray_direction( iF, iR ), tIntersectedFacetNormal );    // Angle factor raised to a power to increase differentiation between rays
-
-                    real tAugmentedWeight = tDiameterData.get_ray_weight( iR ) * std::pow( tAngle, tAlphaPower );    // Weight augmented by angle factor
-
-                    // Sum the weights and the weighted shape diameter values
-                    tSumOfValidWeights += tAugmentedWeight;
-                    tDiamWeightedSum += tAugmentedWeight * this->max_clip( tDiameterData.get_distances()( iF )( iR ).second, aAgglom, tFacetVertexCoordinates, iF );
-                }
-            }
-
-            MORIS_ERROR( tSumOfValidWeights > 0.0, "Sum of valid weights is zero for facet %d. Check ray directions and intersections.", iF );
-
-            // Divide by the sum of weights to get the weighted average
-            tShapeDiameterValues( iF ) = tDiamWeightedSum / tSumOfValidWeights;
-
-            // ---------------------------------------------------------------------------
-            // STEP 2: Compute the sensitivities of this facet, loop back through the rays
-            // ---------------------------------------------------------------------------
-
-            // Each ray intersection has sensitivities wrt to 2*dim vertices (dim vertices that create the origin facet and dim vertices that create the hit facet).
-            // Note that if a ray hits the neighboring facet, the origin facet vertices and the intersected facet vertices can share some vertices
-            // We compute the derivative of the shape diameter to the vertices and store the accumulation of sensitivity for all vertices
-            // For each vertex ddiameter/dv = dr/dx * weight / sum_of_weights
-
-            for ( uint iR = 0; iR < tNumRays; iR++ )
-            {
-                if ( !tRayDropping or std::abs( tRaysOnFacet( iR ).second - tMedian ) <= tStdDeviation )
-                {
-                    // Augment the theta weight by the angle between the ray and the intersected facet normal
-                    Matrix< DDRMat > tIntersectedFacetNormal = this->get_facet_normal( tRaysOnFacet( iR ).first );
-                    real             tAngle                  = Surface_Mesh::compute_dot_absolute( tDiameterData.get_ray_direction( iF, iR ), tIntersectedFacetNormal );
-                    real             tAugmentedWeight        = tDiameterData.get_ray_weight( iR ) * std::pow( tAngle, tAlphaPower );    // Weight augmented by angle factor
-                    real             tDistance               = tDiameterData.get_distance( iF, iR ).second;
-                    real             tAgglomeratedDistance   = this->max_clip( tDistance, aAgglom, tFacetVertexCoordinates, iF );
-
-                    // Compute the sensitivity factor components
-                    real tAgglomerationTerm = this->dmax_clip( tDistance, aAgglom, tFacetVertexCoordinates, iF );    // derivative of tanh clipping function
-                    real tWeightTerm        = tAugmentedWeight / tSumOfValidWeights;                                 // Weighted contribution of this ray
-                    real tSensitivityFactor = tFacetMeasures( iF ) * tWeightTerm * tAgglomerationTerm;               // Full sensitivity factor for this ray
-
-                    // Origin facets vertices
-                    for ( uint iV : tFacetVertices )
-                    {
-                        Matrix< DDRMat > tRotation = -tDiameterData.get_ray_rotation_matrix( iR );
-
-                        // Raycast distance is a function of the origin and the normal, which are both influenced by these vertices
-                        Matrix< DDRMat > tCentroidSens = this->compute_draycast_dorigin( tCentroids.get_column( iF ), tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first )
-                                                       * this->compute_dfacet_centroid_dvertex( iF, iV, true );
-                        Matrix< DDRMat > tNormalSens   = this->compute_draycast_ddirection( tCentroids.get_column( iF ), tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first )
-                                                       * tRotation * this->compute_dfacet_normal_dvertex( iF, iV, true );
-
-                        // Weight sensitivity is a function of the normal only for these vertices (rotation since the ray direction is the rotated origin facet normal)
-                        Matrix< DDRMat > tWeightSens = tFacetMeasures( iF ) * tAlphaPower * std::pow( tAngle, tAlphaPower - 1 ) * this->compute_ddot_absolute( tDiameterData.get_ray_direction( iF, iR ), tIntersectedFacetNormal )
-                                                     * tRotation * this->compute_dfacet_normal_dvertex( iF, iV, true ) / tSumOfValidWeights * tDiameterData.get_ray_weight( iR );
-
-                        // Full sensitivity for this vertex
-                        Matrix< DDRMat > tVertexSensitivity = tSensitivityFactor * ( tCentroidSens + tNormalSens ) + tWeightSens * ( tAgglomeratedDistance - tShapeDiameterValues( iF ) );
-
-                        // Accumulate the sensitivity for this vertex
-                        mdShapeDiameterdVertex.set_row( iV, mdShapeDiameterdVertex.get_row( iV ) + tVertexSensitivity );
-                    }
-
-                    // Intersected facet vertices
-                    // Get the vertex indices for the intersected facet, these vertices need their sensitivities updated
-                    const Vector< moris_index >& tIntersectedFacetVertices = this->get_facets_vertex_indices( tRaysOnFacet( iR ).first );
-                    Matrix< DDRMat >             tVertexSens               = this->compute_draycast_dvertices( tCentroids.get_column( iF ), tDiameterData.get_ray_direction( iF, iR ), tRaysOnFacet( iR ).first );
-                    for ( uint iV = 0; iV < tIntersectedFacetVertices.size(); iV++ )
-                    {
-                        // Weight sensitivity is a function of the normal only for these vertices (no rotation here since we are directly measuring against the intersected normal)
-                        Matrix< DDRMat > tWeightSens = tFacetMeasures( iF ) * tAlphaPower * std::pow( tAngle, tAlphaPower - 1 ) * this->compute_ddot_absolute( tIntersectedFacetNormal, tDiameterData.get_ray_direction( iF, iR ) )
-                                                     * this->compute_dfacet_normal_dvertex( tRaysOnFacet( iR ).first, tIntersectedFacetVertices( iV ), true ) / tSumOfValidWeights * tDiameterData.get_ray_weight( iR );
-
-                        Matrix< DDRMat > tVertexSensitivity = tSensitivityFactor * tVertexSens.get_row( iV ) + tWeightSens * ( tAgglomeratedDistance - tShapeDiameterValues( iF ) );
-
-                        // Raycast distance is a function of the facets vertices explicitly for these vertices. Computed for all vertices at once above
-                        mdShapeDiameterdVertex.set_row( tIntersectedFacetVertices( iV ), mdShapeDiameterdVertex.get_row( tIntersectedFacetVertices( iV ) ) + tVertexSensitivity );
-                    }
-                }
-            }
-        }
-
-        return tShapeDiameterValues;
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Vector< real > Surface_Mesh::compute_inscribed_circle_shape_diameter( const Agglomeration_Parameters& aAgglom, real aAngle, real aRelativeChord, uint aNumCircles )
-    {
-        MORIS_ERROR( this->get_spatial_dimension() == 2, "Inscribed circle shape diameter is only implemented for 2D surface meshes." );
-
-        // Initialize output vector
-        Vector< real > tAverageVertexDiameter( this->get_number_of_vertices(), std::numeric_limits< real >::quiet_NaN() );
-        Vector< real > tFacetShapeDiameterValues( this->get_number_of_facets(), std::numeric_limits< real >::quiet_NaN() );
-
-        // Get some quantities of the surface mesh, used for sensitivities and other checks
-        Matrix< DDRMat > tVertexNormals = -this->compute_vertex_normals();
-        Vector< real >   tFacetMeasures = this->compute_facet_measure();
-
-        // Minimum dot product of chord and normal for an inscribed circle to be valid (360 because we want the half cone angle)
-        real tMinDot = std::cos( aAngle * M_PI / 360.0 );
-
-        // Reset the derivative
-        mdShapeDiameterdVertex.set_size( this->get_number_of_vertices(), this->get_spatial_dimension(), 0.0 );
-
-        // Loop over vertices for circles to originate from
-        for ( uint iVO = 0; iVO < this->get_number_of_vertices(); iVO++ )
-        {
-            // Create vector for distance values for this vertex
-            Vector< real > tCircleDistances( aNumCircles, MORIS_REAL_MAX );    // To compute average of closest aNumDist distances
-            Vector< uint > tHitVertices( aNumCircles, MORIS_INDEX_MAX );       // needed for sensitivities
-            uint           tNumValidCircles = 0;                               /// In case there are not aNumDist valid distances within the cone
-
-            // Get the facets connected to this vertex, needed for sensitivities
-            Vector< moris_index > tFacetsConnectedToOriginVertex = this->get_vertexs_facet_indices( iVO );
-            Matrix< DDRMat >      tVertexCoordinates             = this->get_vertex_coordinates( iVO );
-
-            // Loop over vertices to check inscribed circle against
-            for ( uint iVC = 0; iVC < this->get_number_of_vertices(); iVC++ )
-            {
-                // Get the vector from the origin vertex to the check vertex
-                Matrix< DDRMat > tChord     = this->get_vertex_coordinates( iVC ) - this->get_vertex_coordinates( iVO );
-                real             tChordNorm = norm( tChord );
-
-                // Check that the chord is within the angle threshold of the vertex normal and that we aren't checking the same vertex
-                if ( dot( tChord, tVertexNormals.get_column( iVO ) ) > tMinDot * tChordNorm )
-                {
-                    // Compute the radius of the inscribed circle between these two points
-                    real tDiameter = dot( tChord, tChord ) / dot( tChord, tVertexNormals.get_column( iVO ) );
-
-                    if ( tDiameter > 0 && tChordNorm / tDiameter > aRelativeChord )
-                    {
-                        // Check if the valid diameter should replace a minimum
-                        for ( uint iMin = 0; iMin < aNumCircles; iMin++ )
-                        {
-                            if ( tDiameter < tCircleDistances( iMin ) )
-                            {
-                                // Shift the larger values down the list
-                                for ( uint iMaxBack = aNumCircles - 1; iMaxBack > iMin; iMaxBack-- )
-                                {
-                                    tCircleDistances( iMaxBack ) = tCircleDistances( iMaxBack - 1 );
-                                    tHitVertices( iMaxBack )     = tHitVertices( iMaxBack - 1 );
-                                }
-
-                                // Insert the new value
-                                tCircleDistances( iMin ) = tDiameter;
-                                tHitVertices( iMin )     = iVC;
-                                tNumValidCircles++;
-                                break;
-                            }
-                        }    // end loop over minima
-                    }    // end check for positive diameter
-                }    // end check for valid inscribed circle
-            }    // end loop over check vertices
-
-            tNumValidCircles = std::min( tNumValidCircles, aNumCircles );
-
-            // Loop over valid circles, take agglomerated mean, and compute sensitivities
-            real tMeanViolation = 0.0;
-            for ( uint iC = 0; iC < tNumValidCircles; iC++ )
-            {
-                tMeanViolation += this->max_clip( tCircleDistances( iC ), aAgglom, tVertexCoordinates, iVO );
-
-                // Sensitivity calculations for this circle, each circle has sensitivity to the origin vertex and the hit vertex
-                uint iVC = tHitVertices( iC );
-
-                Matrix< DDRMat > tChord = this->get_vertex_coordinates( iVC ) - this->get_vertex_coordinates( iVO );
-
-                // Agglomeration derivative and other scaling terms
-                real tSensitivityFactor = 0.5 * this->dmax_clip( tCircleDistances( iC ), aAgglom, tVertexCoordinates, iVO ) / (real)tNumValidCircles;
-
-                // Derivative of radius wrt chord is given by the quotient rule, with the numerator and denominator as follows
-                real tRadiusNumerator   = dot( tChord, tChord );
-                real tRadiusDenominator = dot( tChord, tVertexNormals.get_column( iVO ) );
-
-                Matrix< DDRMat > tDradiusDchord  = trans( ( 2.0 * tChord * tRadiusDenominator - tRadiusNumerator * tVertexNormals.get_column( iVO ) ) / ( tRadiusDenominator * tRadiusDenominator ) );
-                Matrix< DDRMat > tDradiusDnormal = -tRadiusNumerator / ( tRadiusDenominator * tRadiusDenominator ) * trans( tChord );
-
-                // Derivative of chord wrt origin vertex is -I, derivative of chord wrt hit vertex is I.
-                // Loop over facets connected to the origin vertex and add sensitivities
-                real tLengthSum = tFacetMeasures( tFacetsConnectedToOriginVertex( 0 ) ) + tFacetMeasures( tFacetsConnectedToOriginVertex( 1 ) );
-                for ( uint iF : tFacetsConnectedToOriginVertex )
-                {
-                    // Add chord sensitivity, chord is only dependent on my vertex
-                    mdShapeDiameterdVertex.set_row( iVO, mdShapeDiameterdVertex.get_row( iVO ) - tSensitivityFactor * tFacetMeasures( iF ) * tDradiusDchord );
-
-                    // Hit vertex sensitivity is only dependent on the chord. If the hit vertex is a neighbor and thus can influence the normal, this is accounted for above
-                    mdShapeDiameterdVertex.set_row( iVC, mdShapeDiameterdVertex.get_row( iVC ) + tSensitivityFactor * tFacetMeasures( iF ) * tDradiusDchord );
-
-                    // Loop over vertices on this facet to add normal sensitivity
-                    for ( uint iV : this->get_facets_vertex_indices( iF ) )
-                    {
-                        mdShapeDiameterdVertex.set_row( iV, mdShapeDiameterdVertex.get_row( iV ) - tSensitivityFactor * tLengthSum * tDradiusDnormal * this->compute_dvertex_normal_dvertex( iVO, iV ) );
-                    }
-                }
-            }
-
-            // Set the shape diameter value for this vertex
-            tAverageVertexDiameter( iVO ) = tMeanViolation / std::max( 1.0, (real)tNumValidCircles );
-        }
-
-        // Compute the value on the facets by taking the mean of the vertices and return
-        return this->average_vertex_quantity_over_facets( tAverageVertexDiameter );
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Vector< real > Surface_Mesh::compute_shortest_distance_shape_diameter( const Agglomeration_Parameters& aAgglom, real aAngle, uint aNumDist )
-    {
-        MORIS_ERROR( this->get_spatial_dimension() == 2, "Closest point diameter is only implemented for 2D surface meshes." );
-
-        // Initialize output vector
-        Vector< real > tAverageVertexDiameter( this->get_number_of_vertices(), std::numeric_limits< real >::quiet_NaN() );
-        Vector< real > tFacetShapeDiameterValues( this->get_number_of_facets(), std::numeric_limits< real >::quiet_NaN() );
-
-        // Get some quantities of the surface mesh, used for sensitivities and other checks
-        Matrix< DDRMat > tVertexNormals = -this->compute_vertex_normals();            // Negative to be inward normal
-        Matrix< DDRMat > tCenters       = this->compute_facet_centroids();            // Used for bounding circle checks
-        Vector< real >   tFacetMeasures = this->compute_facet_measure();              // Used for sensitivityes and bounding circle checks
-        Vector< real >   tMeasure2      = Vector< real >( tFacetMeasures.size() );    // Used for bounding circle
-        std::transform( tFacetMeasures.cbegin(), tFacetMeasures.cend(), tMeasure2.begin(), []( real aVal ) { return aVal * aVal; } );
-
-        // Minimum dot product of chord and normal for an inscribed circle to be valid (360 because we want the half cone angle)
-        real tMinDot = std::cos( aAngle * M_PI / 360.0 );
-
-        // Reset the derivative
-        mdShapeDiameterdVertex.set_size( this->get_number_of_vertices(), this->get_spatial_dimension(), 0.0 );
-
-        // Loop over vertices for distance to originate from
-        for ( uint iV = 0; iV < this->get_number_of_vertices(); iV++ )
-        {
-            Matrix< DDRMat > tMyCoords = this->get_vertex_coordinates( iV );
-
-            // Create vector for distance values for this vertex
-            Vector< real >             tDistances( aNumDist, MORIS_REAL_MAX );                                                            // To compute average of closest aNumDist distances
-            Vector< uint >             tHitFacets( aNumDist, MORIS_INDEX_MAX );                                                           // needed for sensitivities
-            Vector< real >             tTMins( aNumDist, MORIS_REAL_MAX );                                                                // Stored local distance along hit vertex, used for sensitivities
-            Vector< Matrix< DDRMat > > tClosestDirs( aNumDist, Matrix< DDRMat >( this->get_spatial_dimension(), 1, MORIS_REAL_MAX ) );    // Stored direction from vertex to closest point on facet, used for sensitivities
-            uint                       tNumValidDistances = 0;                                                                            // In case there are not aNumDist valid distances within the cone
-            real                       tBottomDist        = tDistances( aNumDist - 1 );                                                   // Initialize upper bound on minima
-
-            // Get the facets connected to this vertex, needed for sensitivities
-            Vector< moris_index > tFacetsConnectedToOriginVertex = this->get_vertexs_facet_indices( iV );
-            Matrix< DDRMat >      tVertexCoordinates             = this->get_vertex_coordinates( iV );
-
-            // Loop over facets to get distance to
-            for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
-            {
-                // Get the vertices of this facet and check that my vertex is not part of it, as the distance would be in plane with the facet
-                const Vector< moris_index >& tVerticesOnFacet = this->get_facets_vertex_indices( iF );
-                if ( std::any_of( tVerticesOnFacet.cbegin(), tVerticesOnFacet.cend(), [ iV ]( moris_index aVertex ) { return aVertex == (moris_index)iV; } ) )
-                {
-                    continue;
-                }
-
-                // Compute bounding circle of this facet and see if its possible that this radius would be a minima
-                real tDistCenter2 = dot( tCenters.get_column( iF ) - tMyCoords, tCenters.get_column( iF ) - tMyCoords );
-                real tBound       = tBottomDist + 0.5 * tFacetMeasures( iF );
-                if ( tDistCenter2 > tBound * tBound )
-                {
-                    continue;
-                }
-
-                // Compute edge vector
-                Matrix< DDRMat > tV1   = this->get_vertex_coordinates( tVerticesOnFacet( 0 ) );
-                Matrix< DDRMat > tEdge = this->get_vertex_coordinates( tVerticesOnFacet( 1 ) ) - tV1;
-
-                // Compute where along this facet segment the closest point is and the distance to that point
-                real tT                    = dot( tMyCoords - this->get_vertex_coordinates( tVerticesOnFacet( 0 ) ), tEdge ) / tMeasure2( iF );
-                tT                         = std::max( 0.0, std::min( 1.0, tT ) );    // Clamp to facet segment
-                Matrix< DDRMat > tQ        = tV1 + tT * tEdge;                        // Closest point on facet to my vertex
-                Matrix< DDRMat > tDir      = tQ - tMyCoords;                          // Vector from my vertex to closest point
-                real             tDistance = norm( tDir );                            // Squared distance from my vertex to closest point on facet
-
-                // Check that the distance is within the cone and in the direction of the normal
-                if ( tDistance > 0 and dot( tDir, tVertexNormals.get_column( iV ) ) > tMinDot * tDistance )
-                {
-                    // Check if the valid diameter should replace a minimum
-                    for ( uint iMin = 0; iMin < aNumDist; iMin++ )
-                    {
-                        if ( tDistance < tDistances( iMin ) )
-                        {
-                            // Shift the larger values down the list
-                            for ( uint iMaxBack = aNumDist - 1; iMaxBack > iMin; iMaxBack-- )
-                            {
-                                tDistances( iMaxBack )   = tDistances( iMaxBack - 1 );
-                                tHitFacets( iMaxBack )   = tHitFacets( iMaxBack - 1 );
-                                tTMins( iMaxBack )       = tTMins( iMaxBack - 1 );
-                                tClosestDirs( iMaxBack ) = tClosestDirs( iMaxBack - 1 );
-                            }
-
-                            // Insert the new value
-                            tDistances( iMin )   = tDistance;
-                            tHitFacets( iMin )   = iF;
-                            tTMins( iMin )       = tT;
-                            tClosestDirs( iMin ) = tDir / tDistance;    // Store the normalized direction for sensitivities
-                            tNumValidDistances++;
-                            tBottomDist = tDistances( aNumDist - 1 );    // Update the upper bound on minima
-                            break;
-                        }
-                    }    // end loop over minima
-                }    // end check for valid distance
-            }    // end loop over facets
-
-            tNumValidDistances = std::min( tNumValidDistances, aNumDist );
-
-            // Loop over valid circles, take agglomerated mean, and compute sensitivities
-            real tMeanViolation = 0.0;
-            for ( uint iD = 0; iD < tNumValidDistances; iD++ )
-            {
-                // Get the vertices of the facet that we hit
-                const Vector< moris_index >& tVerticesOnFacet = this->get_facets_vertex_indices( tHitFacets( iD ) );
-
-                tMeanViolation += this->max_clip( tDistances( iD ), aAgglom, tVertexCoordinates, iV );
-
-                // Agglomeration derivative and other scaling terms
-                real tSensitivityFactor = 0.5 * this->dmax_clip( tDistances( iD ), aAgglom, tVertexCoordinates, iV ) / (real)tNumValidDistances;
-
-                // Derivative of distance wrt my vertex is given by the normalized direction vector
-                real tLengthSum = tFacetMeasures( tFacetsConnectedToOriginVertex( 0 ) ) + tFacetMeasures( tFacetsConnectedToOriginVertex( 1 ) );
-                mdShapeDiameterdVertex.set_row( iV, mdShapeDiameterdVertex.get_row( iV ) - tSensitivityFactor * tLengthSum * trans( tClosestDirs( iD ) ) );
-
-                // Derivative of distance wrt to hit facet is also only dependent on the normalized direction vector and the tmin value
-                for ( uint iVC = 0; iVC < tVerticesOnFacet.size(); iVC++ )
-                {
-                    real tVertexFactor;
-                    if ( iVC == 0 )
-                    {
-                        tVertexFactor = ( 1.0 - tTMins( iD ) );
-                    }
-                    else
-                    {
-                        tVertexFactor = tTMins( iD );
-                    }
-
-                    mdShapeDiameterdVertex.set_row( tVerticesOnFacet( iVC ), mdShapeDiameterdVertex.get_row( tVerticesOnFacet( iVC ) ) + tSensitivityFactor * tVertexFactor * tLengthSum * trans( tClosestDirs( iD ) ) );
-                }
-            }    // end loop over sensitivities and valid distances
-
-            // Set the shape diameter value for this vertex
-            tAverageVertexDiameter( iV ) = tMeanViolation / std::max( 1.0, (real)tNumValidDistances );
-
-        }    // end loop over compute vertex distances
-
-        // Compute the value on the facets by taking the mean of the vertices and return
-        return this->average_vertex_quantity_over_facets( tAverageVertexDiameter );
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::integrate_shape_diameter_over_surface()
-    {
-        // Compute the area of every facet in the surface mesh
-        Vector< real > tFacetMeasure = this->compute_facet_measure();
-
-        // Need to integrate the shape diameter over the surface mesh, loop over facets
-        mIntegratedShapeDiameter = 0.0;
-        for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
-        // uint iF = 0;    // brendan delete temporary for sweeps
-        {
-            mIntegratedShapeDiameter += mShapeDiameters( iF ) * tFacetMeasure( iF );
-        }
-
-        // Store the agglomeration before we take the power(need it for sensitivities later)
-        return mIntegratedShapeDiameter;
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-    real Surface_Mesh::compute_global_shape_diameter_raycast(
-            const Agglomeration_Parameters& aAgglom,
-            real                            aConeAngle,
-            uint                            aNumPolarRays,
-            uint                            aNumAzimuthRays )
-    {
-        mShapeDiameters = this->compute_raycast_shape_diameter( aAgglom, aConeAngle, aNumPolarRays, aNumAzimuthRays );
-        // brendan delete
-        this->write_shape_diameters_to_file( "raycast_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
-        real          tGlobalDiameter = this->integrate_shape_diameter_over_surface();
-        std::ofstream tGlobalFile( "global_diameter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
-        tGlobalFile << tGlobalDiameter << std::endl;    // brendan delete temporary for debugging
-        tGlobalFile.close();
-        return tGlobalDiameter;
-        // brendan end delete
-        // return this->integrate_shape_diameter_over_surface();
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::compute_global_shape_diameter_inscribed_circle(
-            const Agglomeration_Parameters& aAgglom,
-            real                            aAngle,
-            real                            aRelativeChord,
-            uint                            aNumCircles )
-    {
-        mShapeDiameters = this->compute_inscribed_circle_shape_diameter( aAgglom, aAngle, aRelativeChord, aNumCircles );
-        // brendan delete
-        real tGlobalDiameter = this->integrate_shape_diameter_over_surface();
-        this->write_shape_diameters_to_file( "inscribed_circle_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
-        return tGlobalDiameter;
-        // brendan end delete
-        // return this->integrate_shape_diameter_over_surface();
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    real Surface_Mesh::compute_global_shape_diameter_shortest_distance(
-            const Agglomeration_Parameters& aAgglom,
-            real                            aAngle,
-            uint                            aNumDistances )
-    {
-        mShapeDiameters = this->compute_shortest_distance_shape_diameter( aAgglom, aAngle, aNumDistances );
-        // brendan delete
-        this->write_shape_diameters_to_file( "shortest_distance_diameters_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );    // brendan delete temporary for debugging
-        real          tGlobalDiamater = this->integrate_shape_diameter_over_surface();
-        std::ofstream tGlobalFile( "global_diameter_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt" );
-        tGlobalFile << tGlobalDiamater << std::endl;    // brendan delete temporary for debugging
-        tGlobalFile.close();
-        return tGlobalDiamater;
-        // brendan end delete
-        // return this->integrate_shape_diameter_over_surface();
     }
 
     // --------------------------------------------------------------------------------------------------------------
@@ -2282,70 +1750,6 @@ namespace moris::mtk
                 return { {} };
             }
         }
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat > Surface_Mesh::compute_ddiameter_dvertex( const uint aVertexIndex ) const
-    {
-        // Get the facets connected to this vertex
-        const Vector< moris_index >& tConnectedFacets = this->get_vertexs_facet_indices( aVertexIndex );
-
-        Matrix< DDRMat > tIntegratedSensitivity( 1, this->get_spatial_dimension(), 0.0 );
-
-        // Loop over connected facets to compute their contribution to the sensitivity as their area is changing
-        for ( moris_index iF : tConnectedFacets )
-        // uint iF = 0;    // brendan delete temporary for sweeps
-        {
-            Matrix< DDRMat > tdMeasuredVertex = this->compute_dfacet_measure_dvertex( iF, aVertexIndex, true );
-            tIntegratedSensitivity += tdMeasuredVertex * mShapeDiameters( iF );
-        }
-
-        // Add shape diameter sensitivity for this vertex (precomputed during shape diameter forward computation, includes summed sensitivities from all facets)
-        tIntegratedSensitivity += mdShapeDiameterdVertex.get_row( aVertexIndex );
-
-        return tIntegratedSensitivity;
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat > Surface_Mesh::compute_dvolume_dvertex( uint aVertexIndex ) const
-    {
-        uint tDim = this->get_spatial_dimension();
-
-        Matrix< DDRMat > tDVolumeDVertex( 1, tDim, MORIS_REAL_MAX );
-
-        if ( this->get_spatial_dimension() == 2 )
-        {
-            // Get the vertices connected to this vertex
-            const Vector< moris_index >& tNeighbors = mVertexToVertexConnectivity( aVertexIndex );
-
-            moris_index tLowNeighbor;
-            moris_index tHighNeighbor;
-            if ( aVertexIndex > 1 and std::any_of( tNeighbors.begin(), tNeighbors.end(), []( moris_index i ) { return i == 0; } ) )
-            {
-                tLowNeighbor  = tNeighbors( 0 ) == 0 ? tNeighbors( 1 ) : tNeighbors( 0 );
-                tHighNeighbor = 0;
-            }
-            else
-            {    // Determine the order of the vertices
-                tLowNeighbor  = tNeighbors( 0 ) < tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
-                tHighNeighbor = tNeighbors( 0 ) > tNeighbors( 1 ) ? tNeighbors( 0 ) : tNeighbors( 1 );
-            }
-
-            // Get vertex coordinates
-            const Matrix< DDRMat > tLowCoords  = this->get_vertex_coordinates( tLowNeighbor );
-            const Matrix< DDRMat > tHighCoords = this->get_vertex_coordinates( tHighNeighbor );
-
-            tDVolumeDVertex( 0 ) = 0.5 * ( tHighCoords( 1 ) - tLowCoords( 1 ) );
-            tDVolumeDVertex( 1 ) = 0.5 * ( tLowCoords( 0 ) - tHighCoords( 0 ) );
-        }
-        else
-        {
-            MORIS_ERROR( false, "Surface Mesh dVolume/dVertex computation only implemented for 2D (lines) meshes" );
-        }
-
-        return tDVolumeDVertex;
     }
 
     // --------------------------------------------------------------------------------------------------------------
@@ -2661,28 +2065,19 @@ namespace moris::mtk
 
     // --------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDRMat >& Surface_Mesh::get_facet_shape_diameter_sensitivities() const
+    Matrix< DDRMat > Surface_Mesh::compute_vertex_normals() const
     {
-        return mdShapeDiameterdVertex;
-    }
+        const uint           tNumVertices = this->get_number_of_vertices();
+        const uint           tDim         = this->get_spatial_dimension();
+        Matrix< DDRMat >     tFacetNormals( tDim, this->get_number_of_facets() );
+        const Vector< real > tFacetMeasure = this->compute_facet_measure();
+        Matrix< DDRMat >     tVertexNormals( tDim, tNumVertices );
 
-    // --------------------------------------------------------------------------------------------------------------
-
-    const real Surface_Mesh::get_facet_shape_diameter( uint aFacetIndex ) const
-    {
-        return mShapeDiameters( aFacetIndex );
-    }
-
-    // --------------------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat > Surface_Mesh::compute_vertex_normals()
-    {
-        this->initialize_facet_normals();    // make sure facet normals are computed and available
-        const uint             tNumVertices  = this->get_number_of_vertices();
-        const uint             tDim          = this->get_spatial_dimension();
-        const Matrix< DDRMat > tFacetNormals = this->get_all_facet_normals();
-        const Vector< real >   tFacetMeasure = this->compute_facet_measure();
-        Matrix< DDRMat >       tVertexNormals( tDim, tNumVertices );
+        // Compute current normals without changing the mesh's cached facet normals.
+        for ( uint iF = 0; iF < this->get_number_of_facets(); iF++ )
+        {
+            tFacetNormals.set_column( iF, this->compute_facet_normal( iF ) );
+        }
 
         auto tNormal = Matrix< DDRMat >( tDim, 1 );
         for ( moris::size_t iV = 0; iV < tNumVertices; iV++ )

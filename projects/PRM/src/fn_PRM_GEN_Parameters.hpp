@@ -250,6 +250,11 @@ namespace moris::prm
 
         switch ( aGQIType )
         {
+            case gen::GQI_Type::USER_DEFINED:
+                aGQIParameterList.insert( "function_name", "" );                // real( const mtk::Surface_Mesh& )
+                aGQIParameterList.insert( "sensitivity_function_name", "" );    // Matrix< DDRMat >( const mtk::Surface_Mesh&, uint localVertexIndex ), size 1 x spatial dimension
+                break;
+
             case gen::GQI_Type::RAYCAST_SHAPE_DIAMETER:
                 aGQIParameterList.insert( "number_of_polar_rays", 30, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
                 aGQIParameterList.insert( "number_of_azimuth_rays", 1, 1, 1000 );                              // Number of rays to be cast in the azimuth direction for the shape diameter function

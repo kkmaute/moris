@@ -16,6 +16,7 @@
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Surface_Mesh.hpp"
+#include "cl_MTK_Surface_Mesh_QI.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -187,81 +188,16 @@ namespace moris::wrk
                 mtk::Integration_Surface_Mesh_Data tSurfaceMeshData( mIgMesh.get(), tMeshSets );
                 mtk::Integration_Surface_Mesh      tSurfaceMesh( tSurfaceMeshData );
 
-                tSurfaceMesh.write_to_file( "integ_mesh_iter_" + std::to_string( gLogger.get_opt_iteration() ) + ".obj" );
-
                 // Get the IG to PDV ID map for this surface mesh
                 Vector< Vector< moris_index > > tPDVIDs;
                 Vector< gen::PDV_Type >         tPDVTypes = tSurfaceMesh.get_spatial_dimension() == 2 ? Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE } )
                                                                                                       : Vector< gen::PDV_Type >( { gen::PDV_Type::X_COORDINATE, gen::PDV_Type::Y_COORDINATE, gen::PDV_Type::Z_COORDINATE } );
                 tDesignCriteriaManager->get_ig_dv_ids_for_type_and_ind( tSurfaceMeshData.mLocalToGlobalVertexIndex, tPDVTypes, tPDVIDs );
 
-                // Determine the SQI type and compute it
-                real tSQIValue = MORIS_REAL_MAX;
-                switch ( tSQIType )
-                {
-                    case ( mtk::QI_Type::VOLUME ):
-                    {
-                        tSQIValue = tSurfaceMesh.compute_volume();
-                        tSurfaceMesh.compute_QI_sensitivities( tSQIType, tPDVIDs, tdSQIdPDV, iSQI );
-                        break;
-                    }
-                    case ( mtk::QI_Type::RAYCAST_SHAPE_DIAMETER ):
-                    {
-                        real                                             tConeAngle      = tSQIParameterLists( iSQI ).get< real >( "cone_angle" );
-                        uint                                             tNumPolarRays   = static_cast< uint >( tSQIParameterLists( iSQI ).get< moris_index >( "number_of_polar_rays" ) );
-                        uint                                             tNumAzimuthRays = static_cast< uint >( tSQIParameterLists( iSQI ).get< moris_index >( "number_of_azimuth_rays" ) );
-                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom         = mtk::create_agglomeration_parameters( tSQIParameterLists( iSQI ), aLibrary );
-
-                        tSQIValue = tSurfaceMesh.compute_global_shape_diameter_raycast(
-                                *tAgglom,
-                                tConeAngle,
-                                tNumPolarRays,
-                                tNumAzimuthRays );
-
-                        tSurfaceMesh.compute_QI_sensitivities(
-                                tSQIType,
-                                tPDVIDs,
-                                tdSQIdPDV,
-                                iSQI );
-                        break;
-                    }
-                    case ( mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER ):
-                    {
-                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( tSQIParameterLists( iSQI ), aLibrary );
-
-                        tSQIValue = tSurfaceMesh.compute_global_shape_diameter_inscribed_circle(
-                                *tAgglom,
-                                tSQIParameterLists( iSQI ).get< real >( "cone_angle" ),
-                                tSQIParameterLists( iSQI ).get< real >( "minimum_relative_chord_length" ),
-                                tSQIParameterLists( iSQI ).get< moris_index >( "number_of_samples" ) );
-
-                        tSurfaceMesh.compute_QI_sensitivities(
-                                tSQIType,
-                                tPDVIDs,
-                                tdSQIdPDV,
-                                iSQI );
-                        break;
-                    }
-                    case ( mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER ):
-                    {
-                        std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( tSQIParameterLists( iSQI ), aLibrary );
-
-                        tSQIValue = tSurfaceMesh.compute_global_shape_diameter_shortest_distance(
-                                *tAgglom,
-                                tSQIParameterLists( iSQI ).get< real >( "cone_angle" ),
-                                tSQIParameterLists( iSQI ).get< moris_index >( "number_of_samples" ) );
-
-                        tSurfaceMesh.compute_QI_sensitivities(
-                                tSQIType,
-                                tPDVIDs,
-                                tdSQIdPDV,
-                                iSQI );
-
-                        break;
-                    }
-                    default:
-                        MORIS_ERROR( false, "STK::Model::compute_SQIs - SQI Type not implemented." );
-                }
+                // Keep QI intermediate values separate from the surface mesh.
+                mtk::Surface_Mesh_QI tQI( tSurfaceMesh );
+                real tSQIValue = tQI.compute_QI( tSQIType, tSQIParameterLists( iSQI ), aLibrary );
+                tQI.compute_QI_sensitivities( tPDVIDs, tdSQIdPDV, iSQI );
 
                 tDesignCriteriaManager->register_QI( tSQIName, Module_Type::STK, tSQIValue );
             }

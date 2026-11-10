@@ -2189,67 +2189,37 @@ namespace moris::gen
     real Surface_Mesh_Geometry::compute_GQI( std::shared_ptr< Parameter_List const > aGQIParameters, const std::shared_ptr< Library_IO > aLibrary )
     {
         GQI_Type tGQIType = aGQIParameters->get< GQI_Type >( "GQI_type" );
+        mtk::QI_Type tQIType = mtk::QI_Type::END_ENUM;
 
+        // GQI and MTK enums have different numeric values; map them explicitly.
         switch ( tGQIType )
         {
             case GQI_Type::RAYCAST_SHAPE_DIAMETER:
-            {
-                real tConeAngle      = aGQIParameters->get< real >( "cone_angle" );
-                uint tNumPolarRays   = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_polar_rays" ) );
-                uint tNumAzimuthRays = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_azimuth_rays" ) );
-
-                std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( *aGQIParameters, aLibrary );
-
-                return Surface_Mesh::compute_global_shape_diameter_raycast( *tAgglom, tConeAngle, tNumPolarRays, tNumAzimuthRays );
-            }
+                tQIType = mtk::QI_Type::RAYCAST_SHAPE_DIAMETER;
+                break;
             case GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
-            {
-                real tConeAngle     = aGQIParameters->get< real >( "cone_angle" );
-                real tRelativeChord = aGQIParameters->get< real >( "minimum_relative_chord_length" );
-                uint tNumSamples    = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_samples" ) );
-
-                std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( *aGQIParameters, aLibrary );
-
-                return Surface_Mesh::compute_global_shape_diameter_inscribed_circle( *tAgglom, tConeAngle, tRelativeChord, tNumSamples );
-            }
+                tQIType = mtk::QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER;
+                break;
             case GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
-            {
-                real tConeAngle  = aGQIParameters->get< real >( "cone_angle" );
-                uint tNumSamples = static_cast< uint >( aGQIParameters->get< moris_index >( "number_of_samples" ) );
-
-                std::unique_ptr< mtk::Agglomeration_Parameters > tAgglom = mtk::create_agglomeration_parameters( *aGQIParameters, aLibrary );
-
-                return Surface_Mesh::compute_global_shape_diameter_shortest_distance( *tAgglom, tConeAngle, tNumSamples );
-            }
+                tQIType = mtk::QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER;
+                break;
+            case GQI_Type::USER_DEFINED:
+                tQIType = mtk::QI_Type::USER_DEFINED;
+                break;
             default:
                 MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );
-                return 0.0;
-                break;
         }
+
+        mSurfaceMeshQI = std::make_unique< mtk::Surface_Mesh_QI >( *this );
+        return mSurfaceMeshQI->compute_QI( tQIType, *aGQIParameters, aLibrary );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void Surface_Mesh_Geometry::compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const
     {
-        // Get the GQI type
-        GQI_Type tGQIType = aGQIParameters->get< GQI_Type >( "GQI_type" );
-
-        std::function< Matrix< DDRMat >( const uint ) > get_dGQI_dvertex;
-
-        // Load function pointer to get dGQI_dvertex based on the GQI type, forwarding to the appropriate function
-        switch ( tGQIType )
-        {
-            case GQI_Type::RAYCAST_SHAPE_DIAMETER:
-            case GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
-            case GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
-            {
-                get_dGQI_dvertex = this->get_GQI_sensitivity_function( tGQIType );
-            }
-        }
-
-        // std::ofstream tSensFile;
-        // tSensFile.open( "dqi_dadv_gqi_" + std::to_string( gLogger.get_opt_iteration() ) + ".txt", std::ios::out );
+        MORIS_ERROR( mSurfaceMeshQI != nullptr,
+                "Surface_Mesh_Geometry::compute_GQI_sensitivities - Compute the GQI before requesting sensitivities." );
 
         // Loop over surface mesh vertices
         for ( uint iVertexIndex = 0; iVertexIndex < Surface_Mesh::get_number_of_vertices(); iVertexIndex++ )
@@ -2257,7 +2227,7 @@ namespace moris::gen
             if ( this->facet_vertex_depends_on_advs( iVertexIndex ) )
             {
                 // Compute dGQI_dvertex
-                Matrix< DDRMat > tdGQIdvertex = get_dGQI_dvertex( iVertexIndex );
+                Matrix< DDRMat > tdGQIdvertex = mSurfaceMeshQI->compute_dQI_dvertex( iVertexIndex );
 
                 // Compute dGQI_dADV
                 Matrix< DDRMat > tdGQIdADVs = tdGQIdvertex * this->get_dvertex_dadv( iVertexIndex );

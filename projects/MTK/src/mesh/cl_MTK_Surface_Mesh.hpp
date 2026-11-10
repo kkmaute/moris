@@ -12,8 +12,6 @@
 #include "cl_MTK_Enums.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
-#include "cl_MTK_Shape_Diameter_Data.hpp"
-#include "cl_MTK_Agglomeration_Parameters.hpp"
 
 #if MORIS_HAVE_ARBORX
 #include <ArborX.hpp>
@@ -53,16 +51,8 @@ namespace moris::mtk
 
     typedef Vector< std::pair< uint, real > > Intersection_Vector;    // pair of (facet index, distance)
 
-    enum class Shape_Diameter_Method
-    {
-        RAYCAST,              // Use a weighted average of all ray intersections to compute the shape diameter
-        INSCRIBED_CIRCLE,     // Use the diameter of the inscribed circle as the shape diameter (only for 2D meshes)
-        SHORTEST_DISTANCE,    // Only use the closest ray intersection to compute the shape diameter
-    };
-
     /**
-     * @brief This class is used to extract a surface mesh from a given mesh.
-     * This class does not store any vertex or cell data but only provides the necessary information to access the data in the mesh.
+     * @brief Stores surface mesh coordinates and connectivity and provides geometric queries.
      * The base surface mesh will ONLY use local indices that only refer to the vertices/facets in the surface mesh.
      */
     class Surface_Mesh
@@ -96,8 +86,8 @@ namespace moris::mtk
         virtual void set_all_displacements( const Matrix< DDRMat >& aDisplacements );
 
         /**
-         * Sets the displacement for ONE vertex
-         * NOTE: This method does NOT update the facet normals. Use set_all_displacements() to update the normals or ensure that the normals are updated manually by calling initialize_facet_normals()
+         * Sets the displacement for ONE vertex and updates its incident facet normals
+         * and the ArborX bounding volume hierarchy, when enabled.
          *
          * @param aVertexIndex vertex index to set displacement for
          * @param aDisplacement <dimension > x < 1 > matrix containing vertex's displacment
@@ -175,6 +165,13 @@ namespace moris::mtk
          * Size: < spatial dim x number of vertices in the facet >
          */
         [[nodiscard]] Matrix< DDRMat > get_all_vertex_coordinates_of_facet( const uint aFacetIndex ) const;
+
+        /**
+         * @brief Gets the facet indices that are connected to each facet through a vertex. Used for raycasting and other geometric queries
+         * Size: < number of facets > x < variable number of connected facets >
+         * Each entry in the outer vector corresponds to a facet, and the inner vector contains the indices of all facets that are connected to that facet through a vertex
+         */
+        const Vector< Vector< moris_index > >& get_facet_to_facet_connectivity() const;
 
         /**
          * @brief Returns the facet normals for each facet in the surface mesh.
@@ -281,132 +278,8 @@ namespace moris::mtk
                 bool                              aIgnoreWarnings = true ) const;
 
         //-------------------------------------------------------------------------------
-        // Quantities of interest
+        // Geometric queries
         // -------------------------------------------------------------------------------
-
-        /**
-         * Computes the volume enclosed by the surface mesh
-         */
-        real compute_volume() const;
-
-        /**
-         * Gets the derivative of the volume wrt a vertex's coordinates
-         *
-         * @param aVertexIndex local index of the vertex to get sensitivities of
-         * @return Matrix< DDRMat > dVolume/dVertex. Size: <1> x <spatial dim>
-         */
-        Matrix< DDRMat > compute_dvolume_dvertex( const uint aVertexIndex ) const;
-
-        /**
-         * Casts a cone of rays from each node, centered around the vertex normal, and gets the distances for each ray-facet intersection
-         *
-         * @param aConeAngle Angle of the cone in degrees
-         * @param aNumPolarRays Number of rays in the polar direction (θ)
-         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
-         * @return Shape_Diameter_Data struct which holds the weights and the intersection distances for each ray at each vertex
-         */
-        Shape_Diameter_Data cast_shape_diameter_ray_cones( const real aConeAngle, const uint aNumPolarRays, uint aNumAzimuthRays = 1 ) const;
-
-        /**
-         * Computes the shape diameter for each surface mesh node
-         * The shape diameter is computed by casting a cone of rays from each node and using a weighted sum of each ray's closest distance
-         * Quantity is computed per facet
-         *
-         * @param aConeAngle Angle of the cone in degrees
-         * @param aNumPolarRays Number of rays in the polar direction (θ)
-         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
-         * @param
-         * @return Vector< real > Shape diameter for each facet
-         */
-        Vector< real > compute_raycast_shape_diameter(
-                const Agglomeration_Parameters& aAgglomeration,
-                real                            aConeAngle,
-                uint                            aNumPolarRays,
-                uint                            aNumAzimuthRays = 1 );
-
-        /**
-         * Computes the shape diameter for each surface mesh node
-         * The shape diameter is computed by computing the diameter of the smallest inscribed circle at each point. This approximates the medial axis distance
-         * Quantity is originally computed per vertex, and then the average of all vertices for each facet is taken to give a quantity defined on facets
-         *
-         * @param aNumCircles Takes the mean of this many smallest circles for each point
-         * @param aAngle Only chords between points within the cone are considered. This is because the sensitivity of the diameter goes to infinity if the chord is orthogonal to the vertex normal
-         *
-         * @return Vector< real > Shape diameter for each facet
-         */
-        Vector< real > compute_inscribed_circle_shape_diameter(
-                const Agglomeration_Parameters& aAgglomeration,
-                real                            aAngle         = 120.0,
-                real                            aRelativeChord = 0.25,
-                uint                            aNumCircles    = 1 );
-
-        /**
-         * Computes the shape diameter for each surface mesh node
-         * The shape diameter is computed by finding the shortest distance to each facet and taking the minimum
-         * Quantity is originally computed per vertex, and then the average of all vertices for each facet is taken to give a quantity defined on facets
-         *
-         * @param aNumCircles Takes the mean of this many shortest distances for each point
-         * @param aAngle Ensures the direction vector of the shortest distance is within a cone of this angle from the vertex normal
-         *
-         * @return Vector< real > Shape diameter for each facet
-         */
-        Vector< real > compute_shortest_distance_shape_diameter(
-                const Agglomeration_Parameters& aAgglomeration,
-                real                            aAngle        = 40.0,
-                uint                            aNumDistances = 1 );
-
-        /**
-         * Takes the shape diameter values computed on the facets and integrates them over the surface to get a global shape diameter violation
-         *
-         * Requires that the facet shape diameters are computed and stored in mShapeDiameterValues
-         * @return real Integrated shape diameter violation over the surface mesh
-         * */
-        real integrate_shape_diameter_over_surface();
-
-        /**
-         * Computes a global shape diameter violation by integrating the shape diameter values computed on the facets with a raycast method
-         * Rays are cast from the facet centers and the shape diameter is computed by a weighted average of the ray distances, and then integrated over the surface to get a global value
-         *
-         * @param aAgglom Agglomeration parameters struct to control the agglomeration function applied to the shape diameter values
-         * @param aConeAngle Angle of the cone in degrees
-         * @param aNumPolarRays Number of rays in the polar direction (θ)
-         * @param aNumAzimuthRays Number of rays in the azimuth direction (φ) 1 if 2D
-         * @return real Integrated shape diameter violation over the surface mesh
-         */
-        real compute_global_shape_diameter_raycast(
-                const Agglomeration_Parameters& aAgglom,
-                real                            aConeAngle,
-                uint                            aNumPolarRays,
-                uint                            aNumAzimuthRays = 1 );
-
-        /**
-         * Computes a global shape diameter violation by integrating the shape diameter values computed on the facets with an inscribed circle method
-         * The smallest inscribed circle is computed for each vertex, and the shape diameter is computed by a weighted average of these distances, and then integrated over the surface to get a global value
-         *
-         * @param aAgglom Agglomeration parameters struct to control the agglomeration function applied to the shape diameter values
-         * @param aConeAngle Angle of the cone in degrees
-         * @param aRelativeChord Relative chord length to be used in inscribed circle computation
-         * @return real Integrated shape diameter violation over the surface mesh
-         */
-        real compute_global_shape_diameter_inscribed_circle(
-                const Agglomeration_Parameters& aAgglom,
-                real                            aAngle         = 120.0,
-                real                            aRelativeChord = 0.25,
-                uint                            aNumCircles    = 1 );
-
-        /**
-         * Computes a global shape diameter violation by integrating the shape diameter values computed on the facets with a shortest distance method
-         * The closet point to another part of the surface mesh within a cone is found for each vertex, and the shape diameter is computed by a weighted average of these distances, and then integrated over the surface to get a global value
-         *
-         * @param aAgglom Agglomeration parameters struct to control the agglomeration function applied to the shape diameter values
-         * @param aConeAngle Angle of the cone in degrees
-         * @param aNumDistances Number of closest distances to take the average of for each facet
-         * @return real Integrated shape diameter violation over the surface mesh
-         */
-        real compute_global_shape_diameter_shortest_distance(
-                const Agglomeration_Parameters& aAgglom,
-                real                            aAngle        = 40.0,
-                uint                            aNumDistances = 1 );
 
         /**
          * Computes the centroids of a single facet in the surface mesh
@@ -447,10 +320,10 @@ namespace moris::mtk
          *
          * @return Matrix< DDRMat > vertex normals stored column-wise. Size: <spatial dim> x <number of vertices>
          */
-        Matrix< DDRMat > compute_vertex_normals();
+        Matrix< DDRMat > compute_vertex_normals() const;
 
         //-------------------------------------------------------------------------------
-        // Quantity of interest sensitivities
+        // Geometric sensitivities
         // -------------------------------------------------------------------------------
 
         /**
@@ -540,41 +413,6 @@ namespace moris::mtk
                 uint                    aFacetIndex ) const;
 
         /**
-         * Gets the sum of the nodal shape diameter sensitivities wrt to all vertex coordinates
-         *
-         * @return Matrix< DDRMat > dDiameter/dVertices. Size: < number of vertices > x <spatial dim>
-         */
-        const Matrix< DDRMat >& get_facet_shape_diameter_sensitivities() const;
-
-        /**
-         * Gets the shape diameter of a single facet in the surface mesh
-         *
-         * @param aFacetIndex local index of the facet
-         * @return real shape diameter of the facet
-         */
-        const real get_facet_shape_diameter( uint aFacetIndex ) const;
-
-        /**
-         * Gets the derivative of the shape diameter wrt a vertex's coordinates
-         *
-         * @param aVertexIndex local index of the vertex to get sensitivities of
-         * @return Matrix< DDRMat > dDiameter/dVertex. Size: <1> x <spatial dim>
-         */
-        Matrix< DDRMat > compute_ddiameter_dvertex( uint aVertexIndex ) const;
-
-        static real tanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
-
-        static real dtanh_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
-
-        static real max_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
-
-        static real dmax_clip( real aShapeDiameter, const Agglomeration_Parameters& aAgglom, const Matrix< DDRMat >& aCoords, uint aIndex = 0 );
-
-        static real sech( real aValue );
-
-        static real dnormal_dsigma( real aValue, real aStdDev );    // assumes 0 mean
-
-        /**
          * @brief Computes the absolute value of the angle between two vectors in radians
          * @param aVectorA First vector
          * @param aVectorB Second vector
@@ -628,7 +466,6 @@ namespace moris::mtk
 
         void write_to_file( const std::string& aFilePath ) const;
 
-        void write_shape_diameters_to_file( const std::string& aFilePath ) const;
 
         //-------------------------------------------------------------------------------
         // Mesh modification methods
@@ -644,12 +481,11 @@ namespace moris::mtk
         void set_vertex_coordinates( const uint aVertexIndex, const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * @brief computes the normal vector of a single facet in the surface mesh. Stores the result in mFacetNormals.
-         * Using the return value of this function is the same as calling get_facet_normal( aFacetIndex ) after this function
+         * @brief Computes the normal vector of a single facet from its current vertex coordinates.
          *
          * @param aFacetIndex local facet index to compute normal for
          */
-        Matrix< DDRMat > compute_facet_normal( const uint aFacetIndex );
+        Matrix< DDRMat > compute_facet_normal( const uint aFacetIndex ) const;
 
         /**
          * @brief computes the facet normals and stores in mFacetNormals. mVertexCoordinates must be initialized first
@@ -665,6 +501,11 @@ namespace moris::mtk
          * Determines which facets are connected to each vertex. Used for computing vertex normals
          */
         void build_vertex_to_facet_connectivity();
+
+        /**
+         * @brief Determines which facets are connected to each other via a vertex. Used for raycasting and other geometric queries
+         */
+        void build_facet_to_facet_connectivity();
 
         //-------------------------------------------------------------------------------
         // Private methods useful for raycasting
@@ -859,9 +700,8 @@ namespace moris::mtk
 
         Vector< Vector< moris_index > > mVertexToFacetConnectivity;
 
-        real             mIntegratedShapeDiameter = MORIS_REAL_MAX;    // cached global shape diameter value
-        Vector< real >   mShapeDiameters;                              // cached nodal shape diameter values
-        Matrix< DDRMat > mdShapeDiameterdVertex;                       // cached shape diameter sensitivities
+        Vector< Vector< moris_index > > mFacetToFacetConnectivity;    // Input: facet index, Output: All facets connected by an edge to this facet
+
 
         /**
          * @brief Stores the facet normals for each facet in the surface mesh. The indices are the indices of the facets in the surface mesh, not the global indices!

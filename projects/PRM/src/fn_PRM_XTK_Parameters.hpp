@@ -43,6 +43,12 @@ namespace moris::prm
             case mtk::QI_Type::VOLUME:
                 aXQIParameterList.set( "XQI_type", mtk::QI_Type::VOLUME );
                 break;
+            case mtk::QI_Type::USER_DEFINED:
+                aXQIParameterList.set( "XQI_type", mtk::QI_Type::USER_DEFINED );
+                aXQIParameterList.insert( "function_name", "" );                // real( const mtk::Surface_Mesh& )
+                aXQIParameterList.insert( "sensitivity_function_name", "" );    // Matrix< DDRMat >( const mtk::Surface_Mesh&, uint localVertexIndex ), size 1 x spatial dimension
+                break;
+
             case mtk::QI_Type::RAYCAST_SHAPE_DIAMETER:
                 aXQIParameterList.set( "XQI_type", mtk::QI_Type::RAYCAST_SHAPE_DIAMETER );
                 aXQIParameterList.insert( "number_of_polar_rays", 20, 1, 1000 );                               // Number of rays to be cast in the polar direction for the shape diameter function
@@ -73,6 +79,9 @@ namespace moris::prm
                 aXQIParameterList.insert( "agglomeration_reference", 1.0, MORIS_REAL_EPS, MORIS_REAL_MAX );    // Reference value for the agglomeration function
                 aXQIParameterList.insert( "agglomeration_shift", 0.0, -MORIS_REAL_MAX, MORIS_REAL_MAX );       // Shift value for the agglomeration function
                 aXQIParameterList.insert( "agglomeration_reference_function_name", "" );                       // Name of user-defined function for computing the reference value for the agglomeration function. Overrides agglomeration_reference if set
+                break;
+            default:
+                MORIS_ERROR( false, "Unsupported surface mesh QI type." );
                 break;
         }
     }

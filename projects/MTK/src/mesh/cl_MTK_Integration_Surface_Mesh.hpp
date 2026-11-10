@@ -17,7 +17,6 @@
 #include "moris_typedefs.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_Json_Object.hpp"
-#include "cl_SOL_Dist_Vector.hpp"
 #include <ostream>
 
 namespace moris::mtk
@@ -125,95 +124,6 @@ namespace moris::mtk
         //--------------------------------------------------------------------------------
 
         //--------------------------------------------------------------------------------
-
-        /**
-         * Computes the sensitivities of the requested XQI type wrt to PDVs.
-         *
-         * @param aType The type of XQI for which the sensitivities are requested.
-         * @param aVertexPDVIDs The PDV IDs associated with each vertex in the surface mesh. -1 if no PDV is associated with the vertex.
-         * @param aSensitivities The distributed vector where the sensitivities will be stored. It is assumed that this vector is already initialized and has the correct map.
-         * @param aRequestIndex The vector index in the Dist_Vector to store the sensitivities.
-         * @param aExtra Extra arguments that may be required for specific XQI types (e.g., agglomeration functions).
-         */
-        template< typename... ExtraArgs >
-        void compute_QI_sensitivities(
-                const QI_Type                          aType,
-                const Vector< Vector< moris_index > > &aVertexPDVIDs,
-                sol::Dist_Vector                      *aSensitivities,
-                const uint                             aRequestIndex,
-                ExtraArgs &&...aExtra ) const
-        {
-            // Need a unified function that computes the sensitivity of the requested XQI wrt to a given vertex
-            // takes only the local vertex index as input and returns a (d x 1) matrix with the sensitivity components
-            std::function< Matrix< DDRMat >( uint ) > get_dXQI_dvertex = nullptr;
-
-            switch ( aType )
-            {
-                case QI_Type::VOLUME:
-                    // no extra args required
-                    get_dXQI_dvertex = [ this ]( uint aV ) -> Matrix< DDRMat > {
-                        return this->compute_dvolume_dvertex( aV );
-                    };
-                    break;
-
-                case QI_Type::RAYCAST_SHAPE_DIAMETER:
-                case QI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
-                case QI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
-                {
-                    // Capture extra args into a tuple
-                    auto tExtras     = std::make_tuple( std::forward< ExtraArgs >( aExtra )... );
-                    get_dXQI_dvertex = [ this, tExtras ]( uint aV ) -> Matrix< DDRMat > {
-                        // apply the tuple to a helper that calls the member function with the extra args
-                        return std::apply(
-                                [ this, aV ]( auto &&...args ) -> Matrix< DDRMat > {
-                                    return this->compute_ddiameter_dvertex( aV, std::forward< decltype( args ) >( args )... );
-                                },
-                                tExtras );
-                    };
-                }
-                break;
-
-                default:
-                    MORIS_ERROR( false, "XQI type not implemented for surface mesh geometry." );
-                    break;
-            }
-
-            MORIS_ASSERT( get_dXQI_dvertex, "Internal error: no callable assigned for XQI sensitivity" );
-
-            // Loop over surface mesh vertices
-            for ( uint iV = 0; iV < this->get_number_of_vertices(); iV++ )
-            {
-                // Check that this vertex has at least one PDV associated with it
-                bool tHasPDV = false;
-                for ( uint iDim = 0; iDim < aVertexPDVIDs.size(); iDim++ )
-                {
-                    if ( aVertexPDVIDs( iDim )( iV ) != -1 )
-                    {
-                        tHasPDV = true;
-                        break;
-                    }
-                }
-
-                if ( !tHasPDV )
-                {
-                    continue;
-                }
-
-                // Compute the sensitivity wrt to the vertex via the unified callable
-                Matrix< DDRMat > tdXQI_dvertex = get_dXQI_dvertex( iV );
-
-                // Sum into the distributed sensitivity vector
-                for ( uint iDim = 0; iDim < aVertexPDVIDs.size(); iDim++ )
-                {
-                    moris_index tPDVID = aVertexPDVIDs( iDim )( iV );
-                    if ( tPDVID != -1 )
-                    {
-                        real &tValue = ( *aSensitivities )( tPDVID, aRequestIndex );
-                        tValue += tdXQI_dvertex( iDim );
-                    }
-                }
-            }
-        }
 
       private:    // methods
         void initialize_facet_measure();

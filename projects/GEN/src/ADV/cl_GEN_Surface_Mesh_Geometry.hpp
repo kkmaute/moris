@@ -11,6 +11,7 @@
 #pragma once
 
 #include "cl_MTK_Surface_Mesh.hpp"
+#include "cl_MTK_Surface_Mesh_QI.hpp"
 
 #include "cl_GEN_Design_Field.hpp"
 #include "cl_GEN_Field.hpp"
@@ -154,6 +155,9 @@ namespace moris::gen
         bool mBasesComputed = false;
 
         Surface_Mesh_Parameters mParameters;
+
+        // Retains the current GQI callbacks and intermediate values until sensitivities are assembled.
+        std::unique_ptr< mtk::Surface_Mesh_QI > mSurfaceMeshQI;
         const Node_Manager*     mNodeManager;
 
         // Optimization variables
@@ -592,35 +596,6 @@ namespace moris::gen
 
 
         virtual void compute_GQI_sensitivities( std::shared_ptr< Parameter_List const > aGQIParameters, sol::Dist_Vector* aGQISensitivities, uint aRequestIndex ) const final;
-
-        template< typename... ExtraArgs >
-        std::function< Matrix< DDRMat >( uint ) > get_GQI_sensitivity_function(
-                GQI_Type aGQIType,
-                ExtraArgs&&... aExtra ) const
-        {
-            // Need a unified function that computes the sensitivity of the requested GQI wrt to a given vertex
-            // takes only the local vertex index as input and returns a (d x 1) matrix with the sensitivity components
-            std::function< Matrix< DDRMat >( uint ) > get_dGQI_dvertex = nullptr;
-
-            switch ( aGQIType )
-            {
-                case GQI_Type::RAYCAST_SHAPE_DIAMETER:
-                case GQI_Type::INSCRIBED_CIRCLE_SHAPE_DIAMETER:
-                case GQI_Type::SHORTEST_DISTANCE_SHAPE_DIAMETER:
-                {
-                    get_dGQI_dvertex = [ this ]( uint aV ) -> Matrix< DDRMat > {
-                        return this->compute_ddiameter_dvertex( aV );
-                    };
-                }
-                break;
-
-                default:
-                    MORIS_ERROR( false, "GQI type not implemented for surface mesh geometry." );
-                    break;
-            }
-
-            return get_dGQI_dvertex;
-        }
 
         //-----------------------------------------------
         // PRIVATE FUNCTIONS
