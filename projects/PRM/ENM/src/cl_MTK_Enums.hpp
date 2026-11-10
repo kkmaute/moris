@@ -330,7 +330,9 @@ namespace moris::mtk
             VOLUME,
             RAYCAST_SHAPE_DIAMETER,
             INSCRIBED_CIRCLE_SHAPE_DIAMETER,
-            SHORTEST_DISTANCE_SHAPE_DIAMETER )
+            SHORTEST_DISTANCE_SHAPE_DIAMETER,
+            USER_DEFINED,
+            END_ENUM )
 
     /**
      * Gets the map that can be used to go from a parameter list value to the internal enum Field_Entity_Type
