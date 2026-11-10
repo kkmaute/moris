@@ -201,15 +201,6 @@ namespace moris::xtk
         mtk::CellTopology get_ig_cell_topology() const;
 
         /**
-         * Computes the global coordinate matrix from the parametric coordinates
-         *
-         * @param aParametricCoordinates Parametric coordinates of all the surface points within the cell. <nPoints, nDim>
-         * @param aCell The background cell that the surface points lie in
-         * @return Matrix< DDRMat > Global coordinates of the surface points. <nPoints, nDim>
-         */
-        static Matrix< DDRMat > get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell );
-
-        /**
          * Gets the number of corner nodes for a given cell type
          *
          * @param aCellType The type of cell (tri, quad, tet, hex, etc.)

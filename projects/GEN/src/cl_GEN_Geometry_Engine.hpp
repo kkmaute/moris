@@ -328,8 +328,9 @@ namespace moris::gen
          * @param aGeometryIndex Geometry to create this floating node
          * @param aParentCell Background element where the floating node lies
          * @param aParametricCoordinates Parametric coordinates inside the background element
+         * @return Global coordinates owned by the new node, valid until the engine's nodes are reset.
          */
-        void
+        const Matrix< DDRMat >&
         create_floating_node(
                 moris_index             aGeometryIndex,
                 const mtk::Cell&        aParentCell,

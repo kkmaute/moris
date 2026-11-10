@@ -448,7 +448,7 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
+    const Matrix< DDRMat >&
     Geometry_Engine::create_floating_node(
             moris_index             aGeometryIndex,
             const mtk::Cell&        aParentCell,
@@ -461,6 +461,8 @@ namespace moris::gen
 
         // Add new derived node to the node manager
         mNodeManager.add_derived_node( tNewNode );
+
+        return tNewNode->get_global_coordinates();
     }
 
     //--------------------------------------------------------------------------------------------------------------

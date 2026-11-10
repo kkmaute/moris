@@ -14,8 +14,6 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
-#include "cl_MTK_Interpolation_Function_Factory.hpp"
-#include "cl_MTK_Interpolation_Function.hpp"
 #include "cl_XTK_Octree_Interface.hpp"
 
 #include "fn_dot.hpp"
@@ -301,9 +299,6 @@ namespace moris::xtk
             // Get the surface points for this cell - parametric coordinates
             Matrix< DDRMat >& tSurfacePoints = aMeshGenerationData->mDelaunayPoints( tBgCellIndex );
 
-            // Get the associated global coordinates for the surface points
-            Matrix< DDRMat > tGlobalSurfacePoints = this->get_surface_point_global_coordinates( tSurfacePoints, tCell );
-
             for ( uint iPoint = 0; iPoint < tSurfacePoints.n_rows(); iPoint++ )
             {
                 // get the parent rank of the new node
@@ -327,25 +322,24 @@ namespace moris::xtk
                     // find out which processor owns parent entity of currently treated element
                     moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tBgCellIndex, tParentRank );
 
-                    // Register new node request
+                    // Create the GEN node first and reuse its coordinates exactly. GEN may
+                    // use multilinear interpolation even when the background cell is quadratic.
+                    const Matrix< DDRMat >& tGlobalCoordinates = mGeometryEngine->create_floating_node(
+                            mMeshGenerationData->mDelaunayGeometryIndices( tBgCellIndex )( iPoint ),
+                            tCell,
+                            tSurfacePoints.get_row( iPoint ) );
+
+                    // Register new node request; the request stores its own coordinate copy.
                     tNewNodeIndexInSubdivision = mDecompositionData->register_new_request(
                             tBgCellIndex,
                             tSecondaryID,
                             tOwningProc,
                             (mtk::EntityRank)tParentRank,
-                            tGlobalSurfacePoints.get_row( iPoint ) );
-
-                    std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tSurfacePoints.get_row( iPoint ) );
+                            tGlobalCoordinates );
 
                     // Associate this node with the child mesh
                     mDecompositionData->tCMNewNodeLoc( tBgCellIndex ).push_back( tNewNodeIndexInSubdivision );
                     mDecompositionData->tCMNewNodeParamCoord( tBgCellIndex ).push_back( tSurfacePoints.get_row( iPoint ) );
-
-                    // Register new floating node in GEN
-                    mGeometryEngine->create_floating_node(
-                            mMeshGenerationData->mDelaunayGeometryIndices( tBgCellIndex )( iPoint ),
-                            tCell,
-                            tSurfacePoints.get_row( iPoint ) );
                 }
             }    // end for: iterate through surface points
 
@@ -460,52 +454,6 @@ namespace moris::xtk
 
         mNumNewCells += mNumTotalCells;
     }    // end function: Delaunay_Subdivision_Interface::perform_impl_generate_mesh()
-
-    //--------------------------------------------------------------------------------------------------
-
-    Matrix< DDRMat >
-    Delaunay_Subdivision_Interface::get_surface_point_global_coordinates( const Matrix< DDRMat >& aParametricCoordinates, const mtk::Cell& aCell )
-    {
-        // Create interpolator
-        mtk::Interpolation_Function_Factory tInterpolationFactory;
-        mtk::Interpolation_Function_Base*   tInterpolation = tInterpolationFactory.create_interpolation_function(
-                aCell.get_geometry_type(),
-                mtk::Interpolation_Type::LAGRANGE,
-                aCell.get_interpolation_order() );
-
-        // Get number of bases
-        uint tNumberOfBases = tInterpolation->get_number_of_bases();
-
-        // Size output matrix
-        Matrix< DDRMat > tGlobalCoordinates( aParametricCoordinates.n_rows(), aParametricCoordinates.n_cols() );
-
-        // Get the global coordinates of the background nodes
-        Matrix< DDRMat > tBackgroundCellCoords = aCell.get_vertex_coords();
-
-        for ( uint iPoint = 0; iPoint < aParametricCoordinates.n_rows(); iPoint++ )
-        {
-
-            // Perform interpolation using parametric coordinates
-            Matrix< DDRMat > tBasis;
-            tInterpolation->eval_N( aParametricCoordinates.get_row( iPoint ), tBasis );
-
-            // Size global coordinates based on parametric coordinates
-            Matrix< DDRMat > tPointGlobalCoordinates = Matrix< DDRMat >( 1, aParametricCoordinates.n_cols(), 0.0 );
-
-            // Add contributions from all locators
-            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
-            {
-                tPointGlobalCoordinates += tBackgroundCellCoords.get_row( iBasisIndex ) * tBasis( iBasisIndex );
-            }
-
-            tGlobalCoordinates.set_row( iPoint, tPointGlobalCoordinates );
-        }
-
-        // Clean up
-        delete tInterpolation;
-
-        return tGlobalCoordinates;
-    }
 
     //--------------------------------------------------------------------------------------------------
 
