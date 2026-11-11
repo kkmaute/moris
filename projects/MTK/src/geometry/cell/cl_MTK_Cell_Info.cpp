@@ -20,6 +20,7 @@
 #include "cl_MTK_Integrator.hpp"
 #include "cl_MTK_Interpolation_Function.hpp"
 #include "fn_trans.hpp"
+#include <memory>
 
 namespace moris::mtk
 {
@@ -187,7 +188,8 @@ namespace moris::mtk
 
         // get the coefficients xHat and XiHat
         Matrix< DDRMat >             tXHat           = aCell->get_vertex_coords();
-        Interpolation_Function_Base *tInterpFunction = tInterpolationRule.create_space_interpolation_function();
+        std::unique_ptr< Interpolation_Function_Base > tInterpFunction(
+                tInterpolationRule.create_space_interpolation_function() );
         Matrix< DDRMat >             tXiHat;
         tInterpFunction->get_param_coords( tXiHat );
         tXiHat = trans( tXiHat );
@@ -277,7 +279,8 @@ namespace moris::mtk
 
         // get the coefficients xHat and XiHat
         Matrix< DDRMat >             tXHat           = aCell->get_vertex_coords();
-        Interpolation_Function_Base *tInterpFunction = tInterpolationRule.create_space_interpolation_function();
+        std::unique_ptr< Interpolation_Function_Base > tInterpFunction(
+                tInterpolationRule.create_space_interpolation_function() );
         Matrix< DDRMat >             tXiHat;
         tInterpFunction->get_param_coords( tXiHat );
         tXiHat = trans( tXiHat );

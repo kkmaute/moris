@@ -317,6 +317,177 @@ namespace moris::mtk
         }    // end: loop over all sets
     }
 
+    //-------------------------------------------------------------------------------------------------------------
+
+    void
+    Integration_Mesh::save_IG_global_T_matrix_to_file_new( const std::string &aFileName )
+    {
+        // trace this function
+        Tracer tTracer( "MTK", "Save Nodal T-Matrices to File" );
+
+        // do not execute if in parallel
+        if ( par_size() > 1 )
+        {
+            MORIS_ERROR( false, "Cannot save IG global T-matrices in parallel mode if asking for basis extension sensitivities" );
+        }
+
+        // get total number of integration vertices on IG mesh
+        uint tNumVertices = this->get_num_nodes();
+        MORIS_LOG_SPEC( "Num of IG vertices to save T-matrices for", tNumVertices );
+
+        // get Number of Block Sets
+        uint tNumSets = this->get_num_blocks();
+
+        // go through all bulk sets
+        for ( uint iSet = 0; iSet < tNumSets; iSet++ )
+        {
+            // -------------------------------------
+            // get T-Matrices
+
+            // Only write the t-matrices to file for set 0
+            if ( this->get_set_by_index( iSet )->get_set_name() != "HMR_dummy_c_p0" )
+            {
+                continue;
+            }
+
+            // initialize cells containing info for T-matrices mapping (Background-BSp)-(Background-Lag) for each IP vertex
+            Vector< Matrix< IdMat > >  tIPtoBSIds;
+            Vector< Matrix< DDRMat > > tIPtoBSWeights;
+
+            // get T-matrices mapping from IP nodes to B-splines
+            this->get_IP_to_BS_nodal_T_matrices( tIPtoBSIds, tIPtoBSWeights, iSet );
+
+            Vector< Matrix< IdMat > >  tIPtoBSIdsNew;
+            Vector< Vector< Vector< Matrix< DDRMat > > > > tIPtoBSSensitivityWeights;
+            Vector< Vector< Vector< moris_id > > > tSensitivityIGIDs;
+
+            // get T-Matrix sensitivities (IP-to B-Spline sensitivities)
+            this->get_IP_to_BS_nodal_T_matrix_sensitivities( tIPtoBSIdsNew, tIPtoBSSensitivityWeights, tSensitivityIGIDs, iSet );
+
+            // initialize cells containing info for T-matrices mapping (Background-Lag)-(IG-Vertices) for each IG vertex
+            Vector< Matrix< IdMat > > tIGtoIPIds;
+            Vector< Matrix< IdMat > > tIGtoIPIdsX;
+            Vector< Matrix< IdMat > > tIGtoIPIdsY;
+            Vector< Matrix< IdMat > > tIGtoIPIdsZ;
+
+            Vector< Matrix< DDRMat > > tIGtoIPWeights;
+            Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsX;
+            Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsY;
+            Vector< Matrix< DDRMat > > tIGtoIPGradientWeightsZ;
+
+            std::vector< int >                          tIGNodeIDs;
+            std::unordered_map< moris_index, moris_id > tIGNodeIDMap;
+
+            // get T-matrices mapping from IG nodes to IP nodes
+            this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPIdsX, tIGtoIPIdsY, tIGtoIPIdsZ, tIGtoIPWeights, tIGtoIPGradientWeightsX, tIGtoIPGradientWeightsY, tIGtoIPGradientWeightsZ, tIGNodeIDs, tIGNodeIDMap, iSet );
+
+            // initialize cells containing info for T-matrices mapping (Background-BSp)-(IG-Vertices) for each IG vertex
+            Vector< Matrix< IdMat > >                      tIGtoBSIds;
+            Vector< Matrix< IdMat > >                      tIGtoBSIdsForSensitivityX;
+            Vector< Matrix< IdMat > >                      tIGtoBSIdsForSensitivityY;
+            Vector< Matrix< IdMat > >                      tIGtoBSIdsForSensitivityZ;
+            Vector< Vector< Vector< moris_id > > >         tIGtoBSSensitivityIdsX;
+            Vector< Vector< Vector< moris_id > > >         tIGtoBSSensitivityIdsY;
+            Vector< Vector< Vector< moris_id > > >         tIGtoBSSensitivityIdsZ;
+            Vector< Matrix< DDRMat > >                     tIGtoBSWeights;
+            Vector< Vector< Vector< real > > >             tIGtoBSGradientWeightsX;
+            Vector< Vector< Vector< real > > >             tIGtoBSGradientWeightsY;
+            Vector< Vector< Vector< real > > >             tIGtoBSGradientWeightsZ;
+
+            this->get_IG_to_BS_nodal_T_matrices( tIGtoBSIds, tIGtoBSIdsForSensitivityX, tIGtoBSIdsForSensitivityY, tIGtoBSIdsForSensitivityZ, tIGtoBSSensitivityIdsX, tIGtoBSSensitivityIdsY, tIGtoBSSensitivityIdsZ, tIGtoBSWeights, 
+                tIGtoBSGradientWeightsX, tIGtoBSGradientWeightsY, tIGtoBSGradientWeightsZ, tIPtoBSIds, tIPtoBSWeights, tIPtoBSSensitivityWeights, tSensitivityIGIDs, tIGtoIPIds, tIGtoIPIdsX, tIGtoIPIdsY,
+                 tIGtoIPIdsZ, tIGtoIPWeights, tIGtoIPGradientWeightsX, tIGtoIPGradientWeightsY, tIGtoIPGradientWeightsZ );
+            
+
+            // -------------------------------------
+            // combine everything into one matrix
+
+            // initialize matrices for sparse mat
+            Matrix< DDUMat > tSparseIndices;
+            Matrix< DDUMat > tSparseIndicesX;
+            Matrix< DDUMat > tSparseIndicesY;
+            Matrix< DDUMat > tSparseIndicesZ;
+
+            Matrix< DDRMat > tWeights;
+            Matrix< DDRMat > tGradientWeightsX;
+            Matrix< DDRMat > tGradientWeightsY;
+            Matrix< DDRMat > tGradientWeightsZ;
+
+
+            // combine everything
+            this->build_sparse_extraction_operator( tIGtoBSIds, tIGtoBSIdsForSensitivityX, tIGtoBSIdsForSensitivityY, tIGtoBSIdsForSensitivityZ, tIGtoBSSensitivityIdsX, tIGtoBSSensitivityIdsY, tIGtoBSSensitivityIdsZ, tIGtoBSWeights, tIGtoBSGradientWeightsX, tIGtoBSGradientWeightsY, tIGtoBSGradientWeightsZ, tSparseIndices, tSparseIndicesX, tSparseIndicesY, tSparseIndicesZ, tWeights, tGradientWeightsX, tGradientWeightsY, tGradientWeightsZ, tIGNodeIDMap );
+
+            // -------------------------------------
+            // write to file
+
+            // construct string from output file name
+            std::string tStrOutputFile          = aFileName + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileGradientX = aFileName + "Gradient" + "X" + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileGradientY = aFileName + "Gradient" + "Y" + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileGradientZ = aFileName + "Gradient" + "Z" + "." + ios::stringify( iSet ) + ".hdf5";
+            std::string tStrOutputFileNodeIDs   = aFileName + "_IG_Node_IDs" + "." + ios::stringify( iSet ) + ".hdf5";
+
+
+            // log/print that the extraction operator is output to
+            MORIS_LOG_INFO( "Saving Extraction Operator for Set-# %i to file: %s", iSet, tStrOutputFile.c_str() );
+
+            // initialize hdf5 file
+            hid_t  tFileID = create_hdf5_file( tStrOutputFile );
+            herr_t tStatus = 0;
+
+            // write to file
+            save_matrix_to_hdf5_file( tFileID, "IDs", tSparseIndices, tStatus );
+            save_matrix_to_hdf5_file( tFileID, "Weights", tWeights, tStatus );
+
+            // close file
+            close_hdf5_file( tFileID );
+
+            hid_t  tFileID1 = create_hdf5_file( tStrOutputFileGradientX );
+            herr_t tStatus1 = 0;
+
+            // write to file
+            save_matrix_to_hdf5_file( tFileID1, "IDs", tSparseIndicesX, tStatus1 );
+            save_matrix_to_hdf5_file( tFileID1, "Weights", tGradientWeightsX, tStatus1 );
+
+            // close file
+            close_hdf5_file( tFileID1 );
+
+            hid_t  tFileID2 = create_hdf5_file( tStrOutputFileGradientY );
+            herr_t tStatus2 = 0;
+
+            // write to file
+            save_matrix_to_hdf5_file( tFileID2, "IDs", tSparseIndicesY, tStatus2 );
+            save_matrix_to_hdf5_file( tFileID2, "Weights", tGradientWeightsY, tStatus2 );
+
+            // close file
+            close_hdf5_file( tFileID2 );
+
+            // initialize hdf5 file - This time for the IG Node IDs
+            hid_t  tFileID3 = create_hdf5_file( tStrOutputFileNodeIDs );
+            herr_t tStatus3 = 0;
+
+            // write to file
+            save_vector_to_hdf5_file( tFileID3, "IDs", tIGNodeIDs, tStatus3 );
+
+            // close file
+            close_hdf5_file( tFileID3 );
+
+            if ( this->get_spatial_dim() == 3 )
+            {
+                hid_t  tFileID4 = create_hdf5_file( tStrOutputFileGradientZ );
+                herr_t tStatus4 = 0;
+
+                // write to file
+                save_matrix_to_hdf5_file( tFileID4, "IDs", tSparseIndicesZ, tStatus4 );
+                save_matrix_to_hdf5_file( tFileID4, "Weights", tGradientWeightsZ, tStatus4 );
+
+                // close file
+                close_hdf5_file( tFileID4 );
+            }
+
+        }    // end: loop over all sets
+    }
+
     // ----------------------------------------------------------------------------
 
     void
@@ -1648,11 +1819,11 @@ namespace moris::mtk
             // initialize temporary vectors containing all
             Matrix< IdMat >              tNodalIGtoBSIds( 0, 0 );
             Vector< Vector< moris_id > > tNodalIGtoBSSensitivityIdsX( 0 );
-            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityX( 0 );
+            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityX( 0 , 0 );
             Vector< Vector< moris_id > > tNodalIGtoBSSensitivityIdsY( 0 );
-            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityY( 0 );
+            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityY( 0 , 0 );
             Vector< Vector< moris_id > > tNodalIGtoBSSensitivityIdsZ( 0 );
-            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityZ( 0 );
+            Matrix< IdMat >              tNodalIGtoBSIdsForSensitivityZ( 0 , 0 );
             
 
             Matrix< DDRMat >          tNodalIGtoBSWeights( 0, 0 );
@@ -1755,7 +1926,7 @@ namespace moris::mtk
                     for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
                     {
                         // get basis function ID
-                        moris_id tBfId = tAddIdList( iBf );
+                        //moris_id tBfId = tAddIdList( iBf );
                         
                         // get all the sensitivities corresponding to this basis function ID
                         Vector< Matrix< DDRMat > > tSensitivityWeights = aIPtoBSSensitivityWeights( tIpId - 1 )( iBf );
@@ -1850,7 +2021,7 @@ namespace moris::mtk
                     for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
                     {
                         // get basis function ID
-                        moris_id tBfId = tAddIdList( iBf );
+                        //moris_id tBfId = tAddIdList( iBf );
 
                         // get all the sensitivities corresponding to this basis function ID
                         Vector< Matrix< DDRMat > > tSensitivityWeights = aIPtoBSSensitivityWeights( tIpId - 1 )( iBf );
@@ -1945,7 +2116,7 @@ namespace moris::mtk
                         for ( uint iBf = 0; iBf < tAddIdList.numel(); iBf++ )
                         {
                             // get basis function ID
-                            moris_id tBfId = tAddIdList( iBf );
+                            //moris_id tBfId = tAddIdList( iBf );
 
                             // get all the sensitivities corresponding to this basis function ID
                             Vector< Matrix< DDRMat > > tSensitivityWeights = aIPtoBSSensitivityWeights( tIpId - 1 )( iBf );

@@ -373,6 +373,9 @@ namespace moris::wrk
         // output T-matrices and/or MPCs if requested
         this->output_T_matrices( tMTKPerformer, tXTKPerformer );
 
+        // consider whether basis extension sensitivities must be factored in while computing sensitivities in MORIS
+        bool tConsiderBasisExtensionSensitivities = tXTKPerformer->consider_basis_agglomeration_sensitivities_in_t_matrix();
+
         // stop workflow if T-Matrices have been outputted
         if ( tXTKPerformer->kill_workflow_flag() )
         {
@@ -460,6 +463,10 @@ namespace moris::wrk
         mPerformerManager->mMDLPerformer( 0 )->set_use_new_ghost_mesh_sets( tUseNewGhostSets );
 
         mPerformerManager->mMDLPerformer( 0 )->initialize();
+
+        // set basis extension sensitivities
+        mPerformerManager->mMDLPerformer( 0 )->set_consider_basis_extension_sensitivities(
+                tConsiderBasisExtensionSensitivities );
 
         mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
@@ -575,8 +582,16 @@ namespace moris::wrk
         std::string tTmatrixFileName = aXTKPerformer->get_global_T_matrix_output_file_name();
         if ( tTmatrixFileName != "" )
         {
-            mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_global_T_matrix_to_file( tTmatrixFileName );
-
+            // check if basis extension sensitivities need to be factored in the T Matrix
+            if ( aXTKPerformer->consider_basis_agglomeration_sensitivities_in_t_matrix() )
+            {
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_global_T_matrix_to_file_new( tTmatrixFileName );
+            }
+            else
+            {
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_global_T_matrix_to_file( tTmatrixFileName );
+            }
+            
             // return flag stopping the workflow after the T-Matrix output
             return true;
         }

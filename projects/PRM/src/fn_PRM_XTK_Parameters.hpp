@@ -146,6 +146,7 @@ namespace moris::prm
         
         // flag to indicate that this is an interpolation based immersed workflow - that is FEM should run even if T matrices are outputted.
         tParameterList.insert( "is_interpolation_based_immersed_workflow", false );
+        tParameterList.insert( "consider_basis_agglomeration_sensitivities_in_t_matrix", false );
 
         return tParameterList;
     }
