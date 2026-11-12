@@ -10,6 +10,7 @@
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
+#include <unistd.h>
 
 #include "cl_XTK_Enums.hpp"
 

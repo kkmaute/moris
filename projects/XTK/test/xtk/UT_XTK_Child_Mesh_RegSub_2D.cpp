@@ -149,7 +149,7 @@ namespace moris::xtk
         moris::Matrix< IndexMat > const &tNodeIndicesOfCM = tRegSubChildMesh.get_node_indices();
 
         // Topology of the base quad
-        Quad_4_Topology tQuad4Topo( { { 0, 1, 2, 3 } } );
+        Quad_4_Topology tQuad4Topo( Matrix< IndexMat >{ { 0, 1, 2, 3 } } );
 
         // Get the basis of the quad4
         Basis_Function const &tQuad4Basis = tQuad4Topo.get_basis_function();

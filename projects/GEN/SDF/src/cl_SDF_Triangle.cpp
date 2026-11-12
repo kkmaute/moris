@@ -12,6 +12,7 @@
 
 #include "assert.hpp"
 #include "fn_dot.hpp"
+#include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
@@ -72,7 +73,7 @@ namespace moris::sdf
         }
 
         // norm of this triangle
-        mNormal = cross( aDirectionOfEdge, tDirection02 );
+        mNormal = moris::cross( aDirectionOfEdge, tDirection02 );
 
         real tNorm = norm( mNormal );
         for ( uint i = 0; i < 3; ++i )

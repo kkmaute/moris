@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include "cl_Matrix_Arma_Dynamic.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"

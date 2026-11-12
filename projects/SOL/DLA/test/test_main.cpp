@@ -10,6 +10,7 @@
 
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
+#include <unistd.h>
 
 // MORIS header files.
 #ifdef MORIS_HAVE_PARALLEL

@@ -279,7 +279,7 @@ namespace moris::mtk
                                             Matrix< moris::DDRMat > tDiff = tVertexCoordsInCluster.get_row( tFirstNode ) - tVertexCoordsInCluster2.get_row( tSecondNode );
                                             if ( norm( tDiff ) < 0.001 )
                                             {
-                                                tPermutation.get_row( tFirstNode ) = tSecondNode;
+                                                tPermutation.get_row( tFirstNode ).fill( tSecondNode );
 
                                                 break;
                                             }
@@ -293,7 +293,7 @@ namespace moris::mtk
                                 tSecondIds( tFirstClusterIndex ) = tVertexIdsInCluster2;
 
                                 // ID of the 2nd cluster matching the fisrt one
-                                tPairedIndices.get_row( tFirstClusterIndex ) = tSecondClusterIndex;
+                                tPairedIndices.get_row( tFirstClusterIndex ).fill( tSecondClusterIndex );
 
                                 break;
                             }
@@ -495,7 +495,7 @@ namespace moris::mtk
                                             Matrix< moris::DDRMat > tDiff = tVertexCoordsInCluster.get_row( tFirstNode ) - tVertexCoordsInCluster2.get_row( tSecondNode );
                                             if ( norm( tDiff ) < 0.001 )
                                             {
-                                                tPermutation.get_row( tFirstNode ) = tSecondNode;
+                                                tPermutation.get_row( tFirstNode ).fill( tSecondNode );
 
                                                 break;
                                             }
@@ -509,7 +509,7 @@ namespace moris::mtk
                                 tSecondIds( tFirstClusterIndex ) = tVertexIdsInCluster2;
 
                                 // ID of the 2nd cluster matching the fisrt one
-                                tPairedIndices.get_row( tFirstClusterIndex ) = tSecondClusterIndex;
+                                tPairedIndices.get_row( tFirstClusterIndex ).fill( tSecondClusterIndex );
 
                                 break;
                             }

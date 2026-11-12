@@ -487,9 +487,8 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
             mtk::Interpolation_Type::CONSTANT,
             mtk::Interpolation_Order::CONSTANT );
 
-    // create random coefficients
-    arma::Mat< double > tMatrix;
-    tMatrix.randu( 8, 1 );
+    // Use reproducible, nonuniform coefficients with either matrix backend.
+    Matrix< DDRMat > tMatrix = { { 0.12 }, { 0.73 }, { 0.28 }, { 0.91 }, { 0.45 }, { 0.64 }, { 0.36 }, { 0.82 } };
     Matrix< DDRMat > tDOFHat;
     tDOFHat = 10.0 * tMatrix;
 

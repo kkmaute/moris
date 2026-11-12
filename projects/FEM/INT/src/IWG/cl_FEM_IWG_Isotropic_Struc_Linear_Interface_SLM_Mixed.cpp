@@ -87,12 +87,12 @@ namespace moris::fem
             // compute leader residual
             mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } ) -=
                     aWStar
-                    * ( tFILambdaLeader->N_trans() * ( tFIDisplLeader->val() - tFIDisplFollower->val() ) ) * tPropYoungsLeader->val()( 0 );
+                    * ( tFILambdaLeader->N_trans() * tDisplJump ) * tPropYoungsLeader->val()( 0 );
 
             // compute follower residual
             mSet->get_residual()( 0 )( { tFollowerResStartIndex, tFollowerResStopIndex } ) -=
                     aWStar
-                    * ( tFILambdaFollower->N_trans() * ( tFIDisplLeader->val() - tFIDisplFollower->val() ) ) * tPropYoungsFollower->val()( 0 );
+                    * ( tFILambdaFollower->N_trans() * tDisplJump ) * tPropYoungsFollower->val()( 0 );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),

@@ -9,6 +9,7 @@
  */
 
 #include "cl_Communication_Tools.hpp"
+#include "fn_norm.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_equal_equal.hpp"

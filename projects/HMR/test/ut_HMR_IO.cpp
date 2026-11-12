@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_norm.hpp"
 #include "paths.hpp"
 
 #include "cl_HMR.hpp"

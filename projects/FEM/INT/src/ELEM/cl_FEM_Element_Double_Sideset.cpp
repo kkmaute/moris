@@ -19,7 +19,6 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "cl_Matrix_Arma_Dynamic.hpp"
 #include "cl_Vector.hpp"
 #include "cl_Matrix.hpp"
 #include "fn_FEM_Side_Coordinate_Map.hpp"

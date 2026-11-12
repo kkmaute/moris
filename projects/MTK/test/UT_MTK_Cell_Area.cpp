@@ -9,6 +9,7 @@
  */
 
 #include "catch.hpp"
+#include "fn_norm.hpp"
 #include "cl_Communication_Tools.hpp"
 
 // base class
@@ -1109,16 +1110,24 @@ namespace moris::mtk
 
                     real&      tCoordinate = tData.mVertices( i ).mVertexCoord( d );
                     const real tOriginal   = tCoordinate;
-                    const real tStep       = 1e-6;
-                    tCoordinate            = tOriginal + tStep;
 
-                    const real tPlus = tData.mCell.compute_cell_measure_general();
-                    tCoordinate      = tOriginal - tStep;
+                    // Subtracting two integrated volumes amplifies quadrature
+                    // roundoff at tiny steps, especially for HEX64's zero
+                    // derivatives. Check two larger steps without relaxing the
+                    // tolerance; these maps retain their Jacobian orientation.
+                    for ( real tStep : { 1e-4, 5e-5 } )
+                    {
+                        INFO( "Finite-difference step=" << tStep );
+                        tCoordinate = tOriginal + tStep;
 
-                    const real tMinus = tData.mCell.compute_cell_measure_general();
-                    tCoordinate       = tOriginal;
+                        const real tPlus = tData.mCell.compute_cell_measure_general();
+                        tCoordinate      = tOriginal - tStep;
 
-                    CHECK( tBulk( i, d ) == Approx( ( tPlus - tMinus ) / ( 2.0 * tStep ) ).margin( 1e-8 ) );
+                        const real tMinus = tData.mCell.compute_cell_measure_general();
+                        tCoordinate       = tOriginal;
+
+                        CHECK( tBulk( i, d ) == Approx( ( tPlus - tMinus ) / ( 2.0 * tStep ) ).margin( 1e-8 ) );
+                    }
                 }
             }
 

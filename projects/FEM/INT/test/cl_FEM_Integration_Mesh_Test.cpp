@@ -9,6 +9,8 @@
  */
 
 #include "catch.hpp"
+#include "fn_trans.hpp"
+#include "fn_det.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"               //MTK/src
 #include "fn_vectorize.hpp"                    //LINALG/src

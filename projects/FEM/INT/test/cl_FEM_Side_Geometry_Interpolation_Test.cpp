@@ -9,6 +9,7 @@
  */
 
 #include "catch.hpp"
+#include "fn_trans.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"    //FEM/INT/sr
 #include "cl_MTK_Integrator.hpp"               //MTK/sr
 

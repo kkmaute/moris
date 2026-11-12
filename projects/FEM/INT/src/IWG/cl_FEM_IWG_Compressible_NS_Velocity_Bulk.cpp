@@ -328,52 +328,31 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Velocity_Bulk::MultipMat()
+        const Matrix< DDRMat >& IWG_Compressible_NS_Velocity_Bulk::MultipMat()
         {
-            // check if multiplication matrix exists
-            if ( mMultipMatIsBuild )
+            const uint tDimension  = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) )->get_number_of_fields();
+            const uint tTensorSize = tDimension == 2 ? 3 : 6;
+
+            // Keep storage stable when multiple calls occur within one lazy expression.
+            // The same IWG can be reused with a field interpolator of a different dimension.
+            if ( !mMultipMatIsBuild || mMultipMat.n_rows() != tTensorSize )
             {
-                return mMultipMat;
+                mMultipMat.set_size( tTensorSize, tTensorSize, 0.0 );
+                for ( uint i = 0; i < tTensorSize; ++i )
+                {
+                    mMultipMat( i, i ) = i < tDimension ? 1.0 : 2.0;
+                }
+                mMultipMatIsBuild = true;
             }
 
-            // build multiplication matrix otherwise
-            else
-            {
-                //build multiplication matrix
-                //for 2D
-                if( mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ))->get_number_of_fields() == 2 )
-                {
-                    mMultipMat = {
-                            { 1.0, 0.0, 0.0 },
-                            { 0.0, 1.0, 0.0 },
-                            { 0.0, 0.0, 2.0 }};
-                }
-                // for 3D
-                else
-                {
-                    mMultipMat = {
-                            { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
-                            { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
-                            { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
-                            { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
-                            { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
-                            { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 }};
-                }
-
-                // FIXME: for unit testing mMultipMatIsBuild needs to be reset
-                // set evaluation flag
-                // mMultipMatIsBuild = true;
-
-                // return matrix
-                return mMultipMat;
-            }
+            return mMultipMat;
         }
 
         //------------------------------------------------------------------------------
 
         // FIXME provided directly by the field interpolator?
         void IWG_Compressible_NS_Velocity_Bulk::compute_dnNdtn(
-                Matrix< DDRMat > & adnNdtn )
+                Matrix< DDRMat >& adnNdtn )
         {
             // get the residual dof type FI (here velocity)
             Field_Interpolator * tVelocityFI =

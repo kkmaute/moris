@@ -584,8 +584,8 @@ namespace moris::mtk
         {
             // C
             moris::Matrix< moris::DDRMat > C( 2, 1 );
-            C.get_row( 0 ) = sum( aIntersectedPoints.get_row( 0 ) ) / tNumColumn;
-            C.get_row( 1 ) = sum( aIntersectedPoints.get_row( 1 ) ) / tNumColumn;
+            C( 0 ) = sum( aIntersectedPoints.get_row( 0 ) ) / tNumColumn;
+            C( 1 ) = sum( aIntersectedPoints.get_row( 1 ) ) / tNumColumn;
 
             moris::Matrix< moris::DDRMat > ao( 1, tNumColumn );
 

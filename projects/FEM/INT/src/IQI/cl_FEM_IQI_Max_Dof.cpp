@@ -97,7 +97,7 @@ namespace moris::fem
         // check if the weight property has been stipulated
         if ( tPropWeight != nullptr )
         {
-            aQI = { { tPropWeight->val() * std::pow( tArgument, mExponent ) } };
+            aQI = tPropWeight->val() * std::pow( tArgument, mExponent );
         }
         else
         {

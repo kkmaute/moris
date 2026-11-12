@@ -8,6 +8,7 @@
  *
  */
 #include "cl_MTK_MappingResult.hpp"
+#include "fn_trans.hpp"
 #include "cl_Json_Object.hpp"
 
 namespace moris::mtk

@@ -13,6 +13,8 @@
 #include "fn_eye.hpp"
 #include "fn_inv.hpp"             //LINALG/src
 
+#include <algorithm>
+
 namespace moris::hmr
 {
 
@@ -206,35 +208,17 @@ namespace moris::hmr
                                 {
                                     if ( tAllBasis( iBasisSearchIndex )->get_memory_index() == tChildBasisIndex )
                                     {
-                                        // fixme: this operation is supposed to work the same way for both Armadillo and Eigen.
-#ifdef MORIS_USE_EIGEN
-                                        //                                                aTMatrixTransposed.set_column( tCount,
-                                        //                                                        aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                        //                                                        + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-                                        // aTMatrixTransposed.set_column( tCount,
-                                        //         aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                        //         + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
-                                        aTMatrixTransposed.set_column( tCount,
-                                                aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                                        + mTruncationWeights( j ) * mEye.get_column( tCounter_2 ).matrix_data() );
-#else
-                                        /*                                                tTMatrixTruncatedTransposed.set_column( tCount,
-                                                tTMatrixTruncatedTransposed.get_column( tCount )
-                                                + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ) ); */
-                                        // try direct arma access, see how much time we loose
-                                        //                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-                                        //                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
-                                        aTMatrixTransposed.matrix_data().col( tDOFCount ) = aTMatrixTransposed.matrix_data().col( tDOFCount )
-                                                                                          + mTruncationWeights( iChildNumber ) * mEye.matrix_data().col( iBasisSearchIndex );
-#endif
+                                        aTMatrixTransposed.get_column( tDOFCount ) +=
+                                                mTruncationWeights( iChildNumber ) * mEye.get_column( iBasisSearchIndex );
                                         break;
                                     }
-                                } // end for: loop searching which local index the child BF has wrt to the refined element
-                            } // end case: child BF is neither active nor refined (i.e. it is inactive)
-                        } // end case: child BF actually exists
-                    } // end for: loop over all children of the parent basis function
+                                }    // end for: loop searching which local index the child BF has wrt to the refined element
+                            }    // end case: child BF is neither active nor refined (i.e. it is inactive)
+                        }    // end case: child BF actually exists
+                    }    // end for: loop over all children of the parent basis function
 
-                    if ( aTMatrixTransposed.get_column( tDOFCount ).min() < -gEpsilon || aTMatrixTransposed.get_column( tDOFCount ).max() > gEpsilon )
+                    const real* tColumn = aTMatrixTransposed.colptr( tDOFCount );
+                    if ( std::any_of( tColumn, tColumn + aTMatrixTransposed.n_rows(), []( real aValue ) { return aValue < -gEpsilon || aValue > gEpsilon; } ) )
                     {
                         // copy parent index
                         aDOFs( tDOFCount++ ) = tBasis;

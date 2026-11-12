@@ -52,8 +52,9 @@ namespace moris::sdf
         // Special SDF functions
         //-------------------------------------------------------------------------------
 
+        // SDF objects use 2x2 rotations in 2D and 3x3 rotations in 3D.
         void
-        rotate_node_coords( const Matrix< F33RMat >& aRotationMatrix );
+        rotate_node_coords( const Matrix< DDRMat >& aRotationMatrix );
 
         //-------------------------------------------------------------------------------
 

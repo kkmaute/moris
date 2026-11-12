@@ -9,7 +9,6 @@
  */
 
 #include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp"
-#include "armadillo"
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
@@ -20,11 +19,10 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Vector.hpp"
-#include "fn_dot_Arma.hpp"
 #include "fn_inv.hpp"
 #include "fn_isfinite.hpp"
 #include "fn_assert.hpp"
-#include "cl_Matrix_Arma_Dynamic.hpp"
+#include "cl_Matrix.hpp"
 #include "fn_trans.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"

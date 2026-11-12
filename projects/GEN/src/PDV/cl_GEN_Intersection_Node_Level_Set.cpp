@@ -14,6 +14,7 @@
 
 #include "fn_eye.hpp"
 #include "fn_norm.hpp"
+#include "fn_trans.hpp"
 
 namespace moris::gen
 {

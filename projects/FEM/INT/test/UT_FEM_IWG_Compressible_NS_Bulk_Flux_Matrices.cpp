@@ -9,6 +9,7 @@
  */
 
 #include <string>
+#include "fn_inv.hpp"
 #include <catch.hpp>
 #include <memory>
 #include "assert.hpp"

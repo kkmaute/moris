@@ -9,6 +9,7 @@
  */
 
 #include "catch.hpp"
+#include "fn_trans.hpp"
 
 #define protected public
 #define private   public

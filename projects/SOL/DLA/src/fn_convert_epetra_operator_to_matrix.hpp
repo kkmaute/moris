@@ -87,11 +87,13 @@ MatType< ElementType > convert_epetra_operator_to_arma_sp_mat( Epetra_CrsMatrix 
     {
         tReturnMatrix = MatType< ElementType >( tMatrixSize, tMatrixSize, 0.0 );
     }
+#ifdef MORIS_USE_ARMA
     else if constexpr ( std::is_same< MatType< ElementType >, arma::SpMat< ElementType > >::value )
     {
         tReturnMatrix = MatType< ElementType >( tMatrixSize, tMatrixSize );
         tReturnMatrix.mem_resize( aEpetraMatrix.NumGlobalNonzeros() );
     }
+#endif
 
     // write a function that extract s
     if ( aEpetraMatrix.RowMap().Comm().NumProc() == 1 )

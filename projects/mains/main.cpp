@@ -11,6 +11,7 @@
 #include <iostream>
 #include <ios>
 #include <limits>
+#include <unistd.h>
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Logger.hpp"                   // MRS/IOS/src

@@ -16,7 +16,9 @@
 
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
+#include "op_less.hpp"
 #include "fn_norm.hpp"
+#include "fn_comp_abs.hpp"
 #include "fn_dot.hpp"
 #include "fn_all_true.hpp"
 
@@ -26,6 +28,36 @@
 
 namespace moris::sdf
 {
+    TEST_CASE( "SDF vertex rotations support two and three dimensions", "[gen],[sdf],[vertex rotation]" )
+    {
+        // A quarter turn about the z axis maps (1, 2, z) to (-2, 1, z).
+        for ( uint tDimension = 2; tDimension <= 3; ++tDimension )
+        {
+            Matrix< DDRMat > tCoordinates( tDimension, 1 );
+            for ( uint i = 0; i < tDimension; ++i )
+            {
+                tCoordinates( i ) = i + 1.0;
+            }
+            Facet_Vertex tVertex( 0, tCoordinates );
+
+            Matrix< DDRMat > tRotation( tDimension, tDimension, 0.0 );
+            tRotation( 0, 1 ) = -1.0;
+            tRotation( 1, 0 ) = 1.0;
+            if ( tDimension == 3 )
+            {
+                tRotation( 2, 2 ) = 1.0;
+            }
+            tVertex.rotate_node_coords( tRotation );
+
+            CHECK( tVertex.get_coord( 0 ) == Approx( -2.0 ) );
+            CHECK( tVertex.get_coord( 1 ) == Approx( 1.0 ) );
+            if ( tDimension == 3 )
+            {
+                CHECK( tVertex.get_coord( 2 ) == Approx( 3.0 ) );
+            }
+        }
+    }
+
     TEST_CASE( "SDF::Object()", "[gen], [sdf], [object transformation test]" )
     {
         real tEpsilon = 1e-9;
@@ -46,14 +78,14 @@ namespace moris::sdf
         Matrix< DDRMat > tFacetCoords = tObject.get_facet( 0 ).get_vertex_coords();
 
         // check rotation
-        CHECK( all_true( abs( tFacetCoords - tRotationCoordsExpected ) < tEpsilon ) );
+        CHECK( all_true( comp_abs( tFacetCoords - tRotationCoordsExpected ) < tEpsilon ) );
 
         // reset and get first facet coordinates
         tObject.reset_coordinates();
         tFacetCoords = tObject.get_facet( 0 ).get_vertex_coords();
 
         // check reset
-        CHECK( all_true( abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
+        CHECK( all_true( comp_abs( tFacetCoords - tResetCoordsExpected ) < tEpsilon ) );
 
         // shift the object and get the second facet
         Vector< real > tShift = { -0.25, 0.25 };
@@ -61,7 +93,7 @@ namespace moris::sdf
         tFacetCoords = tObject.get_facet( 1 ).get_vertex_coords();
 
         // check shift
-        CHECK( all_true( abs( tFacetCoords - tShiftCoordsExpected ) < tEpsilon ) );
+        CHECK( all_true( comp_abs( tFacetCoords - tShiftCoordsExpected ) < tEpsilon ) );
 
         // reset
         tObject.reset_coordinates();
@@ -72,7 +104,7 @@ namespace moris::sdf
         tFacetCoords = tObject.get_facet( 2 ).get_vertex_coords();
 
         // check scale
-        CHECK( all_true( abs( tFacetCoords - tScaleCoordsExpected ) < tEpsilon ) );
+        CHECK( all_true( comp_abs( tFacetCoords - tScaleCoordsExpected ) < tEpsilon ) );
 
         // reset
         tObject.reset_coordinates();

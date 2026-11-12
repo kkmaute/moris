@@ -330,7 +330,7 @@ namespace moris::mtk
         void get_value(
                 Matrix< IndexMat > const &aIndex,
                 Matrix< DDRMat >         &aValues,
-                Matrix< IndexMat > const &aFieldIndex = 0 );
+                Matrix< IndexMat > const &aFieldIndex = {} );
 
         //------------------------------------------------------------------------------
 

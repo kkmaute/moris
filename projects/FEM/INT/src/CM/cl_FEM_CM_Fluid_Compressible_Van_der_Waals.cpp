@@ -1723,7 +1723,7 @@ namespace moris::fem
         // fill vector
         for ( uint iBase = 0; iBase < tNumBases; iBase++ )
         {
-            mLaplaceDensityDof( { 0, 0 }, { iBase, iBase } ) = sum( td2Ndx2( { 0, 1 }, { iBase, iBase } ) );
+            mLaplaceDensityDof( 0, iBase ) = moris::sum( td2Ndx2( { 0, 1 }, { iBase, iBase } ) );
         }
     }
 
@@ -1743,7 +1743,7 @@ namespace moris::fem
         // fill vector
         for ( uint iBase = 0; iBase < tNumBases; iBase++ )
         {
-            mLaplaceDensityDof( { 0, 0 }, { iBase, iBase } ) = sum( td2Ndx2( { 0, 2 }, { iBase, iBase } ) );
+            mLaplaceDensityDof( 0, iBase ) = moris::sum( td2Ndx2( { 0, 2 }, { iBase, iBase } ) );
         }
     }
 

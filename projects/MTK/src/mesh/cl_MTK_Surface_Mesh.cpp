@@ -257,10 +257,10 @@ namespace moris::mtk
 
     void Surface_Mesh::initialize_vertex_normals()
     {
-        auto const                    tNumVertices  = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
-        uint const                    tDim          = this->get_spatial_dimension();
-        Matrix< arma::Mat< double > > tFacetNormals = this->get_facet_normals();
-        Matrix< arma::Mat< double > > tFacetMeasure = this->get_facet_measure();
+        auto const       tNumVertices  = static_cast< moris::size_t >( mLocalToGlobalVertexIndex.size() );
+        uint const       tDim          = this->get_spatial_dimension();
+        Matrix< DDRMat > tFacetNormals = this->get_facet_normals();
+        Matrix< DDRMat > tFacetMeasure = this->get_facet_measure();
         mVertexNormals.resize( tDim, tNumVertices );
 
         auto tNormal = Matrix< DDRMat >( tDim, 1 );

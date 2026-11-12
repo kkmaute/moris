@@ -9,6 +9,7 @@
  */
 
 #include "catch.hpp"
+#include "fn_norm.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"

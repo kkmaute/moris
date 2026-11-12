@@ -200,8 +200,8 @@ namespace moris
             if ( tCMElasticityDamage->check_dof_dependency( aDofType ) )
             {
                 // compute max damage derivative
-                adQIdu = { { tActivity * ( tExponent * trans( tCMElasticityDamagePtr->dSmoothDamagedu( aDofType ) ) / tRefValue ) *    //
-                             std::pow( std::max( tCMElasticityDamagePtr->smooth_damage()( 0 ) / tRefValue - tShift, 0.0 ), tExponent - 1.0 ) } };
+                adQIdu = tActivity * ( tExponent * trans( tCMElasticityDamagePtr->dSmoothDamagedu( aDofType ) ) / tRefValue ) *    //
+                         std::pow( std::max( tCMElasticityDamagePtr->smooth_damage()( 0 ) / tRefValue - tShift, 0.0 ), tExponent - 1.0 );
             }
         }
 

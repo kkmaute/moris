@@ -1,4 +1,5 @@
 #include <string>
+#include <algorithm>
 #include <iostream>
 
 #include "moris_typedefs.hpp"
@@ -421,8 +422,9 @@ namespace moris
 
             const Matrix< DDRMat >& tXhat = aFIManager->get_IP_geometry_interpolator()->get_space_coeff();
 
-            real tXmax = tXhat.get_column( 0 ).max();
-            real tXmin = tXhat.get_column( 0 ).min();
+            auto const tXBounds = std::minmax_element( tXhat.colptr( 0 ), tXhat.colptr( 0 ) + tXhat.n_rows() );
+            real const tXmax    = *tXBounds.second;
+            real const tXmin    = *tXBounds.first;
 
             real tEleLength = tXmax - tXmin;
 

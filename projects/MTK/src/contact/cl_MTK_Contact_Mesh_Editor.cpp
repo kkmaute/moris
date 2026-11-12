@@ -13,7 +13,7 @@
 #include "cl_MTK_MappingResult.hpp"
 #include "cl_MTK_PointPairs.hpp"
 #include "cl_MTK_Nonconformal_Side_Cluster.hpp"
-#include "cl_Matrix_Arma_Dynamic.hpp"
+#include "cl_Matrix.hpp"
 #include "cl_Vector.hpp"
 #include "fn_assert.hpp"
 #include "fn_join_horiz.hpp"
@@ -218,7 +218,7 @@ namespace moris::mtk
 
             // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
             auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
-            for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
+            for ( uint iCoord = 0; iCoord < aMappingResult.mTargetParametricCoordinate.n_rows(); ++iCoord )
             {
                 tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
             }
@@ -284,7 +284,7 @@ namespace moris::mtk
 
             // Since the integration points have a constant time dimension, we can leave a -1.0 to the parametric coordinates.
             auto tCoordinate = aMappingResult.mTargetParametricCoordinate.get_column( tMappingResultColumn );
-            for ( uint iCoord = 0; iCoord < tCoordinate.n_rows; ++iCoord )
+            for ( uint iCoord = 0; iCoord < aMappingResult.mTargetParametricCoordinate.n_rows(); ++iCoord )
             {
                 tFollowerParametricCoords( iCoord, iIndex ) = tCoordinate( iCoord );
             }

@@ -10,6 +10,8 @@
 
 #include "cl_GEN_Voxel_Input.hpp"
 
+#include <algorithm>
+
 #include "cl_Ascii.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_trans.hpp"
@@ -182,25 +184,31 @@ namespace moris::gen
         MORIS_ERROR( mVoxelField.max() != MORIS_UINT_MAX,
                 "Voxel_Input::Voxel_Input() - Matrix not correctly initialized.\n" );
 
+        // Reduce contiguous column storage without depending on native backend views.
+        const auto tGrainRange = std::minmax_element( mVoxelField.colptr( 1 ), mVoxelField.colptr( 1 ) + mVoxelField.n_rows() );
+        const auto tColumnMax  = [ this ]( uint aColumn ) {
+            return *std::max_element( mVoxelField.colptr( aColumn ), mVoxelField.colptr( aColumn ) + mVoxelField.n_rows() );
+        };
+
         // check that smallest grain id equals 1
-        MORIS_ERROR( mVoxelField.get_column( 1 ).min() == 1,
+        MORIS_ERROR( *tGrainRange.first == 1,
                 "Voxel_Input::Voxel_Input() - Voxel index needs to be 1.\n" );
 
         // get number of grains assuming that grains are numbered consecutively
-        mNumGrainInd = mVoxelField.get_column( 1 ).max();
+        mNumGrainInd = *tGrainRange.second;
 
         // Voxel indices start with 1
 
         if ( tNumSpaceDim == 3 )
         {
-            mVoxelsInZ = mVoxelField.get_column( 2 ).max() + 1;
-            mVoxelsInY = mVoxelField.get_column( 3 ).max() + 1;
-            mVoxelsInX = mVoxelField.get_column( 4 ).max() + 1;
+            mVoxelsInZ = tColumnMax( 2 ) + 1;
+            mVoxelsInY = tColumnMax( 3 ) + 1;
+            mVoxelsInX = tColumnMax( 4 ) + 1;
         }
         else
         {
-            mVoxelsInY = mVoxelField.get_column( 3 ).max() + 1;
-            mVoxelsInX = mVoxelField.get_column( 2 ).max() + 1;
+            mVoxelsInY = tColumnMax( 3 ) + 1;
+            mVoxelsInX = tColumnMax( 2 ) + 1;
         }
     }
 

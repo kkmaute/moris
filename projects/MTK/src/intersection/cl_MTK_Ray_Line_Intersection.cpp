@@ -3,7 +3,8 @@
 //
 
 #include "cl_MTK_Ray_Line_Intersection.hpp"
-#include "armadillo"
+#include "cl_Matrix.hpp"
+#include "fn_norm.hpp"
 
 namespace moris::mtk
 {

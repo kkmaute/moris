@@ -9,6 +9,7 @@
  */
 
 #include <string>
+#include "fn_norm.hpp"
 #include <catch.hpp>
 #include <memory>
 
