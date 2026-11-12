@@ -2,6 +2,7 @@
  * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. */
 
 #include "catch.hpp"
+#include <limits>
 #include "cl_MatrixPETSc.hpp"
 #include "cl_Vector_PETSc_Multi.hpp"
 #include "cl_SOL_Dist_Map_Custom.hpp"
@@ -9,6 +10,11 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_Solver_Interface_Proxy.hpp"
 #include "fn_PRM_SOL_Parameters.hpp"
+
+#if PETSC_VERSION_EQ( 3, 23, 2 )
+#include <petsc/private/pcbddcimpl.h>
+#include <petsc/private/pcbddcprivateimpl.h>
+#endif
 
 namespace moris
 {
@@ -309,6 +315,74 @@ namespace moris
                     REQUIRE( PetscOptionsHasName( nullptr, "moris_bddc_parameter_test_", tOption, &tFound ) == 0 );
                     CHECK_FALSE( tFound );
                 }
+
+                CAPTURE( tCase, pass, tConstrained, tPreallocate );
+#if PETSC_VERSION_EQ( 3, 23, 2 )
+                // Poison precisely the basis rows that must be homogeneous, making
+                // the allocator-sensitive PETSc defect deterministic on every run.
+                PC tPC;
+                REQUIRE( KSPGetPC( tKSP, &tPC ) == 0 );
+                auto* tBDDC = static_cast< PC_BDDC* >( tPC->data );
+                if ( tBDDC->sub_schurs && tBDDC->sub_schurs->reuse_solver )
+                {
+                    IS tDirichletNodes;
+                    REQUIRE( PCBDDCGraphGetDirichletDofsB( tBDDC->mat_graph, &tDirichletNodes ) == 0 );
+                    if ( tDirichletNodes )
+                    {
+                        IS tDirichletRows;
+                        REQUIRE( ISGlobalToLocalMappingApplyIS( tBDDC->pcis.BtoNmap,
+                                         IS_GTOLM_DROP,
+                                         tDirichletNodes,
+                                         &tDirichletRows )
+                                 == 0 );
+                        PetscInt        tNumRows;
+                        const PetscInt* tRows;
+                        REQUIRE( ISGetLocalSize( tDirichletRows, &tNumRows ) == 0 );
+                        REQUIRE( ISGetIndices( tDirichletRows, &tRows ) == 0 );
+
+                        Mat tBases[] = { tBDDC->coarse_phi_B, tBDDC->coarse_psi_B };
+                        for ( uint i = 0; i < 2; ++i )
+                        {
+                            if ( tBases[ i ] && ( i == 0 || tBases[ i ] != tBases[ 0 ] ) )
+                            {
+                                PetscInt     tNumCols, tLeadingDimension;
+                                PetscScalar* tValues;
+                                REQUIRE( MatGetSize( tBases[ i ], nullptr, &tNumCols ) == 0 );
+                                REQUIRE( MatDenseGetLDA( tBases[ i ], &tLeadingDimension ) == 0 );
+                                REQUIRE( MatDenseGetArray( tBases[ i ], &tValues ) == 0 );
+                                for ( PetscInt c = 0; c < tNumCols; ++c )
+                                {
+                                    for ( PetscInt r = 0; r < tNumRows; ++r )
+                                    {
+                                        tValues[ tRows[ r ] + c * tLeadingDimension ] = std::numeric_limits< PetscReal >::quiet_NaN();
+                                    }
+                                }
+                                REQUIRE( MatDenseRestoreArray( tBases[ i ], &tValues ) == 0 );
+                            }
+                        }
+
+                        REQUIRE( ISRestoreIndices( tDirichletRows, &tRows ) == 0 );
+                        REQUIRE( ISDestroy( &tDirichletRows ) == 0 );
+                        REQUIRE( ISDestroy( &tDirichletNodes ) == 0 );
+                    }
+                }
+#endif
+                tPreconditioner.finalize_preconditioner_setup();
+
+                // PCApply must overwrite every owned output entry, including the
+                // zero correction on prescribed DOFs, before any Krylov iteration.
+                PC tAppliedPC;
+                REQUIRE( KSPGetPC( tKSP, &tAppliedPC ) == 0 );
+                REQUIRE( VecSet( tZ, std::numeric_limits< PetscReal >::quiet_NaN() ) == 0 );
+                REQUIRE( PCApply( tAppliedPC, tY, tZ ) == 0 );
+                REQUIRE( VecNorm( tZ, NORM_INFINITY, &tNorm ) == 0 );
+                CHECK_FALSE( PetscIsInfOrNanReal( tNorm ) );
+                REQUIRE( VecGetArrayRead( tZ, &tValues ) == 0 );
+                if ( tConstrained && tStart <= tConstraint && tConstraint < tEnd )
+                {
+                    CHECK( tValues[ tConstraint - tStart ] == 0.0 );
+                }
+                REQUIRE( VecRestoreArrayRead( tZ, &tValues ) == 0 );
 
                 REQUIRE( KSPSolve( tKSP, tY, tSolution ) == 0 );
 

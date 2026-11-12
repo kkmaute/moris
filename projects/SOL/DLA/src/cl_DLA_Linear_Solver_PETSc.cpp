@@ -244,6 +244,11 @@ void Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *a
 
     PetscCallAbort( PETSC_COMM_WORLD, PetscOptionsDestroy( &tOptions ) );
 
+    if ( mPreconditioner != nullptr )
+    {
+        mPreconditioner->finalize_preconditioner_setup();
+    }
+
     // KSPSetComputeEigenvalues(mPetscKSPProblem,PETSC_TRUE);
 
     // for debugging: print solver setup

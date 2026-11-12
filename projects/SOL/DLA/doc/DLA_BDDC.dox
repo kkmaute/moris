@@ -118,6 +118,18 @@ Rigid-body modes and other custom primal constraints are not derived automatical
 these may be needed for robust elasticity, enriched, or high-contrast problems. Disconnected subdomains may require
 -pc_bddc_detect_disconnected.
 
+PETSc 3.23.2 can leave retained Dirichlet rows of the local coarse basis
+uninitialized when reusing sub-Schur factors. This produces allocator-dependent
+large values or NaNs even when the Newton-correction RHS is zero at prescribed
+DOFs. MORIS restores the homogeneous rows in both trial and test interface bases
+after KSPSetUp. Factors, coarse constraints, scaling choices, and solver tolerances
+are retained. The compatibility code accesses private PETSc data only under an
+exact 3.23.2 version guard, because no public setter exposes these basis matrices.
+Call Preconditioner_PETSc::finalize_preconditioner_setup() after KSPSetUp when
+constructing a solver outside Linear_Solver_PETSc. The regression poisons the
+relevant basis rows before this call, checks finite preconditioner output and zero
+constrained corrections, and then checks the converged physical solution.
+
 Regression test: run DLA-test with the Catch filter [PETSc_BDDC] using 1, 2, and
 4 MPI ranks. It compares AIJ/MATIS actions with an analytic assembled operator,
 checks column-major nonsymmetric element input, and solves with BDDC after
@@ -128,4 +140,5 @@ https://petsc.org/release/manualpages/Mat/MATIS/
 https://petsc.org/release/manualpages/Mat/MatISSetPreallocation/
 https://petsc.org/release/manualpages/PC/PCBDDC/
 https://github.com/petsc/petsc/blob/v3.23.2/src/ksp/pc/impls/bddc/bddcschurs.c
+https://github.com/petsc/petsc/blob/v3.23.2/src/ksp/pc/impls/bddc/bddcprivate.c
 */

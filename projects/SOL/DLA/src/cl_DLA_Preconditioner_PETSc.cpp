@@ -20,6 +20,11 @@
 #include <petscdmda.h>
 #include "petscmat.h"
 
+#if PETSC_VERSION_EQ( 3, 23, 2 )
+#include <petsc/private/pcbddcimpl.h>
+#include <petsc/private/pcbddcprivateimpl.h>
+#endif
+
 #include <string>
 #include "HDF5_Tools.hpp"
 
@@ -924,4 +929,46 @@ void Preconditioner_PETSc::set_parameter_options( PetscOptions aOptions )
             }
         }
     }
+}
+
+//----------------------------------------------------------------------------------------
+
+void Preconditioner_PETSc::finalize_preconditioner_setup()
+{
+#if PETSC_VERSION_EQ( 3, 23, 2 )
+    PetscBool tIsBDDC = PETSC_FALSE;
+    PetscCallAbort( PETSC_COMM_WORLD, PetscObjectTypeCompare( (PetscObject)mpc, PCBDDC, &tIsBDDC ) );
+    if ( !tIsBDDC )
+    {
+        return;
+    }
+
+    // PETSc 3.23.2 can leave retained Dirichlet rows of the coarse basis
+    // uninitialized when reusing sub-Schur factors. These homogeneous rows
+    // must be zero: even a zero correction RHS is contaminated by 0 * NaN.
+    // No public API exposes the basis. Restrict private-layout access to the
+    // verified version and retain the selected factors and solver options.
+    auto *tBDDC = static_cast< PC_BDDC * >( mpc->data );
+    if ( tBDDC->sub_schurs && tBDDC->sub_schurs->reuse_solver )
+    {
+        IS tDirichletNodes = nullptr;
+        PetscCallAbort( PETSC_COMM_WORLD, PCBDDCGraphGetDirichletDofsB( tBDDC->mat_graph, &tDirichletNodes ) );
+        if ( tDirichletNodes )
+        {
+            // Graph entries use subdomain numbering; basis rows use interface numbering.
+            IS tDirichletRows;
+            PetscCallAbort( PETSC_COMM_WORLD, ISGlobalToLocalMappingApplyIS( tBDDC->pcis.BtoNmap, IS_GTOLM_DROP, tDirichletNodes, &tDirichletRows ) );
+            Mat tBases[] = { tBDDC->coarse_phi_B, tBDDC->coarse_psi_B };
+            for ( uint i = 0; i < 2; ++i )
+            {
+                if ( tBases[ i ] && ( i == 0 || tBases[ i ] != tBases[ 0 ] ) )
+                {
+                    PetscCallAbort( PETSC_COMM_WORLD, MatZeroRowsIS( tBases[ i ], tDirichletRows, 0.0, nullptr, nullptr ) );
+                }
+            }
+            PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tDirichletRows ) );
+            PetscCallAbort( PETSC_COMM_WORLD, ISDestroy( &tDirichletNodes ) );
+        }
+    }
+#endif
 }

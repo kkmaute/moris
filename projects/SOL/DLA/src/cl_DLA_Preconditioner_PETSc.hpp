@@ -83,6 +83,10 @@ namespace moris
             // options database. The caller retains native PETSc override precedence.
             void set_parameter_options( PetscOptions aOptions );
 
+            // Call after KSPSetUp and before applying or solving with the PC.
+            // Repair known PETSc-version-specific BDDC coarse-basis setup defects.
+            void finalize_preconditioner_setup();
+
             //-----------------------------------------------------------------------------------
         };
     }    // namespace dla
