@@ -9,6 +9,7 @@
  */
 
 #include <string>
+#include "fn_trans.hpp"
 #include <catch.hpp>
 #include "assert.hpp"
 
@@ -33,6 +34,7 @@
 //LINALG
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
+#include "fn_FEM_Matrix_Comparison.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -464,11 +466,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
                         true );
 
                 // check that jacobian is symmetric for symmetric version using upper diagonal block
-                 uint tNumRowBlock = tJacobian.n_rows()/iSpaceDim;
-                 Matrix< DDRMat > tBlock = tJacobian({ 0, tNumRowBlock-1 },{ 0, tNumRowBlock-1 });
+                uint             tNumRowBlock = tJacobian.n_rows() / iSpaceDim;
+                Matrix< DDRMat > tBlock       = tJacobian( { 0, tNumRowBlock - 1 }, { 0, tNumRowBlock - 1 } );
 
-                 real tRelError = norm( tBlock - trans( tBlock ) ) / norm ( tBlock );
-                 REQUIRE( tRelError < 1e-12 );
+                REQUIRE( fem::test::matrix_symmetry_bound( tBlock ) < 1e-12 );
 
                 // print for debug
                 if( !tCheckJacobian )

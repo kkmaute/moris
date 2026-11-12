@@ -19,7 +19,9 @@
 // LINALG/src
 #include "fn_trans.hpp"
 #include "fn_diag_vec.hpp"
-#include "fn_diag_mat.hpp"
+#include "fn_sum.hpp"
+#include "fn_vectorize.hpp"
+#include "op_elemwise_mult.hpp"
 
 namespace moris::fem
 {
@@ -148,8 +150,14 @@ namespace moris::fem
                 tLump       = tPropLump->val()( 0 );
                 tConsistent = 1.0 - tLump;
 
-                // add lumped contribution
-                tRes += aWStar * tWeight * tLump * sum( tFI->N_trans() * tFI->N(), 1 ) % vectorize( tFI->get_coeff() );
+                if ( tLump != 0.0 )
+                {
+                    // Row sums of N^T N equal N^T times the row sums of N.
+                    // Preserve full space-time lumping and the field-major
+                    // coefficient order of vectorize(), without forming N^T N.
+                    const Matrix< DDRMat > tLumpedWeights = tFI->N_trans() * sum( tFI->N(), 1 );
+                    tRes += aWStar * tWeight * tLump * tLumpedWeights % vectorize( tFI->get_coeff() );
+                }
             }
 
             // add consistent contribution
@@ -248,8 +256,16 @@ namespace moris::fem
                         tLump       = tPropLump->val()( 0 );
                         tConsistent = 1.0 - tLump;
 
-                        // add lumped contribution to the Jacobian
-                        tJac += aWStar * tWeight * tLump * diag_mat( sum( tFI->N_trans() * tFI->N(), 1 ) );
+                        if ( tLump != 0.0 )
+                        {
+                            // Accumulate the original lumped diagonal directly.
+                            // The consistent term below retains its time coupling.
+                            const Matrix< DDRMat > tLumpedWeights = tFI->N_trans() * sum( tFI->N(), 1 );
+                            for ( uint i = 0; i < tLumpedWeights.n_rows(); ++i )
+                            {
+                                tJac( i, i ) += aWStar * tWeight * tLump * tLumpedWeights( i );
+                            }
+                        }
                     }
 
                     // add consistent contribution to the Jacobian

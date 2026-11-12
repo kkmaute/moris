@@ -36,6 +36,8 @@
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
+#include "fn_FEM_Matrix_Comparison.hpp"
+#include "fn_vectorize.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -360,6 +362,61 @@ void Test_IWG_L2_Damage_Bulk(
 
                 // set integration point
                 tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+
+                if ( iGP == 0 )
+                {
+                    // Independent dense references retain the existing full
+                    // space-time lumping, including both temporal bases. The
+                    // L2 field follows displacement, strain, and history DOFs.
+                    const Matrix< DDRMat > tMass       = tLeaderFIs( 3 )->N_trans() * tLeaderFIs( 3 )->N();
+                    Matrix< DDRMat >       tMassChange = -tMass;
+                    for ( uint i = 0; i < tMass.n_rows(); ++i )
+                    {
+                        real tRowSum = 0.0;
+                        for ( uint j = 0; j < tMass.n_cols(); ++j )
+                        {
+                            tRowSum += tMass( i, j );
+                        }
+                        tMassChange( i, i ) += tRowSum;
+                    }
+                    const Matrix< DDRMat > tCoefficients = vectorize( tLeaderFIs( 3 )->get_coeff() );
+                    const uint             tStart        = tNumDofDispl + tNumDofNlEqStrain + tNumDofHistory;
+                    const uint             tStop         = tStart + tNumDofDamage - 1;
+
+                    for ( real tWeight : { 0.0, 1.7 } )
+                    {
+                        tPropWeight->set_parameters( { { { tWeight } } } );
+                        tPropLump->set_parameters( { { { 0.0 } } } );
+                        tIWG->reset_eval_flags();
+                        tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                        tIWG->mSet->mJacobian.fill( 0.0 );
+                        tIWG->compute_residual( 1.0 );
+                        tIWG->compute_jacobian( 1.0 );
+                        const Matrix< DDRMat > tConsistentResidual = tIWG->mSet->mResidual( 0 );
+                        const Matrix< DDRMat > tConsistentJacobian = tIWG->mSet->mJacobian;
+
+                        for ( real tLump : { 0.0, 0.5, 1.0 } )
+                        {
+                            INFO( "Dimension=" << iSpaceDim << " order=" << iInterpOrder
+                                               << " weight=" << tWeight << " lump=" << tLump );
+                            Matrix< DDRMat > tExpectedResidual = tConsistentResidual;
+                            Matrix< DDRMat > tExpectedJacobian = tConsistentJacobian;
+                            tExpectedResidual( { tStart, tStop }, { 0, 0 } ) += tWeight * tLump * tMassChange * tCoefficients;
+                            tExpectedJacobian( { tStart, tStop }, { tStart, tStop } ) += tWeight * tLump * tMassChange;
+
+                            tPropLump->set_parameters( { { { tLump } } } );
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->mSet->mJacobian.fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+                            tIWG->compute_jacobian( 1.0 );
+                            CHECK( fem::test::matrix_difference_bound( tIWG->mSet->mResidual( 0 ), tExpectedResidual ) < 1e-12 );
+                            CHECK( fem::test::matrix_difference_bound( tIWG->mSet->mJacobian, tExpectedJacobian ) < 1e-12 );
+                        }
+                    }
+                    tPropWeight->set_parameters( { { { 1.0 } } } );
+                    tPropLump->set_parameters( { { { 0.5 } } } );
+                }
 
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
