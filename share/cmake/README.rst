@@ -120,6 +120,11 @@ process counts, including HMR's 12-process case. Tests declare their processor
 requirements to CTest. This applies to unit tests; application examples retain
 their existing registration policy.
 
+The dense Eigen LINALG backend uses Eigen's built-in factorizations and does
+not require SuiteSparse. Selecting ``MORIS_USE_EIGEN=ON`` with
+``MORIS_USE_ARMA=OFF`` therefore does not trigger SuiteSparse discovery.
+Sparse solver dependencies remain the responsibility of their solver packages.
+
 Formatting and file layout
 --------------------------
 
@@ -154,6 +159,8 @@ require the MORIS TPL stack::
     python3 share/cmake/tests/test_package_configuration.py
     python3 share/cmake/tests/test_runtime_configuration.py
     python3 share/cmake/tests/test_test_registration.py
+    python3 share/cmake/tests/test_linalg_coverage.py
+    python3 share/cmake/tests/test_linalg_dependencies.py
 
 The first test also accepts a CMake executable as its positional argument.
 It exercises user flags, Debug/Release and symbolic modes, PIC, IPO, plugin

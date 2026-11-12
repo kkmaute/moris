@@ -1,52 +1,37 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_svd_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
-
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SVD_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SVD_EIGEN_HPP_
+#pragma once
 
 #include <Eigen/Dense>
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
-namespace moris {
-
-    template< typename T, typename S >
-    void
-    svd(      Eigen::MatrixBase< T >  & aU,
-              Eigen::MatrixBase< S >  & aS,
-              Eigen::MatrixBase< T >  & aV,
-        const Eigen::MatrixBase< T >  & aM)
+namespace moris
+{
+    template< class U, class S, class V, class E >
+    void svd( Matrix< U >& u, Matrix< S >& s, Matrix< V >& v, const Eigen::MatrixBase< E >& a )
     {
-        Eigen::JacobiSVD< T > tMySVD(
-                aM,
-                  Eigen::DecompositionOptions::ComputeThinU
-                | Eigen::DecompositionOptions::ComputeThinV );
-
-        aS = tMySVD.singularValues();
-        aU = tMySVD.matrixU();
-        aV = tMySVD.matrixV();
-
+        // The Armadillo wrapper retains full U but trims V to the singular-value count.
+        Eigen::JacobiSVD< linalg_internal::eigen_plain< E > > solver( a, Eigen::ComputeFullU | Eigen::ComputeThinV );
+        if ( solver.info() != Eigen::Success )
+        {
+            throw std::runtime_error( "svd failed" );
+        }
+        u = solver.matrixU();
+        s = solver.singularValues();
+        v = solver.matrixV();
     }
 
-    template< typename T, typename S >
-    void
-    svd(      Eigen::MatrixBase< S >      & aS,
-            const Eigen::MatrixBase< T >  & aM)
+    template< class S, class E >
+    void svd( Matrix< S >& s, const Eigen::MatrixBase< E >& a )
     {
-        Eigen::JacobiSVD< T > tMySVD(
-                aM,
-                Eigen::DecompositionOptions::ComputeThinU
-                | Eigen::DecompositionOptions::ComputeThinV );
-
-        aS = tMySVD.singularValues();
+        Eigen::JacobiSVD< linalg_internal::eigen_plain< E > > solver( a );
+        if ( solver.info() != Eigen::Success )
+        {
+            throw std::runtime_error( "svd failed" );
+        }
+        s = solver.singularValues();
     }
-
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SVD_EIGEN_HPP_ */
-
+}    // namespace moris

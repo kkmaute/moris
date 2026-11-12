@@ -29,7 +29,8 @@ namespace moris
      * @param[in] aAmat     Vector or matrix.
      * @param[in] aBmat     Vector or matrix.
      *
-     * @return  Column vector containing the indices of comment elements
+     * @return  Common values, sorted and unique. A row vector is returned when both inputs
+     * are row vectors; otherwise the result is a column vector.
      */
     template< typename Matrix_Type >
     auto
@@ -62,12 +63,16 @@ namespace moris
             Matrix< DDUMat >&            aAind,
             Matrix< DDUMat >&            aBind )
     {
+#ifdef MORIS_USE_EIGEN
+        intersect( aAmat.matrix_data(), aBmat.matrix_data(), aCmat, aAind, aBind );
+#else
         intersect(
                 aAmat.matrix_data(),
                 aBmat.matrix_data(),
                 aCmat.matrix_data(),
                 aAind.matrix_data(),
                 aBind.matrix_data() );
+#endif
     }
 }    // namespace moris
 

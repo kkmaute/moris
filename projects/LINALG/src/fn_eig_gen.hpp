@@ -39,7 +39,11 @@ namespace moris
                   Matrix< Matrix_Type1  >  & aEigenvectors,
             const Matrix< Matrix_Type2  >  & aA )
     {
+#ifdef MORIS_USE_EIGEN
+        eig_gen( aEigenvalues, aEigenvectors, aA.matrix_data() );
+#else
         eig_gen( aEigenvalues.matrix_data(), aEigenvectors.matrix_data(), aA.matrix_data() );
+#endif
     }
 }
 

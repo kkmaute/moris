@@ -17,34 +17,43 @@ namespace moris
 {
     template< typename ET >
     auto
-    dot(
-            const ET & aA,
-            const ET & aB)
-    -> decltype( arma::dot(aA , aB ) )
+    dot( const ET &aA, const ET &aB )
+            -> decltype( arma::dot( aA, aB ) )
     {
-        return arma::dot( aA , aB );
+        return arma::dot( aA, aB );
+    }
+
+    // Different expression nodes need independent derived types. A Base
+    // overload also avoids competing with Armadillo's generic ADL overloads.
+    template< typename TypeA, typename ETA, typename TypeB, typename ETB >
+    auto
+    dot(
+            const arma::Base< TypeA, ETA > &aA,
+            const arma::Base< TypeB, ETB > &aB )
+            -> decltype( arma::dot( aA.get_ref(), aB.get_ref() ) )
+    {
+        return arma::dot( aA.get_ref(), aB.get_ref() );
     }
 
     template< typename Matrix_Type, typename ET >
     auto
     dot(
-            Matrix< Matrix_Type > const & aA,
-            ET                    const & aB)
-    ->decltype(arma::dot(aA.matrix_data(), aB))
+            Matrix< Matrix_Type > const &aA,
+            ET const                    &aB )
+            -> decltype( arma::dot( aA.matrix_data(), aB ) )
     {
-        return arma::dot(aA.matrix_data(), aB);
+        return arma::dot( aA.matrix_data(), aB );
     }
 
-    template<typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
     dot(
-            ET                    const & aA,
-            Matrix< Matrix_Type > const & aB)
-    ->decltype(arma::dot(aA, aB.matrix_data()))
+            ET const                    &aA,
+            Matrix< Matrix_Type > const &aB )
+            -> decltype( arma::dot( aA, aB.matrix_data() ) )
     {
-        return arma::dot(aA, aB.matrix_data());
+        return arma::dot( aA, aB.matrix_data() );
     }
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DOT_ARMA_HPP_ */
-

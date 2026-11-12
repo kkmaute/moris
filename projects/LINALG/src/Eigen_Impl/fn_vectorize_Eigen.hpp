@@ -1,37 +1,18 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_vectorize_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_VECTORIZE_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_VECTORIZE_EIGEN_HPP_
-
-#include <Eigen/Dense>
-#include "cl_Matrix.hpp"
+#include "fn_reshape_Eigen.hpp"
 
 namespace moris
 {
-    template<  typename TYPE, typename INT >
-    Eigen::Map<Eigen::Matrix<TYPE,   Eigen::Dynamic, Eigen::Dynamic>>
-    vectorize(
-            Eigen::Matrix<TYPE, Eigen::Dynamic, Eigen::Dynamic>  & aA,
-            bool                                                   aToRowVector)
+    template< typename E >
+    auto vectorize( const Eigen::MatrixBase< E >& aA, bool aRow = false )
     {
-        if (aToRowVector)
-        {
-            Eigen::Map<Eigen::Matrix<TYPE,   Eigen::Dynamic, Eigen::Dynamic>> tM2(aA.data(), 1, aA.size() );
-            return tM2;
-        }
-
-        Eigen::Map<Eigen::Matrix<TYPE,   Eigen::Dynamic, Eigen::Dynamic>> tM2(aA.data(), aA.size(), 1 );
-        return tM2;
+        const Eigen::Index tRows = aRow ? 1 : aA.size();
+        const Eigen::Index tCols = aRow ? aA.size() : 1;
+        return linalg_internal::eigen_plain< E >::NullaryExpr( tRows, tCols, linalg_internal::eigen_reshape< E >{ aA.derived(), tRows, aRow } );
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_VECTORIZE_EIGEN_HPP_ */
-
+}    // namespace moris

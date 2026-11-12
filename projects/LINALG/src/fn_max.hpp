@@ -14,6 +14,10 @@
 // MORIS library header files.
 #include "cl_Matrix.hpp"
 
+#ifdef MORIS_USE_EIGEN
+#include "Eigen_Impl/fn_max_Eigen.hpp"
+#endif
+
 #ifdef MORIS_USE_ARMA
 #include "fn_max_Arma.hpp"
 #endif
@@ -29,10 +33,10 @@ namespace moris
      */
     template< typename Matrix_Type >
     auto
-    max( Matrix< Matrix_Type > const & aA )
-            -> decltype( max( aA.matrix_data() ) )
+    max( Matrix< Matrix_Type > const &aA )
+            -> decltype( moris::max( aA.matrix_data() ) )
     {
-        return max( aA.matrix_data() );
+        return moris::max( aA.matrix_data() );
     }
 
     /**
@@ -41,16 +45,16 @@ namespace moris
      * @tparam Matrix_Type
      * @param aA
      * @param aB
-     * @return decltype( max( aA.matrix_data() ,aB.matrix_data() ) ) element-wise max of A and B
+     * @return decltype( moris::max( aA.matrix_data() ,aB.matrix_data() ) ) element-wise max of A and B
      */
 
     template< typename Matrix_Type_First, typename Matrix_Type_Second >
     auto
-    max( Matrix< Matrix_Type_First > const &    aA,
-            Matrix< Matrix_Type_Second > const & aB )
-            -> decltype( max( aA.matrix_data(), aB.matrix_data() ) )
+    max( Matrix< Matrix_Type_First > const     &aA,
+            Matrix< Matrix_Type_Second > const &aB )
+            -> decltype( moris::max( aA.matrix_data(), aB.matrix_data() ) )
     {
-        return max( aA.matrix_data(), aB.matrix_data() );
+        return moris::max( aA.matrix_data(), aB.matrix_data() );
     }
 }    // namespace moris
 

@@ -46,6 +46,7 @@ set(HEADERS
     fn_prod.hpp
     fn_qr.hpp
     fn_r2.hpp
+    fn_reindex_mat.hpp
     fn_reshape.hpp
     fn_save_matrix_to_binary_file.hpp
     fn_sort.hpp
@@ -54,6 +55,7 @@ set(HEADERS
     fn_sum.hpp
     fn_svd.hpp
     fn_sylvester.hpp
+    fn_trace.hpp
     fn_trans.hpp
     fn_unique.hpp
     fn_vectorize.hpp
@@ -109,6 +111,7 @@ if(MORIS_USE_EIGEN)
         Eigen_Impl/fn_linspace_Eigen.hpp
         Eigen_Impl/fn_lu_Eigen.hpp
         Eigen_Impl/fn_norm_Eigen.hpp
+        Eigen_Impl/fn_prod_Eigen.hpp
         Eigen_Impl/fn_qr_Eigen.hpp
         Eigen_Impl/fn_reshape_Eigen.hpp
         Eigen_Impl/fn_sort_Eigen.hpp
@@ -166,6 +169,7 @@ if(MORIS_USE_ARMA)
         Arma_Impl/fn_linspace_Arma.hpp
         Arma_Impl/fn_lu_Arma.hpp
         Arma_Impl/fn_norm_Arma.hpp
+        Arma_Impl/fn_prod_Arma.hpp
         Arma_Impl/fn_qr_Arma.hpp
         Arma_Impl/fn_reshape_Arma.hpp
         Arma_Impl/fn_sort_Arma.hpp
@@ -174,6 +178,7 @@ if(MORIS_USE_ARMA)
         Arma_Impl/fn_sum_Arma.hpp
         Arma_Impl/fn_svd_Arma.hpp
         Arma_Impl/fn_sylvester_Arma.hpp
+        Arma_Impl/fn_trace_Arma.hpp
         Arma_Impl/fn_trans_Arma.hpp
         Arma_Impl/fn_unique_Arma.hpp
         Arma_Impl/fn_vectorize_Arma.hpp
@@ -192,6 +197,23 @@ if(MORIS_USE_ARMA)
         Arma_Impl/fn_join_horiz_Arma.hpp
         Arma_Impl/fn_max_Arma.hpp
         Arma_Impl/fn_min_Arma.hpp
+    )
+endif()
+
+if(MORIS_USE_EIGEN)
+    list(
+        APPEND
+        HEADERS
+        Eigen_Impl/fn_Eigen_Aliasing.hpp
+        Eigen_Impl/fn_Eigen_Utilities.hpp
+        Eigen_Impl/fn_rank_Eigen.hpp
+        Eigen_Impl/fn_join_horiz_Eigen.hpp
+        Eigen_Impl/fn_min_Eigen.hpp
+        Eigen_Impl/fn_max_Eigen.hpp
+        Eigen_Impl/fn_trace_Eigen.hpp
+        Eigen_Impl/fn_sqrtmat_Eigen.hpp
+        Eigen_Impl/fn_sylvester_Eigen.hpp
+        Eigen_Impl/fn_interp1_Eigen.hpp
     )
 endif()
 
@@ -230,8 +252,16 @@ moris_install_component_package(
     ${LINALG_TPL_DEPENDENCIES}
 )
 
+# Retain backend subdirectories for qualified includes and flat copies for
+# legacy public headers that include backend files by their basename.
 # Install public headers.
-install(FILES ${HEADERS} DESTINATION ${${LINALG}_HEADER_INSTALL_DIR})
+foreach(header IN LISTS HEADERS)
+    get_filename_component(header_directory "${header}" DIRECTORY)
+    install(FILES "${header}" DESTINATION "${${LINALG}_HEADER_INSTALL_DIR}/${header_directory}")
+    if(header_directory)
+        install(FILES "${header}" DESTINATION "${${LINALG}_HEADER_INSTALL_DIR}")
+    endif()
+endforeach()
 
 # Install library
 install(TARGETS ${LINALG}-lib EXPORT ${LINALG}Targets DESTINATION ${${LINALG}_LIB_INSTALL_DIR})

@@ -14,6 +14,7 @@
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include "fn_vectorize.hpp"
+#include "fn_norm.hpp"
 #include "fn_reshape.hpp"
 #include "fn_trans.hpp"
 

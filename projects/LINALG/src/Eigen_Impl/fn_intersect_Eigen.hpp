@@ -1,56 +1,65 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_isfinite_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_INTERSECT_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_INTERSECT_EIGEN_HPP_
 #include <Eigen/Dense>
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    include "cl_Matrix.hpp"
-
-            namespace moris
+    template< class A, class B, class M, class I, class J >
+    void intersect( const Eigen::MatrixBase< A >& a, const Eigen::MatrixBase< B >& b, Matrix< M >& result, Matrix< I >& ai, Matrix< J >& bi )
     {
-        template< typename ET >
-        auto
-        intersect(
-                const ET& aAmat,
-                const ET& aBmat )
-                ->decltype( arma::intersect( aAmat, aBmat ) )
-
+        auto                              first  = linalg_internal::eigen_sorted_indices( a.derived() );
+        auto                              second = linalg_internal::eigen_sorted_indices( b.derived() );
+        std::vector< typename A::Scalar > values;
+        std::vector< uint >               ia, ib;
+        size_t                            i = 0, j = 0;
+        while ( i < first.size() && j < second.size() )
         {
-            return arma::intersect( aAmat, aBmat );
+            const auto x = a.derived().coeff( first[ i ] ), y = b.derived().coeff( second[ j ] );
+            if ( x == y )
+            {
+                if ( values.empty() || values.back() != x )
+                {
+                    values.push_back( x );
+                    ia.push_back( first[ i ] );
+                    ib.push_back( second[ j ] );
+                }
+                ++i;
+                ++j;
+            }
+            else if ( linalg_internal::eigen_less( x, y ) )
+            {
+                ++i;
+            }
+            else
+            {
+                ++j;
+            }
         }
-
-        //-------------------------------------------------------------------------
-
-        template< typename ET, typename ETT >
-        void
-        intersect(
-                const ET& aAmat,
-                const ET& aBmat,
-                ET&       aCmat,
-                ETT&      aAind,
-                ETT&      aBind )
+        const bool tRowVector = a.rows() == 1 && b.rows() == 1;
+        result.set_size( tRowVector ? 1 : values.size(), tRowVector ? values.size() : 1 );
+        ai.set_size( values.size(), 1 );
+        bi.set_size( values.size(), 1 );
+        for ( size_t k = 0; k < values.size(); ++k )
         {
-            // create temporary vector of uword
-            arma::uvec tAind;
-            arma::uvec tBind;
-
-            // call arma function
-            arma::intersect( aCmat, tAind, tBind, aAmat, aBmat );
-
-            // store temporary vectors in output vectors
-            aAind = arma::conv_to< ETT >::from( tAind );
-            aBind = arma::conv_to< ETT >::from( tBind );
+            result( k ) = values[ k ];
+            ai( k )     = ia[ k ];
+            bi( k )     = ib[ k ];
         }
-    }    // namespace moris
+    }
 
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_INTERSECT_EIGEN_HPP_ */
+    template< class A, class B >
+    auto intersect( const Eigen::MatrixBase< A >& a, const Eigen::MatrixBase< B >& b )
+    {
+        using Plain = linalg_internal::eigen_plain< A >;
+        Matrix< Plain >  result;
+        Matrix< DDUMat > ai, bi;
+        intersect( a, b, result, ai, bi );
+        return Plain( result.matrix_data() );
+    }
+}    // namespace moris

@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 
 #ifdef MORIS_USE_EIGEN
-#include "Eigen_Impl/fn_det_Eigen.hpp"
+#include "Eigen_Impl/fn_trace_Eigen.hpp"
 #endif
 
 #ifdef MORIS_USE_ARMA

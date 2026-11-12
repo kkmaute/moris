@@ -1,31 +1,25 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_eig_sym_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_EIG_SYM_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_EIG_SYM_EIGEN_HPP_
 #include <Eigen/Dense>
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    template< typename ET1, typename ET2, typename ET3 >
-    void
-    eig_sym(       Eigen::MatrixBase< ET1 > & aEigenValues,
-                   Eigen::MatrixBase< ET2 > & aEigenVectors,
-             const Eigen::MatrixBase< ET3 > & aA )
+    template< class V, class W, class E >
+    void eig_sym( Matrix< V >& values, Matrix< W >& vectors, const Eigen::MatrixBase< E >& a )
     {
-        Eigen::SelfAdjointEigenSolver< Eigen::Matrix < real, Eigen::Dynamic, Eigen::Dynamic > > eigensolver( aA );
-
-        aEigenValues = eigensolver.eigenvalues();
-        aEigenVectors = eigensolver.eigenvectors();
+        MORIS_ERROR( a.rows() == a.cols(), "eig_sym requires a square matrix." );
+        Eigen::SelfAdjointEigenSolver< linalg_internal::eigen_plain< E > > solver( a );
+        if ( solver.info() != Eigen::Success )
+        {
+            throw std::runtime_error( "eig_sym failed" );
+        }
+        values  = solver.eigenvalues();
+        vectors = solver.eigenvectors();
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_EIG_SYM_EIGEN_HPP_ */
-
+}    // namespace moris

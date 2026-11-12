@@ -1,60 +1,30 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_unique_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_
 #include <Eigen/Dense>
-
-#include "assert.hpp"
-#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    template< typename ET, typename Matrix_Type >
-    void
-    unique( const Eigen::MatrixBase< ET >      & aMatrix,
-                  Matrix< Matrix_Type > & aUniqueMatrix )
+    template< class E, class M >
+    void unique( const Eigen::MatrixBase< E >& a, Matrix< M >& result )
     {
-        typedef typename Matrix< Matrix_Type >::Data_Type Type;
-
-        // copy expression template to output matrix
-        aUniqueMatrix.matrix_data() = aMatrix;
-
-        // make sure that matrix is row or col matrix
-        MORIS_ASSERT( aUniqueMatrix.n_rows() == 1 || aUniqueMatrix.n_cols() == 1,
-                "unique() can only be performed on a vector" );
-
-        // get pointer to raw data
-        Type * tData = aUniqueMatrix.data();
-
-        // get length of data
-        moris::uint tLength = aUniqueMatrix.numel();
-
-        // sort data
-        std::sort( tData, tData+tLength );
-
-        // find positions
-        auto tLast  = std::unique( tData, tData+tLength );
-        auto tPos   = std::distance( tData, tLast );
-
-        // resize matrix
-        if ( aUniqueMatrix.n_rows() == 1)
+        std::vector< typename E::Scalar > values;
+        values.reserve( a.size() );
+        for ( Eigen::Index j = 0; j < a.cols(); ++j )
         {
-            aUniqueMatrix.resize( 1, tPos );
+            for ( Eigen::Index i = 0; i < a.rows(); ++i )
+            {
+                values.push_back( a( i, j ) );
+            }
         }
-        else
-        {
-            aUniqueMatrix.resize( tPos, 1 );
-        }
+        std::sort( values.begin(), values.end(), linalg_internal::eigen_less< typename E::Scalar > );
+        values.erase( std::unique( values.begin(), values.end() ), values.end() );
+        result.set_size( a.rows() == 1 ? 1 : values.size(), a.rows() == 1 ? values.size() : 1 );
+        std::copy( values.begin(), values.end(), result.data() );
     }
-}
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_UNIQUE_EIGEN_HPP_ */
-
+}    // namespace moris

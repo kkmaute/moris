@@ -15,16 +15,8 @@
 
 namespace moris
 {
-    template< typename Matrix_Type >
-    arma::Mat< Matrix_Type >
-    reshape(
-            const arma::Mat< Matrix_Type > & aA,
-            const size_t                   & aB,
-            const size_t                   & aC )
-    {
-        return arma::reshape(aA, aB, aC);;
-    }
-} /* moris namespace */
+    // Expose the native lazy operation without adding a competing ADL overload.
+    using arma::reshape;
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_RESHAPE_ARMA_HPP_ */
-

@@ -55,7 +55,11 @@ namespace moris
             Matrix< Matrix_Type > const & aA,
             Matrix< Matrix_Type >       & aX )
     {
-        return sqrtmat( aA.matrix_data(), aX.matrix_data() );
+#ifdef MORIS_USE_EIGEN
+        sqrtmat( aA.matrix_data(), aX );
+#else
+        sqrtmat( aA.matrix_data(), aX.matrix_data() );
+#endif
     }
 }
 

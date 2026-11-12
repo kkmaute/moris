@@ -16,35 +16,20 @@
 namespace moris
 {
     template< typename ET >
-    Matrix<DDUMat>
-    sort_index(ET const & aA )
+    Matrix< DDUMat > sort_index( const ET& aA, const char* aDirection = "ascend" )
     {
-        arma::uvec tSorted = arma::sort_index( aA );
+        const arma::uvec tSorted = arma::sort_index( aA, aDirection );
+        Matrix< DDUMat > tResult( tSorted.n_rows, 1 );
 
-        return tSorted;
-    }
-
-    template< typename ET >
-    Matrix<DDUMat>
-    sort_index(
-            ET const                     & aA,
-            char const                   * aDirection )
-
-    {
-        arma::uvec tSorted = arma::sort_index( aA, aDirection );
-
-        Matrix<DDUMat> tMat(tSorted.n_rows,1);
-
-        // FIXME: Find better method to copy uvec into Matrix<DDUMat>
-        //        Issue arma:uvec is column vector of long long uint
-        for (uint i=0; i<tMat.n_rows(); ++i)
+        // Armadillo's uword can be wider than MORIS uint; copy with conversion
+        // for both default and explicit sort directions.
+        for ( uint i = 0; i < tResult.n_rows(); ++i )
         {
-            tMat(i) = tSorted(i);
+            tResult( i ) = tSorted( i );
         }
-
-        return tMat;
+        return tResult;
     }
-}
+
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SORT_INDEX_ARMA_HPP_ */
-

@@ -14,7 +14,9 @@
 // MORIS library header files.
 #include "cl_Matrix.hpp"
 
-// function does not exist in Eigen
+#ifdef MORIS_USE_EIGEN
+#include "Eigen_Impl/fn_interp1_Eigen.hpp"
+#endif
 
 #ifdef MORIS_USE_ARMA
 #include "Arma_Impl/fn_interp1_Arma.hpp"
@@ -38,9 +40,12 @@ namespace moris
              Matrix< Matrix_Type > const & aY,
              Matrix< Matrix_Type > const & aXI,
              Matrix< Matrix_Type >  & aYI )
-    -> decltype( interp1(aX.matrix_data(),aY.matrix_data(),aXI.matrix_data(),aYI.matrix_data())  )
     {
-        return interp1(aX.matrix_data(),aY.matrix_data(),aXI.matrix_data(),aYI.matrix_data());
+#ifdef MORIS_USE_EIGEN
+        interp1( aX.matrix_data(), aY.matrix_data(), aXI.matrix_data(), aYI );
+#else
+        interp1( aX.matrix_data(), aY.matrix_data(), aXI.matrix_data(), aYI.matrix_data() );
+#endif
     }
 }
 #endif /* PROJECTS_LINALG_SRC_FN_INTERP1_HPP_ */

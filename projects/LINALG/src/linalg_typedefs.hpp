@@ -45,12 +45,18 @@ namespace moris
     typedef Eigen::Matrix<nint,        Eigen::Dynamic, Eigen::Dynamic>  DDNIMat;  // Dense Dynamic Native Integer Matrix
     typedef Eigen::Matrix<moris_id,    Eigen::Dynamic, Eigen::Dynamic>  IdMat;    // Id Matrix
     typedef Eigen::Matrix<moris_index, Eigen::Dynamic, Eigen::Dynamic>  IndexMat; // Index Matrix
-    typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat;   // Sparse dynamic Real Mat
-    typedef Eigen::Matrix<real,                3,              3>  F33RMat;       // Fixed 3x3 Real Mat
-    typedef Eigen::Matrix<real,                3,              1>  F31RMat;       // Fixed 3x1 Real Mat
-    typedef Eigen::Matrix<uint,                3,              1>  F31UMat;        // Fixed 3x1 uint Mat
+    typedef Eigen::Matrix< real, 3, 3 >                                 F33RMat;    // Fixed 3x3 Real Mat
+    typedef Eigen::Matrix< real, 3, 1 >                                 F31RMat;    // Fixed 3x1 Real Mat
+    typedef Eigen::Matrix< uint, 3, 1 >                                 F31UMat;    // Fixed 3x1 uint Mat
 
     typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat; // FIXME Sparse dynamic Real Mat
+
+    typedef Eigen::Matrix< real, Eigen::Dynamic, 1 >        Col_View_Real;
+    typedef Eigen::Matrix< moris_index, Eigen::Dynamic, 1 > Col_View_Index;
+    typedef Eigen::Matrix< moris_id, Eigen::Dynamic, 1 >    Col_View_Id;
+    typedef Eigen::Matrix< real, 1, Eigen::Dynamic >        Row_View_Real;
+    typedef Eigen::Matrix< moris_index, 1, Eigen::Dynamic > Row_View_Index;
+    typedef Eigen::Matrix< moris_id, 1, Eigen::Dynamic >    Row_View_Id;
 
 #else
     typedef arma::uword              ncomp;     // native type of compare operators

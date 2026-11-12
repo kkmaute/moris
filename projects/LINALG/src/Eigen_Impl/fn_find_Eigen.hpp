@@ -1,77 +1,31 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_find_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_EIGEN_HPP_
 #include <Eigen/Dense>
-#include "fn_equal_to.hpp"
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    template< typename T1 >
-    Eigen::Matrix< uint, Eigen::Dynamic, Eigen::Dynamic >
-    find( const Eigen::Matrix<T1,Eigen::Dynamic,Eigen::Dynamic> & aA )
+    template< class E >
+    auto find( const Eigen::DenseBase< E >& aMatrix, uint aCount = 0 )
     {
-        // Eigen does not have an internal find function
-        moris::uint tLength = aA.size();
-
-        Eigen::Matrix< uint, Eigen::Dynamic,Eigen::Dynamic> tPosition( tLength, 1 );
-
-        tPosition.fill( 0 );
-
-        moris::uint tVar = 0;
-
-        for( uint i = 0; i < tLength; i++ )
+        Eigen::Matrix< uint, Eigen::Dynamic, Eigen::Dynamic > tResult( aMatrix.size(), 1 );
+        Eigen::Index                                          tCount = 0;
+        for ( Eigen::Index j = 0; j < aMatrix.cols(); ++j )
         {
-            if( !equal_to( aA( i ), 0) )
+            for ( Eigen::Index i = 0; i < aMatrix.rows(); ++i )
             {
-                tPosition( tVar )= i;
-                tVar++;
-            }
-        }
-
-        tPosition.conservativeResize(tVar,1);
-
-        return tPosition;
-    }
-
-    template< typename T1 >
-    Eigen::Matrix< uint, Eigen::Dynamic, Eigen::Dynamic >
-    find( const Eigen::Matrix<T1,Eigen::Dynamic,Eigen::Dynamic> & aA,
-          const moris::uint                                     & ab )
-    {
-        // Eigen does not have an internal find function
-        moris::uint tLength = aA.size();
-
-        Eigen::Matrix< uint, Eigen::Dynamic, Eigen::Dynamic > tPosition( tLength, 1 );
-
-        tPosition.fill( 0 );
-
-        moris::uint tVar = 0;
-
-        for( uint i = 0; i < tLength; i++ )
-        {
-            if( !equal_to( aA( i ), 0) )
-            {
-                tPosition( tVar++ )= i;
-
-                if ( tVar == ab )
+                if ( aMatrix( i, j ) != typename E::Scalar( 0 ) && ( !aCount || tCount < aCount ) )
                 {
-                    break;
+                    tResult( tCount++ ) = i + j * aMatrix.rows();
                 }
             }
         }
-        tPosition.conservativeResize( tVar, 1 );
-        return tPosition;
+        tResult.conservativeResize( tCount, 1 );
+        return tResult;
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_EIGEN_HPP_ */
-
+}    // namespace moris

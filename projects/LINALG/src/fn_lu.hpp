@@ -43,10 +43,14 @@ namespace moris
             Matrix< Matrix_Type >       & aP,
             Matrix< Matrix_Type > const & aA )
     {
+#ifdef MORIS_USE_EIGEN
+        lu( aL, aU, aP, aA.matrix_data() );
+#else
         lu( aL.matrix_data(),
             aU.matrix_data(),
             aP.matrix_data(),
             aA.matrix_data() );
+#endif
     }
 }
 

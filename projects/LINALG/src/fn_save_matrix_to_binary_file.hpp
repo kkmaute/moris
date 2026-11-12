@@ -81,7 +81,7 @@ namespace moris
                 if( tCount == tNumberOfSamplesInBuffer )
                 {
                     // write buffer to output file
-                    tFile.write( ( char* ) & tBuffer, tSizeOfBuffer );
+                    tFile.write( (char*)tBuffer.data(), tSizeOfBuffer );
 
                     // reset counter
                     tCount = 0;

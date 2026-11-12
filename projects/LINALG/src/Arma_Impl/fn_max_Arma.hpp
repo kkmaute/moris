@@ -14,12 +14,6 @@
 
 namespace moris
 {
-    template< typename ETA, typename ETB >
-    auto
-    max( ETA &    aA,
-              ETB & aB )
-            -> decltype( arma::max( aA, aB ) )
-    {
-        return arma::max( aA, aB );
-    }
+    // Reuse native overloads for both reductions and coefficient-wise extrema.
+    using arma::max;
 }    // namespace moris

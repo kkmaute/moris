@@ -80,7 +80,7 @@ namespace moris
         // loop over all full blocks
         for ( uint b=0; b< tNumberOfBlocks; ++b )
         {
-            tFile.read( ( char *) & tBuffer,  tSizeOfBuffer );
+            tFile.read( (char*)tBuffer.data(), tSizeOfBuffer );
 
             for ( uint k=0; k< tNumberOfSamplesInBuffer; ++k )
             {

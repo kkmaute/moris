@@ -1,29 +1,24 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_sum_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
-
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SUM_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SUM_EIGEN_HPP_
+#pragma once
 
 #include <Eigen/Dense>
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    template< typename T >
-    auto
-    sum(
-            Eigen::MatrixBase< T > const & aA )
-    -> decltype( aA.sum() )
+    template< class E >
+    auto sum( const Eigen::MatrixBase< E >& a ) -> decltype( a.sum() )
     {
-        return aA.sum();
+        return a.sum();
     }
-}
 
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SUM_EIGEN_HPP_ */
-
+    template< class E >
+    auto sum( const Eigen::MatrixBase< E >& a, uint dim )
+    {
+        return linalg_internal::eigen_reduction< E, false >( a.derived(), dim );
+    }
+}    // namespace moris

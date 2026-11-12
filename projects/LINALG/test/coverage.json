@@ -1,0 +1,287 @@
+{
+  "cl_Matrix.hpp": [
+    "cl_Matrix.cpp",
+    "cl_Matrix3x1.cpp",
+    "UT_LINALG_Matrix_API.cpp",
+    "UT_LINALG_Expressions.cpp",
+    "op_move.cpp"
+  ],
+  "fn_all_true.hpp": [
+    "fn_all_true.cpp",
+    "fn_cross.cpp",
+    "UT_LINALG_Function_Edges.cpp",
+    "op_move.cpp"
+  ],
+  "fn_chol_l.hpp": [
+    "fn_chol_l.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Complex_Parity.cpp"
+  ],
+  "fn_chol_u.hpp": [
+    "fn_chol_u.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_comp_abs.hpp": [
+    "fn_comp_abs.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_cond.hpp": [
+    "fn_cond.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_cross.hpp": [
+    "fn_cross.cpp",
+    "UT_LINALG_Complex_Parity.cpp"
+  ],
+  "fn_ctrans.hpp": [
+    "fn_ctrans.cpp",
+    "UT_LINALG_Complex_Parity.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_det.hpp": [
+    "fn_det.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_diag_mat.hpp": [
+    "fn_diag.cpp",
+    "fn_diag_mat.cpp",
+    "UT_LINALG_Expressions.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_diag_vec.hpp": [
+    "fn_diag.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_dot.hpp": [
+    "fn_dot.cpp",
+    "UT_LINALG_Expressions.cpp"
+  ],
+  "fn_eig_gen.hpp": [
+    "fn_eig_gen.cpp",
+    "UT_LINALG_Backend_Parity.cpp"
+  ],
+  "fn_eig_sym.hpp": [
+    "fn_eig_sym.cpp",
+    "UT_LINALG_Complex_Parity.cpp"
+  ],
+  "fn_eye.hpp": [
+    "fn_eye.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_find.hpp": [
+    "fn_find.cpp",
+    "UT_LINALG_Expressions.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_find_unique.hpp": [
+    "fn_find_unique.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_histc.hpp": [
+    "fn_histc.cpp",
+    "UT_LINALG_Backend_Parity.cpp"
+  ],
+  "fn_interp1.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_intersect.hpp": [
+    "fn_intersect.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_inv.hpp": [
+    "cl_Matrix.cpp",
+    "fn_inv.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_iscol.hpp": [
+    "fn_iscol.cpp"
+  ],
+  "fn_isempty.hpp": [
+    "fn_isempty.cpp",
+    "op_move.cpp"
+  ],
+  "fn_isfinite.hpp": [
+    "fn_isfinite.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_isrow.hpp": [
+    "fn_isrow.cpp"
+  ],
+  "fn_issquare.hpp": [
+    "fn_issquare.cpp"
+  ],
+  "fn_isvector.hpp": [
+    "fn_isvector.cpp"
+  ],
+  "fn_join_horiz.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_linsolve.hpp": [
+    "cl_Matrix.cpp",
+    "fn_linsolve.cpp",
+    "UT_LINALG_Complex_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_linspace.hpp": [
+    "fn_linspace.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_load_matrix_from_binary_file.hpp": [
+    "fn_save_and_load_matrix_binary_file.cpp"
+  ],
+  "fn_lu.hpp": [
+    "fn_lu.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_max.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Complex_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp",
+    "fn_max.cpp"
+  ],
+  "fn_min.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Complex_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_norm.hpp": [
+    "cl_Matrix.cpp",
+    "fn_linsolve.cpp",
+    "fn_norm.cpp",
+    "fn_sqrtmat.cpp",
+    "fn_sylvester.cpp",
+    "fn_vectorize.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Complex_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_print.hpp": [
+    "UT_LINALG_Print.cpp"
+  ],
+  "fn_prod.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_qr.hpp": [
+    "fn_qr.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_r2.hpp": [
+    "fn_r2.cpp"
+  ],
+  "fn_rank.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_reindex_mat.hpp": [
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_reshape.hpp": [
+    "fn_reshape.cpp",
+    "fn_vectorize.cpp",
+    "UT_LINALG_Expressions.cpp"
+  ],
+  "fn_save_matrix_to_binary_file.hpp": [
+    "fn_save_and_load_matrix_binary_file.cpp"
+  ],
+  "fn_sort.hpp": [
+    "fn_sort.cpp",
+    "UT_LINALG_Backend_Parity.cpp"
+  ],
+  "fn_sort_index.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_sqrtmat.hpp": [
+    "fn_sqrtmat.cpp"
+  ],
+  "fn_sum.hpp": [
+    "cl_Matrix.cpp",
+    "fn_sum.cpp",
+    "UT_LINALG_Expressions.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_svd.hpp": [
+    "fn_svd.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_sylvester.hpp": [
+    "fn_sylvester.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "fn_trace.hpp": [
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_trans.hpp": [
+    "cl_Matrix.cpp",
+    "fn_svd.cpp",
+    "fn_trans.cpp",
+    "fn_vectorize.cpp",
+    "UT_LINALG_Expressions.cpp",
+    "UT_LINALG_Backend_Parity.cpp",
+    "UT_LINALG_Function_Edges.cpp"
+  ],
+  "fn_unique.hpp": [
+    "fn_histc.cpp",
+    "fn_unique.cpp"
+  ],
+  "fn_vectorize.hpp": [
+    "fn_vectorize.cpp",
+    "UT_LINALG_Expressions.cpp"
+  ],
+  "linalg_typedefs.hpp": [
+    "cl_Matrix3x1.cpp",
+    "UT_LINALG_Matrix_API.cpp",
+    "UT_LINALG_Complex_Functions.cpp"
+  ],
+  "op_div.hpp": [
+    "op_div.cpp"
+  ],
+  "op_elemwise_div.hpp": [
+    "op_elemwise_div.cpp"
+  ],
+  "op_elemwise_mult.hpp": [
+    "op_elemwise_mult.cpp"
+  ],
+  "op_equal_equal.hpp": [
+    "op_equal_equal.cpp"
+  ],
+  "op_greater.hpp": [
+    "op_greater.cpp"
+  ],
+  "op_greater_equal.hpp": [
+    "op_greater_equal.cpp"
+  ],
+  "op_less.hpp": [
+    "op_less.cpp"
+  ],
+  "op_less_equal.hpp": [
+    "op_less_equal.cpp"
+  ],
+  "op_minus.hpp": [
+    "op_minus.cpp"
+  ],
+  "op_move.hpp": [
+    "op_move.cpp"
+  ],
+  "op_not_equal.hpp": [
+    "op_not_equal.cpp"
+  ],
+  "op_plus.hpp": [
+    "op_plus.cpp"
+  ],
+  "op_times.hpp": [
+    "op_times.cpp"
+  ]
+}

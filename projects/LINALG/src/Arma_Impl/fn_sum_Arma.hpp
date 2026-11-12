@@ -16,36 +16,38 @@
 namespace moris
 {
 
-    /*template< typename ET, typename Data >
-    auto
-    sum( const arma::eOp<Data,ET> & aA )
-        -> decltype( arma::as_scalar(arma::accu( aA )) )
-    {
-        return arma::as_scalar(arma::accu( aA ));
-    }*/
-
+    // MORIS sum without a dimension reduces every entry to a scalar, unlike
+    // arma::sum's default column reduction. accu also accepts lazy expressions.
     template< typename Type >
     Type
-    sum( const arma::Mat< Type > &aA )
+    sum( const arma::Mat< Type >& aA )
     {
-        return arma::as_scalar( arma::accu( aA ) );
+        return arma::accu( aA );
+    }
+
+    template< typename Type, typename Expression >
+    Type
+    sum( const arma::Base< Type, Expression >& aA )
+    {
+        return arma::accu( aA.get_ref() );
     }
 
     template< typename Type >
     auto
-    sum( const arma::Mat< Type > &aA, const uint aDim )
+    sum( const arma::Mat< Type >& aA, const uint aDim )
             -> decltype( arma::sum( aA, aDim ) )
     {
         return arma::sum( aA, aDim );
     }
 
-    //    template< typename ET >
-    //    auto
-    //    sum( ET & aA )
-    //        -> decltype( arma::as_scalar(arma::accu( aA )) )
-    //    {
-    //        return arma::as_scalar(arma::accu( aA ));
-    //    }
+    template< typename Type, typename Expression >
+    auto
+    sum( const arma::Base< Type, Expression >& aA, const uint aDim )
+            -> decltype( arma::sum( aA.get_ref(), aDim ) )
+    {
+        return arma::sum( aA.get_ref(), aDim );
+    }
+
 }    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SUM_ARMA_HPP_ */

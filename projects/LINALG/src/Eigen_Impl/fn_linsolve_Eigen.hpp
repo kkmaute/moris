@@ -1,48 +1,36 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_linsolve_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_LINSOLVE_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_LINSOLVE_EIGEN_HPP_
 #include <Eigen/Dense>
-
-#ifdef MORIS_USE_EIGEN_XXX
-#include "Eigen/SuperLUSupport"
-#endif
-#ifdef MORIS_USE_EIGEN
-#include <Eigen/UmfPackSupport>
-#endif
+#include <cmath>
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    template< typename ET >
-    auto
-    solve( const Eigen::MatrixBase<ET> & aA,
-           const Eigen::MatrixBase<ET> & aB,
-           const std::string           & aSolver = "default" )
-    -> decltype( Eigen::Matrix< real, Eigen::Dynamic, Eigen::Dynamic >( aA.colPivHouseholderQr().solve( aB ) ) )
+    template< class A, class B >
+    auto solve( const Eigen::MatrixBase< A >& a, const Eigen::MatrixBase< B >& b, const std::string& solver = "default" )
     {
-        Eigen::Matrix< real, Eigen::Dynamic, Eigen::Dynamic > tempX;
-        tempX = aA.colPivHouseholderQr().solve( aB ); // uses rank-revealing QR decomposition of a matrix with column-pivoting
-        return tempX;
+        MORIS_ERROR( a.rows() == b.rows(), "solve: incompatible right-hand side." );
+        using Plain = linalg_internal::eigen_plain< A >;
+
+        // Borrow compatible native storage. Ref evaluates other expressions once
+        // and keeps that storage alive through factorization and residual checks.
+        const Eigen::Ref< const Plain >                             tA( a.derived() );
+        const Eigen::Ref< const linalg_internal::eigen_plain< B > > tB( b.derived() );
+        Plain                                                       tResult;
+        if ( tA.rows() == 0 || tA.cols() == 0 )
+        {
+            tResult.setZero( tA.cols(), tB.cols() );
+            return tResult;
+        }
+
+        // Retain minimum-norm least-squares behavior for square, rectangular,
+        // and rank-deficient systems.
+        tResult = tA.completeOrthogonalDecomposition().solve( tB );
+        return tResult;
     }
-
-//    template< typename ET >
-//    auto
-//    solve( const sparse_Mat & aA,
-//           const Eigen::MatrixBase<ET> & aB,
-//           const std::string           & aSolver = "superlu" )
-//    -> decltype( Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >() )
-//	{
-//
-//	}
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_LINSOLVE_EIGEN_HPP_ */
-
+}    // namespace moris

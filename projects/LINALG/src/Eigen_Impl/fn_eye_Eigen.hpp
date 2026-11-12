@@ -1,45 +1,22 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_eye_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_EYE_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_EYE_EIGEN_HPP_
-
+#include <Eigen/Dense>
 #include "cl_Matrix.hpp"
-#include "Eigen/Dense"
 
-namespace moris
+namespace moris::linalg_internal
 {
-    template<typename ET>
-    inline
-    void
-    eye(
-            moris::size_t const   & aNumRows,
-            moris::size_t const   & aNumCols,
-            Eigen::MatrixBase<ET> & aEyeMat )
+    template< class M >
+    void eigen_eye( size_t rows, size_t cols, Matrix< M >& a )
     {
-        aEyeMat = Eigen::MatrixXd::Identity( aNumRows, aNumCols );
+        a.set_size( rows, cols, 0 );
+        a.matrix_data().setIdentity();
     }
-
-    namespace linalg_internal
+    inline auto eye( size_t rows, size_t cols )
     {
-        inline
-        auto
-        eye(
-                moris::size_t const   & aNumRows,
-                moris::size_t const   & aNumCols)
-        ->decltype( Eigen::MatrixXd::Identity( aNumRows, aNumCols ) )
-        {
-            return Eigen::MatrixXd::Identity( aNumRows, aNumCols );
-        }
+        return Eigen::MatrixXd::Identity( rows, cols );
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_EYE_EIGEN_HPP_ */
-
+}    // namespace moris::linalg_internal

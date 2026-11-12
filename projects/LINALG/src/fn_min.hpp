@@ -14,6 +14,10 @@
 // MORIS library header files.
 #include "cl_Matrix.hpp"
 
+#ifdef MORIS_USE_EIGEN
+#include "Eigen_Impl/fn_min_Eigen.hpp"
+#endif
+
 #ifdef MORIS_USE_ARMA
 #include "fn_min_Arma.hpp"
 #endif
@@ -29,10 +33,10 @@ namespace moris
      */
     template< typename Matrix_Type >
     auto
-    min( Matrix< Matrix_Type > const & aA )
-            -> decltype( min( aA.matrix_data() ) )
+    min( Matrix< Matrix_Type > const &aA )
+            -> decltype( moris::min( aA.matrix_data() ) )
     {
-        return min( aA.matrix_data() );
+        return moris::min( aA.matrix_data() );
     }
 
     /**
@@ -41,16 +45,16 @@ namespace moris
      * @tparam Matrix_Type
      * @param aA
      * @param aB
-     * @return decltype( min( aA.matrix_data() ,aB.matrix_data() ) ) element-wise min of A and B
+     * @return decltype( moris::min( aA.matrix_data() ,aB.matrix_data() ) ) element-wise min of A and B
      */
 
     template< typename Matrix_Type >
     auto
-    min( Matrix< Matrix_Type > const &    aA,
-            Matrix< Matrix_Type > const & aB )
-            -> decltype( min( aA.matrix_data(), aB.matrix_data() ) )
+    min( Matrix< Matrix_Type > const    &aA,
+            Matrix< Matrix_Type > const &aB )
+            -> decltype( moris::min( aA.matrix_data(), aB.matrix_data() ) )
     {
-        return min( aA.matrix_data(), aB.matrix_data() );
+        return moris::min( aA.matrix_data(), aB.matrix_data() );
     }
 }    // namespace moris
 

@@ -33,14 +33,17 @@ namespace moris
  *
  * @param[out] eigenvectors The eigenvectors of Matrix aA.
  */
-    template< typename Matrix_Type >
-    void
-    eig_sym(      Matrix< Matrix_Type >  & aEigenvalues,
-                  Matrix< Matrix_Type >  & aEigenvectors,
-            const Matrix< Matrix_Type >  & aA )
-    {
-        eig_sym( aEigenvalues.matrix_data(), aEigenvectors.matrix_data(), aA.matrix_data() );
-    }
+template< typename Values, typename Vectors, typename Input >
+void eig_sym( Matrix< Values > &aEigenvalues,
+        Matrix< Vectors >      &aEigenvectors,
+        const Matrix< Input >  &aA )
+{
+#ifdef MORIS_USE_EIGEN
+    eig_sym( aEigenvalues, aEigenvectors, aA.matrix_data() );
+#else
+    eig_sym( aEigenvalues.matrix_data(), aEigenvectors.matrix_data(), aA.matrix_data() );
+#endif
+}
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_EIG_SYM_HPP_ */

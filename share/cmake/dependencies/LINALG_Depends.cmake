@@ -16,14 +16,9 @@ set(LINALG_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${LINALG})
 
 # Third party libraries directly needed by LINALG
+# The dense Eigen implementation uses Eigen's own factorizations. SuiteSparse
+# belongs to optional sparse solvers and is not required to select this backend.
 set(LINALG_TPL_DEPENDENCIES ${ARMADILLO_EIGEN} ${ACML_LAPACK_MKL_OPENBLAS} "superlu" "arpack")
-
-if(${ARMADILLO_EIGEN} STREQUAL "armadillo")
-    list(APPEND LINALG_TPL_DEPENDENCIES #"viennacl"
-    )
-elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
-    list(APPEND LINALG_TPL_DEPENDENCIES "suitesparse")
-endif()
 
 if(MORIS_USE_GPERFTOOLS)
     list(APPEND LINALG_TPL_DEPENDENCIES "gperftools")

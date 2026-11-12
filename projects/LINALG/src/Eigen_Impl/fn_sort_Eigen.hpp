@@ -1,56 +1,48 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_sort_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
-
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_EIGEN_HPP_
+#pragma once
 
 #include <Eigen/Dense>
-
-#include "assert.hpp"
-#include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
+#include <cstring>
 
 namespace moris
 {
-    template< typename ET, typename Matrix_Type >
-    void
-    sort( const Eigen::MatrixBase<ET> & aA,
-            moris::Matrix< Matrix_Type > & aSorted )
+    template< class E, class M, class I = uint >
+    void sort( const Eigen::MatrixBase< E >& a, Matrix< M >& result, const char* direction, I dim = 0 )
     {
-        typedef typename Matrix< Matrix_Type >::Data_Type Type;
-
-        //MORIS::ERROR(false, "sort in eigen not implemented yet");
-        // Eigen does not have an internal sort function
-        // 1. Create copy  of input  matrix
-        // 2. Sort matrix using std::sort
-        aSorted.matrix_data() = aA;
-
-        // make sure that matrix is row or col matrix
-        MORIS_ASSERT( aSorted.n_rows() == 1 || aSorted.n_cols() == 1,
-                "sort() can only be performed on a vector" );
-
-        Type * tData = aSorted.data();
-        moris::uint tLen = aSorted.numel();
-        std::sort(tData,tData+tLen);
+        MORIS_ERROR( ( std::strcmp( direction, "ascend" ) == 0 || std::strcmp( direction, "descend" ) == 0 ) && dim < 2, "sort: invalid direction or dimension." );
+        linalg_internal::eigen_plain< E > copy       = a;
+        const bool                        descending = std::strcmp( direction, "descend" ) == 0;
+        for ( Eigen::Index outer = 0; outer < ( dim == 0 ? a.cols() : a.rows() ); ++outer )
+        {
+            std::vector< typename E::Scalar > values( dim == 0 ? a.rows() : a.cols() );
+            for ( size_t k = 0; k < values.size(); ++k )
+            {
+                values[ k ] = dim == 0 ? copy( k, outer ) : copy( outer, k );
+            }
+            std::sort( values.begin(), values.end(), [ & ]( const auto& x, const auto& y ) { return descending ? linalg_internal::eigen_less( y, x ) : linalg_internal::eigen_less( x, y ); } );
+            for ( size_t k = 0; k < values.size(); ++k )
+            {
+                if ( dim == 0 )
+                {
+                    copy( k, outer ) = values[ k ];
+                }
+                else
+                {
+                    copy( outer, k ) = values[ k ];
+                }
+            }
+        }
+        result = copy;
     }
 
-    template< typename ET, typename Matrix_Type, typename Num_Type>
-    void
-    sort( const Eigen::MatrixBase<ET>    & aA,
-            moris::Matrix< Matrix_Type > & aSorted,
-            char const                   * aDirection,
-            Num_Type                       aDimension = 0)
+    template< class E, class M >
+    void sort( const Eigen::MatrixBase< E >& a, Matrix< M >& result )
     {
-        MORIS::ERROR(false, "sort(mat, matSorted, dir, dim) in Eigen not implemented yet");
+        sort( a, result, "ascend", 0 );
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_EIGEN_HPP_ */
-
+}    // namespace moris

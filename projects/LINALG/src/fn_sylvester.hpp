@@ -63,8 +63,12 @@ namespace moris
             Matrix< Matrix_Type > const & aC,
             Matrix< Matrix_Type >       & aX)
    {
-        sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data(), aX.matrix_data() );
-    }
+#ifdef MORIS_USE_EIGEN
+       sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data(), aX );
+#else
+       sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data(), aX.matrix_data() );
+#endif
+   }
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_SYLVESTER_HPP_ */

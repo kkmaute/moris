@@ -44,9 +44,13 @@ namespace moris
             Matrix< Matrix_Type >       & aR,
             Matrix< Matrix_Type > const & aA )
     {
+#ifdef MORIS_USE_EIGEN
+        qr( aQ, aR, aA.matrix_data() );
+#else
         qr( aQ.matrix_data(),
             aR.matrix_data(),
             aA.matrix_data() );
+#endif
     }
 }
 

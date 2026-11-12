@@ -85,8 +85,8 @@ namespace moris
 
             CHECK_FALSE( equal_to( tMatrix4( 0, 0 ), tMatrix4Copy( 0, 0 ) ) );
 
-            // Index out of bounds (can only be checked if ARMA_NO_DEBUG is not set)
-#ifndef ARMA_NO_DEBUG
+            // Bounds checks follow the MORIS runtime-check option for both backends.
+#ifdef MORIS_HAVE_DEBUG
             CHECK_THROWS( tMatrix4( 3, 3 ) = 0 );
 #endif
             // Initializer list with a mistake in it

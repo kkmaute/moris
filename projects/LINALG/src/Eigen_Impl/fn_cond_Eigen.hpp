@@ -1,34 +1,25 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_cond_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_COND_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_COND_EIGEN_HPP_
-
+#include <Eigen/Dense>
 #include "cl_Matrix.hpp"
-#include "Eigen/Dense"
-#include "fn_svd.hpp"
+#include "fn_Eigen_Utilities.hpp"
+
 namespace moris
 {
-    template< typename ET>
-    real
-    cond(const Eigen::MatrixBase<ET> & aA)
+    template< class E >
+    auto cond( const Eigen::MatrixBase< E >& a )
     {
-        Eigen::Matrix<real,   Eigen::Dynamic, Eigen::Dynamic> tS;
-        moris::svd( tS, aA );
-
-        size_t lowerEigvalInd = 0;
-        size_t upperEigvalInd = tS.rows()-1;
-
-        return tS( lowerEigvalInd, 0 ) / tS( upperEigvalInd, 0 );
+        using Real = typename Eigen::NumTraits< typename E::Scalar >::Real;
+        Eigen::JacobiSVD< linalg_internal::eigen_plain< E > > solver( a );
+        if ( solver.info() != Eigen::Success )
+        {
+            throw std::runtime_error( "cond: SVD failed" );
+        }
+        const auto& s = solver.singularValues();
+        return s.size() && s( s.size() - 1 ) > 0 ? Real( s( 0 ) / s( s.size() - 1 ) ) : std::numeric_limits< Real >::infinity();
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_COND_EIGEN_HPP_ */
-
+}    // namespace moris

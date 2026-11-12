@@ -16,53 +16,63 @@
 
 namespace moris
 {
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
     template< typename Matrix_Type >
     auto
     operator%(
-            const  Matrix< Matrix_Type > & aA,
-            const  Matrix< Matrix_Type > & aB )
-        -> decltype ( aA.matrix_data().cwiseProduct( aB.matrix_data() ) )
+            const Matrix< Matrix_Type > &aA,
+            const Matrix< Matrix_Type > &aB )
+            -> decltype( aA.matrix_data().cwiseProduct( aB.matrix_data() ) )
     {
         return aA.matrix_data().cwiseProduct( aB.matrix_data() );
     }
 
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
-    template<typename Matrix_Type, typename ET >
+    template< typename Matrix_Type, typename ET >
     auto
-    operator%( const Matrix< Matrix_Type > & aA,
-               const Eigen::MatrixBase<ET> & aB )
-        ->decltype( aA.matrix_data().cwiseProduct( aB ) )
+    operator%( const Matrix< Matrix_Type > &aA,
+            const Eigen::MatrixBase< ET >  &aB )
+            -> decltype( aA.matrix_data().cwiseProduct( aB ) )
     {
         return aA.matrix_data().cwiseProduct( aB );
     }
 
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
     template< typename Matrix_Type, typename ET >
     auto
-    operator%( const Eigen::MatrixBase<ET> & aA,
-               const Matrix< Matrix_Type > & aB )
-        ->decltype( aA.cwiseProduct( aB.matrix_data() ) )
+    operator%( const Eigen::MatrixBase< ET > &aA,
+            const Matrix< Matrix_Type >      &aB )
+            -> decltype( aA.cwiseProduct( aB.matrix_data() ) )
     {
         return aA.cwiseProduct( aB.matrix_data() );
     }
 
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
-    template< typename ET >
+
+    //--------------------------------------------------------------------------------
+}    // namespace moris
+
+
+// Native expression operands need an ADL-visible operator after wrapper unwrapping.
+namespace Eigen
+{
+    template< typename ETA, typename ETB >
     auto
-    operator%( const Eigen::MatrixBase<ET> & aA,
-               const Eigen::MatrixBase<ET> & aB )
-        ->decltype( aA.cwiseProduct( aB ) )
+    operator%( const Eigen::MatrixBase< ETA > &aA,
+            const Eigen::MatrixBase< ETB >    &aB )
+            -> decltype( aA.cwiseProduct( aB ) )
     {
         return aA.cwiseProduct( aB );
     }
 
-//--------------------------------------------------------------------------------
+}    // namespace Eigen
+namespace moris
+{
+    using Eigen::operator%;
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_ELEMWISE_MULT_EIGEN_HPP_ */
-

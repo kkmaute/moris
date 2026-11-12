@@ -36,12 +36,12 @@ namespace moris
      * @include LNA/src/op_minus.inc
      *
      */
-    template< typename Matrix_Type >
+    template< typename Matrix_Type_A, typename Matrix_Type_B >
     auto
     operator-(
-            Matrix< Matrix_Type > const & aA,
-            Matrix< Matrix_Type > const & aB )
-    ->decltype( aA.matrix_data() - aB.matrix_data() )
+            Matrix< Matrix_Type_A > const &aA,
+            Matrix< Matrix_Type_B > const &aB )
+            -> decltype( aA.matrix_data() - aB.matrix_data() )
     {
         return aA.matrix_data() - aB.matrix_data();
     }

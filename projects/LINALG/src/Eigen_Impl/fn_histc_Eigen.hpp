@@ -1,45 +1,69 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_histc_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_HISTC_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_HISTC_EIGEN_HPP_
 #include <Eigen/Dense>
+#include "cl_Matrix.hpp"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-    template< typename T1 >
-    Eigen::Matrix<T1,Eigen::Dynamic,Eigen::Dynamic>
-    histc( const Eigen::Matrix<T1,Eigen::Dynamic,Eigen::Dynamic> & aA,
-           const Eigen::Matrix<T1,Eigen::Dynamic,Eigen::Dynamic> & aB)
+    template< class A, class B >
+    auto histc( const Eigen::MatrixBase< A >& aMatrix, const Eigen::MatrixBase< B >& aEdges )
     {
-        // Eigen does not have an internal histc function
-        //typedef Eigen::Matrix< uint, aB.size(), 1 > aCountNumber;
-    	Eigen::Matrix<T1,Eigen::Dynamic,Eigen::Dynamic> tCountNumber(aB.size(),1);
-    	tCountNumber.fill(0);
-        moris::uint tVar = 0;
-
-        for( moris::uint i = 0; i < aB.size(); i++ )
+        const bool                                            tIsRowVector = aMatrix.rows() == 1;
+        Eigen::Matrix< uint, Eigen::Dynamic, Eigen::Dynamic > tCounts      = Eigen::Matrix< uint, Eigen::Dynamic, Eigen::Dynamic >::Zero( tIsRowVector ? 1 : aEdges.size(), tIsRowVector ? aEdges.size() : aMatrix.cols() );
+        for ( Eigen::Index k = 1; k < aEdges.size(); ++k )
         {
-            tVar = 0;
-            for( moris::uint j = 0; j < aA.size(); j++ )
+            MORIS_ERROR( aEdges.derived().coeff( k ) >= aEdges.derived().coeff( k - 1 ), "histc requires sorted bin edges." );
+        }
+        if ( !aEdges.size() )
+        {
+            return tCounts;
+        }
+        for ( Eigen::Index j = 0; j < ( tIsRowVector ? 1 : aMatrix.cols() ); ++j )
+        {
+            for ( Eigen::Index i = 0; i < ( tIsRowVector ? aMatrix.cols() : aMatrix.rows() ); ++i )
             {
-                if( aB( i, 0 ) == aA( j, 0 ) )
+                const auto   tValue = tIsRowVector ? aMatrix( 0, i ) : aMatrix( i, j );
+                Eigen::Index tBin   = -1;
+                // The final bin contains only values equal to the last edge.
+                if ( tValue == aEdges.derived().coeff( aEdges.size() - 1 ) )
                 {
-                    tVar++;
+                    tBin = aEdges.size() - 1;
+                }
+                else if ( tValue >= aEdges.derived().coeff( 0 ) && tValue < aEdges.derived().coeff( aEdges.size() - 1 ) )
+                {
+                    Eigen::Index tLow = 0, tHigh = aEdges.size() - 1;
+                    while ( tLow + 1 < tHigh )
+                    {
+                        const auto tMiddle = ( tLow + tHigh ) / 2;
+                        if ( tValue < aEdges.derived().coeff( tMiddle ) )
+                        {
+                            tHigh = tMiddle;
+                        }
+                        else
+                        {
+                            tLow = tMiddle;
+                        }
+                    }
+                    tBin = tLow;
+                }
+                if ( tBin >= 0 )
+                {
+                    if ( tIsRowVector )
+                    {
+                        ++tCounts( 0, tBin );
+                    }
+                    else
+                    {
+                        ++tCounts( tBin, j );
+                    }
                 }
             }
-            tCountNumber( i, 0 ) = tVar;
         }
-        return tCountNumber;
+        return tCounts;
     }
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_HISTC_EIGEN_HPP_ */
-
+}    // namespace moris

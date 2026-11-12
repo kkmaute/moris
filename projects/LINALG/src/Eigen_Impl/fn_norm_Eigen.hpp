@@ -1,38 +1,31 @@
 /*
- * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * fn_norm_Eigen.hpp
- *
+ * Copyright (c) 2026 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
+#pragma once
 
-#ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_NORM_EIGEN_HPP_
-#define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_NORM_EIGEN_HPP_
-
+#include <Eigen/Dense>
 #include "cl_Matrix.hpp"
-#include "Eigen/Dense"
+#include "fn_Eigen_Utilities.hpp"
 
 namespace moris
 {
-template<typename ET >
-auto
-norm( const Eigen::MatrixBase<ET> &  A)
-->decltype( A.norm() )
-{
-    return  A.norm();
-}
-
-template<typename ET >
-auto
-norm( Eigen::MatrixBase<ET> &  A)
-->decltype( A.norm() )
-{
-    return  A.norm();
-}
-
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_NORM_EIGEN_HPP_ */
-
+    template< class E >
+    typename Eigen::NumTraits< typename E::Scalar >::Real norm( const Eigen::MatrixBase< E >& a )
+    {
+        if ( a.size() == 0 )
+        {
+            return 0;
+        }
+        if ( a.rows() == 1 || a.cols() == 1 )
+        {
+            return a.norm();
+        }
+        Eigen::JacobiSVD< linalg_internal::eigen_plain< E > > svd( a );
+        if ( svd.info() != Eigen::Success )
+        {
+            throw std::runtime_error( "norm: SVD failed" );
+        }
+        return svd.singularValues()( 0 );
+    }
+}    // namespace moris

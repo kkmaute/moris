@@ -1,472 +1,569 @@
 /*
  * Copyright (c) 2022 University of Colorado
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
- *
- *------------------------------------------------------------------------------------
- *
- * cl_Matrix_Eigen_Dynamic.hpp
- *
+ * Licensed under the MIT license. See LICENSE.txt in the MORIS root.
  */
-
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_DYNAMIC_HPP_
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_DYNAMIC_HPP_
 
 #include "cl_Matrix.hpp"
-#include "Eigen/Dense"
-#include "fn_iscol.hpp"
-#include "fn_isvector.hpp"
+#include <Eigen/Dense>
+#include "fn_Eigen_Aliasing.hpp"
+#include <algorithm>
+#include <limits>
+#include <new>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace moris
 {
-    template<typename Type>
-    class Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
+    // A stable native Map exposes both owned and borrowed storage to Eigen's
+    // expression engine. Fixed and dynamic matrices share the same public API.
+    template< typename Type, int Rows, int Cols, int Options, int MaxRows, int MaxCols >
+    class Matrix< Eigen::Matrix< Type, Rows, Cols, Options, MaxRows, MaxCols > >
     {
-        private:
-            Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> mMatrix;
+        using Native = Eigen::Matrix< Type, Rows, Cols, Options, MaxRows, MaxCols >;
+        using View   = Eigen::Map< Native >;
+        Native mOwned;
+        View   mMatrix;
+        Type*  mExternal = nullptr;
+        bool   mStrict   = false;
 
-            void fill_with_NANs()
-            {
+        void remap( Type* aData, size_t aRows, size_t aCols )
+        {
+            // Reconstruct the Map to rebind storage; assignment would copy coefficients.
+            mMatrix.~View();
+            new ( &mMatrix ) View( aData, aRows, aCols );
+        }
+
+        void dimensions( size_t aRows, size_t aCols ) const
+        {
+            MORIS_ERROR( ( Rows == Eigen::Dynamic || aRows == static_cast< size_t >( Rows ) ) && ( Cols == Eigen::Dynamic || aCols == static_cast< size_t >( Cols ) ),
+                    "Matrix - incompatible fixed matrix dimensions." );
+        }
+
+        void fill_with_NANs()
+        {
 #ifdef MATRIX_FILL
-                if (std::numeric_limits<Data_Type>::has_quiet_NaN)
-                {
-                    mMatrix.fill( std::numeric_limits<Data_Type>::quiet_NaN() );
-                }
-                else
-                {
-                    mMatrix.fill( std::numeric_limits<Data_Type>::max() );
-                }
+            if constexpr ( std::numeric_limits< Type >::has_quiet_NaN )
+            {
+                mMatrix.fill( std::numeric_limits< Type >::quiet_NaN() );
+            }
+            else
+            {
+                mMatrix.fill( std::numeric_limits< Type >::max() );
+            }
 #endif
+        }
+
+        void resize_storage( size_t aRows, size_t aCols )
+        {
+            dimensions( aRows, aCols );
+            if ( n_rows() == aRows && n_cols() == aCols )
+            {
+                return;
             }
-
-        public:
-            typedef Type Data_Type;
-
-            Matrix()
+            if ( mExternal && aRows * aCols == numel() )
             {
-
-            };
-
-            // Preserve copying when explicitly declaring moves.
-            Matrix( const Matrix& ) = default;
-
-            // Move owning storage using the backend's exception guarantees.
-            Matrix( Matrix&& ) = default;
-
-            Matrix& operator=( Matrix&& ) = default;
-
-            Matrix(size_t const & aNumRows,
-                    size_t const & aNumCols):
-                        mMatrix(aNumRows,aNumCols)
-            {
-                this->fill_with_NANs();
+                remap( mExternal, aRows, aCols );
+                return;
             }
+            MORIS_ERROR( !mExternal || !mStrict, "Matrix - strict borrowed storage cannot change its number of elements." );
+            mOwned.resize( aRows, aCols );
+            mExternal = nullptr;
+            mStrict   = false;
+            remap( mOwned.data(), aRows, aCols );
+        }
 
-            // template constructor
-            Matrix(Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> const & X ):
-                mMatrix(X)
+        template< bool Maximum >
+        Type complex_extreme( uint& aRow, uint& aCol ) const
+        {
+            MORIS_ASSERT( numel() > 0, "Matrix - extrema require a nonempty matrix." );
+            size_t tIndex = 0;
+            for ( size_t i = 1; i < numel(); ++i )
             {
-
+                if ( Maximum ? std::abs( data()[ i ] ) > std::abs( data()[ tIndex ] )
+                             : std::abs( data()[ i ] ) < std::abs( data()[ tIndex ] ) )
+                {
+                    tIndex = i;
+                }
             }
+            aRow = tIndex % n_rows();
+            aCol = tIndex / n_rows();
+            return data()[ tIndex ];
+        }
 
-            Matrix( size_t const & aNumEl):
-                mMatrix(aNumEl,1)
+        template< typename E >
+        void assign( const E& aExpression )
+        {
+            if ( linalg_internal::eigen_assignment_hazard( aExpression, data(), n_rows(), n_cols() )
+                    || ( ( aExpression.rows() != mMatrix.rows() || aExpression.cols() != mMatrix.cols() )
+                            && linalg_internal::eigen_references( aExpression, data(), numel() ) ) )
             {
-                this->fill_with_NANs();
+                // Evaluate before resize or reordered writes invalidate the RHS.
+                typename E::PlainObject tCopy( aExpression );
+                resize_storage( tCopy.rows(), tCopy.cols() );
+                mMatrix = tCopy;
             }
-
-            // template constructor
-            template< typename A >
-            Matrix(A const & X ):
-            mMatrix(X)
+            else
             {
-
+                resize_storage( aExpression.rows(), aExpression.cols() );
+                mMatrix = aExpression;
             }
+        }
 
-            Matrix( size_t const & aNumRows,
-                    size_t const & aNumCols,
-                    Type   const & aFillVal):
-                        mMatrix( aNumRows, aNumCols )
+      public:
+        using Data_Type = Type;
+        Matrix()
+                : mMatrix( mOwned.data(), mOwned.rows(), mOwned.cols() )
+        {
+        }
+        Matrix( size_t aRows, size_t aCols )
+                : Matrix()
+        {
+            resize_storage( aRows, aCols );
+            fill_with_NANs();
+        }
+        explicit Matrix( size_t aSize )
+                : Matrix( aSize, 1 )
+        {
+        }
+        Matrix( size_t aRows, size_t aCols, const Type& aValue )
+                : Matrix( aRows, aCols )
+        {
+            fill( aValue );
+        }
+        Matrix( const Matrix& aOther )
+                : Matrix()
+        {
+            assign( aOther.matrix_data() );
+        }
+        template< typename Other >
+        Matrix( const Matrix< Other >& aOther )
+                : Matrix()
+        {
+            assign( aOther.matrix_data() );
+        }
+        template< typename E >
+        Matrix( const Eigen::EigenBase< E >& aExpression )
+                : Matrix()
+        {
+            assign( aExpression.derived() );
+        }
+        Matrix( Matrix&& aOther ) noexcept( std::is_nothrow_move_constructible< Native >::value )
+                : mOwned( std::move( aOther.mOwned ) )
+                , mMatrix( aOther.mExternal ? aOther.mExternal : mOwned.data(), aOther.n_rows(), aOther.n_cols() )
+                , mExternal( aOther.mExternal )
+                , mStrict( aOther.mStrict )
+        {
+            aOther.mExternal = nullptr;
+            aOther.mStrict   = false;
+            aOther.remap( aOther.mOwned.data(), aOther.mOwned.rows(), aOther.mOwned.cols() );
+        }
+        Matrix( const Type* const & aData, size_t aRows, size_t aCols )
+                : Matrix()
+        {
+            resize_storage( aRows, aCols );
+            mMatrix = Eigen::Map< const Native >( aData, aRows, aCols );
+        }
+        Matrix( Type* aData, size_t aRows, size_t aCols, bool aCopy, bool aStrict = false )
+                : Matrix()
+        {
+            dimensions( aRows, aCols );
+            if ( aCopy )
             {
-                mMatrix.fill(aFillVal);
+                resize_storage( aRows, aCols );
+                mMatrix = Eigen::Map< const Native >( aData, aRows, aCols );
             }
-
-            Matrix( Type*          & aArray,
-                    moris::size_t const & aNumRows,
-                    moris::size_t const & aNumCols):
-                        mMatrix(aNumRows,aNumCols)
+            else
             {
-                this->mMatrix = Eigen::Map< Eigen::Matrix< Type, Eigen::Dynamic, Eigen::Dynamic > >(aArray, aNumRows, aNumCols);
+                mExternal = aData;
+                mStrict   = aStrict;
+                remap( aData, aRows, aCols );
             }
-
-            Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
+        }
+        Matrix( std::initializer_list< std::initializer_list< Type > > aValues )
+                : Matrix()
+        {
+            const size_t tRows = aValues.size();
+            const size_t tCols = tRows ? aValues.begin()->size() : 0;
+            resize_storage( tRows, tCols );
+            size_t i = 0;
+            for ( const auto& tRow : aValues )
             {
-                size_t i = 0;
+                MORIS_ERROR( tRow.size() == tCols, "Matrix - inconsistent initializer list rows." );
                 size_t j = 0;
-                size_t tNumRows = aInitList.size();
-                size_t tNumColumns = aInitList.begin()->size();
-
-                mMatrix = Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>(tNumRows, tNumColumns);
-
-                for(const auto tRow : aInitList) // loop over number of rows
+                for ( const auto& tValue : tRow )
                 {
-                    MORIS_ASSERT(tRow.size() == aInitList.begin()->size(),
-                            "The number of elements in one of the rows does not equal the number of columns.");
-
-                    for(const auto tCol : tRow) // loop over every value in the row
-                    {
-                        mMatrix(i, j) = tCol;
-                        ++j;
-                    }
-                    j = 0;
-                    ++i;
+                    mMatrix( i, j++ ) = tValue;
                 }
+                ++i;
             }
+        }
 
-            // Copy operations
-            Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
-            copy() const
+        Matrix& operator=( const Matrix& aOther )
+        {
+            if ( this != &aOther )
             {
-                Matrix<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> tMatCopy(this->n_rows(),this->n_cols());
-                tMatCopy.matrix_data() = mMatrix;
-                return tMatCopy;
+                assign( aOther.matrix_data() );
             }
-
-            void
-            resize(const size_t & aNumRows,
-                    const size_t & aNumCols)
+            return *this;
+        }
+        Matrix& operator=( Matrix&& aOther )
+        {
+            if ( this != &aOther )
             {
-                mMatrix.conservativeResize(aNumRows, aNumCols);
-            }
-
-            void
-            set_size(const size_t & aNumRows,
-                    const size_t & aNumCols)
-            {
-                mMatrix.resize( aNumRows, aNumCols );
-
-                this->fill_with_NANs();
-            }
-
-            void
-            set_size(const size_t & aNumRows,
-                    const size_t & aNumCols,
-                    const Type   & aFillValue )
-            {
-                mMatrix.resize( aNumRows, aNumCols );
-                mMatrix.fill( aFillValue );
-            }
-
-            void
-            reshape(const size_t & aNumRows,
-                    const size_t & aNumCols)
-            {
-                Eigen::Map<Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> tMatrix(mMatrix.data(),aNumRows,aNumCols);
-
-                mMatrix=tMatrix;
-            }
-
-            void
-            inplace_trans()
-            {
-                mMatrix.transposeInPlace();
-            }
-
-            void
-            fill(const Type & aFillValue)
-            {
-                mMatrix.fill( aFillValue );
-            }
-
-            /**
-             * Get the number of columns in a data set, similar to Matlab cols().
-             *
-             * @return Number of columns.
-             */
-            size_t
-            n_cols() const
-            {
-                return mMatrix.cols();
-            }
-
-            /**
-             * Get the number of rows in a data set, similar to Matlab rows().
-             *
-             * @return Number of rows.
-             */
-            size_t
-            n_rows() const
-            {
-                return mMatrix.rows();
-            }
-
-            size_t
-            size(size_t aDim)
-            {
-                if(aDim == 0)
+                // Retain borrowed destinations and owning storage referenced
+                // by the source view; releasing that allocation would dangle it.
+                if ( mExternal || linalg_internal::eigen_references( aOther.matrix_data(), data(), numel() ) )
                 {
-                    return this->n_rows();
-                }
-                else if(aDim == 1)
-                {
-                    return this->n_cols();
+                    assign( aOther.matrix_data() );
                 }
                 else
                 {
-                    MORIS_ASSERT(false,"Invalid matrix dimension specified, 0-for n_rows, 1- for n_cols");
-                    return 0;
+                    const size_t tRows = aOther.n_rows(), tCols = aOther.n_cols();
+                    mOwned    = std::move( aOther.mOwned );
+                    mExternal = aOther.mExternal;
+                    mStrict   = aOther.mStrict;
+                    remap( mExternal ? mExternal : mOwned.data(), tRows, tCols );
+                    aOther.mExternal = nullptr;
+                    aOther.mStrict   = false;
+                    aOther.remap( aOther.mOwned.data(), aOther.mOwned.rows(), aOther.mOwned.cols() );
                 }
             }
-
-            /**
-             * Returns the number of elements in the %matrix.
-             *
-             * @return Number of elements in the %matrix.
-             *
-             */
-            size_t
-            numel() const
+            return *this;
+        }
+        template< typename Other >
+        Matrix& operator=( const Matrix< Other >& aOther )
+        {
+            assign( aOther.matrix_data() );
+            return *this;
+        }
+        template< typename E >
+        Matrix& operator=( const Eigen::EigenBase< E >& aExpression )
+        {
+            assign( aExpression.derived() );
+            return *this;
+        }
+        Matrix& operator=( const Type& aValue )
+        {
+            resize_storage( 1, 1 );
+            mMatrix( 0, 0 ) = aValue;
+            return *this;
+        }
+        Matrix& operator+=( const Matrix& aOther )
+        {
+            return *this += aOther.matrix_data();
+        }
+        Matrix& operator-=( const Matrix& aOther )
+        {
+            return *this -= aOther.matrix_data();
+        }
+        template< typename E >
+        Matrix& operator+=( const Eigen::MatrixBase< E >& aExpression )
+        {
+            if ( linalg_internal::eigen_assignment_hazard( aExpression.derived(), data(), n_rows(), n_cols() ) )
             {
-                return mMatrix.size();
+                mMatrix += aExpression.eval();
             }
-
-            void
-            set_row(size_t aRowIndex,
-                    Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> const & aVec)
+            else
             {
-                MORIS_ASSERT(isvector(aVec), "aVec needs to be a vector");
-                MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
-                MORIS_ASSERT(aVec.numel() == this->n_cols(),
-                        "Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
-
-                size_t tROW_INDEX = 0;
-
-                if(!iscol(aVec))
-                {
-                    mMatrix.row(aRowIndex) = aVec.matrix_data().row(tROW_INDEX);
-                }
-                else
-                {
-                    mMatrix.row(aRowIndex) = aVec.matrix_data().col(tROW_INDEX);
-                }
+                mMatrix += aExpression;
             }
-
-            void set_column(size_t aColumnIndex, const Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn)
+            return *this;
+        }
+        template< typename E >
+        Matrix& operator-=( const Eigen::MatrixBase< E >& aExpression )
+        {
+            if ( linalg_internal::eigen_assignment_hazard( aExpression.derived(), data(), n_rows(), n_cols() ) )
             {
-
-                MORIS_ASSERT(aColumn.n_cols() == 1, "aColumn needs to be a column matrix");
-                MORIS_ASSERT(aColumnIndex < this->n_cols(), "Specified column index out of bounds");
-                MORIS_ASSERT(aColumn.n_rows() == this->n_rows(),
-                        "Dimension mismatch (argument matrix and member matrix do not have same number of rows)");
-
-                size_t tCOLUMN_INDEX = 0;
-                mMatrix.col(aColumnIndex) = aColumn.matrix_data().col(tCOLUMN_INDEX);
+                mMatrix -= aExpression.eval();
             }
-
-            void
-            get_column(size_t aColumnIndex,
-                    Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aColumn) const
+            else
             {
-                MORIS_ASSERT(aColumn.n_cols() == 1,"aColumn needs to be a column matrix");
-                MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
-                MORIS_ASSERT(aColumn.n_rows() == this->n_rows(),"Dimension mismatch (argument matrix and member matrix do not have same number of rows)");
-                const size_t tCOLUMN_INDEX = 0;
-                aColumn.matrix_data().col(tCOLUMN_INDEX) = mMatrix.col(aColumnIndex);
+                mMatrix -= aExpression;
             }
-
-            Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>>
-            get_column(size_t aColumnIndex) const
+            return *this;
+        }
+        Matrix& operator+=( const Type& aValue )
+        {
+            mMatrix.array() += aValue;
+            return *this;
+        }
+        Matrix& operator-=( const Type& aValue )
+        {
+            mMatrix.array() -= aValue;
+            return *this;
+        }
+        size_t n_rows() const
+        {
+            return mMatrix.rows();
+        }
+        size_t n_cols() const
+        {
+            return mMatrix.cols();
+        }
+        size_t numel() const
+        {
+            return mMatrix.size();
+        }
+        size_t capacity() const
+        {
+            return numel() * sizeof( Type );
+        }
+        size_t size( size_t aDim ) const
+        {
+            MORIS_ASSERT( aDim < 2, "Matrix - invalid dimension." );
+            return aDim == 0 ? n_rows() : n_cols();
+        }
+        size_t length() const
+        {
+            MORIS_ASSERT( !numel() || n_rows() == 1 || n_cols() == 1, "Matrix - length requires a vector." );
+            return numel() ? std::max( n_rows(), n_cols() ) : 0;
+        }
+        Matrix copy() const
+        {
+            return Matrix( *this );
+        }
+        void set_size( size_t aRows, size_t aCols )
+        {
+            resize_storage( aRows, aCols );
+            fill_with_NANs();
+        }
+        void set_size( size_t aRows, size_t aCols, const Type& aValue )
+        {
+            resize_storage( aRows, aCols );
+            fill( aValue );
+        }
+        void resize( size_t aRows, size_t aCols )
+        {
+            if ( aRows == n_rows() && aCols == n_cols() )
             {
-                MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
-                return mMatrix.col(aColumnIndex);
+                return;
             }
+            Native tOld( mMatrix );
+            resize_storage( aRows, aCols );
+            mMatrix.setZero();
+            const size_t tRows                  = std::min( aRows, static_cast< size_t >( tOld.rows() ) );
+            const size_t tCols                  = std::min( aCols, static_cast< size_t >( tOld.cols() ) );
+            mMatrix.block( 0, 0, tRows, tCols ) = tOld.block( 0, 0, tRows, tCols );
+        }
+        void reshape( size_t aRows, size_t aCols )
+        {
+            Native tOld( mMatrix );
+            resize_storage( aRows, aCols );
+            mMatrix.setZero();
+            std::copy_n( tOld.data(), std::min( numel(), static_cast< size_t >( tOld.size() ) ), data() );
+        }
+        void inplace_trans()
+        {
+            Eigen::Matrix< Type, Eigen::Dynamic, Eigen::Dynamic > tCopy( mMatrix.adjoint() );
+            assign( tCopy );
+        }
+        void fill( const Type& aValue )
+        {
+            mMatrix.fill( aValue );
+        }
+        View& matrix_data()
+        {
+            return mMatrix;
+        }
+        const View& matrix_data() const
+        {
+            return mMatrix;
+        }
+        Type* data()
+        {
+            return mMatrix.data();
+        }
+        const Type* data() const
+        {
+            return mMatrix.data();
+        }
+        Type* colptr( size_t aCol )
+        {
+            MORIS_ASSERT( aCol < n_cols(), "Matrix - invalid column." );
+            return data() + aCol * n_rows();
+        }
+        const Type* colptr( size_t aCol ) const
+        {
+            MORIS_ASSERT( aCol < n_cols(), "Matrix - invalid column." );
+            return data() + aCol * n_rows();
+        }
+        Type* begin()
+        {
+            return data();
+        }
+        const Type* begin() const
+        {
+            return data();
+        }
+        const Type* cbegin() const
+        {
+            return data();
+        }
+        Type* end()
+        {
+            return numel() ? data() + numel() : data();
+        }
+        const Type* end() const
+        {
+            return numel() ? data() + numel() : data();
+        }
+        const Type* cend() const
+        {
+            return end();
+        }
+        Type& operator()( size_t i, size_t j )
+        {
+            MORIS_ASSERT( i < n_rows() && j < n_cols(), "Matrix - index out of bounds." );
+            return mMatrix( i, j );
+        }
+        const Type& operator()( size_t i, size_t j ) const
+        {
+            MORIS_ASSERT( i < n_rows() && j < n_cols(), "Matrix - index out of bounds." );
+            return mMatrix( i, j );
+        }
+        Type& operator()( size_t i )
+        {
+            MORIS_ASSERT( ( n_rows() == 1 || n_cols() == 1 ) && i < numel(), "Matrix - invalid vector index." );
+            return data()[ i ];
+        }
+        const Type& operator()( size_t i ) const
+        {
+            MORIS_ASSERT( ( n_rows() == 1 || n_cols() == 1 ) && i < numel(), "Matrix - invalid vector index." );
+            return data()[ i ];
+        }
+        auto operator()( const std::pair< size_t, size_t >& i, const std::pair< size_t, size_t >& j )
+        {
+            return mMatrix.block( i.first, j.first, i.second - i.first + 1, j.second - j.first + 1 );
+        }
+        auto operator()( const std::pair< size_t, size_t >& i, const std::pair< size_t, size_t >& j ) const
+        {
+            return mMatrix.block( i.first, j.first, i.second - i.first + 1, j.second - j.first + 1 );
+        }
+        auto operator()( const std::pair< size_t, size_t >& i, size_t j )
+        {
+            return mMatrix.col( j ).segment( i.first, i.second - i.first + 1 );
+        }
+        auto operator()( const std::pair< size_t, size_t >& i, size_t j ) const
+        {
+            return mMatrix.col( j ).segment( i.first, i.second - i.first + 1 );
+        }
+        auto operator()( const std::pair< size_t, size_t >& i )
+        {
+            return ( *this )( i, 0 );
+        }
+        auto operator()( const std::pair< size_t, size_t >& i ) const
+        {
+            return ( *this )( i, 0 );
+        }
+        auto get_row( size_t i )
+        {
+            MORIS_ASSERT( i < n_rows(), "Matrix - invalid row." );
+            return mMatrix.row( i );
+        }
+        auto get_row( size_t i ) const
+        {
+            MORIS_ASSERT( i < n_rows(), "Matrix - invalid row." );
+            return mMatrix.row( i );
+        }
+        auto get_column( size_t j )
+        {
+            MORIS_ASSERT( j < n_cols(), "Matrix - invalid column." );
+            return mMatrix.col( j );
+        }
+        auto get_column( size_t j ) const
+        {
+            MORIS_ASSERT( j < n_cols(), "Matrix - invalid column." );
+            return mMatrix.col( j );
+        }
+        template< typename Other >
+        void get_row( size_t i, Matrix< Other >& aRow ) const
+        {
+            aRow = get_row( i );
+        }
+        template< typename Other >
+        void get_column( size_t j, Matrix< Other >& aColumn ) const
+        {
+            aColumn = get_column( j );
+        }
+        template< typename Other >
+        void set_row( size_t i, const Matrix< Other >& aRow )
+        {
+            set_row( i, aRow.matrix_data() );
+        }
+        template< typename E >
+        void set_row( size_t i, const Eigen::MatrixBase< E >& aRow )
+        {
+            MORIS_ASSERT( i < n_rows() && aRow.size() == static_cast< Eigen::Index >( n_cols() ) && ( aRow.rows() == 1 || aRow.cols() == 1 ), "Matrix - invalid row." );
 
-            void get_row(size_t aRowIndex, Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic>> & aRow) const
+            // Preserve native expressions unless overlapping storage requires a snapshot.
+            if ( linalg_internal::eigen_references( aRow.derived(), data(), numel() ) )
             {
-                MORIS_ASSERT(aRow.n_rows() == 1,"aRow needs to be a row matrix");
-                MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-                MORIS_ASSERT(aRow.n_cols() == this->n_cols(),"Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
-
-                const size_t tROW_INDEX = 0;
-                aRow.mMatrix.row(tROW_INDEX) = mMatrix.row(aRowIndex);
+                const typename E::PlainObject tRow = aRow.eval();
+                set_row( i, tRow );
             }
-
-            auto
-            get_row(size_t aRowIndex) const
-            ->decltype(mMatrix.row(aRowIndex) )
+            else if ( aRow.rows() == 1 )
             {
-                MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-                return mMatrix.row(aRowIndex);
+                mMatrix.row( i ) = aRow.block( 0, 0, 1, aRow.cols() );
             }
-
-            auto
-            get_row(size_t aRowIndex)
-            ->decltype(mMatrix.row(aRowIndex) )
+            else
             {
-                MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-                return mMatrix.row(aRowIndex);
+                mMatrix.row( i ) = aRow.block( 0, 0, aRow.rows(), 1 ).transpose();
             }
+        }
+        template< typename Other >
+        void set_column( size_t j, const Matrix< Other >& aColumn )
+        {
+            set_column( j, aColumn.matrix_data() );
+        }
+        template< typename E >
+        void set_column( size_t j, const Eigen::MatrixBase< E >& aColumn )
+        {
+            MORIS_ASSERT( j < n_cols() && aColumn.cols() == 1 && aColumn.rows() == static_cast< Eigen::Index >( n_rows() ), "Matrix - invalid column." );
 
-            const Type*
-            data() const
+            if ( linalg_internal::eigen_references( aColumn.derived(), data(), numel() ) )
             {
-                return mMatrix.data();
+                mMatrix.col( j ) = aColumn.eval();
             }
-
-            Type*
-            data()
+            else
             {
-                return mMatrix.data();
+                mMatrix.col( j ) = aColumn;
             }
-
-            inline
-            Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> &
-            matrix_data()
+        }
+        Type min() const
+        {
+            uint tRow = 0, tCol = 0;
+            return min( tRow, tCol );
+        }
+        Type max() const
+        {
+            uint tRow = 0, tCol = 0;
+            return max( tRow, tCol );
+        }
+        Type min( uint& i, uint& j ) const
+        {
+            if constexpr ( Eigen::NumTraits< Type >::IsComplex )
             {
-                return mMatrix;
+                return complex_extreme< false >( i, j );
             }
-
-            inline
-            Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> const &
-            matrix_data() const
+            else
             {
-                return mMatrix;
+                return mMatrix.minCoeff( &i, &j );
             }
-
-            Type
-            max() const
+        }
+        Type max( uint& i, uint& j ) const
+        {
+            if constexpr ( Eigen::NumTraits< Type >::IsComplex )
             {
-                return mMatrix.maxCoeff( );
+                return complex_extreme< true >( i, j );
             }
-
-            Type
-            min() const
+            else
             {
-                return mMatrix.minCoeff( ) ;
+                return mMatrix.maxCoeff( &i, &j );
             }
-
-            Type
-            max(uint & aRowIndex,
-                    uint & aColIndex) const
-            {
-                auto val = this->mMatrix.maxCoeff( &aRowIndex, &aColIndex );
-
-                return val;
-            }
-
-            Type
-            min(uint & aRowIndex,
-                    uint & aColIndex) const
-            {
-                auto val = this->mMatrix.minCoeff( &aRowIndex, &aColIndex );
-
-                return val;
-            }
-
-            /**
-             * @brief Overloaded moris::Matrix_Base::operator()
-             *
-             * @param[in] aRowIndex Row index for which data should be accessed.
-             * @param[in] aColIndex Column index for which data should be accessed.
-             */
-            inline
-            Type &
-            operator()( size_t const & aRowIndex,
-                    size_t const & aColIndex )
-            {
-                return mMatrix(aRowIndex,aColIndex);
-            }
-
-            /**
-             * @brief Overloaded moris::Matrix_Base::operator()
-             *
-             * @param[in] aRowIndex Row index for which data should be accessed.
-             * @param[in] aColIndex Column index for which data should be accessed.
-             */
-            const Type &
-            operator()(const size_t & aRowIndex,
-                    const size_t & aColIndex) const
-            {
-                return mMatrix(aRowIndex,aColIndex);
-            }
-
-            /**
-             * @brief Overloaded moris::Matrix_Base::operator()
-             *
-             * @param[in] aIndex Index for which data should be accessed.
-             */
-            inline
-            Type &
-            operator()( const size_t & aIndex )
-            {
-                return mMatrix( aIndex );
-            }
-
-            /**
-             * @brief Overloaded moris::Matrix_Base::operator()
-             *
-             * @param[in] aIndex Index for which data should be accessed.
-             */
-            const Type &
-            operator()( const size_t & aIndex ) const
-            {
-                return mMatrix( aIndex );
-            }
-
-            /*
-             * Block operations
-             */
-            auto
-            operator()(
-                    std::pair< moris::size_t, moris::size_t > const & aI,
-                    std::pair< moris::size_t, moris::size_t > const & aJ )
-            ->decltype(mMatrix.block( aI.first, aJ.first, aI.second-aI.first+1,aJ.second-aJ.first+1 ) )
-            {
-                return mMatrix.block( aI.first, aJ.first, aI.second-aI.first+1,aJ.second-aJ.first+1 ) ;
-            }
-
-            /**
-             * Assignment operator.
-             *
-             * @param[in] X Matrix or column vector or row vector.
-             *
-             * @return Assignment.
-             */
-            Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> > &
-            operator=( Matrix< Eigen::Matrix<Type, Eigen::Dynamic, Eigen::Dynamic> > const & X )
-            {
-                mMatrix = X.matrix_data();
-                return *this;
-            }
-
-            /**
-             * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
-             */
-            size_t
-            length() const
-            {
-                // get number of rows from matrix implementation
-                size_t n_rows = this->n_rows();
-
-                // get number of cols from matrix implementation
-                size_t n_cols = this->n_cols();
-
-                // catch special case of zero length
-                if( n_rows == 0 || n_cols == 0 )
-                {
-                    return 0;
-                }
-                else
-                {
-                    // assert that this is really a vector
-                    MORIS_ASSERT(  n_rows == 1 || n_cols == 1,
-                            "Tried to get length of a matrix. Check dimensions." );
-
-                    // return the smaller of both values
-                    return ( n_rows < n_cols ) ? n_cols : n_rows;
-                }
-            }
+        }
     };
-}
-
-#endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_DYNAMIC_HPP_ */
-
+}    // namespace moris
+#endif

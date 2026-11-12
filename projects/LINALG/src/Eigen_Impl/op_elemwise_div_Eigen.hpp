@@ -17,41 +17,51 @@
 namespace moris
 {
 
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
     template< typename Matrix_Type, typename ET >
     auto
-    operator/( const Matrix< Matrix_Type > & aA,
-               const Eigen::MatrixBase<ET> & aB )
-        ->decltype( aA.matrix_data().cwiseQuotient( aB ) )
+    operator/( const Matrix< Matrix_Type > &aA,
+            const Eigen::MatrixBase< ET >  &aB )
+            -> decltype( aA.matrix_data().cwiseQuotient( aB ) )
     {
         return aA.matrix_data().cwiseQuotient( aB );
     }
 
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
     template< typename Matrix_Type, typename ET >
     auto
-    operator/( const Eigen::MatrixBase<ET> & aA,
-               const Matrix< Matrix_Type > & aB )
-        ->decltype( aA.cwiseQuotient( aB.matrix_data() ) )
+    operator/( const Eigen::MatrixBase< ET > &aA,
+            const Matrix< Matrix_Type >      &aB )
+            -> decltype( aA.cwiseQuotient( aB.matrix_data() ) )
     {
         return aA.cwiseQuotient( aB.matrix_data() );
     }
 
-//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 
+
+    //--------------------------------------------------------------------------------
+}    // namespace moris
+
+
+// Native expression operands need an ADL-visible operator after wrapper unwrapping.
+namespace Eigen
+{
     template< typename ET1, typename ET2 >
     auto
-    operator/( const Eigen::MatrixBase<ET1> & aA,
-               const Eigen::MatrixBase<ET2> & aB )
-        ->decltype( aA.cwiseQuotient( aB ) )
+    operator/( const Eigen::MatrixBase< ET1 > &aA,
+            const Eigen::MatrixBase< ET2 >    &aB )
+            -> decltype( aA.cwiseQuotient( aB ) )
     {
         return aA.cwiseQuotient( aB );
     }
 
-//--------------------------------------------------------------------------------
+}    // namespace Eigen
+namespace moris
+{
+    using Eigen::operator/;
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_ELEMWISE_DIV_EIGEN_HPP_ */
-

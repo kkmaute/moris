@@ -42,7 +42,11 @@ namespace moris
             size_t const          & aNumCols,
             Matrix< Matrix_Type > & aEyeMat)
     {
+#ifdef MORIS_USE_EIGEN
+        linalg_internal::eigen_eye( aNumRows, aNumCols, aEyeMat );
+#else
         eye( aNumRows, aNumCols, aEyeMat.matrix_data() );
+#endif
     }
 
     /**

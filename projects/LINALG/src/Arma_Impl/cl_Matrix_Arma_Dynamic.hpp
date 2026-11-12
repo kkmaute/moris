@@ -28,6 +28,7 @@
 // #endif
 
 #include <armadillo>
+#include <type_traits>
 
 #include "moris_typedefs.hpp"
 
@@ -132,8 +133,9 @@ namespace moris
 
         // -----------------------------------------------------------------
 
-        // template constructor
-        template< typename A >
+        // Numeric arguments select the vector-size constructor. Keep native
+        // expression operands unevaluated until Armadillo constructs storage.
+        template< typename A, std::enable_if_t< !std::is_arithmetic_v< A >, int > = 0 >
         Matrix( A const & X )
                 : mMatrix( X )
         {
@@ -575,15 +577,11 @@ namespace moris
                 uint& aRowIndex,
                 uint& aColIndex ) const
         {
-            arma::uword rowIndex;
-            arma::uword colIndex;
+            const arma::uword tIndex = mMatrix.index_max();
+            aRowIndex                = tIndex % mMatrix.n_rows;
+            aColIndex                = tIndex / mMatrix.n_rows;
 
-            auto retValue = this->mMatrix.max( rowIndex, colIndex );
-
-            aRowIndex = rowIndex;
-            aColIndex = colIndex;
-
-            return retValue;
+            return mMatrix( tIndex );
         }
 
         // -----------------------------------------------------------------
@@ -593,15 +591,11 @@ namespace moris
                 uint& aRowIndex,
                 uint& aColIndex ) const
         {
-            arma::uword rowIndex;
-            arma::uword colIndex;
+            const arma::uword tIndex = mMatrix.index_min();
+            aRowIndex                = tIndex % mMatrix.n_rows;
+            aColIndex                = tIndex / mMatrix.n_rows;
 
-            auto retValue = this->mMatrix.min( rowIndex, colIndex );
-
-            aRowIndex = rowIndex;
-            aColIndex = colIndex;
-
-            return retValue;
+            return mMatrix( tIndex );
         }
 
         // -----------------------------------------------------------------

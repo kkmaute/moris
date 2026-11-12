@@ -80,8 +80,13 @@ namespace moris
 
     TEST_CASE( "moris::Matrix native move assignment", "[linalgebra],[move_semantics]" )
     {
+#ifdef MORIS_USE_EIGEN
+        // A strict borrowed destination can reject a size-changing assignment.
+        STATIC_REQUIRE_FALSE( std::is_nothrow_move_assignable< Matrix< DDRMat > >::value );
+#else
         STATIC_REQUIRE( std::is_nothrow_move_assignable< Matrix< DDRMat > >::value
                         == std::is_nothrow_move_assignable< DDRMat >::value );
+#endif
 
         Matrix< DDRMat > tSource( 50, 50, 2.0 );
         tSource( 2, 2 ) = 7.0;
@@ -161,3 +166,17 @@ namespace moris
     }
 
 }    // namespace moris
+
+#ifdef MORIS_USE_EIGEN
+TEST_CASE( "Eigen move assignment from a borrowed view retains its owner", "[linalgebra],[move]" )
+{
+    moris::Matrix< moris::DDRMat > tOwner( 64, 64, 3.0 );
+    auto*                          tStorage = tOwner.data();
+    moris::Matrix< moris::DDRMat > tView( tStorage, 64, 64, false, true );
+    tOwner = std::move( tView );
+    CHECK( tOwner.data() == tStorage );
+    CHECK( tOwner( 63, 63 ) == 3.0 );
+    tOwner( 0, 0 ) = 7.0;
+    CHECK( tStorage[ 0 ] == 7.0 );
+}
+#endif

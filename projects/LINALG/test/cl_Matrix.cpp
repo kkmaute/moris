@@ -345,6 +345,8 @@ namespace moris
         }
     }
 
+#ifdef MORIS_USE_ARMA
+    // This diagnostic compares against the native Armadillo implementation.
     TEST_CASE( "matrix_performance_arma", "[moris],[matrix_performance_arma]" )
     {
         // Initialize random matrix size
@@ -601,6 +603,8 @@ namespace moris
                 norm( tResultMatArma ) );
     }
 
+#endif
+
     TEST_CASE( "matrix_solve", "[moris],[matrix_solve]" )
     {
         // this performance comparison test should be only performed in non-debug mode
@@ -816,7 +820,11 @@ namespace moris
 
                 C( iStart * tMaxNumRow + iR ) = std::rand();
 
+#ifdef MORIS_USE_ARMA
                 arma::mat tMat( C.memptr() + iStart * tMaxNumRow, iR, 1, false );
+#else
+                Eigen::Map< Eigen::Matrix< real, Eigen::Dynamic, 1 > > tMat( C.memptr() + iStart * tMaxNumRow, iR );
+#endif
 
                 tsum += sum( tMat );
             }
@@ -837,7 +845,11 @@ namespace moris
             {
                 D.push_back( std::rand() );
 
+#ifdef MORIS_USE_ARMA
                 arma::mat tMat( D.memptr() + iStart * tMaxNumRow, iR, 1, false );
+#else
+                Eigen::Map< Eigen::Matrix< real, Eigen::Dynamic, 1 > > tMat( D.memptr() + iStart * tMaxNumRow, iR );
+#endif
 
                 tsum += sum( tMat );
             }

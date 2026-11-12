@@ -112,25 +112,39 @@ namespace moris
             tB(imat-1,imat-1) = 2.0*imat/3.0;
 
             tC(imat-1,imat-2) =-0.8*imat/4.0;
-            tC(imat-1,imat-1) = 2.0*imat/2.0;
+            tC( imat - 1, imat - 1 ) = 2.0 * imat / 2.0;
 
             // compute solution to tA*tX + tX*tB + tC = 0 - Option 1
-            Matrix< DDRMat > tX = moris::sylvester(tA,tB,tC);
+            Matrix< DDRMat > tX = moris::sylvester( tA, tB, tC );
 
             // check for accuracy
-            real tError = norm( tA*tX + tX*tB + tC);
+            real tError = norm( tA * tX + tX * tB + tC );
 
-            REQUIRE( tError < 1e-8 * norm(tC) );
+            REQUIRE( tError < 1e-8 * norm( tC ) );
 
             // compute solution to tA*tX + tX*tB + tC = 0 - Option 2
-            tX.fill(0.0);
-            moris::sylvester(tA,tB,tC,tX);
+            tX.fill( 0.0 );
+            moris::sylvester( tA, tB, tC, tX );
 
             // check for accuracy
-            tError = norm( tA*tX + tX*tB + tC);
+            tError = norm( tA * tX + tX * tB + tC );
 
-            REQUIRE( tError < 1e-8 * norm(tC) );
+            REQUIRE( tError < 1e-8 * norm( tC ) );
         }
     }
-}
+}    // namespace moris
 
+
+TEST_CASE( "LINALG Sylvester solution is invariant to coefficient scaling", "[linalgebra],[sylvester]" )
+{
+    for ( double tScale : { 1e-20, 1.0, 1e20 } )
+    {
+        const moris::Matrix< moris::DDRMat > tA( 1, 1, 2.0 * tScale );
+        const moris::Matrix< moris::DDRMat > tB( 1, 1, 3.0 * tScale );
+        const moris::Matrix< moris::DDRMat > tC( 1, 1, 5.0 * tScale );
+        const moris::Matrix< moris::DDRMat > tX = moris::sylvester( tA, tB, tC );
+        REQUIRE( tX.n_rows() == 1 );
+        REQUIRE( tX.n_cols() == 1 );
+        CHECK( tX( 0 ) == Approx( -1.0 ) );
+    }
+}

@@ -14,13 +14,6 @@
 
 namespace moris
 {
-
-    template< typename ETA, typename ETB >
-    auto
-    min( ETA&    aA,
-            ETB& aB )
-            -> decltype( arma::min( aA, aB ) )
-    {
-        return arma::min( aA, aB );
-    }
+    // Reuse native overloads for both reductions and coefficient-wise extrema.
+    using arma::min;
 }    // namespace moris

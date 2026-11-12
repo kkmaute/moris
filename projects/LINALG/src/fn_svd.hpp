@@ -33,10 +33,14 @@ namespace moris
                   Matrix< M > & aV,
             const Matrix< M > & aM )
     {
+#ifdef MORIS_USE_EIGEN
+        svd( aU, aS, aV, aM.matrix_data() );
+#else
         svd( aU.matrix_data(),
              aS.matrix_data(),
              aV.matrix_data(),
              aM.matrix_data() );
+#endif
     }
 
     template< typename M, typename N >
@@ -44,8 +48,12 @@ namespace moris
     svd(          Matrix< N > & aS,
             const Matrix< M > & aM )
     {
+#ifdef MORIS_USE_EIGEN
+        svd( aS, aM.matrix_data() );
+#else
         svd( aS.matrix_data(),
              aM.matrix_data() );
+#endif
     }
 
 }
