@@ -608,6 +608,45 @@ namespace moris
                     moris_index        aXYZPdvAssemblyIndex ) = 0;
 
             //------------------------------------------------------------------------------
+
+            virtual real
+            compute_cluster_measure( const moris_index aClusterIndex ) = 0;
+
+            //------------------------------------------------------------------------------
+
+            virtual Matrix< DDRMat > const
+            compute_cluster_measure_derivative( const moris_index aClusterIndex ) = 0;
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief get pdvs in cluster
+             * @param[ in ] aClusterIndex cluster index
+             * @return list of pdvs in cluster
+             */
+            virtual Matrix< DDSMat >    
+            get_pdvs_in_cluster( const moris_index aClusterIndex ) = 0;
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief get activity of PDVs in cluster (are they active or not)
+             * @param[ in ] aClusterIndex cluster index
+             * @return list of PDV activity in cluster
+             */
+            virtual Matrix< DDSMat >
+            get_pdvs_activity_in_cluster( const moris_index aClusterIndex ) = 0;
+
+            //------------------------------------------------------------------------------
+
+            virtual void
+            set_consider_basis_extension_sensitivities(
+                    const bool aConsiderBasisExtensionSensitivities ) = 0;
+            
+            //------------------------------------------------------------------------------
+
+            virtual bool
+            get_consider_basis_extension_sensitivities() const = 0;
+
+            //------------------------------------------------------------------------------
             /**
              * @brief get integration xyz pdv local cluster assembly indices
              * @param[ in ] aNodeIndices           list of node indices

@@ -1612,6 +1612,22 @@ namespace moris
             get_basis_weight_numerator_indices( moris_index aVertexIndex,
                     moris_index                        aOrder );
 
+            virtual moris::Vector< moris::moris_index >*
+            get_basis_weight_cluster_numerators( moris_index aVertexIndex,
+                    moris_index                        aOrder );
+
+            virtual moris::Vector< moris::moris_index >*
+            get_basis_weight_cluster_denominators( moris_index aVertexIndex,
+                    moris_index                        aOrder );
+
+            virtual moris::Vector< uint >*
+            get_basis_weight_cluster_numerator_indices( moris_index aVertexIndex,
+                    moris_index                        aOrder );
+
+            virtual moris::Vector< uint >*
+            get_basis_weight_cluster_denominator_indices( moris_index aVertexIndex,
+                    moris_index                        aOrder );
+
             //--------------------------------------------------------------------------------------------------------------
 
             virtual moris_id*

@@ -1439,6 +1439,40 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    real
+    Set::compute_cluster_measure( const moris_index aClusterIndex )
+    {
+        // call FEM model to compute the cluster measure
+        return this->mEquationModel->compute_cluster_measure( aClusterIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat > const
+    Set::compute_cluster_measure_derivative( const moris_index aClusterIndex )
+    {
+        // call FEM model to compute the cluster cell measure derivative
+        return this->mEquationModel->compute_cluster_measure_derivative( aClusterIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDSMat >
+    Set::get_pdvs_in_cluster( const moris_index aClusterIndex )
+    {
+        return this->mEquationModel->get_pdvs_in_cluster( aClusterIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDSMat >
+    Set::get_pdvs_activity_in_cluster( const moris_index aClusterIndex )
+    {
+        return this->mEquationModel->get_pdvs_activity_in_cluster( aClusterIndex );
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     Set::set_IQI_field_interpolator_managers()
     {

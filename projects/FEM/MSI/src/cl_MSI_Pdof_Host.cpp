@@ -340,6 +340,228 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
+        void
+        Pdof_Host::set_basis_extension_flag(
+                const bool&             aUseHMR,
+                Model_Solver_Interface* aModelSolverInterface )
+        {
+            uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                if ( mListOfPdofTimePerType( Ii ).size() == 0 )
+                {
+                    continue;
+                }
+
+                uint tAdofMeshIndex = 0;
+                if ( aUseHMR )
+                {
+                    tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                }
+
+                for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                {
+                    if ( aUseHMR )
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis =
+                                mNodeObj->contains_extended_basis( tAdofMeshIndex );
+                    }
+                    else
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis = false;
+                    }
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Pdof_Host::set_numerator_cluster_indices(
+                const bool&             aUseHMR,
+                Model_Solver_Interface* aModelSolverInterface )
+        {
+            uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                if ( mListOfPdofTimePerType( Ii ).size() == 0 )
+                {
+                    continue;
+                }
+
+                uint tAdofMeshIndex = 0;
+                if ( aUseHMR )
+                {
+                    tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                }
+
+                for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                {
+                    if ( aUseHMR && mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis )
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mNumeratorClusterIndices =
+                                mNodeObj->get_numerator_cluster_indices( tAdofMeshIndex );
+                    }
+                    else
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mNumeratorClusterIndices.clear();
+                    }
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Pdof_Host::set_denominator_cluster_indices(
+                const bool&             aUseHMR,
+                Model_Solver_Interface* aModelSolverInterface )
+        {
+            uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                if ( mListOfPdofTimePerType( Ii ).size() == 0 )
+                {
+                    continue;
+                }
+
+                uint tAdofMeshIndex = 0;
+                if ( aUseHMR )
+                {
+                    tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                }
+
+                for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                {
+                    if ( aUseHMR && mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis )
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mDenominatorClusterIndices =
+                                mNodeObj->get_denominator_cluster_indices( tAdofMeshIndex );
+                    }
+                    else
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mDenominatorClusterIndices.clear();
+                    }
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Pdof_Host::set_numerator_cluster_offsets(
+                const bool&             aUseHMR,
+                Model_Solver_Interface* aModelSolverInterface )
+        {
+            uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                if ( mListOfPdofTimePerType( Ii ).size() == 0 )
+                {
+                    continue;
+                }
+
+                uint tAdofMeshIndex = 0;
+                if ( aUseHMR )
+                {
+                    tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                }
+
+                for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                {
+                    if ( aUseHMR && mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis )
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mNumeratorClusterOffsets =
+                                mNodeObj->get_numerator_cluster_offsets( tAdofMeshIndex );
+                    }
+                    else
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mNumeratorClusterOffsets.clear();
+                    }
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Pdof_Host::set_denominator_cluster_offsets(
+                const bool&             aUseHMR,
+                Model_Solver_Interface* aModelSolverInterface )
+        {
+            uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                if ( mListOfPdofTimePerType( Ii ).size() == 0 )
+                {
+                    continue;
+                }
+
+                uint tAdofMeshIndex = 0;
+                if ( aUseHMR )
+                {
+                    tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                }
+
+                for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                {
+                    if ( aUseHMR && mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis )
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mDenominatorClusterOffsets =
+                                mNodeObj->get_denominator_cluster_offsets( tAdofMeshIndex );
+                    }
+                    else
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mDenominatorClusterOffsets.clear();
+                    }
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Pdof_Host::set_basis_weight_per_leader_basis(
+                const bool&             aUseHMR,
+                Model_Solver_Interface* aModelSolverInterface )
+        {
+            uint tNumPdofTypes = mListOfPdofTimePerType.size();
+
+            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            {
+                if ( mListOfPdofTimePerType( Ii ).size() == 0 )
+                {
+                    continue;
+                }
+
+                uint tAdofMeshIndex = 0;
+                if ( aUseHMR )
+                {
+                    tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                }
+
+                for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                {
+                    if ( aUseHMR && mListOfPdofTimePerType( Ii )( Ij )->mHasExtendedBasis )
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mBasisWeightPerLeaderBasis =
+                                mNodeObj->get_basis_weight_per_leader_basis( tAdofMeshIndex );
+                    }
+                    else
+                    {
+                        mListOfPdofTimePerType( Ii )( Ij )->mBasisWeightPerLeaderBasis.clear();
+                    }
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
         uint
         Pdof_Host::get_num_pdofs()
         {

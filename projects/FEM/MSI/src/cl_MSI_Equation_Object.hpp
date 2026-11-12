@@ -223,8 +223,16 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void build_PADofMap_list( Vector< Vector< Matrix< DDRMat > > >& aPADofMap );
-
             void build_PADofMap_1( Matrix< DDRMat >& aPADofMap );
+
+            void build_dPADofMap_list( Vector< Vector< Vector< Vector< Vector< real > > > > >& adPADofMap,
+                                       Vector< Vector< Vector< Vector< Vector< moris_id > > > > >& adPADofMapInds);
+            void build_dPADofMap( Vector< Matrix< DDRMat > >& adPADofMap,
+                                  Vector< moris_id >& adPADofMapInds );
+
+            // Derivative matrices with the row and column ordering of build_PADofMap.
+            void build_dPADofMap_all( Vector< Matrix< DDRMat > >& adPADofMap,
+                                      Vector< moris_id >& adPADofMapInds );
 
             //------------------------------------------------------------------------------
             /**
@@ -249,6 +257,37 @@ namespace moris
              * @brief compute function for the adjoint values
              */
             void compute_my_adjoint_values();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief compute derivative of T-Matrix times adjoint values
+             */
+            void compute_my_dPADofMap_adjoint_values();
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief compute derivative of T-Matrix times current state values
+             */
+            void compute_my_dPADofMap_pdof_values();
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief compute derivative of T-Matrix times previous state values
+             */
+            void compute_previous_dPADofMap_pdof_values();
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief compute derivative of T-Matrix times eigenvector values
+             */
+            void compute_my_dPADofMap_eigen_vector_values();
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief compute derivative of T-Matrix times previous adjoint values
+             */
+            void compute_my_previous_dPADofMap_adjoint_values();
 
             //------------------------------------------------------------------------------
             /**
@@ -431,6 +470,27 @@ namespace moris
             compute_dQIdp_explicit_implicit()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit_implicit - not implemented in msi." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute dQIdp (explicit and implicit contributions) when factoring in basis extension sensitivities
+             */
+            virtual void
+            compute_dQIdp_explicit_implicit_with_basis_extension_sensitivities()
+            {
+                MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit_implicit_with_basis_extension_sensitivities - not implemented in msi." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute residual and jacobian only on equation object -  need this for residual and jacobian computation 
+             * for QI sensitivities when factoring basis extension sensitivities in the T-Matrix
+             */
+            virtual void
+            compute_jacobian_and_residual_only()
+            {
+                MORIS_ERROR( false, "Equation_Object::void_compute_residual_and_jacobian_only - not implemented in msi." );
             }
 
             //------------------------------------------------------------------------------

@@ -696,6 +696,43 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * compute cluster measure for requested cluster
+             * @param[ in ] aClusterIndex the index of the cluster
+             * @return the cluster measure
+             */
+            real
+            compute_cluster_measure( const moris_index aClusterIndex ) override;
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute cluster measure derivative for requested cluster
+             * @param[ in ] aClusterIndex the index of the cluster
+             * @return the cluster measure derivative
+             */
+            Matrix< DDRMat > const
+            compute_cluster_measure_derivative( const moris_index aClusterIndex ) override;
+
+            //------------------------------------------------------------------------------
+            /**
+             * get vertex indices in cluster
+             * @param[ in ] aClusterIndex the index of the cluster
+             * @return the vertex indices in the cluster
+             */
+            Matrix< DDSMat >
+            get_pdvs_in_cluster( const moris_index aClusterIndex ) override;
+
+            //------------------------------------------------------------------------------
+            /**
+             * get activity of PDVs in cluster (are they active or not)
+             * @param[ in ] aClusterIndex the index of the cluster
+             * @return the vertex activity in the cluster
+             */
+            Matrix< DDSMat >
+            get_pdvs_activity_in_cluster( const moris_index aClusterIndex ) override;
+            
+
+            //------------------------------------------------------------------------------
+            /**
              * create the dof assembly map for the residual/rows
              */
             void create_residual_dof_assembly_map();

@@ -98,6 +98,72 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         /**
+         * returns whether the interpolation contains extended basis functions
+         */
+        bool
+        contains_extended_basis( const uint aBSplineMeshIndex ) const override
+        {
+            return mVertex->get_interpolation( aBSplineMeshIndex )->contains_extended_basis();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the individual extension contribution weights for each leader basis
+         */
+        const Vector< Vector< real > >&
+        get_basis_weight_per_leader_basis( const uint aBSplineMeshIndex ) const override
+        {
+            return mVertex->get_interpolation( aBSplineMeshIndex )->get_basis_weight_per_leader_basis();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the numerator cluster indices for each leader basis
+         */
+        const Vector< Vector< moris_index > >&
+        get_numerator_cluster_indices( const uint aBSplineMeshIndex ) const override
+        {
+            return mVertex->get_interpolation( aBSplineMeshIndex )->get_basis_weight_cluster_numerators();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the per-contribution numerator cluster counts (offset increments)
+         */
+        const Vector< Vector< uint > >&
+        get_numerator_cluster_offsets( const uint aBSplineMeshIndex ) const override
+        {
+            return mVertex->get_interpolation( aBSplineMeshIndex )->get_basis_weight_cluster_numerator_count();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the denominator cluster indices for each leader basis
+         */
+        const Vector< Vector< moris_index > >&
+        get_denominator_cluster_indices( const uint aBSplineMeshIndex ) const override
+        {
+            return mVertex->get_interpolation( aBSplineMeshIndex )->get_basis_weight_cluster_denominators();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the per-contribution denominator cluster counts (offset increments)
+         */
+        const Vector< Vector< uint > >&
+        get_denominator_cluster_offsets( const uint aBSplineMeshIndex ) const override
+        {
+            return mVertex->get_interpolation( aBSplineMeshIndex )->get_basis_weight_cluster_denominator_count();
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
          * returns the proc owners of the IDs of this node
          */
         Matrix< IdMat >

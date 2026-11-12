@@ -430,6 +430,18 @@ namespace moris::mdl
     }
 
     //------------------------------------------------------------------------------
+    
+    void
+    Model::set_consider_basis_extension_sensitivities( const bool aConsiderBasisExtensionSensitivities )
+    {
+        mConsiderBasisExtensionSensitivities = aConsiderBasisExtensionSensitivities;
+
+        // add it into the Equation Model
+        mEquationModel->set_consider_basis_extension_sensitivities(
+                aConsiderBasisExtensionSensitivities );
+    }
+
+    //------------------------------------------------------------------------------
     void
     Model::perform_sensitivity_analysis()
     {

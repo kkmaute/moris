@@ -605,6 +605,77 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    real
+    FEM_Model::compute_cluster_measure( const moris_index aClusterIndex )
+    {
+       // ask the integration mesh for the cluster measure value
+       return mMeshManager->get_integration_mesh( mMeshPairIndex )->get_cell_cluster( aClusterIndex ).compute_cluster_cell_measure();
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDRMat > const
+    FEM_Model::compute_cluster_measure_derivative( const moris_index aClusterIndex )
+    {
+        return mMeshManager->get_integration_mesh( mMeshPairIndex )->get_cell_cluster( aClusterIndex ).compute_cluster_cell_measure_derivative();
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDSMat >
+    FEM_Model::get_pdvs_in_cluster( const moris_index aClusterIndex )
+    {
+        // get spatial dimensions
+        uint tSpatialDim = mMeshManager->get_integration_mesh( mMeshPairIndex )->get_spatial_dim();
+        
+        // get the index of all IG nodes associated with the cluster
+        Matrix< IndexMat > tClusterIGIndices =  mMeshManager->get_integration_mesh( mMeshPairIndex )->get_cell_cluster( aClusterIndex ).get_vertex_indices_in_cluster();
+        Vector< gen::PDV_Type > tPDVtype;
+        
+        tPDVtype.push_back( gen::PDV_Type::X_COORDINATE );
+        tPDVtype.push_back( gen::PDV_Type::Y_COORDINATE );
+
+        if (tSpatialDim == 3)
+        {
+            tPDVtype.push_back( gen::PDV_Type::Z_COORDINATE );
+        }
+
+        Matrix< DDSMat > tPdvIds;
+        this->get_integration_xyz_pdv_ids( tClusterIGIndices, tPDVtype, tPdvIds );
+
+
+        return tPdvIds;
+    }
+
+    //------------------------------------------------------------------------------
+
+    Matrix< DDSMat >
+    FEM_Model::get_pdvs_activity_in_cluster( const moris_index aClusterIndex )
+    {
+        // get spatial dimensions
+        uint tSpatialDim = mMeshManager->get_integration_mesh( mMeshPairIndex )->get_spatial_dim();
+
+        // get the index of all IG nodes associated with the cluster
+        Matrix< IndexMat > tClusterIGIndices =  mMeshManager->get_integration_mesh( mMeshPairIndex )->get_cell_cluster( aClusterIndex ).get_vertex_indices_in_cluster();
+        Vector< gen::PDV_Type > tPDVtype;
+
+        tPDVtype.push_back( gen::PDV_Type::X_COORDINATE );
+        tPDVtype.push_back( gen::PDV_Type::Y_COORDINATE );
+
+        if (tSpatialDim == 3)
+        {
+            tPDVtype.push_back( gen::PDV_Type::Z_COORDINATE );
+        }
+
+        Matrix< DDSMat > tIsActiveDv;
+        Matrix< DDSMat > tPdvIds;
+        this->get_integration_xyz_pdv_active_flags_and_ids( tClusterIGIndices, tPDVtype, tIsActiveDv, tPdvIds );
+
+        return tIsActiveDv;
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     FEM_Model::get_integration_xyz_pdv_ids(
             const Matrix< IndexMat >      &aNodeIndices,
@@ -1110,6 +1181,23 @@ namespace moris::fem
             // set value
             aIsActiveDv( iPdvType ) = mIsActiveXYZ( aVertexIndex, tXYZIndex );
         }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    FEM_Model::set_consider_basis_extension_sensitivities(
+            const bool aConsiderBasisExtensionSensitivities )
+    {
+        mConsiderBasisExtensionSensitivities = aConsiderBasisExtensionSensitivities;
+    }
+
+    //------------------------------------------------------------------------------
+
+    bool
+    FEM_Model::get_consider_basis_extension_sensitivities() const
+    {
+        return mConsiderBasisExtensionSensitivities;
     }
 
     //-------------------------------------------------------------------------------------------------

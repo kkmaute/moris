@@ -142,6 +142,39 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
+    const Vector< Vector< moris_index > >&
+    Vertex_Interpolation_DataBase::get_basis_weight_cluster_numerators() const
+    {
+        return mWeightClusterNumerators;
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Vector< Vector< moris_index > >&
+    Vertex_Interpolation_DataBase::get_basis_weight_cluster_denominators() const
+    {
+        return mWeightClusterDenominators;
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Vector< Vector< uint > >&
+    Vertex_Interpolation_DataBase::get_basis_weight_cluster_numerator_count() const
+    {
+        return mWeightClusterNumeratorIndices;
+    }
+
+    //------------------------------------------------------------------------------
+
+    const Vector< Vector< uint > >&
+    Vertex_Interpolation_DataBase::get_basis_weight_cluster_denominator_count() const
+    {
+        return mWeightClusterDenominatorIndices;
+    }
+
+    //------------------------------------------------------------------------------
+    
+
     void
     Vertex_Interpolation_DataBase::set_coefficients( Vector< Vertex* >& aCoefficients )
     {
@@ -194,6 +227,11 @@ namespace moris::mtk
         const auto* tBasisWeightsNumeratorIndices    = mMesh->get_basis_weight_numerator_indices( mVertexIndex, mVertexOrder );
         const auto* tBasisWeightsDenominatorIndices  = mMesh->get_basis_weight_denominator_indices( mVertexIndex, mVertexOrder );
 
+        const auto* tBasisWeightClusterNumeratorsPtr        = mMesh->get_basis_weight_cluster_numerators( mVertexIndex, mVertexOrder );
+        const auto* tBasisWeightClusterDenominatorsPtr      = mMesh->get_basis_weight_cluster_denominators( mVertexIndex, mVertexOrder );
+        const auto* tBasisWeightClusterNumeratorIndicesPtr  = mMesh->get_basis_weight_cluster_numerator_indices( mVertexIndex, mVertexOrder );
+        const auto* tBasisWeightClusterDenominatorIndicesPtr = mMesh->get_basis_weight_cluster_denominator_indices( mVertexIndex, mVertexOrder );
+
         mWeights = Matrix< DDRMat >( tBasisWightsPtr, tOffset, 1, false, true );
 
         mWeightNumerators.resize( tOffset );
@@ -201,6 +239,10 @@ namespace moris::mtk
         mWeightsPerLeader.resize( tOffset );
         mWeightNumeratorIndices.resize( tOffset );
         mWeightDenominatorIndices.resize( tOffset );
+        mWeightClusterNumerators.resize( tOffset );
+        mWeightClusterDenominators.resize( tOffset );
+        mWeightClusterNumeratorIndices.resize( tOffset );
+        mWeightClusterDenominatorIndices.resize( tOffset );
 
         for (int i = 0; i < tOffset; ++i )
         {
@@ -209,6 +251,10 @@ namespace moris::mtk
             mWeightsPerLeader( i )         = tBasisWeightsPerLeaderBasisPtr[ i ];
             mWeightNumeratorIndices( i )   = tBasisWeightsNumeratorIndices[ i ];
             mWeightDenominatorIndices( i ) = tBasisWeightsDenominatorIndices[ i ];
+            mWeightClusterNumerators( i )  = tBasisWeightClusterNumeratorsPtr[ i ];
+            mWeightClusterDenominators( i ) = tBasisWeightClusterDenominatorsPtr[ i ];
+            mWeightClusterNumeratorIndices( i ) = tBasisWeightClusterNumeratorIndicesPtr[ i ];
+            mWeightClusterDenominatorIndices( i ) = tBasisWeightClusterDenominatorIndicesPtr[ i ];
         }
         
 

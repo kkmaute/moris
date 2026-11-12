@@ -529,6 +529,9 @@ namespace moris::xtk
         bool
         kill_workflow_flag();
 
+        bool
+        consider_basis_agglomeration_sensitivities_in_t_matrix();
+
         //-----------------------------------------------------------------------------------
 
         std::shared_ptr< Multigrid > get_multigrid_ptr();

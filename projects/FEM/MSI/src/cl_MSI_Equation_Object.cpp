@@ -488,6 +488,568 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
+        void
+        Equation_Object::build_dPADofMap_list( Vector< Vector< Vector< Vector< Vector< real > > > > >&        adPADofMap,
+                                               Vector< Vector< Vector< Vector< Vector< moris_id > > > > >&    adPADofMapInds )
+        {
+            // This function is used to create d(PADoFMap)/d\hat{x}, i.e., the derivative of the PADofMap with respect to the nodal coordinates.
+            // Why do we need it? - Basis extension leads to the T-Matrix also posessing sensitivities with respect to nodal locations
+            // Due to the averaging weights used for basis extension to get the volume fraction.
+
+            // the nesting is such - outermost is the leader/follower system (bulk has only 1)
+            // second is the DoF types (UX, UY etc.)
+            // third is the pdofs of the type above associated with the equation object
+            // 4th is the adofs associated with each pdof - the col index from the build PADofMap list func is used to index this
+            // the first input argument stores the x,y,z components of the derivative per adof, and second stores the IG node IDs w.r.t.
+            // which there are sensitivities.
+            // the DDRMats will be num PDVs
+
+            // get spatial dimensions
+            Matrix< DDRMat > tCoords;
+            mNodeObj( 0 )( 0 )->get_vertex_coords( tCoords );
+            uint tNumSpatialDims = tCoords.numel();
+
+            // Remove any results from a previous call.
+            adPADofMap.clear();
+            adPADofMapInds.clear();
+
+            adPADofMap.resize( mUniqueAdofTypeList.size() );
+            adPADofMapInds.resize( mUniqueAdofTypeList.size() );
+
+            for ( uint Ik = 0; Ik < mUniqueAdofTypeList.size(); Ik++ )
+            {
+                uint tNumUniqueAdofsTypes = mUniqueAdofTypeList( Ik ).size();
+
+                adPADofMap( Ik ).resize( tNumUniqueAdofsTypes );
+                adPADofMapInds( Ik ).resize( tNumUniqueAdofsTypes );
+            }
+
+            for ( uint Ik = 0; Ik < mUniqueAdofTypeList.size(); Ik++ )
+            {
+                // Loop over all adof types of this equation object
+                for ( uint Ij = 0; Ij < mUniqueAdofTypeList( Ik ).size(); Ij++ )
+                {
+                    MORIS_ASSERT( mUniqueAdofTypeListFlag,
+                            "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. " );
+
+                    // Get number of unique adofs of this equation object
+                    uint tNumUniqueAdofs = mUniqueAdofTypeList( Ik )( Ij ).numel();
+
+                    // MORIS_ASSERT( tNumUniqueAdofs != 0,
+                    //         "Equation_Object::build_PADofMap: Number adofs = 0. T-matrix can not be created. MSI probably not build yet. ");
+
+                    MORIS_ASSERT( mFreePdofListFlag,
+                            "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. " );
+
+                    // Get MAX number of pdofs for this equation object
+                    uint tNumMyPdofs = mFreePdofList( Ik )( Ij ).size();
+
+                    // MORIS_ASSERT( tNumMyPdofs != 0,
+                    //        "Equation_Object::build_PADofMap: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. ");
+
+                    adPADofMap( Ik )( Ij ).resize( tNumMyPdofs );
+                    adPADofMapInds( Ik )( Ij ).resize( tNumMyPdofs );
+
+                    // Loop over all pdofs of this equation object
+                    for ( uint Ii = 0; Ii < tNumMyPdofs; Ii++ )
+                    {
+                        auto tPdof = mFreePdofList( Ik )( Ij )( Ii );
+
+                        adPADofMap( Ik )( Ij )( Ii ).resize( tNumUniqueAdofs );
+                        adPADofMapInds( Ik )( Ij )( Ii ).resize( tNumUniqueAdofs );
+
+                        // declare a map for pdv-volume fraction derivative.
+                        std::unordered_map< moris_id, real > tVolumeFractionDerivMap;
+
+                        // get the numerator and denominator cluster indices for basis extension weights
+                        Vector< Vector< moris_index > >  tNumeratorClusterIndices      = ( mFreePdofList( Ik )( Ij )( Ii )->mNumeratorClusterIndices );
+                        Vector< Vector< moris_index > >  tDenominatorClusterIndices    = ( mFreePdofList( Ik )( Ij )( Ii )->mDenominatorClusterIndices );
+                        Vector< Vector< uint > >         tNumeratorClusterOffsets      = ( mFreePdofList( Ik )( Ij )( Ii )->mNumeratorClusterOffsets );
+                        Vector< Vector< uint > >         tDenominatorClusterOffsets    = ( mFreePdofList( Ik )( Ij )( Ii )->mDenominatorClusterOffsets );
+                        Vector< Vector< real > >         tBasisWeightsPerLeaderBasis   = ( mFreePdofList( Ik )( Ij )( Ii )->mBasisWeightPerLeaderBasis );
+
+                        // if the size of these above vectors is zero (no extension), fill entries with zero.
+                        // fill offsets with zeros as well
+                        if ( tNumeratorClusterIndices.size() == 0 )
+                        {
+                            for ( uint Ib = 0; Ib < tPdof->mAdofIds.numel(); Ib++ )
+                            {
+                                uint tColumnPos                            = mUniqueAdofMapList( Ik )( Ij )[ tPdof->mAdofIds( Ib, 0 ) ];
+                                adPADofMap( Ik )( Ij )(Ii)( tColumnPos ).push_back( 0.0 );
+                                adPADofMapInds( Ik )( Ij )(Ii)( tColumnPos ).push_back( gNoIndex );  
+                            }
+                        }
+                        else
+                        {
+                            // Loop over all adof Ids of this pdof
+                            for ( uint Ib = 0; Ib < tPdof->mAdofIds.numel(); Ib++ )
+                            {
+                                // Getting tPADofMap column entry for the corresponding value
+                                uint tColumnPos = mUniqueAdofMapList( Ik )( Ij )[ tPdof->mAdofIds( Ib, 0 ) ];
+
+                                // there are three possibilities here
+                                // 1. The SPG was marked for extension, but the basis did not need extension - empty inner vecs in that case
+                                // 2. The SPG was marked for extension, and the basis did need extension but no volume fraction averaging needed -> -1 for num and den and offset is size 1
+                                // 3. The SPG was marked for extension, and the basis did need extension and volume fraction averaging needed
+
+                                Vector< moris_index > tNumeratorClusterIndicesPerAdof = tNumeratorClusterIndices( Ib );
+                                Vector< moris_index > tDenominatorClusterIndicesPerAdof = tDenominatorClusterIndices( Ib );
+                                Vector< uint > tNumeratorClusterOffsetsPerAdof = tNumeratorClusterOffsets( Ib );
+                                Vector< uint > tDenominatorClusterOffsetsPerAdof = tDenominatorClusterOffsets( Ib );
+                                Vector< real > tBasisWeightsPerLeaderBasisPerAdof = tBasisWeightsPerLeaderBasis( Ib );
+
+                                // reset the map to clear the derivatives from the previous numerator denominator pairing
+                                tVolumeFractionDerivMap.clear();
+
+                                // to eliminate case 1:
+                                if( tNumeratorClusterOffsetsPerAdof.size() >= 1 && tDenominatorClusterOffsetsPerAdof.size() >= 1 )
+                                {
+                                    // group numerator and denominator clusters into groups signified by the offset
+                                    uint tNumeratorClusterOffset = 0;
+                                    uint tDenominatorClusterOffset = 0;
+
+                                    // loop over the offset vector to loop over each numerator-denominator pair in the cluster
+                                    for ( uint iPair = 0; iPair < tNumeratorClusterOffsetsPerAdof.size(); iPair++ )
+                                    {
+                                        const auto& tNumeratorClusters = tNumeratorClusterIndicesPerAdof;
+                                        const auto& tDenominatorClusters = tDenominatorClusterIndicesPerAdof;
+                                        uint tNumCount = tNumeratorClusterOffsetsPerAdof( iPair );
+                                        uint tDenCount = tDenominatorClusterOffsetsPerAdof( iPair );
+
+                                        Vector< moris_index > tNumeratorClusterIndicesPerPair;
+                                        Vector< moris_index > tDenominatorClusterIndicesPerPair;
+
+                                        tNumeratorClusterIndicesPerPair.insert(
+                                                0,
+                                                tNumeratorClusters.begin() + tNumeratorClusterOffset,
+                                                tNumeratorClusters.begin() + tNumeratorClusterOffset + tNumCount );
+                                        tNumeratorClusterOffset += tNumCount;
+
+                                        tDenominatorClusterIndicesPerPair.insert(
+                                                0,
+                                                tDenominatorClusters.begin() + tDenominatorClusterOffset,
+                                                tDenominatorClusters.begin() + tDenominatorClusterOffset + tDenCount );
+                                        tDenominatorClusterOffset += tDenCount;
+
+                                        // compute areas and derivative of areas of all clusters in the numerator-denominator pair
+                                        Vector< real > tNumClusterAreas( tNumeratorClusterIndicesPerPair.size() );
+                                        std::unordered_map< moris_id, real > tNumeratorClusterAreaDerivToPDV;
+
+                                        for ( uint iCluster = 0; iCluster < tNumeratorClusterIndicesPerPair.size(); iCluster++ )
+                                        {
+                                            // skip if there is only a single spg involved in the volume calculations
+                                            if ( tNumeratorClusterIndicesPerPair( iCluster ) == -1 )
+                                            {
+                                                continue;
+                                            }
+
+                                            // compute areas
+                                            tNumClusterAreas( iCluster ) = mEquationSet->compute_cluster_measure( tNumeratorClusterIndicesPerPair( iCluster ) );
+
+                                            // compute derivatives with respect to each IG node in the cluster, along each spatial dimension
+                                            Matrix< DDRMat > tNumeratorClusterMeasureDerivative =
+                                                    mEquationSet->compute_cluster_measure_derivative( tNumeratorClusterIndicesPerPair( iCluster ) );
+                                            
+                                            // find the list of IG nodes in the cluster
+                                            Matrix< DDSMat > tPdvIds = mEquationSet->get_pdvs_in_cluster( tNumeratorClusterIndicesPerPair( iCluster ) );
+                                            Matrix< DDSMat > tIsActiveDv = mEquationSet->get_pdvs_activity_in_cluster( tNumeratorClusterIndicesPerPair( iCluster ) );
+
+                                            for (uint iIgNodes = 0 ; iIgNodes < tNumeratorClusterMeasureDerivative.n_rows(); iIgNodes++)
+
+                                            // add the sensitivity of the cluster to the PDV (each PDV represents a spatial coordinate of an IG node)
+                                            for (uint iSpatialDim = 0; iSpatialDim < tNumSpatialDims; iSpatialDim++)
+                                            {
+                                                if ( tPdvIds ( iIgNodes, iSpatialDim ) != -1 && tIsActiveDv( iIgNodes, iSpatialDim ) == 1 )
+                                                {
+                                                    if ( tNumeratorClusterAreaDerivToPDV.find( static_cast< moris_id >( tPdvIds( iIgNodes, iSpatialDim ) ) ) == tNumeratorClusterAreaDerivToPDV.end() )
+                                                    {
+                                                        tNumeratorClusterAreaDerivToPDV[ static_cast< moris_id >( tPdvIds( iIgNodes, iSpatialDim ) ) ] = static_cast< real >( tNumeratorClusterMeasureDerivative( iIgNodes, iSpatialDim ) );
+                                                    }
+                                                    else
+                                                    {
+                                                        tNumeratorClusterAreaDerivToPDV[ static_cast< moris_id >( tPdvIds( iIgNodes, iSpatialDim ) ) ] += static_cast< real >( tNumeratorClusterMeasureDerivative( iIgNodes, iSpatialDim ) );
+                                                    }
+                                                        
+                                                }
+                                            }
+                                        }
+
+                                        // compute areas and derivative of areas of all clusters in the numerator-denominator pair
+                                        Vector< real > tDenClusterAreas( tDenominatorClusterIndicesPerPair.size() );
+                                        std::unordered_map< moris_id, real > tDenominatorClusterAreaDerivToPDV;
+
+                                        for ( uint iCluster = 0; iCluster < tDenominatorClusterIndicesPerPair.size(); iCluster++ )
+                                        {
+                                            // skip if there is only a single spg involved in the volume calculations
+                                            if ( tDenominatorClusterIndicesPerPair( iCluster ) == -1 )
+                                            {
+                                                continue;
+                                            }
+
+                                            // compute areas
+                                            tDenClusterAreas( iCluster ) = mEquationSet->compute_cluster_measure( tDenominatorClusterIndicesPerPair( iCluster ) );
+
+                                            // compute derivatives with respect to each IG node in the cluster, along each spatial dimension
+                                            Matrix< DDRMat > tDenominatorClusterMeasureDerivative =
+                                                    mEquationSet->compute_cluster_measure_derivative( tDenominatorClusterIndicesPerPair( iCluster ) );
+                                            
+                                            // find the list of IG nodes in the cluster
+                                            Matrix< DDSMat > tPdvIds = mEquationSet->get_pdvs_in_cluster( tDenominatorClusterIndicesPerPair( iCluster ) );
+                                            Matrix< DDSMat > tIsActiveDv = mEquationSet->get_pdvs_activity_in_cluster( tDenominatorClusterIndicesPerPair( iCluster ) );
+                                            
+
+                                            for (uint iIgNodes = 0 ; iIgNodes < tDenominatorClusterMeasureDerivative.n_rows(); iIgNodes++)
+
+                                            // add the sensitivity of the cluster to the PDV (each PDV represents a spatial coordinate of an IG node)
+                                            for (uint iSpatialDim = 0; iSpatialDim < tNumSpatialDims; iSpatialDim++)
+                                            {
+                                                if ( tPdvIds ( iIgNodes, iSpatialDim ) != -1 && tIsActiveDv( iIgNodes, iSpatialDim ) == 1 )
+                                                {
+                                                    if ( tDenominatorClusterAreaDerivToPDV.find( static_cast< moris_id >( tPdvIds( iIgNodes, iSpatialDim ) ) ) == tDenominatorClusterAreaDerivToPDV.end() )
+                                                    {
+                                                        tDenominatorClusterAreaDerivToPDV[ static_cast< moris_id >( tPdvIds( iIgNodes, iSpatialDim ) ) ] = static_cast< real >( tDenominatorClusterMeasureDerivative( iIgNodes, iSpatialDim ) );
+                                                    }
+                                                    else
+                                                    {
+                                                        tDenominatorClusterAreaDerivToPDV[ static_cast< moris_id >( tPdvIds( iIgNodes, iSpatialDim ) ) ] += static_cast< real >( tDenominatorClusterMeasureDerivative( iIgNodes, iSpatialDim ) );
+                                                    }
+                                                        
+                                                }
+                                            }
+                                        }
+
+                                        // now we actually compute the derivative of the ratio with respect to each PDV
+                                        for ( auto& tDenominatorClusterAreaDeriv : tDenominatorClusterAreaDerivToPDV )
+                                        {
+                                            // get the PDV ID
+                                            moris_id tPdvId = tDenominatorClusterAreaDeriv.first;
+
+                                            // get the derivative of denominator clusters w.r.t. to this PDV
+                                            real tDenDeriv = tDenominatorClusterAreaDeriv.second;
+
+                                            // check if this vertex is also in the numerator IG cells
+                                            if ( tNumeratorClusterAreaDerivToPDV.find( tPdvId ) != tNumeratorClusterAreaDerivToPDV.end() )
+                                            {
+                                                // get the derivative of numerator IG cells w.r.t. to this PDV
+                                                real tNumDeriv = tNumeratorClusterAreaDerivToPDV[ tPdvId ];
+
+                                                const real tNumArea =
+                                                        std::accumulate( tNumClusterAreas.begin(), tNumClusterAreas.end(), real( 0 ) );
+                                                const real tDenArea =
+                                                        std::accumulate( tDenClusterAreas.begin(), tDenClusterAreas.end(), real( 0 ) );
+
+                                                // compute the derivative of the volume fraction w.r.t this vertex using the quotient rule
+                                                real tVolumeFractionDeriv = ( tNumDeriv * tDenArea - tDenDeriv * tNumArea ) / ( tDenArea * tDenArea );
+
+                                                // compute derivative of b-spline weight this numerator-denominator pairing.
+                                                if ( tVolumeFractionDerivMap.find( tPdvId ) == tVolumeFractionDerivMap.end() )
+                                                {
+                                                    tVolumeFractionDerivMap[ tPdvId ] =  tBasisWeightsPerLeaderBasisPerAdof( iPair ) * tVolumeFractionDeriv;
+                                                }
+                                                else
+                                                {
+                                                    tVolumeFractionDerivMap[ tPdvId ] += tBasisWeightsPerLeaderBasisPerAdof( iPair ) * tVolumeFractionDeriv;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // No contribution from numerator, so derivative is just the negative of the denominator contribution
+                                                const real tNumArea =
+                                                        std::accumulate( tNumClusterAreas.begin(), tNumClusterAreas.end(), real( 0 ) );
+                                                const real tDenArea =
+                                                        std::accumulate( tDenClusterAreas.begin(), tDenClusterAreas.end(), real( 0 ) );
+
+                                                real tVolumeFractionDeriv = ( -tDenDeriv * tNumArea ) / ( tDenArea * tDenArea );
+
+                                                // compute derivative of b-spline weight this numerator-denominator pairing.
+                                                if ( tVolumeFractionDerivMap.find( tPdvId ) == tVolumeFractionDerivMap.end() )
+                                                {
+                                                    tVolumeFractionDerivMap[ tPdvId ] = tBasisWeightsPerLeaderBasisPerAdof( iPair ) * tVolumeFractionDeriv;
+                                                }
+                                                else
+                                                {
+                                                    tVolumeFractionDerivMap[ tPdvId ] += tBasisWeightsPerLeaderBasisPerAdof( iPair ) * tVolumeFractionDeriv;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // now populate the computed derivatives into the map. If there are zero derivatives (either case 2 or 3) populate the entry with zero.
+                                //  populate the output vectors with the IG IDs and their corresponding sensitivities for the current B-Spline basis
+                                // if the map is empty (which means either case 2 or case 3 with no other extensions), just fill up with zeros
+
+                                if ( tVolumeFractionDerivMap.empty() )
+                                {
+                                    adPADofMap( Ik )( Ij )(Ii)( tColumnPos ).push_back( 0.0 );
+                                    adPADofMapInds( Ik )( Ij )(Ii)( tColumnPos ).push_back( gNoIndex );
+                                }
+                                else
+                                {
+                                    // populate the new map
+                                    
+                                    for ( const auto& tPair : tVolumeFractionDerivMap )
+                                    {
+                                        moris_id tPdvId               = tPair.first;
+                                        real     tVolumeFractionDeriv = tPair.second;
+                                        adPADofMap( Ik )( Ij )(Ii)( tColumnPos ).push_back( tVolumeFractionDeriv );
+                                        adPADofMapInds( Ik )( Ij )(Ii)( tColumnPos ).push_back( tPdvId );
+                                    }
+                                }
+                            }
+                        }
+                        // Loop over the B Spline DoFs and fill zeros in every empty entry (this is because the vectors are
+                        // resized as per the total number of unique ADOFs but not every PDoF is associated with every ADOF)
+                        for ( uint Ib = 0; Ib < tNumUniqueAdofs; Ib++ )
+                        {
+                            if ( adPADofMap( Ik )( Ij )(Ii)( Ib ).empty() )
+                            {
+                                
+                                adPADofMap( Ik )( Ij )(Ii)( Ib ).push_back( 0.0 );
+                                adPADofMapInds( Ik )( Ij )(Ii)( Ib ).push_back( gNoIndex );
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------------------------
+
+        void
+        Equation_Object::build_dPADofMap( Vector< Matrix< DDRMat > >& adPADofMap,
+                                          Vector< moris_id >& adPADofMapInds )
+        {
+            /***
+             * The goal with this function is to ensure that the large list that was built up in
+             * build_PADofMap_list is combined into a single Vector of matrices.
+             * The idea is to store it as a matrix corresponding to each PDV, so 
+             * the vector loops over the PDVs and the matrices are the dM/dPDV
+             */
+            Vector< Vector< Vector< Vector< Vector< real > > > > > tdPADofMapList;
+            Vector< Vector< Vector< Vector< Vector< moris_id > > > > >    tdPADofMapInds;
+            
+
+            // get list of all T-Matrices
+            this->build_dPADofMap_list( tdPADofMapList, tdPADofMapInds );
+
+            Vector< enum MSI::Dof_Type > tRequestedDofTypes;
+
+            // get list of requested dof types
+            if ( !mEquationSet->mIsStaggered )
+            {
+                tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+            }
+            else
+            {
+                tRequestedDofTypes = mEquationSet->get_secondary_dof_types();
+            }
+
+            // initialize column and row counter
+            uint tNumColCounter = 0;
+            uint tNumRowCounter = 0;
+            uint tPdvIdsCounter = 0;
+
+            for ( uint Ii = 0; Ii < mNumPdofSystems; Ii++ )
+            {
+                // Loop over all requested dof types and get total number of cols and rows
+                for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                {
+                    // get index corresponding to this dof type
+                    sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+
+                    // compute the number of PDofs corresponding to a given system and DoF type
+                    // important: we assume here that while building the list, the number
+                    // of columns is the same for as the vectors have been reshaped to size tNumUniqueAdofs
+                    tNumRowCounter += tdPADofMapList( Ii )( tDofTypeIndex ).size();
+                    tNumColCounter += mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
+
+
+                    // loop over all adofs to find out the total number of PDV IDs associated.
+                    for ( uint Ij = 0; Ij < tdPADofMapList( Ii )( tDofTypeIndex ).size(); Ij++ )
+                    {
+                        for ( uint Il = 0; Il < tdPADofMapList( Ii )( tDofTypeIndex )( Ij ).size(); Il++ )
+                        {
+                            if ( tdPADofMapInds( Ii )( tDofTypeIndex )( Ij )( Il ).size() > 0 )
+                            {
+                                tPdvIdsCounter += tdPADofMapInds( Ii )( tDofTypeIndex )( Ij )( Il ).size();
+                            }
+                        }   
+                    }
+                }
+            }
+            // clear previous call data
+            adPADofMap.clear();
+            adPADofMapInds.clear();
+
+            // initialize
+            adPADofMap.resize( tPdvIdsCounter );
+            adPADofMapInds.resize( tPdvIdsCounter );
+
+            // re-initialize column and row counter
+            uint tNumColCounterNew = 0;
+            uint tNumRowCounterNew  = 0;
+
+            std::unordered_map< moris_id, Matrix< DDRMat > > tPdvIdToTmatrixMap;
+
+            // loop to create an unordered map between PDV ID and corresponding T-Matrix derivative
+            for ( uint Ii = 0; Ii < mNumPdofSystems; Ii++ )
+            {
+                for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                {
+                    // get index corresponding to this dof type
+                    sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()->get_pdof_index_for_type( tRequestedDofTypes( Ik ) );
+
+                    // get number of rows and columns
+                    uint tNumRows = tdPADofMapList( Ii )( tDofTypeIndex ).size();
+                    uint tNumCols = mUniqueAdofTypeList( Ii )( tDofTypeIndex ).numel();
+                    
+                    // allocate matrix
+                    Matrix< DDRMat > tTmatrix = Matrix< DDRMat >( tNumRowCounter, tNumColCounter, 0.0 );
+
+                    if ( tNumCols * tNumRows > 0 )
+                    {
+                        // loop over pdofs
+                        for ( uint Ij = 0; Ij < tNumRows; Ij++ )
+                        {
+                            // loop over adofs
+                            for ( uint Il = 0; Il < tNumCols; Il++ )
+                            {
+                                // loop over PDV IDs
+                                for ( uint Im = 0; Im < tdPADofMapList( Ii )( tDofTypeIndex )( Ij )( Il ).size(); Im++ )
+                                {
+                                    // get pdv id
+                                    moris_id tPdvId = tdPADofMapInds( Ii )( tDofTypeIndex )( Ij )( Il )( Im );
+
+                                    if ( tPdvId == gNoIndex )
+                                    {
+                                        continue;
+                                    }
+
+                                    // add it to the map if there is nothing there. skip this step if there's already a matrix allocated
+                                    if ( tPdvIdToTmatrixMap.find( tPdvId ) == tPdvIdToTmatrixMap.end() )
+                                    {
+                                        tPdvIdToTmatrixMap[ tPdvId ] = tTmatrix;
+                                    }
+                                    
+                                    // populate the matrix
+                                    tPdvIdToTmatrixMap[ tPdvId ]( tNumRowCounterNew + Ij, tNumColCounterNew + Il ) = tdPADofMapList( Ii )( tDofTypeIndex )( Ij )( Il )( Im );
+                                        
+                                }
+                            
+                            }
+                            
+                        }
+                    }
+                    tNumColCounterNew += tNumCols;
+                    tNumRowCounterNew += tNumRows;
+                } // end of loop over requested DoF types
+            } // end of loop over the requested equation systems: only 1 if bulk element.
+
+            // populate adPADoF
+            uint tCounter = 0;
+            for ( auto& tEntry : tPdvIdToTmatrixMap )
+            {
+                adPADofMap( tCounter ) = tEntry.second;
+                adPADofMapInds( tCounter ) = tEntry.first;
+                tCounter++;
+            }
+            // reshape the adPADofMap and adPADofMapInds to the correct dimensions
+            adPADofMap.resize( tCounter );
+            adPADofMapInds.resize( tCounter );
+            
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
+        Equation_Object::build_dPADofMap_all( Vector< Matrix< DDRMat > >& adPADofMap,
+                                              Vector< moris_id >& adPADofMapInds )
+        {
+            Vector< Vector< Vector< Vector< Vector< real > > > > > tdPADofMapList;
+            Vector< Vector< Vector< Vector< Vector< moris_id > > > > > tdPADofMapInds;
+
+            // Reuse the volume-fraction derivatives and PDV IDs for all systems and dof types.
+            this->build_dPADofMap_list( tdPADofMapList, tdPADofMapInds );
+
+            uint tNumMyPdofs = mFreePdofs.size();
+            uint tNumUniqueAdofs = mUniqueAdofList.numel();
+
+            MORIS_ASSERT( tNumMyPdofs != 0,
+                    "Equation_Object::build_dPADofMap_all: Number pdof types = 0. T-matrix can not be created. MSI probably not build yet. " );
+
+            adPADofMap.clear();
+            adPADofMapInds.clear();
+
+            std::unordered_map< moris_id, Matrix< DDRMat > > tPdvIdToTmatrixMap;
+            uint tNumRowCounter = 0;
+
+            // The system, dof type and pdof traversal matches create_my_pdof_list.
+            for ( uint Ii = 0; Ii < mFreePdofList.size(); Ii++ )
+            {
+                for ( uint Ij = 0; Ij < mFreePdofList( Ii ).size(); Ij++ )
+                {
+                    for ( uint Ik = 0; Ik < mFreePdofList( Ii )( Ij ).size(); Ik++ )
+                    {
+                        auto tPdof = mFreePdofList( Ii )( Ij )( Ik );
+
+                        MORIS_ASSERT( tNumRowCounter < tNumMyPdofs,
+                                "Equation_Object::build_dPADofMap_all: Inconsistent number of pdofs." );
+                        MORIS_ASSERT( tPdof == mFreePdofs( tNumRowCounter ),
+                                "Equation_Object::build_dPADofMap_all: Inconsistent pdof ordering." );
+
+                        for ( uint Ib = 0; Ib < tPdof->mAdofIds.numel(); Ib++ )
+                        {
+                            moris_id tAdofId = tPdof->mAdofIds( Ib, 0 );
+                            uint tLocalColumnPos = mUniqueAdofMapList( Ii )( Ij )[ tAdofId ];
+                            uint tColumnPos = mUniqueAdofMap[ tAdofId ];
+
+                            const auto& tDerivatives = tdPADofMapList( Ii )( Ij )( Ik )( tLocalColumnPos );
+                            const auto& tPdvIds = tdPADofMapInds( Ii )( Ij )( Ik )( tLocalColumnPos );
+
+                            MORIS_ASSERT( tDerivatives.size() == tPdvIds.size(),
+                                    "Equation_Object::build_dPADofMap_all: Derivative values and PDV IDs do not match." );
+
+                            for ( uint Il = 0; Il < tPdvIds.size(); Il++ )
+                            {
+                                moris_id tPdvId = tPdvIds( Il );
+
+                                if ( tPdvId == gNoIndex )
+                                {
+                                    continue;
+                                }
+
+                                if ( tPdvIdToTmatrixMap.find( tPdvId ) == tPdvIdToTmatrixMap.end() )
+                                {
+                                    tPdvIdToTmatrixMap[ tPdvId ].set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
+                                }
+
+                                tPdvIdToTmatrixMap[ tPdvId ]( tNumRowCounter, tColumnPos ) = tDerivatives( Il );
+                            }
+                        }
+                        tNumRowCounter++;
+                    }
+                }
+            }
+
+            MORIS_ASSERT( tNumRowCounter == tNumMyPdofs,
+                    "Equation_Object::build_dPADofMap_all: Inconsistent number of pdofs." );
+
+            adPADofMap.resize( tPdvIdToTmatrixMap.size() );
+            adPADofMapInds.resize( tPdvIdToTmatrixMap.size() );
+
+            uint tCounter = 0;
+            for ( const auto& tEntry : tPdvIdToTmatrixMap )
+            {
+                adPADofMap( tCounter ) = tEntry.second;
+                adPADofMapInds( tCounter ) = tEntry.first;
+                tCounter++;
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
         moris_index
         Equation_Object::get_node_index( const moris_index aElementLocalNodeIndex ) const
         {
@@ -1222,6 +1784,49 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
+        Equation_Object::compute_my_dPADofMap_adjoint_values()
+        {
+            Vector< Matrix< DDRMat > > tDTMatrix;
+            Matrix< DDRMat > tTMatrix;
+            Vector< moris_id > tDTMatrixIndices;
+
+            // get T matrix
+            this->build_PADofMap( tTMatrix );
+
+            // get derivative of T Matrix
+            this->build_dPADofMap_all( tDTMatrix, tDTMatrixIndices );
+
+            Vector< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+                    ->get_adjoint_solution_vector()
+                    ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+            mEquationSet->mdPADofAdjointPdofValues.resize( tMyValues.size() );
+            mEquationSet->mdPADofAdjointPdofIndices.resize( tMyValues.size() );
+
+            // multiply derivative of T-matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                // loop over pdvs
+                mEquationSet->mdPADofAdjointPdofValues( Ik ).resize( tDTMatrixIndices.size() );
+                mEquationSet->mdPADofAdjointPdofIndices( Ik ) = tDTMatrixIndices;
+
+                for ( uint Ij = 0; Ij < tDTMatrixIndices.size(); Ij++ )
+                {
+                    mEquationSet->mdPADofAdjointPdofValues( Ik )( Ij ) = tDTMatrix( Ij ) * tMyValues( Ik );
+                }
+                
+            }
+
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
         Equation_Object::compute_my_previous_adjoint_values()
         {
             Matrix< DDRMat > tTMatrix;
@@ -1246,6 +1851,154 @@ namespace moris
             }
 
             this->set_vector_entry_number_of_pdof();    // FIXME should not be in MSI. Should be in FEM
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
+        Equation_Object::compute_my_dPADofMap_pdof_values()
+        {
+            Vector< Matrix< DDRMat > > tDTMatrix;
+            Vector< moris_id > tDTMatrixIndices;
+
+            // get derivative of T-matrix
+            this->build_dPADofMap_all( tDTMatrix, tDTMatrixIndices );
+
+            Vector< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+                    ->get_solution_vector()
+                    ->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
+
+            mEquationSet->mdPADofPdofValues.resize( tMyValues.size() );
+            mEquationSet->mdPADofPdofIndices.resize( tMyValues.size() );
+
+            // multiply derivative of T-matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mEquationSet->mdPADofPdofValues( Ik ).resize( tDTMatrixIndices.size() );
+                mEquationSet->mdPADofPdofIndices( Ik ) = tDTMatrixIndices;
+
+                for ( uint Ij = 0; Ij < tDTMatrixIndices.size(); Ij++ )
+                {
+                    mEquationSet->mdPADofPdofValues( Ik )( Ij ) = tDTMatrix( Ij ) * tMyValues( Ik );
+                }
+            }
+
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
+        Equation_Object::compute_previous_dPADofMap_pdof_values()
+        {
+            Vector< Matrix< DDRMat > > tDTMatrix;
+            Vector< moris_id > tDTMatrixIndices;
+
+            // get derivative of T-matrix
+            this->build_dPADofMap_all( tDTMatrix, tDTMatrixIndices );
+
+            Vector< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+                    ->get_previous_solution_vector()
+                    ->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
+
+            mEquationSet->mdPADofPreviousPdofValues.resize( tMyValues.size() );
+            mEquationSet->mdPADofPreviousPdofIndices.resize( tMyValues.size() );
+
+            // multiply derivative of T-matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mEquationSet->mdPADofPreviousPdofValues( Ik ).resize( tDTMatrixIndices.size() );
+                mEquationSet->mdPADofPreviousPdofIndices( Ik ) = tDTMatrixIndices;
+
+                for ( uint Ij = 0; Ij < tDTMatrixIndices.size(); Ij++ )
+                {
+                    mEquationSet->mdPADofPreviousPdofValues( Ik )( Ij ) = tDTMatrix( Ij ) * tMyValues( Ik );
+                }
+            }
+
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
+        Equation_Object::compute_my_dPADofMap_eigen_vector_values()
+        {
+            Vector< Matrix< DDRMat > > tDTMatrix;
+            Vector< moris_id > tDTMatrixIndices;
+
+            // get derivative of T-matrix
+            this->build_dPADofMap_all( tDTMatrix, tDTMatrixIndices );
+
+            Vector< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+                    ->get_eigen_solution_vector()
+                    ->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
+
+            mEquationSet->mdPADofEigenVectorPdofValues.resize( tMyValues.size() );
+            mEquationSet->mdPADofEigenVectorPdofIndices.resize( tMyValues.size() );
+
+            // multiply derivative of T-matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mEquationSet->mdPADofEigenVectorPdofValues( Ik ).resize( tDTMatrixIndices.size() );
+                mEquationSet->mdPADofEigenVectorPdofIndices( Ik ) = tDTMatrixIndices;
+
+                for ( uint Ij = 0; Ij < tDTMatrixIndices.size(); Ij++ )
+                {
+                    mEquationSet->mdPADofEigenVectorPdofValues( Ik )( Ij ) = tDTMatrix( Ij ) * tMyValues( Ik );
+                }
+            }
+
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
+        Equation_Object::compute_my_previous_dPADofMap_adjoint_values()
+        {
+            Vector< Matrix< DDRMat > > tDTMatrix;
+            Vector< moris_id > tDTMatrixIndices;
+
+            // get derivative of T-matrix
+            this->build_dPADofMap_all( tDTMatrix, tDTMatrixIndices );
+
+            Vector< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+                    ->get_previous_adjoint_solution_vector()
+                    ->extract_my_values( mUniqueAdofList.numel(), mUniqueAdofList, 0, tMyValues );
+
+            mEquationSet->mdPADofPreviousAdjointPdofValues.resize( tMyValues.size() );
+            mEquationSet->mdPADofPreviousAdjointPdofIndices.resize( tMyValues.size() );
+
+            // multiply derivative of T-matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mEquationSet->mdPADofPreviousAdjointPdofValues( Ik ).resize( tDTMatrixIndices.size() );
+                mEquationSet->mdPADofPreviousAdjointPdofIndices( Ik ) = tDTMatrixIndices;
+
+                for ( uint Ij = 0; Ij < tDTMatrixIndices.size(); Ij++ )
+                {
+                    mEquationSet->mdPADofPreviousAdjointPdofValues( Ik )( Ij ) = tDTMatrix( Ij ) * tMyValues( Ik );
+                }
+            }
+
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
         }
 
         //-------------------------------------------------------------------------------------------------

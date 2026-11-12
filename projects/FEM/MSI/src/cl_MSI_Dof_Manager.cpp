@@ -998,6 +998,13 @@ namespace moris::MSI
         {
             // all pdofs of this pdof host will ask for their t matrix
             mPdofHostList( Ij )->set_t_matrix( mUseHMR, mModelSolverInterface );
+            mPdofHostList( Ij )->set_basis_extension_flag( mUseHMR, mModelSolverInterface );
+            mPdofHostList( Ij )->set_numerator_cluster_indices( mUseHMR, mModelSolverInterface );
+            mPdofHostList( Ij )->set_denominator_cluster_indices( mUseHMR, mModelSolverInterface );
+            mPdofHostList( Ij )->set_numerator_cluster_offsets( mUseHMR, mModelSolverInterface );
+            mPdofHostList( Ij )->set_denominator_cluster_offsets( mUseHMR, mModelSolverInterface );
+            mPdofHostList( Ij )->set_basis_weight_per_leader_basis( mUseHMR, mModelSolverInterface );
+
         }
     }
 

@@ -1362,6 +1362,22 @@ namespace moris::xtk
 
     //------------------------------------------------------------------------------
 
+    bool
+    Model::consider_basis_agglomeration_sensitivities_in_t_matrix()
+    {
+        // return true if basis extension is being used and user says they want sensitivities.
+        if ( mParameterList.get< bool >( "activate_basis_agglomeration" ))
+        {
+            return mParameterList.get< bool >( "consider_basis_agglomeration_sensitivities_in_t_matrix" );
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
     moris::Memory_Map
     Model::get_memory_usage()
     {

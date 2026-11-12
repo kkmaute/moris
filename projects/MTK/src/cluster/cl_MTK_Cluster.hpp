@@ -391,6 +391,15 @@ namespace moris::mtk
 
         //----------------------------------------------------------------
 
+        virtual Matrix< DDRMat > const
+        compute_cluster_cell_measure_derivative() const
+        {
+            MORIS_ERROR( false, "MTK::Cluster::compute_cluster_cell_measure_derivative() - not implemented for this cluster type" );
+            return Matrix< DDRMat >( 0, 0 );
+        }
+
+        //----------------------------------------------------------------
+
         // ##############################################
         //  Cell/Vertex Id Access
         // ##############################################

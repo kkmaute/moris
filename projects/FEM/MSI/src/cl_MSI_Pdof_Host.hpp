@@ -40,6 +40,15 @@ namespace moris
             Matrix< DDSMat > mAdofIds;
             Matrix< DDRMat > mTmatrix;
 
+            bool mHasExtendedBasis = false;
+
+            // Outer vector: leader basis; inner vector: contribution data.
+            Vector< Vector< moris_index > > mNumeratorClusterIndices;
+            Vector< Vector< moris_index > > mDenominatorClusterIndices;
+            Vector< Vector< uint > > mNumeratorClusterOffsets;
+            Vector< Vector< uint > > mDenominatorClusterOffsets;
+            Vector< Vector< real > > mBasisWeightPerLeaderBasis;
+
             uint mElementalSolVecEntry;
 
             Vector< Adof* > mAdofPtrList;    // FIXME: delete this list after call to get adof ids or replace it
@@ -120,6 +129,48 @@ namespace moris
              *
              */
             void set_t_matrix(
+                    const bool&             aUseHMR,
+                    Model_Solver_Interface* aModelSolverInterface );
+
+            /**
+             * @brief Set the basis extension flag from the FEM node for each PDoF and time level.
+             */
+            void set_basis_extension_flag(
+                    const bool&             aUseHMR,
+                    Model_Solver_Interface* aModelSolverInterface );
+
+            /**
+             * @brief Set numerator cluster indices from the FEM node for each PDoF and time level.
+             */
+            void set_numerator_cluster_indices(
+                    const bool&             aUseHMR,
+                    Model_Solver_Interface* aModelSolverInterface );
+
+            /**
+             * @brief Set denominator cluster indices from the FEM node for each PDoF and time level.
+             */
+            void set_denominator_cluster_indices(
+                    const bool&             aUseHMR,
+                    Model_Solver_Interface* aModelSolverInterface );
+
+            /**
+             * @brief Set per-contribution numerator cluster counts (offset increments) from the FEM node for each PDoF and time level.
+             */
+            void set_numerator_cluster_offsets(
+                    const bool&             aUseHMR,
+                    Model_Solver_Interface* aModelSolverInterface );
+
+            /**
+             * @brief Set per-contribution denominator cluster counts (offset increments) from the FEM node for each PDoF and time level.
+             */
+            void set_denominator_cluster_offsets(
+                    const bool&             aUseHMR,
+                    Model_Solver_Interface* aModelSolverInterface );
+
+            /**
+             * @brief Set individual extension contribution weights per leader basis from the FEM node for each PDoF and time level.
+             */
+            void set_basis_weight_per_leader_basis(
                     const bool&             aUseHMR,
                     Model_Solver_Interface* aModelSolverInterface );
 

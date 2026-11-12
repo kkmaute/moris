@@ -130,6 +130,9 @@ namespace moris
             // flag to skip GEN procedures
             bool mFEMOnly = false;
 
+            // flag to consider basis extension sensitivities
+            bool mConsiderBasisExtensionSensitivities = false;
+
           public:
             //! Gauss point information. Only used for output
             uint mBulkGaussPoints                 = 0;
@@ -325,6 +328,39 @@ namespace moris
                     const Vector< gen::PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aXYZPdvAssemblyIndices ) override;
 
+            //------------------------------------------------------------------------------
+            /**
+             * @brief compute cluster measure for requested cluster
+             * @param[ in ] aClusterIndex cluster index
+             * @return computed cluster measure
+             */
+            real
+            compute_cluster_measure( const moris_index aClusterIndex ) override ;
+
+            //------------------------------------------------------------------------------
+
+            Matrix< DDRMat > const
+            compute_cluster_measure_derivative( const moris_index aClusterIndex ) override;
+
+            //------------------------------------------------------------------------------
+            Matrix< DDSMat >
+            get_pdvs_in_cluster( const moris_index aClusterIndex ) override;
+
+            //------------------------------------------------------------------------------
+            Matrix< DDSMat >
+            get_pdvs_activity_in_cluster( const moris_index aClusterIndex ) override;
+
+            //------------------------------------------------------------------------------
+
+            void
+            set_consider_basis_extension_sensitivities(
+                    const bool aConsiderBasisExtensionSensitivities ) override;
+
+            //------------------------------------------------------------------------------
+
+            bool
+            get_consider_basis_extension_sensitivities() const override;
+            
             //------------------------------------------------------------------------------
 
             Matrix< DDSMat >

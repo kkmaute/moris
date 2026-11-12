@@ -470,6 +470,47 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< moris_index >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_cluster_numerators(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightClusterNumerators( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    Vector< moris_index >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_cluster_denominators(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightClusterDenominators( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    Vector< moris::uint >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_cluster_numerator_indices(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightClusterNumeratorIndices( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    Vector< moris::uint >*
+    Interpolation_Mesh_DataBase_IP::get_basis_weight_cluster_denominator_indices(
+            moris_index aVertexIndex,
+            moris_index aOrder )
+    {
+        return mBasisWeightClusterDenominatorIndices( aOrder ).memptr()
+             + mOffSetTMatrix( aOrder )( aVertexIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     moris_id*
     Interpolation_Mesh_DataBase_IP::get_basis_owners( moris_index aVertexIndex, moris_index aOrder )
     {

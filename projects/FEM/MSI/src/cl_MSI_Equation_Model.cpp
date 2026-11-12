@@ -174,8 +174,16 @@ namespace moris::MSI
             // loop over equation objects on treated equation set
             for ( uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
             {
-                // compute dQIdp implicit
-                tEqnObjList( tEqObjIndex )->compute_dQIdp_explicit_implicit();
+                if (this->get_consider_basis_extension_sensitivities())
+                {
+                    // compute dQIdp implicit
+                    tEqnObjList( tEqObjIndex )->compute_dQIdp_explicit_implicit_with_basis_extension_sensitivities();
+                }
+                else
+                {                
+                    // compute dQIdp implicit
+                    tEqnObjList( tEqObjIndex )->compute_dQIdp_explicit_implicit();
+                }
             }
 
             // free memory on treated equation set

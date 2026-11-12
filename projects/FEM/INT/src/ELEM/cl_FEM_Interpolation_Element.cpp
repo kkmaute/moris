@@ -689,6 +689,41 @@ namespace moris::fem
     }
 
     //------------------------------------------------------------------------------
+    void
+    Interpolation_Element::compute_jacobian_and_residual_only()
+    {
+        // Fixme do this only once
+        this->compute_my_pdof_values();
+
+        // if time continuity set
+        if ( mSet->get_time_continuity() )
+        {
+            // compute pdof values for previous time step
+            // FIXME do this only once
+            this->compute_previous_pdof_values();
+        }
+
+        // initialize the Jacobian
+        mSet->initialize_mJacobian();
+
+        // initialize the residual
+        mSet->initialize_mResidual();
+
+        // set the field interpolators coefficients
+        this->set_field_interpolators_coefficients();
+
+        // FIXME should not be like this
+        mSet->set_IWG_field_interpolator_managers();
+
+        // set cluster for stabilization parameter
+        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+        // ask cluster to compute Jacobian and residual
+        //mFemCluster( 0 )->compute_jacobian();
+        mFemCluster( 0 )->compute_residual();       
+    }
+
+    //------------------------------------------------------------------------------
 
     void
     Interpolation_Element::compute_dRdp()
@@ -949,7 +984,267 @@ namespace moris::fem
 
     //-------------------------------------------------------------------------------------------------
 
+    void
+    Interpolation_Element::compute_dQIdp_explicit_implicit_with_basis_extension_sensitivities()
+    {
+        // make sure this is done on the FEM clusters and not on the VIS clusters
+        MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(),
+                "FEM::Set::compute_dQIdp_explicit_implicit() - "
+                "Trying to compute sensitivities on a VIS cluster. This shouldn't happen." );
+
+        // fill IP pdv assembly vector
+        this->fill_mat_pdv_assembly_vector();
+
+        // init IG pdv assembly map
+        mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
+
+        // get the IP pdv assembly vector
+        const Matrix< DDSMat >& tLocalToGlobalIdsIPPdv =
+                mEquationSet->get_mat_pdv_assembly_vector();
+
+        // get the IG pdv assembly vector
+        const Matrix< DDSMat >& tLocalToGlobalIdsIGPdv =
+                mEquationSet->get_geo_pdv_assembly_vector();
+
+        // // if there is no pdv defined, return
+        // if ( tLocalToGlobalIdsIPPdv.numel() == 0 && tLocalToGlobalIdsIGPdv.numel() == 0 )
+        // {
+        //     return;
+        // }
+
+        // init dRdp
+        mSet->initialize_mdRdpMat();    // xxx Can this be skipped if tLocalToGlobalIdsIGPdv is empty?
+        mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
+
+        // initialize dQIdp
+        mSet->initialize_mdQIdpMat();
+        mSet->initialize_mdQIdpGeo( mFemCluster( 0 ) );
+
+        // as long as dRdp is computed with FD, we need to initialize the residual storage
+        mSet->initialize_mResidual();
+
+        // compute pdof values
+        this->compute_my_pdof_values();
+
+        // if time continuity set
+        if ( mSet->get_time_continuity() )
+        {
+            // compute pdof values for previous time step
+            // FIXME do this only once
+            this->compute_previous_pdof_values();
+        }
+
+        // set the field interpolators coefficients
+        this->set_field_interpolators_coefficients();
+
+        // FIXME should not be like this
+        mSet->set_IWG_field_interpolator_managers();
+
+        // set cluster for stabilization parameter
+        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+        // FIXME should not be like this
+        mSet->set_IQI_field_interpolator_managers();
+
+        // set cluster for stabilization parameter
+        mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+        // ask cluster to compute explicit derivatives of residual and IQI wrt. PDOFs
+        mFemCluster( 0 )->compute_dRdp_and_dQIdp();
+
+        // get reference to computed dRdp
+        const Vector< Matrix< DDRMat > >& tdRdp = mEquationSet->get_drdp();
+
+        // extract adjoint values for this equation object
+        this->compute_my_adjoint_values();
+
+        // get number of RHS
+        uint tNumRHS = mSet->mAdjointPdofValues.size();
+
+        // get number of pdof values
+        uint tNumPdofValues = tdRdp( 0 ).n_rows();
+
+        // set size for reordered adjoint values
+        Matrix< DDRMat > tAdjointPdofValuesReordered( tNumPdofValues, 1 );
+
+        // loop over the RHS, i.e. IQIs
+        for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
+        {
+            // reorder adjoint values following the requested dof types order
+            this->reorder_adjoint_pdofs( tAdjointPdofValuesReordered, Ik );
+
+            // Assembly for the IP pdv
+            if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
+            {
+                MORIS_ERROR( false, "Interpolation_Element::compute_dQIdp with basis extension does not work for IP PDVs yet." );
+            }
+
+            // Assembly for the IG pdv
+            if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
+            {
+                // assemble explicit dQIdpGeo into multivector
+                mEquationSet->get_equation_model()->get_explicit_dQidp()->sum_into_global_values(
+                        tLocalToGlobalIdsIGPdv,
+                        mSet->mdQIdp( 1 )( Ik ),
+                        Ik );
+
+                // post multiplication of adjoint values time dRdp
+                Matrix< DDRMat > tLocalIGdQiDp =
+                        -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
+
+                // assemble implicit dQidp into multivector
+                mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                        tLocalToGlobalIdsIGPdv,
+                        tLocalIGdQiDp,
+                        Ik );
+            }
+        }
+
+        // Now adding additional terms from the basis extension sensitivities
+        // Compute the jacobian and residual
+        this->compute_jacobian_and_residual_only();
+
+        // compute T-Matrix derivative times the pdof from the MSI parent
+        this->compute_my_dPADofMap_pdof_values();
+        Vector< Vector< Matrix< DDRMat > > > tMyDPAofMapPdofValues  = mEquationSet->get_dPADofMap_pdof_values();
+        Vector< Vector< moris_id > > tMyDPAofMapPdofIndices = mEquationSet->get_dPADofMap_pdof_indices();
+
+        // get jacobian and residual
+        Matrix< DDRMat > tJacobian = mEquationSet->get_jacobian();
+        Vector< Matrix< DDRMat > > tResidual = mEquationSet->get_residual();
+        
+        // compute T-Matrix derivative times the adjoint pdof from the MSI parent
+        // Note: we assume that the PDV indices are the same as the PDOF indices since the same T-Matrix derivative is being used.
+        this->compute_my_dPADofMap_adjoint_values();
+        Vector< Vector< Matrix< DDRMat > > > tMyDPAofMapAdjointValues = mEquationSet->get_dPADofMap_adjoint_values();
+
+        // compute and get adjoint value
+        this->compute_my_adjoint_values();
+
+        // reset residual before computing dQIdu
+        mSet->initialize_mResidual();
+
+        // compute dQIdu
+        this->compute_dQIdu();
+
+        // get dQIdu
+        Vector< Matrix< DDRMat > > tDQIdu = mEquationSet->get_residual();
+
+        // set size for reordered adjoint values
+        tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1 );
+
+        Vector< Matrix< DDRMat > > tdPADofMapPdofValuesReordered(
+                tMyDPAofMapPdofValues( 0 ).size() );
+
+        for ( uint iPdv = 0; iPdv < tdPADofMapPdofValuesReordered.size(); iPdv++ )
+        {
+            tdPADofMapPdofValuesReordered( iPdv ).set_size(
+                    tJacobian.n_cols(), 1, 0.0 );
+
+            this->reorder_adjoint_pdofs(
+                    tMyDPAofMapPdofValues( 0 ),
+                    tdPADofMapPdofValuesReordered( iPdv ),
+                    iPdv );
+        }
+
+        // loop over all QIs (RHS)
+        for ( uint iQI = 0; iQI < tNumRHS; iQI++ )
+        {
+            // reorder derivative of extraction operator times adjoint pdofs
+            Vector< Matrix< DDRMat > > tdPADofMapAdjointPdofValuesReordered;
+            this->reorder_adjoint_pdofs(
+                    tdPADofMapAdjointPdofValuesReordered,
+                    iQI );
+
+            // reorder the adjoint times the T-Matrix
+            this->reorder_adjoint_pdofs( tAdjointPdofValuesReordered, iQI );
+
+
+            for ( uint iPdv = 0; iPdv < tMyDPAofMapAdjointValues( iQI ).size(); iPdv++ )
+            {
+                // if there is a -1 PDV skip over it
+                if ( tMyDPAofMapPdofIndices( 0 )( iPdv ) == gNoIndex )
+                {
+                    continue;
+                }
+                
+                // compute term 1 - \frac{d\bm{M}}{d\hat{x}_k}\bm{a} \bm{R_c}
+                Matrix< DDRMat > tTerm1 = -1.0 * trans( tdPADofMapAdjointPdofValuesReordered( iPdv ) ) * tResidual( 0 );
+
+                // compute term 2 - \frac{dQI}{d\bm{c}} \frac{d\bm{M}}{d\hat{x}_k}\bm{d}
+                Matrix< DDRMat > tTerm2 = 1.0 * trans( tDQIdu( iQI ) ) * tdPADofMapPdofValuesReordered( iPdv );
+
+                //compute term 3: \bm{M}\bm{a} \frac{\bm{R}}{\bm{c}} frac{d\bm{M}}{d\hat{x}_k}\bm{d}
+                Matrix< DDRMat > tTerm3 = -1.0 * trans( tAdjointPdofValuesReordered ) * tJacobian * tdPADofMapPdofValuesReordered( iPdv );
+
+                // get the PDV ID from the indices map
+                Matrix< IdMat > tPdvIdMat = {{tMyDPAofMapPdofIndices( 0 )( iPdv )}};
+
+                // sum into sensitivity vector
+                mEquationSet->get_equation_model()->get_implicit_dQidp()->sum_into_global_values(
+                        tPdvIdMat,
+                        ( tTerm1 + tTerm2 + tTerm3 ),
+                        iQI );
+            }
+        }
+
+
+    }
+
+
+    //-------------------------------------------------------------------------------------------------
+
     void Interpolation_Element::reorder_adjoint_pdofs(
+            Matrix< DDRMat >& aAdjointPdofValuesReordered,
+            uint              aRhsIndex )
+    {
+        this->reorder_adjoint_pdofs(
+                mSet->mAdjointPdofValues,
+                aAdjointPdofValuesReordered,
+                aRhsIndex );
+    }
+
+    //-------------------------------------------------------------------------------------------------
+
+    void Interpolation_Element::reorder_adjoint_pdofs(
+            Vector< Matrix< DDRMat > >& aAdjointPdofValuesReordered,
+            uint                        aRhsIndex )
+    {
+        MORIS_ASSERT( aRhsIndex < mSet->mdPADofAdjointPdofValues.size(),
+                "Interpolation_Element::reorder_adjoint_pdofs - Invalid derivative adjoint RHS index." );
+
+        const auto& tDerivativeAdjointValues = mSet->mdPADofAdjointPdofValues( aRhsIndex );
+        aAdjointPdofValuesReordered.resize( tDerivativeAdjointValues.size() );
+
+        if ( tDerivativeAdjointValues.size() == 0 )
+        {
+            return;
+        }
+
+        // Use the same row layout as the assembled FEM residual.
+        MORIS_ASSERT( mSet->get_residual().size() > 0,
+                "Interpolation_Element::reorder_adjoint_pdofs - Residual storage must be initialized." );
+        uint tNumPdofs = mSet->get_residual()( 0 ).n_rows();
+
+        Vector< Matrix< DDRMat > > tValuesPerPdv( 1 );
+
+        // Reorder one derivative contribution at a time, preserving the PDV ID ordering.
+        for ( uint iPdv = 0; iPdv < tDerivativeAdjointValues.size(); iPdv++ )
+        {
+            tValuesPerPdv( 0 ) = tDerivativeAdjointValues( iPdv );
+            aAdjointPdofValuesReordered( iPdv ).set_size( tNumPdofs, 1, 0.0 );
+
+            this->reorder_adjoint_pdofs(
+                    tValuesPerPdv,
+                    aAdjointPdofValuesReordered( iPdv ),
+                    0 );
+        }
+    }
+
+    //-------------------------------------------------------------------------------------------------
+
+    void Interpolation_Element::reorder_adjoint_pdofs(
+            const Vector< Matrix< DDRMat > >& aPdofValues,
             Matrix< DDRMat >& aAdjointPdofValuesReordered,
             uint              aRhsIndex )
     {
@@ -969,7 +1264,7 @@ namespace moris::fem
             // get the adjoint values for the ith dof type group
             Vector< Vector< Matrix< DDRMat > > > tLeaderAdjointOriginal;
             this->get_my_pdof_values(
-                    mSet->mAdjointPdofValues,
+                    aPdofValues,
                     tLeaderDofTypeGroup( Ia ),
                     tLeaderAdjointOriginal,
                     mtk::Leader_Follower::LEADER );
@@ -1001,7 +1296,7 @@ namespace moris::fem
             // get the adjoint values for the ith dof type group
             Vector< Vector< Matrix< DDRMat > > > tFollowerAdjointOriginal;
             this->get_my_pdof_values(
-                    mSet->mAdjointPdofValues,
+                    aPdofValues,
                     tFollowerDofTypeGroup( Ia ),
                     tFollowerAdjointOriginal,
                     mtk::Leader_Follower::FOLLOWER );

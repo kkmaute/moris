@@ -79,6 +79,11 @@ namespace moris::mtk
                 Vector< Vector< moris::uint > > tWeightNumeratorIndices = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_numerator_count();
                 Vector< Vector< moris::uint > > tWeightDenominatorIndices = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_denominator_count();
                 Vector< Vector< moris::real > > tWeightPerLeaderBasis = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_per_leader_basis();
+
+                Vector< Vector< moris_index > > tWeightClusterNumerators = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_cluster_numerators();
+                Vector< Vector< moris_index > > tWeightClusterDenominators = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_cluster_denominators();
+                Vector< Vector< moris::uint > > tWeightClusterNumeratorIndices = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_cluster_numerator_count();
+                Vector< Vector< moris::uint > > tWeightClusterDenominatorIndices = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_basis_weight_cluster_denominator_count();
                 
                 // insert t-matrix info into a big cell
                 mOutputMesh->mWeights( iOrder ).insert( mOutputMesh->mOffSetTMatrix( iOrder )( iVertex ), tWeights->cbegin(), tWeights->cend() );
@@ -107,6 +112,12 @@ namespace moris::mtk
                 tWeightPerLeaderBasis.resize( tWeights->numel() );
                 tWeightNumeratorIndices.resize( tWeights->numel() );
                 tWeightDenominatorIndices.resize( tWeights->numel() );
+                
+                tWeightClusterNumerators.resize( tWeights->numel() );
+                tWeightClusterDenominators.resize( tWeights->numel() );
+                tWeightClusterNumeratorIndices.resize( tWeights->numel() );
+                tWeightClusterDenominatorIndices.resize( tWeights->numel() );
+                
 
                 if ( tWeightNumerators.size() != 0 ) 
                 {
@@ -152,6 +163,39 @@ namespace moris::mtk
                             tWeightDenominatorIndices.end() );
                 }
 
+                if ( tWeightClusterNumerators.size() != 0 )
+                {
+                    mOutputMesh->mBasisWeightClusterNumerators( iOrder ).insert(
+                            insertPos,
+                            tWeightClusterNumerators.begin(),
+                            tWeightClusterNumerators.end() );
+                }
+
+                if ( tWeightClusterDenominators.size() != 0 )
+                {
+                    mOutputMesh->mBasisWeightClusterDenominators( iOrder ).insert(
+                            insertPos,
+                            tWeightClusterDenominators.begin(),
+                            tWeightClusterDenominators.end() );
+                }
+
+                if ( tWeightClusterNumeratorIndices.size() != 0 )
+                {
+                    mOutputMesh->mBasisWeightClusterNumeratorIndices( iOrder ).insert(
+                            insertPos,
+                            tWeightClusterNumeratorIndices.begin(),
+                            tWeightClusterNumeratorIndices.end() );
+                }
+
+                if ( tWeightClusterDenominatorIndices.size() != 0 )
+                {
+                    mOutputMesh->mBasisWeightClusterDenominatorIndices( iOrder ).insert(
+                            insertPos,
+                            tWeightClusterDenominatorIndices.begin(),
+                            tWeightClusterDenominatorIndices.end() );
+                }
+                
+
                 //if ( tWeightDenominators.size() != 0 )
                 //{
                 //    mOutputMesh->mBasisWeightDenominators( iOrder ).insert( mOutputMesh->mOffSetTMatrix( iOrder )( iVertex ), tWeightDenominators.begin(), tWeightDenominators.end() );
@@ -184,6 +228,11 @@ namespace moris::mtk
         mOutputMesh->mBasisWeightPerLeaderBasis.resize( tNumInterpolations );
         mOutputMesh->mBasisWeightNumeratorIndices.resize( tNumInterpolations );
         mOutputMesh->mBasisWeightDenominatorIndices.resize( tNumInterpolations );
+
+        mOutputMesh->mBasisWeightClusterNumerators.resize( tNumInterpolations );
+        mOutputMesh->mBasisWeightClusterDenominators.resize( tNumInterpolations );
+        mOutputMesh->mBasisWeightClusterNumeratorIndices.resize( tNumInterpolations );
+        mOutputMesh->mBasisWeightClusterDenominatorIndices.resize( tNumInterpolations );
 
         // This loop is strictly to determine the size
         //  loop over the interpolation orders ( bspline meshes )
@@ -218,6 +267,11 @@ namespace moris::mtk
             mOutputMesh->mBasisWeightPerLeaderBasis( iLocalOrder ).reserve( tOffSet );
             mOutputMesh->mBasisWeightNumeratorIndices( iLocalOrder ).reserve( tOffSet );
             mOutputMesh->mBasisWeightDenominatorIndices( iLocalOrder ).reserve( tOffSet );
+
+            mOutputMesh->mBasisWeightClusterNumerators( iLocalOrder ).reserve( tOffSet );
+            mOutputMesh->mBasisWeightClusterDenominators( iLocalOrder ).reserve( tOffSet );
+            mOutputMesh->mBasisWeightClusterNumeratorIndices( iLocalOrder ).reserve( tOffSet );
+            mOutputMesh->mBasisWeightClusterDenominatorIndices( iLocalOrder ).reserve( tOffSet );
         }
 
         // set the coordinate matrix size

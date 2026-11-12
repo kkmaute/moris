@@ -121,6 +121,8 @@ namespace moris
                 Module_Parameter_Lists mMSIParameterList = Module_Parameter_Lists( Module_Type::MSI );
                 Module_Parameter_Lists mSOLParameterList = Module_Parameter_Lists( Module_Type::SOL );
                 Module_Parameter_Lists mVISParameterList = Module_Parameter_Lists( Module_Type::VIS );
+                
+                bool mConsiderBasisExtensionSensitivities = false;
 
                 //------------------------------------------------------------------------------
             public:
@@ -196,6 +198,17 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 void perform_sensitivity_analysis();
+
+                //------------------------------------------------------------------------------
+
+                void set_consider_basis_extension_sensitivities( const bool aConsiderBasisExtensionSensitivities );
+
+                //------------------------------------------------------------------------------
+
+                bool get_consider_basis_extension_sensitivities() const
+                {
+                    return mConsiderBasisExtensionSensitivities;
+                }
 
                 //------------------------------------------------------------------------------
 

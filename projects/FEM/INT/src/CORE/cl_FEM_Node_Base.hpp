@@ -69,6 +69,82 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
         /**
+         * returns whether the interpolation contains extended basis functions
+         */
+        virtual bool
+        contains_extended_basis( const uint aOrder ) const
+        {
+            return false;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the individual extension contribution weights for each leader basis
+         */
+        virtual const Vector< Vector< real > >&
+        get_basis_weight_per_leader_basis( const uint aOrder ) const
+        {
+            MORIS_ERROR( false, "fem::Node_Base::get_basis_weight_per_leader_basis() - not implemented in base class" );
+            static Vector< Vector< real > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the numerator cluster indices for each leader basis
+         */
+        virtual const Vector< Vector< moris_index > >&
+        get_numerator_cluster_indices( const uint aOrder ) const
+        {
+            MORIS_ERROR( false, "fem::Node_Base::get_numerator_cluster_indices() - not implemented in base class" );
+            static Vector< Vector< moris_index > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the per-contribution numerator cluster counts (offset increments)
+         */
+        virtual const Vector< Vector< uint > >&
+        get_numerator_cluster_offsets( const uint aOrder ) const
+        {
+            MORIS_ERROR( false, "fem::Node_Base::get_numerator_cluster_offsets() - not implemented in base class" );
+            static Vector< Vector< uint > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the denominator cluster indices for each leader basis
+         */
+        virtual const Vector< Vector< moris_index > >&
+        get_denominator_cluster_indices( const uint aOrder ) const
+        {
+            MORIS_ERROR( false, "fem::Node_Base::get_denominator_cluster_indices() - not implemented in base class" );
+            static Vector< Vector< moris_index > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * returns the per-contribution denominator cluster counts (offset increments)
+         */
+        virtual const Vector< Vector< uint > >&
+        get_denominator_cluster_offsets( const uint aOrder ) const
+        {
+            MORIS_ERROR( false, "fem::Node_Base::get_denominator_cluster_offsets() - not implemented in base class" );
+            static Vector< Vector< uint > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
          * returns the proc owners of the IDs of this node
          */
 

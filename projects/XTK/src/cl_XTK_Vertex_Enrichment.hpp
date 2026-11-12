@@ -43,6 +43,12 @@ namespace moris::xtk
         Vector< Vector< real > >        mBasisWeightPerLeaderBasis;
         Vector< Vector< uint > >        mBasisWeightDenominatorCount;
         Vector< Vector< uint > >        mBasisWeightNumeratorCount;
+
+        Vector< Vector< moris_index > > mBasisWeightClusterDenominators;
+        Vector< Vector< moris_index > > mBasisWeightClusterNumerators;
+        Vector< Vector< uint > >        mBasisWeightClusterDenominatorCount;
+        Vector< Vector< uint > >        mBasisWeightClusterNumeratorCount;
+
         mtk::Vertex_Interpolation*      mBaseVertexInterp;
         IndexMap                        mBasisMap; /*From basis to local index*/
         bool                            mContainsExtendedBasis = false;
@@ -189,6 +195,18 @@ namespace moris::xtk
         Vector< Vector< uint > > const &
         get_basis_weight_numerator_count() const override;
 
+        Vector< Vector< moris_index > > const &
+        get_basis_weight_cluster_denominators() const override;
+
+        Vector< Vector< moris_index > > const &
+        get_basis_weight_cluster_numerators() const override;
+
+        Vector< Vector< uint > > const &
+        get_basis_weight_cluster_denominator_count() const override;
+
+        Vector< Vector< uint > > const &
+        get_basis_weight_cluster_numerator_count() const override;
+
         //------------------------------------------------------------------------------
 
         /*
@@ -217,6 +235,26 @@ namespace moris::xtk
                 Matrix< IndexMat > const &              aBasisIndices,
                 Vector< Vector< moris_index > > const & aBasisWeightNumerators
         );
+
+        void        
+        add_basis_weight_cluster_denominators(
+                Matrix< IndexMat > const &              aBasisIndices,
+                Vector< Vector< moris_index > > const & aBasisWeightClusterDenominators );
+
+        void
+        add_basis_weight_cluster_numerators(
+                Matrix< IndexMat > const &              aBasisIndices,
+                Vector< Vector< moris_index > > const & aBasisWeightClusterNumerators );
+
+        void
+        add_basis_weight_cluster_denominator_count(
+                Matrix< IndexMat > const &              aBasisIndices,
+                Vector< Vector< uint > > const & aBasisWeightClusterNumerators );
+
+        void 
+        add_basis_weight_cluster_numerator_count(
+                Matrix< IndexMat > const &              aBasisIndices,
+                Vector< Vector< uint > > const &        aBasisWeightClusterNumeratorCount );
 
         void 
         add_basis_weight_per_leader_basis(

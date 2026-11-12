@@ -193,6 +193,66 @@ namespace moris::xtk
     //------------------------------------------------------------------------------
 
     void
+    Vertex_Enrichment::add_basis_weight_cluster_denominators( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< moris_index > > const & aBasisWeightClusterDenominators )
+    {
+        mBasisWeightClusterDenominators.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightClusterDenominators( tBasisLocInd ) = aBasisWeightClusterDenominators( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Vertex_Enrichment::add_basis_weight_cluster_numerators( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< moris_index > > const & aBasisWeightClusterNumerators )
+    {
+        mBasisWeightClusterNumerators.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightClusterNumerators( tBasisLocInd ) = aBasisWeightClusterNumerators( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Vertex_Enrichment::add_basis_weight_cluster_denominator_count( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< uint > > const & aBasisWeightClusterDenominatorCount )
+    {
+        mBasisWeightClusterDenominatorCount.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightClusterDenominatorCount( tBasisLocInd ) = aBasisWeightClusterDenominatorCount( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Vertex_Enrichment::add_basis_weight_cluster_numerator_count( Matrix< IndexMat > const & aBasisIndices,
+            Vector< Vector< uint > > const & aBasisWeightClusterNumeratorCount )
+    {
+        mBasisWeightClusterNumeratorCount.resize( aBasisIndices.numel() );
+
+        for ( uint i = 0; i < aBasisIndices.numel(); i++ )
+        {
+            uint tBasisLocInd = this->local_basis_index( aBasisIndices( i ) );
+            mBasisWeightClusterNumeratorCount( tBasisLocInd ) = aBasisWeightClusterNumeratorCount( i );
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
     Vertex_Enrichment::add_basis_owners( Matrix< IndexMat > const & aBasisIndices,
             Matrix< IndexMat > const &                              aBasisOwners )
     {
@@ -331,6 +391,31 @@ namespace moris::xtk
     {
         return mBasisWeightNumeratorCount;
     }
+
+    Vector< Vector< moris_index > > const &
+    Vertex_Enrichment::get_basis_weight_cluster_denominators() const
+    {
+        return mBasisWeightClusterDenominators;
+    }
+
+    Vector< Vector< moris_index > > const &
+    Vertex_Enrichment::get_basis_weight_cluster_numerators() const
+    {
+        return mBasisWeightClusterNumerators;
+    }
+
+    Vector< Vector< uint > > const &
+    Vertex_Enrichment::get_basis_weight_cluster_denominator_count() const
+    {
+        return mBasisWeightClusterDenominatorCount;
+    }
+
+    Vector< Vector< uint > > const &
+    Vertex_Enrichment::get_basis_weight_cluster_numerator_count() const
+    {
+        return mBasisWeightClusterNumeratorCount;
+    }
+    
 
     //------------------------------------------------------------------------------
 

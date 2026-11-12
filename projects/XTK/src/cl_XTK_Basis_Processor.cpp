@@ -1000,9 +1000,13 @@
                          Matrix< DDRMat >                tAgglomeratedBasisWeights;
                          Vector< Vector< real > >        tAgglomeratedBasisWeightsPerLeaderBasis;
                          Vector< Vector< moris_index > > tAgglomeratedBasisWeightsPerFollowerBasisDenominators;
+                         Vector< Vector< moris_index > > tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators;
                          Vector< Vector< moris_index > > tAgglomeratedBasisWeightsPerFollowerBasisNumerators;
+                         Vector< Vector< moris_index > > tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators;
                          Vector< Vector< uint > >        tAgglomeratedBasisDenominatorIndicesPerFollowerBasis;
+                         Vector< Vector< uint > >        tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis;
                          Vector< Vector< uint > >        tAgglomeratedBasisNumeratorIndicesPerFollowerBasis;
+                         Vector< Vector< uint > >        tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis;
                          Matrix< IndexMat >              tAgglomeratedBasisOwners;
 
                          auto tFnCheckAllZeros = [ this, aMeshIndex ]() -> bool {
@@ -1025,6 +1029,12 @@
                              tAgglomeratedBasisWeightsPerFollowerBasisNumerators.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
                              tAgglomeratedBasisDenominatorIndicesPerFollowerBasis.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
                              tAgglomeratedBasisNumeratorIndicesPerFollowerBasis.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+                             
+                             tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+                             tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+                             tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+                             tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis.resize( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+                             
                          }
                          else
                          {
@@ -1037,6 +1047,12 @@
                              tAgglomeratedBasisWeightsPerFollowerBasisNumerators.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
                              tAgglomeratedBasisDenominatorIndicesPerFollowerBasis.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
                              tAgglomeratedBasisNumeratorIndicesPerFollowerBasis.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
+                             
+                             tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
+                             tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
+                             tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
+                             tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis.resize( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
+                             
                          }
  
                          // probably need to do a resize call here
@@ -1114,12 +1130,19 @@
                                              tAgglomeratedBasisWeightsPerFollowerBasisNumerators( tBasisCounter ).push_back( -1 );
                                              tAgglomeratedBasisDenominatorIndicesPerFollowerBasis( tBasisCounter ).push_back( 1 );
                                              tAgglomeratedBasisNumeratorIndicesPerFollowerBasis( tBasisCounter ).push_back( 1 );
+                                             
+                                             tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators( tBasisCounter ).push_back( -1 );
+                                             tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators( tBasisCounter ).push_back( -1 );
+                                             tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis( tBasisCounter ).push_back( 1 );
+                                             tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis( tBasisCounter ).push_back( 1 );
+                                             
                                          }
                                          else
                                          {
                                              // Add the denomiminator SPG indices per every follower basis - since once we replace the bad basis with extensions
                                              // we don't know which extended basis corresponds to which bad basis, so keep denominator information for all basis.
                                              uint tCounter = 0;
+                                             uint tClusterCounter = 0;
                                              for ( const auto& iFollowerBasisDenominators : tFollowerBasisDerivativeDenominators )
                                              {
                                                  // Find the SPs associated with the SPGs in the denominator
@@ -1132,15 +1155,30 @@
                                                  }
                                                  //
                                                  // tAgglomeratedBasisWeightsPerFollowerBasisDenominators( tBasisCounter ).push_back( iFollowerBasisDenominators );
+                                                 // find the cluster(s) associate with the SPGs in the denominator
+                                                 const Vector< moris_index >& tClusterIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, tSPGs( iFollowerBasisDenominators )->get_index() );
+                                                 for ( const auto& iCluster : tClusterIndices )
+                                                 {
+                                                     tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators( tBasisCounter ).push_back( iCluster );
+                                                     tClusterCounter++;
+                                                 }
                                              }
                                              // add the counter to the denominator indices per follower basis
                                              tAgglomeratedBasisDenominatorIndicesPerFollowerBasis( tBasisCounter ).push_back( tCounter );
 
+                                             // add the cluster counter to the cluster denominator indices per follower basis
+                                             tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis( tBasisCounter ).push_back( tClusterCounter );
+
                                              // Get SPs associated with SPG in the numerator
                                              // Get the SPs associated with the SPG in the numerator
                                              const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_ig_cell_indices_in_group();
+                                             
+                                             // find the cluster(s) associate with the SPGs in the numerator
+                                             const Vector< moris_index >& tClusterIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_index() );
+                                             
                                              // initialize counter for indices
                                              uint tCounter2 = 0;
+                                             uint tClusterCounter2 = 0;
 
                                              // Add them into the agglomerated basis weights per follower basis numerator vector
                                              for ( const auto& iSP : tSPs )
@@ -1149,8 +1187,20 @@
                                                  tCounter2++;
                                              }
 
+                                             // add the Clusters associated
+
+                                             for ( const auto& iCluster : tClusterIndices )
+                                             {
+                                                 tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators( tBasisCounter ).push_back( iCluster );
+                                                 tClusterCounter2++;
+                                             }
+                                             
+
                                              // add the counter to the numerator indices per follower basis
                                              tAgglomeratedBasisNumeratorIndicesPerFollowerBasis( tBasisCounter ).push_back( tCounter2 );
+
+                                             // add the cluster counter to the cluster numerator indices per follower basis
+                                             tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis( tBasisCounter ).push_back( tClusterCounter2 );
                                          }
                                          //tAgglomeratedBasisWeightsPerFollowerBasisNumerators( tBasisCounter )( iSlaveBasisOrd ) = tFollowerBasisDerivativeNumerators( iSlaveBasisOrd );
                                          
@@ -1183,6 +1233,11 @@
                                             tAgglomeratedBasisWeightsPerFollowerBasisNumerators( tLocalBasisIndex ).push_back( -1 );
                                             tAgglomeratedBasisDenominatorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( 1 );
                                             tAgglomeratedBasisNumeratorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( 1 );
+                                            
+                                            tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators( tLocalBasisIndex ).push_back( -1 );
+                                            tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators( tLocalBasisIndex ).push_back( -1 );
+                                            tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( 1 );
+                                            tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( 1 );
                                          }
                                          else
                                          {
@@ -1190,26 +1245,49 @@
                                              // we don't know which extended basis corresponds to which bad basis, so keep denominator information for all basis.
                                              
                                              uint tCounter = 0;
+                                             uint tClusterCounter = 0;
+                                             
                                              for ( const auto& iFollowerBasisDenominators : tFollowerBasisDerivativeDenominators )
                                              {
                                                  // Find the SPs associated with the SPGs in the denominator
                                                  const Vector< moris_index >& tSPDenominator = tSPGs( iFollowerBasisDenominators )->get_ig_cell_indices_in_group();
+                                                 
+                                                 // find the cluster(s) associate with the SPGs in the denominator
+                                                 const Vector< moris_index >& tClusterIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, tSPGs( iFollowerBasisDenominators )->get_index() );
+                                                 
                                                  // Add the SPs to the agglomerated basis weights per follower basis denominator vector
                                                  for ( const auto& iSP : tSPDenominator )
                                                  {
                                                      tAgglomeratedBasisWeightsPerFollowerBasisDenominators( tLocalBasisIndex ).push_back( iSP );
                                                      tCounter++;
                                                  }
+
+
+                                                 // Add the clusters to the agglomerated basis weights per follower basis cluster denominator vector
+                                                 for ( const auto& iCluster : tClusterIndices )
+                                                 {
+                                                     tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators( tLocalBasisIndex ).push_back( iCluster );
+                                                     tClusterCounter++;
+                                                 }
+                                                
                                                  //
                                                  // tAgglomeratedBasisWeightsPerFollowerBasisDenominators( tBasisCounter ).push_back( iFollowerBasisDenominators );
                                              }
                                              tAgglomeratedBasisDenominatorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( tCounter );
+
+                                             // Add the cluster counts to the agglomerated basis cluster denominator indices per follower basis vector
+                                             tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( tClusterCounter );
+
                                              // Get SPs associated with SPG in the numerator
                                              // Get the SPs associated with the SPG in the numerator
                                              const Vector< moris_index >& tSPs = tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_ig_cell_indices_in_group();
-
+                                             
+                                             // find the cluster(s) associate with the SPGs in the numerator
+                                             const Vector< moris_index >& tClusterIndices = mXTKModelPtr->mEnrichment->get_UIPC_indices_on_SPG( aMeshIndex, tSPGs( tFollowerBasisDerivativeNumerators( iSlaveBasisOrd ) )->get_index() );
+                                             
                                              // initialize counter for indices
                                              uint tCounter2 = 0;
+                                             uint tClusterCounter2 = 0;
 
                                              // Add them into the agglomerated basis weights per follower basis numerator vector
                                              for ( const auto& iSP : tSPs )
@@ -1218,6 +1296,13 @@
                                                  tCounter2++;
                                              }
                                              tAgglomeratedBasisNumeratorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( tCounter2 );
+
+                                             for ( const auto& iCluster : tClusterIndices )
+                                             {
+                                                 tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators( tLocalBasisIndex ).push_back( iCluster );
+                                                 tClusterCounter2++;
+                                             }
+                                             tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis( tLocalBasisIndex ).push_back( tClusterCounter2 );
                                          }
                                      }
                                  }
@@ -1247,7 +1332,12 @@
                          tAgglomeratedBasisWeightsPerFollowerBasisDenominators.resize( tBasisCounter );
                          tAgglomeratedBasisWeightsPerFollowerBasisNumerators.resize( tBasisCounter );
                          tAgglomeratedBasisWeightsPerLeaderBasis.resize( tBasisCounter );
- 
+                         
+                         tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators.resize( tBasisCounter );
+                         tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis.resize( tBasisCounter );
+                         tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators.resize( tBasisCounter );
+                         tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis.resize( tBasisCounter );
+                         
                          //  add basis information to the vertex enrichment
                          tVertexEnrichment->add_basis_information( tAgglomeratedBasisIndices, tAgglomeratedBasisIds );
                          tVertexEnrichment->add_basis_weights( tAgglomeratedBasisIndices, tAgglomeratedBasisWeights );
@@ -1257,6 +1347,11 @@
                          tVertexEnrichment->add_basis_weight_numerators( tAgglomeratedBasisIndices, tAgglomeratedBasisWeightsPerFollowerBasisNumerators );
                          tVertexEnrichment->add_basis_weight_denominator_count( tAgglomeratedBasisIndices, tAgglomeratedBasisDenominatorIndicesPerFollowerBasis );
                          tVertexEnrichment->add_basis_weight_numerator_count( tAgglomeratedBasisIndices, tAgglomeratedBasisNumeratorIndicesPerFollowerBasis );
+                         
+                         tVertexEnrichment->add_basis_weight_cluster_denominators( tAgglomeratedBasisIndices, tAgglomeratedBasisWeightsPerFollowerBasisClusterDenominators );
+                         tVertexEnrichment->add_basis_weight_cluster_denominator_count( tAgglomeratedBasisIndices, tAgglomeratedBasisClusterDenominatorIndicesPerFollowerBasis );
+                         tVertexEnrichment->add_basis_weight_cluster_numerators( tAgglomeratedBasisIndices, tAgglomeratedBasisWeightsPerFollowerBasisClusterNumerators );
+                         tVertexEnrichment->add_basis_weight_cluster_numerator_count( tAgglomeratedBasisIndices, tAgglomeratedBasisClusterNumeratorIndicesPerFollowerBasis );
                      }
                  }
              }

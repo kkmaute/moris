@@ -1458,6 +1458,42 @@ namespace moris::mtk
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Vector< moris_index >*
+    Mesh::get_basis_weight_cluster_numerators( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_cluster_numerators not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Vector< moris_index >*
+    Mesh::get_basis_weight_cluster_denominators( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_cluster_denominators not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris::Vector< uint >*
+    Mesh::get_basis_weight_cluster_numerator_indices( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_cluster_numerator_indices not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    moris::Vector< uint >*
+    Mesh::get_basis_weight_cluster_denominator_indices( moris_index aVertexIndex, moris_index aOrder )
+    {
+        MORIS_ERROR( 0, "get_basis_weight_cluster_denominator_indices not implemented" );
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     moris_id*
     Mesh::get_basis_owners( moris_index aVertexIndex, moris_index aOrder )
     {

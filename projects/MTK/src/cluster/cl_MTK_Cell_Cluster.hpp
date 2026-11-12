@@ -15,6 +15,7 @@
 
 #include "cl_MTK_Cluster.hpp"
 #include "fn_norm.hpp"
+#include "fn_trans.hpp"
 
 namespace moris::mtk
 {
@@ -279,6 +280,52 @@ namespace moris::mtk
             }
 
             return tMeasureVec;
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat > const
+        compute_cluster_cell_measure_derivative() const override
+        {
+            // this function returns the value of the cluster measure derivative in a num IG nodes x num spatial dims matrix
+            // we loop over each IG cell and compute its measure derivative
+
+            // get the indices of all IG verts in the cluster
+            Matrix< IndexMat > tClusterNodeIndices = this->get_vertex_indices_in_cluster();
+
+            // preallocate the cluster measure derivative matrix
+            Matrix< DDRMat > tClusterMeasureDerivative( tClusterNodeIndices.numel(), this->get_vertices_local_coordinates_wrt_interp_cell().n_cols(), 0.0 );
+
+            // build a lookup table for the cluster node indices
+            std::unordered_map< moris_index, uint > tClusterNodeIndexLookup;
+            for ( uint iNode = 0; iNode < tClusterNodeIndices.numel(); iNode++ )
+            {
+                tClusterNodeIndexLookup[ static_cast< moris_index >( tClusterNodeIndices( iNode ) ) ] = iNode;
+            }
+
+            // get the primary IG cells
+            Vector< moris::mtk::Cell const * > const &tCells = this->get_primary_cells_in_cluster();
+
+            // Loop over IG cells
+            for( uint iCellIndex = 0; iCellIndex < tCells.size(); iCellIndex++ )
+            {
+                // get the IG node indices associated with this cell
+                Matrix< IndexMat > tCellNodeIndices = tCells( iCellIndex )->get_vertex_inds();
+
+                // compute the cell measure derivative
+                for ( uint iCellVertexOrdinal = 0; iCellVertexOrdinal < tCellNodeIndices.numel(); iCellVertexOrdinal++ )
+                {
+                    Matrix< DDRMat > tCellMeasureDerivative = tCells( iCellIndex )->compute_cell_measure_deriv_general( iCellVertexOrdinal, -1 );
+
+                    // place the cell measure derivative in the cluster measure derivative matrix
+                    moris_index tClusterNodeIndex = static_cast< moris_index >( tCellNodeIndices( iCellVertexOrdinal ) );
+                    tClusterMeasureDerivative.set_row( tClusterNodeIndexLookup[ tClusterNodeIndex ],
+                                                       tClusterMeasureDerivative.get_row( tClusterNodeIndexLookup[ tClusterNodeIndex ] ) + trans( tCellMeasureDerivative ) );
+                }
+                
+            }
+            
+            return tClusterMeasureDerivative;
         }
 
         //------------------------------------------------------------------------------

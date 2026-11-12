@@ -150,17 +150,35 @@ namespace moris
             //! actual pdof values. Cells are for different multi-vectors
             Vector< Matrix< DDRMat > > mPdofValues;
 
+            //! derivative of T-matrix times state values, indexed by solution vector and PDV
+            Vector< Vector< Matrix< DDRMat > > > mdPADofPdofValues;
+            Vector< Vector< moris_id > > mdPADofPdofIndices;
+
             //! previous pdof values
             Vector< Matrix< DDRMat > > mPreviousPdofValues;
 
+            //! derivative of T-matrix times previous state values
+            Vector< Vector< Matrix< DDRMat > > > mdPADofPreviousPdofValues;
+            Vector< Vector< moris_id > > mdPADofPreviousPdofIndices;
+
             //! adjoint pdof values
             Vector< Matrix< DDRMat > > mAdjointPdofValues;
+            Vector< Vector< Matrix< DDRMat > > > mdPADofAdjointPdofValues;
+            Vector< Vector< moris_id > > mdPADofAdjointPdofIndices;
 
             //! previous adjoint pdof values
             Vector< Matrix< DDRMat > > mPreviousAdjointPdofValues;
 
+            //! derivative of T-matrix times previous adjoint values
+            Vector< Vector< Matrix< DDRMat > > > mdPADofPreviousAdjointPdofValues;
+            Vector< Vector< moris_id > > mdPADofPreviousAdjointPdofIndices;
+
             //! previous adjoint pdof values
             Vector< Matrix< DDRMat > > mEigenVectorPdofValues;
+
+            //! derivative of T-matrix times eigenvector values
+            Vector< Vector< Matrix< DDRMat > > > mdPADofEigenVectorPdofValues;
+            Vector< Vector< moris_id > > mdPADofEigenVectorPdofIndices;
 
             friend class MSI::Equation_Object;
             friend class Element_Bulk;
@@ -380,6 +398,46 @@ namespace moris
                 MORIS_ERROR( false, "Equation_Set::set_dv_interface - not implemented for msi base class." );
             }
 
+            //------------------------------------------------------------------------------------------------
+
+            /**
+             *  compute cluster measure for requested cluster
+             */
+            virtual real
+            compute_cluster_measure( const moris_index aClusterIndex )
+            {
+                MORIS_ERROR( false, "Equation_Set::compute_cluster_measure - not implemented for virtual member function" );
+                return 0.0;
+            }
+            //-------------------------------------------------------------------------------------------------
+
+            virtual Matrix< DDRMat > const
+            compute_cluster_measure_derivative( const moris_index aClusterIndex )
+            {
+                MORIS_ERROR( false, "Equation_Set::compute_cluster_measure - not implemented for virtual member function" );
+                return {};
+            }
+
+            //-------------------------------------------------------------------------------------------------
+            /**
+             * get PDVs associated with a cluster
+             */
+            virtual Matrix< DDSMat >
+            get_pdvs_in_cluster( const moris_index aClusterIndex )
+            {
+                MORIS_ERROR( false, "Equation_Set::get_pdvs_in_cluster - not implemented for virtual member function" );
+                return {};
+            }
+
+            //-------------------------------------------------------------------------------------------------
+
+            virtual Matrix< DDSMat >
+            get_pdvs_activity_in_cluster( const moris_index aClusterIndex )
+            {
+                MORIS_ERROR( false, "Equation_Set::get_pdvs_activity_in_cluster - not implemented for virtual member function" );
+                return {};
+            }
+
             //-------------------------------------------------------------------------------------------------
             /**
              * get residual
@@ -388,6 +446,38 @@ namespace moris
             get_residual()
             {
                 return mResidual;
+            }
+
+            //------------------------------------------------------------------------------
+
+            Vector< Vector< Matrix< DDRMat > > >&
+            get_dPADofMap_pdof_values()
+            {
+                return mdPADofPdofValues;
+            }
+
+            //------------------------------------------------------------------------------
+
+            Vector< Vector< moris_id > >&
+            get_dPADofMap_pdof_indices()
+            {
+                return mdPADofPdofIndices;
+            }
+
+            //------------------------------------------------------------------------------
+
+            Vector< Vector< Matrix< DDRMat > > >&
+            get_dPADofMap_adjoint_values()
+            {
+                return mdPADofAdjointPdofValues;
+            }
+
+            //------------------------------------------------------------------------------
+
+            Vector< Vector< moris_id > >&
+            get_dPADofMap_adjoint_indices()
+            {
+                return mdPADofAdjointPdofIndices;
             }
 
             //------------------------------------------------------------------------------

@@ -57,6 +57,11 @@ namespace moris::mtk
         Vector< Vector< moris::moris_index > > mBasisOwners;
         Vector< Vector< moris::moris_index > > mBasisIndices;
 
+        Vector< Vector< Vector< moris::moris_index > > > mBasisWeightClusterNumerators;
+        Vector< Vector< Vector< moris::moris_index > > > mBasisWeightClusterDenominators;
+        Vector< Vector< Vector< moris::uint > > >        mBasisWeightClusterNumeratorIndices;
+        Vector< Vector< Vector< moris::uint > > >        mBasisWeightClusterDenominatorIndices;
+
         // Cell to vertex connectivity
         Vector< mtk::Vertex* > mCellToVertices;
         Vector< moris_index >  mCellToVertexOffSet;
@@ -521,6 +526,54 @@ namespace moris::mtk
          */
         Vector< uint >*
         get_basis_weight_denominator_indices( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight cluster numerators
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< moris_index >*
+        get_basis_weight_cluster_numerators( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight cluster denominators
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< moris_index >*
+        get_basis_weight_cluster_denominators( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight cluster numerator indices
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< uint >*
+        get_basis_weight_cluster_numerator_indices( moris_index aVertexIndex, moris_index aOrder ) override;
+
+        // -------------------------------------------------------------------------------
+
+        /**
+         * @brief get the basis weight cluster denominator indices
+         *
+         * @param aVertexIndex
+         * @param aOrder
+         * @return real* const
+         */
+        Vector< uint >*
+        get_basis_weight_cluster_denominator_indices( moris_index aVertexIndex, moris_index aOrder ) override;
         // -------------------------------------------------------------------------------
 
 

@@ -153,6 +153,45 @@ namespace moris::mtk
             static Vector< Vector< uint > > tVector;
             return tVector;
         }
+        //------------------------------------------------------------------------------
+
+        virtual Vector< Vector< moris_index > > const &
+        get_basis_weight_cluster_denominators() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_cluster_denominators not implemented in base vertex interpolation" );
+            static Vector< Vector< moris_index > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual Vector< Vector< moris_index > > const &
+        get_basis_weight_cluster_numerators() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_cluster_numerators not implemented in base vertex interpolation" );
+            static Vector< Vector< moris_index > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual Vector< Vector< uint > > const &
+        get_basis_weight_cluster_denominator_count() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_cluster_denominator_count not implemented in base vertex interpolation" );
+            static Vector< Vector< uint > > tVector;
+            return tVector;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual Vector< Vector< uint > > const &
+        get_basis_weight_cluster_numerator_count() const
+        {
+            MORIS_ERROR( 0, "get_basis_weight_cluster_numerator_count not implemented in base vertex interpolation" );
+            static Vector< Vector< uint > > tVector;
+            return tVector;
+        }
 
         //------------------------------------------------------------------------------
         /**

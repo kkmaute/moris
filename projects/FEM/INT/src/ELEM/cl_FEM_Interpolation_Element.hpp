@@ -184,6 +184,17 @@ namespace moris::fem
         void compute_dQIdp_explicit_implicit() override;
 
         //------------------------------------------------------------------------------
+
+        /**
+         * compute dQIdp (explicit and implicit contributions) when factoring in basis extension sensitivities
+         */
+        void compute_dQIdp_explicit_implicit_with_basis_extension_sensitivities() override;
+
+        //------------------------------------------------------------------------------
+
+        void compute_jacobian_and_residual_only() override;
+
+        //------------------------------------------------------------------------------
         /**
          * compute dQIdp
          */
@@ -222,6 +233,31 @@ namespace moris::fem
          * @param[in]    aRhsIndex                   index of RHS, i.e. requested IQI index
          */
         void reorder_adjoint_pdofs(
+                Matrix< DDRMat >& aAdjointPdofValuesReordered,
+                uint              aRhsIndex );
+
+        //------------------------------------------------------------------------------
+        /**
+         * Reorder derivative of T-matrix times adjoint values for one RHS.
+         * Residual storage must be initialized to provide the FEM row count.
+         *
+         * @param[out] aAdjointPdofValuesReordered one column vector per PDV, in stored ID order
+         * @param[in]  aRhsIndex                   index of RHS, i.e. requested IQI index
+         */
+        void reorder_adjoint_pdofs(
+                Vector< Matrix< DDRMat > >& aAdjointPdofValuesReordered,
+                uint                        aRhsIndex );
+
+        //------------------------------------------------------------------------------
+        /**
+         * Reorder supplied PDoF vectors using the FEM residual assembly map.
+         *
+         * @param[in]  aPdofValues                PDoF values indexed by solution vector
+         * @param[out] aAdjointPdofValuesReordered preallocated column vector in FEM order
+         * @param[in]  aRhsIndex                   solution vector to reorder
+         */
+        void reorder_adjoint_pdofs(
+                const Vector< Matrix< DDRMat > >& aPdofValues,
                 Matrix< DDRMat >& aAdjointPdofValuesReordered,
                 uint              aRhsIndex );
 

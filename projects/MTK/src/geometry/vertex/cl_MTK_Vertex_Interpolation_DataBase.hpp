@@ -28,6 +28,11 @@ namespace moris::mtk
         Vector< Vector< moris::real > > mWeightsPerLeader;
         Vector< Vector< moris::uint > > mWeightNumeratorIndices;
         Vector< Vector< moris::uint > > mWeightDenominatorIndices;
+        Vector< Vector< moris_index > > mWeightClusterNumerators;
+        Vector< Vector< moris_index > > mWeightClusterDenominators;
+        Vector< Vector< moris::uint > > mWeightClusterNumeratorIndices;
+        Vector< Vector< moris::uint > > mWeightClusterDenominatorIndices;
+        
         bool       mHasExtendedBasis = false;
 
       public:
@@ -130,6 +135,35 @@ namespace moris::mtk
          */
         const Vector< Vector< moris::uint > >&
         get_basis_weight_denominator_count() const override;
+
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the cluster numerators associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris_index > >&
+        get_basis_weight_cluster_numerators() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the cluster denominators associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris_index > >&
+        get_basis_weight_cluster_denominators() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the cluster numerator indices associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris::uint > >&
+        get_basis_weight_cluster_numerator_count() const override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * returns the cluster denominator indices associated with basis weights (when basis extension is being used)
+         */
+        const Vector< Vector< moris::uint > >&
+        get_basis_weight_cluster_denominator_count() const override;
 
         //------------------------------------------------------------------------------
         /**
