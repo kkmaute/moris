@@ -37,6 +37,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 # Define the executable and its dependencies.
 add_executable(${EXAMPLE_MAIN} ${EXAMPLE_SOURCES})
 target_link_libraries(${EXAMPLE_MAIN} PRIVATE ${EXAMPLE_DEPENDENCIES})
+target_compile_definitions(
+    ${EXAMPLE_MAIN} PRIVATE BEDDING_INPUT_LIBRARY="$<TARGET_FILE:Bedding_Sensitivity_Test>"
+)
 set_target_properties(${EXAMPLE_MAIN} PROPERTIES OUTPUT_NAME ${EXAMPLE_MAIN}${EXE_EXT})
 
 set(SO_TPLS "trilinos" ${ARMADILLO_EIGEN})
@@ -75,14 +78,20 @@ endforeach()
 
 # create dynamically linked .so files
 dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+target_compile_definitions(
+    ${EXAMPLE_FILE} PRIVATE MORIS_EXAMPLE_INPUT_LIBRARY="$<TARGET_FILE:${EXAMPLE_FILE}>"
+)
 
 # Register tests for the configured MPI process counts.
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(
-            NAME ${EXAMPLE_FILE}-${PROCS}-procs WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
-                    $<TARGET_FILE:${EXAMPLE_MAIN}>
+        # Each run cleans its Exodus/HDF5 outputs; isolate concurrent MPI variants.
+        set(test_directory "${CMAKE_CURRENT_BINARY_DIR}/cases/${PROCS}-procs")
+        file(MAKE_DIRECTORY "${test_directory}")
+        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs WORKING_DIRECTORY "${test_directory}"
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                         $<TARGET_FILE:${EXAMPLE_MAIN}>
         )
+        set_tests_properties(${EXAMPLE_FILE}-${PROCS}-procs PROPERTIES PROCESSORS ${PROCS})
     endforeach()
 endif()

@@ -40,6 +40,12 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 # Define the executable and its dependencies.
 add_executable(${EXAMPLE_MAIN} ${EXAMPLE_SOURCES})
 target_link_libraries(${EXAMPLE_MAIN} PRIVATE ${EXAMPLE_DEPENDENCIES})
+target_compile_definitions(
+    ${EXAMPLE_MAIN}
+    PRIVATE
+        BOXBEAM_INPUT_LIBRARY="$<TARGET_FILE:Levelset_Boxbeam_Adaptive_Refinement>"
+        BOXBEAM_QUADRATIC_INPUT_LIBRARY="$<TARGET_FILE:Levelset_Boxbeam_Adaptive_Refinement_Quadratic>"
+)
 set_target_properties(${EXAMPLE_MAIN} PROPERTIES OUTPUT_NAME ${EXAMPLE_MAIN}${EXE_EXT})
 
 # create dynamically linked .so files
@@ -80,16 +86,23 @@ endforeach()
 # create dynamically linked .so files
 foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+    target_compile_definitions(
+        ${EXAMPLE_FILE} PRIVATE MORIS_EXAMPLE_INPUT_LIBRARY="$<TARGET_FILE:${EXAMPLE_FILE}>"
+    )
 endforeach()
 
 # Register tests for the configured MPI process counts.
 if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_HAVE_GCMMA)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(
-            NAME Levelset_Boxbeam_Adaptive_Refinement-${PROCS}-procs
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
-                    $<TARGET_FILE:${EXAMPLE_MAIN}>
-            WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        # Each run cleans its Exodus/HDF5 outputs; isolate concurrent MPI variants.
+        set(test_directory "${CMAKE_CURRENT_BINARY_DIR}/cases/${PROCS}-procs")
+        file(MAKE_DIRECTORY "${test_directory}")
+        add_test(NAME Levelset_Boxbeam_Adaptive_Refinement-${PROCS}-procs
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                         $<TARGET_FILE:${EXAMPLE_MAIN}> WORKING_DIRECTORY "${test_directory}"
+        )
+        set_tests_properties(
+            Levelset_Boxbeam_Adaptive_Refinement-${PROCS}-procs PROPERTIES PROCESSORS ${PROCS}
         )
     endforeach()
 endif()

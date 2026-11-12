@@ -176,7 +176,7 @@ TEST_CASE( "Leveset Boxbeam Adaptive Refinement",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Adaptive_Refinement.so";
+    char tString2[] = BOXBEAM_INPUT_LIBRARY;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -221,7 +221,7 @@ TEST_CASE( "Leveset Boxbeam Adaptive Refinement Quadratic",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Adaptive_Refinement_Quadratic.so";
+    char tString2[] = BOXBEAM_QUADRATIC_INPUT_LIBRARY;
 
     char* argv[ 2 ] = { tString1, tString2 };
 

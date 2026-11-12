@@ -89,9 +89,15 @@ namespace moris
     std::string tProblemConfig = "_" + std::to_string( gTestCaseIndex );
 
     std::string tOutputFileName = tName + tProblemConfig + ".exo";
-    std::string tLibraryName    = tName + ".so";
     std::string tGENOutputFile  = tName + tProblemConfig + "_GEN" + ".exo";
     std::string tHDF5FileName   = tName + tProblemConfig + "_SEN" + ".hdf5";
+
+    // CTest runs in isolated output directories; external inputs retain their local library name.
+#ifdef MORIS_EXAMPLE_INPUT_LIBRARY
+    std::string tLibraryName = MORIS_EXAMPLE_INPUT_LIBRARY;
+#else
+    std::string tLibraryName = tName + ".so";
+#endif
 
     std::string tMaterialSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
 

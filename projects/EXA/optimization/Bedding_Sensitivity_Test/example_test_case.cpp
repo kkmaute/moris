@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include <unistd.h>
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -389,7 +390,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Bedding_Sensitivity_Test.so";
+    char tString2[] = BEDDING_INPUT_LIBRARY;
 
     char* argv[ 2 ] = { tString1, tString2 };
 

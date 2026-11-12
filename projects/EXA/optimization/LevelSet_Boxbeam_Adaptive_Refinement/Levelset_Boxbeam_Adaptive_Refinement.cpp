@@ -93,8 +93,14 @@ namespace moris
     // Derived problem paramters
 
     std::string tOutputFileName = tName + ".exo";
-    std::string tLibraryName    = tName + ".so";
     std::string tGENOutputFile  = "GEN_" + tName + ".exo";
+
+    // CTest runs in isolated output directories; external inputs retain their local library name.
+#ifdef MORIS_EXAMPLE_INPUT_LIBRARY
+    std::string tLibraryName = MORIS_EXAMPLE_INPUT_LIBRARY;
+#else
+    std::string tLibraryName = tName + ".so";
+#endif
 
     std::string tFrameSets    = "HMR_dummy_n_p2,HMR_dummy_c_p2";
     std::string tInteriorSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
