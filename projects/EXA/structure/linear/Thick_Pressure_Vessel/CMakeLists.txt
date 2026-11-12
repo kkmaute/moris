@@ -87,22 +87,8 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
-# Register tests for the configured MPI process counts.
-if(MORIS_HAVE_PARALLEL_TESTS)
-    foreach(PROCS ${EXAMPLE_PROCS})
-        set(test_name Thick_Pressure_Vessel-${PROCS}-procs)
-        set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name})
-        file(MAKE_DIRECTORY "${test_directory}")
-        add_test(NAME ${test_name} WORKING_DIRECTORY "${test_directory}"
-                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
-                         $<TARGET_FILE:${EXAMPLE_MAIN}>
-        )
-        set_tests_properties(${test_name} PROPERTIES PROCESSORS ${PROCS})
-    endforeach()
-endif()
-
-# Keep each PETSc lifetime in a separate process and compare against the same
-# reference fields as the corresponding Amesos example.
+# PETSc cases are launched separately inside each process-count group.
+# Check capabilities before adding BDDC variants to the existing vessel tests.
 if(MORIS_HAVE_PETSC)
     # Cut-cell subdomains need a pivoting factorization. Check PETSc's actual
     # capabilities rather than MORIS_USE_MUMPS, which also controls other TPLs.
@@ -123,28 +109,68 @@ if(MORIS_HAVE_PETSC)
     )
     cmake_pop_check_state()
 
-    set(bddc_process_counts 1)
-    if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_PRESSURE_VESSEL_PETSC_HAS_MUMPS)
-        set(bddc_process_counts ${EXAMPLE_PROCS})
-    elseif(MORIS_HAVE_PARALLEL_TESTS)
+    if(MORIS_HAVE_PARALLEL_TESTS AND NOT MORIS_PRESSURE_VESSEL_PETSC_HAS_MUMPS)
         message(
             STATUS
-                "Parallel pressure-vessel BDDC tests require PETSc with MUMPS; registering serial coverage only."
+                "Parallel pressure-vessel BDDC cases require PETSc with MUMPS; retaining serial BDDC coverage."
         )
     endif()
-    foreach(EXAMPLE_FILE IN LISTS EXAMPLE_FILES)
-        foreach(PROCS IN LISTS bddc_process_counts)
-            # VIS temporary Exodus files and parameter receipts must not be shared
-            # between concurrent cases, even when final output names are distinct.
-            set(test_name ${EXAMPLE_FILE}-BDDC-${PROCS}-procs)
-            set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name})
-            file(MAKE_DIRECTORY "${test_directory}")
-            add_test(
-                NAME ${test_name} WORKING_DIRECTORY "${test_directory}"
-                COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
-                        $<TARGET_FILE:${EXAMPLE_MAIN}> "${EXAMPLE_FILE}_BDDC"
-            )
-            set_tests_properties(${test_name} PROPERTIES PROCESSORS ${PROCS} TIMEOUT 600)
-        endforeach()
-    endforeach()
 endif()
+
+set(process_counts 1)
+if(MORIS_HAVE_PARALLEL_TESTS)
+    set(process_counts ${EXAMPLE_PROCS})
+endif()
+foreach(procs IN LISTS process_counts)
+    set(test_name Thick_Pressure_Vessel-${procs}-procs)
+    set(group_cases "")
+    set(group_case_count 1)
+    set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name}/amesos)
+    file(MAKE_DIRECTORY "${test_directory}")
+    moris_append_test_group_case(
+        group_cases
+        "${test_name}-amesos"
+        "${test_directory}"
+        600
+        ${MORIS_EXECUTE_COMMAND}
+        -n
+        ${procs}
+        ${VALGRIND}
+        ${VALGRIND_OPTIONS_EXA}
+        $<TARGET_FILE:${EXAMPLE_MAIN}>
+    )
+
+    if(MORIS_HAVE_PETSC AND (procs EQUAL 1 OR MORIS_PRESSURE_VESSEL_PETSC_HAS_MUMPS))
+        foreach(example IN LISTS EXAMPLE_FILES)
+            set(case_name ${example}-BDDC-${procs}-procs)
+            set(case_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name}/${example}-BDDC)
+            file(MAKE_DIRECTORY "${case_directory}")
+            moris_append_test_group_case(
+                group_cases
+                "${case_name}"
+                "${case_directory}"
+                600
+                ${MORIS_EXECUTE_COMMAND}
+                -n
+                ${procs}
+                ${VALGRIND}
+                ${VALGRIND_OPTIONS_EXA}
+                $<TARGET_FILE:${EXAMPLE_MAIN}>
+                "${example}_BDDC"
+            )
+            math(EXPR group_case_count "${group_case_count} + 1")
+        endforeach()
+    endif()
+
+    math(EXPR group_timeout "600 * ${group_case_count} + 30")
+    moris_register_test_group(
+        ${test_name}
+        "${group_cases}"
+        PROCESSORS
+        ${procs}
+        TIMEOUT
+        ${group_timeout}
+        LABELS
+        "EXA;structure;linear;pressure_vessel"
+    )
+endforeach()

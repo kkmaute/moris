@@ -16,7 +16,7 @@ selection or installation rules:
 * ``utilities/moris_package.cmake`` generates every installed component package
   from ``morisComponentConfig.cmake.in``.
 * ``utilities/moris_shared.cmake`` assembles the optional monolithic shared library.
-* ``utilities/moris_testing.cmake`` registers unit tests and their MPI process counts.
+* ``utilities/moris_testing.cmake`` registers unit tests, MPI process counts, and grouped example launches.
 
 Compatibility
 -------------
@@ -124,6 +124,13 @@ The dense Eigen LINALG backend uses Eigen's built-in factorizations and does
 not require SuiteSparse. Selecting ``MORIS_USE_EIGEN=ON`` with
 ``MORIS_USE_ARMA=OFF`` therefore does not trigger SuiteSparse discovery.
 Sparse solver dependencies remain the responsibility of their solver packages.
+
+The BDDC elasticity examples appear as one ``EXA-structure-linear-bddc`` test.
+The fitted and immersed vessel BDDC cases belong to the serial and parallel
+``Thick_Pressure_Vessel`` tests. Grouped cases run sequentially in separate MPI
+processes and output directories. Each child keeps its own timeout; failures
+are collected and fail the group after the remaining cases run. CTest reserves
+the largest MPI launch in each group. Use ``ctest -V`` for individual-case logs.
 
 Formatting and file layout
 --------------------------

@@ -106,6 +106,9 @@ check_cxx_source_compiles(
 )
 cmake_pop_check_state()
 
+set(group_cases "")
+set(group_processors 1)
+set(group_case_count 0)
 foreach(dim 2 3)
     if(dim EQUAL 2)
         set(example_case BDDC_Plane_Stress)
@@ -137,23 +140,37 @@ foreach(dim 2 3)
                 string(APPEND test_case "_AIJ")
             endif()
 
-            # Follow the other EXA tests: Catch cases, dynamically loaded
-            # input libraries, and one complete HMR/GEN/XTK/FEM/SOL/VIS workflow.
-            add_test(NAME ${test_name}
-                     COMMAND ${MORIS_EXECUTE_COMMAND} -n ${procs} ${VALGRIND}
-                             ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}> ${test_case}
+            # Each launch has its own PETSc lifetime and output directory.
+            moris_append_test_group_case(
+                group_cases
+                "${test_name}"
+                "${test_directory}"
+                600
+                ${MORIS_EXECUTE_COMMAND}
+                -n
+                ${procs}
+                ${VALGRIND}
+                ${VALGRIND_OPTIONS_EXA}
+                $<TARGET_FILE:${EXAMPLE_MAIN}>
+                ${test_case}
             )
-            set_tests_properties(
-                ${test_name}
-                PROPERTIES PROCESSORS
-                           ${procs}
-                           TIMEOUT
-                           600
-                           LABELS
-                           "EXA;structure;linear;bddc"
-                           WORKING_DIRECTORY
-                           ${test_directory}
-            )
+            math(EXPR group_case_count "${group_case_count} + 1")
+            if(procs GREATER group_processors)
+                set(group_processors ${procs})
+            endif()
         endforeach()
     endforeach()
 endforeach()
+
+# Cases run sequentially; reserve the largest launch and allow each its timeout.
+math(EXPR group_timeout "600 * ${group_case_count} + 30")
+moris_register_test_group(
+    EXA-structure-linear-bddc
+    "${group_cases}"
+    PROCESSORS
+    ${group_processors}
+    TIMEOUT
+    ${group_timeout}
+    LABELS
+    "EXA;structure;linear;bddc"
+)

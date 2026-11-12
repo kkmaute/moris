@@ -27,19 +27,24 @@ additional Pressure_Vessel_3D_BDDC and Pressure_Vessel_3D_Immersed_BDDC Catch
 cases select PETSc FGMRES, MATIS storage, and PCBDDC. They compare displacement,
 temperature, and IQI output with the existing linear reference values.
 
-CTest runs each BDDC case in a separate process on one and four MPI ranks
-(one rank only when parallel tests are disabled or PETSc lacks MUMPS support).
-CMake checks PETSc's configured MUMPS capability. This isolates PETSc's
-initialization/finalization lifetime. Run the additional cases with:
+CTest exposes Thick_Pressure_Vessel-1-procs and, when parallel tests are
+enabled, Thick_Pressure_Vessel-4-procs. Each group runs the original Amesos
+cases followed by both fitted and immersed BDDC cases. The runner launches
+each BDDC case in a fresh MPI process, preserving PETSc's initialization and
+finalization lifetime. BDDC cases are included only with PETSc enabled;
+parallel BDDC additionally requires PETSc's configured MUMPS capability.
+Without that capability the parallel group retains its Amesos cases.
 
 \code
-ctest --test-dir <build> -R '^Pressure_Vessel_3D(_Immersed)?-BDDC-' --output-on-failure
+ctest --test-dir <build> -R '^Thick_Pressure_Vessel-(1|4)-procs$' --output-on-failure
 \endcode
 
-All Amesos and BDDC CTest cases write to separate `cases/<test-name>/` directories.
-The driver loads the input libraries from their absolute build output paths,
-so concurrent tests cannot overwrite VIS temporary Exodus files or parameter
-receipts. CTest accounts for each test's MPI process count when scheduling work.
+Each group writes under cases/<test-name>/ with separate amesos/,
+Pressure_Vessel_3D-BDDC/, and Pressure_Vessel_3D_Immersed-BDDC/ directories.
+The driver loads inputs from their absolute build output paths, so concurrent
+tests cannot overwrite VIS temporary Exodus files or parameter receipts.
+CTest reserves each group's MPI process count. Any failed child fails its
+group, and the runner still executes the remaining cases.
 
 BDDC output filenames contain the _BDDC suffix. The input files configure
 BDDC through the SOL preconditioner parameters; CTest does not inject solver
