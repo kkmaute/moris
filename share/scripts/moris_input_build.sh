@@ -108,7 +108,7 @@ moris_build_input()
 
     # Keep the existing cache identity so switching from the Python helper does
     # not discard incremental builds. Distinct MORIS builds/configurations have
-    # independent caches, while the .so stays beside the original source.
+    # independent artifacts, published beside the source only after success.
     moris_input_identity=$(printf '%s\n%s' "$moris_input_build" "$moris_input_configuration" | sha256sum)
     moris_input_identity=$(printf '%.16s' "$moris_input_identity")
     moris_input_local_build=$moris_input_directory/.moris-input-build/$moris_input_name/$moris_input_identity
@@ -119,7 +119,6 @@ moris_build_input()
     set -- -S "$moris_input_root/share/cmake/input" -B "$moris_input_local_build" \
         -G "$moris_input_generator" "-DMORIS_INPUT_CONFIG=$moris_input_config" \
         "-DMORIS_INPUT_SOURCE=$moris_input_source" \
-        "-DMORIS_INPUT_OUTPUT_DIRECTORY=$moris_input_directory" \
         "-DCMAKE_BUILD_TYPE=$moris_input_configuration"
     if [ -n "$moris_input_platform" ]; then
         set -- "$@" -A "$moris_input_platform"
@@ -134,5 +133,20 @@ moris_build_input()
         set -- "$@" --config "$moris_input_configuration"
     fi
     cmake "$@"
+
+    # Always republish the selected cache's artifact, including no-op builds.
+    # Stage in the destination directory so rename is atomic and readers never
+    # see a partial library. Separate problem directories need no shared lock.
+    IFS= read -r moris_input_library < "$moris_input_local_build/$moris_input_configuration/MorisInputLibrary.txt"
+    if [ ! -f "$moris_input_library" ]; then
+        printf 'Error: built input library is missing: %s\n' "$moris_input_library" >&2
+        exit 1
+    fi
+    moris_input_publish=$(mktemp "$moris_input_directory/.$moris_input_name.so.XXXXXX")
+    trap 'rm -f -- "$moris_input_publish"' 0
+    trap 'exit 1' 1 2 15
+    cp -p -- "$moris_input_library" "$moris_input_publish"
+    mv -f -- "$moris_input_publish" "$moris_input_directory/$moris_input_name.so"
+    trap - 0 1 2 15
     printf 'Input library: %s/%s.so\n' "$moris_input_directory" "$moris_input_name"
 )

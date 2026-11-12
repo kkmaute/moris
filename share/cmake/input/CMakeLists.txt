@@ -11,9 +11,6 @@ project(MorisExternalInput LANGUAGES CXX)
 if(NOT IS_ABSOLUTE "${MORIS_INPUT_SOURCE}" OR NOT EXISTS "${MORIS_INPUT_SOURCE}")
     message(FATAL_ERROR "MORIS_INPUT_SOURCE must name an existing absolute .cpp path.")
 endif()
-if(NOT MORIS_INPUT_OUTPUT_DIRECTORY)
-    message(FATAL_ERROR "Provide MORIS_INPUT_OUTPUT_DIRECTORY for the resulting .so.")
-endif()
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE STREQUAL MORIS_INPUT_CONFIGURATION)
     message(FATAL_ERROR "The input configuration must match the selected MORIS configuration.")
 endif()
@@ -39,16 +36,16 @@ if(MORIS_INPUT_SHARED_LIBRARY)
     target_link_libraries(moris_external_input PRIVATE "${MORIS_INPUT_SHARED_LIBRARY}")
 endif()
 set_target_properties(
-    moris_external_input PROPERTIES PREFIX "" OUTPUT_NAME "${input_name}"
-                                    LIBRARY_OUTPUT_DIRECTORY "${MORIS_INPUT_OUTPUT_DIRECTORY}"
+    moris_external_input
+    PROPERTIES PREFIX "" OUTPUT_NAME "${input_name}" LIBRARY_OUTPUT_DIRECTORY
+                                                     "${CMAKE_CURRENT_BINARY_DIR}/lib/$<CONFIG>"
 )
 
-foreach(configuration IN LISTS CMAKE_CONFIGURATION_TYPES)
-    string(TOUPPER "${configuration}" configuration_upper)
-    set_target_properties(
-        moris_external_input PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${configuration_upper}
-                                        "${MORIS_INPUT_OUTPUT_DIRECTORY}"
-    )
-endforeach()
+# Build caches must never share a linker output: a newer artifact from another
+# configuration would otherwise appear up to date when returning to this cache.
+# The shell wrapper publishes this private artifact after every successful build.
+file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MorisInputLibrary.txt"
+     CONTENT "$<TARGET_FILE:moris_external_input>\n"
+)
 # Do not implicitly turn all exported MORIS headers into system headers.
 set_target_properties(moris_external_input PROPERTIES NO_SYSTEM_FROM_IMPORTED ON)

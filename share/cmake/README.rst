@@ -211,8 +211,14 @@ Each configuration also exports ``MorisExecutable.txt`` with the actual MORIS
 executable path, including configuration subdirectories or custom output paths.
 ``share/cmake/input`` consumes these settings to compile an absolute input-source
 path in an independent build directory. ``create_shared_object.sh`` selects this
-configuration and keeps object files under the problem's ``.moris-input-build``
-directory, writing the resulting ``.so`` beside the original source.
+configuration and keeps object files and the compiled library under the problem's
+``.moris-input-build`` directory, separately for each selected MORIS build and
+configuration. After every successful build, including an up-to-date build, the
+wrapper copies the selected library to a temporary file beside the original source
+and atomically renames it to the problem's ``.so``. Switching back to an existing
+cache therefore restores its library. Problems in separate directories can use
+the same input filename and build debug or optimized libraries concurrently.
+Failed builds leave the previously published library untouched and do not launch it.
 ``moris.sh`` and the compile-only wrappers use the shared shell functions in
 ``share/scripts/moris_input_build.sh`` to invoke CMake directly. They require no
 Python helper or ``cmake -P`` script. Cache identities remain compatible with

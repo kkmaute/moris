@@ -100,6 +100,7 @@ def main():
         environment["MORISROOT"] = str(REPOSITORY)
         environment.pop("MORISBUILDOPT", None)
         environment.pop("MORIS_INPUT_CONFIGURATION", None)
+        cached_objects = {}
         for configuration, shared in [("Debug", False), ("Release", True)]:
             build = root / ("selected " + configuration)
             run("cmake", "-S", fixture, "-B", build,
@@ -124,10 +125,28 @@ def main():
             assert library.input_value() == 64 + (19 if shared else 0)
             # Preserve the original Python helper's cache naming across migration.
             identity = hashlib.sha256((str(build.resolve()) + "\n" + configuration).encode()).hexdigest()[:16]
-            assert (problem / ".moris-input-build/test.problem" / identity / "CMakeCache.txt").is_file()
+            cache = problem / ".moris-input-build/test.problem" / identity
+            assert (cache / "CMakeCache.txt").is_file()
+            artifact = Path((cache / configuration / "MorisInputLibrary.txt").read_text().strip())
+            assert cache in artifact.parents
+            cached_objects[configuration] = [(obj, obj.stat().st_mtime_ns) for obj in cache.rglob("*.o")]
+            assert cached_objects[configuration]
             assert marker.read_text() == "untouched legacy output"
             assert (fixture / "placeholder.cpp").read_text() == "// must remain untouched\n"
             assert not (fixture / "input_file.locked").exists()
+
+        # Returning to an already-built cache must republish that cache's own
+        # artifact, even when another build wrote a newer problem-local .so.
+        for index, (configuration, expected) in enumerate([
+                ("Debug", 64), ("Release", 83), ("Debug", 64)]):
+            build = root / ("selected " + configuration)
+            run(SCRIPTS / "create_shared_object.sh", problem, build, source.name, env=environment)
+            loaded = root / ("switch-" + str(index) + ".so")
+            shutil.copyfile(source.with_suffix(".so"), loaded)
+            assert ctypes.CDLL(str(loaded)).input_value() == expected
+            for obj, modified in cached_objects[configuration]:
+                assert obj.stat().st_mtime_ns == modified, "Switching builds must preserve compiled objects"
+            assert not list(problem.glob(".test.problem.so.*")), "Publication left temporary files"
 
         # Inspect the actual external target's initialized IPO properties. A
         # Debug override must survive even when the global IPO default is ON.
@@ -145,8 +164,7 @@ def main():
             "-DCMAKE_BUILD_TYPE=Debug",
             "-DMORIS_INPUT_CONFIG=" + str(root / "selected Debug/input_build/Debug/MorisInputConfig.cmake"),
             "-DMORIS_EXTERNAL_PROJECT=" + str(REPOSITORY / "share/cmake/input"),
-            "-DMORIS_INPUT_SOURCE=" + str(source),
-            "-DMORIS_INPUT_OUTPUT_DIRECTORY=" + str(problem))
+            "-DMORIS_INPUT_SOURCE=" + str(source))
         assert (root / "ipo probe build/observed.txt").read_text() == "ON;OFF"
 
         assert len(list((problem / ".moris-input-build/test.problem").iterdir())) == 2
@@ -210,14 +228,33 @@ def main():
             assert job.returncode == 0, output.decode()
             assert ctypes.CDLL(str(extra.with_suffix(".so"))).input_value() == value
 
+        # Different problems may share an input basename while compiling debug
+        # and optimized variants concurrently in their separate directories.
+        jobs = []
+        for configuration, expected in [("Debug", 64), ("Release", 83)]:
+            directory = root / ("problem " + configuration)
+            extra = directory / source.name
+            write(extra, source.read_text())
+            build = root / ("selected " + configuration)
+            job = subprocess.Popen([str(SCRIPTS / "create_shared_object.sh"), str(directory),
+                                    str(build), extra.name], env=environment,
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            jobs.append((job, extra, expected))
+        for job, extra, expected in jobs:
+            output = job.communicate()[0]
+            assert job.returncode == 0, output.decode()
+            assert ctypes.CDLL(str(extra.with_suffix(".so"))).input_value() == expected
+
         # A compiler error must propagate and must never launch a stale .so.
         (root / "mpi-arguments.bin").unlink()
         source.write_text("#error intentional compiler failure\n")
+        published_state = source.with_suffix(".so").read_bytes()
         failure = subprocess.run([str(SCRIPTS / "moris.sh"), "dbg", "3", source.name],
                                  cwd=str(problem), env=environment, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         assert failure.returncode != 0
         assert not (root / "mpi-arguments.bin").exists()
         assert source.with_suffix(".so").is_file()
+        assert source.with_suffix(".so").read_bytes() == published_state
 
         # Compile and actually launch both configurations through moris.sh.
         # Fake MPI executes the real fixture binary, so a missing or wrong
@@ -226,11 +263,17 @@ def main():
             build = root / "multi-config"
             run("cmake", "-S", fixture, "-B", build, "-G", "Ninja Multi-Config",
                 "-DMORIS_CMAKE_DIR=" + str(REPOSITORY / "share/cmake"))
-            source.write_text('extern "C" int input_value() { return 29; }\n')
+            source.write_text('''extern "C" int input_value() {
+                #ifdef FIXTURE_DEBUG
+                return 1;
+                #else
+                return 2;
+                #endif
+            }\n''')
             environment["MORISBUILDDBG"] = str(build)
             environment["EXECUTE_FIXTURE"] = "1"
             environment["FIXTURE_EXECUTION"] = str(root / "executed-configuration.txt")
-            for configuration in ["Debug", "Release"]:
+            for index, configuration in enumerate(["Debug", "Release", "Debug"]):
                 run("cmake", "--build", build, "--target", "moris", "--config", configuration)
                 environment["MORIS_INPUT_CONFIGURATION"] = configuration
                 run(SCRIPTS / "moris.sh", "dbg", "2", source.name,
@@ -239,14 +282,14 @@ def main():
                 assert arguments == ["-np", "2", str(build / "runtime files" / configuration / "moris"),
                                      str(source.with_suffix(".so"))]
                 assert (root / "executed-configuration.txt").read_text() == configuration
-                loaded = root / ("multi-" + configuration + ".so")
+                loaded = root / ("multi-" + str(index) + ".so")
                 shutil.copyfile(source.with_suffix(".so"), loaded)
-                assert ctypes.CDLL(str(loaded)).input_value() == 29
+                assert ctypes.CDLL(str(loaded)).input_value() == (1 if configuration == "Debug" else 2)
 
         assert not (root / "python-was-invoked").exists()
 
     assert (placeholder.read_bytes(), placeholder.stat().st_mtime_ns, placeholder.is_symlink()) == placeholder_state
-    print("External inputs: isolated static/shared builds, Debug IPO overrides, multi-config compilation/execution, paths with spaces, concurrent inputs, shell-only wrapper arguments, and failure propagation passed.")
+    print("External inputs: isolated static/shared builds, build/configuration switching, Debug IPO overrides, multi-config compilation/execution, paths with spaces, concurrent inputs with shared basenames, shell-only wrapper arguments, and failure propagation passed.")
 
 
 if __name__ == "__main__":
