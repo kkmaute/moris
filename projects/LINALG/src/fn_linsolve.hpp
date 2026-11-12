@@ -36,8 +36,9 @@ namespace moris
      * @note If A is square, solve() is faster and more accurate than using X = inv(A)*B .
      * If A is non-square, solve() will try to provide approximate solutions to under-determined
      * as well as over-determined systems.
-     * Eigen provides various options for decomposition of matrices to facilitate a linear solve.
-     * We use the default option of QR decomposition with column pivoting.
+     * Eigen uses partial-pivot LU for square systems that pass conditioning and
+     * per-RHS backward-error checks. Complete orthogonal decomposition supplies
+     * the minimum-norm least-squares fallback, including rectangular systems.
      *
      */
     template< typename Matrix_Type >
