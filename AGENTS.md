@@ -29,6 +29,10 @@ Use C++17 and the repository's `.clang-format`: four-space indentation and the c
 
 Separate logical steps with blank lines, especially validation, map construction, assembly, metadata setup, and resource cleanup. Keep related declarations and operations together; avoid both dense uninterrupted blocks and blank lines between every statement. Add comments explaining intent, numbering conventions, collective participation, and compatibility workarounds rather than restating individual calls. Use braced, multiline control blocks in new solver code and tests, even though `.clang-format` permits short statements on one line. Preserve nearby method separators and review the result after formatting; automatic formatting does not supply this logical structure.
 
+Format CMake files with `cmake-format` from the pinned `cmakelang` version 0.6.13 and the repository's `.cmake-format.py`. Run `python3 share/cmake/tests/check_format.py` to check repository-owned CMake files.
+
+Preserve native Armadillo and Eigen expression templates where safe. Evaluate explicitly when operand lifetime or aliasing requires it, and explain non-obvious ownership decisions. When changing matrix wrappers or expression helpers, test deferred evaluation, overlapping assignments, and expressions returned from functions, including the lifetime of their operands.
+
 ## Cell Measures, Shape Sensitivities & Lumped Operators
 
 Invalidate cached cell-shape classifications whenever coordinates, connectivity, or cell information changes. Coordinate owners must also invalidate the cache when edits bypass cell setters. Use dimensionless direction checks for shape classification so the result is independent of cell size. Validate measure derivatives against finite differences after geometry edits, including curved higher-order cells; a rectangular unperturbed cell does not imply that coordinate perturbations remain rectangular.
@@ -79,13 +83,15 @@ Cut cells and ghost penalties can produce unequal interface stiffness even witho
 
 Unit tests use Catch via `include/catch.hpp` and are registered with CTest. Add regression cases beside the affected module; register new sources in its test `CMakeLists.txt`. Test names commonly follow `<MODULE>-test-<N>-procs`. Exercise MPI process counts when changing communication behavior. No repository-wide numerical coverage threshold is established.
 
+For backend performance investigations, compare identical problem configurations, compiler optimization settings, numerical tolerances, and MPI process counts. Control and report math-library thread counts and MPI CPU binding. Repeat measurements and alternate backend order before drawing conclusions about timing differences. Keep timing thresholds out of numerical regression tests unless explicitly justified as regression requirements.
+
 Make fixture ownership explicit and release objects owned by the test. A FEM `Set` normally deletes its field-interpolator managers; when a fixture attaches stack managers, clear those pointers before deleting the set. Detach other borrowed pointers before their owners go out of scope, and respect setter preconditions: some setters configure behavior through the supplied object and cannot accept `nullptr`.
 
 For PETSc/BDDC changes, the dedicated `DLA-BDDC-test-{1,2,4}-procs` cases cover AIJ/MATIS assembly, repeated assembly, constraints, unused ghosts, multivectors, and BDDC solves. PETSc cannot be reinitialized after finalization, so the BDDC Catch cases run in separate processes. With a configured PETSc build, run:
 
 ```bash
 ctest --test-dir build_dbg -R '^DLA(-BDDC)?-test-(1|2|4)-procs$' --output-on-failure
-ctest --test-dir build_dbg -R '^Pressure_Vessel_3D(_Immersed)?-BDDC-(1|4)-procs$' --output-on-failure
+ctest --test-dir build_dbg -R '^Thick_Pressure_Vessel-(1|4)-procs$' --output-on-failure
 ```
 
 The pressure-vessel BDDC tests retain the original numerical references and tolerances. Their four-rank configuration requires PETSc built with MUMPS; CMake checks `PETSC_HAVE_MUMPS`, since `MORIS_USE_MUMPS` alone does not establish PETSc capability. Keep serial and parallel PETSc options separate: forcing MUMPS on the serial BDDC coarse problem can fail when that problem is empty.
