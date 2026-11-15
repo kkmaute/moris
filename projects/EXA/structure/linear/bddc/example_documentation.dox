@@ -89,7 +89,7 @@
  * \code{.sh}
  * cmake -S . -B build_dbg
  * cmake --build build_dbg --target Main_BDDC_Benchmark BDDC_Plane_Stress BDDC_Elasticity_3D --parallel 4
- * ctest --test-dir build_dbg -R '^EXA-structure-linear-bddc$' --output-on-failure
+ * ctest --test-dir build_dbg -R '^EXA-structure-linear-bddc-' --output-on-failure
  * \endcode
  *
  * To run an individual regression case, from its binary directory:
@@ -102,14 +102,13 @@
  *
  * Each dimension has a homogeneous base case and _Jump, _Corners, and _AIJ
  * variants. Serial tests use one rank; parallel tests use four ranks in 2D
- * and eight in 3D. CTest exposes one EXA-structure-linear-bddc test containing
- * all eligible dimension, material, constraint, and solver cases. Its runner
- * launches cases sequentially, with a fresh MPI process for every Catch case
- * because PETSc cannot be reinitialized after finalization. Each case retains
- * its own working directory for Exodus files, receipts, and PETSc logs.
- * A failing case fails the group; remaining cases still run and their names
- * appear in the test log. Use ctest -V to see successful-case output. CTest
- * reserves the largest MPI launch in the group (eight ranks when available).
+ * and eight in 3D. CTest registers every eligible dimension, material,
+ * constraint, solver, and process-count configuration separately, using names
+ * EXA-structure-linear-bddc-<dimension>D-<variant>-<process-count>-procs.
+ * Each entry launches one Catch case in a fresh MPI process because PETSc
+ * cannot be reinitialized after finalization. Each case has its own output
+ * directory, 600-second timeout, and MPI processor reservation. CTest reports
+ * individual timings and failures; use the bddc label to select related cases.
  *
  * Configuration follows the usual EXA global-variable convention:
  * - gElementsPerSubdomain: Q1 elements per subdomain direction (4 in tests).

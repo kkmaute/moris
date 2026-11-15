@@ -87,8 +87,7 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
-# PETSc cases are launched separately inside each process-count group.
-# Check capabilities before adding BDDC variants to the existing vessel tests.
+# Check capabilities before registering the individual BDDC cases.
 if(MORIS_HAVE_PETSC)
     # Cut-cell subdomains need a pivoting factorization. Check PETSc's actual
     # capabilities rather than MORIS_USE_MUMPS, which also controls other TPLs.
@@ -122,55 +121,54 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     set(process_counts ${EXAMPLE_PROCS})
 endif()
 foreach(procs IN LISTS process_counts)
-    set(test_name Thick_Pressure_Vessel-${procs}-procs)
-    set(group_cases "")
-    set(group_case_count 1)
-    set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name}/amesos)
-    file(MAKE_DIRECTORY "${test_directory}")
-    moris_append_test_group_case(
-        group_cases
-        "${test_name}-amesos"
-        "${test_directory}"
-        600
-        ${MORIS_EXECUTE_COMMAND}
-        -n
-        ${procs}
-        ${VALGRIND}
-        ${VALGRIND_OPTIONS_EXA}
-        $<TARGET_FILE:${EXAMPLE_MAIN}>
-    )
+    set(amesos_cases Pressure_Vessel_3D_Linear Pressure_Vessel_3D_Immersed_Linear)
+    # The quadratic Catch case only performs a workflow on four ranks.
+    if(procs EQUAL 4)
+        list(APPEND amesos_cases Pressure_Vessel_3D_Immersed_Quadratic)
+    endif()
+    foreach(test_case IN LISTS amesos_cases)
+        set(test_name Thick_Pressure_Vessel-${test_case}-${procs}-procs)
+        set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name})
+        file(MAKE_DIRECTORY "${test_directory}")
+        add_test(NAME ${test_name}
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${procs} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                         $<TARGET_FILE:${EXAMPLE_MAIN}> ${test_case}
+        )
+        set_tests_properties(
+            ${test_name}
+            PROPERTIES WORKING_DIRECTORY
+                       "${test_directory}"
+                       PROCESSORS
+                       ${procs}
+                       TIMEOUT
+                       600
+                       LABELS
+                       "EXA;structure;linear;pressure_vessel;amesos"
+        )
+    endforeach()
 
     if(MORIS_HAVE_PETSC AND (procs EQUAL 1 OR MORIS_PRESSURE_VESSEL_PETSC_HAS_MUMPS))
         foreach(example IN LISTS EXAMPLE_FILES)
-            set(case_name ${example}-BDDC-${procs}-procs)
-            set(case_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name}/${example}-BDDC)
-            file(MAKE_DIRECTORY "${case_directory}")
-            moris_append_test_group_case(
-                group_cases
-                "${case_name}"
-                "${case_directory}"
-                600
-                ${MORIS_EXECUTE_COMMAND}
-                -n
-                ${procs}
-                ${VALGRIND}
-                ${VALGRIND_OPTIONS_EXA}
-                $<TARGET_FILE:${EXAMPLE_MAIN}>
-                "${example}_BDDC"
+            set(test_name Thick_Pressure_Vessel-${example}_BDDC-${procs}-procs)
+            set(test_directory ${CMAKE_CURRENT_BINARY_DIR}/cases/${test_name})
+            file(MAKE_DIRECTORY "${test_directory}")
+            # A fresh process per Catch case preserves PETSc's initialization lifetime.
+            add_test(
+                NAME ${test_name}
+                COMMAND ${MORIS_EXECUTE_COMMAND} -n ${procs} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                        $<TARGET_FILE:${EXAMPLE_MAIN}> "${example}_BDDC"
             )
-            math(EXPR group_case_count "${group_case_count} + 1")
+            set_tests_properties(
+                ${test_name}
+                PROPERTIES WORKING_DIRECTORY
+                           "${test_directory}"
+                           PROCESSORS
+                           ${procs}
+                           TIMEOUT
+                           600
+                           LABELS
+                           "EXA;structure;linear;pressure_vessel;bddc"
+            )
         endforeach()
     endif()
-
-    math(EXPR group_timeout "600 * ${group_case_count} + 30")
-    moris_register_test_group(
-        ${test_name}
-        "${group_cases}"
-        PROCESSORS
-        ${procs}
-        TIMEOUT
-        ${group_timeout}
-        LABELS
-        "EXA;structure;linear;pressure_vessel"
-    )
 endforeach()

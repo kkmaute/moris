@@ -91,7 +91,7 @@ For PETSc/BDDC changes, the dedicated `DLA-BDDC-test-{1,2,4}-procs` cases cover 
 
 ```bash
 ctest --test-dir build_dbg -R '^DLA(-BDDC)?-test-(1|2|4)-procs$' --output-on-failure
-ctest --test-dir build_dbg -R '^Thick_Pressure_Vessel-(1|4)-procs$' --output-on-failure
+ctest --test-dir build_dbg -R '^Thick_Pressure_Vessel-.*-(1|4)-procs$' --output-on-failure
 ```
 
 The pressure-vessel BDDC tests retain the original numerical references and tolerances. Their four-rank configuration requires PETSc built with MUMPS; CMake checks `PETSC_HAVE_MUMPS`, since `MORIS_USE_MUMPS` alone does not establish PETSc capability. Keep serial and parallel PETSc options separate: forcing MUMPS on the serial BDDC coarse problem can fail when that problem is empty.

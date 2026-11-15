@@ -3,6 +3,7 @@
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
 """Check serial fallback, MPI counts, commands, and CTest resource accounting."""
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import tempfile
@@ -44,57 +45,8 @@ moris_register_unit_tests(HMR-test 1 2 4 12)
             assert properties.get("PROCESSORS", 1) == count, properties
 print("Serial fallback, MPI registration, cache transitions, and processor counts passed.")
 
-# Grouped launches must preserve quoting, isolation, and failure propagation.
-with tempfile.TemporaryDirectory(prefix="moris-test-groups-") as temporary:
-    root = Path(temporary)
-    (root / "worker.cmake").write_text('''
-if(NOT PAYLOAD STREQUAL "argument with spaces and ]=] [=[ brackets")
-    message(FATAL_ERROR "Argument quoting was lost: ${PAYLOAD}")
-endif()
-file(WRITE marker "ran")
-if(FAIL)
-    message(FATAL_ERROR "Intentional child failure")
-endif()
-''')
-    (root / "CMakeLists.txt").write_text('''
-cmake_minimum_required(VERSION 3.17)
-project(TestGroups LANGUAGES NONE)
-enable_testing()
-include("${MORIS_CMAKE_DIR}/utilities/moris_testing.cmake")
-foreach(group passing failing)
-    set(cases "")
-    foreach(case first second)
-        set(directory "${CMAKE_CURRENT_BINARY_DIR}/${group} ${case}")
-        file(MAKE_DIRECTORY "${directory}")
-        set(fail OFF)
-        if(group STREQUAL "failing" AND case STREQUAL "first")
-            set(fail ON)
-        endif()
-        moris_append_test_group_case(cases "${group}-${case}" "${directory}" 3
-            "${CMAKE_COMMAND}" "-DFAIL=${fail}" "-DPAYLOAD=argument with spaces and ]=] [=[ brackets"
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/worker.cmake"
-        )
-    endforeach()
-    moris_register_test_group(${group} "${cases}" PROCESSORS 2 TIMEOUT 20 LABELS grouped)
-endforeach()
-''')
-    build = root / "build"
-    subprocess.run(["cmake", "-S", str(root), "-B", str(build),
-                    "-DMORIS_CMAKE_DIR=" + str(cmake_dir)], check=True, stdout=subprocess.PIPE)
-    passing = subprocess.run(["ctest", "--test-dir", str(build), "-R", "^passing$",
-                              "--output-on-failure"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    assert passing.returncode == 0, passing.stdout.decode()
-    failure = subprocess.run(["ctest", "--test-dir", str(build), "-R", "^failing$",
-                              "--output-on-failure"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    assert failure.returncode != 0, failure.stdout.decode()
-    assert "failing-first" in failure.stdout.decode(), failure.stdout.decode()
-    for group in ("passing", "failing"):
-        for case in ("first", "second"):
-            assert (build / (group + " " + case) / "marker").read_text() == "ran"
-print("Grouped cases preserve arguments and working directories, continue after failure, and fail CTest.")
-
 # Configure the actual EXA registrations with lightweight TPL/target stubs.
-with tempfile.TemporaryDirectory(prefix="moris-exa-registration-") as temporary:
+with tempfile.TemporaryDirectory(prefix="moris exa registration-") as temporary:
     root = Path(temporary)
     (root / "tpl").mkdir()
     (root / "tpl/trilinos_new.cmake").write_text("# No TPL discovery needed for registration.\n")
@@ -127,32 +79,55 @@ add_subdirectory("${MORIS_SOURCE_DIR}/projects/EXA/structure/linear/bddc" bddc)
                         "-DMORIS_HAVE_PETSC=" + ("ON" if petsc else "OFF"),
                         "-DMORIS_HAVE_PARALLEL_TESTS=" + ("ON" if parallel else "OFF")],
                        check=True, stdout=subprocess.PIPE)
+        # Placeholder executables let CTest resolve direct target commands without
+        # building the numerical examples or discovering their real TPLs.
+        for relative in ("vessel/bin/Main_Thick_Pressure_Vessel.exe",
+                         "bddc/bin/Main_BDDC_Benchmark.exe"):
+            executable = build / relative
+            executable.parent.mkdir(parents=True, exist_ok=True)
+            executable.write_text("#!/bin/sh\nexit 0\n")
+            executable.chmod(0o755)
         result = subprocess.check_output(["ctest", "--test-dir", str(build), "--show-only=json-v1"])
         tests = json.loads(result)["tests"]
-        expected = {"Thick_Pressure_Vessel-" + str(n) + "-procs": n
-                    for n in ((1, 4) if parallel else (1,))}
+        expected = {}
+        for count in ((1, 4) if parallel else (1,)):
+            cases = ["Pressure_Vessel_3D_Linear", "Pressure_Vessel_3D_Immersed_Linear"]
+            if count == 4:
+                cases.append("Pressure_Vessel_3D_Immersed_Quadratic")
+            for case in cases:
+                expected["Thick_Pressure_Vessel-" + case + "-" + str(count) + "-procs"] = (
+                    count, "vessel", case, "amesos")
+            if petsc and (count == 1 or mumps):
+                for example in ("Pressure_Vessel_3D", "Pressure_Vessel_3D_Immersed"):
+                    case = example + "_BDDC"
+                    expected["Thick_Pressure_Vessel-" + case + "-" + str(count) + "-procs"] = (
+                        count, "vessel", case, "bddc")
         if petsc:
-            expected["EXA-structure-linear-bddc"] = 8 if parallel and mumps else 1
+            for dimension, example, parallel_count in ((2, "BDDC_Plane_Stress", 4),
+                                                        (3, "BDDC_Elasticity_3D", 8)):
+                for count in ((1, parallel_count) if parallel and mumps else (1,)):
+                    variants = {"homogeneous": "", "jump": "_Jump"}
+                    if count > 1:
+                        variants.update({"corners": "_Corners", "aij": "_AIJ"})
+                    for variant, suffix in variants.items():
+                        name = "EXA-structure-linear-bddc-{}D-{}-{}-procs".format(dimension, variant, count)
+                        expected[name] = (count, "bddc", example + suffix, "bddc")
         assert {test["name"] for test in tests} == set(expected), tests
         directories = set()
         for test in tests:
+            count, family, case, solver = expected[test["name"]]
             properties = {p["name"]: p["value"] for p in test["properties"]}
-            assert properties.get("PROCESSORS", 1) == expected[test["name"]], properties
-            script = Path(test["command"][2]).read_text()
-            cases = [line for line in script.splitlines() if line.startswith("moris_run_test_case(")]
-            if test["name"] == "EXA-structure-linear-bddc":
-                expected_cases = 12 if parallel and mumps else 4
-            else:
-                count = expected[test["name"]]
-                bddc = petsc and (count == 1 or mumps)
-                expected_cases = 3 if bddc else 1
-                assert ("Pressure_Vessel_3D_BDDC" in script) == bddc, script
-                assert ("Pressure_Vessel_3D_Immersed_BDDC" in script) == bddc, script
-            assert len(cases) == expected_cases, script
-            assert properties["TIMEOUT"] == 600 * expected_cases + 30, properties
-            for case in cases:
-                directory = Path(case.split("[=[")[2].split("]=]")[0])
-                assert directory.is_dir(), directory
-                assert directory not in directories, directory
-                directories.add(directory)
-print("EXA groups retain all cases, isolate outputs, reserve MPI slots, and honor PETSc/MUMPS/serial gating.")
+            assert properties.get("PROCESSORS", 1) == count, properties
+            assert properties["TIMEOUT"] == 600, properties
+            assert solver in properties["LABELS"], properties
+            if family == "vessel":
+                assert "pressure_vessel" in properties["LABELS"], properties
+            executable = "Main_Thick_Pressure_Vessel.exe" if family == "vessel" else "Main_BDDC_Benchmark.exe"
+            assert test["command"] == [shutil.which("cmake"),
+                                        "-n", str(count), str(build / family / "bin" / executable), case], test
+            directory = Path(properties["WORKING_DIRECTORY"])
+            assert directory == build / family / "cases" / test["name"], directory
+            assert directory.is_dir(), directory
+            assert directory not in directories, directory
+            directories.add(directory)
+print("Individual EXA cases preserve Catch filters, separate timings/outputs, MPI slots, timeouts, and PETSc/MUMPS gating.")

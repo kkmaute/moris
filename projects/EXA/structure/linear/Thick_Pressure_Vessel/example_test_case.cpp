@@ -495,7 +495,8 @@ namespace
     }
 }    // namespace
 
-// PETSc owns a process-wide lifetime. The CTest group launches each hidden case separately.
+// PETSc owns a process-wide lifetime. Each hidden case has a separate CTest
+// entry and MPI launch, with its own timing and output directory.
 // Exercise the ghost-stabilized thermoelastic vessel with nonsymmetric BDDC
 // and interface scaling; compare all fields/IQIs with the Amesos references.
 TEST_CASE( "Pressure_Vessel_3D_BDDC", "[.][Pressure_Vessel_BDDC]" )

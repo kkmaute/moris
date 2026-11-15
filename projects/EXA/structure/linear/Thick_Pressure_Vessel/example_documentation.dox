@@ -27,24 +27,23 @@ additional Pressure_Vessel_3D_BDDC and Pressure_Vessel_3D_Immersed_BDDC Catch
 cases select PETSc FGMRES, MATIS storage, and PCBDDC. They compare displacement,
 temperature, and IQI output with the existing linear reference values.
 
-CTest exposes Thick_Pressure_Vessel-1-procs and, when parallel tests are
-enabled, Thick_Pressure_Vessel-4-procs. Each group runs the original Amesos
-cases followed by both fitted and immersed BDDC cases. The runner launches
-each BDDC case in a fresh MPI process, preserving PETSc's initialization and
-finalization lifetime. BDDC cases are included only with PETSc enabled;
-parallel BDDC additionally requires PETSc's configured MUMPS capability.
-Without that capability the parallel group retains its Amesos cases.
+CTest registers each physical case, solver, and MPI process count separately,
+with names Thick_Pressure_Vessel-<Catch-case>-<process-count>-procs. Amesos
+coverage includes fitted linear and immersed linear cases on one and four
+ranks, plus the immersed quadratic case on four ranks. BDDC adds fitted and
+immersed linear cases when PETSc is enabled; four-rank BDDC also requires
+PETSc's configured MUMPS capability. Parallel cases require parallel testing.
 
 \code
-ctest --test-dir <build> -R '^Thick_Pressure_Vessel-(1|4)-procs$' --output-on-failure
+ctest --test-dir <build> -L pressure_vessel --output-on-failure
 \endcode
 
-Each group writes under cases/<test-name>/ with separate amesos/,
-Pressure_Vessel_3D-BDDC/, and Pressure_Vessel_3D_Immersed-BDDC/ directories.
+Each case runs in a fresh MPI process and writes under cases/<test-name>/.
 The driver loads inputs from their absolute build output paths, so concurrent
 tests cannot overwrite VIS temporary Exodus files or parameter receipts.
-CTest reserves each group's MPI process count. Any failed child fails its
-group, and the runner still executes the remaining cases.
+CTest reports each case's timing and result separately, reserves its actual
+MPI process count, and applies a 600-second timeout. Each BDDC launch has its
+own PETSc initialization and finalization lifetime.
 
 BDDC output filenames contain the _BDDC suffix. The input files configure
 BDDC through the SOL preconditioner parameters; CTest does not inject solver
