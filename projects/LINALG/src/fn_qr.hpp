@@ -15,15 +15,13 @@
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_qr_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
+#elif defined( MORIS_USE_ARMA )
 #include "fn_qr_Arma.hpp"
 #endif
 
 namespace moris
 {
-     /* @brief QR decomposition of dense matrix
+    /* @brief QR decomposition of dense matrix
      *
      * @param[out] aQ Q-matrix
      * @param[out] aR R-matrix
@@ -40,19 +38,12 @@ namespace moris
     template< typename Matrix_Type >
     void
     qr(
-            Matrix< Matrix_Type >       & aQ,
-            Matrix< Matrix_Type >       & aR,
-            Matrix< Matrix_Type > const & aA )
+            Matrix< Matrix_Type >       &aQ,
+            Matrix< Matrix_Type >       &aR,
+            Matrix< Matrix_Type > const &aA )
     {
-#ifdef MORIS_USE_EIGEN
         qr( aQ, aR, aA.matrix_data() );
-#else
-        qr( aQ.matrix_data(),
-            aR.matrix_data(),
-            aA.matrix_data() );
-#endif
     }
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_QR_HPP_ */
-

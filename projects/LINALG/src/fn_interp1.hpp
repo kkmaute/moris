@@ -16,9 +16,7 @@
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_interp1_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
+#elif defined( MORIS_USE_ARMA )
 #include "Arma_Impl/fn_interp1_Arma.hpp"
 #endif
 
@@ -36,17 +34,12 @@ namespace moris
      */
     template< typename Matrix_Type >
     auto
-    interp1( Matrix< Matrix_Type > const & aX,
-             Matrix< Matrix_Type > const & aY,
-             Matrix< Matrix_Type > const & aXI,
-             Matrix< Matrix_Type >  & aYI )
+    interp1( Matrix< Matrix_Type > const &aX,
+            Matrix< Matrix_Type > const  &aY,
+            Matrix< Matrix_Type > const  &aXI,
+            Matrix< Matrix_Type >        &aYI )
     {
-#ifdef MORIS_USE_EIGEN
         interp1( aX.matrix_data(), aY.matrix_data(), aXI.matrix_data(), aYI );
-#else
-        interp1( aX.matrix_data(), aY.matrix_data(), aXI.matrix_data(), aYI.matrix_data() );
-#endif
     }
-}
+}    // namespace moris
 #endif /* PROJECTS_LINALG_SRC_FN_INTERP1_HPP_ */
-

@@ -32,5 +32,15 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename V, typename W, typename E >
+    void eig_gen( Matrix< V >& aValues, Matrix< W >& aVectors, const E& aA )
+    {
+        moris::eig_gen( aValues.matrix_data(), aVectors.matrix_data(), aA );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_EIG_GEN_ARMA_HPP_ */
 

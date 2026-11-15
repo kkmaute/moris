@@ -15,29 +15,12 @@
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_trans_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
+#elif defined( MORIS_USE_ARMA )
 #include "fn_trans_Arma.hpp"
 #endif
 
 namespace moris
 {
-    // Accept backend expressions without constructing an owning MORIS matrix.
-    // The returned transpose borrows its operands, as the backend operation does.
-#ifdef MORIS_USE_ARMA
-    template< typename Type, typename Expression >
-    auto
-    trans( const arma::Base< Type, Expression > &aExpression )
-            -> decltype( linalg_internal::trans( aExpression.get_ref() ) )
-    {
-        return linalg_internal::trans( aExpression.get_ref() );
-    }
-#elif defined( MORIS_USE_EIGEN )
-    // Expose the same overloads so ADL on MORIS expression functors cannot
-    // introduce a second, equally viable transpose function.
-    using linalg_internal::trans;
-#endif
 
     /**
      * @brief Computes transpose of Matrix A.

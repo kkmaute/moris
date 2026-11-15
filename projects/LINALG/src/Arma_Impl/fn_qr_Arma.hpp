@@ -29,5 +29,15 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename Q, typename R, typename E >
+    void qr( Matrix< Q >& aQ, Matrix< R >& aR, const E& aA )
+    {
+        moris::qr( aQ.matrix_data(), aR.matrix_data(), aA );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_QR_ARMA_HPP_ */
 

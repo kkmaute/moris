@@ -16,9 +16,7 @@
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_eye_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
+#elif defined( MORIS_USE_ARMA )
 #include "fn_eye_Arma.hpp"
 #endif
 
@@ -35,18 +33,13 @@ namespace moris
      */
 
     template< typename Matrix_Type >
-    inline
-    void
+    inline void
     eye(
-            size_t const          & aNumRows,
-            size_t const          & aNumCols,
-            Matrix< Matrix_Type > & aEyeMat)
+            size_t const          &aNumRows,
+            size_t const          &aNumCols,
+            Matrix< Matrix_Type > &aEyeMat )
     {
-#ifdef MORIS_USE_EIGEN
-        linalg_internal::eigen_eye( aNumRows, aNumCols, aEyeMat );
-#else
-        eye( aNumRows, aNumCols, aEyeMat.matrix_data() );
-#endif
+        linalg_internal::eye( aNumRows, aNumCols, aEyeMat );
     }
 
     /**
@@ -59,16 +52,14 @@ namespace moris
      * such that @f$ \mathbf{({I}_{n})}_{ij} =  \mathbf{\delta}_{ij} @f$\n
      */
 
-     inline
-     auto
-     eye(
-             size_t const          & aNumRows,
-             size_t const          & aNumCols)
-     ->decltype ( linalg_internal::eye( aNumRows, aNumCols ) )
-     {
-         return linalg_internal::eye( aNumRows, aNumCols );
-     }
-}
+    inline auto
+    eye(
+            size_t const &aNumRows,
+            size_t const &aNumCols )
+            -> decltype( linalg_internal::eye( aNumRows, aNumCols ) )
+    {
+        return linalg_internal::eye( aNumRows, aNumCols );
+    }
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_EYE_HPP_ */
-

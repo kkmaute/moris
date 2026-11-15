@@ -57,5 +57,15 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename E, typename M >
+    void sqrtmat( const E& aA, Matrix< M >& aX )
+    {
+        moris::sqrtmat( aA, aX.matrix_data() );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SQRTMAT_ARMA_HPP_ */
 

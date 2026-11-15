@@ -59,5 +59,15 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename E, typename M >
+    void sylvester( const E& aA, const E& aB, const E& aC, Matrix< M >& aX )
+    {
+        moris::sylvester( aA, aB, aC, aX.matrix_data() );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SYLVESTER_ARMA_HPP_ */
 

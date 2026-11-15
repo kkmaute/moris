@@ -24,4 +24,16 @@ namespace moris::linalg_internal
     }
 }    // namespace moris::linalg_internal
 
+namespace moris
+{
+    // Preserve the native lazy expression; the transpose borrows its operands.
+    template< typename Type, typename Expression >
+    auto
+    trans( const arma::Base< Type, Expression > &aExpression )
+            -> decltype( linalg_internal::trans( aExpression.get_ref() ) )
+    {
+        return linalg_internal::trans( aExpression.get_ref() );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_TRANS_ARMA_HPP_ */

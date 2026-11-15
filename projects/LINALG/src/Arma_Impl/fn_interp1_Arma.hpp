@@ -38,5 +38,15 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename E, typename M >
+    void interp1( const E& aX, const E& aY, const E& aQueries, Matrix< M >& aResult )
+    {
+        moris::interp1( aX, aY, aQueries, aResult.matrix_data() );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_INTERP1_ARMA_HPP_ */
 

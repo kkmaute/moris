@@ -36,5 +36,12 @@ trans( Eigen::MatrixBase<ET> &  A)
 
 }}
 
+namespace moris
+{
+    // Reuse the same overloads so ADL on MORIS expression functors cannot
+    // introduce a second, equally viable transpose function.
+    using linalg_internal::trans;
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_TRANS_EIGEN_HPP_ */
 

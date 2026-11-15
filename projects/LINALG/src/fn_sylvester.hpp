@@ -16,9 +16,7 @@
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_sylvester_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
+#elif defined( MORIS_USE_ARMA )
 #include "fn_sylvester_Arma.hpp"
 #endif
 
@@ -37,12 +35,12 @@ namespace moris
     template< typename Matrix_Type >
     auto
     sylvester(
-            Matrix< Matrix_Type > const & aA,
-            Matrix< Matrix_Type > const & aB,
-            Matrix< Matrix_Type > const & aC )
-    -> decltype( sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data() ) )
+            Matrix< Matrix_Type > const &aA,
+            Matrix< Matrix_Type > const &aB,
+            Matrix< Matrix_Type > const &aC )
+            -> decltype( sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data() ) )
     {
-        return sylvester(aA.matrix_data(), aB.matrix_data(), aC.matrix_data() );
+        return sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data() );
     }
 
     /**
@@ -58,18 +56,13 @@ namespace moris
     template< typename Matrix_Type >
     void
     sylvester(
-            Matrix< Matrix_Type > const & aA,
-            Matrix< Matrix_Type > const & aB,
-            Matrix< Matrix_Type > const & aC,
-            Matrix< Matrix_Type >       & aX)
-   {
-#ifdef MORIS_USE_EIGEN
-       sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data(), aX );
-#else
-       sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data(), aX.matrix_data() );
-#endif
-   }
-}
+            Matrix< Matrix_Type > const &aA,
+            Matrix< Matrix_Type > const &aB,
+            Matrix< Matrix_Type > const &aC,
+            Matrix< Matrix_Type >       &aX )
+    {
+        sylvester( aA.matrix_data(), aB.matrix_data(), aC.matrix_data(), aX );
+    }
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_SYLVESTER_HPP_ */
-

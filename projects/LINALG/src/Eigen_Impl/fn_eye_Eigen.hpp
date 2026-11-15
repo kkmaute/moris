@@ -9,8 +9,9 @@
 
 namespace moris::linalg_internal
 {
+    // matrix_data() is a view: resize through the owning wrapper before filling.
     template< class M >
-    void eigen_eye( size_t rows, size_t cols, Matrix< M >& a )
+    void eye( size_t rows, size_t cols, Matrix< M >& a )
     {
         a.set_size( rows, cols, 0 );
         a.matrix_data().setIdentity();

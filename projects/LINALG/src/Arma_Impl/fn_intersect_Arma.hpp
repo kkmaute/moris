@@ -50,4 +50,14 @@ namespace moris
     }
 }    // namespace moris
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename E, typename M, typename I, typename J >
+    void intersect( const E& aA, const E& aB, Matrix< M >& aResult, Matrix< I >& aFirst, Matrix< J >& aSecond )
+    {
+        moris::intersect( aA, aB, aResult.matrix_data(), aFirst.matrix_data(), aSecond.matrix_data() );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_UNIQUE_ARMA_HPP_ */

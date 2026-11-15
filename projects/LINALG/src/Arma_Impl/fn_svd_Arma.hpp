@@ -53,5 +53,21 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename U, typename S, typename V, typename E >
+    void svd( Matrix< U >& aU, Matrix< S >& aS, Matrix< V >& aV, const E& aA )
+    {
+        moris::svd( aU.matrix_data(), aS.matrix_data(), aV.matrix_data(), aA );
+    }
+
+    template< typename S, typename E >
+    void svd( Matrix< S >& aS, const E& aA )
+    {
+        moris::svd( aS.matrix_data(), aA );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SVD_ARMA_HPP_ */
 

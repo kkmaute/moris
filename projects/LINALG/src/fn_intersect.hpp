@@ -15,9 +15,7 @@
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/fn_intersect_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
+#elif defined( MORIS_USE_ARMA )
 #include "fn_intersect_Arma.hpp"
 #endif
 
@@ -63,16 +61,7 @@ namespace moris
             Matrix< DDUMat >&            aAind,
             Matrix< DDUMat >&            aBind )
     {
-#ifdef MORIS_USE_EIGEN
         intersect( aAmat.matrix_data(), aBmat.matrix_data(), aCmat, aAind, aBind );
-#else
-        intersect(
-                aAmat.matrix_data(),
-                aBmat.matrix_data(),
-                aCmat.matrix_data(),
-                aAind.matrix_data(),
-                aBind.matrix_data() );
-#endif
     }
 }    // namespace moris
 

@@ -29,5 +29,15 @@ namespace moris
     }
 }
 
+namespace moris
+{
+    // Keep the public output interface independent of backend storage ownership.
+    template< typename L, typename U, typename P, typename E >
+    void lu( Matrix< L >& aL, Matrix< U >& aU, Matrix< P >& aP, const E& aA )
+    {
+        moris::lu( aL.matrix_data(), aU.matrix_data(), aP.matrix_data(), aA );
+    }
+}    // namespace moris
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_LU_ARMA_HPP_ */
 

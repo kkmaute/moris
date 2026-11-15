@@ -40,5 +40,14 @@ namespace moris
     }
 }
 
+namespace moris::linalg_internal
+{
+    template< typename M >
+    void eye( size_t aRows, size_t aCols, Matrix< M >& aResult )
+    {
+        moris::eye( aRows, aCols, aResult.matrix_data() );
+    }
+}    // namespace moris::linalg_internal
+
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_EYE_ARMA_HPP_ */
 
