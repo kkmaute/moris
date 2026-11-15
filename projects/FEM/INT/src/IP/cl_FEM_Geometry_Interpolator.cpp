@@ -839,7 +839,8 @@ namespace moris::fem
             for ( size_t iNode = 0; iNode < tXhat.n_rows(); ++iNode )
             {
                 // Set the Field Interpolator to the parametric coordinates of the current node to get the value of the displacement field for this node.
-                Matrix< DDRMat > tSpaceTime( tXiHat.n_cols() + 1, 1 );
+                // Evaluate nodal displacements at the field's current time coordinate.
+                Matrix< DDRMat > tSpaceTime = tPreviousFIPoint;
 
                 tSpaceTime( { 0, tXiHat.n_cols() - 1 }, { 0, 0 } ) = trans( tXiHat.get_row( iNode ) );
 
