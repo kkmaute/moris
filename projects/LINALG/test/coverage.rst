@@ -13,6 +13,11 @@ coverage. It does not enumerate every possible scalar type, shape, backend error
 or third-party implementation branch. Successful compilation alone does not
 validate a numerical result; the mapped Catch cases contain result assertions.
 
+The public real-matrix utilities ``frobenius_norm``, ``matrix_difference_bound``,
+and ``matrix_symmetry_bound`` are exercised by ``UT_LINALG_Matrix_Comparison.cpp``.
+These checks verify conservative spectral-norm bounds, reference scaling,
+symmetry, empty and zero matrices, extreme magnitudes, and nonfinite inputs.
+
 Coverage added by the audit
 --------------------------
 

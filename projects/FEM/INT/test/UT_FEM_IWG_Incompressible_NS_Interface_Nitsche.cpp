@@ -34,7 +34,7 @@
 //LINALG
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
-#include "fn_FEM_Matrix_Comparison.hpp"
+#include "fn_matrix_symmetry_bound.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -469,7 +469,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
                 uint             tNumRowBlock = tJacobian.n_rows() / iSpaceDim;
                 Matrix< DDRMat > tBlock       = tJacobian( { 0, tNumRowBlock - 1 }, { 0, tNumRowBlock - 1 } );
 
-                REQUIRE( fem::test::matrix_symmetry_bound( tBlock ) < 1e-12 );
+                REQUIRE( matrix_symmetry_bound( tBlock ) < 1e-12 );
 
                 // print for debug
                 if( !tCheckJacobian )

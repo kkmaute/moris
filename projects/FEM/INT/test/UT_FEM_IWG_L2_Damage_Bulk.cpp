@@ -36,7 +36,7 @@
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
-#include "fn_FEM_Matrix_Comparison.hpp"
+#include "fn_matrix_difference_bound.hpp"
 #include "fn_vectorize.hpp"
 
 using namespace moris;
@@ -410,8 +410,8 @@ void Test_IWG_L2_Damage_Bulk(
                             tIWG->mSet->mJacobian.fill( 0.0 );
                             tIWG->compute_residual( 1.0 );
                             tIWG->compute_jacobian( 1.0 );
-                            CHECK( fem::test::matrix_difference_bound( tIWG->mSet->mResidual( 0 ), tExpectedResidual ) < 1e-12 );
-                            CHECK( fem::test::matrix_difference_bound( tIWG->mSet->mJacobian, tExpectedJacobian ) < 1e-12 );
+                            CHECK( matrix_difference_bound( tIWG->mSet->mResidual( 0 ), tExpectedResidual ) < 1e-12 );
+                            CHECK( matrix_difference_bound( tIWG->mSet->mJacobian, tExpectedJacobian ) < 1e-12 );
                         }
                     }
                     tPropWeight->set_parameters( { { { 1.0 } } } );

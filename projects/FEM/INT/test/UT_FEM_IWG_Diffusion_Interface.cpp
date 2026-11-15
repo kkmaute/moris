@@ -35,7 +35,7 @@
 //LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
-#include "fn_FEM_Matrix_Comparison.hpp"
+#include "fn_matrix_symmetry_bound.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -377,7 +377,7 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
                 // check that jacobian is symmetric for symmetric version
                 if ( tIWGType == fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE )
                 {
-                    REQUIRE( fem::test::matrix_symmetry_bound( tJacobian ) < 1e-12 );
+                    REQUIRE( matrix_symmetry_bound( tJacobian ) < 1e-12 );
                 }
 
                 // print for debug

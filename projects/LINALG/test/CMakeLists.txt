@@ -53,6 +53,7 @@ set(TEST_SOURCES
     UT_LINALG_Backend_Parity.cpp
     UT_LINALG_Complex_Parity.cpp
     UT_LINALG_Matrix_API.cpp
+    UT_LINALG_Matrix_Comparison.cpp
     UT_LINALG_Function_Edges.cpp
     UT_LINALG_Print.cpp
     UT_LINALG_Complex_Functions.cpp

@@ -25,6 +25,7 @@ set(HEADERS
     fn_eye.hpp
     fn_find_unique.hpp
     fn_find.hpp
+    fn_frobenius_norm.hpp
     fn_histc.hpp
     fn_interp1.hpp
     fn_intersect.hpp
@@ -39,6 +40,8 @@ set(HEADERS
     fn_linspace.hpp
     fn_load_matrix_from_binary_file.hpp
     fn_lu.hpp
+    fn_matrix_difference_bound.hpp
+    fn_matrix_symmetry_bound.hpp
     fn_max.hpp
     fn_min.hpp
     fn_norm.hpp

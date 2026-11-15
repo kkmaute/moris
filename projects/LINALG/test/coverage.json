@@ -283,5 +283,14 @@
   ],
   "op_times.hpp": [
     "op_times.cpp"
+  ],
+  "fn_frobenius_norm.hpp": [
+    "UT_LINALG_Matrix_Comparison.cpp"
+  ],
+  "fn_matrix_difference_bound.hpp": [
+    "UT_LINALG_Matrix_Comparison.cpp"
+  ],
+  "fn_matrix_symmetry_bound.hpp": [
+    "UT_LINALG_Matrix_Comparison.cpp"
   ]
 }

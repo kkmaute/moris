@@ -30,7 +30,7 @@
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Ghost_UT.cpp"
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
-#include "fn_FEM_Matrix_Comparison.hpp"
+#include "fn_matrix_difference_bound.hpp"
 
 using namespace moris;
 using namespace fem;
@@ -328,9 +328,9 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
                     tIWG->compute_residual( tIntegWeight );
                     tIWG->compute_jacobian( tIntegWeight );
 
-                    CHECK( fem::test::matrix_difference_bound( tIWG->mSet->mResidual( 0 ), tUnitResidual, tThickness ) < 1e-12 );
+                    CHECK( matrix_difference_bound( tIWG->mSet->mResidual( 0 ), tUnitResidual, tThickness ) < 1e-12 );
 
-                    CHECK( fem::test::matrix_difference_bound( tIWG->mSet->mJacobian, tUnitJacobian, tThickness ) < 1e-12 );
+                    CHECK( matrix_difference_bound( tIWG->mSet->mJacobian, tUnitJacobian, tThickness ) < 1e-12 );
 
                     // A nonunit case also checks the Jacobian independently by
                     // perturbing leader and follower coefficients at one point.
