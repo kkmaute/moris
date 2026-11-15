@@ -120,6 +120,20 @@ process counts, including HMR's 12-process case. Tests declare their processor
 requirements to CTest. This applies to unit tests; application examples retain
 their existing registration policy.
 
+Eigen products use the selected BLAS library by default, matching Armadillo's
+use of optimized kernels even in an unoptimized Debug build. Set
+``MORIS_USE_EIGEN_BLAS=OFF`` to use Eigen's native product kernels throughout.
+With BLAS enabled, Debug builds also route small dynamic matrix products through
+BLAS; optimized configurations retain Eigen's default small-product threshold.
+This preserves all runtime checks and the requested compiler optimization flags.
+``MORIS_HAVE_SYMBOLIC_STRONG=ON`` selects fully unoptimized symbolic compilation;
+ordinary symbolic builds use ``-Og``.
+
+All MORIS Eigen targets publish a common 32-byte dynamic and static alignment
+contract. This must also reach input plugins and external consumers: dependency
+CPU flags can otherwise mix SSE and AVX allocation and aligned-store assumptions
+inside one process.
+
 The dense Eigen LINALG backend uses Eigen's built-in factorizations and does
 not require SuiteSparse. Selecting ``MORIS_USE_EIGEN=ON`` with
 ``MORIS_USE_ARMA=OFF`` therefore does not trigger SuiteSparse discovery.
@@ -187,6 +201,13 @@ set ``MORIS_TEST_GPERFTOOLS_PREFIX`` to an installed gperftools prefix to exerci
 the real profiler. The runtime test covers explicit prefixes, cache changes,
 Intel/non-Intel discovery, and absence of directory-wide link requirements.
 The registration test covers serial/MPI transitions and CTest processor counts.
+
+The Eigen alignment regression additionally requires Eigen headers and an AVX2
+Linux host. It links baseline-SSE and AVX objects to exercise allocation, copying,
+inversion, and deallocation across different SIMD compilation settings::
+
+    python3 share/cmake/tests/test_eigen_alignment.py /path/to/include/eigen3
+
 
 ``.github/workflows/cmake-regression.yml`` runs these seven tests and
 ``python3 share/cmake/tests/check_format.py`` on a runner without the MORIS TPL

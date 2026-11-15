@@ -7,6 +7,7 @@
 #include <numeric>
 #include <sstream>
 #include <type_traits>
+#include <utility>
 #include "op_move.hpp"
 #include "fn_trans.hpp"
 #include "op_plus.hpp"
@@ -260,3 +261,94 @@ namespace moris
     }
 
 }    // namespace moris
+
+TEST_CASE( "LINALG fills preserve aliased values and flag storage", "[linalgebra],[matrix_api]" )
+{
+    using namespace moris;
+    Matrix< DDBMat > tFlags( 3, 4, true );
+    tFlags.fill( false );
+    for ( uint j = 0; j < tFlags.n_cols(); ++j )
+    {
+        for ( uint i = 0; i < tFlags.n_rows(); ++i )
+        {
+            CHECK( tFlags( i, j ) == false );
+        }
+    }
+    // Empty fills must preserve the shape without accessing storage.
+    for ( const auto& tShape : { std::make_pair( 0u, 0u ), std::make_pair( 0u, 4u ), std::make_pair( 3u, 0u ) } )
+    {
+        Matrix< DDRMat > tEmpty( tShape.first, tShape.second );
+        tEmpty.fill( 7.0 );
+        CHECK( tEmpty.n_rows() == tShape.first );
+        CHECK( tEmpty.n_cols() == tShape.second );
+        CHECK( tEmpty.numel() == 0 );
+    }
+
+    Matrix< DDSMat > tSigned( 2, 3, -1 );
+    for ( uint i = 0; i < tSigned.numel(); ++i )
+    {
+        CHECK( tSigned.data()[ i ] == -1 );
+    }
+
+    // Filling a borrowed matrix must retain its binding and leave the guard
+    // values outside the mapped range untouched.
+    real             tStorage[] = { 11.0, 1.0, 2.0, 3.0, 4.0, 22.0 };
+    Matrix< DDRMat > tBorrowed( tStorage + 1, 2, 2, false, true );
+    tBorrowed.fill( -3.0 );
+    CHECK( tBorrowed.data() == tStorage + 1 );
+    CHECK( tStorage[ 0 ] == 11.0 );
+    CHECK( tStorage[ 5 ] == 22.0 );
+    for ( uint i = 1; i < 5; ++i )
+    {
+        CHECK( tStorage[ i ] == -3.0 );
+    }
+
+    Matrix< DDRMat > tValues = { { 2.0, 3.0 }, { 4.0, 5.0 } };
+    tValues.fill( tValues( 1, 0 ) );
+    linalg_test::check_matrix( tValues, Matrix< DDRMat >( 2, 2, 4.0 ) );
+    Matrix< DDCMat > tComplex( 2, 2, cplx( 2.0, -3.0 ) );
+    tComplex.fill( tComplex( 1, 1 ) );
+    linalg_test::check_matrix( tComplex, Matrix< DDCMat >( 2, 2, cplx( 2.0, -3.0 ) ) );
+
+#ifdef MORIS_USE_EIGEN
+    using RowMatrix               = Eigen::Matrix< real, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >;
+    Matrix< RowMatrix > tRowMajor = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 } };
+    tRowMajor( 1, 2 )             = 9.0;
+    const auto& tConst            = tRowMajor;
+    CHECK( tConst( 1, 2 ) == 9.0 );
+    CHECK( tConst( 0, 1 ) == 2.0 );
+#ifdef MORIS_HAVE_DEBUG
+    CHECK_THROWS( tRowMajor( 2, 0 ) );
+    CHECK_THROWS( tConst( 0, 3 ) );
+#endif
+#endif
+}
+
+TEST_CASE( "LINALG fixed-size snapshots preserve overlapping views", "[linalgebra],[matrix_api],[expressions]" )
+{
+    using namespace moris;
+
+    // The shape change forces a snapshot before rebinding a strict borrowed
+    // destination. Three doubles also exercise the scalar tail below AVX width.
+    Matrix< F31RMat > tFixed = { { 1.0 }, { 2.0 }, { 3.0 } };
+    Matrix< DDRMat >  tView( tFixed.data(), 1, 3, false, true );
+    tView = tFixed;
+    CHECK( tView.data() == tFixed.data() );
+    linalg_test::check_matrix( tView, Matrix< DDRMat >{ { 1.0 }, { 2.0 }, { 3.0 } } );
+
+    tView = trans( tFixed );
+    CHECK( tView.data() == tFixed.data() );
+    linalg_test::check_matrix( tView, Matrix< DDRMat >{ { 1.0, 2.0, 3.0 } } );
+
+#ifdef MORIS_USE_EIGEN
+    // A fixed-size row-major snapshot must be copied by logical coordinates,
+    // rather than copying its contiguous storage into a column-major view.
+    using RowMatrix                  = Eigen::Matrix< real, 3, 3, Eigen::RowMajor >;
+    Matrix< RowMatrix >    tRowMajor = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 }, { 7.0, 8.0, 9.0 } };
+    const Matrix< DDRMat > tExpected = tRowMajor;
+    Matrix< DDRMat >       tColumnMajorView( tRowMajor.data(), 3, 3, false, true );
+    tColumnMajorView = tRowMajor;
+    CHECK( tColumnMajorView.data() == tRowMajor.data() );
+    linalg_test::check_matrix( tColumnMajorView, tExpected );
+#endif
+}

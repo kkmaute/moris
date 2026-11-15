@@ -54,9 +54,27 @@ endif()
 
 # Eigen3
 
+set(MORIS_EIGEN_COMPILE_DEFINITIONS)
 if(MORIS_USE_EIGEN)
     list(APPEND ARMADILLO_EIGEN "eigen")
-    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
+
+    # Dependencies can add SIMD flags to only some targets. Fix both alignment
+    # limits so Eigen allocation, deallocation and fixed-size layouts agree in
+    # core libraries, executables, input plugins and installed consumers.
+    set(MORIS_EIGEN_COMPILE_DEFINITIONS MORIS_USE_EIGEN EIGEN_MAX_ALIGN_BYTES=32
+                                        EIGEN_MAX_STATIC_ALIGN_BYTES=32
+    )
+
+    if(MORIS_USE_EIGEN_BLAS)
+        list(APPEND MORIS_EIGEN_COMPILE_DEFINITIONS EIGEN_USE_BLAS)
+        # At -O0 Eigen's coefficient-based small dynamic products retain deep
+        # template call chains. Use the same optimized BLAS as Armadillo in Debug;
+        # optimized configurations retain Eigen's native small-product threshold.
+        list(APPEND MORIS_EIGEN_COMPILE_DEFINITIONS
+             "$<$<CONFIG:Debug>:EIGEN_GEMM_TO_COEFFBASED_THRESHOLD=0>"
+        )
+    endif()
+    list(APPEND MORIS_DEFINITIONS ${MORIS_EIGEN_COMPILE_DEFINITIONS})
 endif()
 
 # These switches affect public headers and must also reach installed consumers.

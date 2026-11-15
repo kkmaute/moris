@@ -28,6 +28,18 @@ def main():
             cmake_minimum_required(VERSION 3.17...4.4)
             project(BuildPolicy LANGUAGES C CXX)
             include("${MORIS_CMAKE_DIR}/moris_options.cmake")
+            set(MORIS_USE_ARMA OFF)
+            set(MORIS_USE_EIGEN ON)
+            set(MORIS_USE_OPENBLAS ON)
+            include("${MORIS_CMAKE_DIR}/moris_features.cmake")
+            # Import the public Eigen policy before directory definitions exist.
+            add_library(eigen_usage INTERFACE)
+            target_compile_definitions(eigen_usage INTERFACE ${MORIS_EIGEN_COMPILE_DEFINITIONS})
+            add_subdirectory(consumer)
+            list(TRANSFORM MORIS_DEFINITIONS REPLACE "^-D" "")
+            add_compile_definitions(${MORIS_DEFINITIONS}
+                MORIS_TEST_EXPECT_BLAS=$<BOOL:${MORIS_USE_EIGEN_BLAS}>
+                MORIS_TEST_EXPECT_DEBUG_THRESHOLD=$<AND:$<CONFIG:Debug>,$<BOOL:${MORIS_USE_EIGEN_BLAS}>>)
             include("${MORIS_CMAKE_DIR}/moris_compiler.cmake")
             include("${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake")
             if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE STREQUAL EXPECTED_CONFIG)
@@ -49,21 +61,47 @@ def main():
             add_executable(check main.cpp)
             target_link_libraries(check PRIVATE input_plugin)
         '''))
+        (source / "backend_contract.hpp").write_text(textwrap.dedent('''
+            #if EIGEN_MAX_ALIGN_BYTES != 32 || EIGEN_MAX_STATIC_ALIGN_BYTES != 32
+            #error Inconsistent Eigen ABI contract
+            #endif
+            #if MORIS_TEST_EXPECT_BLAS != defined(EIGEN_USE_BLAS)
+            #error Incorrect Eigen BLAS configuration
+            #endif
+            #if MORIS_TEST_EXPECT_DEBUG_THRESHOLD
+            #if !defined(EIGEN_GEMM_TO_COEFFBASED_THRESHOLD) || EIGEN_GEMM_TO_COEFFBASED_THRESHOLD != 0
+            #error Debug Eigen products must use BLAS
+            #endif
+            #elif defined(EIGEN_GEMM_TO_COEFFBASED_THRESHOLD)
+            #error Native Eigen product threshold must be preserved
+            #endif
+        '''))
+        (source / "consumer").mkdir()
+        (source / "consumer/CMakeLists.txt").write_text(textwrap.dedent('''
+            add_library(external_consumer OBJECT consumer.cpp)
+            target_link_libraries(external_consumer PRIVATE eigen_usage)
+            target_compile_definitions(external_consumer PRIVATE
+                MORIS_TEST_EXPECT_BLAS=$<BOOL:${MORIS_USE_EIGEN_BLAS}>
+                MORIS_TEST_EXPECT_DEBUG_THRESHOLD=$<AND:$<CONFIG:Debug>,$<BOOL:${MORIS_USE_EIGEN_BLAS}>>)
+        '''))
+        (source / "consumer/consumer.cpp").write_text('#include "../backend_contract.hpp"\nint external_contract = 0;\n')
         (source / "headers/value.hpp").write_text("int value();\nint plugin_value();\n")
         (source / "extra_headers/extra.hpp").write_text('#include "value.hpp"\n')
         (source / "mpi_headers/mpi.h").write_text('// Stand-in for MPI usage requirements.\n')
         (source / "payload.cpp").write_text(textwrap.dedent('''
             #include <optional>
+            #include "backend_contract.hpp"
             #if USER_CMAKE_FLAG != 7 || USER_MORIS_FLAG != 11
             #error Missing user-supplied compiler flags
             #endif
             int payload = 40;
             int value() { return std::optional<int>(payload).value() + 2; }
         '''))
-        (source / "plugin.cpp").write_text('#include "extra.hpp"\n#include <mpi.h>\nint plugin_value() { return value(); }\n')
+        (source / "plugin.cpp").write_text('#include "backend_contract.hpp"\n#include "extra.hpp"\n#include <mpi.h>\nint plugin_value() { return value(); }\n')
         (source / "main.cpp").write_text('int plugin_value();\nint main() { return plugin_value() == 42 ? 0 : 1; }\n')
         cases = [
             ("debug", "Debug", ["-DCMAKE_BUILD_TYPE=Debug", "-DMORIS_USE_LTO=OFF"]),
+            ("debug-native-eigen", "Debug", ["-DCMAKE_BUILD_TYPE=Debug", "-DMORIS_USE_LTO=OFF", "-DMORIS_USE_EIGEN_BLAS=OFF"]),
             ("symbolic", "Debug", ["-DMORIS_HAVE_SYMBOLIC=ON", "-DMORIS_HAVE_SYMBOLIC_STRONG=ON"]),
             ("release-ipo", "Release", ["-DCMAKE_BUILD_TYPE=Release", "-DMORIS_USE_LTO=ON"]),
         ]

@@ -947,51 +947,51 @@ namespace moris::mtk
                 tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
-            real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if ( tAbsoluteError > tAcceptableMachineError )
-            {
-                real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT(
-                        tRelativeError < 1e-8,
-                        "Space_Interpolator::eval_space_detJ_bulk_line() - "
-                        "Inconsistent space determinant (bulk 1D): %e vs %e\n",
-                        tDetJ,
-                        det( aSpaceJt ) );
-            }
+        real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
+        real tAcceptableMachineError = Matrix< DDRMat >( comp_abs( aSpaceJt ) ).max() * 1e-14;
+        if ( tAbsoluteError > tAcceptableMachineError )
+        {
+            real tRelativeError = tAbsoluteError / tDetJ;
+            MORIS_ASSERT(
+                    tRelativeError < 1e-8,
+                    "Space_Interpolator::eval_space_detJ_bulk_line() - "
+                    "Inconsistent space determinant (bulk 1D): %e vs %e\n",
+                    tDetJ,
+                    det( aSpaceJt ) );
+        }
 #endif
 
-            return tDetJ;
-        }
+        return tDetJ;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        real
-        Space_Interpolator::eval_space_detJ_deriv_bulk_line(
-                const Matrix< DDRMat >& aSpaceJDerivt )
-        {
-            real tDetJDeriv = aSpaceJDerivt( 0, 0 );
+    real
+    Space_Interpolator::eval_space_detJ_deriv_bulk_line(
+            const Matrix< DDRMat >& aSpaceJDerivt )
+    {
+        real tDetJDeriv = aSpaceJDerivt( 0, 0 );
 
-            return tDetJDeriv;
-        }
+        return tDetJDeriv;
+    }
 
-        //------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-        real
-        Space_Interpolator::eval_space_detJ_bulk_quad(
-                const Matrix< DDRMat >& aSpaceJt )
-        {
-            real tDetJ = aSpaceJt( 0, 0 ) * aSpaceJt( 1, 1 ) - aSpaceJt( 0, 1 ) * aSpaceJt( 1, 0 );
+    real
+    Space_Interpolator::eval_space_detJ_bulk_quad(
+            const Matrix< DDRMat >& aSpaceJt )
+    {
+        real tDetJ = aSpaceJt( 0, 0 ) * aSpaceJt( 1, 1 ) - aSpaceJt( 0, 1 ) * aSpaceJt( 1, 0 );
 
-            MORIS_ASSERT(
-                    tDetJ > sDetJLowerLimit,
-                    "Space_Interpolator::eval_space_detJ_bulk_quad() - "
-                    "Space determinant (bulk 2D) close to zero or negative: %e\n",
-                    tDetJ );
+        MORIS_ASSERT(
+                tDetJ > sDetJLowerLimit,
+                "Space_Interpolator::eval_space_detJ_bulk_quad() - "
+                "Space determinant (bulk 2D) close to zero or negative: %e\n",
+                tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
             real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
-            real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
+            real tAcceptableMachineError = Matrix< DDRMat >( comp_abs( aSpaceJt ) ).max() * 1e-14;
             if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
@@ -1005,7 +1005,7 @@ namespace moris::mtk
 #endif
 
             return tDetJ;
-        }
+    }
 
         //------------------------------------------------------------------------------
 
@@ -1040,7 +1040,7 @@ namespace moris::mtk
 
 #ifdef MORIS_HAVE_DEBUG
             real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
-            real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
+            real tAcceptableMachineError = Matrix< DDRMat >( comp_abs( aSpaceJt ) ).max() * 1e-14;
             if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
@@ -1090,7 +1090,7 @@ namespace moris::mtk
 
 #ifdef MORIS_HAVE_DEBUG
             real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
-            real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
+            real tAcceptableMachineError = Matrix< DDRMat >( comp_abs( aSpaceJt ) ).max() * 1e-14;
             if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
@@ -1149,7 +1149,7 @@ namespace moris::mtk
 
 #ifdef MORIS_HAVE_DEBUG
             real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
-            real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
+            real tAcceptableMachineError = Matrix< DDRMat >( comp_abs( aSpaceJt ) ).max() * 1e-14;
             if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
@@ -1266,7 +1266,7 @@ namespace moris::mtk
 #ifdef MORIS_HAVE_DEBUG
             real tDetJArma               = det( aSpaceJt ) / 6.0;
             real tAbsoluteError          = std::abs( tDetJArma - tDetJ );
-            real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
+            real tAcceptableMachineError = Matrix< DDRMat >( comp_abs( aSpaceJt ) ).max() * 1e-14;
             if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;

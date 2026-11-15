@@ -229,6 +229,11 @@ target_include_directories(
 )
 target_link_libraries(${LINALG}-lib INTERFACE ${LIB_DEPENDENCIES})
 
+# Direct component consumers need the same Eigen ABI and product policy as MORIS.
+if(MORIS_USE_EIGEN)
+    target_compile_definitions(${LINALG}-lib INTERFACE ${MORIS_EIGEN_COMPILE_DEFINITIONS})
+endif()
+
 foreach(TPL ${LINALG_TPL_DEPENDENCIES})
     string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

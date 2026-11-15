@@ -6,7 +6,17 @@
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_DYNAMIC_HPP_
 
 #include "cl_Matrix.hpp"
+// GCC 13 at -Og misdiagnoses Eigen 3.4's empty compile-time stride
+// metadata when copying Maps in partial reductions. Limit the workaround
+// to Eigen's definitions so MORIS uninitialized-use warnings remain active.
+#if defined( __GNUC__ ) && !defined( __clang__ ) && __GNUC__ == 13
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <Eigen/Dense>
+#if defined( __GNUC__ ) && !defined( __clang__ ) && __GNUC__ == 13
+#pragma GCC diagnostic pop
+#endif
 #include "fn_Eigen_Aliasing.hpp"
 #include <algorithm>
 #include <limits>
@@ -103,7 +113,18 @@ namespace moris
                 // Evaluate before resize or reordered writes invalidate the RHS.
                 typename E::PlainObject tCopy( aExpression );
                 resize_storage( tCopy.rows(), tCopy.cols() );
-                mMatrix = tCopy;
+
+                if constexpr ( E::SizeAtCompileTime != Eigen::Dynamic )
+                {
+                    // Retain the snapshot's compile-time bounds in the destination
+                    // view. GCC 13 otherwise diagnoses an AVX packet overread when
+                    // a small fixed-size temporary is copied through a dynamic Map.
+                    mMatrix.template topLeftCorner< E::RowsAtCompileTime, E::ColsAtCompileTime >( tCopy.rows(), tCopy.cols() ) = tCopy;
+                }
+                else
+                {
+                    mMatrix = tCopy;
+                }
             }
             else
             {
@@ -362,7 +383,12 @@ namespace moris
         }
         void fill( const Type& aValue )
         {
-            mMatrix.fill( aValue );
+            // The wrapper's owned and borrowed Maps are contiguous. Avoid an
+            // expression evaluator for each flag/value in unoptimized builds.
+            // Keep Eigen's signed count so fill_n can handle nonpositive ranges.
+            // Converting it through numel() loses that range information and
+            // triggers GCC 13 stringop-overflow diagnostics in optimized builds.
+            std::fill_n( data(), mMatrix.size(), aValue );
         }
         View& matrix_data()
         {
@@ -417,12 +443,38 @@ namespace moris
         Type& operator()( size_t i, size_t j )
         {
             MORIS_ASSERT( i < n_rows() && j < n_cols(), "Matrix - index out of bounds." );
+#ifdef MORIS_HAVE_DEBUG
+            // MORIS_ASSERT above has checked the bounds. Access contiguous
+            // storage directly rather than repeating Eigen's checked hierarchy.
+            if constexpr ( Native::IsRowMajor )
+            {
+                return data()[ i * n_cols() + j ];
+            }
+            else
+            {
+                return data()[ j * n_rows() + i ];
+            }
+#else
             return mMatrix( i, j );
+#endif
         }
         const Type& operator()( size_t i, size_t j ) const
         {
             MORIS_ASSERT( i < n_rows() && j < n_cols(), "Matrix - index out of bounds." );
+#ifdef MORIS_HAVE_DEBUG
+            // MORIS_ASSERT above has checked the bounds. Access contiguous
+            // storage directly rather than repeating Eigen's checked hierarchy.
+            if constexpr ( Native::IsRowMajor )
+            {
+                return data()[ i * n_cols() + j ];
+            }
+            else
+            {
+                return data()[ j * n_rows() + i ];
+            }
+#else
             return mMatrix( i, j );
+#endif
         }
         Type& operator()( size_t i )
         {

@@ -21,6 +21,8 @@ option(MORIS_USE_ARMA "Use the Armadillo library as the dense linear algebra pac
 
 option(MORIS_USE_EIGEN "Use the Eigen3 library as the dense linear algebra package." OFF)
 
+option(MORIS_USE_EIGEN_BLAS "Use the selected BLAS library for Eigen dense products." ON)
+
 option(MORIS_USE_32BIT "Use 32bit numbers for identifiers and sizes." ON)
 
 option(MORIS_USE_LTO "Use LTO optimization." ON)

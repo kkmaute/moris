@@ -17,6 +17,7 @@
 #include "cl_Vector.hpp"
 #include "fn_assert.hpp"
 #include "fn_join_horiz.hpp"
+#include "fn_sum.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Tracer.hpp"

@@ -254,6 +254,57 @@ namespace moris
         check_expression_result( tA, { { 9.0 }, { 0.0 }, { 0.0 }, { 4.0 } } );
     }
 
+    TEST_CASE( "LINALG reshape copies retain lazy reads and owned operands", "[linalgebra],[expressions]" )
+    {
+        Matrix< DDRMat > tA        = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 } };
+        auto             tLazy     = reshape( tA, 3, 2 );
+        auto             tLazyCopy = tLazy;
+        tA( 0, 0 )                 = 9.0;
+        check_expression_result( tLazyCopy, { { 9.0, 5.0 }, { 4.0, 3.0 }, { 2.0, 6.0 } } );
+        tA = vectorize( tA, true );
+        check_expression_result( tA, { { 9.0, 2.0, 3.0, 4.0, 5.0, 6.0 } } );
+
+        const Matrix< DDRMat > tB        = { { 1.0, 2.0 }, { 3.0, 4.0 } };
+        const auto             tProduct  = tB * tB;
+        auto                   tReturned = [ & ]() {
+            auto tView = vectorize( tProduct );
+            auto tCopy = tView;
+            return tCopy;
+        }();
+        check_expression_result( tReturned, { { 7.0 }, { 15.0 }, { 10.0 }, { 22.0 } } );
+        check_expression_result( reshape( tB, 3, 2 ), { { 1.0, 4.0 }, { 3.0, 0.0 }, { 2.0, 0.0 } } );
+
+        Matrix< DDRMat > tStrided     = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 }, { 7.0, 8.0, 9.0 } };
+        auto             tBlock       = tStrided( { 0, 1 }, { 0, 1 } );
+        auto             tBlockVector = vectorize( tBlock );
+        tStrided( 0, 0 )              = 11.0;
+        check_expression_result( tBlockVector, { { 11.0 }, { 4.0 }, { 2.0 }, { 5.0 } } );
+        check_expression_result( vectorize( tBlock, true ), { { 11.0, 2.0, 4.0, 5.0 } } );
+
+#ifdef MORIS_USE_EIGEN
+        using RowMatrix               = Eigen::Matrix< real, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >;
+        Matrix< RowMatrix > tRowMajor = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 } };
+        check_expression_result( vectorize( tRowMajor ), { { 1.0 }, { 4.0 }, { 2.0 }, { 5.0 }, { 3.0 }, { 6.0 } } );
+        check_expression_result( vectorize( tRowMajor, true ), { { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 } } );
+
+        Eigen::MatrixXd tNative( 2, 2 );
+        tNative << 1.0, 2.0, 3.0, 4.0;
+        auto tNativeView = reshape( tNative, 4, 1 );
+        tNative.resize( 2, 3 );
+        tNative << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0;
+        check_expression_result( tNativeView, { { 1.0 }, { 4.0 }, { 2.0 }, { 5.0 } } );
+        auto tTranspose     = tNative.transpose();
+        auto tTransposeView = reshape( tTranspose, 6, 1 );
+        tNative.resize( 3, 2 );
+        tNative << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0;
+        check_expression_result( tTransposeView, { { 1.0 }, { 2.0 }, { 3.0 }, { 4.0 }, { 5.0 }, { 6.0 } } );
+        auto tSumView = reshape( tNative + tNative, 6, 1 );
+        tNative.resize( 2, 2 );
+        tNative << 1.0, 2.0, 3.0, 4.0;
+        check_expression_result( tSumView, { { 2.0 }, { 6.0 }, { 4.0 }, { 8.0 }, { 0.0 }, { 0.0 } } );
+#endif
+    }
+
 }    // namespace moris
 
 // Native expressions have no moris operand for argument-dependent lookup.

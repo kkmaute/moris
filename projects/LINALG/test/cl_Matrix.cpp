@@ -345,11 +345,15 @@ namespace moris
         }
     }
 
+// Each backend compares MORIS operations against its native API.
+// Timings are reported, while numerical agreement is the pass criterion.
 #ifdef MORIS_USE_ARMA
-    // This diagnostic compares against the native Armadillo implementation.
     TEST_CASE( "matrix_performance_arma", "[moris],[matrix_performance_arma]" )
+#else
+    TEST_CASE( "matrix_performance_eigen", "[moris],[matrix_performance_eigen]" )
+#endif
     {
-        // Initialize random matrix size
+        // Choose dimensions and values at runtime to avoid fixed-input specialization.
         srand( time( nullptr ) );
         uint tDimX = rand() % 40 + 130;
         uint tDimY = rand() % 40 + 130;
@@ -357,32 +361,24 @@ namespace moris
         uint tNumRepetitions = 5000 + tDimX;
 
         moris::Matrix< DDRMat > tMorisMat( tDimX, tDimY );
-        arma::Mat< double >     tArmaMat( tDimX, tDimY );
+        DDRMat                  tNativeMat( tDimX, tDimY );
 
-        uint tRandNumerator   = 1;
-        uint tRandDenominator = 1;
-        real tRandNumber      = 0.0;
-
-        MORIS_LOG_INFO( "Start create random MORIS-matrix and ARMA-matrix....." );
+        MORIS_LOG_INFO( "Create identical MORIS and native backend matrices." );
 
         for ( uint ii = 0; ii < tDimX; ii++ )
         {
             for ( uint jj = 0; jj < tDimY; jj++ )
             {
+                const uint tRandNumerator   = rand() % 10 + 1;
+                const uint tRandDenominator = rand() % 10 + 1;
+                const real tRandNumber      = static_cast< real >( tRandNumerator ) / tRandDenominator;
 
-                // create a random number
-                srand( time( nullptr ) );
-                tRandNumerator   = rand() % 10 + 1;
-                tRandDenominator = rand() % 10 + 1;
-                tRandNumber      = (moris::real)tRandNumerator / (moris::real)tRandDenominator;
-
-                // copy random number to matrix
-                tMorisMat( ii, jj ) = tRandNumber;
-                tArmaMat( ii, jj )  = tRandNumber;
+                tMorisMat( ii, jj )  = tRandNumber;
+                tNativeMat( ii, jj ) = tRandNumber;
             }
         }
 
-        MORIS_LOG_INFO( "Done. Random %i x %i - MORIS-matrix and ARMA-matrix created.", tDimX, tDimY );
+        MORIS_LOG_INFO( "Done. Random %i x %i - MORIS-matrix and native-matrix created.", tDimX, tDimY );
 
         // time Moris Matrix summation --------------------------------------------------
 
@@ -401,7 +397,7 @@ namespace moris
             }
         }
 
-        moris::real tTimeForSummation = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        moris::real tTimeForSummation = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
         MORIS_LOG_INFO( "Time to add all members on %i %i x %i MORIS-matrices: %5.2f milliseconds (result %e).",
                 tNumRepetitions,
                 tDimX,
@@ -409,9 +405,10 @@ namespace moris
                 (double)tTimeForSummation,
                 (double)tSum );
 
-        // time Arma Matrix summation --------------------------------------------------
+        // time Native Matrix summation --------------------------------------------------
 
-        tSum = 0.0;
+        const real tMorisSum = tSum;
+        tSum                 = 0.0;
 
         tTimeStamp = std::clock();
 
@@ -421,18 +418,20 @@ namespace moris
             {
                 for ( uint jj = 0; jj < tDimY; jj++ )
                 {
-                    tSum += tArmaMat( ii, jj );
+                    tSum += tNativeMat( ii, jj );
                 }
             }
         }
 
-        tTimeForSummation = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-        MORIS_LOG_INFO( "Time to add all members on %i %i x %i ARMA-matrices: %5.2f milliseconds (result %e).",
+        tTimeForSummation = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to add all members on %i %i x %i native-matrices: %5.2f milliseconds (result %e).",
                 tNumRepetitions,
                 tDimX,
                 tDimY,
                 (double)tTimeForSummation,
                 (double)tSum );
+
+        CHECK( tSum == Approx( tMorisSum ) );
 
         // time Moris Matrix += - operations --------------------------------------------------
         moris::Matrix< DDRMat > tResultMatMoris = tMorisMat;
@@ -448,13 +447,15 @@ namespace moris
             tResultMatMoris = tResultMatMoris + tMorisMat;
         }
 
-        real tTimeForSummationMoris1 = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        real tTimeForSummationMoris1 = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
         MORIS_LOG_INFO( "Time to 'equal-mat-plus-mat' %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 tDimX,
                 tDimY,
                 (double)tTimeForSummationMoris1,
                 norm( tResultMatMoris ) );
+
+        const Matrix< DDRMat > tMorisAddition = tResultMatMoris;
 
         tResultMatMoris = tMorisMat;
 
@@ -467,7 +468,7 @@ namespace moris
             tResultMatMoris += tMorisMat;
         }
 
-        real tTimeForSummationMoris2 = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        real tTimeForSummationMoris2 = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
         MORIS_LOG_INFO( "Time to 'plus-equal'         %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 tDimX,
@@ -475,50 +476,54 @@ namespace moris
                 (double)tTimeForSummationMoris2,
                 norm( tResultMatMoris ) );
 
-        // time ARMA Matrix += - operations --------------------------------------------------
-        arma::Mat< double > tResultMatArma = tArmaMat;
+        // time native Matrix += - operations --------------------------------------------------
+        DDRMat tResultMatNative = tNativeMat;
 
         tTimeStamp = std::clock();
 
-        tResultMatArma = tResultMatArma + tArmaMat;
+        tResultMatNative = tResultMatNative + tNativeMat;
 
         for ( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
-            tResultMatArma = tResultMatArma + tArmaMat;
+            tResultMatNative = tResultMatNative + tNativeMat;
         }
 
-        real tTimeForSummationArma1 = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-        MORIS_LOG_INFO( "Time to 'equal-mat-plus-mat' %i %i x %i ARMA-matrices: %5.2f milliseconds (result: %e).",
+        real tTimeForSummationNative1 = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'equal-mat-plus-mat' %i %i x %i native-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 tDimX,
                 tDimY,
-                (double)tTimeForSummationArma1,
-                norm( tResultMatArma ) );
+                (double)tTimeForSummationNative1,
+                norm( tResultMatNative ) );
 
-        tResultMatArma = tArmaMat;
+        CHECK( norm( tMorisAddition.matrix_data() - tResultMatNative ) < 1e-10 * norm( tResultMatNative ) );
+
+        tResultMatNative = tNativeMat;
 
         tTimeStamp = std::clock();
 
-        tResultMatArma += tArmaMat;
+        tResultMatNative += tNativeMat;
 
         for ( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
-            tResultMatArma += tArmaMat;
+            tResultMatNative += tNativeMat;
         }
 
-        real tTimeForSummationArma2 = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-        MORIS_LOG_INFO( "Time to 'plus-equal'         %i %i x %i ARMA-matrices: %5.2f milliseconds (result: %e).",
+        real tTimeForSummationNative2 = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus-equal'         %i %i x %i native-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 tDimX,
                 tDimY,
-                (double)tTimeForSummationArma2,
-                norm( tResultMatArma ) );
+                (double)tTimeForSummationNative2,
+                norm( tResultMatNative ) );
 
-        MORIS_LOG_INFO( "Time comparison: Moris x=x+y ratio %f   Moris x+=y ratio %f  Arma x=x+y ratio %f Arma x+=y %f.",
-                (double)tTimeForSummationMoris1 / tTimeForSummationArma2,
-                (double)tTimeForSummationMoris2 / tTimeForSummationArma2,
-                (double)tTimeForSummationArma1 / tTimeForSummationArma2,
-                (double)tTimeForSummationArma2 / tTimeForSummationArma2 );
+        CHECK( norm( tResultMatMoris.matrix_data() - tResultMatNative ) < 1e-10 * norm( tResultMatNative ) );
+
+        MORIS_LOG_INFO( "Time comparison: Moris x=x+y ratio %f   Moris x+=y ratio %f  Native x=x+y ratio %f Native x+=y %f.",
+                (double)tTimeForSummationMoris1 / tTimeForSummationNative2,
+                (double)tTimeForSummationMoris2 / tTimeForSummationNative2,
+                (double)tTimeForSummationNative1 / tTimeForSummationNative2,
+                (double)tTimeForSummationNative2 / tTimeForSummationNative2 );
 
         // time Moris Matrix involving transpose --------------------------------------------------
 
@@ -536,10 +541,10 @@ namespace moris
 
         for ( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
-            tResultMatMoris = iCounter / tNumRepetitions * tResultMatMoris + tMorisMat;
+            tResultMatMoris = static_cast< real >( iCounter ) / tNumRepetitions * tResultMatMoris + tMorisMat;
         }
 
-        real tTimeForSummationNoTransMoris = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        real tTimeForSummationNoTransMoris = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
         MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 minDim,
@@ -547,16 +552,18 @@ namespace moris
                 (double)tTimeForSummationNoTransMoris,
                 norm( tResultMatMoris ) );
 
+        const Matrix< DDRMat > tMorisNoTranspose = tResultMatMoris;
+
         tTimeStamp = std::clock();
 
         tResultMatMoris = tMorisMat;
 
         for ( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
-            tResultMatMoris = trans( iCounter / tNumRepetitions * tResultMatMoris ) + tMorisMat;
+            tResultMatMoris = trans( static_cast< real >( iCounter ) / tNumRepetitions * tResultMatMoris ) + tMorisMat;
         }
 
-        real tTimeForSummationTransMoris = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        real tTimeForSummationTransMoris = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
         MORIS_LOG_INFO( "Time to 'plus with transpose'            %i %i x %i MORIS-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 minDim,
@@ -564,46 +571,48 @@ namespace moris
                 (double)tTimeForSummationTransMoris,
                 norm( tResultMatMoris ) );
 
-        // time Arma Matrix involving transpose --------------------------------------------------
-        tArmaMat.resize( minDim, minDim );
-        tResultMatArma.resize( minDim, minDim );
+        // time Native Matrix involving transpose --------------------------------------------------
+        tNativeMat = tMorisMat.matrix_data();
+        tResultMatNative.resize( minDim, minDim );
 
         tTimeStamp = std::clock();
 
-        tResultMatArma = tArmaMat;
+        tResultMatNative = tNativeMat;
 
         for ( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
-            tResultMatArma = iCounter / tNumRepetitions * tResultMatArma + tArmaMat;
+            tResultMatNative = static_cast< real >( iCounter ) / tNumRepetitions * tResultMatNative + tNativeMat;
         }
 
-        real tTimeForSummationNoTransArma = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-        MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i Arma-matrices: %5.2f milliseconds (result: %e).",
+        real tTimeForSummationNoTransNative = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus without transpose'         %i %i x %i Native-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 minDim,
                 minDim,
-                (double)tTimeForSummationNoTransArma,
-                norm( tResultMatArma ) );
+                (double)tTimeForSummationNoTransNative,
+                norm( tResultMatNative ) );
+
+        CHECK( norm( tMorisNoTranspose.matrix_data() - tResultMatNative ) < 1e-10 * norm( tResultMatNative ) );
 
         tTimeStamp = std::clock();
 
-        tResultMatArma = tArmaMat;
+        tResultMatNative = tNativeMat;
 
         for ( uint iCounter = 0; iCounter < tNumRepetitions; iCounter++ )
         {
-            tResultMatArma = trans( iCounter / tNumRepetitions * tResultMatArma ) + tArmaMat;
+            // Evaluate before overwriting the transposed operand.
+            tResultMatNative = ( trans( static_cast< real >( iCounter ) / tNumRepetitions * tResultMatNative ) + tNativeMat ).eval();
         }
 
-        real tTimeForSummationTransArma = 1000 * ( moris::real )( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
-        MORIS_LOG_INFO( "Time to 'plus with transpose'            %i %i x %i Arma-matrices: %5.2f milliseconds (result: %e).",
+        real tTimeForSummationTransNative = 1000 * (moris::real)( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+        MORIS_LOG_INFO( "Time to 'plus with transpose'            %i %i x %i Native-matrices: %5.2f milliseconds (result: %e).",
                 tNumRepetitions,
                 minDim,
                 minDim,
-                (double)tTimeForSummationTransArma,
-                norm( tResultMatArma ) );
+                (double)tTimeForSummationTransNative,
+                norm( tResultMatNative ) );
+        CHECK( norm( tResultMatMoris.matrix_data() - tResultMatNative ) < 1e-10 * norm( tResultMatNative ) );
     }
-
-#endif
 
     TEST_CASE( "matrix_solve", "[moris],[matrix_solve]" )
     {

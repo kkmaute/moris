@@ -31,7 +31,17 @@ namespace moris
     MDynamic {};
 
 #ifdef MORIS_USE_EIGEN
+// GCC 13 at -Og misdiagnoses Eigen 3.4's empty compile-time stride
+// metadata when copying Maps in partial reductions. Limit the workaround
+// to Eigen's definitions so MORIS uninitialized-use warnings remain active.
+#if defined( __GNUC__ ) && !defined( __clang__ ) && __GNUC__ == 13
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include "Eigen/Dense"
+#if defined( __GNUC__ ) && !defined( __clang__ ) && __GNUC__ == 13
+#pragma GCC diagnostic pop
+#endif
     typedef bool ncomp;     // native type of compare operators
     typedef uint nint; // native integer type
     typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  DDRMat;   // Dense dynamic Real Mat

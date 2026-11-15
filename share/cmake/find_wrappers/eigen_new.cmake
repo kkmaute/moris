@@ -18,9 +18,6 @@ if(NOT EIGEN_FOUND_ONCE)
 
     find_package(Eigen REQUIRED NAMES Eigen3 HINTS ${EIGEN_ENV_VARS})
 
-    set(MORIS_EIGEN_INCLUDE_DIRS "${EIGEN3_ROOT_DIR}/include" CACHE PATH
-                                                                    "Eigen include directories."
-    )
     set(MORIS_EIGEN_TARGETS "Eigen3::Eigen" CACHE INTERNAL "Eigen library.")
     set(MORIS_EIGEN_TARGET_FILE "${EIGEN3_ROOT_DIR}/share/eigen3/cmake/Eigen3Targets.cmake"
         CACHE FILEPATH "Eigen targets file."
@@ -42,11 +39,17 @@ if(NOT EIGEN_FOUND_ONCE)
 
     message(STATUS "EIGEN3_ROOT_DIR:          ${EIGEN3_ROOT_DIR}")
     message(STATUS "MORIS_EIGEN_TARGET_FILE:  ${MORIS_EIGEN_TARGET_FILE}")
-    message(STATUS "MORIS_EIGEN_INCLUDE_DIRS: ${MORIS_EIGEN_INCLUDE_DIRS}")
     message(STATUS "MORIS_EIGEN_DEFINITIONS:  ${MORIS_EIGEN_DEFINITIONS}")
 else()
     include(${MORIS_EIGEN_TARGET_FILE})
 endif()
+
+# Input plugins consume this variable without linking Eigen3::Eigen. Use the
+# package's actual include layout and repair values cached by older wrappers.
+get_target_property(MORIS_EIGEN_INCLUDE_DIRS Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
+set(MORIS_EIGEN_INCLUDE_DIRS "${MORIS_EIGEN_INCLUDE_DIRS}" CACHE PATH "Eigen include directories."
+                                                                 FORCE
+)
 
 if(NOT TARGET ${MORIS}::eigen)
     add_library(${MORIS}::eigen INTERFACE IMPORTED GLOBAL)
