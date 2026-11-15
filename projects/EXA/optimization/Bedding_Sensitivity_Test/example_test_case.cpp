@@ -390,7 +390,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = BEDDING_INPUT_LIBRARY;
+    char tString2[] = "./Bedding_Sensitivity_Test.so";
 
     char* argv[ 2 ] = { tString1, tString2 };
 

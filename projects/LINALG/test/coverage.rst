@@ -102,13 +102,15 @@ pass with Armadillo Debug. Additional checks cover third-order geometry
 interpolation, SDF transformations and 2D/3D vertex rotations, and QUAD4
 subdivision. Mixed fixed/dynamic addition and subtraction retain native
 expression evaluation in the LINALG regressions.
-Subsequent complete enabled Armadillo and Eigen Release builds each passed all
-147 registered CTest entries with runtime checks OFF. These runs include LINALG,
+Before the CTest registration changes, complete enabled Armadillo and Eigen
+Release builds each passed all 147 registered CTest entries with runtime checks OFF. These runs include LINALG,
 MTK, INT, PETSc/BDDC, and application examples on their configured MPI counts.
 Math libraries used one thread per rank, inherited PETSc options were cleared,
-and MPI CPU binding was disabled for concurrent test launches. The bedding and
-adaptive-boxbeam variants use isolated working directories and callback-library
-paths. The application fixes cover default-empty horizontal concatenation,
+and MPI CPU binding was disabled for concurrent test launches. Those runs used
+isolated working directories for the bedding and adaptive-boxbeam variants.
+These variants now use each example's shared ``bin/`` directory and relative
+input-library names; run their process-count variants sequentially.
+The application fixes cover default-empty horizontal concatenation,
 stable cached operands during lazy FEM expressions, explicit MORIS scalar
 reductions of native subviews, and PETSc 3.23.2 retained Dirichlet coarse-basis
 initialization. Exhaustive instrumented branch coverage remains separate
