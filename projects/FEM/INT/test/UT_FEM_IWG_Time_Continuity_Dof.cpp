@@ -473,6 +473,8 @@ void IWG_Time_Continuity_Dof_Check(
                     {
                         for ( uint iRow = 0; iRow < tCoefficients.n_rows(); ++iRow )
                         {
+                            Matrix< DDRMat > tResidualPlus;
+
                             for ( uint iWgt = 0; iWgt < 2; ++iWgt )
                             {
                                 tCoefficients( iRow, iCol ) += tFDpertb( iWgt ) * tPerturbation;
@@ -487,8 +489,16 @@ void IWG_Time_Continuity_Dof_Check(
 
                                 tIWG->compute_residual( aOptions.mIntegrationWeight );
 
-                                tJacFD.get_column( tColCtr ) +=    //
-                                        tFDpertb( iWgt ) / ( 2.0 * tPerturbation ) * tIWG->mSet->get_residual()( 0 );
+                                // Subtract before dividing to avoid amplifying residual roundoff.
+                                if ( iWgt == 0 )
+                                {
+                                    tResidualPlus = tIWG->mSet->get_residual()( 0 );
+                                }
+                                else
+                                {
+                                    tJacFD.get_column( tColCtr ) =
+                                            ( tResidualPlus - tIWG->mSet->get_residual()( 0 ) ) / ( 2.0 * tPerturbation );
+                                }
 
                                 tCoefficients( iRow, iCol ) -= tFDpertb( iWgt ) * tPerturbation;
                             }
