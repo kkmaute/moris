@@ -2475,7 +2475,10 @@
          Vector< Subphase_Group* > const &       tSPGs                         = tBsplineMeshInfo->mSubphaseGroups;
          Vector< moris_index > const &           tNonEnrBfIndForEnrBfInd       = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mNonEnrBfIndForEnrBfInd;
          Enriched_Interpolation_Mesh&            tEnrInterpMesh                = mXTKModelPtr->get_enriched_interp_mesh( aMeshIndex );
- 
+         //get basis weight denominators
+         std::unordered_map< moris_index, Vector< Vector< moris_index > > >& tAveragingWeightDenominatorIndicesSPGBased = mBasisData( aMeshIndex ).mAveragingWeightDenominatorIndicesSPGBased;
+
+
          std::unordered_map< moris_index, Vector< real > >& tAveragingWeightsSPGBased = mBasisData( aMeshIndex ).mAveragingWeightsSPGBased;
  
          // get the enriched basis function that might be bad in the extened cell ( old ones )
@@ -2504,6 +2507,9 @@
  
              // get the averaging weights for the enriched basis
              real const & tAveragingWeights = tAveragingWeightsSPGBased[ aSubphaseGroupIndex ]( iEnrichedBasisOrd );
+
+             //get averaging weight denominator indices for the enriched basis
+             Vector< moris_index > const & tAveragingWeightDenominatorIndices = tAveragingWeightDenominatorIndicesSPGBased[ aSubphaseGroupIndex ]( iEnrichedBasisOrd );
  
              //  else statement( to prevent further indentation it is written without else statement)
              //  if the enriched basis is follower, then first convert it to bg basis index
@@ -2556,6 +2562,24 @@
                      // add the projection coefficient to the follower to leader basis relationship
                      mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( iEnrichedBasis ).push_back( tAveragingWeights * tProjectionCoefficient );
                      mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( iEnrichedBasis ).push_back( tOwner );
+
+                     // add per-root basis weight to the follower to leader basis relationship
+                     mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightsWithoutVolFraction( iEnrichedBasis ).push_back( tProjectionCoefficient );
+
+                     // Add the numerator of averaging weight derivative (that is, the index of the SPG whose volume is the numerator of tAveragingWeight)
+                     mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightNumerators( iEnrichedBasis ).push_back( aSubphaseGroupIndex );
+
+                     // Add the denominator of the averaging weight derivative (that is, all the SPGs with support on the given enriched basis), assuming
+                     // that another SPG sharing this basis has not done so already
+                     // Get a reference to the target location to avoid looking it up twice
+                     auto& tTargetDenominators = mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeightDenominators( iEnrichedBasis );
+
+                     // Only assign if the target vector is currently empty (that is, the denominator SPGs have not been populated previously
+                     // by another SPG sharing this basis)
+                     if ( tTargetDenominators.empty() )
+                     {
+                         tTargetDenominators = tAveragingWeightDenominatorIndices;
+                     }
                  }
              }
          }
