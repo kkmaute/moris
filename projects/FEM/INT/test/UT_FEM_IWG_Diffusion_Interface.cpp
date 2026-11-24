@@ -13,17 +13,17 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT//src
+// FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -31,20 +31,23 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp"
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
 
 using namespace moris;
 using namespace fem;
 
-void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
+void UT_IWG_Diff_Interface_Core( enum fem::IWG_Type tIWGType )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
+
+    // flag to check previous jacobian in case interface is time dependent (experimental)
+    bool tCheckPreviousJacobian = false;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -56,33 +59,35 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
 
     // create list of interpolation orders
     Vector< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     Vector< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    Vector< Vector< MSI::Dof_Type > > tTempDofTypes  = { { MSI::Dof_Type::TEMP } };
+    Vector< Vector< MSI::Dof_Type > > tTempDofTypes = { { MSI::Dof_Type::TEMP } };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property > ();
-    tPropLeaderConductivity->set_parameters( { {{ 1.0 }} } );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 1.0 } } } );
     tPropLeaderConductivity->set_val_function( tConstValFunc_Diff );
     //            tPropLeaderConductivity->set_dof_type_list( { tTempDofTypes } );
     //            tPropLeaderConductivity->set_val_function( tTEMPFIValFunc_Diff );
     //            tPropLeaderConductivity->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
 
-    std::shared_ptr< fem::Property > tPropFollowerConductivity = std::make_shared< fem::Property > ();
-    tPropFollowerConductivity->set_parameters( { {{ 5.0 }} } );
+    std::shared_ptr< fem::Property > tPropFollowerConductivity = std::make_shared< fem::Property >();
+    tPropFollowerConductivity->set_parameters( { { { 5.0 } } } );
     tPropFollowerConductivity->set_val_function( tConstValFunc_Diff );
     //            tPropFollowerConductivity->set_dof_type_list( { tTempDofTypes } );
     //            tPropFollowerConductivity->set_val_function( tTEMPFIValFunc_Diff );
@@ -93,13 +98,13 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
 
     std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMLeaderDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tCMLeaderDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
     tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
     tCMLeaderDiffLinIso->set_space_dim( 3 );
     tCMLeaderDiffLinIso->set_local_properties();
 
     std::shared_ptr< fem::Constitutive_Model > tCMFollowerDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMFollowerDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tCMFollowerDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
     tCMFollowerDiffLinIso->set_property( tPropFollowerConductivity, "Conductivity" );
     tCMFollowerDiffLinIso->set_space_dim( 3 );
     tCMFollowerDiffLinIso->set_local_properties();
@@ -109,12 +114,12 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
             tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
-    tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
+    tSPNitscheInterface->set_parameters( { { { 1.0 } } } );
     tSPNitscheInterface->set_property( tPropLeaderConductivity, "Material", mtk::Leader_Follower::LEADER );
     tSPNitscheInterface->set_property( tPropFollowerConductivity, "Material", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitscheInterface->set_cluster( tCluster );
 
     // define the IWGs
@@ -132,8 +137,8 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::DOUBLE_SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -148,11 +153,11 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
     tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // set size and populate the set follower dof type map
-    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set geometry inputs
         //------------------------------------------------------------------------------
@@ -168,34 +173,34 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
         tSPNitscheInterface->set_space_dim( iSpaceDim );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 0.0 },
-                        { 1.0, 1.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 1.0 },
-                        { 1.0, 0.0, 1.0 },
-                        { 1.0, 1.0, 1.0 },
-                        { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
                 break;
             }
             default:
@@ -218,13 +223,13 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -258,8 +263,8 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
             // get number of dof per type
             int tNumDofTemp = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
                     mtk::Interpolation_Type::LAGRANGE,
@@ -287,13 +292,32 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
             tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
             tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatTemp );
 
+            // for previous time step
+            Vector< Field_Interpolator* > tLeaderPreviousFIs( tTempDofTypes.size() );
+            Vector< Field_Interpolator* > tFollowerPreviousFIs( tTempDofTypes.size() );
+
+            Matrix< DDRMat > tLeaderPreviousDOFHatTemp;
+            Matrix< DDRMat > tFollowerPreviousDOFHatTemp;
+
+            if ( tCheckPreviousJacobian )
+            {
+                tLeaderPreviousDOFHatTemp   = 1.1 * tLeaderDOFHatTemp;
+                tFollowerPreviousDOFHatTemp = 0.9 * tFollowerDOFHatTemp;
+
+                tLeaderPreviousFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
+                tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatTemp );
+
+                tFollowerPreviousFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
+                tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatTemp );
+            }
+
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tTempDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofTemp - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofTemp, 2 * tNumDofTemp - 1 } };
 
             // set size and fill the set jacobian assembly map
-            Matrix< DDSMat > tJacAssembly = { { 0, tNumDofTemp-1 }, { tNumDofTemp, 2 * tNumDofTemp - 1 } };
+            Matrix< DDSMat > tJacAssembly = { { 0, tNumDofTemp - 1 }, { tNumDofTemp, 2 * tNumDofTemp - 1 } };
             tIWG->mSet->mJacDofAssemblyMap.resize( 2 * tTempDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -307,34 +331,56 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
             tIWG->get_global_dof_type_list();
 
             // populate the requested leader dof type
-            tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
-            tIWG->mRequestedFollowerGlobalDofTypes  = tTempDofTypes;
+            tIWG->mRequestedLeaderGlobalDofTypes   = tTempDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
-            Vector< Vector< enum gen::PDV_Type > > tDummyDv;
+            Vector< Vector< enum gen::PDV_Type > >   tDummyDv;
             Vector< Vector< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tLeaderFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tFollowerFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager               tLeaderFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager               tFollowerFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tLeaderFIManager.mFI = tLeaderFIs;
-            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
-            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
-            tFollowerFIManager.mFI = tFollowerFIs;
+            tLeaderFIManager.mFI                       = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator   = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator   = &tGI;
+            tFollowerFIManager.mFI                     = tFollowerFIs;
             tFollowerFIManager.mIPGeometryInterpolator = &tGI;
             tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mLeaderFIManager   = &tLeaderFIManager;
             tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
             tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
+            Field_Interpolator_Manager tLeaderPreviousFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerPreviousFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
+
+            if ( tCheckPreviousJacobian )
+            {
+                // populate the field interpolator manager
+                tLeaderPreviousFIManager.mFI                       = tLeaderPreviousFIs;
+                tLeaderPreviousFIManager.mIPGeometryInterpolator   = &tGI;
+                tLeaderPreviousFIManager.mIGGeometryInterpolator   = &tGI;
+                tFollowerPreviousFIManager.mFI                     = tFollowerPreviousFIs;
+                tFollowerPreviousFIManager.mIPGeometryInterpolator = &tGI;
+                tFollowerPreviousFIManager.mIGGeometryInterpolator = &tGI;
+
+                // set the interpolator manager to the set
+                tIWG->mSet->mLeaderPreviousFIManager   = &tLeaderPreviousFIManager;
+                tIWG->mSet->mFollowerPreviousFIManager = &tFollowerPreviousFIManager;
+
+                // set IWG field interpolator manager
+                tIWG->set_field_interpolator_manager_previous_time( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
+                tIWG->set_field_interpolator_manager_previous_time( &tFollowerPreviousFIManager, mtk::Leader_Follower::FOLLOWER );
+            }
+
             // loop over inetgration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -345,6 +391,12 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
                 // set integration point
                 tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
                 tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
+
+                if ( tCheckPreviousJacobian )
+                {
+                    tIWG->mSet->mLeaderPreviousFIManager->set_space_time( tParamPoint );
+                    tIWG->mSet->mFollowerPreviousFIManager->set_space_time( tParamPoint );
+                }
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -357,6 +409,18 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
                 // check evaluation of the jacobian by FD
                 //------------------------------------------------------------------------------
                 // reset jacobian
+                tIWG->mSet->mJacobian.fill( 0.0 );
+
+                // compute jacobian wrt previous time step
+                Matrix< DDRMat > tJacobianPrevious;
+                if ( tCheckPreviousJacobian )
+                {
+                    tIWG->compute_jacobian_previous( 1.0 );
+
+                    // save analytic jacobian
+                    tJacobianPrevious = tIWG->mSet->mJacobian;
+                }
+
                 tIWG->mSet->mJacobian.fill( 0.0 );
 
                 // init the jacobian for IWG and FD evaluation
@@ -375,35 +439,119 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
                 // check that jacobian is symmetric for symmetric version
                 if ( tIWGType == fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE )
                 {
-                    real tRelError = norm( tJacobian - trans( tJacobian ) ) / norm ( tJacobian );
+                    real tRelError = norm( tJacobian - trans( tJacobian ) ) / norm( tJacobian );
                     REQUIRE( tRelError < 1e-12 );
                 }
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
                     std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 // require check is true
                 REQUIRE( tCheckJacobian );
+
+                // Check jacobian wrt previous time step by FD
+                if ( tCheckPreviousJacobian )
+                {
+                    uint tCounter = 0;
+                    for ( uint idir = 0; idir < tLeaderPreviousDOFHatTemp.n_cols(); idir++ )
+                    {
+                        for ( uint in = 0; in < tLeaderPreviousDOFHatTemp.n_rows(); in++ )
+                        {
+                            tLeaderPreviousDOFHatTemp( in, idir ) += tPerturbation;
+                            tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatTemp );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) = 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tLeaderPreviousDOFHatTemp( in, idir ) -= 2.0 * tPerturbation;
+                            tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatTemp );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) -= 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tLeaderPreviousDOFHatTemp( in, idir ) += tPerturbation;
+                            tCounter++;
+                        }
+                    }
+                    // reset the leader dof hat displacement
+                    tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatTemp );
+
+                    // FD wrt displacements on follower side
+                    for ( uint idir = 0; idir < tFollowerPreviousDOFHatTemp.n_cols(); idir++ )
+                    {
+                        for ( uint in = 0; in < tFollowerPreviousDOFHatTemp.n_rows(); in++ )
+                        {
+                            tFollowerPreviousDOFHatTemp( in, idir ) += tPerturbation;
+                            tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatTemp );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) = 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tFollowerPreviousDOFHatTemp( in, idir ) -= 2.0 * tPerturbation;
+                            tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatTemp );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) -= 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tFollowerPreviousDOFHatTemp( in, idir ) += tPerturbation;
+                            tCounter++;
+                        }
+                    }
+
+                    // reset the follower dof hat displacement
+                    tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatTemp );
+
+                    tIWG->reset_eval_flags();
+
+                    real errorNorm = norm( tJacobianPrevious - tJacobianFD ) / ( norm( tJacobianFD ) + MORIS_REAL_EPS );
+
+                    real tAbsoluteErrorNorm = norm( tJacobianPrevious - tJacobianFD );
+
+                    bool tPassedCheck = true;
+                    if ( errorNorm > tEpsilon && tAbsoluteErrorNorm > 0.1 * tEpsilon )
+                    {
+                        tPassedCheck = false;
+                        fprintf( stdout, "Jacobian wrt previous time relative error norm = %e\n", errorNorm );
+                        print( tJacobianPrevious, "AnalyticalJacobian" );
+                        print( tJacobianFD, "FDJacobian" );
+                        print( tJacobianPrevious - tJacobianFD, "Jacobian error" );
+                    }
+
+                    // check if the test passed
+                    REQUIRE( tPassedCheck );
+                }
             }
 
             // clean up
             tLeaderFIs.clear();
             tFollowerFIs.clear();
+            tLeaderPreviousFIs.clear();
+            tFollowerPreviousFIs.clear();
         }
     }
 }
 
 TEST_CASE( "IWG_Diff_Interface_Symmetric", "[moris],[fem],[IWG_Diff_Interface_Symmetric]" )
 {
-    UT_IWG_Diff_Interface_Core(  fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
-
+    UT_IWG_Diff_Interface_Core( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
 }
 
 TEST_CASE( "IWG_Diff_Interface_Unsymmetric", "[moris],[fem],[IWG_Diff_Interface_Unsymmetric]" )
 {
     UT_IWG_Diff_Interface_Core( fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE );
 }
-

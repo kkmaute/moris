@@ -62,7 +62,7 @@ namespace moris::fem
         /**
          * trivial destructor
          */
-        ~IWG_Diffusion_Interface() override{};
+        ~IWG_Diffusion_Interface() override {};
 
         //------------------------------------------------------------------------------
         /**

@@ -83,7 +83,6 @@ check_results(
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
-    std::cout << tNumNodes << '\n';
     uint tNumElems = tExoIO.get_number_of_elements();
 
     MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
@@ -129,7 +128,6 @@ check_results(
     Vector< real > tReferenceTime;
     tReferenceTime.push_back( 1 );
     tReferenceTime.push_back( 1 );
-    // tReferenceTime.push_back( 1.000000000000000e+00 );
 
     real tActualTime = tExoIO.get_time_value();
 
@@ -151,9 +149,6 @@ check_results(
     Matrix< DDRMat > tActualTemperature = {
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) }
     };
-
-    //{ tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 ) } };
-    std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << '\n';
 
     real tRelTempDifference = norm( tActualTemperature - tReferenceTemperature( aTestCaseIndex ) ) / norm( tReferenceTemperature( aTestCaseIndex ) );
 
