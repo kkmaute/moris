@@ -111,7 +111,7 @@ namespace moris
             std::cout << "Global Clock Initialized ... \n"
                       << std::flush;
 
-            if ( mMemoryOutput > 0 )
+            if ( LOGGER_PRINT_MEMORY_USAGE )
             {
                 std::cout << tMemUsage << '\n'
                           << std::flush;
@@ -158,7 +158,7 @@ namespace moris
                               << " \n"
                               << std::flush;
 
-                    if ( mMemoryOutput )
+                    if ( LOGGER_PRINT_MEMORY_USAGE )
                     {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel - 1 )
                                   << "__"
@@ -174,7 +174,7 @@ namespace moris
                               << " \n"
                               << std::flush;
 
-                    if ( mMemoryOutput )
+                    if ( LOGGER_PRINT_MEMORY_USAGE )
                     {
                         std::cout << tMemoryUsage << '\n'
                                   << std::flush;
@@ -194,7 +194,11 @@ namespace moris
     Logger::sign_out()
     {
         // stop timer
-        real tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+        real tElapsedTime = 0.0;
+        if ( LOGGER_PRINT_TIME )
+        {
+            tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+        }
 
         // compute maximum and minimum time used by processors
         real tElapsedTimeMax = logger_max_all( tElapsedTime );
@@ -203,7 +207,7 @@ namespace moris
         // debug - wall clock time measurements
         real tElapsedWallTimeMax = 0.0;
         real tElapsedWallTimeMin = 0.0;
-        if ( PRINT_WALL_TIME )
+        if ( LOGGER_PRINT_WALL_TIME )
         {
             std::chrono::duration< double > tChronoElapsedWallTime =
                     ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[ mGlobalClock.mIndentationLevel ] );
@@ -218,19 +222,22 @@ namespace moris
         // log to file
         if ( mWriteToAscii )
         {
-            // print timing for previous iteration if previous iterations are present
-            if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+            if ( LOGGER_PRINT_TIME )
             {
-                // compute iteration time on each proc
-                real tIndividualIterationTime =
-                        ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+                // print timing for previous iteration if previous iterations are present
+                if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                {
+                    // compute iteration time on each proc
+                    real tIndividualIterationTime =
+                            ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
-                // log iteration time to file
-                this->log_to_file( "IterationTime", tIndividualIterationTime );
+                    // log iteration time to file
+                    this->log_to_file( "IterationTime", tIndividualIterationTime );
+                }
+
+                // log current position in code
+                this->log_to_file( "ElapsedTime", tElapsedTime );
             }
-
-            // log current position in code
-            this->log_to_file( "ElapsedTime", tElapsedTime );
         }
 
         // add memory consumption information to log output
@@ -251,28 +258,33 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
                 {
-                    // print timing for previous iteration if previous iterations are present
-                    if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                    if ( LOGGER_PRINT_TIME )
                     {
-                        // stop timer
-                        real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+                        // print timing for previous iteration if previous iterations are present
+                        if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                        {
+                            // stop timer
+                            real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
-                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
-                                  << "IterationTime: " << tIterationTime << " \n"
+                            std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
+                                      << "IterationTime: " << tIterationTime << " \n"
+                                      << std::flush;
+                        }
+
+                        // print elapsed time for whole entity
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                                  << "ElapsedTime (max/min) = " << tElapsedTimeMax << " / " << tElapsedTimeMin << " \n"
                                   << std::flush;
                     }
 
-                    // print elapsed time for whole entity
-                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
-                              << "ElapsedTime (max/min) = " << tElapsedTimeMax << " / " << tElapsedTimeMin << " \n"
-                              << std::flush;
-
-                    if ( PRINT_WALL_TIME )
+                    if ( LOGGER_PRINT_WALL_TIME )
+                    {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
                                   << "ElapsedWallTime (max/min) = " << tElapsedWallTimeMax << " / " << tElapsedWallTimeMin << " \n"
                                   << std::flush;
+                    }
 
-                    if ( mMemoryOutput )
+                    if ( LOGGER_PRINT_MEMORY_USAGE )
                     {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
                                   << tMemoryUsage << '\n'
@@ -283,10 +295,13 @@ namespace moris
                 }
                 else
                 {
-                    std::cout << "Signing out " << tEntityDescriptor << ". Elapsed time (max/min) = " << tElapsedTimeMax << " / " << tElapsedTimeMin << " \n"
-                              << std::flush;
+                    if ( LOGGER_PRINT_TIME )
+                    {
+                        std::cout << "Signing out " << tEntityDescriptor << ". Elapsed time (max/min) = " << tElapsedTimeMax << " / " << tElapsedTimeMin << " \n"
+                                  << std::flush;
+                    }
 
-                    if ( mMemoryOutput )
+                    if ( LOGGER_PRINT_MEMORY_USAGE )
                     {
                         std::cout << tMemoryUsage << '\n'
                                   << std::flush;
@@ -321,15 +336,18 @@ namespace moris
             // switch based on OutputFormat provided
             if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
             {
-                // print timing for previous iteration if previous iterations are present
-                if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                if ( LOGGER_PRINT_TIME )
                 {
-                    // stop timer
-                    real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+                    // print timing for previous iteration if previous iterations are present
+                    if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                    {
+                        // stop timer
+                        real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
-                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
-                              << "IterationTime: " << tIterationTime << " \n"
-                              << std::flush;
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
+                                  << "IterationTime: " << tIterationTime << " \n"
+                                  << std::flush;
+                    }
                 }
 
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "===================================================================\n"
@@ -349,18 +367,22 @@ namespace moris
             // write to file if requested
             if ( mWriteToAscii )
             {
-                // print timing for previous iteration if previous iterations are present
-                if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                if ( LOGGER_PRINT_TIME )
                 {
-                    // compute iteration time on each proc
-                    real tIndividualIterationTime =
-                            ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+                    // print timing for previous iteration if previous iterations are present
+                    if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
+                    {
+                        // compute iteration time on each proc
+                        real tIndividualIterationTime =
+                                ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
-                    // log iteration time to file
-                    this->log_to_file( "IterationTime", tIndividualIterationTime );
+                        // log iteration time to file
+                        this->log_to_file( "IterationTime", tIndividualIterationTime );
+                    }
                 }
 
-                // formatted output to log file
+                // Iteration records are structural log metadata, independent
+                // of whether timing measurements are requested.
                 this->log_to_file(
                         "Iteration",
                         mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 );
@@ -761,7 +783,7 @@ namespace moris
     Logger::memory_usage()
     {
         // return empty string if memory output is suppressed
-        if ( mMemoryOutput == 0 )
+        if ( !LOGGER_PRINT_MEMORY_USAGE )
         {
             return "";
         }

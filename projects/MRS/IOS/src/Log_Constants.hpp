@@ -31,7 +31,11 @@ const std::string LOGGER_HEADER_END               = "<<<<<";
 
 const moris::uint QUERY_MAX_COLUMN_WIDTH = 18;
 
-const bool PRINT_WALL_TIME = true;
+// control level of timing reporting
+const bool LOGGER_PRINT_TIME      = false;
+const bool LOGGER_PRINT_WALL_TIME = false;
+
+// control level of memory reporting
+const bool LOGGER_PRINT_MEMORY_USAGE = false;
 
 #endif /* MORIS_LOG_CONSTANTS_HPP_ */
-
