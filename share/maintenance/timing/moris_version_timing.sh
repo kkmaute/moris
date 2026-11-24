@@ -19,7 +19,7 @@ export MORISROOTORG=$HOME/codes/moris
 here=$MORISROOTORG/build_opt
 
 # branch: master or xtk_refactor or main
-branch=main
+branch=kkmaute/contact
 
 # file with list of examples 
 exalist=$MORISROOTORG/share/maintenance/timing/TimingExampleList
