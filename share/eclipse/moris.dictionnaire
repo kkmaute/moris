@@ -53,3 +53,5 @@ azimuthal
 eigen
 adjoint
 stagnation
+tficurrent
+regularization
