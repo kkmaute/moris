@@ -142,6 +142,7 @@ set(HEADERS
     IWG/cl_FEM_IWG.hpp
 
     IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
+    IWG/cl_FEM_Lumped_Matrix.hpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.hpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.hpp
     IWG/cl_FEM_IWG_L2.hpp
