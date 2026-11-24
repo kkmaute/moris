@@ -270,6 +270,7 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
             /**
              * @brief get adjoint solution vector
              * @returns aSolutionVector adjoint distributed solution vector

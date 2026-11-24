@@ -146,10 +146,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-            const moris_index                        &aMeshPairIndex,
-            const Module_Parameter_Lists &aParameterList,
-            const std::shared_ptr< Library_IO >      &aLibrary )
+            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+            const moris_index                   &aMeshPairIndex,
+            const Module_Parameter_Lists        &aParameterList,
+            const std::shared_ptr< Library_IO > &aLibrary )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -184,10 +184,10 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
-            std::shared_ptr< mtk::Mesh_Manager >      aMeshManager,
-            const moris_index                        &aMeshPairIndex,
-            const Module_Parameter_Lists &aParameterList,
-            MSI::Design_Variable_Interface           *aDesignVariableInterface )
+            std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+            const moris_index                   &aMeshPairIndex,
+            const Module_Parameter_Lists        &aParameterList,
+            MSI::Design_Variable_Interface      *aDesignVariableInterface )
             : mMeshManager( std::move( aMeshManager ) )
             , mMeshPairIndex( aMeshPairIndex )
             , mParameterList( aParameterList )
@@ -403,7 +403,8 @@ namespace moris::fem
     void FEM_Model::update_equation_sets()
     {
         // early return if no nonconformal set is present
-        if ( std::none_of( mFemSets.begin(), mFemSets.end(), []( auto const &tSet ) { return tSet->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET; } ) )
+        if ( std::none_of( mFemSets.begin(), mFemSets.end(), []( auto const &tSet )    //
+                     { return tSet->get_element_type() == fem::Element_Type::NONCONFORMAL_SIDESET; } ) )
         {
             return;
         }
@@ -473,7 +474,7 @@ namespace moris::fem
         // loop over each fem set and check if it needs to be updated (i.e. only nonconformal sets!)
         for ( size_t iFemSet = 0; iFemSet < mFemSets.size(); ++iFemSet )
         {
-            auto *const tFemSet      = dynamic_cast< fem::Set      *>( mFemSets( iFemSet ) );
+            auto *const tFemSet      = dynamic_cast< fem::Set * >( mFemSets( iFemSet ) );
             auto const &tMeshSetName = tMeshSetNames( iFemSet );
             if ( tFemSet->get_is_update_required() )
             {
@@ -1223,17 +1224,18 @@ namespace moris::fem
     void FEM_Model::prepare_nonconformal_side_sets( mtk::Integration_Mesh *aIGMesh )
     {
         // early return if no nonconformal set is present
-        if ( std::none_of( mSetInfo.begin(), mSetInfo.end(), []( auto &tSetInfo ) { return tSetInfo.get_mesh_set_name().find( "ncss" ) != std::string::npos; } ) )
+        if ( std::none_of( mSetInfo.begin(), mSetInfo.end(), []( auto &tSetInfo )    //
+                     { return tSetInfo.get_mesh_set_name().find( "ncss" ) != std::string::npos; } ) )
         {
             return;
         }
 
-        mtk::Integration_Mesh_DataBase_IG* tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
+        mtk::Integration_Mesh_DataBase_IG *tIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG * >( aIGMesh );
 
         auto const &[ tSetNames, tCandidatePairs ] = prepare_nonconformal_candidate_pairs();
 
         Vector< mtk::Side_Set const * > tSideSets;
-        for ( std::string const & tSetName : tSetNames )
+        for ( std::string const &tSetName : tSetNames )
         {
             tSideSets.push_back( dynamic_cast< mtk::Side_Set const * >( tIGMesh->get_set_by_name( tSetName ) ) );
         }

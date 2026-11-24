@@ -52,316 +52,317 @@ namespace moris::sol
             case MapType::Petsc:
             {
 #ifdef MORIS_HAVE_PETSC
-                    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+                tSparseMatrix = new Matrix_PETSc( aInput, aMap );
 #else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No matrix type specified." );
-                    break;
-                }
+                break;
             }
-            return tSparseMatrix;
-        }
-
-        //-------------------------------------------------------------------------------------------
-
-        Dist_Matrix*
-        sol::Matrix_Vector_Factory::create_matrix(
-                Dist_Map* aRowMap,
-                Dist_Map* aColMap )
-        {
-            Dist_Matrix* tSparseMatrix = nullptr;
-
-            switch ( mMapType )
+            default:
             {
-                case MapType::Epetra:
-                {
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
-                    break;
-                }
-                // case (MapType::Petsc):
-                //     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
-                //     break;
-                default:
-                {
-                    MORIS_ERROR( false, "No matrix type specified." );
-                    break;
-                }
+                MORIS_ERROR( false, "No matrix type specified." );
+                break;
             }
-            return tSparseMatrix;
         }
+        return tSparseMatrix;
+    }
 
-        //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
 
-        Dist_Matrix*
-        sol::Matrix_Vector_Factory::create_matrix(
-                const uint aRows,
-                const uint aCols )
+    Dist_Matrix*
+    sol::Matrix_Vector_Factory::create_matrix(
+            Dist_Map* aRowMap,
+            Dist_Map* aColMap )
+    {
+        Dist_Matrix* tSparseMatrix = nullptr;
+
+        switch ( mMapType )
         {
-            Dist_Matrix* tSparseMatrix = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
-                    break;
-                }
-                case MapType::Petsc:
-                {
+                tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
+                break;
+            }
+            // case (MapType::Petsc):
+            //     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+            //     break;
+            default:
+            {
+                MORIS_ERROR( false, "No matrix type specified." );
+                break;
+            }
+        }
+        return tSparseMatrix;
+    }
+
+    //-------------------------------------------------------------------------------------------
+
+    Dist_Matrix*
+    sol::Matrix_Vector_Factory::create_matrix(
+            const uint aRows,
+            const uint aCols )
+    {
+        Dist_Matrix* tSparseMatrix = nullptr;
+
+        switch ( mMapType )
+        {
+            case MapType::Epetra:
+            {
+                tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRows, aCols );
+                break;
+            }
+            case MapType::Petsc:
+            {
 #ifdef MORIS_HAVE_PETSC
-                    tSparseMatrix = new Matrix_PETSc( aRows, aCols );
+                tSparseMatrix = new Matrix_PETSc( aRows, aCols );
 #else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No matrix type specified." );
-                    break;
-                }
+                break;
             }
-            return tSparseMatrix;
-        }
-
-        //-------------------------------------------------------------------------------------------------
-
-        Dist_Vector*
-        sol::Matrix_Vector_Factory::create_vector(
-                Solver_Interface* aInput,
-                Dist_Map*         aMap,
-                const sint        aNumVectors,
-                bool              aPointMap,
-                bool              aManageMap )
-        {
-            Dist_Vector* tDistVector = nullptr;
-
-            switch ( mMapType )
+            default:
             {
-                case MapType::Epetra:
-                {
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap, aManageMap );
-                    break;
-                }
-                case MapType::Petsc:
-                {
+                MORIS_ERROR( false, "No matrix type specified." );
+                break;
+            }
+        }
+        return tSparseMatrix;
+    }
+
+    //-------------------------------------------------------------------------------------------------
+
+    Dist_Vector*
+    sol::Matrix_Vector_Factory::create_vector(
+            Solver_Interface* aInput,
+            Dist_Map*         aMap,
+            const sint        aNumVectors,
+            bool              aPointMap,
+            bool              aManageMap )
+    {
+        Dist_Vector* tDistVector = nullptr;
+
+        switch ( mMapType )
+        {
+            case MapType::Epetra:
+            {
+                tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap, aManageMap );
+                break;
+            }
+            case MapType::Petsc:
+            {
 #ifdef MORIS_HAVE_PETSC
-                    tDistVector = new MultiVector_PETSc( aInput, aMap, aNumVectors, aManageMap );
+                tDistVector = new MultiVector_PETSc( aInput, aMap, aNumVectors, aManageMap );
 #else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No vector type specified." );
-                    break;
-                }
+                break;
             }
-            return tDistVector;
-        }
-
-        //-------------------------------------------------------------------------------------------------
-
-        Dist_Vector*
-        sol::Matrix_Vector_Factory::create_vector(
-                Dist_Map*  aMap,
-                const sint aNumVectors,
-                bool       aPointMap,
-                bool       aManageMap )
-        {
-            Dist_Vector* tDistVector = nullptr;
-
-            switch ( mMapType )
+            default:
             {
-                case MapType::Epetra:
-                {
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap, aManageMap );
-                    break;
-                }
-                //    case (MapType::Petsc):
-                //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
-                //        tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
-                //        break;
-                default:
-                {
-                    MORIS_ERROR( false, "No vector type specified." );
-                    break;
-                }
+                MORIS_ERROR( false, "No vector type specified." );
+                break;
             }
-            return tDistVector;
         }
+        return tDistVector;
+    }
 
-        //-------------------------------------------------------------------------------------------------
-        Dist_Map*
-        sol::Matrix_Vector_Factory::create_map(
-                const Matrix< DDSMat >& aMyGlobalIds,
-                const Matrix< DDUMat >& aMyConstraintIds )
+    //-------------------------------------------------------------------------------------------------
+
+    Dist_Vector*
+    sol::Matrix_Vector_Factory::create_vector(
+            Dist_Map*  aMap,
+            const sint aNumVectors,
+            bool       aPointMap,
+            bool       aManageMap )
+    {
+        Dist_Vector* tDistVector = nullptr;
+
+        switch ( mMapType )
         {
-            Dist_Map* tMap = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tMap = new Map_Epetra( aMyGlobalIds, aMyConstraintIds );
-                    break;
-                }
-                case MapType::Petsc:
-                {
+                tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap, aManageMap );
+                break;
+            }
+            //    case (MapType::Petsc):
+            //        MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
+            //        tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors );
+            //        break;
+            default:
+            {
+                MORIS_ERROR( false, "No vector type specified." );
+                break;
+            }
+        }
+        return tDistVector;
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    Dist_Map*
+    sol::Matrix_Vector_Factory::create_map(
+            const Matrix< DDSMat >& aMyGlobalIds,
+            const Matrix< DDUMat >& aMyConstraintIds )
+    {
+        Dist_Map* tMap = nullptr;
+
+        switch ( mMapType )
+        {
+            case MapType::Epetra:
+            {
+                tMap = new Map_Epetra( aMyGlobalIds, aMyConstraintIds );
+                break;
+            }
+            case MapType::Petsc:
+            {
 #ifdef MORIS_HAVE_PETSC
-                    tMap = new Dist_Map_Custom( aMyGlobalIds, aMyConstraintIds );
+                tMap = new Dist_Map_Custom( aMyGlobalIds, aMyConstraintIds );
 #else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Matrix_Vector_Factory::create_map(), map type not specified" );
-                    break;
-                }
+                break;
             }
-            return tMap;
-        }
-        //-------------------------------------------------------------------------------------------------
-
-          //-------------------------------------------------------------------------------------------------
-        Dist_Map*
-        sol::Matrix_Vector_Factory::create_map(
-                const Matrix< DDSMat >& aMyGlobalIds  )
-        {
-            Dist_Map* tMap = nullptr;
-
-            switch ( mMapType )
+            default:
             {
-                case MapType::Epetra:
-                {
-                    tMap = new Map_Epetra( aMyGlobalIds );
-                    break;
-                }
-                case MapType::Petsc:
-                {
-#ifdef MORIS_HAVE_PETSC
-                    tMap = new Dist_Map_Custom( aMyGlobalIds);
-#else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
-#endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "Matrix_Vector_Factory::create_map(), map type not specified" );
-                    break;
-                }
+                MORIS_ERROR( false, "Matrix_Vector_Factory::create_map(), map type not specified" );
+                break;
             }
-            return tMap;
         }
+        return tMap;
+    }
+    //-------------------------------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
+    Dist_Map*
+    sol::Matrix_Vector_Factory::create_map(
+            const Matrix< DDSMat >& aMyGlobalIds )
+    {
+        Dist_Map* tMap = nullptr;
 
-        Dist_Map*
-        sol::Matrix_Vector_Factory::create_map( const Matrix< DDSMat >& aMyGlobalIds, 
-        const Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds= mDummyMatrix  )
+        switch ( mMapType )
         {
-            Dist_Map* tMap = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tMap = new Map_Epetra( aMyGlobalIds );
-                    break;
-                }
-                case MapType::Petsc:
-                {
-#ifdef MORIS_HAVE_PETSC
-                    tMap = new Dist_Map_Custom( aMyGlobalIds, aMyGlobalOwnedAndSharedIds );
-#else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
-#endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No map type specified" );
-                    break;
-                }
+                tMap = new Map_Epetra( aMyGlobalIds );
+                break;
             }
-            return tMap;
+            case MapType::Petsc:
+            {
+#ifdef MORIS_HAVE_PETSC
+                tMap = new Dist_Map_Custom( aMyGlobalIds );
+#else
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "Matrix_Vector_Factory::create_map(), map type not specified" );
+                break;
+            }
         }
+        return tMap;
+    }
 
-        //-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
 
-        Dist_Map*
-        sol::Matrix_Vector_Factory::create_map( const Vector< sint >& aMyGlobalIds )
+    Dist_Map*
+    sol::Matrix_Vector_Factory::create_map(
+            const Matrix< DDSMat >& aMyGlobalIds,
+            const Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds = mDummyMatrix )
+    {
+        Dist_Map* tMap = nullptr;
+
+        switch ( mMapType )
         {
-            Dist_Map* tMap = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tMap = new Map_Epetra( aMyGlobalIds );
-                    break;
-                }
-                case MapType::Petsc:
-                {
-#ifdef MORIS_HAVE_PETSC
-                   tMap = new Dist_Map_Custom( aMyGlobalIds );
-#else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
-#endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No map type specified" );
-                    break;
-                }
+                tMap = new Map_Epetra( aMyGlobalIds );
+                break;
             }
-            return tMap;
+            case MapType::Petsc:
+            {
+#ifdef MORIS_HAVE_PETSC
+                tMap = new Dist_Map_Custom( aMyGlobalIds, aMyGlobalOwnedAndSharedIds );
+#else
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "No map type specified" );
+                break;
+            }
         }
+        return tMap;
+    }
 
-        //-------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------
 
-        Dist_Map*
-        sol::Matrix_Vector_Factory::create_full_map(
-                const moris::Matrix< DDSMat >& aMyGlobalOwnedIds,
-                const moris::Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds )
+    Dist_Map*
+    sol::Matrix_Vector_Factory::create_map( const Vector< sint >& aMyGlobalIds )
+    {
+        Dist_Map* tMap = nullptr;
+
+        switch ( mMapType )
         {
-            Dist_Map* tMap = nullptr;
-
-            switch ( mMapType )
+            case MapType::Epetra:
             {
-                case MapType::Epetra:
-                {
-                    tMap = new Map_Epetra( aMyGlobalOwnedAndSharedIds );
-                    break;
-                }
-                case MapType::Petsc:
-                {
-#ifdef MORIS_HAVE_PETSC
-                    tMap = new Dist_Map_Custom(
-                            aMyGlobalOwnedIds,
-                            aMyGlobalOwnedAndSharedIds,
-                            true );
-#else
-                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
-#endif
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "No map type specified" );
-                    break;
-                }
+                tMap = new Map_Epetra( aMyGlobalIds );
+                break;
             }
-            return tMap;
+            case MapType::Petsc:
+            {
+#ifdef MORIS_HAVE_PETSC
+                tMap = new Dist_Map_Custom( aMyGlobalIds );
+#else
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "No map type specified" );
+                break;
+            }
         }
+        return tMap;
+    }
+
+    //-------------------------------------------------------------------------------------------------
+
+    Dist_Map*
+    sol::Matrix_Vector_Factory::create_full_map(
+            const moris::Matrix< DDSMat >& aMyGlobalOwnedIds,
+            const moris::Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds )
+    {
+        Dist_Map* tMap = nullptr;
+
+        switch ( mMapType )
+        {
+            case MapType::Epetra:
+            {
+                tMap = new Map_Epetra( aMyGlobalOwnedAndSharedIds );
+                break;
+            }
+            case MapType::Petsc:
+            {
+#ifdef MORIS_HAVE_PETSC
+                tMap = new Dist_Map_Custom(
+                        aMyGlobalOwnedIds,
+                        aMyGlobalOwnedAndSharedIds,
+                        true );
+#else
+                MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "No map type specified" );
+                break;
+            }
+        }
+        return tMap;
+    }
 }    // namespace moris::sol

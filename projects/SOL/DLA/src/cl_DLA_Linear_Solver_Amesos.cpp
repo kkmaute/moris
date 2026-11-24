@@ -192,8 +192,7 @@ Linear_Solver_Amesos::solve_linear_system(
 
 //-----------------------------------------------------------------------------
 
-void
-Linear_Solver_Amesos::set_solver_internal_parameters()
+void Linear_Solver_Amesos::set_solver_internal_parameters()
 {
     // Initialize parameter list
     Teuchos::ParameterList params;
