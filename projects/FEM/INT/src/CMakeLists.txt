@@ -50,6 +50,7 @@ set(HEADERS
     CORE/fn_FEM_Check.hpp
     CORE/fn_FEM_FD_Scheme.hpp
     ELEM/cl_FEM_Cluster.hpp
+    ELEM/cl_FEM_Cluster_Time_History.hpp
     ELEM/cl_FEM_Element_Factory.hpp
     ELEM/cl_FEM_ElementProxy.hpp
     ELEM/cl_FEM_Element.hpp
@@ -123,6 +124,9 @@ set(HEADERS
     IWG/cl_FEM_IWG.hpp
     IWG/cl_FEM_Lumped_Matrix.hpp
     IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
+    IWG/cl_FEM_Lumped_Matrix.hpp
+    IWG/cl_FEM_Time_DG_Operators.hpp
+    IWG/cl_FEM_IWG_Time_DG.hpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.hpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.hpp
     IWG/cl_FEM_IWG_L2.hpp
@@ -146,6 +150,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp
     IWG/cl_FEM_IWG_Struc_Stress.hpp
     IWG/cl_FEM_IWG_Nonlocal_Interface.hpp
@@ -340,6 +345,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG.cpp
     IWG/cl_FEM_IWG_Factory.cpp
     IWG/cl_FEM_IWG_L2.cpp
+    IWG/cl_FEM_IWG_Time_DG.cpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.cpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.cpp
     #IWG/cl_FEM_IWG_LSNormal_Bulk.cpp
@@ -364,6 +370,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.cpp
     IWG/cl_FEM_IWG_Struc_Stress.cpp
     IWG/cl_FEM_IWG_Nonlocal_Interface.cpp

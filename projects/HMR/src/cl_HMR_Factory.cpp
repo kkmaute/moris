@@ -8,7 +8,7 @@
  *
  */
 
-#include "cl_HMR_Factory.hpp"               //HMR/src
+#include "cl_HMR_Factory.hpp"    //HMR/src
 
 #include "cl_HMR_Background_Mesh.hpp"       //HMR/src
 #include "cl_HMR_Background_Mesh_2D.hpp"    //HMR/src
@@ -94,11 +94,11 @@ namespace moris::hmr
 
     Lagrange_Mesh_Base*
     Factory::create_lagrange_mesh(
-            Background_Mesh_Base*      aBackgroundMesh,
+            Background_Mesh_Base*        aBackgroundMesh,
             Vector< BSpline_Mesh_Base* > aBSplineMeshes,
-            uint                       aActivationPattern,
-            uint                       aPolynomialDegree,
-            uint                       aMeshIndex )
+            uint                         aActivationPattern,
+            uint                         aPolynomialDegree,
+            uint                         aMeshIndex )
     {
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -258,7 +258,7 @@ namespace moris::hmr
             uint                  aMeshIndex )
     {
         // Get pattern and orders from parameters
-        uint tPattern = mParameters->get_bspline_pattern( aMeshIndex );
+        uint tPattern       = mParameters->get_bspline_pattern( aMeshIndex );
         uint tBSplineOrderX = mParameters->get_bspline_order_x( aMeshIndex );
         uint tBSplineOrderY = mParameters->get_bspline_order_y( aMeshIndex );
         uint tBSplineOrderZ = mParameters->get_bspline_order_z( aMeshIndex );

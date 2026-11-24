@@ -50,12 +50,17 @@ NonLinBlockGaussSeidel::~NonLinBlockGaussSeidel()
 
 void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
+    mMyNonLinSolverManager->set_converged( false );
+
     Tracer tTracer( "NonLinearAlgorithm", "NLBGS", "Solve" );
 
     sint tMaxIts           = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
     sint tRefIts           = mParameterListNonlinearSolver.get< sint >( "NLA_ref_iter" );
     uint tNonLinSysStartIt = 0;
     uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
+
+    // get time offset for output
+    real tTimeOffSet = mParameterListNonlinearSolver.get< real >( "NLA_time_offset" );
 
     // set solver load control strategy
     Solver_Load_Control tLoadControlStrategy( mParameterListNonlinearSolver );
@@ -73,6 +78,7 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
     real tPseudoTimeStep;
     real tPseudoTotalTime = 0.0;
     real tRelStaticRes    = 1.0;
+    real tOutputTime      = 0.0;
 
     // initialize convergence monitoring
     bool tTimeStepIsConverged = tPseudoTimeControl.get_initial_step_size( tPseudoTimeStep );
@@ -84,6 +90,16 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
     {
         // log iterations
         MORIS_LOG_ITERATION();
+
+        // output pseudo time step
+        if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() && tTimeOffSet > 0.0 )
+        {
+            // increment pseudo time for output
+            tOutputTime += tTimeOffSet;
+
+            // write current solution to output 0
+            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, tOutputTime, false );
+        }
 
         // print and store pseudo time step, total time step, and relative static residual in logger
         MORIS_LOG_SPEC( "PseudoTimeStep", tPseudoTimeStep );
@@ -177,6 +193,7 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 and tTimeStepIsConverged )
         {
+            mMyNonLinSolverManager->set_converged( true );
             MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
 
             break;

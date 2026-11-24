@@ -28,7 +28,9 @@ namespace moris
           private:
             void solve_monolithic_time_system( Vector< sol::Dist_Vector* >& aFullVector );
 
-            void solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullAdjointVector );
+            void solve_implicit_DqDs(
+                    Vector< sol::Dist_Vector* >& aFullAdjointVector,
+                    sol::Dist_Vector&            aAdjointTimeCoupling );
 
             moris::real mLambdaInc = 0;
 
@@ -39,7 +41,7 @@ namespace moris
              *
              * @param[in] rSolverDatabase Pointer to the solver database
              */
-            Monolithic_Time_Solver(){};
+            Monolithic_Time_Solver() {};
 
             //-------------------------------------------------------------------------------
             /**
@@ -61,6 +63,10 @@ namespace moris
              * @param[in] aFullVector     Solution Vector
              */
             void solve( Vector< sol::Dist_Vector* >& aFullVector ) override;
+
+            void solve(
+                    Vector< sol::Dist_Vector* >& aFullVector,
+                    sol::Dist_Vector&            aAdjointTimeCoupling ) override;
 
             //-------------------------------------------------------------------------------
 

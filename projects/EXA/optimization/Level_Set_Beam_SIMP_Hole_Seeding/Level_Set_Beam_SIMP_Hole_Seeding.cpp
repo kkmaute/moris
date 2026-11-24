@@ -627,7 +627,6 @@ namespace moris
             aParameterLists.set( "discretization_upper_bound", tBsplineLimitTop );
         }
 
-        uint tParamCounter = 0;
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
         aParameterLists.set( "name", "LvL_Set_Field" );
         aParameterLists.set( "dependencies", "Level_Set_Field" );
@@ -637,7 +636,6 @@ namespace moris
         // aParameterLists.set("discretization_lower_bound", 0.001);
         // aParameterLists.set("discretization_upper_bound", 1.0);
         aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "ghost_p1" );
-        tParamCounter++;
 
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::SCALED_FIELD );
         aParameterLists.set( "name", "Density_Field" );
@@ -645,7 +643,6 @@ namespace moris
         aParameterLists.set( "scaling_factor", 1.0 );
         aParameterLists.set( "pdv_type", "DENSITY" );
         aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0", "HMR_dummy_n_p1", "HMR_dummy_c_p1", "ghost_p1" );
-        tParamCounter++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1182,7 +1179,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

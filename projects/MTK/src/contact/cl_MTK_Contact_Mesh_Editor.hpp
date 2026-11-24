@@ -11,9 +11,7 @@
 #ifndef MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP
 #define MORIS_CL_MTK_CONTACT_MESH_EDITOR_HPP
 
-#include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Integrator.hpp"
-#include "fn_assert.hpp"
 
 #ifdef MORIS_HAVE_ARBORX
 #include "cl_MTK_QuadraturePointMapper_Ray_ArborX.hpp"
@@ -56,12 +54,12 @@ namespace moris::mtk
 
       private:
         // types
-        /**
-         * \brief Holds information about a cluster pair consisting of a source cluster and a target cluster on a target mesh.
-         * \details This is used for the conversion from a mapping result to a nonconformal side cluster.
-         * The first index is the source cluster index, the second index is the target cluster index and the third index is the target mesh index.
-         */
-        using ClusterPair = std::tuple< moris_index, moris_index, moris_index >;
+        // /**
+        //  * \brief Holds information about a cluster pair consisting of a source cluster and a target cluster on a target mesh.
+        //  * \details This is used for the conversion from a mapping result to a nonconformal side cluster.
+        //  * The first index is the source cluster index, the second index is the target cluster index and the third index is the target mesh index.
+        //  */
+        // using ClusterPair = std::tuple< moris_index, moris_index, moris_index >;
 
         /**
          * \brief Holds information about a cell pair consisting of a source cell and a target cell.

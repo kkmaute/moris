@@ -40,7 +40,6 @@ namespace moris::xtk
 
             // XTK parameter list
             Module_Parameter_Lists tXTKParams( Module_Type::XTK );
-            tXTKParams( 0 ).add_parameter_list( prm::create_xtk_parameter_list() );
             tXTKParams( 0 )( 0 ).set( "decompose", true );
             tXTKParams( 0 )( 0 ).set( "decomposition_type", "conformal" );
             tXTKParams( 0 )( 0 ).set( "enrich", true );
@@ -63,11 +62,10 @@ namespace moris::xtk
             real tXNormal = sin( -tPlaneAngle * M_PI / 180 );
             real tYNormal = cos( -tPlaneAngle * M_PI / 180 );
 
-            tGENParams( 0 ).add_parameter_list( prm::create_gen_parameter_list() );
             tGENParams( 0 )( 0 ).set( "output_mesh_file", "GEN_Snapping.exo" );
 
             // Geometry parameter lists
-            moris::uint tGeoCounter        = 0;
+            moris::uint tGeoCounter = 0;
             tGENParams( 1 ).add_parameter_list( prm::create_level_set_geometry_parameter_list( gen::Field_Type::LINE ) );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_threshold", 1e-16 );
             tGENParams( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
@@ -107,7 +105,7 @@ namespace moris::xtk
             // HMR parameters
             std::string tInterpolationOrder = "1";
 
-            int                                      tRefineBuffer = 1;
+            int                    tRefineBuffer = 1;
             Module_Parameter_Lists tHMRParams( Module_Type::HMR );
             tHMRParams( 0 )( 0 ).set( "number_of_elements_per_dimension", 2, 1 );
             tHMRParams( 0 )( 0 ).set( "domain_dimensions", 2.0, 2.0 );

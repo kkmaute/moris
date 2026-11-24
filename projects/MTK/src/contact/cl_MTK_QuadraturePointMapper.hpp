@@ -10,7 +10,6 @@
 #ifndef MORIS_CL_MTK_QUADRATUREPOINTMAPPER_HPP
 #define MORIS_CL_MTK_QUADRATUREPOINTMAPPER_HPP
 
-#include <ostream>
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_Vector.hpp"
 #include "cl_MTK_MappingResult.hpp"

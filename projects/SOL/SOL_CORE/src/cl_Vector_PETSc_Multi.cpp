@@ -19,6 +19,69 @@ extern moris::Comm_Manager gMorisComm;
 
 using namespace moris;
 
+namespace
+{
+    void check_vector_petsc_error( PetscErrorCode aError, const char* aOperation )
+    {
+        MORIS_ERROR( aError == 0,
+                "MultiVector_PETSc - %s failed with PETSc error %d.",
+                aOperation,
+                (int)aError );
+    }
+
+    bool same_vector_layout( Dist_Map_Custom& aLeft, Dist_Map_Custom& aRight )
+    {
+        if ( aLeft.is_full_map() != aRight.is_full_map() )
+        {
+            return false;
+        }
+
+        const auto& tLeft  = aLeft.is_full_map() ? aLeft.get_moris_ids_owned_and_shared() : aLeft.get_moris_ids_owned();
+        const auto& tRight = aRight.is_full_map() ? aRight.get_moris_ids_owned_and_shared() : aRight.get_moris_ids_owned();
+        if ( tLeft.numel() != tRight.numel() )
+        {
+            return false;
+        }
+        for ( uint i = 0; i < tLeft.numel(); ++i )
+        {
+            if ( tLeft( i ) != tRight( i ) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Release borrowed columns before their matrices, including when MORIS
+    // reports a PETSc failure by throwing. Cleanup must not throw a second error.
+    struct Petsc_Carry_Transfer
+    {
+        IS         mFrom              = nullptr;
+        IS         mTo                = nullptr;
+        VecScatter mScatter           = nullptr;
+        Mat        mSource            = nullptr;
+        Mat        mDestination       = nullptr;
+        PetscInt   mColumn            = 0;
+        Vec        mSourceColumn      = nullptr;
+        Vec        mDestinationColumn = nullptr;
+
+        ~Petsc_Carry_Transfer()
+        {
+            if ( mSourceColumn != nullptr )
+            {
+                MatDenseRestoreColumnVecRead( mSource, mColumn, &mSourceColumn );
+            }
+            if ( mDestinationColumn != nullptr )
+            {
+                MatDenseRestoreColumnVecWrite( mDestination, mColumn, &mDestinationColumn );
+            }
+            VecScatterDestroy( &mScatter );
+            ISDestroy( &mFrom );
+            ISDestroy( &mTo );
+        }
+    };
+}    // namespace
+
 // ----------------------------------------------------------------------------
 
 MultiVector_PETSc::MultiVector_PETSc(
@@ -245,17 +308,90 @@ void MultiVector_PETSc::vec_plus_vec(
         sol::Dist_Vector& aVecA,
         const real&       aScaleThis )
 {
-    // set scaling value of given vector
-    PetscScalar tValueA = aScaleA;
+    auto* tSource = dynamic_cast< MultiVector_PETSc* >( &aVecA );
+    MORIS_ERROR( tSource != nullptr && mNumVectors == tSource->mNumVectors
+                         && same_vector_layout( *mMap, *tSource->mMap ),
+            "MultiVector_PETSc::vec_plus_vec - Matching DOF layouts and RHS counts are required; use add_vector for map transfer." );
 
-    // set scaling value for member vector
-    PetscScalar tValueThis = aScaleThis;
+    check_vector_petsc_error( MatScale( mPetscVector, aScaleThis ), "MatScale" );
+    check_vector_petsc_error( MatAXPY( mPetscVector, aScaleA, tSource->mPetscVector, UNKNOWN_NONZERO_PATTERN ), "MatAXPY" );
+}
 
-    // if( tValueThis not_eq 1.0 )
-    MatScale( mPetscVector, tValueThis );
+//-----------------------------------------------------------------------------
 
-    // FIXME: check if the nonzero parttern can be improved
-    MatAXPY( mPetscVector, tValueA, dynamic_cast< MultiVector_PETSc& >( aVecA ).get_petsc_vector(), UNKNOWN_NONZERO_PATTERN );
+void MultiVector_PETSc::add_vector( sol::Dist_Vector& aSourceVec, sol::Dist_Vector& aWorkspace )
+{
+    auto* tSource    = dynamic_cast< MultiVector_PETSc* >( &aSourceVec );
+    auto* tWorkspace = dynamic_cast< MultiVector_PETSc* >( &aWorkspace );
+
+    // Every rank must validate before entering the collective scatter, even
+    // ranks with no owned destination rows. A failed transfer leaves RHS intact.
+    const bool tValidOperands = tSource != nullptr && tWorkspace != nullptr
+                             && tWorkspace != this && tWorkspace != tSource
+                             && mNumVectors == tSource->mNumVectors && mNumVectors == tWorkspace->mNumVectors
+                             && same_vector_layout( *mMap, *tWorkspace->mMap );
+    MORIS_ERROR( max_all( (sint)!tValidOperands ) == 0,
+            "MultiVector_PETSc::add_vector - PETSc operands, equal RHS counts and a distinct matching-layout workspace are required." );
+
+    const auto&      tRequestedIds = mMap->is_full_map()
+                                           ? mMap->get_moris_ids_owned_and_shared()
+                                           : mMap->get_moris_ids_owned();
+    Matrix< DDSMat > tFrom( tRequestedIds.numel(), 1 );
+    Matrix< DDSMat > tTo( tRequestedIds.numel(), 1 );
+    bool             tMissingId = false;
+
+    if ( tSource->mMap->is_full_map() )
+    {
+        // Full maps are rank-local owned/ghost copies, not global row numbers.
+        // They can supply only IDs present in this rank's local source copy.
+        tFrom = tSource->mMap->map_from_moris_ids_to_indices( tRequestedIds );
+    }
+
+    for ( uint i = 0; i < tRequestedIds.numel(); ++i )
+    {
+        if ( !tSource->mMap->is_full_map() )
+        {
+            const auto tEntry = tSource->mMap->mApplicationToPetsc.find( tRequestedIds( i ) );
+            tFrom( i )        = tEntry == tSource->mMap->mApplicationToPetsc.end() ? -1 : tEntry->second;
+        }
+        tMissingId = tMissingId || tFrom( i ) < 0;
+
+        // This lookup must not insert a missing ID with PETSc index zero.
+        const auto tEntry = mMap->mApplicationToPetsc.find( tRequestedIds( i ) );
+        tTo( i )          = mMap->is_full_map() ? (sint)i
+                                                : ( tEntry == mMap->mApplicationToPetsc.end() ? -1 : tEntry->second );
+        tMissingId        = tMissingId || tTo( i ) < 0;
+    }
+    MORIS_ERROR( max_all( (sint)tMissingId ) == 0,
+            "MultiVector_PETSc::add_vector - A destination DOF is missing from the source map (or local full-map copy)." );
+
+    Petsc_Carry_Transfer tTransfer;
+    tTransfer.mSource      = tSource->mPetscVector;
+    tTransfer.mDestination = tWorkspace->mPetscVector;
+    check_vector_petsc_error( ISCreateGeneral( PETSC_COMM_SELF, tFrom.numel(), tFrom.data(), PETSC_COPY_VALUES, &tTransfer.mFrom ), "ISCreateGeneral(source)" );
+    check_vector_petsc_error( ISCreateGeneral( PETSC_COMM_SELF, tTo.numel(), tTo.data(), PETSC_COPY_VALUES, &tTransfer.mTo ), "ISCreateGeneral(destination)" );
+
+    // Set up one communication pattern per addition and reuse it for every
+    // objective column. Each owned destination is written once, not summed
+    // once per ghost copy. The immutable source carry is accessed read-only.
+    for ( uint iColumn = 0; iColumn < mNumVectors; ++iColumn )
+    {
+        tTransfer.mColumn = iColumn;
+        check_vector_petsc_error( MatDenseGetColumnVecRead( tTransfer.mSource, iColumn, &tTransfer.mSourceColumn ), "MatDenseGetColumnVecRead" );
+        check_vector_petsc_error( MatDenseGetColumnVecWrite( tTransfer.mDestination, iColumn, &tTransfer.mDestinationColumn ), "MatDenseGetColumnVecWrite" );
+        if ( iColumn == 0 )
+        {
+            check_vector_petsc_error( VecScatterCreate( tTransfer.mSourceColumn, tTransfer.mFrom, tTransfer.mDestinationColumn, tTransfer.mTo, &tTransfer.mScatter ), "VecScatterCreate" );
+        }
+        check_vector_petsc_error( VecScatterBegin( tTransfer.mScatter, tTransfer.mSourceColumn, tTransfer.mDestinationColumn, INSERT_VALUES, SCATTER_FORWARD ), "VecScatterBegin" );
+        check_vector_petsc_error( VecScatterEnd( tTransfer.mScatter, tTransfer.mSourceColumn, tTransfer.mDestinationColumn, INSERT_VALUES, SCATTER_FORWARD ), "VecScatterEnd" );
+        check_vector_petsc_error( MatDenseRestoreColumnVecRead( tTransfer.mSource, iColumn, &tTransfer.mSourceColumn ), "MatDenseRestoreColumnVecRead" );
+        tTransfer.mSourceColumn = nullptr;
+        check_vector_petsc_error( MatDenseRestoreColumnVecWrite( tTransfer.mDestination, iColumn, &tTransfer.mDestinationColumn ), "MatDenseRestoreColumnVecWrite" );
+        tTransfer.mDestinationColumn = nullptr;
+    }
+
+    this->vec_plus_vec( 1.0, aWorkspace, 1.0 );
 }
 
 //-----------------------------------------------------------------------------

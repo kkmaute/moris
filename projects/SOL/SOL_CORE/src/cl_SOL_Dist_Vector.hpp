@@ -153,6 +153,17 @@ namespace moris::sol
                 const moris::real& aScaleThis ) = 0;
 
         /**
+         * Add a source multivector without modifying it. The default implementation
+         * requires matching distributed layouts. Backends that support restriction
+         * by MORIS DOF IDs override this operation.
+         *
+         * @param[in]     aSourceVec Source with the same number of RHS columns.
+         * @param[in,out] aWorkspace Distinct scratch vector with this vector's logical
+         *                          DOF map and row ordering; its contents may change.
+         */
+        virtual void add_vector( Dist_Vector& aSourceVec, Dist_Vector& aWorkspace );
+
+        /**
          * Scales this vector.
          *
          * @param[in] aScaleThis    Scaling value for this vector.

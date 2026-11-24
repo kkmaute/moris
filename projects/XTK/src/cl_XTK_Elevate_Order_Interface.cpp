@@ -209,7 +209,7 @@ namespace moris::xtk
                     // check if new node for current edge has already been requested ...
                     bool tRequestExist = mDecompositionData->request_exists(
                             tParentIndex,
-                            iVert,    // use local new vertex ordinal as secondary ID, since inside of cell is not shared with other cells
+                            FacetKey( iVert, 0, 0 ),    // use local new vertex ordinal as secondary ID, since inside of cell is not shared with other cells
                             mtk::EntityRank::ELEMENT,
                             tNewNodeIndexInDecompData );
 
@@ -241,7 +241,7 @@ namespace moris::xtk
                         // Register new node request
                         tNewNodeIndexInDecompData = mDecompositionData->register_new_request(
                                 tParentIndex,
-                                iVert,    // use local new vertex ordinal as secondary ID, since inside of cell is not shared with other cells
+                                FacetKey( iVert, 0, 0 ),    // use local new vertex ordinal as secondary ID, since inside of cell is not shared with other cells
                                 tOwningProc,
                                 mtk::EntityRank::ELEMENT,
                                 tNewVertexCoords );
@@ -250,8 +250,8 @@ namespace moris::xtk
                         // tNewNodeIndex++;
                     }
                 }    // end: loop over new vertices inside each cell
-            }        // end: new vertices inside element
-        }            // end: loop inside element
+            }    // end: new vertices inside element
+        }    // end: loop inside element
 
         // --------------------------------
 
@@ -269,7 +269,7 @@ namespace moris::xtk
                 moris_index tParentRank  = aIgEdgeAncestry->mEdgeParentEntityRank( iEdge );
 
                 // get unique edge id based on two end vertices of edge
-                moris_index tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
+                FacetKey tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
 
                 // initialize variable holding possible new node index
                 moris_index tNewNodeIndexInDecompData = MORIS_INDEX_MAX;
@@ -351,8 +351,8 @@ namespace moris::xtk
                         }
                     }
                 }    // end: check for new request
-            }        // end: loop over all edges
-        }            // end: new vertices on edges
+            }    // end: loop over all edges
+        }    // end: new vertices on edges
 
         // --------------------------------
 
@@ -374,8 +374,8 @@ namespace moris::xtk
                 moris_index tParentIndex = tIgFaceAncestry->mFacetParentEntityIndex( iFace );
                 moris_index tParentRank  = tIgFaceAncestry->mFacetParentEntityRank( iFace );
 
-                // get unique face id based on three corner vertices of edge
-                moris_index tSecondaryId = this->hash_face( tFaceConnectivity->mFacetVertices( iFace ) );
+                // get unique face id (tuple) based on three corner vertices of edge
+                FacetKey tSecondaryId = this->hash_face( tFaceConnectivity->mFacetVertices( iFace ) );
 
                 // initialize variable holding possible new node index
                 moris_index tNewNodeIndexInDecompData = MORIS_INDEX_MAX;
@@ -411,7 +411,7 @@ namespace moris::xtk
                     // tNewNodeIndex++;
                 }
             }    // end: loop over faces
-        }        // end: new vertices on faces
+        }    // end: new vertices on faces
 
         // --------------------------------
 
@@ -575,7 +575,7 @@ namespace moris::xtk
     // ----------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------
 
-    moris_index
+    FacetKey
     Elevate_Order_Interface::hash_edge( Vector< moris::mtk::Vertex* > const & aEdgeVertices )
     {
         MORIS_ERROR( aEdgeVertices.size() == 2, "Edge is expected to have two vertices" );
@@ -586,12 +586,15 @@ namespace moris::xtk
             tMinIdIndex = 1;
             tMaxIdIndex = 0;
         }
-        return xtk::cantor_pairing( aEdgeVertices( tMinIdIndex )->get_id(), aEdgeVertices( tMaxIdIndex )->get_id() );
+        return FacetKey(
+                aEdgeVertices( tMinIdIndex )->get_id(),
+                aEdgeVertices( tMaxIdIndex )->get_id(),
+                0 );
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris_index
+    FacetKey
     Elevate_Order_Interface::hash_face( Vector< moris::mtk::Vertex* > const & aFaceVertices )
     {
         // check input
@@ -619,15 +622,10 @@ namespace moris::xtk
             swap_indices( tMidIdIndex, tMaxIdIndex );
         }
 
-        // compute recursive cantor 3-tupel
-        moris_index tFirstPairVal  = xtk::cantor_pairing( aFaceVertices( tMinIdIndex )->get_id(), aFaceVertices( tMidIdIndex )->get_id() );
-        moris_index tSecondPairVal = xtk::cantor_pairing( tFirstPairVal, aFaceVertices( tMaxIdIndex )->get_id() );
-
-        // check for likely overflow
-        MORIS_ASSERT( tSecondPairVal > MORIS_INDEX_MAX / 10, "Elevate_Order_Interface::hash_face() - function is likely to lead to an overflow." );
-
-        // return unique id for face
-        return tSecondPairVal;
+        return FacetKey(
+                aFaceVertices( tMinIdIndex )->get_id(),
+                aFaceVertices( tMidIdIndex )->get_id(),
+                aFaceVertices( tMaxIdIndex )->get_id() );
     }
 
     // ----------------------------------------------------------------------------------
@@ -635,9 +633,7 @@ namespace moris::xtk
     void
     Elevate_Order_Interface::swap_indices( moris_index& aInd1, moris_index& aInd2 )
     {
-        moris_index tStore = aInd1;
-        aInd1              = aInd2;
-        aInd2              = tStore;
+        std::swap( aInd1, aInd2 );
     }
 
     // -------------------------------------------------------------------------

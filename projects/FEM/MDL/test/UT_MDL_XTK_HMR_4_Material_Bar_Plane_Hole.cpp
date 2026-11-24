@@ -275,7 +275,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         tParameters.set_working_pattern( 3 );
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2 );
-        tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );
+        tParameters.set_lagrange_to_bspline_mesh( { { 0 } } );
 
         hmr::HMR                                       tHMR( tParameters );
         Vector< std::shared_ptr< moris::hmr::Field > > tHMRFields;
@@ -284,10 +284,11 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
-        auto                                       tCircle = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
-        auto                                       tPlane  = std::make_shared< gen::Line >( 0.1, 0.1, 1.0, 0.0 );
-        tGeometryVector( 0 )                               = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
-        tGeometryVector( 1 )                               = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
+
+        auto tCircle         = std::make_shared< gen::Circle >( 0.01, 0.01, 0.47334 );
+        auto tPlane          = std::make_shared< gen::Line >( 0.1, 0.1, 1.0, 0.0 );
+        tGeometryVector( 0 ) = { std::make_shared< gen::Level_Set_Geometry >( tCircle ) };
+        tGeometryVector( 1 ) = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                          tModelDimension = 2;
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -692,7 +693,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         tParameters.set_working_pattern( 3 );
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2 );
-        tParameters.set_lagrange_to_bspline_mesh( { { { 0 } } } );
+        tParameters.set_lagrange_to_bspline_mesh( { { 0 } } );
 
         hmr::HMR                                       tHMR( tParameters );
         Vector< std::shared_ptr< moris::hmr::Field > > tHMRFields;
@@ -701,10 +702,11 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         hmr::Interpolation_Mesh_HMR* tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
         Vector< std::shared_ptr< gen::Geometry > > tGeometryVector( 2 );
-        auto                                       tUserDefinedField = std::make_shared< gen::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
-        auto                                       tPlane            = std::make_shared< gen::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
-        tGeometryVector( 0 )                                         = { std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField ) };
-        tGeometryVector( 1 )                                         = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
+
+        auto tUserDefinedField = std::make_shared< gen::User_Defined_Field >( &( MultiMat3dCylGeometry ) );
+        auto tPlane            = std::make_shared< gen::Plane >( 0.1, 0.1, 0.1, 1.0, 0.0, 0.0 );
+        tGeometryVector( 0 )   = { std::make_shared< gen::Level_Set_Geometry >( tUserDefinedField ) };
+        tGeometryVector( 1 )   = { std::make_shared< gen::Level_Set_Geometry >( tPlane ) };
 
         size_t                          tModelDimension = 3;
         gen::Geometry_Engine_Parameters tGeometryEngineParameters;

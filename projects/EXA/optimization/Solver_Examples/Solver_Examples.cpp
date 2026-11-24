@@ -922,6 +922,7 @@ namespace moris
         aParameterLists.set( "leader_dof_dependencies", sStructDofTypes );
         aParameterLists.set( "vectorial_field_index", 1 );
         aParameterLists.set( "leader_phase_name", "Phase1" );
+
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIBulkDISPY_2" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::DOF );
@@ -940,6 +941,7 @@ namespace moris
         aParameterLists.set( "leader_dof_dependencies", "TEMP" );
         aParameterLists.set( "function_parameters", "1.0/2.0" );
         aParameterLists.set( "leader_phase_name", "Phase1" );
+
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", std::string( "IQIMaxTemp_2" ) );
         aParameterLists.set( "IQI_type", fem::IQI_Type::MAX_DOF );
@@ -955,6 +957,7 @@ namespace moris
         aParameterLists.set( "leader_dof_dependencies", sAllDofTypes );
         aParameterLists.set( "leader_constitutive_models", "CMStrucLinIso1,Elast" );
         aParameterLists.set( "leader_phase_name", "Phase1" );
+
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIStrainEnergy_2" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::STRAIN_ENERGY );
@@ -968,14 +971,13 @@ namespace moris
         aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
         aParameterLists.set( "leader_dof_dependencies", sAllDofTypes );
         aParameterLists.set( "leader_phase_name", "Phase1" );
+
         aParameterLists( FEM::IQI ).add_parameter_list();
         aParameterLists.set( "IQI_name", "IQIVolume_2" );
         aParameterLists.set( "IQI_type", fem::IQI_Type::VOLUME );
         aParameterLists.set( "leader_dof_dependencies", sAllDofTypes );
         aParameterLists.set( "leader_phase_name", "Phase2" );
 
-        // create computation parameter list
-        aParameterLists( FEM::COMPUTATION );
         // aParameterLists.set( "print_physics_model", true );
     }
 
@@ -995,7 +997,7 @@ namespace moris
 
         if ( gUseBelosWithILUT )
         {
-            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
             aParameterLists.set( "Convergence Tolerance", 1e-12 );
             aParameterLists.set( "ifpack_prec_type", "ILUT" );
             aParameterLists.set( "fact: drop tolerance", 1e-10 );
@@ -1006,7 +1008,7 @@ namespace moris
         }
         else
         {
-            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+            aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
             aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
         }
 

@@ -13,11 +13,11 @@
 # To regenerate .hpp file, increase variable maxArgs to maximum number of entries in 
 # macro; then run
 #
-# sh generate_enum_macros.sh > $MORISROOT/projects/MRS/ASR/src/fn_enum_macros_generated.hpp
+# sh generate_enum_macros.sh > $MORISROOT/projects/PRM/ENM/src/fn_enum_macros_generated.hpp
 #
 #====================================================================================
 
-maxArgs=120
+maxArgs=160
 
 echo '/*'
 echo ' * Copyright (c) 2022 University of Colorado'

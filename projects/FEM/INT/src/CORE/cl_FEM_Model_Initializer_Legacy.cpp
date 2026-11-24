@@ -378,7 +378,7 @@ namespace moris::fem
 
             auto const tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
-            auto tIWG = tIWGFactory.create_IWG( tIWGType );
+            auto tIWG = tIWGFactory.create_IWG( tIWGType, tIWGParameter.get< bool >( "time_dg" ) );
 
             std::string const tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
             tIWG->set_name( tIWGName );
@@ -877,6 +877,7 @@ namespace moris::fem
                     aSetUserInfo.set_mesh_set_name( tMeshSetName );
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
                     aSetUserInfo.set_time_boundary( tTimeBoundary );
+                    aSetUserInfo.set_time_final( tIWGParameterList.get< real >( "time_final" ) );
 
                     aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
                     aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );
@@ -945,6 +946,7 @@ namespace moris::fem
                     aSetUserInfo.set_mesh_set_name( tMeshSetName );
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
                     aSetUserInfo.set_time_boundary( tTimeBoundary );
+                    aSetUserInfo.set_time_final( tIQIParameterList.get< real >( "time_final" ) );
 
                     aSetUserInfo.set_is_analytical_forward_analysis( tIsAnalyticalFA );
                     aSetUserInfo.set_finite_difference_scheme_for_forward_analysis( tFDSchemeForFA );

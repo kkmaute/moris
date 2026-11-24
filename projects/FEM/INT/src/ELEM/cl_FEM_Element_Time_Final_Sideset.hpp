@@ -94,6 +94,9 @@ namespace moris::fem
              */
             void compute_QI() override;
 
+            // Spatial endpoint integrals for global VIS fields.
+            void compute_quantity_of_interest_global( uint aFemMeshIndex ) override;
+
             //------------------------------------------------------------------------------
             /**
              * compute dQIdu

@@ -81,6 +81,9 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
+# Input plugins are loaded at runtime, so model their build dependency explicitly.
+add_dependencies(${EXAMPLE_MAIN} ${EXAMPLE_FILES})
+
 # Register tests for the configured MPI process counts.
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
@@ -91,4 +94,35 @@ if(MORIS_HAVE_PARALLEL_TESTS)
                     $<TARGET_FILE:${EXAMPLE_MAIN}>
         )
     endforeach()
+endif()
+
+# Select the backend through driver globals while preserving standalone
+# defaults.
+target_compile_definitions(
+    Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered
+    PRIVATE
+        MORIS_THERMOELASTIC_TEST_DRIVER
+        MORIS_THERMOELASTIC_INPUT_LIBRARY="$<TARGET_FILE:Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered>"
+)
+
+if(MORIS_HAVE_PETSC)
+    target_compile_definitions(
+        ${EXAMPLE_MAIN}
+        PRIVATE
+            MORIS_THERMOELASTIC_STAGGERED_LIBRARY="$<TARGET_FILE:Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered>"
+    )
+    add_dependencies(
+        ${EXAMPLE_MAIN} Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered
+    )
+    set(THERMOELASTIC_PETSC_DIRECTORY
+        "${CMAKE_CURRENT_BINARY_DIR}/runs/$<CONFIG>/PETSc-Staggered-1"
+    )
+    # Expand $<CONFIG> when creating the test working directory.
+    file(GENERATE OUTPUT "${THERMOELASTIC_PETSC_DIRECTORY}/.moris-test-directory" CONTENT "")
+    add_test(
+        NAME Shape_Sensitivity_Thermoelastic_Transient-PETSc-Staggered-1-procs
+        WORKING_DIRECTORY "${THERMOELASTIC_PETSC_DIRECTORY}"
+        COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                $<TARGET_FILE:${EXAMPLE_MAIN}> "[ThermoelasticPetscAdjoint]"
+    )
 endif()

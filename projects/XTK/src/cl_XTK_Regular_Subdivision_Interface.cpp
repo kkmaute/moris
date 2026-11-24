@@ -109,7 +109,9 @@ namespace moris::xtk
         }
 
         // handle the requests
-        aDecompositionData->tSecondaryIdentifiers = Vector< moris_index >( aDecompositionData->tNewNodeParentIndex.size(), MORIS_INDEX_MAX );
+        aDecompositionData->tSecondaryIdentifiers = Vector< FacetKey >(
+                aDecompositionData->tNewNodeParentIndex.size(),
+                FacetKey( MORIS_INDEX_MAX, MORIS_INDEX_MAX, MORIS_INDEX_MAX ) );
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -187,7 +189,7 @@ namespace moris::xtk
                 }
             }
         }    // end for: each intersected background element
-    }        // end function: Regular_Subdivision_Interface::perform_impl_generate_mesh()
+    }    // end function: Regular_Subdivision_Interface::perform_impl_generate_mesh()
 
     //--------------------------------------------------------------------------------------------------
 
@@ -280,9 +282,9 @@ namespace moris::xtk
                 tParentCellInfo->eval_N( tNewNodeXi, aRegularSubdivisionInterfaceData->mNXi );
 
                 // create a new request
-                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
-                Matrix< DDRMat > tNewNodePhysCoords = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
-                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
+                std::shared_ptr< Matrix< DDRMat > > tNewNodeXiPtr              = std::make_shared< Matrix< DDRMat > >( tNewNodeXi );
+                Matrix< DDRMat >                    tNewNodePhysCoords         = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
+                moris_index                         tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                         tBgFacetIndex,
                         tOwner,
                         mtk::EntityRank::FACE,
@@ -346,7 +348,7 @@ namespace moris::xtk
                         aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
             }
         }    // end for: iVertsInCell
-    }        // end function: Regular_Subdivision_Interface::make_new_vertex_requests()
+    }    // end function: Regular_Subdivision_Interface::make_new_vertex_requests()
 
     //--------------------------------------------------------------------------------------------------
 
@@ -396,7 +398,7 @@ namespace moris::xtk
             {
                 moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                         tCell->get_index(),
-                        tGeneratedTemplate->mVertexHash( iV ),
+                        FacetKey( tGeneratedTemplate->mVertexHash( iV ), 0, 0 ),
                         tCell->get_owner(),
                         mtk::EntityRank::ELEMENT,
                         tNewCoordinate,
@@ -415,7 +417,7 @@ namespace moris::xtk
 
                 moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                         tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ),
-                        tGeneratedTemplate->mVertexHash( iV ),
+                        FacetKey( tGeneratedTemplate->mVertexHash( iV ), 0, 0 ),
                         tOwningProc,
                         tVertexAncestry->get_vertex_parent_rank( iV ),
                         tNewCoordinate,

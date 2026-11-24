@@ -413,7 +413,6 @@ namespace moris
         aParameterLists.set( "isocontour_tolerance", 10e-14 );
         aParameterLists.set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
 
-        uint tParamCounter = 0;
         aParameterLists( GEN::PROPERTIES ).add_parameter_list( gen::Field_Type::CONSTANT );
         aParameterLists.set( "name", "LvL_Set_Field" );
         aParameterLists.set( "constant", 0.8 );
@@ -422,7 +421,6 @@ namespace moris
         aParameterLists.set( "discretization_lower_bound", 0.001 );
         aParameterLists.set( "discretization_upper_bound", 1.0 );
         aParameterLists.set( "pdv_mesh_set_names", "HMR_dummy_n_p0", "HMR_dummy_c_p0" );
-        tParamCounter++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -604,7 +602,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Mat.dat" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -146,6 +146,8 @@ namespace moris::fem
          */
         virtual void initialize_leader_follower_ig_interpolator( mtk::Leader_Follower const aLeaderFollowerType ) const;
 
+        virtual void initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower const aLeaderFollowerType ) const;
+
         //------------------------------------------------------------------------------
         Matrix< DDSMat > get_local_cluster_assembly_indices(
                 moris_index const aLeaderSideOrdinal,
@@ -177,14 +179,14 @@ namespace moris::fem
             return mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
         }
 
-      private:
-        Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;
-
         //------------------------------------------------------------------------------
         /**
          * @brief Get the leader and follower quadrature point coordinates and set the field interpolators to this coordinate
          */
-        void initialize_quadrature_point( uint iGP );
+        virtual void initialize_quadrature_point( uint iGP );
+
+      private:
+        Matrix< DDRMat > get_follower_integration_point( uint aGPIndex ) const override;
     };
 
 }    // namespace moris::fem

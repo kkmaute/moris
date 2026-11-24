@@ -13,6 +13,7 @@
 
 // FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_IWG_Time_DG.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
 // #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
@@ -96,6 +97,7 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Normal_Nitsche_Unbiased.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
 // Ghost
 #include "cl_FEM_IWG_Ghost_Normal_Field.hpp"
@@ -106,6 +108,35 @@
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
+
+    std::shared_ptr< IWG >
+    IWG_Factory::create_IWG( IWG_Type aIWGType, bool aTimeDG )
+    {
+        if ( aTimeDG )
+        {
+            // Only displacement-based reference-configuration spatial terms
+            // are qualified for this reduced temporal test transformation.
+            switch ( aIWGType )
+            {
+                case IWG_Type::STRUC_LINEAR_BULK:
+                case IWG_Type::STRUC_NON_LINEAR_BULK_PF:
+                case IWG_Type::STRUC_NON_LINEAR_BULK_SE:
+                case IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE:
+                case IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE:
+                case IWG_Type::STRUC_LINEAR_NEUMANN:
+                case IWG_Type::GHOST_NORMAL_FIELD:
+                    return std::make_shared< IWG_Time_DG_Spatial >( this->create_IWG( aIWGType ) );
+                default:
+                    MORIS_ERROR( false, "time_dg is available for structural bulk, Dirichlet, traction and ghost IWGs only." );
+                    return nullptr;
+            }
+        }
+        return this->create_IWG( aIWGType );
+    }
 
     std::shared_ptr< IWG >
     IWG_Factory::create_IWG( IWG_Type aIWGType )
@@ -319,19 +350,39 @@ namespace moris::fem
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Interface >( CM_Function_Type::CAUCHY, CM_Function_Type::EULERIAN, 1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC:
-                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC:
-                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 0 );
 
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_SYMMETRIC:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 1, CM_Function_Type::DEFAULT );
+
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_UNSYMMETRIC:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1, CM_Function_Type::DEFAULT );
+
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_LINEAR_UNBIASED_NEUTRAL:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( 0, CM_Function_Type::DEFAULT );
+
+                // xxxxxxxxxxxxxxxxxxxxx
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC_FRIEDER_ORG:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org >( -1 );
+
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC_FRIEDER_ORG:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org >( 1 );
+
+            case IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL_FRIEDER_ORG:
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org >( 0 );
+                // xxxxxxxxxxxxxxxxxxxxx
+
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC:
-                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC:
-                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 0 );
@@ -441,6 +492,9 @@ namespace moris::fem
 
             case IWG_Type::FS_STRUC_INTERFACE:
                 return std::make_shared< IWG_FS_Struc_Interface >();
+
+            case IWG_Type::TIME_DG_MASS:
+                return std::make_shared< IWG_Time_DG_Mass >();
 
             case IWG_Type::TIME_CONTINUITY_DOF:
                 return std::make_shared< IWG_Time_Continuity_Dof >();

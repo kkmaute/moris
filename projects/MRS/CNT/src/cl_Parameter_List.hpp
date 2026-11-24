@@ -102,16 +102,15 @@ namespace moris
     class Parameter_List
     {
       private:
-        std::string mName;
+        std::string                        mName;
         std::map< std::string, Parameter > mParameterMap;
-        Vector< std::string > mOrderedKeys;
+        Vector< std::string >              mOrderedKeys;
 
         // Scoped iterator types
-        typedef Parameter_Iterator< std::map< std::string, Parameter >& > iterator;
+        typedef Parameter_Iterator< std::map< std::string, Parameter >& >       iterator;
         typedef Parameter_Iterator< const std::map< std::string, Parameter >& > const_iterator;
 
       public:
-
         /**
          * Parameter list constructor
          *
@@ -152,18 +151,24 @@ namespace moris
          */
         template< typename T >
         void insert(
-                const std::string&  aName,
-                T                   aDefaultValue,
-                Entry_Type          aExternalValidationType = Entry_Type::FREE,
-                std::string         aExternalParameterName = "",
-                Module_Type        aExternalParameterListType = Module_Type::END_ENUM,
-                uint                aExternalParameterListIndex = 0 )
+                const std::string& aName,
+                T                  aDefaultValue,
+                Entry_Type         aExternalValidationType     = Entry_Type::FREE,
+                std::string        aExternalParameterName      = "",
+                Module_Type        aExternalParameterListType  = Module_Type::END_ENUM,
+                uint               aExternalParameterListIndex = 0 )
         {
             // Register new
             std::string tKey = this->register_key( aName );
 
             // Insert new value
-            Parameter tParameter( std::move( aDefaultValue ), aExternalValidationType, std::move( aExternalParameterName ), aExternalParameterListType, aExternalParameterListIndex );
+            Parameter tParameter(
+                    std::move( aDefaultValue ),
+                    aExternalValidationType,
+                    std::move( aExternalParameterName ),
+                    aExternalParameterListType,
+                    aExternalParameterListIndex );
+
             mParameterMap.insert( { tKey, tParameter } );
         }
 
@@ -248,7 +253,7 @@ namespace moris
                 const std::string& aName,
                 T                  aFirstValue,
                 T                  aSecondValue,
-                Arg_Types...       aMoreValues )
+                Arg_Types... aMoreValues )
         {
             // Delegate to private implementation overload, with lock on
             this->convert_and_set( aName, Vector< T >( { aFirstValue, aSecondValue, aMoreValues... } ), true, std::false_type() );
@@ -359,7 +364,6 @@ namespace moris
         size_t size() const;
 
       private:
-
         /**
          * Registers a new key to this parameter list's vector of names, based on the parameter name.
          *
@@ -471,10 +475,10 @@ namespace moris
         template< typename T >
         const T& get_and_convert( const std::string& aName, std::true_type ) const
         {
-            return ( const T& ) this->get_and_convert< uint >( aName, std::false_type() );
+            return (const T&)this->get_and_convert< uint >( aName, std::false_type() );
         }
     };
 
     //------------------------------------------------------------------------------
 
-}
+}    // namespace moris

@@ -278,6 +278,13 @@ namespace moris::fem
             return mNSpaceBases;
         }
 
+        Matrix< DDRMat > get_space_interpolation_points() const
+        {
+            Matrix< DDRMat > tPoints;
+            mSpaceInterpolation->get_param_coords( tPoints );
+            return tPoints;
+        }
+
         //------------------------------------------------------------------------------
         /**
          * get the number of time bases
@@ -561,6 +568,11 @@ namespace moris::fem
         void eval_gradxt();
 
         //------------------------------------------------------------------------------
+
+        Geometry_Interpolator* get_IG_geometry_interpolator()
+        {
+            return mGeometryInterpolator;
+        }
     };
 
     //------------------------------------------------------------------------------

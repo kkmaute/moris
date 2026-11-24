@@ -28,6 +28,29 @@
 
 namespace moris::MSI
 {
+    void MSI_Solver_Interface::reset_time_history( bool aAdjointOnly )
+    {
+        for ( uint iSet = 0; iSet < this->get_num_sets(); ++iSet )
+        {
+            for ( auto* tObject : mMSI->get_equation_set( iSet )->get_equation_object_list() )
+            {
+                tObject->reset_time_history( aAdjointOnly );
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void MSI_Solver_Interface::commit_time_history( bool aConverged )
+    {
+        for ( uint iSet = 0; iSet < this->get_num_sets(); ++iSet )
+        {
+            for ( auto* tObject : mMSI->get_equation_set( iSet )->get_equation_object_list() )
+            {
+                tObject->commit_time_history( aConverged );
+            }
+        }
+    }
 
     //-------------------------------------------------------------------------------------------------------
 
@@ -287,6 +310,14 @@ namespace moris::MSI
         mPreviousAdjointSolutionVector = aSolutionVector;
 
         mMSI->mEquationModel->set_previous_adjoint_solution_vector( mPreviousAdjointSolutionVector );
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    MSI_Solver_Interface::set_adjoint_time_coupling( sol::Dist_Vector* aVector )
+    {
+        mAdjointTimeCoupling = aVector;
     }
 
     //------------------------------------------------------------------------------

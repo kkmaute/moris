@@ -1,0 +1,126 @@
+/**
+@page exa_toss_ruler Planar toss ruler with time DG
+
+@section toss_model Model and literature relationship
+
+This example adapts the free-flight toss-ruler problem discussed by D. Kuhl and
+E. Ramm, "Generalized Energy–Momentum Method for non-linear adaptive shell
+dynamics", CMAME 178 (1999), 343–366,
+https://doi.org/10.1016/S0045-7825(99)00024-9 .
+The publisher's accessible abstract identifies the three-dimensional shell
+benchmark. Geometry, material and pulse values were checked against the open
+reproduction in C. S. Jog and P. Motamarri, J. Mechanics of Materials and
+Structures 4 (2009), Section 4.6, Figure 21:
+https://msp.org/jomms/2009/4-1/jomms-v4-n1-p09-p.pdf .
+
+The reference domain is [0,0.3] x [-0.03,0.03] meters. Its out-of-plane
+thickness is b=0.002 m, E=2.06e11 Pa, nu=0, and reference density is
+7800 kg/m^3. Mass is 0.2808 kg. The L x W planform is represented by
+biquadratic plane-stress continuum elements with finite-deformation St. Venant–
+Kirchhoff elasticity. Thickness multiplies bulk, boundary and inertia terms
+consistently. The fitted HMR/XTK mesh has one active material and no ghost
+stabilization, supports, contact, damping material or artificial springs.
+Initial displacement and reconstructed velocity are zero.
+
+This is a planar adaptation, not a numerical reproduction of the shell curves.
+In-plane bending and rotation replace the shell's three-dimensional bending,
+torsion and rotation. In particular, the bending stiffness differs from the
+weak-axis shell response. No three-dimensional loading pattern is projected
+and claimed to be equivalent. The following planar loading is defined explicitly.
+
+@section toss_loading Pulse and free flight
+
+Let R(t)=40000*max(0,1-abs(2*t/0.004-1)) N/m. Nominal dead tractions on the
+reference end faces are
+ t_left=(0,R(t)/0.06), t_right=(0,-0.5*R(t)/0.06) Pa.
+The two end forces are (0,b*R(t)) and (0,-0.5*b*R(t)) N, respectively.
+All other faces are traction-free. The asymmetric pulse imparts linear and
+angular momentum and excites elastic deformation. At 4 ms it vanishes and the
+beam continues in unloaded motion, without gravity. This load is fixed in the
+spatial coordinate directions and is integrated over reference boundary area.
+
+The exact net impulse is (0,0.08) N*s. Once the pulse has ended,
+ P_y=0.08, P_x=0,
+ C_x=0.15, C_y=(0.08/0.2808)*(t-0.002) m.
+These independent continuum balance checks are used for both process counts.
+Angular momentum about the origin has a deformation-dependent applied torque
+during loading; it is not approximated by a constant reference lever arm.
+
+Time integration uses the new energy-corrected DG(1), alpha=4 formulation,
+not the paper's generalized energy–momentum integrator. Each slab has two
+independent displacement traces. The spatial forces use the DG weak and
+incoming collocation tests; consistent mass and committed cluster velocity
+history supply the inertial coupling. Amesos solves the nonsymmetric Newton
+systems. Required settings are in the input's SOL parameter lists.
+
+@section toss_running Configurations and output
+
+The standalone Toss_Ruler.cpp input defaults to 30x4 Q2 elements, 800 uniform
+slabs of 50 microseconds and T=0.04 s. Configuration globals have standalone
+defaults and are declared extern when the EXA driver supplies them. The shared
+EXA main handles initialization. The normal regression case uses 12x2 elements,
+240 slabs at the same time step and T=0.012 s, covering the pulse and 8 ms of
+unloaded motion. Each CTest case has a separate working directory.
+
+Build and run the registered one-/two-rank regression cases:
+@verbatim
+cmake --build build_dbg --target Main_Toss_Ruler --parallel 4
+ctest --test-dir build_dbg -R '^Toss_Ruler-' --output-on-failure
+@endverbatim
+
+For the longer demonstration, change to
+build_dbg/projects/EXA/structure/dynamics/Toss_Ruler/runs/full and run:
+@verbatim
+mpiexec -n 2 ../../bin/Main_Toss_Ruler.exe '[.TossRulerFull]'
+@endverbatim
+
+Toss_Ruler.exo (with normal rank suffixes in parallel) stores every slab,
+including outgoing UX/UY and IncomingUX/IncomingUY. In ParaView, form the vector
+(UX,UY,0) with Calculator and use Warp By Vector with scale factor one. The
+mesh is the reference configuration; animate the displacement, not the
+undeformed mesh. FinalArea is a spatial endpoint IQI, equal to 0.018 m^2.
+
+The EXA driver also writes Toss_Ruler_history.csv with time, center of mass,
+linear momentum, angular momentum about the fixed origin, kinetic energy,
+strain energy, total energy, minimum det(F), and the reference right-midpoint
+node's outgoing displacement. No visualization exaggeration enters these
+quantities. The standalone library alone writes Exodus; CSV generation belongs
+to the EXA checker and runs in both explicit demonstration and regression cases.
+
+Velocity at every node is reconstructed from the exported traces:
+ v_n^- = (-3*q_(n-1)^+ + q_n^- + 2*q_(n-1)^-)/dt.
+Here q_(n-1)^+ is the incoming trace on the current slab, q_n^- its outgoing
+trace, and q_(n-1)^- the preceding outgoing trace (zero initially). This is
+the same algebra as the committed velocity history, not gradt(displacement).
+The checker gathers/averages duplicate VIS vertices across MPI ranks, then
+uses MORIS Q2 interpolation and 5x5 spatial quadrature over reference cells to
+compute the diagnostics. StVK energy is evaluated with the same plane-stress
+law and nu=0 as the active CM.
+
+@section toss_checks Verification scope
+
+check_results verifies mesh dimension, reference coordinates, output times,
+final area, finite fields, positive det(F), nonzero toss motion, impulse,
+center-of-mass motion and linear momentum after release. gPrintReferenceValues
+prints local Exodus mesh counts and final numerical fields for inspecting
+reference data. Fixed 12 ms references were recorded from the verified serial
+12x2 mesh and are reused on two ranks: tip displacement
+(-0.002021374514632963,-0.02169343580232468) m, total energy
+0.3072041374185144 J, and origin angular momentum -0.02399696451822027 N*m*s.
+The checker uses relative tolerance 1e-6 (tip also has a 2e-9 m absolute
+allowance). Local mesh counts are 125 nodes/24 elements on one rank and
+65 nodes/12 elements on each of two ranks; those are not global parallel totals.
+The full flight uses continuum balance and finite-field checks rather than
+these shorter/coarser references. Momentum/energy histories are diagnostics for this dissipative
+DG scheme. The final energy may not exceed release energy by more than 1e-5
+relative; exact angular-momentum or energy conservation is not asserted. Literature shell response curves are not used as planar
+regression references. The mesh/time settings in the driver define fixed
+regression and demonstration cases; neither uses environment-variable tuning.
+
+Validation on 2026-11-22: the 12 ms regression passed on one and two ranks,
+and the 30x4-element, 800-slab 40 ms flight passed on two ranks. In that full
+flight, final tip displacement was approximately (-0.0283133534,-0.0768799175) m,
+P_y=0.079999999997 N*s, total energy=0.307151539 J, and energy decreased by
+0.02203 percent from release to the end. These are observations for this
+planar DG discretization, not the paper's three-dimensional shell references.
+*/

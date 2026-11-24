@@ -3391,7 +3391,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_DruckerPrager", "[CM_Struc_Lin_Iso_
             Matrix< DDRMat > tLeaderDOFHatDispl;
             fill_uhat_Elast( tLeaderDOFHatDispl, iSpaceDim, iInterpOrder );
             // print( tLeaderDOFHatDispl, "tLeaderDOFHatDispl" );
-            tLeaderDOFHatDispl = tLeaderDOFHatDispl;
+            // tLeaderDOFHatDispl = tLeaderDOFHatDispl;
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDispl );
 
             // create the field interpolator for nonlocal equivalent strain
@@ -3453,7 +3453,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_DruckerPrager", "[CM_Struc_Lin_Iso_
                     // std::cout << "Requested dof derivative point " << iGP << " / " << tNumGPs << std::endl;
 
                     // derivative dof type
-                    Vector< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
+                    const Vector< MSI::Dof_Type >& tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // cast constitutive model base class pointer to elasticity damage constitutive model
                     CM_Struc_Linear_Isotropic_Damage* tCMLeaderPtr =
@@ -3628,7 +3628,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Damage_DruckerPrager", "[CM_Struc_Lin_Iso_
                     // test traction -- only displacement as test dof type !!!
                     //------------------------------------------------------------------------------
                     // get the test dof type
-                    Vector< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
+                    const Vector< MSI::Dof_Type >& tDofTest = tLeaderDofTypes( 0 );
 
                     // evaluate test traction
                     Matrix< DDRMat > ttesttraction = tCMLeader->testTraction(

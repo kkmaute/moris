@@ -86,14 +86,6 @@ check_results( uint aTestCaseIndex, const std::string& aHDF5FileName )
 TEST_CASE( "Shape_Sensitivity_Bspline_2D",
         "[moris],[example],[optimization],[sweep]" )
 {
-    // remove files from previous test runs
-    // FIXME: should be made independent of OS; note std::remove does not take wild cards
-    if ( par_rank() == 0 )
-    {
-        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Shape_Sensitivity_Bspline - removing *exo* files failed" );
-        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Shape_Sensitivity_Bspline - removing *hdf5* files failed" );
-    }
-
     // define command line call
     int argc = 2;
 

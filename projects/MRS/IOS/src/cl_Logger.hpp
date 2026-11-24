@@ -56,11 +56,6 @@ namespace moris
         sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
 
         /**
-         * @brief Variable to control level of memory reporting
-         */
-        sint mMemoryOutput = 1;
-
-        /**
          * Output formatting mode for console output:
          * 1 - legacy mode, everything is written to screen as handed to log macros/functions
          * 2 - output is written in a clean tree structure, general MORIS_LOG and MORIS_LOG_INFO is suppressed. Good for live tracing.
@@ -106,7 +101,7 @@ namespace moris
         }
 
       public:
-        Logger(){};
+        Logger() {};
 
         //------------------------------------------------------------------------------
 
@@ -144,7 +139,7 @@ namespace moris
             std::cout << "Global Clock Stopped. ElapsedTime = " << tElapsedTime << " \n"
                       << std::flush;
 
-            if ( PRINT_WALL_TIME )
+            if ( LOGGER_PRINT_WALL_TIME )
             {
                 std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[ mGlobalClock.mIndentationLevel ] );
                 real                            tElapsedWallTime       = tChronoElapsedWallTime.count();
@@ -180,7 +175,7 @@ namespace moris
                 std::cout << "Global Clock Initialized ... \n"
                           << std::flush;
 
-                if ( mMemoryOutput > 0 )
+                if ( LOGGER_PRINT_MEMORY_USAGE )
                 {
                     std::cout << tMemUsage << '\n'
                               << std::flush;
@@ -226,7 +221,7 @@ namespace moris
                 std::cout << "Global Clock Initialized ... \n"
                           << std::flush;
 
-                if ( mMemoryOutput > 0 )
+                if ( LOGGER_PRINT_MEMORY_USAGE )
                 {
                     std::cout << tMemUsage << '\n'
                               << std::flush;
@@ -372,7 +367,7 @@ namespace moris
         log_info_all_proc( const char* tFormat, const Args... aArgs )
         {
             int tOutputRank = mOutputRank;
-            mOutputRank = logger_par_rank();
+            mOutputRank     = logger_par_rank();
             this->log_info( tFormat, aArgs... );
             mOutputRank = tOutputRank;
         }
@@ -688,8 +683,7 @@ extern moris::Logger gLogger;
 #ifdef __GNUC__
 __attribute__( ( format( printf, 1, 2 ) ) )
 #endif
-void
-check_args( const char* tFormat, ... );
+void check_args( const char* tFormat, ... );
 
 /**
  * Log an section severity message.
@@ -744,14 +738,14 @@ check_args( const char* tFormat, ... );
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG_INFO_ALL_PROCS( ... )                 \
-    do                                                  \
-    {                                                   \
-        if ( gLogger.get_severity_level() < 2 )         \
-        {                                               \
-            if ( false ) check_args( __VA_ARGS__ );     \
-            gLogger.log_info_all_proc( __VA_ARGS__ );   \
-        }                                               \
+#define MORIS_LOG_INFO_ALL_PROCS( ... )               \
+    do                                                \
+    {                                                 \
+        if ( gLogger.get_severity_level() < 2 )       \
+        {                                             \
+            if ( false ) check_args( __VA_ARGS__ );   \
+            gLogger.log_info_all_proc( __VA_ARGS__ ); \
+        }                                             \
     } while ( false )
 
 // -----------------------------------------------------------------------------

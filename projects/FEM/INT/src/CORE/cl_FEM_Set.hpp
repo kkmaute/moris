@@ -95,6 +95,7 @@ namespace moris
             Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
             Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
             Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
+            Field_Interpolator_Manager* mFollowerPreviousFIManager = nullptr;
             Field_Interpolator_Manager* mLeaderEigenFIManager    = nullptr;
 
             // number of eigen vectors

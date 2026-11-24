@@ -106,7 +106,7 @@ namespace moris
     // parameters for transient simulations
 
     // number of time steps and total simulation time
-    int         tTimeSteps = 0;
+    int         tTimeSteps = 1;
     moris::real tMaxTime   = 1.0;
 
     // time penalty parameter
@@ -115,7 +115,7 @@ namespace moris
     // time step size
     moris::real tDeltaTime = tMaxTime / (real)tTimeSteps;
 
-    // number of steps to linearly increase heat laod
+    // number of steps to linearly increase heat load
     moris::real tRampTime = 10;    // tMaxTime/10.0;
 
     // flag to turn on/off transient simulation
@@ -127,7 +127,7 @@ namespace moris
     // maximum number of Newton steps
     int tNLA_max_iter = 20;
 
-    // required drop of resdiual
+    // required drop of residual
     moris::real tNLA_rel_res_norm_drop = 1e-12;
 
     // relaxation parameter
@@ -286,7 +286,7 @@ namespace moris
     }
 
     /* ------------------------------------------------------------------------ */
-    // Phase assignement
+    // Phase assignment
 
     uint
     get_phase_index( const Bitset< 1 >& aGeometrySigns )
@@ -404,7 +404,7 @@ namespace moris
     }
 
     /* ------------------------------------------------------------------------ */
-    // function to dtermine when to oupt results
+    // function to determine when to opt results
 
     bool
     Output_Criterion( moris::tsa::Time_Solver* aTimeSolver )
@@ -523,8 +523,7 @@ namespace moris
     void
     FEMParameterList( Module_Parameter_Lists& aParameterLists )
     {
-
-         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         aParameterLists( FEM::PHASES ).add_parameter_list();
         aParameterLists.set( "phase_name", "PhaseSolid" );
@@ -727,7 +726,7 @@ namespace moris
                     "PropInitialTemp,InitialCondition" );
             aParameterLists.set( "leader_phase_name", "PhaseSolid" );
             aParameterLists.set( "time_continuity", true );
-            }
+        }
 
         // Ghost  ----------------------------------------------------------------
 
@@ -863,7 +862,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();    // 1: thermal subproblem
-        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );             // set nonlinear algorithm with index 0
+        aParameterLists.set( "NLA_Nonlinear_solver_algorithms", "0" );     // set nonlinear algorithm with index 0
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
 
@@ -900,7 +899,7 @@ namespace moris
 
         aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_operator_to_matlab", "Jacobian" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::NONE );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void

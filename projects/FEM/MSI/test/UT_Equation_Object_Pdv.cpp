@@ -426,3 +426,37 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 }/* END_TEST_CASE */
 
 }    // namespace moris::MSI
+
+// Reversing an interface can move its only material ADV to the follower side.
+// Combined assembly numbering must handle both absent and unassigned leader
+// maps, while preserving offsets for genuinely two-sided dependencies.
+TEST_CASE( "Follower-only design variable assembly indices", "[MSI][PDV][FollowerOnly]" )
+{
+    moris::MSI::Equation_Set tSet;
+    const uint               tMapSize = static_cast< uint >( moris::gen::PDV_Type::UNDEFINED ) + 1;
+    tSet.mLeaderDvTypeMap.set_size( tMapSize, 1, -1 );
+    tSet.mFollowerDvTypeMap.set_size( tMapSize, 1, -1 );
+    tSet.mFollowerDvTypeMap( static_cast< uint >( moris::gen::PDV_Type::DENSITY ) )         = 0;
+    tSet.mFollowerDvTypeMap( static_cast< uint >( moris::gen::PDV_Type::ELASTIC_MODULUS ) ) = 1;
+    moris::sint tOffset                                                                     = 0;
+
+    SECTION( "leader has no assigned design fields" )
+    {
+        // The sentinel-filled map is the ordinary follower-only configuration.
+    }
+    SECTION( "leader map has no storage" )
+    {
+        tSet.mLeaderDvTypeMap.set_size( 0, 0 );
+    }
+    SECTION( "leader contributes two design field blocks" )
+    {
+        tSet.mLeaderDvTypeMap( static_cast< uint >( moris::gen::PDV_Type::DENSITY ) )     = 0;
+        tSet.mLeaderDvTypeMap( static_cast< uint >( moris::gen::PDV_Type::TEMPERATURE ) ) = 1;
+        tOffset                                                                           = 2;
+    }
+
+    CHECK( tSet.get_dv_index_for_type( moris::gen::PDV_Type::DENSITY, moris::mtk::Leader_Follower::FOLLOWER ) == tOffset );
+    CHECK( tSet.get_dv_index_for_type( moris::gen::PDV_Type::ELASTIC_MODULUS, moris::mtk::Leader_Follower::FOLLOWER ) == tOffset + 1 );
+    CHECK( tSet.get_dv_index_for_type( moris::gen::PDV_Type::TEMPERATURE, moris::mtk::Leader_Follower::FOLLOWER ) == -1 );
+    CHECK( tSet.get_dv_index_for_type_1( moris::gen::PDV_Type::ELASTIC_MODULUS, moris::mtk::Leader_Follower::FOLLOWER ) == 1 );
+}

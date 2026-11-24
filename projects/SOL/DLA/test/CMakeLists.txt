@@ -8,7 +8,8 @@ include_directories(DLA_Test_Proxy)
 # Sources.
 set(TEST_SOURCES
     test_main.cpp
-    cl_Dist_Vector_Test.cpp #> VectorType error
+    UT_PETSc_Adjoint_Carry.cpp
+    cl_Dist_Vector_Test.cpp # > VectorType error
     cl_Linear_Solver_Test.cpp
     cl_Map_Test.cpp
     UT_convert_epetra_to_matrix.cpp
@@ -58,5 +59,16 @@ if(MORIS_HAVE_PETSC)
                          $<TARGET_FILE:${DLA_TEST}> "[PETSc_BDDC]"
         )
         set_tests_properties(DLA-BDDC-test-${procs}-procs PROPERTIES PROCESSORS ${procs})
+    endforeach()
+endif()
+
+# Adjoint carry transfers own a separate PETSc lifetime from the legacy tests.
+if(MORIS_HAVE_PETSC)
+    foreach(procs IN LISTS bddc_process_counts)
+        add_test(NAME DLA-PETSc-Adjoint-test-${procs}-procs
+                 COMMAND ${MORIS_EXECUTE_COMMAND} -n ${procs} ${VALGRIND} ${VALGRIND_OPTIONS}
+                         $<TARGET_FILE:${DLA_TEST}> "[PETScAdjointCarry]"
+        )
+        set_tests_properties(DLA-PETSc-Adjoint-test-${procs}-procs PROPERTIES PROCESSORS ${procs})
     endforeach()
 endif()

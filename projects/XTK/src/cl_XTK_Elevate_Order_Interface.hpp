@@ -16,7 +16,7 @@
 namespace moris::mtk
 {
     class Mesh;
-    }
+}
 
 namespace moris::xtk
 {
@@ -781,7 +781,7 @@ namespace moris::xtk
          * @param aEdgeVertices list of mtk::vertices on edge
          * @return moris_index unique id for edge
          */
-        moris_index
+        FacetKey
         hash_edge( Vector< moris::mtk::Vertex* > const & aEdgeVertices );
 
         /**
@@ -791,7 +791,7 @@ namespace moris::xtk
          * @param aFaceVertices list of mtk::vertices at face corners
          * @return moris_index unique id for face
          */
-        moris_index
+        FacetKey
         hash_face( Vector< moris::mtk::Vertex* > const & aFaceVertices );
 
         /**

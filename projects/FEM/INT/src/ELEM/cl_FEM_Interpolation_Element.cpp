@@ -32,6 +32,54 @@
 
 namespace moris::fem
 {
+    void Interpolation_Element::reset_time_history( bool aAdjointOnly )
+    {
+        if ( aAdjointOnly )
+        {
+            mFemCluster( 0 )->get_cluster_ISV_data().mTimeHistory.clear_adjoint();
+        }
+        else
+        {
+            mFemCluster( 0 )->get_cluster_ISV_data().mTimeHistory.clear();
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Interpolation_Element::commit_time_history( bool aConverged )
+    {
+        bool tHasHistory = false;
+        for ( const auto& tIWG : mSet->get_IWGs() )
+        {
+            tHasHistory = tHasHistory || tIWG->has_time_history();
+        }
+        if ( !tHasHistory )
+        {
+            return;
+        }
+        MORIS_ERROR( aConverged,
+                "Cannot commit DG velocity history: nonlinear slab solve did not converge." );
+
+        this->compute_my_pdof_values();
+        this->compute_previous_pdof_values();
+        this->set_field_interpolators_coefficients();
+        mSet->set_IWG_field_interpolator_managers();
+        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+        for ( const auto& tIWG : mSet->get_IWGs() )
+        {
+            tIWG->commit_time_history();
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Interpolation_Element::add_adjoint_history(
+            const Vector< Matrix< DDRMat > >& aAdjoint,
+            Vector< Matrix< DDRMat > >&       aRHS )
+    {
+        mFemCluster( 0 )->add_adjoint_history( aAdjoint, aRHS );
+    }
+
     //------------------------------------------------------------------------------
 
     Interpolation_Element::Interpolation_Element(
@@ -217,6 +265,21 @@ namespace moris::fem
 
             // set the field coefficients
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+
+            // if previous solution
+            if ( mSet->get_time_continuity() )
+            {
+                // get the pdof values for the ith dof type group
+                Vector< Vector< Matrix< DDRMat > > > tCoeff_Original;
+                this->get_my_pdof_values( mSet->mPreviousPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
+
+                // reshape tCoeffs into the order the cluster expects them
+                Matrix< DDRMat > tCoeff;
+                this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
+
+                // set field interpolator coefficients
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+            }
         }
 
         // dv field interpolators------------------------------------------
@@ -252,6 +315,15 @@ namespace moris::fem
             // set field interpolator coefficients
             mSet->get_field_interpolator_manager()
                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+
+            // Material design fields belong to the same spatial design across
+            // slabs. History-dependent contact evaluates constitutive data in
+            // the previous manager as well as in the current manager.
+            if ( mSet->get_time_continuity() )
+            {
+                mSet->get_field_interpolator_manager_previous_time()
+                        ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+            }
         }
 
         // get follower dv type list from set
@@ -285,6 +357,12 @@ namespace moris::fem
             // set the field coefficients
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+
+            if ( mSet->get_time_continuity() )
+            {
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )
+                        ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+            }
         }
 
         // field field interpolators------------------------------------------
@@ -300,14 +378,14 @@ namespace moris::fem
         for ( uint iFi = 0; iFi < tLeaderNumFieldTypes; iFi++ )
         {
             // get the field type group
-            const Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
-            uint tNumFieldComponents = tFieldTypeGroup.size();
+            const Vector< mtk::Field_Type >& tFieldTypeGroup     = tLeaderFieldTypeList( iFi );
+            uint                             tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
-            uint tNumCoeffs = tIPCellIndices.numel();
+            uint                     tNumCoeffs     = tIPCellIndices.numel();
 
             // assembly coefficient matrix depending on number of fields
-            if ( tNumFieldComponents == 1 ) // scalar fields
+            if ( tNumFieldComponents == 1 )    // scalar fields
             {
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -315,15 +393,15 @@ namespace moris::fem
                 // set field interpolator coefficients
                 mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
-            else // vectorial fields
+            else    // vectorial fields
             {
                 Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
-                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
-                
+                Matrix< DDRMat >           tCoeffMat( tNumCoeffs, tNumFieldComponents );
+
                 for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
                 {
-                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
-                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );
                 }
 
                 // set field interpolator coefficients
@@ -342,14 +420,14 @@ namespace moris::fem
         for ( uint iFi = 0; iFi < tFollowerNumFieldTypes; iFi++ )
         {
             // get the field type group
-            const Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
-            uint tNumFieldComponents = tFieldTypeGroup.size();
+            const Vector< mtk::Field_Type >& tFieldTypeGroup     = tFollowerFieldTypeList( iFi );
+            uint                             tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
-            uint tNumCoeffs = tIPCellIndices.numel();
+            uint                     tNumCoeffs     = tIPCellIndices.numel();
 
             // assembly coefficient matrix depending on number of fields
-            if ( tNumFieldComponents == 1 ) // scalar fields
+            if ( tNumFieldComponents == 1 )    // scalar fields
             {
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -357,15 +435,15 @@ namespace moris::fem
                 // set field interpolator coefficients
                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
-            else // vectorial fields
+            else    // vectorial fields
             {
                 Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
-                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
-                
+                Matrix< DDRMat >           tCoeffMat( tNumCoeffs, tNumFieldComponents );
+
                 for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
                 {
-                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
-                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );
                 }
 
                 // set field interpolator coefficients
@@ -396,6 +474,25 @@ namespace moris::fem
             tFollowerGeometryInterpolator->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
 
             tFollowerGeometryInterpolator->set_time_coeff( this->get_time() );
+
+            if ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+            {
+                // set the IP geometry interpolator physical space and time coefficients for the previous
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_time_coeff( this->get_previous_time() );
+
+                // set the IP geometry interpolator physical space and time coefficients for the previous
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->    //
+                        get_IP_geometry_interpolator()
+                                ->set_time_coeff( this->get_previous_time() );
+            }
         }
 
         // if time sideset
@@ -548,6 +645,9 @@ namespace moris::fem
         // set cluster for stabilization parameter
         mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
+        // reset the cluster ISV data
+        mFemCluster( 0 )->get_cluster_ISV_data().reset();
+
         // ask cluster to compute jacobian
         mFemCluster( 0 )->compute_jacobian();
     }
@@ -590,6 +690,9 @@ namespace moris::fem
 
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // reset the cluster ISV data
+            mFemCluster( 0 )->get_cluster_ISV_data().reset();
 
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
@@ -682,6 +785,11 @@ namespace moris::fem
                 mSet->initialize_mdRdpMat();
                 mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
             }
+        }
+        else
+        {
+            // reset the cluster ISV data
+            mFemCluster( 0 )->get_cluster_ISV_data().reset();
         }
 
         // ask cluster to compute Jacobian and residual
@@ -1353,13 +1461,24 @@ namespace moris::fem
         // get number of vertices on the treated mesh cluster
         uint tNumVertices = tVertexLocalCoords.n_rows();
 
+        // DG output is stamped with the slab end time and must sample the
+        // outgoing trace. Keep the existing convention for other formulations.
+        real tOutputTimeCoordinate = -1.0;
+        for ( const auto& tIWG : mSet->get_IWGs() )
+        {
+            if ( tIWG->uses_dg_time_tests() )
+            {
+                tOutputTimeCoordinate = 1.0;
+            }
+        }
+
         // loop over the vertices on the treated mesh cluster
         for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
         {
             // get the i-th vertex's coordinates in the IP parametric space
             Matrix< DDRMat > tNodalPointLocalCoords = tVertexLocalCoords.get_row( iVertex );
             tNodalPointLocalCoords.resize( 1, tNodalPointLocalCoords.numel() + 1 );
-            tNodalPointLocalCoords( tNodalPointLocalCoords.numel() - 1 ) = -1.0;
+            tNodalPointLocalCoords( tNodalPointLocalCoords.numel() - 1 ) = tOutputTimeCoordinate;
 
             tNodalPointLocalCoords = trans( tNodalPointLocalCoords );
 

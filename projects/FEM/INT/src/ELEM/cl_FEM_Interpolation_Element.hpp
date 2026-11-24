@@ -91,6 +91,11 @@ namespace moris::fem
          */
         ~Interpolation_Element() override {};
 
+        void reset_time_history( bool aAdjointOnly ) override;
+        void commit_time_history( bool aConverged ) override;
+        void add_adjoint_history( const Vector< Matrix< DDRMat > >& aAdjoint,
+                Vector< Matrix< DDRMat > >&                         aRHS ) override;
+
         //------------------------------------------------------------------------------
         /**
          * get ip cell

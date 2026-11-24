@@ -1,12 +1,12 @@
 /*
-* Copyright (c) 2022 University of Colorado
-* Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-*
-*------------------------------------------------------------------------------------
-*
-* cl_Variant.hpp
-*
-*/
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Variant.hpp
+ *
+ */
 #pragma once
 
 #include <variant>
@@ -14,13 +14,25 @@
 #include "cl_Design_Variable.hpp"
 #include "fn_Parsing_Tools.hpp"
 
-#define GET_TYPE_NAME( ... ) template<> inline std::string get_type_name< __VA_ARGS__ >(){ return #__VA_ARGS__; }
+#define GET_TYPE_NAME( ... ) \
+    template<>               \
+    inline std::string get_type_name< __VA_ARGS__ >() { return #__VA_ARGS__; }
 
 namespace moris
 {
     // Variant typedef
-    typedef std::variant< bool, uint, sint, real, std::string, std::pair< std::string, std::string >,
-            Vector< uint >, Vector< sint >, Vector< real >, Vector< std::string >, Design_Variable > Variant;
+    typedef std::variant< bool,    //
+            uint,
+            sint,
+            real,
+            std::string,
+            std::pair< std::string, std::string >,
+            Vector< uint >,
+            Vector< sint >,
+            Vector< real >,
+            Vector< std::string >,
+            Design_Variable >
+            Variant;
 
     /**
      * Gets the name of a data type stored in the Variant, for printing purposes.
@@ -107,8 +119,12 @@ namespace moris
     }
 
     // Declare template specializations making variants
-    template<> Variant make_variant( std::string );
-    template<> Variant make_variant( std::pair< std::string, std::string > );
-    template<> Variant make_variant( const char* );
-    template<> Variant make_variant( Vector< const char* > );
-}
+    template<>
+    Variant make_variant( std::string );
+    template<>
+    Variant make_variant( std::pair< std::string, std::string > );
+    template<>
+    Variant make_variant( const char* );
+    template<>
+    Variant make_variant( Vector< const char* > );
+}    // namespace moris

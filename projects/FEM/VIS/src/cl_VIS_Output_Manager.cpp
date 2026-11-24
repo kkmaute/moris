@@ -304,6 +304,20 @@ namespace moris::vis
                         tMeshSetNames( iSet ).c_str(),
                         aVisMeshIndex );
             }
+
+            // Final-time IQIs share the spatial VIS mesh with the bulk set.
+            auto tFinalKey = std::make_tuple( tFemSetIndex, false, true );
+            if ( tMeshSetToFemSetMap.key_exists( tFinalKey ) )
+            {
+                auto* tFinalSet = dynamic_cast< fem::Set* >(
+                        tEquationSets( tMeshSetToFemSetMap.find( tFinalKey ) ) );
+                if ( tFinalSet != nullptr && tFinalSet->get_element_type() == fem::Element_Type::TIME_FINAL_SIDESET )
+                {
+                    tFinalSet->set_visualization_set( aVisMeshIndex,
+                            mVisMesh( aVisMeshIndex )->get_set_by_name( tSetName ),
+                            mOnlyPrimary );
+                }
+            }
         }
     }
 
@@ -336,12 +350,20 @@ namespace moris::vis
             std::string tOptIterStr = std::to_string( tOptIter );
             tMeshFileName += ".e-s." + std::string( 4 - tOptIterStr.length(), '0' ) + tOptIterStr;
 
-            // determine time shift
-            mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            // determine time shift;
+            if ( mTimeShift > tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset )
+            {
+                MORIS_LOG_INFO( "Time stap issue: current time larger than (Vis time offset)*optimization iteration index" );
+                mTimeShift += tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            }
+            else
+            {
+                mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
+            }
         }
 
         // Log mesh writing message
-        MORIS_LOG( "Writing %s to %s.", tMeshFileName.c_str(), tMeshFilePath.c_str() );
+        MORIS_LOG( "Writing %s to %s at time: %e", tMeshFileName.c_str(), tMeshFilePath.c_str(), mTimeShift );
 
         // writes the exodus mesh to file (only the mesh as a geometric entity without any output data)
         mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
@@ -675,8 +697,12 @@ namespace moris::vis
         // increment field write counter (signal that another output has been performed)
         mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
 
-        // write time to file
-        mWriter( aVisMeshIndex )->set_time( aTime + mTimeShift );
+        // aTime is the absolute solver time. Keep the optimization offset fixed
+        // across slab outputs instead of accumulating absolute timestamps.
+        const real tOutputTime = mTimeShift + aTime;
+
+        MORIS_LOG_INFO( "Writing fields at time %e", tOutputTime );
+        mWriter( aVisMeshIndex )->set_time( tOutputTime );
 
         // get mesh set to fem set index map
         map< std::tuple< moris_index, bool, bool >, moris_index >& tMeshSetToFemSetMap =
@@ -711,6 +737,22 @@ namespace moris::vis
 
             // get mesh set index from name
             moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name( tSetName );
+
+            // Endpoint IQIs contribute global spatial integrals only at their
+            // requested final time; ordinary bulk fields are handled below.
+            auto tFinalKey = std::make_tuple( tFemSetIndex, false, true );
+            if ( tNumGlobalIQIs > 0 && tMeshSetToFemSetMap.key_exists( tFinalKey ) )
+            {
+                auto* tFinalSet = dynamic_cast< fem::Set* >(
+                        tEquationSets( tMeshSetToFemSetMap.find( tFinalKey ) ) );
+                if ( tFinalSet != nullptr && tFinalSet->get_element_type() == fem::Element_Type::TIME_FINAL_SIDESET
+                        && tFinalSet->get_num_equation_objects() > 0 )
+                {
+                    tFinalSet->compute_quantity_of_interest_global( aVisMeshIndex,
+                            &tGlobalValues,
+                            tIQINames( (uint)Field_Type::GLOBAL ) );
+                }
+            }
 
             // only output sets that actually exist in equation model
             if ( !tMeshSetToFemSetMap.key_exists( std::make_tuple( tFemSetIndex, false, false ) ) )

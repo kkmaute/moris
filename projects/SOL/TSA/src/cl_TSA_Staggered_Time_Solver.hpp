@@ -19,49 +19,51 @@ namespace moris
     {
         class Dist_Vector;
     }
-class Solver_Interface;
+    class Solver_Interface;
 
-namespace tsa
-{
-    class Staggered_Time_Solver : public Time_Solver_Algorithm
+    namespace tsa
     {
-    private:
+        class Staggered_Time_Solver : public Time_Solver_Algorithm
+        {
+          private:
+            void solve_staggered_time_system( Vector< sol::Dist_Vector* >& aFullVector );
 
-        void solve_staggered_time_system( Vector< sol::Dist_Vector * > & aFullVector );
+          public:
+            //-------------------------------------------------------------------------------
+            /**
+             * @brief default constructor
+             *
+             */
+            Staggered_Time_Solver() {};
 
-    public:
-        //-------------------------------------------------------------------------------
-        /**
-         * @brief default constructor
-         *
-         */
-        Staggered_Time_Solver(){};
+            //-------------------------------------------------------------------------------
+            /**
+             * @brief Constructor using a given parameter list
+             *
+             * @param[in] rSolverDatabase Pointer to the solver database
+             */
+            Staggered_Time_Solver( const Parameter_List& aParameterlist )
+                    : Time_Solver_Algorithm( aParameterlist ) {};
 
-        //-------------------------------------------------------------------------------
-        /**
-         * @brief Constructor using a given parameter list
-         *
-         * @param[in] rSolverDatabase Pointer to the solver database
-         */
-        Staggered_Time_Solver( const Parameter_List& aParameterlist )
-                : Time_Solver_Algorithm( aParameterlist ) {};
+            //-------------------------------------------------------------------------------
 
-        //-------------------------------------------------------------------------------
+            //        ~Staggered_Time_Solver(){};
 
-//        ~Staggered_Time_Solver(){};
+            //-------------------------------------------------------------------------------
+            /**
+             * @brief Solve call using a given solution vector
+             *
+             * @param[in] aFullVector     Solution Vector
+             */
+            void solve( Vector< sol::Dist_Vector* >& aFullVector ) override;
 
-        //-------------------------------------------------------------------------------
-        /**
-         * @brief Solve call using a given solution vector
-         *
-         * @param[in] aFullVector     Solution Vector
-         */
-        void solve( Vector< sol::Dist_Vector * > & aFullVector ) override;
+            void solve(
+                    Vector< sol::Dist_Vector* >& aFullVector,
+                    sol::Dist_Vector&            aAdjointTimeCoupling ) override;
 
-        //-------------------------------------------------------------------------------
-    };
-}
-}
+            //-------------------------------------------------------------------------------
+        };
+    }    // namespace tsa
+}    // namespace moris
 
 #endif /* MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_ */
-

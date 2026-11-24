@@ -39,6 +39,8 @@ namespace moris
         class Nonlinear_Solver
         {
           private:
+            bool mConverged = false;
+
             //! List of list of dof types
             Vector< Vector< enum MSI::Dof_Type > > mStaggeredDofTypeList;
 
@@ -77,6 +79,7 @@ namespace moris
 
             //! Flag for computing static residual
             bool mComputeStaticResidual = false;
+            bool mUseStaticResidual     = false;
 
             //! Number of iterations of algorithm needed to converge / stop relative to maximum
             real mRelNumIterations = 0;
@@ -292,6 +295,9 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------
 
+            bool has_converged() const { return mConverged; }
+            void set_converged( bool aConverged ) { mConverged = aConverged; }
+
             void solve( sol::Dist_Vector* aFullVector );
 
             void solve( Nonlinear_Problem* aNonlinearProblem );
@@ -444,11 +450,14 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------
 
-            void set_compute_static_residual_flag( bool aFlag );
+            void set_compute_static_residual_flag(
+                    bool aComputeFlag,
+                    bool aUseFlag );
 
             //--------------------------------------------------------------------------------------------------
 
             bool get_compute_static_residual_flag();
+            bool get_use_static_residual_flag();
 
             //--------------------------------------------------------------------------------------------------
 

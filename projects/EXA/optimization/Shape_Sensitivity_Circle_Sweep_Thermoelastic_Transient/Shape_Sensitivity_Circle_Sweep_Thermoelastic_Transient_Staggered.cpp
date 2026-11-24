@@ -27,6 +27,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+// Standalone inputs retain their own defaults; the EXA driver selects the
+// backend before loading this library for its isolated PETSc regression.
+#ifdef MORIS_THERMOELASTIC_TEST_DRIVER
+extern bool gThermoelasticUsePetsc;
+#else
+bool gThermoelasticUsePetsc = false;
+#endif
+
 //------------------------------------------------------------------------------
 namespace moris
 {
@@ -98,7 +106,7 @@ namespace moris
 
     moris::real tNLA_rel_res_norm_drop    = 1.0e-08;
     moris::real tNLA_relaxation_parameter = 1.0;
-    int         tNLA_max_iter             = 2;
+    int         tNLA_max_iter             = 3;
 
     int         tTSA_Num_Time_Steps = 2;
     moris::real tTSA_Time_Frame     = 1.0e0;
@@ -223,7 +231,11 @@ namespace moris
     {
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );
+#ifdef MORIS_THERMOELASTIC_TEST_DRIVER
+        aParameterLists.set( "library", MORIS_THERMOELASTIC_INPUT_LIBRARY );
+#else
         aParameterLists.set( "library", "./Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered.so" );
+#endif
 
         aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::SWEEP );
         aParameterLists.set( "hdf5_path", "shape_opt_test.hdf5" );
@@ -550,7 +562,16 @@ namespace moris
     SOLParameterList( Module_Parameter_Lists& aParameterLists )
     {
 
-        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( sol::SolverType::AMESOS_IMPL );
+        aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( gThermoelasticUsePetsc ? sol::SolverType::PETSC : sol::SolverType::AMESOS_IMPL );
+        if ( gThermoelasticUsePetsc )
+        {
+            // Keep solver settings in the input, independent of PETSC_OPTIONS.
+            aParameterLists.set( "KSPType", "gmres" );
+            aParameterLists.set( "KSPTol", 1.0e-14 );
+            aParameterLists.set( "KSPMaxits", 2000 );
+            aParameterLists.set( "KSPGMRESHapTol", 1.0e-16 );
+            aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_TPL_Type", sol::MapType::Petsc );
+        }
 
         aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list();
 
@@ -558,18 +579,22 @@ namespace moris
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_combined_res_jac_assembly", false );
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLA_rel_res_norm_drop );
+        aParameterLists.set( "NLA_tot_res_norm", tNLA_rel_res_norm_drop );
         aParameterLists.set( "NLA_relaxation_parameter", tNLA_relaxation_parameter );
         aParameterLists.set( "NLA_max_iter", tNLA_max_iter );
+
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
 
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "UX,UY" );
+
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NEWTON_SOLVER );
         aParameterLists.set( "NLA_DofTypes", "TEMP" );
         aParameterLists.set( "NLA_Secondary_DofTypes", "UX,UY" );
+
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
         aParameterLists.set( "NLA_Solver_Implementation", moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         aParameterLists.set( "NLA_Sub_Nonlinear_Solver", "1,0" );
@@ -588,7 +613,11 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "UX,2;UY,2;TEMP,2" );
 
-        aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_final_adjoint_vec_to_file", "Shape_Sensitivity_Thermoelastic_Transient_Staggered.hdf5" );
+        if ( !gThermoelasticUsePetsc )
+        {
+            // The stored adjoint reference uses Epetra's HDF5 serialization.
+            aParameterLists( SOL::SOLVER_WAREHOUSE ).set( "SOL_save_final_adjoint_vec_to_file", "Shape_Sensitivity_Thermoelastic_Transient_Staggered.hdf5" );
+        }
 
         aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::NONE );
     }

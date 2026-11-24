@@ -91,19 +91,27 @@ namespace moris
                 sol::Dist_Vector&  aVecA,
                 const moris::real& aScaleThis ) override;
 
+        /**
+         * Add source entries by MORIS DOF ID for every RHS column. Collective
+         * on the MORIS communicator, including ranks with no destination rows.
+         * The workspace must have this vector's layout and must not alias either
+         * operand. A local full source must contain every locally requested ID.
+         */
+        void add_vector( sol::Dist_Vector& aSourceVec, sol::Dist_Vector& aWorkspace ) override;
+
         void scale_vector(
                 const moris::real& aValue,
                 const moris::uint& aVecIndex = 0 ) override;
 
         void import_local_to_global(
                 sol::Dist_Vector& aSourceVec ) override;
-        
+
         //-----------------------------------------------------------------------------
         /**
          * @brief function to add owned source vector to
          * the full vector of the destination vector, used in slepc
-         * 
-         * @param aSourceVec 
+         *
+         * @param aSourceVec
          */
         void import_local_to_global( Vec aSourceVec, uint aVecIndex, Dist_Map_Custom* tSourceMap );
 

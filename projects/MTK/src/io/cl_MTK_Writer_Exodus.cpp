@@ -312,6 +312,8 @@ namespace moris::mtk
     void
     Writer_Exodus::save_mesh()
     {
+        namespace fs = std::filesystem;
+
         // check that mesh is open
         MORIS_ERROR( mExoID > 0,
                 "Writer_Exodus::save_mesh() - Exodus cannot be saved as it is not open\n." );
@@ -323,9 +325,16 @@ namespace moris::mtk
         MORIS_LOG( "Copying %s to %s.", mTempFileName.c_str(), mPermFileName.c_str() );
 
         // copy temporary file on permanent file
-        std::ifstream src( mTempFileName.c_str(), std::ios::binary );
-        std::ofstream dest( mPermFileName.c_str(), std::ios::binary );
-        dest << src.rdbuf();
+        fs::path source      = mTempFileName;
+        fs::path destination = mPermFileName;
+
+        try
+        {
+            fs::copy_file( source, destination, fs::copy_options::overwrite_existing );
+        } catch ( fs::filesystem_error& e )
+        {
+            MORIS_ERROR( false, "Writer_Exodus::save_mesh - copying %s to %s failed.", mTempFileName.c_str(), mPermFileName.c_str() );
+        }
 
         // open mesh file again
         int   tCPUWordSize = sizeof( real ), tIOWordSize = 0;

@@ -90,7 +90,33 @@ if(MORIS_HAVE_PARALLEL_TESTS)
             NAME Parabolic_Indentor-${PROCS}-procs
             WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
             COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
-                    $<TARGET_FILE:${EXAMPLE_MAIN}>
+                    $<TARGET_FILE:${EXAMPLE_MAIN}> "[IndenterLegacy]"
+        )
+    endforeach()
+endif()
+
+# Driver globals select Seitz without copying the input implementation. Each
+# case has its own output directory because input/output filenames are reused.
+target_compile_definitions(
+    Parabolic_Indenter_NonLinear
+    PRIVATE MORIS_INDENTER_TEST_DRIVER
+            MORIS_INDENTER_INPUT_LIBRARY="$<TARGET_FILE:Parabolic_Indenter_NonLinear>"
+)
+target_compile_definitions(
+    ${EXAMPLE_MAIN}
+    PRIVATE MORIS_INDENTER_NONLINEAR_LIBRARY="$<TARGET_FILE:Parabolic_Indenter_NonLinear>"
+)
+add_dependencies(${EXAMPLE_MAIN} ${EXAMPLE_FILES})
+
+if(MORIS_HAVE_ARBORX)
+    foreach(CASE Frictionless Friction FrictionlessSensitivity FrictionSensitivity)
+        set(SEITZ_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/runs/$<CONFIG>/Seitz-${CASE}-1")
+        # Expand $<CONFIG> when creating the test working directory.
+        file(GENERATE OUTPUT "${SEITZ_DIRECTORY}/.moris-test-directory" CONTENT "")
+        add_test(
+            NAME Parabolic_Indenter-Seitz-${CASE}-1-procs WORKING_DIRECTORY "${SEITZ_DIRECTORY}"
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS_EXA}
+                    $<TARGET_FILE:${EXAMPLE_MAIN}> "[Seitz${CASE}]"
         )
     endforeach()
 endif()

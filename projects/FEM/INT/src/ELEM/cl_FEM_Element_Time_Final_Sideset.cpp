@@ -689,4 +689,71 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
+    void
+    Element_Time_Final_Sideset::compute_quantity_of_interest_global( const uint /* aFemMeshIndex */ )
+    {
+        // get number of active local IQIs
+        uint tNumLocalIQIs = mSet->get_number_of_requested_global_IQIs_for_visualization();
+
+        // check that some IQIs need to be evaluated
+        if ( tNumLocalIQIs == 0 )
+        {
+            return;
+        }
+
+        // set physical and parametric space and time coefficients for IG element
+        this->init_ig_geometry_interpolator();
+        if ( mSkipTime )
+        {
+            return;
+        }
+
+        // loop over integration points
+        uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+        for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+        {
+            // get the ith integration point in the IG param space
+            const Matrix< DDRMat > &tLocalIntegPoint =
+                    mSet->get_integration_points().get_column( iGP );
+
+            // set evaluation point for interpolators (FIs and GIs)
+            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+            // compute detJ of integration domain
+            real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+            // skip if detJ smaller than threshold
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
+
+            // compute integration point weight
+            real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+            // loop over IQI
+            for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+            {
+                // get requested IQI
+                const std::shared_ptr< IQI > &tReqIQI =
+                        mSet->get_requested_global_IQIs_for_visualization()( iIQI );
+
+                // get IQI global index
+                moris_index tGlobalIndex =
+                        mSet->get_requested_global_IQIs_global_indices_for_visualization()( iIQI );
+
+                // reset the requested IQI
+                tReqIQI->reset_eval_flags();
+
+                // compute quantity of interest at evaluation point
+                Matrix< DDRMat > tQIGlobal( 1, 1, 0.0 );
+                tReqIQI->compute_QI( tQIGlobal );
+
+                // assemble the global QI value on the set
+                ( *( mSet->mSetGlobalValues ) )( tGlobalIndex ) += tWStar * tQIGlobal( 0 );
+            }
+        }
+    }
+
 }    // namespace moris::fem

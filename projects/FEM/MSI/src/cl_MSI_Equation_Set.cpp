@@ -311,15 +311,14 @@ namespace moris::MSI
                 }
                 else
                 {
-                    // get the max set index for dv types
-                    moris::sint tMaxLeaderIndex = mLeaderDvTypeMap.max();
+                    // An interface may depend on a design field only through
+                    // its follower material. With no leader DV blocks, follower
+                    // numbering starts at zero, just as in the assembly map.
+                    const sint tLeaderOffset = mLeaderDvTypeMap.numel() == 0
+                                                     ? 0
+                                                     : mLeaderDvTypeMap.max() + 1;
 
-                    // check if mLeaderDvTypeMap is set
-                    MORIS_ASSERT( tMaxLeaderIndex != -1,
-                            "Equation_Set::get_dv_index_for_type - mLeaderDvTypeMap is empty." );
-
-                    // return set index for dv type
-                    return tFollowerIndex + tMaxLeaderIndex + 1;
+                    return tFollowerIndex + tLeaderOffset;
                 }
             }
             default:

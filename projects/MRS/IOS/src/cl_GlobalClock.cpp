@@ -53,7 +53,7 @@ namespace moris
         mActionData.resize( 1, std::unordered_map< std::string, real >() );
 
         // record starting wall clock time
-        if ( PRINT_WALL_TIME )
+        if ( LOGGER_PRINT_WALL_TIME )
             mWallTimeStamps.resize( 1, std::chrono::system_clock::now() );
     }
 
@@ -96,7 +96,7 @@ namespace moris
         mActionData.push_back( std::unordered_map< std::string, real >() );
 
         // create wall clock time stamp for new entity
-        if ( PRINT_WALL_TIME )
+        if ( LOGGER_PRINT_WALL_TIME )
             mWallTimeStamps.push_back( std::chrono::system_clock::now() );
 
 #ifdef MORIS_HAVE_DEBUG
@@ -142,7 +142,7 @@ namespace moris
         mIndentationLevel--;
 
         // remove wall time stamp from list of active entities
-        if ( PRINT_WALL_TIME )
+        if ( LOGGER_PRINT_WALL_TIME )
             mWallTimeStamps.pop_back();
 
 #ifdef MORIS_HAVE_DEBUG
@@ -161,12 +161,11 @@ namespace moris
     GlobalClock::iterate()
     {
         // increment iteration counter of currently active action
-        mCurrentIteration[mIndentationLevel]++;
+        mCurrentIteration[ mIndentationLevel ]++;
 
         // renew time stamp at beginning of an iteration
-        mIterationTimeStamps[mIndentationLevel] = (real)std::clock();
+        mIterationTimeStamps[ mIndentationLevel ] = (real)std::clock();
     }
 
     // --------------------------------------------------------------------------------
 }    // namespace moris
-

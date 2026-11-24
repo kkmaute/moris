@@ -28,6 +28,9 @@ namespace moris::fem
     class IQI_Strain_Energy : public IQI
     {
         //------------------------------------------------------------------------------
+        // stress and strain type to evaluate the IWG
+        enum CM_Function_Type mStressType;
+        enum CM_Function_Type mStrainType;
 
         enum class IQI_Property_Type
         {
@@ -48,7 +51,9 @@ namespace moris::fem
         /*
          * constructor
          */
-        IQI_Strain_Energy();
+        IQI_Strain_Energy(
+                enum CM_Function_Type aStressType = CM_Function_Type::DEFAULT,
+                enum CM_Function_Type aStrainType = CM_Function_Type::DEFAULT );
 
         //------------------------------------------------------------------------------
         /**
@@ -59,6 +64,9 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
       private:
+        // Empty parameters select the whole domain; otherwise use two box corners.
+        bool is_within_box_bounds();
+
         //------------------------------------------------------------------------------
         /**
          * compute the quantity of interest

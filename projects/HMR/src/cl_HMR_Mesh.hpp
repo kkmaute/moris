@@ -29,7 +29,7 @@ namespace moris::hmr
     /**
      * \brief mesh interface class
      */
-    class Mesh : public virtual mtk::Mesh
+    class alignas( 16 ) Mesh : public virtual mtk::Mesh
     {
         //! describing label
         std::string mLabel;

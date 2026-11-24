@@ -376,7 +376,7 @@ TEST_CASE( "IQI_Max_Damage","[moris],[fem],[IQI_Max_Damage]" )
                 // print for debug
                 if( !tCheckdQIdu )
                 {
-                std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << '\n';
                 }
 
                 REQUIRE( tCheckdQIdu );

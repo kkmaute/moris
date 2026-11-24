@@ -87,6 +87,9 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
+# Input plugins are loaded at runtime, so model their build dependency explicitly.
+add_dependencies(${EXAMPLE_MAIN} ${EXAMPLE_FILES})
+
 # Check capabilities before registering the individual BDDC cases.
 if(MORIS_HAVE_PETSC)
     # Cut-cell subdomains need a pivoting factorization. Check PETSc's actual

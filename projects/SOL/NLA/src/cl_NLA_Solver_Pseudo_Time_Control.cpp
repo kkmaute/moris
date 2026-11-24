@@ -242,7 +242,7 @@ namespace moris::NLA
         mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tMapPrevious, tNumRHMS, false, true );
 
         // set flag to compute static residual
-        aNonLinSolverManager->set_compute_static_residual_flag( true );
+        aNonLinSolverManager->set_compute_static_residual_flag( true, true );
 
         // save time frames set by time solver
         mTimeFrameCurrent  = mSolverInterface->get_time();
@@ -334,11 +334,8 @@ namespace moris::NLA
             // output pseudo time step
             if ( mTimeOffSet > 0.0 )
             {
-                // increment pseudo time for output
-                mOutputTime += mTimeOffSet;
-
                 // write current solution to output 0
-                mSolverInterface->initiate_output( 0, mOutputTime, false );
+                mSolverInterface->initiate_output( 0, mTimeOffSet, false );
             }
 
             // copy current solution onto "previous" solution
@@ -641,11 +638,8 @@ namespace moris::NLA
         // output pseudo time step
         if ( mTimeOffSet > 0.0 )
         {
-            // increment pseudo time for output
-            mOutputTime += mTimeOffSet;
-
             // write current solution to output 0
-            mSolverInterface->initiate_output( 0, mOutputTime, false );
+            mSolverInterface->initiate_output( 0, mTimeOffSet, false );
         }
 
         // initialize convergence flag

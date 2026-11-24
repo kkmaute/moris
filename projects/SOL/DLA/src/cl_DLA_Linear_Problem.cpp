@@ -38,6 +38,7 @@ namespace moris::dla
     }
 
     //----------------------------------------------------------------------------------------
+
     void
     Linear_Problem::set_free_solver_LHS( sol::Dist_Vector* aFullSolVector )
     {
@@ -47,6 +48,7 @@ namespace moris::dla
     }
 
     //----------------------------------------------------------------------------------------
+
     void
     Linear_Problem::assemble_residual()
     {
@@ -61,8 +63,6 @@ namespace moris::dla
         // additional contributions for adjoint sensitivities
         if ( !mSolverInterface->is_forward_analysis() )
         {
-            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
-
             this->compute_residual_for_adjoint_solve();
         }
 
@@ -70,11 +70,32 @@ namespace moris::dla
         {
             if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
             {
-                // Get the nonlinear system index
+                // get the time step index
+                uint tTimeStepIndex = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                // get the nonlinear system index
                 uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
 
-                // construct string for file name
-                std::string tResFileName = mSolverWarehouse->get_output_to_matlab_string() + "." + std::to_string( tNonlinearSystemIndex ) + ".res.dat";
+                // get pseudo time index of most recent NLBGS iteration (last parameter set to true)
+                uint tNLBGSIndex = gLogger.get_iteration( "NonLinearAlgorithm", "NLBGS", "Solve", true );
+
+                // get pseudo time index of most recent Newton iteration (last parameter set to true)
+                uint tNewtonIndex = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
+
+                MORIS_ERROR( tNewtonIndex > 0,
+                        "Linear_Problem::assemble_residual_and_jacobian - Newton iteration index smaller equal zero" );
+
+                std::string tResFileName = mSolverWarehouse->get_output_to_matlab_string()
+                                         + "." + std::to_string( tTimeStepIndex )
+                                         + "." + std::to_string( tNLBGSIndex )
+                                         + "." + std::to_string( tNonlinearSystemIndex )
+                                         + "." + std::to_string( tNewtonIndex - 1 )
+                                         + ".res.dat";
+
+                if ( !mSolverInterface->is_forward_analysis() )
+                {
+                    tResFileName = "Adjoint." + tResFileName;
+                }
 
                 // save to file
                 mPointVectorRHS->save_vector_to_matlab_file( tResFileName.c_str() );
@@ -111,11 +132,33 @@ namespace moris::dla
         {
             if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
             {
-                // Get the nonlinear system index
+                // get the time step index
+                uint tTimeStepIndex = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                // get the nonlinear system index
                 uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
 
-                // construct string for file name
-                std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string() + "." + std::to_string( tNonlinearSystemIndex ) + ".jac.dat";
+                // get pseudo time index of most recent NLBGS iteration (last parameter set to true)
+                uint tNLBGSIndex = gLogger.get_iteration( "NonLinearAlgorithm", "NLBGS", "Solve", true );
+
+                // get pseudo time index of most recent Newton iteration (last parameter set to true)
+                uint tNewtonIndex = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
+
+                MORIS_ERROR( tNewtonIndex > 0,
+                        "Linear_Problem::assemble_residual_and_jacobian - Newton iteration index smaller equal zero" );
+
+                // construct strings for file names
+                std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string()
+                                         + "." + std::to_string( tTimeStepIndex )
+                                         + "." + std::to_string( tNLBGSIndex )
+                                         + "." + std::to_string( tNonlinearSystemIndex )
+                                         + "." + std::to_string( tNewtonIndex - 1 )
+                                         + ".jac.dat";
+
+                if ( !mSolverInterface->is_forward_analysis() )
+                {
+                    tJacFileName = "Adjoint." + tJacFileName;
+                }
 
                 // save to file
                 mMat->save_matrix_to_matlab_file( tJacFileName.c_str() );
@@ -140,8 +183,6 @@ namespace moris::dla
         // additional contributions for adjoint sensitivities
         if ( !mSolverInterface->is_forward_analysis() )
         {
-            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
-
             this->compute_residual_for_adjoint_solve();
         }
 
@@ -149,8 +190,14 @@ namespace moris::dla
         {
             if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
             {
-                // Get the nonlinear system index
+                // get the time step index
+                uint tTimeStepIndex = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                // get the nonlinear system index
                 uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                // get pseudo time index of most recent NLBGS iteration (last parameter set to true)
+                uint tNLBGSIndex = gLogger.get_iteration( "NonLinearAlgorithm", "NLBGS", "Solve", true );
 
                 // get pseudo time index of most recent Newton iteration (last parameter set to true)
                 uint tNewtonIndex = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
@@ -160,14 +207,24 @@ namespace moris::dla
 
                 // construct strings for file names
                 std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string()
+                                         + "." + std::to_string( tTimeStepIndex )
+                                         + "." + std::to_string( tNLBGSIndex )
                                          + "." + std::to_string( tNonlinearSystemIndex )
                                          + "." + std::to_string( tNewtonIndex - 1 )
                                          + ".jac.dat";
 
                 std::string tResFileName = mSolverWarehouse->get_output_to_matlab_string()
+                                         + "." + std::to_string( tTimeStepIndex )
+                                         + "." + std::to_string( tNLBGSIndex )
                                          + "." + std::to_string( tNonlinearSystemIndex )
                                          + "." + std::to_string( tNewtonIndex - 1 )
                                          + ".res.dat";
+
+                if ( !mSolverInterface->is_forward_analysis() )
+                {
+                    tJacFileName = "Adjoint." + tJacFileName;
+                    tResFileName = "Adjoint." + tResFileName;
+                }
 
                 // output to matlab .dat file
                 mMat->save_matrix_to_matlab_file( tJacFileName.c_str() );
@@ -237,7 +294,10 @@ namespace moris::dla
                 mPointVectorLHS->get_map(),
                 mSolverInterface->get_num_rhs() );
 
-        // multiply jacobian with previous solution vector
+        // Add the immutable carry using the vector backend's map handling.
+        mPointVectorRHS->add_vector( *mSolverInterface->get_adjoint_time_coupling(), *tMatTimesSolVec );
+
+        // Reuse the temporary for the current adjoint residual contribution.
         mMat->mat_vec_product( *mPointVectorLHS, *tMatTimesSolVec, false );
 
         // add contribution to RHS
@@ -338,11 +398,33 @@ namespace moris::dla
 
         if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
         {
-            // Get the nonlinear system index
+            // get the time step index
+            uint tTimeStepIndex = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+            // get the nonlinear system index
             uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
 
-            // construct string for file name
-            std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string() + "." + std::to_string( tNonlinearSystemIndex ) + ".jac.dat";
+            // get pseudo time index of most recent NLBGS iteration (last parameter set to true)
+            uint tNLBGSIndex = gLogger.get_iteration( "NonLinearAlgorithm", "NLBGS", "Solve", true );
+
+            // get pseudo time index of most recent Newton iteration (last parameter set to true)
+            uint tNewtonIndex = gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
+
+            MORIS_ERROR( tNewtonIndex > 0,
+                    "Linear_Problem::assemble_residual_and_jacobian - Newton iteration index smaller equal zero" );
+
+            // construct strings for file names
+            std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string()
+                                     + "." + std::to_string( tTimeStepIndex )
+                                     + "." + std::to_string( tNLBGSIndex )
+                                     + "." + std::to_string( tNonlinearSystemIndex )
+                                     + "." + std::to_string( tNewtonIndex - 1 )
+                                     + ".jac.dat";
+
+            if ( !mSolverInterface->is_forward_analysis() )
+            {
+                tJacFileName = "Adjoint." + tJacFileName;
+            }
 
             std::string tMassFileName = "Mass_" + tJacFileName;
 

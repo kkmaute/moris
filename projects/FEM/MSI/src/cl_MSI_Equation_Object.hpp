@@ -122,6 +122,13 @@ namespace moris
              */
             virtual ~Equation_Object() {};
 
+            virtual void reset_time_history( bool aAdjointOnly ) {}
+            virtual void commit_time_history( bool aConverged ) {}
+            virtual void add_adjoint_history(
+                    const Vector< Matrix< DDRMat > >& aAdjoint,
+                    Vector< Matrix< DDRMat > >&       aRHS ) {}
+
+
             //------------------------------------------------------------------------------
             /**
              * set time for equation object
@@ -227,6 +234,10 @@ namespace moris
 
             void build_PADofMap_1( Matrix< DDRMat >& aPADofMap );
 
+            // Time coupling requests every state field, while individual sets
+            // can contain only a subset. Projection and topology must agree.
+            bool is_dof_on_time_coupling_set( MSI::Dof_Type aDofType, uint aPdofSystem );
+
             //------------------------------------------------------------------------------
             /**
              * @brief compute function for the pdof values of this particular equation object
@@ -327,7 +338,9 @@ namespace moris
              * get off-diagonal residual on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with off-diagonal RHS on equation object
              */
-            void get_equation_obj_off_diagonal_residual( Vector< Matrix< DDRMat > >& aEqnObjRHS );
+            void get_equation_obj_off_diagonal_residual(
+                    Vector< Matrix< DDRMat > >& aEqnObjRHS,
+                    bool                        aUsePrevAdjoint = true );
 
             //-------------------------------------------------------------------------------------------------
             /**

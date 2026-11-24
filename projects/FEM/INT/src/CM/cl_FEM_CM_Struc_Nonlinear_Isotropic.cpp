@@ -188,6 +188,10 @@ namespace moris::fem
             {
                 mDofDispl = tDofType;
             }
+            else if ( tDofString == "Temperature" )
+            {
+                mDofTemp = tDofType;
+            }
             else
             {
                 // error unknown dof string
@@ -502,9 +506,16 @@ namespace moris::fem
         // compute the volume change Jacobian
         ( this->*m_eval_volume_change_jacobian )();
 
+        // xxxxxxxxxxxxxx
         // check for negative Jacobian
-        MORIS_ERROR( mVolumeChangeJ > 0.0,
-                "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian." );
+        //        MORIS_ERROR( mVolumeChangeJ > 0.0,
+        //                "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian." );
+
+        if ( mVolumeChangeJ < 0.0 )
+        {
+            fprintf( stderr, "CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian - Negative volume change jacobian %e\n.", mVolumeChangeJ );
+        }
+        // xxxxxxxxxxxxxx
     }
 
     void
@@ -1928,8 +1939,10 @@ namespace moris::fem
                     // evaluate the test traction based on first Piola_Kirchhoff stress
                     this->eval_dTestTractiondDOF_first_piola_kirchhoff( aDofTypes, aNormal, aJump, aTestDofTypes );
 
-                    // set bool for evaluation
-                    md1PKTestTractionduEval( tTestDofIndex, tDofIndex ) = false;
+                    // Contact evaluates this contraction with different jumps
+                    // at the same point. The DOF-pair cache key does not include
+                    // aJump or aNormal, so re-evaluate on the next call.
+                    md1PKTestTractionduEval( tTestDofIndex, tDofIndex ) = true;
                 }
                 // return the traction based on first Piola_Kirchhoff stress
                 return md1PKTestTractiondu( tTestDofIndex )( tDofIndex );

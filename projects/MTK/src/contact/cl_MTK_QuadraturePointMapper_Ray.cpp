@@ -8,7 +8,6 @@
  *
  */
 #include <utility>
-#include <set>
 #include "cl_MTK_Interpolation_Rule.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_assert.hpp"
@@ -87,7 +86,7 @@ namespace moris::mtk
         MappingResult tMappingResult( aSourceMeshIndex, tDim, tTotalNumPoints );
 
         for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tNumCells ); iCell++ )
-        {
+        { //Kurt should be const & and no vertex normals
             Matrix< DDRMat > const tVertexCoordinates      = tSurfaceMesh.get_vertex_coordinates_of_cell( iCell );
             Matrix< DDRMat > const tVertexNormals          = tSurfaceMesh.get_vertex_normals_of_cell( iCell );
             Matrix< DDRMat > const tReferenceVertexNormals = tReferenceSurfaceMesh.get_vertex_normals_of_cell( iCell );
@@ -108,7 +107,7 @@ namespace moris::mtk
 
                 // get the interpolated coordinates and normals of the parametric point
                 tMappingResult.mSourcePhysicalCoordinate.set_column( tRayIndex, tVertexCoordinates * tNxi );
-                tMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( iCell ) );
+                tMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( iCell ) ); // use tRayIndex
                 tMappingResult.mReferenceNormals.set_column( tStartIndex + iPoint, tReferenceNormals.get_column( iCell ) );
             }
         }

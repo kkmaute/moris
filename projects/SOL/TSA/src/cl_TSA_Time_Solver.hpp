@@ -60,6 +60,9 @@ namespace moris
 
             Vector< sol::Dist_Vector* > mFullVectorSensitivity;
 
+            // Owned carry B_(n+1)^T lambda_(n+1), fixed during the solve at n.
+            sol::Dist_Vector* mAdjointTimeCoupling = nullptr;
+
             Vector< sol::Dist_Vector* > mFullEigenVector;
 
             Vector< moris::Matrix< DDRMat > > mTimeFrames;
@@ -375,7 +378,6 @@ namespace moris
             void check_for_outputs(
                     const moris::real& aTime,
                     const bool         aEndOfTimeIteration );
-
         };
     }    // namespace tsa
 }    // namespace moris

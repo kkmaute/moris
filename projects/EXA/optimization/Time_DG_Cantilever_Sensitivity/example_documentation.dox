@@ -1,0 +1,52 @@
+/**
+@page exa_time_dg_cantilever_sensitivity Time DG cantilever adjoint sensitivity verification
+
+The sensitivity input exercises report.pdf's DG(1), alpha=4 scheme.
+The input selects linear plane-strain elasticity or finite-deformation StVK through
+gDGNonlinear. The domain is the cantilever [0,3]x[0,h], clamped at x=0.
+A horizontal GEN level set y-h=0 cuts the upper surface out of a [0,3]x[0,0.8]
+background mesh with 12x4 elements, Q2 B-splines and conformal XTK integration.
+Phase 0 is the only active material. mu=3, lambda=5 correspond to E=7.875,
+nu=0.3125. Reference density is one. The clamp uses symmetric Nitsche and
+cut-cell stabilization uses ghost-normal-field terms; both receive the same
+reduced weak/collocation time treatment as bulk forces.
+
+@section exa_time_dg_sensitivity Adjoint sensitivity check
+
+Time_DG_Cantilever_Sensitivity starts at rest and applies the reference-volume
+body load (0,-a*sin(pi*t/T)), a=0.15. The objective is integral(u_y) at T, and
+the constraint/second criterion is final beam volume. There are exactly two
+scalar ADVs: level-set center_y=h and the constant GEN DENSITY property.
+The density changes reference mass only, with stiffness and applied force held
+fixed. The height moves the cut boundary and therefore changes integration,
+shape functions evaluated on cut cells, and both mass and stiffness.
+
+The SWEEP algorithm records adjoint gradients and forward/backward/central
+finite differences at eps=1e-5 and 5e-6. The checker requires finite, nonzero
+objective gradients for both ADVs and agreement within 1 percent plus an
+absolute tolerance of 1e-7. The volume derivatives provide independent checks:
+dV/dh=3, dV/drho=0. Both nonlinear and linear cases use identical meshes,
+loads, time slabs and solver tolerances. The adjoint differentiates the two
+preceding displacement slab dependencies of reconstructed velocity.
+
+
+The companion @ref exa_time_dg_cantilever forward example remains under
+projects/EXA/structure/dynamics/Time_DG_Cantilever and checks analytical fields.
+
+The input is a self-contained .cpp file with direct MORIS includes. The shared
+EXA main initializes MORIS/Catch, and each CTest case has its own working
+directory. Driver globals select linear or nonlinear elasticity; standalone
+input builds supply their own defaults. No environment-variable configuration
+or PETSC_OPTIONS is required.
+
+@section exa_time_dg_sensitivity_commands Build and execution
+@verbatim
+cmake --build build_dbg --target Main_Time_DG_Cantilever_Sensitivity --parallel 4
+ctest --test-dir build_dbg -R '^Time_DG_Cantilever-Sensitivity' --output-on-failure
+@endverbatim
+
+The supported adjoint objectives depend on displacement and volume.
+Design-dependent initial fields, reconstructed-velocity objectives, moving
+meshes and rate-dependent materials require additional derivative terms.
+Unit tests tagged [TimeDG] cover tangents, history and delayed adjoint coupling.
+*/

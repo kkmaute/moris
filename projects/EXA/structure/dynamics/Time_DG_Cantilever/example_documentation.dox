@@ -1,0 +1,58 @@
+/**
+@page exa_time_dg_cantilever Energy-corrected time DG cantilever forward analysis
+
+The forward input exercises report.pdf's DG(1), alpha=4 scheme.
+The input selects linear plane-strain elasticity or finite-deformation StVK through
+gDGNonlinear. The domain is the cantilever [0,3]x[0,h], clamped at x=0.
+A horizontal GEN level set y-h=0 cuts the upper surface out of a [0,3]x[0,0.8]
+background mesh with 12x4 elements, Q2 B-splines and conformal XTK integration.
+Phase 0 is the only active material. mu=3, lambda=5 correspond to E=7.875,
+nu=0.3125. Reference density is one. The clamp uses symmetric Nitsche and
+cut-cell stabilization uses ghost-normal-field terms; both receive the same
+reduced weak/collocation time treatment as bulk forces.
+
+@section exa_time_dg_forward Forward manufactured solution
+
+Time_DG_Cantilever_Forward applies manufactured body force and reference
+tractions for u=(0,-a*x^2*t), with a=0.025, h=0.43, six slabs and final time
+T=0.3. Initial displacement is zero and initial velocity is (0,-a*x^2).
+The motion has det(F)=1. It is represented exactly by the Q2 spatial and
+linear temporal bases; its temporal acceleration is zero. The separate pulse
+sensitivity example exercises nonzero inertia over multiple slabs.
+
+Writing k=-2*a*x*t and c=lambda/2+mu, the StVK first Piola stress is
+ P=[[c*k^2,mu*k],[mu*k+c*k^3,c*k^2]].
+The linear stress has off-diagonal entries mu*k and zero diagonal entries.
+The body load is -Div(P), and every unclamped boundary receives P*N.
+Callbacks use reference coordinates and sample endpoint loads consistently.
+
+check_results reads VIS Exodus output and checks dimensions, stored local
+node/element counts, coordinate bounds, final time, and every local beam node's
+analytical displacement. The global references are
+ integral(u_y)=-9*a*T*h and volume=3*h.
+These analytical references apply to both constitutive models and both process
+counts. Verified local mesh references are 200 nodes/72 elements on one rank
+and 104 nodes/36 elements on each of two ranks. Polynomial fields and exact
+integrals supply the physical references. Unused void vertices retained by
+VIS are excluded from displacement checks. Nodal DG output samples the outgoing
+trace, and final IQIs use spatial quadrature at the last slab endpoint.
+The tip corner (3,0) must occur in at least one rank's local output. All MPI
+collectives are outside rank-specific branches, and readers are closed before
+collective result checking. gPrintReferenceValues prints local mesh statistics.
+
+
+The separate @ref exa_time_dg_cantilever_sensitivity example under
+projects/EXA/optimization/Time_DG_Cantilever_Sensitivity verifies the adjoints.
+
+The input is a self-contained .cpp file with direct MORIS includes. The shared
+EXA main initializes MORIS/Catch, and each CTest case has its own working
+directory. Driver globals select linear or nonlinear elasticity; standalone
+input builds supply their own defaults. No environment-variable configuration
+or PETSC_OPTIONS is required.
+
+@section exa_time_dg_commands Build and execution
+@verbatim
+cmake --build build_dbg --target Main_Time_DG_Cantilever --parallel 4
+ctest --test-dir build_dbg -R '^Time_DG_Cantilever-Forward' --output-on-failure
+@endverbatim
+*/

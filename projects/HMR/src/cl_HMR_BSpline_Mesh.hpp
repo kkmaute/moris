@@ -77,7 +77,7 @@ namespace moris::hmr
                 : BSpline_Mesh_Base(    // <-- this initializer only copies what is passed here into member data and does not process anything
                           aParameters,
                           aBackgroundMesh,
-                          this->get_min_order(),
+                          std::min( { P - 1, Q - 1, R - 1 } ) + 1,    // min order
                           aActivationPattern,
                           B )
         {
@@ -589,7 +589,7 @@ namespace moris::hmr
                         tBasis->increment_element_counter();
                     }
                 }
-            } // for each: element - these are (active or refined) elements on the current level passed to this function
+            }    // for each: element - these are (active or refined) elements on the current level passed to this function
 
             // initialize basis counter
             luint tBasisCount = 0;

@@ -95,6 +95,8 @@ namespace moris::fem
 
             case IQI_Type::STRAIN_ENERGY:
                 return std::make_shared< IQI_Strain_Energy >();
+            case IQI_Type::STRAIN_ENERGY_NL:
+                return std::make_shared< IQI_Strain_Energy >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
 
             case IQI_Type::NORMAL_STRESS:
                 return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );

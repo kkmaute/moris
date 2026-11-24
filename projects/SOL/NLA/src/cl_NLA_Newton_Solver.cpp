@@ -65,6 +65,8 @@ Newton_Solver::~Newton_Solver()
 
 void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
+    mMyNonLinSolverManager->set_converged( false );
+
     Tracer tTracer( "NonLinearAlgorithm", "Newton", "Solve" );
 
     // set nonlinear system
@@ -72,6 +74,9 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
 
     // get maximum number of iterations
     sint tMaxIts = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
+
+    // get time offset for output
+    real tTimeOffSet = mParameterListNonlinearSolver.get< real >( "NLA_time_offset" );
 
     // increase maximum number of iterations by one if static residual is required
     if ( mMyNonLinSolverManager->get_compute_static_residual_flag() )
@@ -96,19 +101,30 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
     // initialize flags
     bool tRebuildJacobian = true;
 
-    real tRelaxationParameter = 0.0;
-
     // initialize load control parameter
     real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
 
     // initialize convergence monitoring
     Convergence tConvergence( tRefIts );
 
+    real tRelaxationParameter = 0.0;
+    real tOutputTime          = 0.0;
+
     // Newton loop
     for ( sint It = 1; It <= tMaxIts; ++It )
     {
         // log solver iteration
         MORIS_LOG_ITERATION();
+
+        // output pseudo time step
+        if ( mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() && tTimeOffSet > 0.0 )
+        {
+            // increment pseudo time for output
+            tOutputTime += tTimeOffSet;
+
+            // write current solution to output 0
+            mMyNonLinSolverManager->get_solver_interface()->initiate_output( 0, tOutputTime, false );
+        }
 
         // assemble RHS and Jac
         if ( It > 1 )
@@ -132,9 +148,19 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 "LoadFactor",
                 tLoadFactor );
 
-        if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
+        if ( !mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
         {
-            mNonlinearProblem->update_fem_model();
+            if ( It == 1 )
+            {
+                mNonlinearProblem->update_fem_model();
+            }
+        }
+        else
+        {
+            if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
+            {
+                mNonlinearProblem->update_fem_model();
+            }
         }
 
         // build residual and jacobian
@@ -162,6 +188,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
+            mMyNonLinSolverManager->set_converged( true );
             MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
             break;
         }

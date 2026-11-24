@@ -14,13 +14,17 @@
 #include <utility>
 
 #include "cl_Vector.hpp"
+
 // LNA/src
 #include "cl_Matrix.hpp"
 #include "moris_typedefs.hpp"
 #include "fn_vectorize.hpp"
 #include "fn_isfinite.hpp"
+#include "fn_dot.hpp"
+
 // MRS/COR/src // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
+
 // FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -32,11 +36,400 @@
 
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
+
 // GEN/src
 #include "GEN_Data_Types.hpp"
 
+
 namespace moris::fem
 {
+    class IWG_Time_DG_Spatial;
+    struct GapData
+    {
+        bool mEval = true;    // flag to indicate if the gap data needs to be evaluate
+
+        bool mIsLocked  = false;    // flag to indicate if the gap data is locked and should not be updated
+        bool mIsContact = false;    // flag to indicate if the point is in contact
+        bool mIsStick   = false;    // flag to indicate if the point is in stick
+
+        real             mGap;
+        Matrix< DDRMat > mdGapdu;
+        Matrix< DDRMat > mdGap2du2;
+        Matrix< DDRMat > mdGapdv;
+        Matrix< DDRMat > mdGap2dv2;
+        Matrix< DDRMat > mdGap2duv;
+
+        Matrix< DDRMat > mEta;
+        Matrix< DDRMat > mdEtadu;
+        Matrix< DDRMat > mdEta2du2;
+        Matrix< DDRMat > mdEtadv;
+        Matrix< DDRMat > mdEta2dv2;
+        Matrix< DDRMat > mdEta2duv;
+
+        Matrix< DDRMat > mLeaderNormal;
+        Matrix< DDRMat > mLeaderRefNormal;
+        Matrix< DDRMat > mLeaderdNormaldu;
+        Matrix< DDRMat > mLeaderdNormal2du2;
+
+        Matrix< DDRMat > mGapVec;
+        Matrix< DDRMat > mdGapvecdu;
+        Matrix< DDRMat > mdGapvecdv;
+        Matrix< DDRMat > mdGapvec2du2;
+        Matrix< DDRMat > mdGapvec2dv2;
+        Matrix< DDRMat > mdGapvec2duv;
+
+        Matrix< DDRMat > mLeaderTangentProjection;
+        Matrix< DDRMat > mLeaderTangentVelocity;
+        Matrix< DDRMat > mLeaderdTangentVelocitydu;
+        Matrix< DDRMat > mLeaderdTangentVelocitydv;
+        Matrix< DDRMat > mLeaderdTangentVelocityduprev;
+        Matrix< DDRMat > mLeaderdTangentVelocitydvprev;
+
+        Matrix< DDRMat > mFollowerDisplacements;
+        Matrix< DDRMat > mFollowerPreviousDisplacements;
+
+        Matrix< DDRMat > mFollowerdDisplacementsdu;
+        Matrix< DDRMat > mFollowerdDisplacementsdv;
+
+        Matrix< DDRMat > mFollowerPreviousdDisplacementsdu;
+        Matrix< DDRMat > mFollowerPreviousdDisplacementsdv;
+
+        Matrix< DDRMat > mFollowerShapeFunctiondu;
+        Matrix< DDRMat > mFollowerShapeFunctiondv;
+
+        //----------------------------------------------------------------------------
+
+        bool is_contact( const bool aIsContact )
+        {
+            if ( !mIsLocked )
+            {
+                mIsContact = aIsContact;
+            }
+            return mIsContact;
+        }
+
+        bool is_stick( const bool aIsStick )
+        {
+            if ( !mIsLocked )
+            {
+                mIsStick = aIsStick;
+            }
+            return mIsStick;
+        }
+
+        //----------------------------------------------------------------------------
+
+        void copy( const std::unique_ptr< GapData >& tGapData )
+        {
+            mGap      = tGapData->mGap;
+            mdGapdu   = tGapData->mdGapdu;
+            mdGap2du2 = tGapData->mdGap2du2;
+            mdGapdv   = tGapData->mdGapdv;
+            mdGap2dv2 = tGapData->mdGap2dv2;
+            mdGap2duv = tGapData->mdGap2duv;
+
+            mEta      = tGapData->mEta;
+            mdEtadu   = tGapData->mdEtadu;
+            mdEta2du2 = tGapData->mdEta2du2;
+            mdEtadv   = tGapData->mdEtadv;
+            mdEta2dv2 = tGapData->mdEta2dv2;
+            mdEta2duv = tGapData->mdEta2duv;
+
+            mLeaderNormal      = tGapData->mLeaderNormal;
+            mLeaderRefNormal   = tGapData->mLeaderRefNormal;
+            mLeaderdNormaldu   = tGapData->mLeaderdNormaldu;
+            mLeaderdNormal2du2 = tGapData->mLeaderdNormal2du2;
+
+            mGapVec      = tGapData->mGapVec;
+            mdGapvecdu   = tGapData->mdGapvecdu;
+            mdGapvecdv   = tGapData->mdGapvecdv;
+            mdGapvec2du2 = tGapData->mdGapvec2du2;
+            mdGapvec2dv2 = tGapData->mdGapvec2dv2;
+            mdGapvec2duv = tGapData->mdGapvec2duv;
+
+            mLeaderTangentProjection = tGapData->mLeaderTangentProjection;
+
+            mLeaderTangentVelocity        = tGapData->mLeaderTangentVelocity;
+            mLeaderdTangentVelocitydu     = tGapData->mLeaderdTangentVelocitydu;
+            mLeaderdTangentVelocitydv     = tGapData->mLeaderdTangentVelocitydv;
+            mLeaderdTangentVelocityduprev = tGapData->mLeaderdTangentVelocityduprev;
+            mLeaderdTangentVelocitydvprev = tGapData->mLeaderdTangentVelocitydvprev;
+
+            mFollowerDisplacements         = tGapData->mFollowerDisplacements;
+            mFollowerPreviousDisplacements = tGapData->mFollowerPreviousDisplacements;
+
+            mFollowerdDisplacementsdu = tGapData->mFollowerdDisplacementsdu;
+            mFollowerdDisplacementsdv = tGapData->mFollowerdDisplacementsdv;
+
+            mFollowerPreviousdDisplacementsdu = tGapData->mFollowerPreviousdDisplacementsdu;
+            mFollowerPreviousdDisplacementsdv = tGapData->mFollowerPreviousdDisplacementsdv;
+
+            mFollowerShapeFunctiondu = tGapData->mFollowerShapeFunctiondu;
+            mFollowerShapeFunctiondv = tGapData->mFollowerShapeFunctiondv;
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_matrix_sizes( const uint aSpaceDim, const uint aNumDofs, const uint aNumNodes )
+        {
+            mdGapdu.set_size( 1, aNumDofs );
+            mdGapdv.set_size( 1, aNumDofs );
+            mdEtadu.set_size( 1, aNumDofs );
+            mdEtadv.set_size( 1, aNumDofs );
+
+            mLeaderdNormaldu.set_size( aSpaceDim, aNumDofs );
+            mdGapvecdu.set_size( aSpaceDim, aNumDofs );
+            mdGapvecdv.set_size( aSpaceDim, aNumDofs );
+
+            mdGap2du2.set_size( aNumDofs, aNumDofs );
+            mdGap2dv2.set_size( aNumDofs, aNumDofs );
+            mdGap2duv.set_size( aNumDofs, aNumDofs );
+            mdEta2du2.set_size( aNumDofs, aNumDofs );
+            mdEta2dv2.set_size( aNumDofs, aNumDofs );
+            mdEta2duv.set_size( aNumDofs, aNumDofs );
+
+            mLeaderdNormal2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2dv2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2duv.set_size( aSpaceDim, aNumDofs * aNumDofs );
+
+            mLeaderdTangentVelocitydu.set_size( aSpaceDim, aNumDofs );
+            mLeaderdTangentVelocitydv.set_size( aSpaceDim, aNumDofs );
+            mLeaderdTangentVelocityduprev.set_size( aSpaceDim, aNumDofs );
+            mLeaderdTangentVelocitydvprev.set_size( aSpaceDim, aNumDofs );
+
+            mFollowerdDisplacementsdu.set_size( aSpaceDim, aNumDofs );
+            mFollowerdDisplacementsdv.set_size( aSpaceDim, aNumDofs );
+
+            mFollowerPreviousdDisplacementsdu.set_size( aSpaceDim, aNumDofs );
+            mFollowerPreviousdDisplacementsdv.set_size( aSpaceDim, aNumDofs );
+
+            mFollowerShapeFunctiondu.set_size( aNumNodes, aNumDofs );
+            mFollowerShapeFunctiondv.set_size( aNumNodes, aNumDofs );
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_first_order_derivatives(
+                const uint              aSpaceDim,
+                const uint              aNumNodes,
+                const Matrix< DDRMat >& adGapdu,
+                const Matrix< DDRMat >& adGapdv,
+                const Matrix< DDRMat >& adEtadu,
+                const Matrix< DDRMat >& adEtadv,
+                const Matrix< DDRMat >& aLeaderdNormaldU,
+                const Matrix< DDRMat >& adGapvecdu,
+                const Matrix< DDRMat >& adGapvecdv,
+                const Matrix< DDRMat >& aLeaderdTangentVelocitydu,
+                const Matrix< DDRMat >& aLeaderdTangentVelocitydv,
+                const Matrix< DDRMat >& aLeaderdTangentVelocityduprev,
+                const Matrix< DDRMat >& aLeaderdTangentVelocitydvprev,
+                const Matrix< DDRMat >& aFollowerdDisplacementsdu,
+                const Matrix< DDRMat >& aFollowerdDisplacementsdv,
+                const Matrix< DDRMat >& aFollowerPreviousdDisplacementsdu,
+                const Matrix< DDRMat >& aFollowerPreviousdDisplacementsdv,
+                const Matrix< DDRMat >& aFollowerShapeFunctiondu,
+                const Matrix< DDRMat >& aFollowerShapeFunctiondv )
+        {
+            uint tIcounter = 0;
+
+            for ( uint idim = 0; idim < aSpaceDim; idim++ )
+            {
+                for ( uint in = 0; in < aNumNodes; in++ )
+                {
+                    mdGapdu( tIcounter ) = adGapdu( idim + in * aSpaceDim );
+                    mdGapdv( tIcounter ) = adGapdv( idim + in * aSpaceDim );
+                    mdEtadu( tIcounter ) = adEtadu( idim + in * aSpaceDim );
+                    mdEtadv( tIcounter ) = adEtadv( idim + in * aSpaceDim );
+
+                    mLeaderdNormaldu.get_column( tIcounter ) = aLeaderdNormaldU.get_column( idim + in * aSpaceDim );
+
+                    mdGapvecdu.get_column( tIcounter ) = adGapvecdu.get_column( idim + in * aSpaceDim );
+                    mdGapvecdv.get_column( tIcounter ) = adGapvecdv.get_column( idim + in * aSpaceDim );
+
+                    if ( aLeaderdTangentVelocitydu.numel() > 0 )
+                    {
+                        mLeaderdTangentVelocitydu.get_column( tIcounter )     = aLeaderdTangentVelocitydu.get_column( idim + in * aSpaceDim );
+                        mLeaderdTangentVelocitydv.get_column( tIcounter )     = aLeaderdTangentVelocitydv.get_column( idim + in * aSpaceDim );
+                        mLeaderdTangentVelocityduprev.get_column( tIcounter ) = aLeaderdTangentVelocityduprev.get_column( idim + in * aSpaceDim );
+                        mLeaderdTangentVelocitydvprev.get_column( tIcounter ) = aLeaderdTangentVelocitydvprev.get_column( idim + in * aSpaceDim );
+                    }
+
+                    mFollowerdDisplacementsdu.get_column( tIcounter ) = aFollowerdDisplacementsdu.get_column( idim + in * aSpaceDim );
+                    mFollowerdDisplacementsdv.get_column( tIcounter ) = aFollowerdDisplacementsdv.get_column( idim + in * aSpaceDim );
+
+                    if ( aFollowerPreviousdDisplacementsdu.numel() > 0 )
+                    {
+                        mFollowerPreviousdDisplacementsdu.get_column( tIcounter ) = aFollowerPreviousdDisplacementsdu.get_column( idim + in * aSpaceDim );
+                        mFollowerPreviousdDisplacementsdv.get_column( tIcounter ) = aFollowerPreviousdDisplacementsdv.get_column( idim + in * aSpaceDim );
+                    }
+
+                    mFollowerShapeFunctiondu.get_column( tIcounter ) = aFollowerShapeFunctiondu.get_column( idim + in * aSpaceDim );
+                    mFollowerShapeFunctiondv.get_column( tIcounter ) = aFollowerShapeFunctiondv.get_column( idim + in * aSpaceDim );
+
+                    tIcounter++;
+                }
+            }
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_second_order_derivatives(
+                const uint              aSpaceDim,
+                const uint              tNumNodes,
+                const uint              aNumDofs,
+                const Matrix< DDRMat >& tdGap2du2,
+                const Matrix< DDRMat >& tdGap2dv2,
+                const Matrix< DDRMat >& tdGap2duv,
+                const Matrix< DDRMat >& tdEta2du2,
+                const Matrix< DDRMat >& tdEta2dv2,
+                const Matrix< DDRMat >& tdEta2duv,
+                const Matrix< DDRMat >& tLeaderdNormal2dU2,
+                const Matrix< DDRMat >& tdGapvec2du2,
+                const Matrix< DDRMat >& tdGapvec2dv2,
+                const Matrix< DDRMat >& tdGapvec2duv )
+        {
+            uint tIcounter = 0;
+            uint tJcounter = 0;
+
+            for ( uint idim = 0; idim < aSpaceDim; idim++ )
+            {
+                for ( uint in = 0; in < tNumNodes; in++ )
+                {
+                    tJcounter = 0;
+                    for ( uint jdim = 0; jdim < aSpaceDim; jdim++ )
+                    {
+                        for ( uint jn = 0; jn < tNumNodes; jn++ )
+                        {
+                            mdGap2du2( tIcounter, tJcounter ) = tdGap2du2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                            mdGap2dv2( tIcounter, tJcounter ) = tdGap2dv2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                            mdGap2duv( tIcounter, tJcounter ) = tdGap2duv( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                            mdEta2du2( tIcounter, tJcounter ) = tdEta2du2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                            mdEta2dv2( tIcounter, tJcounter ) = tdEta2dv2( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+                            mdEta2duv( tIcounter, tJcounter ) = tdEta2duv( idim + in * aSpaceDim, jdim + jn * aSpaceDim );
+
+                            mLeaderdNormal2du2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                    tLeaderdNormal2dU2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                            mdGapvec2du2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                    tdGapvec2du2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                            mdGapvec2dv2.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                    tdGapvec2dv2.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                            mdGapvec2duv.get_column( tIcounter * aNumDofs + tJcounter ) =
+                                    tdGapvec2duv.get_column( ( idim + in * aSpaceDim ) * aNumDofs + jdim + jn * aSpaceDim );
+                            tJcounter++;
+                        }
+                    }
+                    tIcounter++;
+                }
+            }
+        }
+
+        //----------------------------------------------------------------------------
+
+        Matrix< DDRMat > multiply_leader_dnormal2du2( const Matrix< DDRMat >& aVector )
+        {
+            uint tSpaceDim = mLeaderdNormal2du2.n_rows();
+            uint tNumDofs  = mdGapdu.numel();
+
+            MORIS_ASSERT( aVector.n_rows() == tSpaceDim,
+                    "GapData::multiply_leader_dnormal2du2 - spatial dimensions do not match." );
+
+            Matrix< DDRMat > tResult( tNumDofs, tNumDofs );
+
+            const Matrix< DDRMat > tVectorTrans = trans( aVector );
+
+            for ( uint i = 0; i < tNumDofs; i++ )
+            {
+                tResult.get_row( i ) = tVectorTrans * mLeaderdNormal2du2( { 0, tSpaceDim - 1 }, { i * tNumDofs, ( i + 1 ) * tNumDofs - 1 } );
+            }
+
+            return tResult;
+        }
+
+        //----------------------------------------------------------------------------
+
+        Matrix< DDRMat > multiply_leader_dtangentprojectiondu( const Matrix< DDRMat >& tVector )
+        {
+            MORIS_ASSERT( tVector.n_rows() == mLeaderNormal.n_rows(),
+                    "GapData::multiply_leader_dtangentprojectiondu - dimension mismatch." );
+
+            Matrix< DDRMat > tResult = -dot( tVector, mLeaderNormal ) * mLeaderdNormaldu    //
+                                     - mLeaderNormal * trans( tVector ) * mLeaderdNormaldu;
+
+            return tResult;
+        }
+
+        //----------------------------------------------------------------------------
+
+        Matrix< DDRMat > multiply_follower_dshapefunctiondu( const Matrix< DDRMat >& tVector )
+        {
+            uint tSpaceDim = tVector.n_rows();
+            uint tNumNodes = mFollowerShapeFunctiondu.n_rows();
+            uint tNumDofs  = mFollowerShapeFunctiondu.n_cols();
+
+            MORIS_ASSERT( tSpaceDim * tNumNodes == tNumDofs,
+                    "GapData::multiply_follower_dshapefunctiondu - dimension mismatch." );
+
+            Matrix< DDRMat > tResult( tNumDofs, tNumDofs );
+
+            for ( uint idim = 0; idim < tSpaceDim; idim++ )
+            {
+                tResult( { idim * tNumNodes, ( idim + 1 ) * tNumNodes - 1 }, { 0, tNumDofs - 1 } ) =
+                        tVector( idim ) * mFollowerShapeFunctiondu;
+            }
+
+            return tResult;
+        }
+
+        //----------------------------------------------------------------------------
+
+        Matrix< DDRMat > multiply_follower_dshapefunctiondv( const Matrix< DDRMat >& tVector )
+        {
+            uint tSpaceDim = tVector.n_rows();
+            uint tNumNodes = mFollowerShapeFunctiondv.n_rows();
+            uint tNumDofs  = mFollowerShapeFunctiondv.n_cols();
+
+            MORIS_ASSERT( tSpaceDim * tNumNodes == tNumDofs,
+                    "GapData::multiply_follower_dshapefunctiondv - dimension mismatch." );
+
+            Matrix< DDRMat > tResult( tNumDofs, tNumDofs );
+
+            for ( uint idim = 0; idim < tSpaceDim; idim++ )
+            {
+                tResult( { idim * tNumNodes, ( idim + 1 ) * tNumNodes - 1 }, { 0, tNumDofs - 1 } ) =
+                        tVector( idim ) * mFollowerShapeFunctiondv;
+            }
+
+            return tResult;
+        }
+
+        //----------------------------------------------------------------------------
+
+        static void compute_outward_normal_at_gp_for_linear_deformed_geometry(
+                Field_Interpolator*    aLeaderFieldInterpolatorManager,
+                Geometry_Interpolator* aLeaderIGGI,
+                Matrix< DDRMat >&      aLeaderNormal,
+                Matrix< DDRMat >&      aLeaderRefNormal,
+                Matrix< DDRMat >&      aLeaderdNormaldU,
+                Matrix< DDRMat >&      aLeaderNormal2dU2,
+                const bool             aEvaluateLinearization = true );
+
+        //----------------------------------------------------------------------------
+
+        static void compute_outward_normal_at_gp_for_consistent_deformed_geometry(
+                Field_Interpolator*    aLeaderFieldInterpolatorManager,
+                Geometry_Interpolator* aLeaderIGGI,
+                Matrix< DDRMat >&      aLeaderNormal,
+                Matrix< DDRMat >&      aLeaderRefNormal,
+                Matrix< DDRMat >&      aLeaderdNormaldU,
+                Matrix< DDRMat >&      aLeaderNormal2dU2,
+                const bool             aEvaluateLinearization = true );
+
+        //----------------------------------------------------------------------------
+
+        static Matrix< DDRMat > compute_tangential_plane_projector( const Matrix< DDRMat >& aNormal );
+    };
+
     class Set;
     class Cluster;
     class Field_Interpolator_Manager;
@@ -48,6 +441,8 @@ namespace moris::fem
      */
     class IWG
     {
+        friend class IWG_Time_DG_Spatial;
+
       protected:
         // FEM set pointer
         fem::Set* mSet = nullptr;
@@ -85,9 +480,10 @@ namespace moris::fem
         Vector< Vector< MSI::Dof_Type > > mRequestedFollowerGlobalDofTypes;
 
         // leader and follower field interpolator managers
-        Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
-        Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
-        Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
+        Field_Interpolator_Manager* mLeaderFIManager           = nullptr;
+        Field_Interpolator_Manager* mFollowerFIManager         = nullptr;
+        Field_Interpolator_Manager* mLeaderPreviousFIManager   = nullptr;
+        Field_Interpolator_Manager* mFollowerPreviousFIManager = nullptr;
 
         // leader and follower dv type lists
         Vector< Vector< gen::PDV_Type > > mLeaderDvTypes;
@@ -194,11 +590,23 @@ namespace moris::fem
                 const real& aMaxPerturbation,
                 const real& aTolerance ) = nullptr;
 
+        // for non-conformal IWGs - gap data
+        bool mUseDeformedGeometryForGap = false;
+
+        std::unique_ptr< GapData > mGapData = nullptr;
+
         //------------------------------------------------------------------------------
 
       public:
         // Shared compact storage and construction for spatial mass lumping.
         using Lumped_Matrix = fem::Lumped_Matrix;
+
+        // History hooks are no-ops for stateless IWGs. The accepted forward
+        // trajectory is read-only during reverse and design-derivative assembly.
+        virtual bool has_time_history() const { return false; }
+        virtual bool uses_dg_time_tests() const { return false; }
+        virtual void commit_time_history() {}
+        virtual void add_adjoint_history( real aWeight, uint aElement, uint aPoint, const Vector< Matrix< DDRMat > >& aAdjoint, Vector< Matrix< DDRMat > >& aRHS ) {}
 
         /**
          * Row-sum lump each spatial block of N_row^T N_column. Time coupling
@@ -226,13 +634,13 @@ namespace moris::fem
         /**
          * constructor
          */
-        IWG(){};
+        IWG() {};
 
         //------------------------------------------------------------------------------
         /**
          * virtual destructor
          */
-        virtual ~IWG(){};
+        virtual ~IWG() {};
 
         //------------------------------------------------------------------------------
         /**
@@ -1032,13 +1440,15 @@ namespace moris::fem
          * @param[ in ] aCoefficientToPerturb coefficient to perturb
          * @param[ in ] aSpatialDirection     spatial direction in which we perturb
          * @param[ in ] aUsedFDScheme         FD scheme to be used, updated
+         * @param[ in ] aIsLeader             if true leader IP element otherwise follower element is used (default is leader)
          * @param[ out ] aDeltaH              perturbation size built for finite difference
          */
         real check_ig_coordinates_inside_ip_element(
-                const real&         aPerturbation,
-                const real&         aCoefficientToPerturb,
-                const uint&         aSpatialDirection,
-                fem::FDScheme_Type& aUsedFDScheme );
+                const real&          aPerturbation,
+                const real&          aCoefficientToPerturb,
+                const uint&          aSpatialDirection,
+                fem::FDScheme_Type&  aUsedFDScheme,
+                mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
         /**
@@ -1061,7 +1471,31 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > remap_nonconformal_rays( Field_Interpolator* aLeaderFieldInterpolator, Field_Interpolator* aFollowerFieldInterpolator ) const;
+        Matrix< DDRMat > remap_nonconformal_rays(
+                const bool                     aUseDeformedGeometryForGap,
+                const Vector< MSI::Dof_Type >& aDisplDofTypes,
+                Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aLeaderPreviousFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerPreviousFieldInterpolatorManager,
+                std::unique_ptr< GapData >&    aGapData ) const;
+
+        Matrix< DDRMat > remap_nonconformal_rays_deformed_geometry(
+                const Vector< MSI::Dof_Type >& aDisplDofTypes,
+                Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aLeaderPreviousFieldInterpolatorManager,
+                Field_Interpolator_Manager*    aFollowerPreviousFieldInterpolatorManager,
+                std::unique_ptr< GapData >&    aGapData ) const;
+
+        Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry(
+                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager ) const;
+
+        const std::unique_ptr< GapData >& get_gap_data()
+        {
+            return mGapData;
+        }
     };
     //------------------------------------------------------------------------------
 

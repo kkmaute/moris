@@ -39,6 +39,7 @@ set(HEADERS
     fn_linsolve.hpp
     fn_linspace.hpp
     fn_load_matrix_from_binary_file.hpp
+    fn_mat_to_vec.hpp
     fn_lu.hpp
     fn_matrix_difference_bound.hpp
     fn_matrix_symmetry_bound.hpp
@@ -78,6 +79,7 @@ set(HEADERS
     op_times.hpp
     fn_rank.hpp
     fn_join_horiz.hpp
+    fn_join_vert.hpp
 )
 
 if(MORIS_USE_EIGEN)
@@ -198,6 +200,7 @@ if(MORIS_USE_ARMA)
         Arma_Impl/op_times_Arma.hpp
         Arma_Impl/fn_rank_Arma.hpp
         Arma_Impl/fn_join_horiz_Arma.hpp
+        Arma_Impl/fn_join_vert_Arma.hpp
         Arma_Impl/fn_max_Arma.hpp
         Arma_Impl/fn_min_Arma.hpp
     )
@@ -211,6 +214,7 @@ if(MORIS_USE_EIGEN)
         Eigen_Impl/fn_Eigen_Utilities.hpp
         Eigen_Impl/fn_rank_Eigen.hpp
         Eigen_Impl/fn_join_horiz_Eigen.hpp
+        Eigen_Impl/fn_join_vert_Eigen.hpp
         Eigen_Impl/fn_min_Eigen.hpp
         Eigen_Impl/fn_max_Eigen.hpp
         Eigen_Impl/fn_trace_Eigen.hpp

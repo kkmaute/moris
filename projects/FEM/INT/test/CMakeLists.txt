@@ -87,6 +87,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Nonlinear_Geometric_Stiffness.cpp
     UT_FEM_IWG_Struc_Nonlinear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Nonlinear_Interface.cpp
+    UT_FEM_IWG_Struc_Contact_Remap.cpp
+    UT_FEM_IWG_Struc_Nonlinear_Contact_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
@@ -114,6 +116,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
+    UT_FEM_IWG_Material_History.cpp
+    UT_FEM_Time_DG.cpp
     UT_FEM_IWG_Time_Continuity_Dof.cpp
     UT_FEM_IQI_Dof.cpp
     UT_FEM_IQI_Strain_Energy.cpp

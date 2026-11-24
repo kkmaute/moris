@@ -10,7 +10,6 @@
 #pragma once
 
 #include "cl_MTK_QuadraturePointMapper_Ray.hpp"
-#include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris::mtk

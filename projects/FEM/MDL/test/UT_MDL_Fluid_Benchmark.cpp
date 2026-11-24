@@ -460,7 +460,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );;
+            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );
 
             tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
@@ -476,8 +476,6 @@ namespace moris
             tSOLParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
-
-            tSOLParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
             tSOLParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 
@@ -811,7 +809,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );;
+            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );
 
             tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
@@ -827,8 +825,6 @@ namespace moris
             tSOLParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
-
-            tSOLParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
             tSOLParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 
@@ -2488,7 +2484,7 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );;
+            Module_Parameter_Lists tSOLParameterlist( Module_Type::SOL );
 
             tSOLParameterlist( 0 ).add_parameter_list( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
@@ -2504,8 +2500,6 @@ namespace moris
             tSOLParameterlist( 5 ).add_parameter_list( moris::prm::create_time_solver_parameter_list() );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY;P" );
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,0.0;P,0.0" );
-
-            tSOLParameterlist( 6 ).add_parameter_list( moris::prm::create_solver_warehouse_parameterlist() );
 
             tSOLParameterlist( 7 ).add_parameter_list( moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ) );
 

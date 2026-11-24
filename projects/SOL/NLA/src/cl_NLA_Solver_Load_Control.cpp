@@ -11,6 +11,7 @@
 
 #include "cl_SOL_Dist_Vector.hpp"
 
+#include "cl_DLA_Solver_Interface.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "moris_typedefs.hpp"
@@ -35,6 +36,9 @@ namespace moris::NLA
 
         // get required relative residual drop for triggering growth
         mRelativeResidualDropThreshold = aParameterListNonlinearSolver.get< real >( "NLA_load_control_relres" );
+
+        // get time offsets for outputting converged load step solution; if offset is zero no output is written
+        mTimeOffSet = aParameterListNonlinearSolver.get< real >( "NLA_load_control_time_offset" );
 
         // strategy depending parameters
         switch ( mLoadControlStrategy )
@@ -74,6 +78,8 @@ namespace moris::NLA
             Nonlinear_Solver* aNonLinSolverManager,
             real&             aLoadFactor )
     {
+        bool tUpdateLoadFactor = false;
+
         // compute relaxation value depending on strategy
         switch ( mLoadControlStrategy )
         {
@@ -88,7 +94,10 @@ namespace moris::NLA
             {
                 if ( check_load_step_requirement( aNonLinSolverManager ) )
                 {
+                    tUpdateLoadFactor = true;
+
                     mLoadStepCounter++;
+
                     aLoadFactor = mInitialLoadFactor + ( 1.0 - mInitialLoadFactor ) * std::min( 1.0, static_cast< real >( mLoadStepCounter ) / static_cast< real >( mNumLoadSteps ) );
 
                     // log load factor
@@ -101,7 +110,10 @@ namespace moris::NLA
             {
                 if ( check_load_step_requirement( aNonLinSolverManager ) )
                 {
+                    tUpdateLoadFactor = true;
+
                     mLoadStepCounter++;
+
                     aLoadFactor = mInitialLoadFactor
                                 + ( 1.0 - mInitialLoadFactor ) * std::min( 1.0, std::pow( ( (real)mLoadStepCounter ) / mNumLoadSteps, mExponent ) );
 
@@ -121,6 +133,12 @@ namespace moris::NLA
                 MORIS_ERROR( false, "Solver_Load_Control::eval - strategy not implemented.\n" );
             }
         }
+
+        if ( tUpdateLoadFactor && mTimeOffSet > 0.0 )
+        {
+            // write current solution to output 0
+            aNonLinSolverManager->get_solver_interface()->initiate_output( 0, mTimeOffSet, false );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +149,7 @@ namespace moris::NLA
         real tResNorm = 1.0;
 
         // use static residual if available
-        if ( aNonLinSolverManager->get_compute_static_residual_flag() )
+        if ( aNonLinSolverManager->get_use_static_residual_flag() )
         {
             tRefNorm = aNonLinSolverManager->get_static_ref_norm();
             tResNorm = aNonLinSolverManager->get_static_residual_norm();

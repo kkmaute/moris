@@ -442,18 +442,27 @@ namespace moris::fem
         m1PKTraction = t1PKStressFull * aNormal;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_traction_cauchy(
             const Matrix< DDRMat >& aNormal )
     {
-        // FIXME need to implement traction based on cauchy stress with normal in current config
-        MORIS_ASSERT( false, "CM_Struc_Nonlinear_Isotropic::eval_traction_cauchy - Not implemented yet." );
+        // get the 2nd Piola-Kirchhoff stress in full form
+        Matrix< DDRMat > t2PKStressFull;
+        this->voigt_to_full_sym_stress( this->flux( CM_Function_Type::PK2 ), t2PKStressFull );
+
+        // evaluate the Cauchy stress
+        Matrix< DDRMat > tCauchyStressFull =
+                this->deformation_gradient() * t2PKStressFull * trans( this->deformation_gradient() ) / this->volume_change_jacobian();
+
+        // evaluate traction based on Cauchy stress; note the normal is the one in the deformed configuration
+        mCauchyTraction = tCauchyStressFull * aNormal;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_first_piola_kirchhoff(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_first_piola_kirchhoff(
             const Matrix< DDRMat >&        aNormal,
             const Vector< MSI::Dof_Type >& aDofTypes )
     {
@@ -471,8 +480,7 @@ namespace moris::fem
         md1PKTractiondu( tDofIndex ) = tFlatNormal * this->dFluxdDOF( aDofTypes, CM_Function_Type::PK1 );
     }
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_cauchy(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTractiondDOF_cauchy(
             const Matrix< DDRMat >&        aNormal,
             const Vector< MSI::Dof_Type >& aDofTypes )
     {
@@ -482,8 +490,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_first_piola_kirchhoff(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_first_piola_kirchhoff(
             const Matrix< DDRMat >&        aNormal,
             const Vector< MSI::Dof_Type >& aTestDofTypes )
     {
@@ -498,8 +505,7 @@ namespace moris::fem
         m1PKTestTraction( tTestDofIndex ) = this->dTractiondDOF( aTestDofTypes, aNormal, CM_Function_Type::PK1 );
     }
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_cauchy(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_testTraction_cauchy(
             const Matrix< DDRMat >&        aNormal,
             const Vector< MSI::Dof_Type >& aTestDofTypes )
     {
@@ -509,8 +515,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_first_piola_kirchhoff(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_first_piola_kirchhoff(
             const Vector< MSI::Dof_Type >& aDofTypes,
             const Matrix< DDRMat >&        aNormal,
             const Matrix< DDRMat >&        aJump,
@@ -554,8 +559,7 @@ namespace moris::fem
                 this->dStraindDOF( aDofTypes, CM_Function_Type::DEFORMATION_GRADIENT );
     }
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_cauchy(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dTestTractiondDOF_cauchy(
             const Vector< MSI::Dof_Type >& aDofTypes,
             const Matrix< DDRMat >&        aNormal,
             const Matrix< DDRMat >&        aJump,
@@ -566,8 +570,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dConstdDOF(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_dConstdDOF(
             const Vector< MSI::Dof_Type >& aDofTypes )
     {
         MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dConstdDOF - Not implemented." );
@@ -575,8 +578,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::set_space_dim(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::set_space_dim(
             uint aSpaceDim )
     {
         // check that space dimension is 1, 2, 3
@@ -592,8 +594,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_stress(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_stress(
             const real& aEmod,
             const real& aNu )
     {
@@ -608,8 +609,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_stress(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_stress(
             const real& aEmod,
             const real& aNu )
     {
@@ -624,8 +624,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_strain(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_plane_strain(
             const real& aEmod,
             const real& aNu )
     {
@@ -644,8 +643,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_strain(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_plane_strain(
             const real& aEmod,
             const real& aNu )
     {
@@ -665,8 +663,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_3d(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::full_3d(
             const real& aEmod,
             const real& aNu )
     {
@@ -688,8 +685,7 @@ namespace moris::fem
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_3d(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::deviatoric_3d(
             const real& aEmod,
             const real& aNu )
     {
@@ -711,8 +707,7 @@ namespace moris::fem
 
     // Function to compute the second derivative of the traction PK1*N wrt F
     // based on a routine symbolically generated in MATLAB
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_symbolic_d1PKNdFdF_2d(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_symbolic_d1PKNdFdF_2d(
             Matrix< DDRMat >&       ad1PKNdFdF,
             const real&             aLame1,    // lambda
             const real&             aLame2,    // mu
@@ -819,8 +814,7 @@ namespace moris::fem
         ad1PKNdFdF( 7, 3 ) = td2P21dF22dF22 * tN1 + td2P22dF22dF22 * tN2;
     }
 
-    void
-    CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_symbolic_d1PKNdFdF_3d(
+    void CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff::eval_symbolic_d1PKNdFdF_3d(
             Matrix< DDRMat >&       ad1PKNdFdF,
             const real&             aLame1,    // lambda
             const real&             aLame2,    // mu

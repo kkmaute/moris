@@ -74,7 +74,6 @@ Linear_System_PETSc::Linear_System_PETSc(
         // FIXME: graph not useful for petsc; needs to be done differently
         mSolverInterface->build_graph( mMat );
     }
-
     else
     {
         // MORIS_ERROR{ false, "Linear_System_PETSc::Linear_System_PETSc: Matrix market options not implemented in PETSc"};

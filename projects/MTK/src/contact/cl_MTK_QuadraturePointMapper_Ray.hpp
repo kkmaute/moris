@@ -9,14 +9,10 @@
  */
 #pragma once
 
-#include <deque>
-#include <set>
 #include "cl_MTK_QuadraturePointMapper.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Surface_Mesh.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_Space_Interpolator.hpp"
-#include "cl_Json_Object.hpp"
 
 namespace moris::mtk
 {

@@ -7,9 +7,7 @@
  * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp
  *
  */
-
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_CONTACT_SEITZ_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_CONTACT_SEITZ_HPP_
+#pragma once
 
 #include <map>
 
@@ -19,8 +17,7 @@
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+#include "cl_FEM_IWG.hpp"    //FEM/INT/src
 
 namespace moris::fem
 {
@@ -29,23 +26,36 @@ namespace moris::fem
     class IWG_Isotropic_Struc_Nonlinear_Contact_Seitz : public IWG
     {
       private:
-        // sign for symmetric/unsymmetric Nitsche
-        // sint mBeta = 1;
-
-        // the literature used for this implementation uses a different parameter to switch between symmetric and unsymmetric Nitsche.
-        // to avoid confusion with other IWGs, mBeta will be used to switch between symmetric and unsymmetric Nitsche in the factory, and
-        // mTheta will be used to switch between the two different Nitsche formulations in the implementation.
-        //      symmetric: mBeta = -1, mTheta =  1
-        //        neutral: mBeta =  0, mTheta =  0
-        // skew-symmetric: mBeta = -1, mTheta = -1 (also known as unsymmetric)
+        // mTheta is used to switch between the following formulations of the Nitsche term:
+        //      symmetric :mTheta =  1
+        //        neutral: mTheta =  0
+        //    unsymmetric: mTheta = -1
         sint mTheta = 1;
+
+        // default for traction
+        CM_Function_Type mCMFunctionType = CM_Function_Type::PK1;
+
+        // scaling factor for the traction; set to zero for pure penalty formulation
+        real mTractionScaling = 1.0;
+
+        real mFrictionCoefficient = -1.0;    // Nonpositive values select frictionless contact.
+        real mGammaTau            = 1.0;     // Nonpositive values use the Nitsche parameter.
+
+        // flag to trigger debug output
+        sint mDebugFlag = 0;
+
+        // variable to keep track of the old traction TODO: implement this properly
+        std::map< int, Matrix< DDRMat > > mTractionHistoryMap;
+
+        // debug functions
+        void debug_function();
 
       public:
         enum class IWG_Property_Type
         {
             MATERIAL,
             THICKNESS,
-            GAP,
+            SELECT,
             MAX_ENUM
         };
 
@@ -65,13 +75,15 @@ namespace moris::fem
         /*
          * constructor
          */
-        IWG_Isotropic_Struc_Nonlinear_Contact_Seitz( sint aBeta );
+        IWG_Isotropic_Struc_Nonlinear_Contact_Seitz(
+                sint             aBeta,
+                CM_Function_Type aCMFunctionType = CM_Function_Type::PK1 );
 
         //------------------------------------------------------------------------------
         /**
          * trivial destructor
          */
-        ~IWG_Isotropic_Struc_Nonlinear_Contact_Seitz() override{};
+        ~IWG_Isotropic_Struc_Nonlinear_Contact_Seitz() override {};
 
         //------------------------------------------------------------------------------
         /**
@@ -97,14 +109,46 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /**
+         * compute dR(n)/du(n-1)
+         * @param[ in ] aWStar weight associated to the evaluation point
+         */
+        void compute_jacobian_previous( real aWStar ) override;
+
+        //------------------------------------------------------------------------------
+        /**
          * compute the derivative of the residual wrt design variables
          * @param[ in ] aWStar weight associated to the evaluation point
          */
         void compute_dRdp( real aWStar ) override;
 
         //------------------------------------------------------------------------------
+        /**
+         * set parameters
+         */
+        void set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
+
+        //------------------------------------------------------------------------------
+        /**
+         * set get_time_indices
+         */
+        void get_time_indices( sint& aPreviousTimeIndex, sint& aCurrentTimeIndex );
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the traction at the previous time step
+         */
+        Matrix< DDRMat > compute_previous_traction(
+                const std::shared_ptr< Constitutive_Model >& aConstitutiveModelLeader );
+
+        //------------------------------------------------------------------------------
+        /**
+         * compute the derivative of the traction at the previous time step wrt dof type
+         */
+        Matrix< DDRMat > compute_previous_traction_derivatives(
+                const std::shared_ptr< Constitutive_Model >& aConstitutiveModelLeader,
+                const Vector< MSI::Dof_Type >&               aDofType );
+
+        //------------------------------------------------------------------------------
     };
     //------------------------------------------------------------------------------
 }    // namespace moris::fem
-
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_CONTACT_SEITZ_HPP_ */

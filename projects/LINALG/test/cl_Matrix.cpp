@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include <random>
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -37,7 +38,8 @@ namespace moris
         SECTION( "Matrix Tests using default" )
         {
 
-            srand( time( nullptr ) );
+            // A local fixed seed gives every rank the same reproducible work.
+            std::mt19937 tRandom( 314159 );
 
             // using cell and pushback
             real tsum_matrix     = 0;
@@ -45,18 +47,18 @@ namespace moris
 
             std::clock_t tTimeStamp = std::clock();
 
-            const uint tMaxNumRow = rand() % 400 + 10000;    // was: 100000
+            const uint tMaxNumRow = tRandom() % 400 + 10000;    // was: 100000
 
             uint sumCR = 0;
 
             for ( uint iR = 0; iR < tMaxNumRow; ++iR )
             {
-                moris::uint tNumCR = rand() % 20;
+                moris::uint tNumCR = tRandom() % 20;
 
                 sumCR += tNumCR;
 
-                const Matrix< DDRMat > tMat1( tNumCR, tNumCR, rand() );
-                const Matrix< DDRMat > tMat2( tNumCR, tNumCR, rand() );
+                const Matrix< DDRMat > tMat1( tNumCR, tNumCR, tRandom() );
+                const Matrix< DDRMat > tMat2( tNumCR, tNumCR, tRandom() );
 
                 Matrix< DDRMat > tMat3 = tMat1 - tMat2;
 
@@ -79,12 +81,12 @@ namespace moris
 
             for ( uint iR = 0; iR < tMaxNumRow; ++iR )
             {
-                moris::uint tNumCR = rand() % 20;
+                moris::uint tNumCR = tRandom() % 20;
 
                 sumCR += tNumCR;
 
-                const Matrix< DDRMat > tMat1( tNumCR, tNumCR, rand() );
-                const Matrix< DDRMat > tMat2( tNumCR, tNumCR, rand() );
+                const Matrix< DDRMat > tMat1( tNumCR, tNumCR, tRandom() );
+                const Matrix< DDRMat > tMat2( tNumCR, tNumCR, tRandom() );
 
                 for ( uint iJ = 0; iJ < 1; ++iJ )
                 {
@@ -103,8 +105,9 @@ namespace moris
         SECTION( "Matrix Tests using default" )
         {
 
-            srand( time( nullptr ) );
-            moris::uint tNumCR = rand() % 200;
+            // Fixed nonempty size: the former time-seeded rand()%200 could
+            // select zero even though this case subsequently reads entry (0,0).
+            const moris::uint tNumCR = 128;
             printf( "First number: %d\n", tNumCR );
             Matrix< DDRMat > tA( tNumCR, tNumCR, 1.0 );
             Matrix< DDRMat > tB( tNumCR, tNumCR, -1.0 );
@@ -123,7 +126,7 @@ namespace moris
                 Matrix< DDRMat > tABC = tAB * tC;
                 Matrix< DDRMat > tE   = tABC * tD;
             }
-            std::cout << "Matrix multiplication without expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << '\n';
+            std::cout << "Matrix multiplication without expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " CPU ms." << '\n';
 
             // Start clock
             DDRMat tAA( tNumCR, tNumCR );
@@ -141,7 +144,7 @@ namespace moris
             {
                 DDRMat tE = ( tAA * tBA * tCA * tDA );
             }
-            std::cout << "Matrix multiplication with armadillo direct completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << '\n';
+            std::cout << "Matrix multiplication with armadillo direct completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " CPU ms." << '\n';
 
             // Start clock
             tTotalTime = std::clock();
@@ -150,7 +153,7 @@ namespace moris
             {
                 Matrix< DDRMat > tE = tA * tB * tC * tD;
             }
-            std::cout << "Matrix multiplication with expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " s." << '\n';
+            std::cout << "Matrix multiplication with expression templates completed in " << ( std::clock() - tTotalTime ) / (double)( CLOCKS_PER_SEC ) * 1000 << " CPU ms." << '\n';
 
             // check plus and minus operators
             Matrix< DDRMat > tMpm1( 2, 2, 1 );
@@ -353,10 +356,10 @@ namespace moris
     TEST_CASE( "matrix_performance_eigen", "[moris],[matrix_performance_eigen]" )
 #endif
     {
-        // Choose dimensions and values at runtime to avoid fixed-input specialization.
-        srand( time( nullptr ) );
-        uint tDimX = rand() % 40 + 130;
-        uint tDimY = rand() % 40 + 130;
+        // Keep the workload identical across runs and MPI process counts.
+        std::mt19937 tRandom( 271828 );
+        const uint   tDimX = 144;
+        const uint   tDimY = 152;
 
         uint tNumRepetitions = 5000 + tDimX;
 
@@ -369,8 +372,8 @@ namespace moris
         {
             for ( uint jj = 0; jj < tDimY; jj++ )
             {
-                const uint tRandNumerator   = rand() % 10 + 1;
-                const uint tRandDenominator = rand() % 10 + 1;
+                const uint tRandNumerator   = tRandom() % 10 + 1;
+                const uint tRandDenominator = tRandom() % 10 + 1;
                 const real tRandNumber      = static_cast< real >( tRandNumerator ) / tRandDenominator;
 
                 tMorisMat( ii, jj )  = tRandNumber;
@@ -701,9 +704,9 @@ namespace moris
             "moris::resize",
             "[linalgebra],[resize]" )
     {
-        srand( time( nullptr ) );
+        std::mt19937 tRandom( 161803 );
 
-        const uint tMaxNumRow = rand() % 40 + 10;    // was: 100000
+        const uint tMaxNumRow = tRandom() % 40 + 10;    // was: 100000
 
         MORIS_LOG_INFO( "Number of real numbers: %d\n.", tMaxNumRow );
 
@@ -728,7 +731,7 @@ namespace moris
             {
                 A.resize( iStart * tMaxNumRow + iR + 1, 1 );
 
-                A( iStart * tMaxNumRow + iR ) = std::rand();
+                A( iStart * tMaxNumRow + iR ) = tRandom();
 
                 tsum += sum( A( { iStart * tMaxNumRow, iStart * tMaxNumRow + iR } ) );
             }
@@ -758,7 +761,7 @@ namespace moris
 
                 A = B;
 
-                A( iStart * tMaxNumRow + iR ) = std::rand();
+                A( iStart * tMaxNumRow + iR ) = tRandom();
 
                 tsum += sum( A( { iStart * tMaxNumRow, iStart * tMaxNumRow + iR } ) );
             }
@@ -786,7 +789,7 @@ namespace moris
 
                 A = B;
 
-                A( iStart * tMaxNumRow + iR ) = std::rand();
+                A( iStart * tMaxNumRow + iR ) = tRandom();
 
                 tsum += sum( A( { iStart * tMaxNumRow, iStart * tMaxNumRow + iR } ) );
             }
@@ -806,7 +809,7 @@ namespace moris
 
             for ( uint iR = 0; iR < tMaxNumRow; ++iR )
             {
-                A( iStart * tMaxNumRow + iR ) = std::rand();
+                A( iStart * tMaxNumRow + iR ) = tRandom();
 
                 tsum += sum( A( { iStart * tMaxNumRow, iStart * tMaxNumRow + iR } ) );
             }
@@ -827,7 +830,7 @@ namespace moris
             {
                 C.resize( iStart * tMaxNumRow + iR + 1 );
 
-                C( iStart * tMaxNumRow + iR ) = std::rand();
+                C( iStart * tMaxNumRow + iR ) = tRandom();
 
 #ifdef MORIS_USE_ARMA
                 arma::mat tMat( C.memptr() + iStart * tMaxNumRow, iR, 1, false );
@@ -852,7 +855,7 @@ namespace moris
 
             for ( uint iR = 0; iR < tMaxNumRow; ++iR )
             {
-                D.push_back( std::rand() );
+                D.push_back( tRandom() );
 
 #ifdef MORIS_USE_ARMA
                 arma::mat tMat( D.memptr() + iStart * tMaxNumRow, iR, 1, false );

@@ -26,6 +26,23 @@ This example highlights the use of the following features:
 
 # Developer Notes
 
+Both monolithic and staggered NLBGS cases use two time steps and compare final
+adjoints against the same stored reference. Objective and constraint gradients
+are checked against forward, backward, and central finite differences. The
+previous-state contribution is assembled for all state DOFs once after each
+complete adjoint solve, then held fixed during the next backward step. This
+example exercises thermal time continuity coupled to mechanical displacement.
+
+
+An isolated PETSc staggered regression uses the same mesh, material, loading,
+nonlinear tolerances and FD comparisons, with managed GMRES settings. It verifies
+full-state temporal history restriction into thermal/displacement subsystem
+maps. Both backends use the same stored objective, constraint and gradient
+references, obtained from the two-step Epetra staggered case on one rank.
+Set gPrintReferenceValues in the driver to inspect these values. Epetra also
+checks the stored full-adjoint vector; PETSc has a different vector-file
+representation. This workflow runs on one rank; distributed transfer regressions run
+on one, two and four ranks in DLA-PETSc-Adjoint-test.
 
 */
 

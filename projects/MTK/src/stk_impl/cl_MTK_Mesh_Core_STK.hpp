@@ -46,8 +46,7 @@
 
 namespace moris::mtk
 {
-
-    class Mesh_Core_STK : public virtual Mesh
+    class alignas( 16 ) Mesh_Core_STK : public virtual Mesh
     {
         //! timestamp for stk output. Set in constructor over MtkMeshData
         double mTimeStamp = 0.0;

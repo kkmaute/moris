@@ -66,6 +66,9 @@ namespace moris::fem
          */
         void compute_jacobian() override;
 
+        void add_adjoint_history( const Vector< Matrix< DDRMat > > &aAdjoint,
+                Vector< Matrix< DDRMat > >                         &aRHS ) override;
+
         //------------------------------------------------------------------------------
         /**
          * compute jacobian and residual over the element

@@ -255,6 +255,11 @@ namespace moris::fem
             delete mLeaderPreviousFIManager;
             mLeaderPreviousFIManager = nullptr;
         }
+        if ( mFollowerPreviousFIManager != nullptr )
+        {
+            delete mFollowerPreviousFIManager;
+            mFollowerPreviousFIManager = nullptr;
+        }
         if ( mLeaderEigenFIManager != nullptr )
         {
             delete mLeaderEigenFIManager;
@@ -351,6 +356,17 @@ namespace moris::fem
             default:
             {
                 MORIS_ERROR( false, "Set::create_integrator - only 1 or 2 time levels handled so far." );
+            }
+        }
+
+        // Nonpolynomial hyperelastic forces need temporal quadrature independent
+        // of the displacement degree. Six points are used for DG(1) spatial IWGs.
+        for ( const auto& tIWG : mIWGs )
+        {
+            if ( tIWG->uses_dg_time_tests() )
+            {
+                MORIS_ERROR( tMaxTimeLevels == 2, "Energy-corrected time DG currently requires two temporal bases." );
+                tTimeIntegrationOrder = mtk::Integration_Order::BAR_6;
             }
         }
 
@@ -1228,6 +1244,45 @@ namespace moris::fem
             mLeaderPreviousFIManager->create_field_interpolators( aModelSolverInterface );
         }
 
+        // if nonconformal sideset
+        if ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+        {
+            // create the leader field interpolator manager for the previous time step
+            mLeaderPreviousFIManager = new Field_Interpolator_Manager(
+                    mLeaderDofTypes,
+                    mLeaderDvTypes,
+                    mLeaderFieldTypes,
+                    this );
+
+            // assign cell shape to the field interpolator manager
+            mLeaderPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mLeaderPreviousFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+
+            // create the geometry interpolators on the leader FI manager
+            mLeaderPreviousFIManager->create_geometry_interpolators();
+
+            // create the field interpolators on the leader FI manager
+            mLeaderPreviousFIManager->create_field_interpolators( aModelSolverInterface );
+
+            // create the follower field interpolation manager for the previous time step
+            mFollowerPreviousFIManager = new Field_Interpolator_Manager(
+                    mFollowerDofTypes,
+                    mFollowerDvTypes,
+                    mFollowerFieldTypes,
+                    this,
+                    mtk::Leader_Follower::FOLLOWER );
+
+            // assign cell shape to the field interpolator manager
+            mFollowerPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mFollowerPreviousFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+
+            // create the geometry interpolators on the leader FI manager
+            mFollowerPreviousFIManager->create_geometry_interpolators();
+
+            // create the field interpolators on the leader FI manager
+            mFollowerPreviousFIManager->create_field_interpolators( aModelSolverInterface );
+        }
+
         // if eigen vectors
         mNumEigenVectors = aModelSolverInterface->get_num_eigen_vectors();
 
@@ -1283,6 +1338,9 @@ namespace moris::fem
             case mtk::Leader_Follower::LEADER:
                 return mLeaderPreviousFIManager;
 
+            case mtk::Leader_Follower::FOLLOWER:
+                return mFollowerPreviousFIManager;
+
             default:
                 MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader." );
                 return mLeaderPreviousFIManager;
@@ -1335,6 +1393,20 @@ namespace moris::fem
                 tIWG->set_field_interpolator_manager_previous_time(
                         mLeaderPreviousFIManager,
                         mtk::Leader_Follower::LEADER );
+            }
+
+            // if nonconformal sideset, set previous leader and follower
+            if ( mElementType == fem::Element_Type::NONCONFORMAL_SIDESET )
+            {
+                // set IWG leader field interpolator manager for previous time step
+                tIWG->set_field_interpolator_manager_previous_time(
+                        mLeaderPreviousFIManager,
+                        mtk::Leader_Follower::LEADER );
+
+                // set IWG follower field interpolator manager for previous time step
+                tIWG->set_field_interpolator_manager_previous_time(
+                        mFollowerPreviousFIManager,
+                        mtk::Leader_Follower::FOLLOWER );
             }
         }
     }
@@ -2161,14 +2233,14 @@ namespace moris::fem
                             // check whether only time continuity IWG should be considered
                             if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::TIME_CONTINUITY_ONLY )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF )
+                                if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF || mIWGs( iIWG )->has_time_history() )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
                             }
                             else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::NO_TIME_CONTINUITY )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF )
+                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF && !mIWGs( iIWG )->has_time_history() )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
@@ -2221,7 +2293,12 @@ namespace moris::fem
                         {
                             if ( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                const fem::IWG_Type tIWGType = mIWGs( iIWG )->get_IWG_type();
+                                if (                                                                                                    //
+                                        tIWGType == fem::IWG_Type::TIME_CONTINUITY_DOF || tIWGType == fem::IWG_Type::TIME_DG_MASS ||    //
+                                        tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL ||                    //
+                                        tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC ||                  //
+                                        tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC )
                                 {
                                     // add the IWg to the requested IWG list
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
@@ -2321,6 +2398,10 @@ namespace moris::fem
             Matrix< DDRMat >                    tLocalCoords       = tMeshCluster->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
 
             tInterpElement->compute_my_pdof_values();
+            if ( get_time_continuity() )
+            {
+                tInterpElement->compute_previous_pdof_values();
+            }
             tInterpElement->set_field_interpolators_coefficients();
 
             // TODO @ff: can we use the geometry interpolator with the new methods for retrieving the element coordinates in the current configuration?

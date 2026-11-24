@@ -9,21 +9,14 @@
  */
 
 #include "cl_Bitset.hpp"
-#include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Solver_Interface.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
-#include "cl_MSI_Equation_Object.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_TSA_Time_Solver.hpp"
 #include "parameters.hpp"
-#include "fn_equal_to.hpp"
-#include "fn_norm.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
-#include <iostream>
 #include <string>
 
-#include "AztecOO.h"
 //---------------------------------------------------------------
 
 #define F2STR( func ) #func
@@ -100,12 +93,8 @@ namespace moris
     /* ------------------------------------------- Solver ------------------------------------------- */
     int tMaxIterations = 200;
 
-    real tRelResNormDrop     = 1e-8;
-    real tRelaxation         = 1.0;
-    real tFDPerturbationSize = 1e-8;
-
-    fem::Perturbation_Type tFDPerturbationStrategy = fem::Perturbation_Type::ABSOLUTE;
-    fem::FDScheme_Type     tFDScheme               = fem::FDScheme_Type::POINT_3_CENTRAL;
+    real tRelResNormDrop      = 1e-8;
+    real tRelaxation          = 1.0;
 
     int  tLoadControlSteps    = 15;
     real tLoadControlFactor   = 0.1;
@@ -124,7 +113,7 @@ namespace moris
     /* ------------------------------------------- Contact ------------------------------------------ */
     std::string tContactType          = "small";
     std::string tContactBias          = "unsymmetric";
-    real        tContactStabilization = 10.0;
+    std::string tContactStabilization = "10.0";
 
     /* -------------------------------------- Control Variables ------------------------------------- */
     bool tOnlyGenerateMesh   = false;
@@ -212,19 +201,6 @@ namespace moris
     {
         aPropMatrix.set_size( 2, 2, 0.0 );
         aPropMatrix( 0, 0 ) = 1.0;
-    }
-
-    void Func_Body_Load( Matrix< DDRMat >   &aPropMatrix,
-            Vector< Matrix< DDRMat > >      &aParameters,
-            fem::Field_Interpolator_Manager *aFIManager )
-    {
-
-        auto tXp    = aFIManager->get_IG_geometry_interpolator()->valx();
-        auto param  = aParameters( 0 )( 0 );
-        aPropMatrix = {
-            { 0.0 },
-            { param },
-        };
     }
 
     bool Output_Criterion( tsa::Time_Solver *aTimeSolver ) { return true; }
@@ -484,7 +460,7 @@ namespace moris
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPContactInterfaceTop" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        pl.set( "function_parameters", std::to_string( tContactStabilization ) + ";1.0" );
+        pl.set( "function_parameters", tContactStabilization );
         pl.set( "leader_phase_name", "PhaseTop" );
         pl.set( "leader_properties", "PropYoungsTop,Material" );
         aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
@@ -492,12 +468,12 @@ namespace moris
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPContactInterfaceBottom" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::DIRICHLET_NITSCHE );
-        pl.set( "function_parameters", std::to_string( tContactStabilization ) + ";1.0" );
+        pl.set( "function_parameters", tContactStabilization );
         pl.set( "leader_phase_name", "PhaseBottom" );
         pl.set( "leader_properties", "PropYoungsBottom,Material" );
         aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
-        // create ghost penalty displacement Matrix
+        // create ghost penalty displacement Top
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPGPDisplTop" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::GHOST_DISPL );
@@ -507,7 +483,7 @@ namespace moris
         pl.set( "leader_properties", "PropYoungsTop,Material" );
         aParameterLists( FEM::STABILIZATION ).add_parameter_list( pl );
 
-        // create ghost penalty  displacement Fiber
+        // create ghost penalty  displacement Bottom
         pl = prm::create_stabilization_parameter_parameter_list();
         pl.set( "stabilization_name", "SPGPDisplBottom" );
         pl.set( "stabilization_type", (uint)fem::Stabilization_Type::GHOST_DISPL );
@@ -677,7 +653,7 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceTop,NitscheInterface" );
-        pl.set( "analytical_jacobian", false );
+        pl.set( "analytical_jacobian", true );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         pl = prm::create_IWG_parameter_list();
@@ -693,7 +669,7 @@ namespace moris
         pl.set( "leader_constitutive_models", "MaterialBottom,ElastLinIso" );
         pl.set( "follower_constitutive_models", "MaterialTop,ElastLinIso" );
         pl.set( "stabilization_parameters", "SPContactInterfaceBottom,NitscheInterface" );
-        pl.set( "analytical_jacobian", false );
+        pl.set( "analytical_jacobian", true );
         aParameterLists( FEM::IWG ).add_parameter_list( pl );
 
         if ( tUseGhost )
@@ -784,44 +760,32 @@ namespace moris
         /*                                   Computation Parameter List                                 */
         /* -------------------------------------------------------------------------------------------- */
         aParameterLists( FEM::COMPUTATION ).set( "is_analytical_forward", true );
-        aParameterLists.set( "finite_difference_scheme_forward", (uint)( tFDScheme ) );
-        aParameterLists.set( "finite_difference_perturbation_size_forward", tFDPerturbationSize );
-        aParameterLists.set( "finite_difference_perturbation_strategy", (uint)tFDPerturbationStrategy );
         aParameterLists.set( "nonconformal_integration_order", static_cast< uint >( tNonconformalIntegrationOrder ) );
         aParameterLists.set( "nonconformal_max_negative_ray_length", tMaxNegativeRayLength );
         aParameterLists.set( "nonconformal_max_positive_ray_length", tMaxPositiveRayLength );
     }
 
-    /* ----------------------------------------------------------------------------------------------
-     */
-    /*                                           ### SOL ### */
-    /* ----------------------------------------------------------------------------------------------
-     */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                           ### SOL ###                                          */
+    /* ---------------------------------------------------------------------------------------------- */
     void SOLParameterList( Module_Parameter_Lists &aParameterLists )
     {
-
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                        Linear Algorithm */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                        Linear Algorithm                                      */
+        /* -------------------------------------------------------------------------------------------- */
         Parameter_List pl = prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         pl.set( "Solver_Type", "Amesos_Umfpack" );
         aParameterLists( SOL::LINEAR_ALGORITHMS ).add_parameter_list( pl );
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                         Linear Solver */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                         Linear Solver                                        */
+        /* -------------------------------------------------------------------------------------------- */
         pl = prm::create_linear_solver_parameter_list();
         aParameterLists( SOL::LINEAR_SOLVERS ).add_parameter_list( pl );
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                      Nonlinear Algorithm */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                      Nonlinear Algorithm                                     */
+        /* -------------------------------------------------------------------------------------------- */
         pl = prm::create_nonlinear_algorithm_parameter_list();
         pl.set( "NLA_combined_res_jac_assembly", true );
         pl.set( "NLA_Linear_solver", 0 );
@@ -838,80 +802,61 @@ namespace moris
         pl.set( "NLA_remap_residual_change_tolerance", tRemapResidualChange );
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list( pl );
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                       Nonlinear Solver */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                       Nonlinear Solver                                       */
+        /* -------------------------------------------------------------------------------------------- */
         pl = prm::create_nonlinear_solver_parameter_list();
         pl.set( "NLA_DofTypes", "UX,UY" );
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list( pl );
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                        Time Algorithm */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                        Time Algorithm                                        */
+        /* -------------------------------------------------------------------------------------------- */
         pl = prm::create_time_solver_algorithm_parameter_list();
         pl.set( "TSA_Num_Time_Steps", 1 );
         pl.set( "TSA_Time_Frame", 10.0 );
         aParameterLists( SOL::TIME_SOLVER_ALGORITHMS ).add_parameter_list( pl );
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                         Time Solver */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                         Time Solver                                          */
+        /* -------------------------------------------------------------------------------------------- */
         pl = prm::create_time_solver_parameter_list();
         pl.set( "TSA_DofTypes", "UX,UY" );
         pl.set( "TSA_Output_Indices", "0" );
         pl.set( "TSA_Output_Criteria", F2STR( Output_Criterion ) );
         aParameterLists( SOL::TIME_SOLVERS ).add_parameter_list( pl );
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                        Solver Warehouse */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                        Solver Warehouse                                      */
+        /* -------------------------------------------------------------------------------------------- */
 
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                      Preconditioner List */
-        /* --------------------------------------------------------------------------------------------
-         */
-        pl = prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                      Preconditioner List                                     */
+        /* -------------------------------------------------------------------------------------------- */
+        pl = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
         aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( pl );
     }
 
     void MSIParameterList( Module_Parameter_Lists &aParameterLists )
     {
-
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                       MSI Parameter List */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                       MSI Parameter List                                     */
+        /* -------------------------------------------------------------------------------------------- */
         aParameterLists.set( "UX", 0 );
         aParameterLists.set( "UY", 0 );
     }
 
-    /* ----------------------------------------------------------------------------------------------
-     */
-    /*                                           ### VIS ### */
-    /* ----------------------------------------------------------------------------------------------
-     */
+    /* ---------------------------------------------------------------------------------------------- */
+    /*                                           ### VIS ###                                          */
+    /* ---------------------------------------------------------------------------------------------- */
     void VISParameterList( Module_Parameter_Lists &aParameterLists )
     {
-
-        /* --------------------------------------------------------------------------------------------
-         */
-        /*                                          VIS Parameter */
-        /* --------------------------------------------------------------------------------------------
-         */
+        /* -------------------------------------------------------------------------------------------- */
+        /*                                          VIS Parameter                                       */
+        /* -------------------------------------------------------------------------------------------- */
         aParameterLists.set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         aParameterLists.set( "Mesh_Type", (uint)vis::VIS_Mesh_Type::STANDARD );
 
-        // std::string tSetNames = tDomain;
         std::string tSetNames   = tDomain + "," + tContactInterface;
         std::string tFieldNames = "GAP";
         std::string tFieldTypes = "FACETED_AVG";
@@ -923,8 +868,7 @@ namespace moris
         tIQINames += ",IQIDispX,IQIDispY";
 
         // add stress components as STRESSX, STRESSY
-        Vector< std::string >
-                              tSides      = { "Top", "Bottom" };
+        Vector< std::string > tSides      = { "Top", "Bottom" };
         Vector< std::string > tComponents = { "X", "Y" };
 
         for ( auto const &tSide : tSides )

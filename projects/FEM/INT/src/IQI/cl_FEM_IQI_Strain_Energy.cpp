@@ -16,10 +16,15 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
-    IQI_Strain_Energy::IQI_Strain_Energy()
+    IQI_Strain_Energy::IQI_Strain_Energy(
+            enum CM_Function_Type aStressType,
+            enum CM_Function_Type aStrainType )
     {
         // set fem IQI type
         mFEMIQIType = fem::IQI_Type::STRAIN_ENERGY;
+
+        mStressType = aStressType;
+        mStrainType = aStrainType;
 
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
@@ -47,7 +52,7 @@ namespace moris::fem
         real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
 
         // check whether select is zero, if so return
-        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS || !this->is_within_box_bounds() )
         {
             aQI.set_size( 1, 1, 0.0 );
             return;
@@ -62,7 +67,7 @@ namespace moris::fem
                 mLeaderProp( static_cast< uint >( IQI_Property_Type::BEDDING ) );
 
         // evaluate the QI
-        aQI = 0.5 * tSelect * trans( tCMElasticity->flux() ) * tCMElasticity->strain();
+        aQI = 0.5 * tSelect * trans( tCMElasticity->flux( mStressType ) ) * tCMElasticity->strain( mStrainType );
 
         // if bedding
         if ( tPropBedding != nullptr )
@@ -91,7 +96,7 @@ namespace moris::fem
         real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
 
         // check whether select is zero, if so return
-        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS || !this->is_within_box_bounds() )
         {
             return;
         }
@@ -115,7 +120,7 @@ namespace moris::fem
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
         // evaluate the QI
-        mSet->get_QI()( tQIIndex ) += aWStar * tSelect * ( 0.5 * trans( tCMElasticity->flux() ) * tCMElasticity->strain() );
+        mSet->get_QI()( tQIIndex ) += aWStar * tSelect * ( 0.5 * trans( tCMElasticity->flux( mStressType ) ) * tCMElasticity->strain( mStrainType ) );
 
         // if bedding
         if ( tPropBedding != nullptr )
@@ -145,7 +150,7 @@ namespace moris::fem
         real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
 
         // check whether select is zero, if so return
-        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS || !this->is_within_box_bounds() )
         {
             return;
         }
@@ -187,10 +192,10 @@ namespace moris::fem
             {
                 // compute dQIdu
                 mSet->get_residual()( tQIIndex )(
-                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                   //
-                        aWStar * 0.5 * tSelect * (                                                           //
-                                trans( tCMElasticity->dFluxdDOF( tDofType ) ) * tCMElasticity->strain() +    //
-                                trans( tCMElasticity->dStraindDOF( tDofType ) ) * tCMElasticity->flux() );
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                                             //
+                        aWStar * 0.5 * tSelect * (                                                                                     //
+                                trans( tCMElasticity->dFluxdDOF( tDofType, mStressType ) ) * tCMElasticity->strain( mStrainType ) +    //
+                                trans( tCMElasticity->dStraindDOF( tDofType, mStrainType ) ) * tCMElasticity->flux( mStressType ) );
             }
 
             // if bedding
@@ -243,7 +248,7 @@ namespace moris::fem
         real tSelect = ( tPropSelect != nullptr ) ? tPropSelect->val()( 0 ) : 1.0;
 
         // check whether select is zero, if so return
-        if ( std::abs( tSelect ) < MORIS_REAL_EPS )
+        if ( std::abs( tSelect ) < MORIS_REAL_EPS || !this->is_within_box_bounds() )
         {
             return;
         }
@@ -260,9 +265,9 @@ namespace moris::fem
         if ( tCMElasticity->check_dof_dependency( aDofType ) )
         {
             // compute dQIdu
-            adQIdu = 0.5 * tSelect * (                                                                    //
-                             trans( tCMElasticity->dFluxdDOF( aDofType ) ) * tCMElasticity->strain() +    //
-                             trans( tCMElasticity->dStraindDOF( aDofType ) ) * tCMElasticity->flux() );
+            adQIdu = 0.5 * tSelect * (                                                                                              //
+                             trans( tCMElasticity->dFluxdDOF( aDofType, mStressType ) ) * tCMElasticity->strain( mStrainType ) +    //
+                             trans( tCMElasticity->dStraindDOF( aDofType, mStrainType ) ) * tCMElasticity->flux( mStressType ) );
         }
 
         // if bedding
@@ -292,6 +297,35 @@ namespace moris::fem
                 MORIS_ERROR( false, "IQI_Strain_Energy::compute_dQIdu - select property cannot depend on dof type." );
             }
         }
+    }
+
+    //------------------------------------------------------------------------------
+    bool IQI_Strain_Energy::is_within_box_bounds()
+    {
+        if ( mParameters.empty() )
+        {
+            return true;
+        }
+
+        // Optional lower/upper corners select an open box in reference space.
+        // Validate dimensions before indexing; malformed bounds must not read
+        // past an interpolation point or silently select the wrong region.
+        const Matrix< DDRMat > &tPoint = mLeaderFIManager->get_IG_geometry_interpolator()->valx();
+        MORIS_ERROR( mParameters.size() == 2,
+                "IQI_Strain_Energy - Specify both lower and upper box corners." );
+        MORIS_ERROR( mParameters( 0 ).numel() == tPoint.numel()
+                             && mParameters( 1 ).numel() == tPoint.numel(),
+                "IQI_Strain_Energy - Box corners must match the spatial dimension." );
+
+        bool tInside = true;
+        for ( uint i = 0; i < tPoint.numel(); ++i )
+        {
+            MORIS_ERROR( mParameters( 0 )( i ) < mParameters( 1 )( i ),
+                    "IQI_Strain_Energy - Box lower bounds must be smaller than upper bounds." );
+            tInside = tInside && mParameters( 0 )( i ) < tPoint( i )
+                   && tPoint( i ) < mParameters( 1 )( i );
+        }
+        return tInside;
     }
 
     //------------------------------------------------------------------------------
