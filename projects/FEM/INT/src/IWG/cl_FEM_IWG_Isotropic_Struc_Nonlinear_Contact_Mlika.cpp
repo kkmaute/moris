@@ -64,8 +64,7 @@ namespace moris::fem
         mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
         // set flag to use displacement for gap
-        mUseDeformedGeometryForGap           = true;
-        mUseConsistentDeformedGeometryForGap = true;
+        mUseDeformedGeometryForGap = true;
 
         // scaling factor to enable pure penalty formulation
         mTractionScaling = 1.0;
@@ -82,24 +81,29 @@ namespace moris::fem
         // Read consistency and pure penalty flag from input parameters
         if ( mParameters.size() > 0 )
         {
-            MORIS_ERROR( mParameters.size() == 3 &&                  //
+            MORIS_ERROR( mParameters.size() == 4 &&                  //
                                  mParameters( 0 ).numel() == 1 &&    //
                                  mParameters( 1 ).numel() == 1 &&    //
-                                 mParameters( 2 ).numel() == 1,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only three parameters possible." );
+                                 mParameters( 2 ).numel() == 1 &&    //
+                                 mParameters( 3 ).numel() == 1,      //
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only four parameters possible." );
 
-            // parameter 0: consistency flag
-            mUseConsistentDeformedGeometryForGap = mParameters( 0 )( 0 ) > 0.5 ? true : false;
+            // parameter 0: friction coefficient - not implemented yet, but will be used in the future
+            // mFrictionCoefficient = mParameters( 0 )( 0 );
 
-            // parameter 1: pure penalty flag
+            // parameter 1: frictional stiffness
+            // mGammaTau = mParameters( 3 )( 0 );
+
+            // parameter 2: pure penalty flag
             // create penalty only formulation
-            if ( mParameters( 1 )( 0 ) > 0.5 )
+            if ( mParameters( 2 )( 0 ) > 0.5 )
             {
                 mTractionScaling = 0.0;    // set scaling of all traction related terms to zero
                 mTheta           = 0.0;    // theta overwritten to eliminate adjoint term for pure penalty formulation
             }
 
-            mDebugFlag = mParameters( 2 )( 0 );
+            // parameter 3: for debug purposes, to trigger debug output
+            mDebugFlag = mParameters( 3 )( 0 );
         }
     }
 
@@ -150,10 +154,11 @@ namespace moris::fem
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
-                mUseConsistentDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
                 mFollowerFIManager,
+                nullptr,
+                nullptr,
                 mGapData );
 
         // check whether the remapping is successful
@@ -431,10 +436,11 @@ namespace moris::fem
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
-                mUseConsistentDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
                 mFollowerFIManager,
+                nullptr,
+                nullptr,
                 mGapData );
 
         // check whether the remapping is successful

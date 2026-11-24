@@ -2282,7 +2282,12 @@ namespace moris::fem
                         {
                             if ( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                const fem::IWG_Type tIWGType = mIWGs( iIWG )->get_IWG_type();
+                                if (                                                                                                    //
+                                        tIWGType == fem::IWG_Type::TIME_CONTINUITY_DOF ||    //
+                                        tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL ||                    //
+                                        tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC ||                  //
+                                        tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC )
                                 {
                                     // add the IWg to the requested IWG list
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );

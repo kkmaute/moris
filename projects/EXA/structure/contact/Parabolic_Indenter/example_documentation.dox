@@ -1,0 +1,52 @@
+/**
+@page exa_parabolic_indenter Parabolic indenter contact
+
+The example presses a deformable parabolic top body into a flat deformable
+bottom body in a unit square. Both bodies use Young's modulus 1000, Poisson's
+ratio zero, bilinear displacement interpolation on a 10 by 10 background mesh,
+Nitsche displacement boundary conditions, and ghost stabilization. Contact is
+integrated on both nonconformal interface orientations. Runs require ArborX
+and currently use one MPI rank.
+
+The original linear-contact and nonlinear Mlika cases retain their stored reference
+checks and their CTest registration, Parabolic_Indentor-1-procs.
+
+@section indenter_seitz Seitz variants
+
+The nonlinear input also supports Seitz's unbiased unsymmetric Nitsche
+formulation with compressible Neo-Hookean materials in plane strain.
+Driver globals select the contact law before the input library
+loads; the input supplies its own defaults for standalone use. The Seitz
+variants use the same mesh, material, stabilization and solver tolerances.
+The top boundary moves horizontally by 0.03 and vertically by -0.051 over
+three physical steps ending at time 10. Each step uses the existing nonlinear
+load continuation and ray-remapping strategy. This loading sequence exercises
+previous-slab displacement and traction contributions to tangential contact.
+
+- Seitz-Frictionless uses a negative friction coefficient to select frictionless
+  contact.
+- Seitz-Friction uses Coulomb coefficient 0.3; the tangential penalty is derived
+  from the contact stabilization parameter.
+- Seitz-FrictionlessSensitivity and Seitz-FrictionSensitivity repeat the
+  corresponding model with the top Young's modulus as one constant property
+  ADV. The bottom modulus is fixed. The sweep checks final-state top-body
+  vertical and horizontal displacement integrals against full-workflow
+  forward, backward and central finite differences at two step sizes.
+
+Each case is an explicit Catch test with its own CTest working directory.
+Sensitivity partials use MORIS's semi-analytical quadrature machinery, while
+current-state and previous-state contact Jacobians are analytical. The
+sensitivity cases perform a complete backward solve through the load history.
+The example does not exercise shape sensitivities or parallel contact.
+
+@section indenter_checks Result checks
+
+The Seitz checkers read the VIS Exodus file and check mesh dimensions, node
+and element counts, reference-node coordinates, final time, displacement and
+global displacement integrals. Time_Offset is zero in Seitz cases, so output
+uses a stable .exo filename and physical time during sensitivity sweeps.
+Reference data and their acquisition are
+recorded beside the checker. Set gPrintReferenceValues in the driver to print
+reference values. Sensitivity cases additionally check the sweep HDF5 data;
+each run removes its previous checked outputs before starting.
+*/

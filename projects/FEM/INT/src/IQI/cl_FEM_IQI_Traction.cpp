@@ -11,6 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
+#include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "fn_norm.hpp"
 
 namespace moris::fem
@@ -42,9 +43,16 @@ namespace moris::fem
                 "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                 "and averaged such that there is a well-defined normal." );
 
+        // determine the stress type to use for the traction evaluation
+        enum CM_Function_Type tCMFunctionType = CM_Function_Type::DEFAULT;
+        if ( auto d = std::dynamic_pointer_cast< CM_Struc_Nonlinear_Isotropic >( tCMLeader ) )
+        {
+            tCMFunctionType = CM_Function_Type::PK1;
+        }
+
         // evaluate traction
         const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal );
+                tTraction = tCMLeader->traction( mNormal, tCMFunctionType );
 
         // based on the IQI index select the norm or the individual component
         if ( mIQITypeIndex == -1 )
@@ -77,9 +85,16 @@ namespace moris::fem
                 "Normal is not set. IQIs requiring a normal must be evaluated elementally "
                 "and averaged such that there is a well-defined normal." );
 
+        // determine the stress type to use for the traction evaluation
+        enum CM_Function_Type tCMFunctionType = CM_Function_Type::DEFAULT;
+        if ( auto d = std::dynamic_pointer_cast< CM_Struc_Nonlinear_Isotropic >( tCMLeader ) )
+        {
+            tCMFunctionType = CM_Function_Type::PK1;
+        }
+
         // evaluate traction
         const Matrix< DDRMat >
-                tTraction = tCMLeader->traction( mNormal );
+                tTraction = tCMLeader->traction( mNormal, tCMFunctionType );
 
         // initialize the output matrix
         Matrix< DDRMat > tMat;

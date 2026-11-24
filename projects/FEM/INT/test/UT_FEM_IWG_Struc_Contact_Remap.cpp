@@ -39,7 +39,6 @@ using namespace fem;
 void Test_IWG_Struc_Contact_Remap(
         const IWG_Type aIWGType,
         bool           aUseDeformedConfig,
-        bool           aUseConsistentDeformedConfig,
         const real&    aDisplacementScaling )
 {
     // define an epsilon environment
@@ -157,8 +156,7 @@ void Test_IWG_Struc_Contact_Remap(
     tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set gap computing parameters
-    tIWG->mUseDeformedGeometryForGap           = aUseDeformedConfig;
-    tIWG->mUseConsistentDeformedGeometryForGap = aUseConsistentDeformedConfig;
+    tIWG->mUseDeformedGeometryForGap = aUseDeformedConfig;
 
     // set error flag
     bool tPassedCheck = true;
@@ -210,7 +208,7 @@ void Test_IWG_Struc_Contact_Remap(
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder   = tInterpolationOrders( iInterpOrder - 1 );
-            mtk::Interpolation_Order tSideInterpolationOrder = aUseConsistentDeformedConfig ? tGIInterpolationOrder : tInterpolationOrders( 0 );
+            mtk::Interpolation_Order tSideInterpolationOrder = tGIInterpolationOrder;
 
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
@@ -235,6 +233,12 @@ void Test_IWG_Struc_Contact_Remap(
             Geometry_Interpolator tLeaderSideGI   = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
             Geometry_Interpolator tFollowerSideGI = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
 
+            Geometry_Interpolator tLeaderPreviousGI   = Geometry_Interpolator( tGIRule );
+            Geometry_Interpolator tFollowerPreviousGI = Geometry_Interpolator( tGIRule );
+
+            Geometry_Interpolator tLeaderPreviousSideGI   = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
+            Geometry_Interpolator tFollowerPreviousSideGI = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
+
             // create time coeff tHat
             Matrix< DDRMat > tTHat = { { 0.0 } };
             Matrix< DDRMat > tLeaderXHat;
@@ -246,13 +250,18 @@ void Test_IWG_Struc_Contact_Remap(
             Matrix< DDRMat > tLeaderDOFHatDisp;
             Matrix< DDRMat > tFollowerDOFHatDisp;
 
+            Matrix< DDRMat > tLeaderPreviousDOFHatDisp;
+            Matrix< DDRMat > tFollowerPreviousDOFHatDisp;
+
             Matrix< DDRMat > tIntegPoints;
+            Matrix< DDRMat > tSomeSpaceVector;
 
             switch ( iSpaceDim )
             {
                 case 2:
                 {
-                    tIntegPoints = { { 0.123 }, { 0.0 } };
+                    tIntegPoints     = { { 0.123 }, { 0.0 } };
+                    tSomeSpaceVector = { { 0.75 }, { -0.15 } };
 
                     switch ( iInterpOrder )
                     {
@@ -270,6 +279,7 @@ void Test_IWG_Struc_Contact_Remap(
 
                             tLeaderDOFHatDisp   = { { -0.2, 0.1 }, { -0.1, 0.1 }, { -0.1, -0.9 }, { -0.2, 0.1 } };
                             tFollowerDOFHatDisp = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.5 }, { 0.0, 0.0 } };
+
                             break;
                         }
                         case 2:
@@ -288,16 +298,8 @@ void Test_IWG_Struc_Contact_Remap(
 
                             tFollowerXHat = tLeaderXHat;
 
-                            if ( aUseConsistentDeformedConfig )
-                            {
-                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
-                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
-                            }
-                            else
-                            {
-                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
-                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
-                            }
+                            tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
+                            tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
 
                             tLeaderDOFHatDisp = {
                                 { -0.2, 0.1 },
@@ -334,9 +336,23 @@ void Test_IWG_Struc_Contact_Remap(
                     MORIS_ERROR( false, "Space dimension not implemented." );
             }
 
+            // initialize the previous time step dofs
+            real dux = 0.15;
+            real duy = 0.075;
+
+            tLeaderPreviousDOFHatDisp   = tLeaderDOFHatDisp;
+            tFollowerPreviousDOFHatDisp = tFollowerDOFHatDisp;
+
+            tLeaderPreviousDOFHatDisp( 2, 0 ) -= dux;
+            tLeaderPreviousDOFHatDisp( 0, 1 ) += duy;
+            tFollowerPreviousDOFHatDisp.get_column( 1 ) += duy;
+
             // set the coefficients xHat, tHat
             tLeaderGI.set_coeff( tLeaderXHat, tTHat );
             tFollowerGI.set_coeff( tFollowerXHat, tTHat );
+
+            tLeaderPreviousGI.set_coeff( tLeaderXHat, tTHat );
+            tFollowerPreviousGI.set_coeff( tFollowerXHat, tTHat );
 
             // set the coefficients for the leader side geometry interpolators from parametric coordinates
             Matrix< DDRMat > tLeaderSideXHat( tLeaderSideNodesParam.n_rows(), iSpaceDim );
@@ -344,6 +360,8 @@ void Test_IWG_Struc_Contact_Remap(
             for ( uint iNode = 0; iNode < tLeaderSideNodesParam.n_rows(); iNode++ )
             {
                 tLeaderGI.set_space( trans( tLeaderSideNodesParam.get_row( iNode ) ) );
+                tLeaderPreviousGI.set_space( trans( tLeaderSideNodesParam.get_row( iNode ) ) );
+
                 tLeaderSideXHat.get_row( iNode ) = tLeaderGI.valx().matrix_data();
             }
 
@@ -351,18 +369,28 @@ void Test_IWG_Struc_Contact_Remap(
             tLeaderSideGI.set_space_param_coeff( tLeaderSideNodesParam );
             tLeaderSideGI.set_time_param_coeff( tTHat );
 
+            tLeaderPreviousSideGI.set_coeff( tLeaderSideXHat, tTHat );
+            tLeaderPreviousSideGI.set_space_param_coeff( tLeaderSideNodesParam );
+            tLeaderPreviousSideGI.set_time_param_coeff( tTHat );
+
             // set the coefficients for the follower side geometry interpolators from parametric coordinates
             Matrix< DDRMat > tFollowerSideXHat( tFollowerSideNodesParam.n_rows(), iSpaceDim );
 
             for ( uint iNode = 0; iNode < tFollowerSideNodesParam.n_rows(); iNode++ )
             {
                 tFollowerGI.set_space( trans( tFollowerSideNodesParam.get_row( iNode ) ) );
+                tFollowerPreviousGI.set_space( trans( tFollowerSideNodesParam.get_row( iNode ) ) );
+
                 tFollowerSideXHat.get_row( iNode ) = tFollowerGI.valx().matrix_data();
             }
 
             tFollowerSideGI.set_coeff( tFollowerSideXHat, tTHat );
             tFollowerSideGI.set_space_param_coeff( tFollowerSideNodesParam );
             tFollowerSideGI.set_time_param_coeff( tTHat );
+
+            tFollowerPreviousSideGI.set_coeff( tFollowerSideXHat, tTHat );
+            tFollowerPreviousSideGI.set_space_param_coeff( tFollowerSideNodesParam );
+            tFollowerPreviousSideGI.set_time_param_coeff( tTHat );
 
             // field interpolators
             //------------------------------------------------------------------------------
@@ -382,19 +410,33 @@ void Test_IWG_Struc_Contact_Remap(
                     mtk::Interpolation_Type::CONSTANT,
                     mtk::Interpolation_Order::CONSTANT );
 
-            // create a cell of field interpolators for IWG
+            // create a cell of field interpolators for IWG - Leader
             Vector< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
             tLeaderFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderDOFHatDisp );
 
-            // create a cell of field interpolators for IWG
+            // create a cell of field interpolators for IWG - Follower
             Vector< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tFollowerGI, tDispDofTypes( 0 ) );
             tFollowerFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerDOFHatDisp );
+
+            // create a cell of field interpolators for IWG - Leader previous time step
+            Vector< Field_Interpolator* > tLeaderPreviousFIs( tDispDofTypes.size() );
+
+            // create the field interpolator displacement
+            tLeaderPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
+            tLeaderPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderPreviousDOFHatDisp );
+
+            // create a cell of field interpolators for IWG - Follower previous time step
+            Vector< Field_Interpolator* > tFollowerPreviousFIs( tDispDofTypes.size() );
+
+            // create the field interpolator displacement
+            tFollowerPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tFollowerGI, tDispDofTypes( 0 ) );
+            tFollowerPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerPreviousDOFHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDispDofTypes.size() );
@@ -437,13 +479,37 @@ void Test_IWG_Struc_Contact_Remap(
             tFollowerFIManager.mIPGeometryInterpolator = &tFollowerGI;
             tFollowerFIManager.mIGGeometryInterpolator = &tFollowerSideGI;
 
+            // create a field interpolator manager for previous time step
+            Field_Interpolator_Manager tLeaderPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+
+            // populate the field interpolator manager
+            tLeaderPreviousFIManager.mFI                       = tLeaderPreviousFIs;
+            tLeaderPreviousFIManager.mIPGeometryInterpolator   = &tLeaderPreviousGI;
+            tLeaderPreviousFIManager.mIGGeometryInterpolator   = &tLeaderPreviousSideGI;
+            tFollowerPreviousFIManager.mFI                     = tFollowerPreviousFIs;
+            tFollowerPreviousFIManager.mIPGeometryInterpolator = &tFollowerPreviousGI;
+            tFollowerPreviousFIManager.mIGGeometryInterpolator = &tFollowerPreviousSideGI;
+
             // set the interpolator manager to the set
             tIWG->mSet->mLeaderFIManager   = &tLeaderFIManager;
             tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
+            tIWG->mLeaderFIManager         = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
+
+            tIWG->mSet->mLeaderPreviousFIManager   = &tLeaderPreviousFIManager;
+            tIWG->mSet->mFollowerPreviousFIManager = &tFollowerPreviousFIManager;
+
+            tIWG->mLeaderPreviousFIManager         = &tLeaderPreviousFIManager;
+            tIWG->mSet->mFollowerPreviousFIManager = &tFollowerPreviousFIManager;
+
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
             tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
+
+            tIWG->set_field_interpolator_manager_previous_time( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager_previous_time( &tFollowerPreviousFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -455,15 +521,17 @@ void Test_IWG_Struc_Contact_Remap(
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPointLeader = tIntegPoints.get_column( iGP );
 
-                // set integration point on follower side
+                // set integration point on leader side
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
+                tIWG->mSet->mLeaderPreviousFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
 
                 Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
                         tIWG->mUseDeformedGeometryForGap,
-                        tIWG->mUseConsistentDeformedGeometryForGap,
                         tDispDofTypes( 0 ),
                         tIWG->mSet->mLeaderFIManager,
                         tIWG->mSet->mFollowerFIManager,
+                        tIWG->mSet->mLeaderPreviousFIManager,
+                        tIWG->mSet->mFollowerPreviousFIManager,
                         tIWG->mGapData );
 
                 // get reference to current gap data
@@ -472,6 +540,8 @@ void Test_IWG_Struc_Contact_Remap(
                 // save mapping results
                 std::unique_ptr< GapData > tNominalGapData = std::make_unique< GapData >();
                 tNominalGapData->copy( tCurrentGapData );
+
+                Matrix< DDRMat > tNominaldTangentVectordu = tNominalGapData->multiply_leader_dtangentprojectiondu( tSomeSpaceVector );
 
                 // FD wrt displacements on leader side
                 std::unique_ptr< GapData > tPertGapData = std::make_unique< GapData >();
@@ -488,10 +558,11 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
                                 tIWG->mGapData );
                         tPertGapData->copy( tCurrentGapData );
 
@@ -500,10 +571,11 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
                                 tIWG->mGapData );
 
                         real             tFdGapdu   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
@@ -578,6 +650,36 @@ void Test_IWG_Struc_Contact_Remap(
                             tPassedCheck = false;
                         }
 
+                        Matrix< DDRMat > tFollowerdDisplacementsdu = ( tPertGapData->mFollowerDisplacements - tCurrentGapData->mFollowerDisplacements ) / 2 / tPerturbation;
+
+                        real tErrorFollowerdDisplacementsdu = 100.0 * norm( tFollowerdDisplacementsdu - tNominalGapData->mFollowerdDisplacementsdu.get_column( tCounter ) ) / norm( tFollowerdDisplacementsdu );
+
+                        if ( tErrorFollowerdDisplacementsdu > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error FollowerdDisplacementsdu:   %e\n", tErrorFollowerdDisplacementsdu );
+                            tPassedCheck = false;
+                        }
+
+                        Matrix< DDRMat > tFollowerPreviousdDisplacementsdu = ( tPertGapData->mFollowerPreviousDisplacements - tCurrentGapData->mFollowerPreviousDisplacements ) / 2 / tPerturbation;
+
+                        real tErrorFollowerPreviousdDisplacementsdu = 100.0 * norm( tFollowerPreviousdDisplacementsdu - tNominalGapData->mFollowerPreviousdDisplacementsdu.get_column( tCounter ) ) / norm( tFollowerPreviousdDisplacementsdu );
+
+                        if ( tErrorFollowerPreviousdDisplacementsdu > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error FollowerPreviousdDisplacementsdu:   %e\n", tErrorFollowerPreviousdDisplacementsdu );
+                            tPassedCheck = false;
+                        }
+
+                        Matrix< DDRMat > tFDTangentVectordu = 0.5 / tPerturbation * ( tPertGapData->mLeaderTangentProjection - tCurrentGapData->mLeaderTangentProjection ) * tSomeSpaceVector;
+
+                        real tErrorTangentVectordu = 100.0 * norm( tFDTangentVectordu - tNominaldTangentVectordu.get_column( tCounter ) ) / norm( tFDTangentVectordu );
+
+                        if ( tErrorTangentVectordu > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error TangentVectordu:   %e\n", tErrorTangentVectordu );
+                            tPassedCheck = false;
+                        }
+
                         tLeaderDOFHatDisp( in, idir ) += tPerturbation;
                         tCounter++;
                     }
@@ -598,10 +700,11 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
                                 tIWG->mGapData );
                         tPertGapData->copy( tCurrentGapData );
 
@@ -610,10 +713,11 @@ void Test_IWG_Struc_Contact_Remap(
                         tIWG->reset_eval_flags();
                         tIWG->remap_nonconformal_rays(
                                 tIWG->mUseDeformedGeometryForGap,
-                                tIWG->mUseConsistentDeformedGeometryForGap,
                                 tDispDofTypes( 0 ),
                                 tIWG->mSet->mLeaderFIManager,
                                 tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
                                 tIWG->mGapData );
 
                         real             tFdGapdv   = ( tPertGapData->mGap - tCurrentGapData->mGap ) / 2 / tPerturbation;
@@ -683,7 +787,137 @@ void Test_IWG_Struc_Contact_Remap(
                             tPassedCheck = false;
                         }
 
+                        Matrix< DDRMat > tLeaderFdTangentVelocitydv = ( tPertGapData->mLeaderTangentVelocity - tCurrentGapData->mLeaderTangentVelocity ) / 2 / tPerturbation;
+
+                        real tErrorLeaderdTangentVelocitydv = 100.0 * norm( tLeaderFdTangentVelocitydv - tNominalGapData->mLeaderdTangentVelocitydv.get_column( tCounter ) ) / norm( tLeaderFdTangentVelocitydv );
+
+                        if ( tErrorLeaderdTangentVelocitydv > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error LeaderdTangentVelocitydv:   %e\n", tErrorLeaderdTangentVelocitydv );
+                            tPassedCheck = false;
+                        }
+
+                        Matrix< DDRMat > tFollowerdDisplacementsdv = ( tPertGapData->mFollowerDisplacements - tCurrentGapData->mFollowerDisplacements ) / 2 / tPerturbation;
+
+                        real tErrorFollowerdDisplacementsdv = 100.0 * norm( tFollowerdDisplacementsdv - tNominalGapData->mFollowerdDisplacementsdv.get_column( tCounter ) ) / norm( tFollowerdDisplacementsdv );
+
+                        if ( tErrorFollowerdDisplacementsdv > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error FollowerdDisplacementsdv:   %e\n", tErrorFollowerdDisplacementsdv );
+                            tPassedCheck = false;
+                        }
+
+                        Matrix< DDRMat > tFollowerPreviousdDisplacementsdv = ( tPertGapData->mFollowerPreviousDisplacements - tCurrentGapData->mFollowerPreviousDisplacements ) / 2 / tPerturbation;
+
+                        real tErrorFollowerPreviousdDisplacementsdv = 100.0 * norm( tFollowerPreviousdDisplacementsdv - tNominalGapData->mFollowerPreviousdDisplacementsdv.get_column( tCounter ) ) / norm( tFollowerPreviousdDisplacementsdv );
+
+                        if ( tErrorFollowerPreviousdDisplacementsdv > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error FollowerPreviousdDisplacementsdv:   %e\n", tErrorFollowerPreviousdDisplacementsdv );
+                            tPassedCheck = false;
+                        }
+
                         tFollowerDOFHatDisp( in, idir ) += tPerturbation;
+                        tCounter++;
+                    }
+                }
+                // reset the leader dof hat displacement
+                tFollowerFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerDOFHatDisp );
+
+                // FD wrt displacements of previous time step on leader side
+                tCounter  = 0;
+                tNumNodes = tLeaderPreviousDOFHatDisp.n_rows();
+
+                for ( uint idir = 0; idir < tLeaderPreviousDOFHatDisp.n_cols(); idir++ )
+                {
+                    for ( uint in = 0; in < tLeaderPreviousDOFHatDisp.n_rows(); in++ )
+                    {
+                        tLeaderPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                        tLeaderPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderPreviousDOFHatDisp );
+                        tIWG->reset_eval_flags();
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
+                                tIWG->mGapData );
+                        tPertGapData->copy( tCurrentGapData );
+
+                        tLeaderPreviousDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
+                        tLeaderPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderPreviousDOFHatDisp );
+                        tIWG->reset_eval_flags();
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
+                                tIWG->mGapData );
+
+                        Matrix< DDRMat > tLeaderFdTangentVelocitydu = ( tPertGapData->mLeaderTangentVelocity - tCurrentGapData->mLeaderTangentVelocity ) / 2 / tPerturbation;
+
+                        real tErrorLeaderdTangentVelocitydu = 100.0 * norm( tLeaderFdTangentVelocitydu - tNominalGapData->mLeaderdTangentVelocityduprev.get_column( tCounter ) ) / norm( tLeaderFdTangentVelocitydu );
+
+                        if ( tErrorLeaderdTangentVelocitydu > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error LeaderdTangentVelocityduprev:   %e\n", tErrorLeaderdTangentVelocitydu );
+                            tPassedCheck = false;
+                        }
+
+                        tLeaderPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                        tCounter++;
+                    }
+                }
+                // reset the leader dof hat displacement
+                tLeaderPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tLeaderPreviousDOFHatDisp );
+
+                // FD wrt displacements on leader side
+                tCounter  = 0;
+                tNumNodes = tFollowerPreviousDOFHatDisp.n_rows();
+
+                for ( uint idir = 0; idir < tFollowerPreviousDOFHatDisp.n_cols(); idir++ )
+                {
+                    for ( uint in = 0; in < tFollowerPreviousDOFHatDisp.n_rows(); in++ )
+                    {
+                        tFollowerPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                        tFollowerPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerPreviousDOFHatDisp );
+                        tIWG->reset_eval_flags();
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
+                                tIWG->mGapData );
+                        tPertGapData->copy( tCurrentGapData );
+
+                        tFollowerPreviousDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
+                        tFollowerPreviousFIs( 0 )->set_coeff( aDisplacementScaling * tFollowerPreviousDOFHatDisp );
+                        tIWG->reset_eval_flags();
+                        tIWG->remap_nonconformal_rays(
+                                tIWG->mUseDeformedGeometryForGap,
+                                tDispDofTypes( 0 ),
+                                tIWG->mSet->mLeaderFIManager,
+                                tIWG->mSet->mFollowerFIManager,
+                                tIWG->mSet->mLeaderPreviousFIManager,
+                                tIWG->mSet->mFollowerPreviousFIManager,
+                                tIWG->mGapData );
+
+                        Matrix< DDRMat > tLeaderFdTangentVelocitydv = ( tPertGapData->mLeaderTangentVelocity - tCurrentGapData->mLeaderTangentVelocity ) / 2 / tPerturbation;
+
+                        real tErrorLeaderdTangentVelocitydv = 100.0 * norm( tLeaderFdTangentVelocitydv - tNominalGapData->mLeaderdTangentVelocitydvprev.get_column( tCounter ) ) / norm( tLeaderFdTangentVelocitydv );
+
+                        if ( tErrorLeaderdTangentVelocitydv > 100.0 * tEpsilon )
+                        {
+                            fprintf( stdout, "percent error LeaderdTangentVelocitydvprev:   %e\n", tErrorLeaderdTangentVelocitydv );
+                            tPassedCheck = false;
+                        }
+
+                        tFollowerPreviousDOFHatDisp( in, idir ) += tPerturbation;
                         tCounter++;
                     }
                 }
@@ -699,23 +933,12 @@ void Test_IWG_Struc_Contact_Remap(
     }
 }
 
-TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Linear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Linear]" )
-{
-    // check with contact
-    Test_IWG_Struc_Contact_Remap(
-            fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
-            true,     // use deformed geometry
-            false,    // use linear displacement assumption
-            1.0 );
-}
-
 TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Nonlinear", "[moris],[fem],[IWG_Struc_Contact_Remap_Deformed_Nonlinear]" )
 {
     // check with contact
     Test_IWG_Struc_Contact_Remap(
             fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             true,    // use deformed geometry
-            true,    // use consistent deformed geometry
             1.0 );
 }
 

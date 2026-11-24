@@ -349,10 +349,10 @@ namespace moris::fem
                 // xxxxxxxxxxxxxxxxxxxxx
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC:
-                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC:
-                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 1 );
+                return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( -1 );
 
             case IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL:
                 return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >( 0 );

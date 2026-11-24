@@ -64,8 +64,7 @@ namespace moris::fem
         mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
         // set flag to use displacement for gap
-        mUseDeformedGeometryForGap           = true;
-        mUseConsistentDeformedGeometryForGap = false;
+        mUseDeformedGeometryForGap = true;
     }
 
     //------------------------------------------------------------------------------
@@ -112,10 +111,11 @@ namespace moris::fem
         // build gap data and remap follower coordinates
         const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
-                mUseConsistentDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
                 mFollowerFIManager,
+                nullptr,
+                nullptr,
                 mGapData );
 
         // check whether the remapping is successful

@@ -315,6 +315,15 @@ namespace moris::fem
             // set field interpolator coefficients
             mSet->get_field_interpolator_manager()
                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+
+            // Material design fields belong to the same spatial design across
+            // slabs. History-dependent contact evaluates constitutive data in
+            // the previous manager as well as in the current manager.
+            if ( mSet->get_time_continuity() )
+            {
+                mSet->get_field_interpolator_manager_previous_time()
+                        ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+            }
         }
 
         // get follower dv type list from set
@@ -348,6 +357,12 @@ namespace moris::fem
             // set the field coefficients
             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                     ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+
+            if ( mSet->get_time_continuity() )
+            {
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )
+                        ->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+            }
         }
 
         // field field interpolators------------------------------------------

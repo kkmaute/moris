@@ -21,14 +21,19 @@
 #include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
+
 // MTK/src
 #include "cl_MTK_Enums.hpp"
+
 // FEM//INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
+
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
+
 // LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
@@ -41,8 +46,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         const fem::Constitutive_Type aConstitutiveModel,
         const real&                  aNitscheParameter,
         bool                         aUseDeformedGeometryForGap,
-        bool                         aUseConsistentDeformedGeometryForGap,
-        bool                         aPurePenaltyFormulation )
+        bool                         aPurePenaltyFormulation,
+        real                         aFrictionCoefficient = -1.0 )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -123,21 +128,26 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
     tSPNitscheInterface->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
     tSPNitscheInterface->set_property( tPropFollowerEMod, "Material", mtk::Leader_Follower::FOLLOWER );
 
-    // create a dummy fem cluster and set it to SP
-    fem::Cluster* tCluster = new fem::Cluster();
-    tSPNitscheInterface->set_cluster( tCluster );
-
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( aIWGType );
+
     tIWG->set_residual_dof_type( tDispDofTypes );
+
     tIWG->set_dof_type_list( tDispDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_dof_type_list( tDispDofTypes, mtk::Leader_Follower::FOLLOWER );
+
     tIWG->set_constitutive_model( tCMLeaderStruct, "ElastLinIso", mtk::Leader_Follower::LEADER );
     tIWG->set_constitutive_model( tCMFollowerStruct, "ElastLinIso", mtk::Leader_Follower::FOLLOWER );
+
     tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
+
+    // create a dummy fem cluster and set it to the SP and to the IWG
+    fem::Cluster* tCluster = new fem::Cluster();
+    tSPNitscheInterface->set_cluster( tCluster );
+    tIWG->set_cluster_pointer( tCluster );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -164,9 +174,10 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
     // set parameter for gap computation
     tIWG->mUseDeformedGeometryForGap = aUseDeformedGeometryForGap;
 
-    Matrix< DDRMat > tConstDefGap = { { aUseConsistentDeformedGeometryForGap ? 1.0 : 0.0 } };
     Matrix< DDRMat > tPenaltyOnly = { { aPurePenaltyFormulation ? 1.0 : 0.0 } };
-    tIWG->set_parameters( { tConstDefGap, tPenaltyOnly, { { 0.0 } } } );
+
+    // set IWG parameters: friction coefficient, friction stiffness, penalty only flag, and debug flag
+    tIWG->set_parameters( { { { aFrictionCoefficient } }, { { 2.0 } }, tPenaltyOnly, { { 0.0 } } } );
 
     // set error flag
     bool tPassedCheck = true;
@@ -180,10 +191,12 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         tIWG->set_normal( tNormal );
 
         // set space dim for CM
-        tCMLeaderStruct->set_model_type( fem::Model_Type::PLANE_STRAIN );
+        fem::Model_Type tFemModelType = fem::Model_Type::PLANE_STRAIN;
+
+        tCMLeaderStruct->set_model_type( tFemModelType );
         tCMLeaderStruct->set_space_dim( iSpaceDim );
 
-        tCMFollowerStruct->set_model_type( fem::Model_Type::PLANE_STRAIN );
+        tCMFollowerStruct->set_model_type( tFemModelType );
         tCMFollowerStruct->set_space_dim( iSpaceDim );
 
         tSPNitscheInterface->set_space_dim( iSpaceDim );
@@ -222,8 +235,7 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
             // set side interpolation order to linear if inconsistent deformed geometry is used
-            mtk::Interpolation_Order tSideInterpolationOrder =
-                    aUseConsistentDeformedGeometryForGap ? tGIInterpolationOrder : tInterpolationOrders( 0 );
+            mtk::Interpolation_Order tSideInterpolationOrder = tGIInterpolationOrder;
 
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
@@ -248,8 +260,16 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             Geometry_Interpolator tLeaderSideGI   = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
             Geometry_Interpolator tFollowerSideGI = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
 
+            Geometry_Interpolator tLeaderPreviousGI   = Geometry_Interpolator( tGIRule );
+            Geometry_Interpolator tFollowerPreviousGI = Geometry_Interpolator( tGIRule );
+
+            Geometry_Interpolator tLeaderPreviousSideGI   = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
+            Geometry_Interpolator tFollowerPreviousSideGI = Geometry_Interpolator( tSideGIRule, mtk::CellShape::GENERAL, true );
+
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = { { 0.0 } };
+            Matrix< DDRMat > tTHat         = { { 1.0 } };
+            Matrix< DDRMat > tTHatPrevious = { { 0.0 } };
+
             Matrix< DDRMat > tLeaderXHat;
             Matrix< DDRMat > tFollowerXHat;
 
@@ -259,8 +279,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             Matrix< DDRMat > tLeaderDOFHatDisp;
             Matrix< DDRMat > tFollowerDOFHatDisp;
 
-            Matrix< DDRMat > tLeaderPreviousDOFHatDisp;   // for frictional contact
-            Matrix< DDRMat > tFollowerPreviousDOFHatDisp; // for frictional contact
+            Matrix< DDRMat > tLeaderPreviousDOFHatDisp;
+            Matrix< DDRMat > tFollowerPreviousDOFHatDisp;
 
             Matrix< DDRMat > tIntegPoints;
 
@@ -287,9 +307,15 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                             tLeaderDOFHatDisp   = { { -0.2, 0.1 }, { -0.1, 0.1 }, { -0.1, -0.9 }, { -0.2, 0.1 } };
                             tFollowerDOFHatDisp = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.5 }, { 0.0, 0.0 } };
 
-                            // for frictional contact
-                            tLeaderPreviousDOFHatDisp   = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } };
-                            tFollowerPreviousDOFHatDisp = { { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 }, { 0.0, 0.0 } };
+                            real dux = 0.15;
+                            real duy = 0.075;
+
+                            tLeaderPreviousDOFHatDisp   = tLeaderDOFHatDisp;
+                            tFollowerPreviousDOFHatDisp = tFollowerDOFHatDisp;
+
+                            tLeaderPreviousDOFHatDisp( 2, 0 ) -= dux;
+                            tLeaderPreviousDOFHatDisp( 0, 1 ) += duy;
+                            tFollowerPreviousDOFHatDisp.get_column( 1 ) += duy;
                             break;
                         }
                         case 2:
@@ -308,16 +334,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                             tFollowerXHat = tLeaderXHat;
 
-                            if ( aUseConsistentDeformedGeometryForGap )
-                            {
-                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
-                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
-                            }
-                            else
-                            {
-                                tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 } };
-                                tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 } };
-                            }
+                            tLeaderSideNodesParam   = { { -0.9, -0.3 }, { 0.8, -0.1 }, { 0.3, -0.1 } };
+                            tFollowerSideNodesParam = { { -0.8, 0.8 }, { 0.9, 0.5 }, { 0.3, 0.7 } };
 
                             tLeaderDOFHatDisp = {
                                 { -0.2, 0.1 },
@@ -381,12 +399,17 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             tLeaderGI.set_coeff( tLeaderXHat, tTHat );
             tFollowerGI.set_coeff( tFollowerXHat, tTHat );
 
+            tLeaderPreviousGI.set_coeff( tLeaderXHat, tTHatPrevious );
+            tFollowerPreviousGI.set_coeff( tFollowerXHat, tTHatPrevious );
+
             // set the coefficients for the leader side geometry interpolators from parametric coordinates
             Matrix< DDRMat > tLeaderSideXHat( tLeaderSideNodesParam.n_rows(), iSpaceDim );
 
             for ( uint iNode = 0; iNode < tLeaderSideNodesParam.n_rows(); iNode++ )
             {
                 tLeaderGI.set_space( trans( tLeaderSideNodesParam.get_row( iNode ) ) );
+                tLeaderPreviousGI.set_space( trans( tLeaderSideNodesParam.get_row( iNode ) ) );
+
                 tLeaderSideXHat.get_row( iNode ) = tLeaderGI.valx().matrix_data();
             }
 
@@ -394,18 +417,28 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             tLeaderSideGI.set_space_param_coeff( tLeaderSideNodesParam );
             tLeaderSideGI.set_time_param_coeff( tTHat );
 
+            tLeaderPreviousSideGI.set_coeff( tLeaderSideXHat, tTHatPrevious );
+            tLeaderPreviousSideGI.set_space_param_coeff( tLeaderSideNodesParam );
+            tLeaderPreviousSideGI.set_time_param_coeff( tTHatPrevious );
+
             // set the coefficients for the follower side geometry interpolators from parametric coordinates
             Matrix< DDRMat > tFollowerSideXHat( tFollowerSideNodesParam.n_rows(), iSpaceDim );
 
             for ( uint iNode = 0; iNode < tFollowerSideNodesParam.n_rows(); iNode++ )
             {
                 tFollowerGI.set_space( trans( tFollowerSideNodesParam.get_row( iNode ) ) );
+                tFollowerPreviousGI.set_space( trans( tFollowerSideNodesParam.get_row( iNode ) ) );
+
                 tFollowerSideXHat.get_row( iNode ) = tFollowerGI.valx().matrix_data();
             }
 
             tFollowerSideGI.set_coeff( tFollowerSideXHat, tTHat );
             tFollowerSideGI.set_space_param_coeff( tFollowerSideNodesParam );
             tFollowerSideGI.set_time_param_coeff( tTHat );
+
+            tFollowerPreviousSideGI.set_coeff( tFollowerSideXHat, tTHatPrevious );
+            tFollowerPreviousSideGI.set_space_param_coeff( tFollowerSideNodesParam );
+            tFollowerPreviousSideGI.set_time_param_coeff( tTHatPrevious );
 
             // field interpolators
             //------------------------------------------------------------------------------
@@ -425,27 +458,31 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     mtk::Interpolation_Type::CONSTANT,
                     mtk::Interpolation_Order::CONSTANT );
 
-            // create a cell of field interpolators for IWG
+            // create a cell of field interpolators for IWG - Leader
             Vector< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
-            Vector< Field_Interpolator* > tLeaderPreviousFIs( tDispDofTypes.size() ); // for frictional contact
 
             // create the field interpolator displacement
             tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
             tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
-            // for frictional contact
-            tLeaderPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
-            tLeaderPreviousFIs( 0 )->set_coeff(tLeaderPreviousDOFHatDisp );
-
-            // create a cell of field interpolators for IWG
+            // create a cell of field interpolators for IWG - Follower
             Vector< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
-            Vector< Field_Interpolator* > tFollowerPreviousFIs( tDispDofTypes.size() ); // for frictional contact
 
             // create the field interpolator displacement
             tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tFollowerGI, tDispDofTypes( 0 ) );
             tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
 
-            // for frictional contact
+            // create a cell of field interpolators for IWG - Leader previous time step
+            Vector< Field_Interpolator* > tLeaderPreviousFIs( tDispDofTypes.size() );
+
+            // create the field interpolator displacement
+            tLeaderPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tLeaderGI, tDispDofTypes( 0 ) );
+            tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatDisp );
+
+            // create a cell of field interpolators for IWG - Follower previous time step
+            Vector< Field_Interpolator* > tFollowerPreviousFIs( tDispDofTypes.size() );
+
+            // create the field interpolator displacement
             tFollowerPreviousFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tFollowerGI, tDispDofTypes( 0 ) );
             tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatDisp );
 
@@ -481,42 +518,90 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
             Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tLeaderPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tFollowerPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
             tLeaderFIManager.mFI                       = tLeaderFIs;
             tLeaderFIManager.mIPGeometryInterpolator   = &tLeaderGI;
             tLeaderFIManager.mIGGeometryInterpolator   = &tLeaderSideGI;
-
             tFollowerFIManager.mFI                     = tFollowerFIs;
             tFollowerFIManager.mIPGeometryInterpolator = &tFollowerGI;
             tFollowerFIManager.mIGGeometryInterpolator = &tFollowerSideGI;
 
-            // for frictional contact
-            tLeaderPreviousFIManager.mFI                     = tLeaderPreviousFIs;
-            tLeaderPreviousFIManager.mIPGeometryInterpolator = &tLeaderGI;
-            tLeaderPreviousFIManager.mIGGeometryInterpolator = &tLeaderSideGI;
+            // create a field interpolator manager for previous time step
+            Field_Interpolator_Manager tLeaderPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerPreviousFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
-            // for frictional contact
+            // populate the field interpolator manager
+            tLeaderPreviousFIManager.mFI                       = tLeaderPreviousFIs;
+            tLeaderPreviousFIManager.mIPGeometryInterpolator   = &tLeaderPreviousGI;
+            tLeaderPreviousFIManager.mIGGeometryInterpolator   = &tLeaderPreviousSideGI;
             tFollowerPreviousFIManager.mFI                     = tFollowerPreviousFIs;
-            tFollowerPreviousFIManager.mIPGeometryInterpolator = &tFollowerGI;
-            tFollowerPreviousFIManager.mIGGeometryInterpolator = &tFollowerSideGI;
+            tFollowerPreviousFIManager.mIPGeometryInterpolator = &tFollowerPreviousGI;
+            tFollowerPreviousFIManager.mIGGeometryInterpolator = &tFollowerPreviousSideGI;
 
-            // set the interpolator manager to the set
+            // for friction only: compute traction for previous time step for leader at all integration points
+            if ( aFrictionCoefficient > 0.0 )
+            {
+                tIWG->mSet->mLeaderFIManager = &tLeaderPreviousFIManager;
+                tIWG->mLeaderFIManager       = &tLeaderPreviousFIManager;
+
+                // set IWG field interpolator manager
+                tIWG->set_field_interpolator_manager( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
+
+                uint tNumGPs = tIntegPoints.n_cols();
+                for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
+                {
+                    // reset IWG evaluation flags
+                    tIWG->reset_eval_flags();
+
+                    // create evaluation point xi, tau
+                    Matrix< DDRMat > tParamPointLeader = tIntegPoints.get_column( iGP );
+
+                    // set integration point on follower side
+                    tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
+
+                    // get undeformed normal
+                    const Matrix< DDRMat > tLeaderRefNormal = tLeaderPreviousFIManager.mIGGeometryInterpolator->get_normal();
+
+                    const Matrix< DDRMat > tTraction =
+                            tCMLeaderStruct->traction( tLeaderRefNormal, CM_Function_Type::PK1 );
+
+                    // note: mCMFunctionType is hard-coded; should be obtained from the IWG
+                    const Matrix< DDRMat > tdTractiondu =
+                            tCMLeaderStruct->dTractiondDOF( tDispDofTypes( 0 ), tLeaderRefNormal, CM_Function_Type::PK1 );
+
+                    // set current time step traction
+                    tCluster->get_cluster_ISV_data().set_point_index( iGP );
+
+                    tCluster->get_cluster_ISV_data().set_values( 0, tTraction );
+
+                    tCluster->get_cluster_ISV_data().set_derivatives( 0, tdTractiondu );
+                }
+            }
+
+            // update field interpolator managers
             tIWG->mSet->mLeaderFIManager   = &tLeaderFIManager;
             tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
-            tIWG->mSet->mLeaderPreviousFIManager   = &tLeaderPreviousFIManager;   // for frictional contact
-            tIWG->mSet->mFollowerPreviousFIManager = &tFollowerPreviousFIManager; // for frictional contact
+
+            tIWG->mLeaderFIManager   = &tLeaderFIManager;
+            tIWG->mFollowerFIManager = &tFollowerFIManager;
+
+            tIWG->mSet->mLeaderPreviousFIManager   = &tLeaderPreviousFIManager;
+            tIWG->mSet->mFollowerPreviousFIManager = &tFollowerPreviousFIManager;
+
+            tIWG->mLeaderPreviousFIManager   = &tLeaderPreviousFIManager;
+            tIWG->mFollowerPreviousFIManager = &tFollowerPreviousFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
             tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
-            tIWG->set_field_interpolator_manager_previous_time( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );     // for frictional contact
-            tIWG->set_field_interpolator_manager_previous_time( &tFollowerPreviousFIManager, mtk::Leader_Follower::FOLLOWER ); // for frictional contact
+
+            tIWG->set_field_interpolator_manager_previous_time( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager_previous_time( &tFollowerPreviousFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
+
             for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
@@ -527,18 +612,21 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                 // set integration point on follower side
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
-                tIWG->mSet->mLeaderPreviousFIManager->set_space_time_from_local_IG_point( tParamPointLeader ); // for frictional contact
+                tIWG->mSet->mLeaderPreviousFIManager->set_space_time_from_local_IG_point( tParamPointLeader );    // for frictional contact
+
+                tCluster->get_cluster_ISV_data().set_point_index( iGP );
 
                 Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
                         tIWG->mUseDeformedGeometryForGap,
-                        tIWG->mUseConsistentDeformedGeometryForGap,
                         tDispDofTypes( 0 ),
                         tIWG->mSet->mLeaderFIManager,
                         tIWG->mSet->mFollowerFIManager,
+                        tIWG->mSet->mLeaderPreviousFIManager,
+                        tIWG->mSet->mFollowerPreviousFIManager,
                         tIWG->mGapData );
 
                 tIWG->mSet->mFollowerFIManager->set_space_time_from_local_IG_point( tParamPointfollower );
-                tIWG->mSet->mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tParamPointfollower ); // for frictional contact
+                tIWG->mSet->mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tParamPointfollower );    // for frictional contact
 
                 tIWG->reset_eval_flags();
 
@@ -562,10 +650,27 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 // save analytic jacobian
                 Matrix< DDRMat > tJacobian = tIWG->mSet->mJacobian;
 
+                // save analytic jacobian
+                Matrix< DDRMat > tJacobianPrevious;
+
+                // compute jacobian wrt previous time step for frictional contact
+                if ( aFrictionCoefficient > 0.0 )
+                {
+                    // reset jacobian
+                    tIWG->mSet->mJacobian.fill( 0.0 );
+
+                    // compute jacobina wrt previous time step
+                    tIWG->compute_jacobian_previous( 1.0 );
+
+                    // save analytic jacobian
+                    tJacobianPrevious = tIWG->mSet->mJacobian;
+                }
+
                 // init the jacobian for IWG and FD evaluation
                 Matrix< DDRMat > tJacobianFD( 2 * tNumDofDisp, 2 * tNumDofDisp, 0.0 );
                 tIWG->mSet->mJacobian.fill( 0.0 );
 
+                // FD wrt displacements on leader side
                 uint tCounter = 0;
                 for ( uint idir = 0; idir < tLeaderDOFHatDisp.n_cols(); idir++ )
                 {
@@ -597,7 +702,7 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 // reset the leader dof hat displacement
                 tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
-                // FD wrt displacements on leader side
+                // FD wrt displacements on follower side
                 for ( uint idir = 0; idir < tFollowerDOFHatDisp.n_cols(); idir++ )
                 {
                     for ( uint in = 0; in < tFollowerDOFHatDisp.n_rows(); in++ )
@@ -651,6 +756,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                 if ( !tCheckJacobian )
                 {
+                    tPassedCheck = false;
+
                     errorNorm = norm( tJacobian - tJacobianFD ) / norm( tJacobianFD );
                     fprintf( stdout, "Jacobian relative error norm = %e\n", errorNorm );
                     print( tJacobian, "AnalyticalJacobian" );
@@ -658,6 +765,128 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     print( tJacobian - tJacobianFD, "Jacobian error" );
                 }
 
+                // For friction only: Finite difference wrt to previous time step
+                if ( aFrictionCoefficient > 0.0 )
+                {
+                    // FD wrt displacements on leader side
+                    tCounter = 0;
+                    for ( uint idir = 0; idir < tLeaderPreviousDOFHatDisp.n_cols(); idir++ )
+                    {
+                        for ( uint in = 0; in < tLeaderPreviousDOFHatDisp.n_rows(); in++ )
+                        {
+                            tLeaderPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                            tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatDisp );
+
+                            // save ISV
+                            Matrix< DDRMat > tISVvalue = tCluster->get_cluster_ISV_data().get_values( 0 );
+
+                            // set field interpolator managers to previous time step for traction computation
+                            tIWG->mSet->mLeaderFIManager = &tLeaderPreviousFIManager;
+                            tIWG->mLeaderFIManager       = &tLeaderPreviousFIManager;
+                            tIWG->set_field_interpolator_manager( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
+
+                            // compute traction
+                            tIWG->reset_eval_flags();
+                            Matrix< DDRMat > tTraction = tCMLeaderStruct->traction(                    //
+                                    tLeaderPreviousFIManager.mIGGeometryInterpolator->get_normal(),    //
+                                    CM_Function_Type::PK1 );
+
+                            // set current time step traction
+                            tCluster->get_cluster_ISV_data().set_values( 0, tTraction );
+
+                            // reset field interpolator managers to current time step
+                            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+                            tIWG->mLeaderFIManager       = &tLeaderFIManager;
+                            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) = 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tLeaderPreviousDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
+                            tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatDisp );
+
+                            // set field interpolator managers to previous time step for traction computation
+                            tIWG->mSet->mLeaderFIManager = &tLeaderPreviousFIManager;
+                            tIWG->mLeaderFIManager       = &tLeaderPreviousFIManager;
+                            tIWG->set_field_interpolator_manager( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
+
+                            // compute traction
+                            tIWG->reset_eval_flags();
+                            tTraction = tCMLeaderStruct->traction(                                     //
+                                    tLeaderPreviousFIManager.mIGGeometryInterpolator->get_normal(),    //
+                                    CM_Function_Type::PK1 );
+
+                            // set current time step traction
+                            tCluster->get_cluster_ISV_data().set_values( 0, tTraction );
+
+                            // reset field interpolator managers to current time step
+                            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+                            tIWG->mLeaderFIManager       = &tLeaderFIManager;
+                            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) -= 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tLeaderPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                            tCluster->get_cluster_ISV_data().set_values( 0, tISVvalue );
+                            tCounter++;
+                        }
+                    }
+                    // reset the leader dof hat displacement
+                    tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatDisp );
+
+                    // FD wrt displacements on follower side
+                    for ( uint idir = 0; idir < tFollowerPreviousDOFHatDisp.n_cols(); idir++ )
+                    {
+                        for ( uint in = 0; in < tFollowerPreviousDOFHatDisp.n_rows(); in++ )
+                        {
+                            tFollowerPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                            tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatDisp );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) = 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tFollowerPreviousDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
+                            tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatDisp );
+
+                            tIWG->reset_eval_flags();
+                            tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                            tIWG->compute_residual( 1.0 );
+
+                            tJacobianFD.get_column( tCounter ) -= 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
+
+                            tFollowerPreviousDOFHatDisp( in, idir ) += tPerturbation;
+                            tCounter++;
+                        }
+                    }
+
+                    // reset the follower dof hat displacement
+                    tFollowerPreviousFIs( 0 )->set_coeff( tFollowerPreviousDOFHatDisp );
+
+                    tIWG->reset_eval_flags();
+
+                    errorNorm = norm( tJacobianPrevious - tJacobianFD ) / ( norm( tJacobianFD ) + MORIS_REAL_EPS );
+
+                    real tAbsoluteErrorNorm = norm( tJacobianPrevious - tJacobianFD );
+
+                    if ( errorNorm > tEpsilon && tAbsoluteErrorNorm > 0.1 * tEpsilon )
+                    {
+                        tPassedCheck = false;
+                        fprintf( stdout, "Jacobian wrt previous time relative error norm = %e\n", errorNorm );
+                        print( tJacobianPrevious, "AnalyticalJacobian" );
+                        print( tJacobianFD, "FDJacobian" );
+                        print( tJacobianPrevious - tJacobianFD, "Jacobian error" );
+                    }
+                }
                 // clean up
                 tLeaderFIs.clear();
                 tFollowerFIs.clear();
@@ -681,7 +910,6 @@ TEST_CASE( "IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM", "[moris],[fem],[IWG_
             fem::Constitutive_Type::STRUC_LIN_ISO,
             10.0,
             false,      // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -690,7 +918,6 @@ TEST_CASE( "IWG_Struc_Linear_Contact_Nitsche_Unbiased_SYM", "[moris],[fem],[IWG_
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
             false,      // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 }
 
@@ -704,7 +931,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM", "[moris],[fe
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -712,9 +938,9 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM", "[moris],[fe
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 
 TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM]" )
@@ -725,15 +951,13 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_UNSYM", "[moris],[
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_UNSYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
-            0.01,
+            -10.0,      // negative to trigger non-contact condition
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 }
 
@@ -747,7 +971,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_NEUTRAL", "[moris]
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -755,7 +978,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_NEUTRAL", "[moris]
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             0.01,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 }
 
@@ -769,7 +991,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_PenOnly", "[moris]
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
             true,      // compute gap on deformed configuration
-            true,      // compute gap consistent with displacement interpolation
             true );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -777,7 +998,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_PenOnly", "[moris]
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             -10.0,     // negative penalty used to trigger non-contact condition
             true,      // compute gap on deformed configuration
-            true,      // compute gap consistent with displacement interpolation
             true );    // pure penalty formulation
 }
 
@@ -791,7 +1011,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM", "[moris],[fem],[
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             10.0,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -799,7 +1018,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_MLIKA_SYM", "[moris],[fem],[
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             0.01,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 }
 
@@ -813,7 +1031,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[mori
             fem::Constitutive_Type::STRUC_LIN_ISO,
             10.0,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
@@ -821,31 +1038,218 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_Linearelastic_MLIKA_SYM", "[mori
             fem::Constitutive_Type::STRUC_LIN_ISO,
             0.01,
             true,       // compute gap on deformed configuration
-            true,       // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM_LinDisp", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_MLIKA_SYM_LinDisp]" )
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_UNSYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_UNSYM]" )
 {
-
-    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
-            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
-            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
-            0.01,
-            true,       // compute gap on deformed configuration
-            false,      // compute gap consistent with displacement interpolation
-            false );    // pure penalty formulation
-
     // check with contact
     Test_IWG_Struc_Nonlinear_Contact_Nitsche(
-            IWG_Type::STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_SYMMETRIC,
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC,
             fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
             10.0,
             true,       // compute gap on deformed configuration
-            false,      // compute gap consistent with displacement interpolation
             false );    // pure penalty formulation
+
+    // check with contact - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,      // negative to trigger non-contact condition
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact and friction - stick regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,      // compute gap on deformed configuration
+            false,     // pure penalty formulation
+            15.0 );    // friction coefficient
+
+    // check with contact and friction - slip regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,        // negative to trigger non-contact condition
+            true,        // compute gap on deformed configuration
+            false,       // pure penalty formulation
+            0.0015 );    // friction coefficient);
+
+    // check with contact and friction - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,    // negative to trigger non-contact condition
+            true,     // compute gap on deformed configuration
+            false,    // pure penalty formulation
+            1.0 );    // friction coefficient);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_NEUTRAL", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_NEUTRAL]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,      // negative to trigger non-contact condition
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact and friction - stick regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,      // compute gap on deformed configuration
+            false,     // pure penalty formulation
+            15.0 );    // friction coefficient
+
+    // check with contact and friction - slip regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,        // negative to trigger non-contact condition
+            true,        // compute gap on deformed configuration
+            false,       // pure penalty formulation
+            0.0015 );    // friction coefficient);
+
+    // check with contact and friction - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,    // negative to trigger non-contact condition
+            true,     // compute gap on deformed configuration
+            false,    // pure penalty formulation
+            1.0 );    // friction coefficient);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_SYM]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,      // negative to trigger non-contact condition
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact and friction - stick regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,      // compute gap on deformed configuration
+            false,     // pure penalty formulation
+            15.0 );    // friction coefficient
+
+    // check with contact and friction - slip regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,        // negative to trigger non-contact condition
+            true,        // compute gap on deformed configuration
+            false,       // pure penalty formulation
+            0.0015 );    // friction coefficient);
+
+    // check with contact and friction - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,    // negative to trigger non-contact condition
+            true,     // compute gap on deformed configuration
+            false,    // pure penalty formulation
+            1.0 );    // friction coefficient);
+}
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_SVK_SEITZ_SYM", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_SVK_SEITZ_SYM]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            10.0,
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            -10.0,      // negative to trigger non-contact condition
+            true,       // compute gap on deformed configuration
+            false );    // pure penalty formulation
+
+    // check with contact and friction - stick regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            10.0,
+            true,      // compute gap on deformed configuration
+            false,     // pure penalty formulation
+            15.0 );    // friction coefficient
+
+    // check with contact and friction - slip regime
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            10.0,        // negative to trigger non-contact condition
+            true,        // compute gap on deformed configuration
+            false,       // pure penalty formulation
+            0.0015 );    // friction coefficient);
+
+    // check with contact and friction - no contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            -10.0,    // negative to trigger non-contact condition
+            true,     // compute gap on deformed configuration
+            false,    // pure penalty formulation
+            1.0 );    // friction coefficient);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_PenOnly", "[moris],[fem],[IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_PenOnly]" )
+{
+    // check with contact
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            10.0,
+            true,      // compute gap on deformed configuration
+            true );    // pure penalty formulation
+
+    Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+            IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+            fem::Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+            -10.0,     // negative penalty used to trigger non-contact condition
+            true,      // compute gap on deformed configuration
+            true );    // pure penalty formulation
 }
 
 //----------------------------------------------------------------------------------------------------------------------------

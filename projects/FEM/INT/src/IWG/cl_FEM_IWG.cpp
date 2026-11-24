@@ -2557,8 +2557,8 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
     Matrix< DDRMat > IWG::remap_nonconformal_rays_undeformed_geometry(
-                Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
-                Field_Interpolator_Manager* aFollowerFieldInterpolatorManager ) const
+            Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,
+            Field_Interpolator_Manager* aFollowerFieldInterpolatorManager ) const
     {
         // get geometry interpolator for leader and follower IG elements
         Geometry_Interpolator* tLeaderIGGI   = aLeaderFieldInterpolatorManager->get_IG_geometry_interpolator();
@@ -2612,30 +2612,22 @@ namespace moris::fem
 
     Matrix< DDRMat > IWG::remap_nonconformal_rays(
             const bool                     aUseDeformedGeometryForGap,
-            const bool                     aUseConsistentDeformedGeometryForGap,
             const Vector< MSI::Dof_Type >& aDisplDofTypes,
             Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
             Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aLeaderPreviousFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aFollowerPreviousFieldInterpolatorManager,
             std::unique_ptr< GapData >&    aGapData ) const
     {
         if ( aUseDeformedGeometryForGap )
         {
-            if ( aUseConsistentDeformedGeometryForGap )
-            {
-                return this->remap_nonconformal_rays_consistent_deformed_geometry(
-                        aDisplDofTypes,
-                        aLeaderFieldInterpolatorManager,
-                        aFollowerFieldInterpolatorManager,
-                        aGapData );
-            }
-            else
-            {
-                return this->remap_nonconformal_rays_linear_deformed_geometry(
-                        aDisplDofTypes,
-                        aLeaderFieldInterpolatorManager,
-                        aFollowerFieldInterpolatorManager,
-                        aGapData );
-            }
+            return this->remap_nonconformal_rays_deformed_geometry(
+                    aDisplDofTypes,
+                    aLeaderFieldInterpolatorManager,
+                    aFollowerFieldInterpolatorManager,
+                    aLeaderPreviousFieldInterpolatorManager,
+                    aFollowerPreviousFieldInterpolatorManager,
+                    aGapData );
         }
         else
         {
@@ -2647,14 +2639,18 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    Matrix< DDRMat > IWG::remap_nonconformal_rays_linear_deformed_geometry(
+    Matrix< DDRMat > IWG::remap_nonconformal_rays_deformed_geometry(
             const Vector< MSI::Dof_Type >& aDisplDofTypes,
             Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
             Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aLeaderPreviousFieldInterpolatorManager,
+            Field_Interpolator_Manager*    aFollowerPreviousFieldInterpolatorManager,
             std::unique_ptr< GapData >&    aGapData ) const
     {
-        Field_Interpolator* tLeaderFieldInterpolator   = aLeaderFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
-        Field_Interpolator* tFollowerFieldInterpolator = aFollowerFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
+        Field_Interpolator* tLeaderFieldInterpolator =
+                aLeaderFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
+        Field_Interpolator* tFollowerFieldInterpolator =
+                aFollowerFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
 
         // get the space dimension
         uint const tSpaceDim     = tLeaderFieldInterpolator->get_space_dim();
@@ -2685,478 +2681,10 @@ namespace moris::fem
         Geometry_Interpolator* tFollowerIGGI = aFollowerFieldInterpolatorManager->get_IG_geometry_interpolator();
 
         // get coordinates (global and parametric) of IG nodes
-        const Matrix< DDRMat >& tLeaderIGNodes   = tLeaderIGGI->get_space_coeff();
+        // const Matrix< DDRMat >& tLeaderIGNodes   = tLeaderIGGI->get_space_coeff();
         const Matrix< DDRMat >& tFollowerIGNodes = tFollowerIGGI->get_space_coeff();
 
-        const Matrix< DDRMat >& tLeaderIGNodesParam   = tLeaderIGGI->get_space_param_coeff();
-        const Matrix< DDRMat >& tFollowerIGNodesParam = tFollowerIGGI->get_space_param_coeff();
-
-        // get IP geometry interpolator for leader and follower
-        // Geometry_Interpolator* tLeaderIPGI   = aLeaderFieldInterpolator->get_IG_geometry_interpolator();
-        // Geometry_Interpolator* tFollowerIPGI = aFollowerFieldInterpolator->get_IG_geometry_interpolator();
-
-        // get displacements for leader and follower
-        const Matrix< DDRMat >& tLeaderUHat = tLeaderFieldInterpolator->get_coeff();
-        // const Matrix< DDRMat >& tFollowerUHat = aFollowerFieldInterpolator->get_coeff();
-
-        // determine number of IP nodes and dofs (assume same for leader and follower)
-        const uint tNumNodes = tLeaderUHat.n_rows();
-        const uint tNumDofs  = tLeaderUHat.numel();
-
-        const uint tNumIGNodes = tLeaderIGNodes.n_rows();
-
-        MORIS_ASSERT( tNumDofs == tNumNodes * tSpaceDim,
-                "IWG::remap_nonconformal_rays - Number of dofs does not match number of nodes." );
-
-        // get geometry for leader quadrature point
-        const Matrix< DDRMat >& tLeaderXgp  = tLeaderIGGI->valx();    // assuming here that this is linear
-        const Matrix< DDRMat >& tLeaderNXgp = tLeaderIGGI->NXi();
-        // const Matrix< DDRMat >& tLeaderdNXgpdxi = tLeaderIGGI->dNdXi();
-
-        // get displacements at IG Nodes of leader
-        Matrix< DDRMat > tLeaderUIGNodes( tSpaceDim, tNumIGNodes );
-        Matrix< DDRMat > tLeaderNUIGNodes( tSpaceDim, tNumDofs );
-
-        const Matrix< DDRMat > tLeaderParamSpaceTime        = tLeaderFieldInterpolator->get_space_time();
-        Matrix< DDRMat >       tLeaderIGNodesParamSpaceTime = tLeaderParamSpaceTime;
-
-        for ( uint in = 0; in < tNumIGNodes; in++ )
-        {
-            tLeaderIGNodesParamSpaceTime( { 0, tSpaceDim - 1 }, { 0, 0 } ) =
-                    trans( tLeaderIGNodesParam( { in, in }, { 0, tSpaceDim - 1 } ) );
-            tLeaderFieldInterpolator->set_space_time( tLeaderIGNodesParamSpaceTime );
-
-            tLeaderUIGNodes.get_column( in ) = tLeaderFieldInterpolator->val().matrix_data();
-
-            const Matrix< DDRMat > tLeaderNUIGNodesTilde = tLeaderFieldInterpolator->N().matrix_data();
-
-            tLeaderNUIGNodes( { in, in }, { 0, tNumDofs - 1 } ) = tLeaderNUIGNodesTilde( { 0, 0 }, { 0, tNumDofs - 1 } );
-        }
-        tLeaderFieldInterpolator->set_space_time( tLeaderParamSpaceTime );
-
-        // compute displacement at IG nodes of leader
-        const Matrix< DDRMat > tLeaderUgp = tLeaderUIGNodes * trans( tLeaderNXgp );
-
-        // compute normal vector and its derivatives
-        Matrix< DDRMat > tLeaderNormal;
-        Matrix< DDRMat > tLeaderdNormaldU( tSpaceDim, tNumDofs );
-        Matrix< DDRMat > tLeaderdNormal2dU2( tSpaceDim, tNumDofs * tNumDofs );
-        Matrix< DDRMat > tLeaderRefNormal;
-
-        GapData::compute_outward_normal_at_gp_for_linear_deformed_geometry(
-                tLeaderFieldInterpolator,
-                tLeaderIGGI,
-                tLeaderNormal,
-                tLeaderRefNormal,
-                tLeaderdNormaldU,
-                tLeaderdNormal2dU2 );
-
-        // get displacements at IG Nodes of follower
-        Matrix< DDRMat > tFollowerVIGNodes( tSpaceDim, tNumIGNodes );
-        Matrix< DDRMat > tFollowerNVIGNodes( tSpaceDim, tNumDofs );
-
-        // since follower IP is not initialized use the one of the leader
-        const Matrix< DDRMat >& tFollowerParamSpaceTime        = tLeaderParamSpaceTime;
-        Matrix< DDRMat >        tFollowerIGNodesParamSpaceTime = tFollowerParamSpaceTime;
-
-        for ( uint in = 0; in < tNumIGNodes; in++ )
-        {
-            tFollowerIGNodesParamSpaceTime( { 0, tSpaceDim - 1 }, { 0, 0 } ) =
-                    trans( tFollowerIGNodesParam( { in, in }, { 0, tSpaceDim - 1 } ) );
-            tFollowerFieldInterpolator->set_space_time( tFollowerIGNodesParamSpaceTime );
-
-            tFollowerVIGNodes.get_column( in ) =
-                    tFollowerFieldInterpolator->val().matrix_data();
-
-            const Matrix< DDRMat > tFollowerNVIGNodesTilde = tFollowerFieldInterpolator->N().matrix_data();
-
-            tFollowerNVIGNodes( { in, in }, { 0, tNumDofs - 1 } ) = tFollowerNVIGNodesTilde( { 0, 0 }, { 0, tNumDofs - 1 } );
-        }
-        tFollowerFieldInterpolator->set_space_time( tFollowerParamSpaceTime );
-
-        // compute difference of shape functions at IG nodes
-        const Matrix< DDRMat > tFollowerDifNUIGNodes =
-                tFollowerNVIGNodes( { tSpaceDim - 1, tSpaceDim - 1 }, { 0, tNumDofs - 1 } )    //
-                - tFollowerNVIGNodes( { 0, 0 }, { 0, tNumDofs - 1 } );
-
-        // compute ray intersection with follower element
-        Matrix< DDRMat > tSolRay( tSpaceDim, 1, 0.0 );        // FIXME: only implemented for constant time slabs
-        Matrix< DDRMat > tSolRayPrev( tSpaceDim, 1, 1.0 );    // FIXME: only implemented for constant time slabs
-        Matrix< DDRMat > tJacRayInv;
-
-        Matrix< DDRMat > tFollowerParamPoint( tSpaceDim, 1, 0.0 );
-
-        real       tRayResRefNorm     = 0.0;
-        const real tRayResRefNormTol  = 1e-10;
-        const real tStagnationNormTol = 1e-12;
-        const uint tMaxNewtonSteps    = 100;
-        bool       tNewtonConverged   = false;
-
-        for ( uint inew = 0; inew < tMaxNewtonSteps; inew++ )
-        {
-            // clip eta to be between -1 and 1
-            tSolRay( 1 ) = std::min( 1.0, std::max( -1.0, tSolRay( 1 ) ) );    // FIXME: only works in 2D
-
-            // set local parameter point for follower
-            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = tSolRay( { 1, tSpaceDim - 1 }, { 0, 0 } );
-
-            aFollowerFieldInterpolatorManager->set_space_time_from_local_IG_point( tFollowerParamPoint );
-
-            // get geometry and displacements for follower quadrature point
-            const Matrix< DDRMat >& tFollowerYgp       = tFollowerIGGI->valx();
-            const Matrix< DDRMat >& tFollowerNYgp      = tFollowerIGGI->NXi();
-            const Matrix< DDRMat >& tFollowerdNYgpdeta = tFollowerIGGI->dNdXi();
-
-            const Matrix< DDRMat > tFollowerVgp = tFollowerVIGNodes * trans( tFollowerNYgp );
-
-            Matrix< DDRMat > tFollowerdYgpdeta = trans( tFollowerdNYgpdeta * tFollowerIGNodes );
-            Matrix< DDRMat > tFollowerdVgpdeta = tFollowerVIGNodes * trans( tFollowerdNYgpdeta );
-
-            // compute the residual
-            Matrix< DDRMat > tResRay =
-                    trans( tLeaderXgp - tFollowerYgp ) + tLeaderUgp - tFollowerVgp + tSolRay( 0 ) * tLeaderNormal;
-
-            // store reference norm of the residual
-            real tResRayNorm = norm( tResRay );
-            if ( inew == 0 )
-            {
-                tRayResRefNorm = tResRayNorm;
-            }
-
-            // compute jacobian and its inverse
-            Matrix< DDRMat > tJacRay( tSpaceDim, tSpaceDim );
-            tJacRay( { 0, tSpaceDim - 1 }, { 0, 0 } )             = tLeaderNormal.matrix_data();
-            tJacRay( { 0, tSpaceDim - 1 }, { 1, tSpaceDim - 1 } ) = -tFollowerdVgpdeta - tFollowerdYgpdeta;
-
-            // check determination of jacobian
-            if ( std::abs( det( tJacRay ) ) < MORIS_REAL_EPS )
-            {
-                break;
-            }
-
-            // compute inverse of jacobian
-            tJacRayInv = inv( tJacRay );
-
-            // check for convergence
-            if ( tResRayNorm < tRayResRefNormTol * tRayResRefNorm )
-            {
-                // MORIS_LOG_INFO( "Remap - Newton converged in %d steps.\n", inew + 1 );
-                tNewtonConverged = true;
-                break;
-            }
-
-            // check for stagnation - stagnation is not considered convergence
-            if ( norm( tSolRay - tSolRayPrev ) < tStagnationNormTol )
-            {
-                // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-                //                fprintf( stdout, "inew = %i, gap = %e, eta = %e, Resnorm = %e\n", inew, tSolRay( 0 ), tSolRay( 1 ), norm( tResRay ) );
-                // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-                break;
-            }
-            tSolRayPrev = tSolRay;
-
-            // update solution
-            tSolRay -= tJacRayInv * tResRay;
-
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-            //            if ( std::abs( tSolRay( 1 ) ) > 1.0 )
-            //            {
-            //                fprintf( stdout, "inew = %i, gap = %e, eta = %e, Resnorm = %e\n", inew, tSolRay( 0 ), tSolRay( 1 ), norm( tResRay ) );
-            //            }
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        }
-
-        bool tPlotRays = false;
-
-        // check if Newton converged
-        if ( !tNewtonConverged )
-        {
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-            //            const Matrix< DDRMat > tLeaderDeformedIGNodes = trans( tLeaderIGNodes ) + tLeaderUIGNodes;
-            //            print( tLeaderDeformedIGNodes, "leaderPoints" );
-            //            const Matrix< DDRMat > tFollowerDeformedIGNodes = trans( tFollowerIGNodes ) + tFollowerVIGNodes;
-            //            print( tFollowerDeformedIGNodes, "followerPoints" );
-            //
-            //            print( trans( tLeaderXgp ) + tLeaderUgp, "raycastingPoint" );
-            //            print( tLeaderNormal, "normalVector" );
-            //
-            //            print( tLeaderIGGI->valx(), "udefqpPoint" );
-            //            print( aLeaderFieldInterpolator->val(), "dispPoint" );
-            //
-            //            print( tJacRayInv, "tJacRayInv" );
-            //            print( inv( tJacRayInv ), "tJacRay" );
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-            // set eta to outside bounds
-            aGapData->mEta.set_size( tSpaceDim - 1, 1, -2.0 );
-
-            // set gap data evaluation flag to true to avoid re-evaluations
-            aGapData->mEval = false;
-
-            // return a point with eta set to -2.0
-            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = -2.0;
-
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-            if ( tPlotRays )
-            {
-                sint             tNiter        = (sint)gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
-                Matrix< DDRMat > tRayCastPoint = trans( tLeaderXgp ) + tLeaderUgp;
-                Matrix< DDRMat > tTgtPoint     = tRayCastPoint + tSolRay( 0 ) * tLeaderNormal;
-
-                fprintf( stdout, "Niter = %d NotConverged %e  %e  %e  %e\n",    //
-                        tNiter,
-                        tRayCastPoint( 0 ),
-                        tRayCastPoint( 1 ),
-                        tTgtPoint( 0 ),
-                        tTgtPoint( 1 ) );
-            }
-            // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-            return tFollowerParamPoint;
-        }
-
-        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        if ( tPlotRays )
-        {
-            sint             tNiter        = (sint)gLogger.get_iteration( "NonLinearAlgorithm", "Newton", "Solve", true );
-            Matrix< DDRMat > tRayCastPoint = trans( tLeaderXgp ) + tLeaderUgp;
-            Matrix< DDRMat > tTgtPoint     = tRayCastPoint + tSolRay( 0 ) * tLeaderNormal;
-
-            fprintf( stdout, "Niter = %d Converged %e  %e  %e  %e\n",    //
-                    tNiter,
-                    tRayCastPoint( 0 ),
-                    tRayCastPoint( 1 ),
-                    tTgtPoint( 0 ),
-                    tTgtPoint( 1 ) );
-        }
-        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-        MORIS_ASSERT( tNewtonConverged, "IWG::remap_nonconformal_rays - Newton did not converge." );
-
-        // check if valid intersection was found
-        MORIS_ASSERT( tSolRay( 1 ) >= -1.0 && tSolRay( 1 ) <= 1.0,
-                "IWG::remap_nonconformal_rays - No valid intersection found (eta(0) out side bounds)." );
-
-        if ( tSpaceDim == 3 )
-        {
-            MORIS_ASSERT( tSolRay( 2 ) >= -1.0 && tSolRay( 2 ) <= 1.0,
-                    "IWG::remap_nonconformal_rays - No valid intersection found (eta(1) out side bounds)." );
-        }
-
-        // store solution of ray intersection
-        const real             tGap = tSolRay( 0 );
-        const Matrix< DDRMat > tEta = tSolRay( { 1, tSpaceDim - 1 } );
-
-        const Matrix< DDRMat > tGapVector = tGap * tLeaderNormal;
-
-        // get global coordinates of  follower IP nodes
-        // const Matrix< DDRMat >& tFollowerIPNodes = tFollowerIPGI->get_space_coeff();
-
-        // get geometry and displacements for follower quadrature point
-        // Note: the follower parameter point was already set within Newton loop
-        // xxx const Matrix< DDRMat >& tFollowerYgp         = tFollowerIGGI->valx();
-        const Matrix< DDRMat >& tFollowerNYgp        = tFollowerIGGI->NXi();
-        const Matrix< DDRMat >& tFollowerdNYgpdeta   = tFollowerIGGI->dNdXi();
-        const Matrix< DDRMat >& tFollowerdNYgp2deta2 = tFollowerIGGI->d2NdXi2();
-
-        // xxxx const Matrix< DDRMat >& tFollowerVgp       = aFollowerFieldInterpolator->val();
-        //        const Matrix< DDRMat >& tFollowerNVgp      = tFollowerIPGI->NXi();
-        //        const Matrix< DDRMat >& tFollowerdNVgpdq   = tFollowerIPGI->dNdXi();
-        //        const Matrix< DDRMat >& tFollowerdNVgp2dq2 = tFollowerIPGI->d2NdXi2();
-        //
-        //        const Matrix< DDRMat > tFollowerdYgpdq   = tFollowerdNVgpdq * tFollowerIPNodes;
-        //        const Matrix< DDRMat > tFollowerdYgp2dq2 = tFollowerdNVgp2dq2 * tFollowerIPNodes;
-        //
-        //        const Matrix< DDRMat > tFollowerdYgpdeta = trans( tFollowerdNYgpdeta * tFollowerIGNodes );
-        //        // xxxx const Matrix< DDRMat > tFollowerQgp        = tFollowerNYgp * tFollowerIGNodesParam;
-        //        const Matrix< DDRMat > tFollowerdQgpdeta   = tFollowerdNYgpdeta * tFollowerIGNodesParam;
-        //        const Matrix< DDRMat > tFollowerdQgp2deta2 = tFollowerdNYgp2deta2 * tFollowerIGNodesParam;
-        //        const Matrix< DDRMat > tFollowerdVgpdq     = tFollowerdNVgpdq * tFollowerUHat;
-        //        const Matrix< DDRMat > tFollowerdVgp2dq2   = tFollowerdNVgp2dq2 * tFollowerUHat;
-
-        // xxx const Matrix< DDRMat > tFollowerdVgpdeta  = trans( tFollowerdQgpdeta * tFollowerdVgpdq );
-        //        const Matrix< DDRMat > tFollowerdNVgpdeta = trans( tFollowerdQgpdeta * tFollowerdNVgpdq );
-        //        const Matrix< DDRMat > tFollowerVgp = tFollowerVIGNodes * trans( tFollowerNYgp );
-
-        const Matrix< DDRMat > tFollowerdYgpdeta = trans( tFollowerdNYgpdeta * tFollowerIGNodes );
-        const Matrix< DDRMat > tFollowerdNVgpdeta = tFollowerVIGNodes * trans( tFollowerdNYgpdeta );
-
-        const Matrix< DDRMat > tFollowerVgp = tFollowerVIGNodes * trans( tFollowerNYgp );
-
-        // compute second derivative of follower velocity with respect to local coordinate on follower side
-        const Matrix< DDRMat > tFollowerdVgp2deta2 = trans( tFollowerdNYgp2deta2 * tFollowerVIGNodes );
-
-        // compute RHS for sensitivity equations to compute the derivatives of gap and eta wrt follower displacement dofs
-        Matrix< DDRMat > tFollowerdResRaydv( tSpaceDim, tNumDofs );
-        Matrix< DDRMat > tFollowerdResRay2detadv( tSpaceDim, tNumDofs );
-
-        const Matrix< DDRMat > tIdentity = eye( tSpaceDim, tSpaceDim );
-
-        for ( uint in = 0; in < tNumNodes; in++ )
-        {
-            tFollowerdResRaydv( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) =
-                    dot( tFollowerNYgp, tFollowerNVIGNodes.get_column( in ) ) * tIdentity;
-            tFollowerdResRay2detadv( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) =
-                    dot( tFollowerdNYgpdeta, tFollowerNVIGNodes.get_column( in ) ) * tIdentity;
-        }
-
-        // compute the first derivatives of gap and eta wrt follower displacement dofs
-        const Matrix< DDRMat > tdSolRaydv = tJacRayInv * tFollowerdResRaydv;
-
-        const Matrix< DDRMat > tdGapdv = tdSolRaydv.get_row( 0 );
-        const Matrix< DDRMat > tdEtadv = tdSolRaydv( { 1, tSpaceDim - 1 }, { 0, tNumDofs - 1 } );
-
-        // compute the second derivatives of gap and eta wrt follower displacement dofs
-        Matrix< DDRMat > tdGap2dv2( tNumDofs, tNumDofs );
-        Matrix< DDRMat > tdEta2dv2( tNumDofs, tNumDofs );
-
-        for ( uint idof = 0; idof < tNumDofs; idof++ )
-        {
-            for ( uint jdof = 0; jdof < tNumDofs; jdof++ )
-            {
-                Matrix< DDRMat > tdSolRay2dv2 =
-                        tJacRayInv * ( tdEtadv( 0, idof ) * tFollowerdResRay2detadv.get_column( jdof ) +    //
-                                       tdEtadv( 0, jdof ) * tFollowerdResRay2detadv.get_column( idof ) +    //
-                                       tFollowerdVgp2deta2 * tdEtadv( 0, idof ) * tdEtadv( 0, jdof ) );
-
-                tdGap2dv2( idof, jdof ) = tdSolRay2dv2( 0 );
-                tdEta2dv2( idof, jdof ) = tdSolRay2dv2( 1 );    // FIXME: this is only valid for 2D line elements
-            }
-        }
-
-        // compute RHS for sensitivity equations to compute the derivatives of gap and eta wrt leader displacement dofs
-        Matrix< DDRMat > tLeaderdResRaydu( tSpaceDim, tNumDofs );
-
-        for ( uint in = 0; in < tNumNodes; in++ )
-        {
-            tLeaderdResRaydu( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) =    //
-                    -dot( tLeaderNXgp, tLeaderNUIGNodes.get_column( in ) ) * tIdentity            //
-                    - tGap * tLeaderdNormaldU( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } );
-        }
-
-        // compute the derivatives of gap and eta wrt leader displacement dofs
-        const Matrix< DDRMat > tdSolRaydu = tJacRayInv * tLeaderdResRaydu;
-
-        const Matrix< DDRMat > tdGapdu = tdSolRaydu.get_row( 0 );
-        const Matrix< DDRMat > tdEtadu = tdSolRaydu( { 1, tSpaceDim - 1 }, { 0, tNumDofs - 1 } );
-
-        // compute the second derivatives of gap and eta wrt leader displacement dofs
-        Matrix< DDRMat > tdGap2du2( tNumDofs, tNumDofs );
-        Matrix< DDRMat > tdEta2du2( tNumDofs, tNumDofs );
-        Matrix< DDRMat > tdGap2duv( tNumDofs, tNumDofs );
-        Matrix< DDRMat > tdEta2duv( tNumDofs, tNumDofs );
-
-        for ( uint idof = 0; idof < tNumDofs; idof++ )
-        {
-            for ( uint jdof = 0; jdof < tNumDofs; jdof++ )
-            {
-                Matrix< DDRMat > tdSolRay2du2 =
-                        tJacRayInv * ( -tGap * tLeaderdNormal2dU2.get_column( idof * tNumDofs + jdof )    //
-                                       - tLeaderdNormaldU.get_column( idof ) * tdGapdu( jdof )            //
-                                       - tLeaderdNormaldU.get_column( jdof ) * tdGapdu( idof )            //
-                                       + tFollowerdVgp2deta2 * tdEtadu( 0, idof ) * tdEtadu( 0, jdof ) );
-
-                tdGap2du2( idof, jdof ) = tdSolRay2du2( 0 );
-                tdEta2du2( idof, jdof ) = tdSolRay2du2( 1 );    // FIXME: this is only valid for 2D line elements
-
-                tdSolRay2du2 = tJacRayInv * ( -tLeaderdNormaldU.get_column( idof ) * tdGapdv( jdof )               //
-                                              + tFollowerdResRay2detadv.get_column( jdof ) * tdEtadu( 0, idof )    //
-                                              + tFollowerdVgp2deta2 * tdEtadu( 0, idof ) * tdEtadv( 0, jdof ) );
-
-                tdGap2duv( idof, jdof ) = tdSolRay2du2( 0 );
-                tdEta2duv( idof, jdof ) = tdSolRay2du2( 1 );    // FIXME: this is only valid for 2D line elements
-            }
-        }
-
-        // compute the derivatives of the gap vector
-        Matrix< DDRMat > tdGapvecdu = tGap * tLeaderdNormaldU + tLeaderNormal * tdGapdu;
-        Matrix< DDRMat > tdGapvecdv = tLeaderNormal * tdGapdv;
-
-        Matrix< DDRMat > tdGapvec2du2( tSpaceDim, tNumDofs * tNumDofs );
-        Matrix< DDRMat > tdGapvec2duv( tSpaceDim, tNumDofs * tNumDofs );
-        Matrix< DDRMat > tdGapvec2dv2 = tLeaderNormal * trans( vectorize( tdGap2dv2 ) );
-
-        uint tCounter = 0;
-        for ( uint idof = 0; idof < tNumDofs; idof++ )
-        {
-            for ( uint jdof = 0; jdof < tNumDofs; jdof++ )
-            {
-                tdGapvec2du2.get_column( tCounter ) = tGap * tLeaderdNormal2dU2.get_column( tCounter )         //
-                                                    + tLeaderdNormaldU.get_column( idof ) * tdGapdu( jdof )    //
-                                                    + tLeaderdNormaldU.get_column( jdof ) * tdGapdu( idof )    //
-                                                    + tLeaderNormal * tdGap2du2( idof, jdof );
-
-                tdGapvec2duv.get_column( tCounter ) = tLeaderNormal * tdGap2duv( idof, jdof )    //
-                                                    + tLeaderdNormaldU.get_column( idof ) * tdGapdv( jdof );
-                tCounter++;
-            }
-        }
-
-        // save results in GapData resorted such that nodes first
-
-        aGapData->mGap             = tGap;
-        aGapData->mEta             = tEta;
-        aGapData->mLeaderNormal    = tLeaderNormal;
-        aGapData->mLeaderRefNormal = tLeaderRefNormal;
-        aGapData->mGapVec          = tGapVector;
-
-        aGapData->set_matrix_sizes( tSpaceDim, tNumDofs );
-
-        aGapData->set_first_order_derivatives( tSpaceDim, tNumNodes, tdGapdu, tdGapdv, tdEtadu, tdEtadv, tLeaderdNormaldU, tdGapvecdu, tdGapvecdv);
-
-        aGapData->set_second_order_derivatives( tSpaceDim, tNumNodes, tNumDofs, tdGap2du2, tdGap2dv2, tdGap2duv, tdEta2du2, tdEta2dv2, tdEta2duv, tLeaderdNormal2dU2, tdGapvec2du2, tdGapvec2dv2, tdGapvec2duv );
-
-        // gap data evaluation flag to false, i.e. does not need to be recomputed
-        aGapData->mEval = false;
-
-        // return parametric point on follower side
-        return tFollowerParamPoint;
-    }
-
-    //------------------------------------------------------------------------------
-
-    Matrix< DDRMat > IWG::remap_nonconformal_rays_consistent_deformed_geometry(
-            const Vector< MSI::Dof_Type >& aDisplDofTypes,
-            Field_Interpolator_Manager*    aLeaderFieldInterpolatorManager,
-            Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
-            std::unique_ptr< GapData >&    aGapData ) const
-    {
-        Field_Interpolator* tLeaderFieldInterpolator   = aLeaderFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
-        Field_Interpolator* tFollowerFieldInterpolator = aFollowerFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
-
-        // get the space dimension
-        uint const tSpaceDim     = tLeaderFieldInterpolator->get_space_dim();
-        uint const tNumTimeBases = tLeaderFieldInterpolator->get_number_of_time_bases();
-
-        // create GapData pointer
-        if ( aGapData == nullptr )
-        {
-            aGapData = std::make_unique< GapData >();
-        }
-
-        // check if the gap data need to be evaluated
-        if ( !aGapData->mEval )
-        {
-            Matrix< DDRMat > tFollowerParamPoint( tSpaceDim, 1, 0.0 );
-            tFollowerParamPoint( { 0, tSpaceDim - 2 }, { 0, 0 } ) = aGapData->mEta.matrix_data();
-            return tFollowerParamPoint;
-        }
-
-        // check that we are dealing with line elements
-        MORIS_ERROR( tSpaceDim == 2,
-                "IWG::remap_nonconformal_rays - only implemented for line elements." );
-        MORIS_ERROR( tNumTimeBases == 1,
-                "IWG::remap_nonconformal_rays - only implemented for constant time slabs." );
-
-        // get IG geometry interpolator for leader and follower
-        Geometry_Interpolator* tLeaderIGGI   = aLeaderFieldInterpolatorManager->get_IG_geometry_interpolator();
-        Geometry_Interpolator* tFollowerIGGI = aFollowerFieldInterpolatorManager->get_IG_geometry_interpolator();
-
-        // get coordinates (global and parametric) of IG nodes
-        //const Matrix< DDRMat >& tLeaderIGNodes   = tLeaderIGGI->get_space_coeff();
-        const Matrix< DDRMat >& tFollowerIGNodes = tFollowerIGGI->get_space_coeff();
-
-        //const Matrix< DDRMat >& tLeaderIGNodesParam   = tLeaderIGGI->get_space_param_coeff();
+        // const Matrix< DDRMat >& tLeaderIGNodesParam   = tLeaderIGGI->get_space_param_coeff();
         const Matrix< DDRMat >& tFollowerIGNodesParam = tFollowerIGGI->get_space_param_coeff();
 
         // get IP geometry interpolator for leader and follower
@@ -3164,7 +2692,7 @@ namespace moris::fem
         Geometry_Interpolator* tFollowerIPGI = tFollowerFieldInterpolator->get_IG_geometry_interpolator();
 
         // get displacements for leader and follower
-        const Matrix< DDRMat >& tLeaderUHat   = tLeaderFieldInterpolator->get_coeff(); // degrees of freedom at leader IG nodes (displacements)
+        const Matrix< DDRMat >& tLeaderUHat   = tLeaderFieldInterpolator->get_coeff();    // degrees of freedom at leader IG nodes (displacements)
         const Matrix< DDRMat >& tFollowerUHat = tFollowerFieldInterpolator->get_coeff();
 
         // determine number of IP nodes and dofs (assume same for leader and follower)
@@ -3175,13 +2703,13 @@ namespace moris::fem
                 "IWG::remap_nonconformal_rays - Number of dofs does not match number of nodes." );
 
         // get geometry and displacements for leader quadrature point
-        const Matrix< DDRMat >& tLeaderXgp      = tLeaderIGGI->valx();
-        //const Matrix< DDRMat >& tLeaderNXgp     = tLeaderIGGI->NXi();
-        //const Matrix< DDRMat >& tLeaderdNXgpdxi = tLeaderIGGI->dNdXi();
+        const Matrix< DDRMat >& tLeaderXgp = tLeaderIGGI->valx();
+        // const Matrix< DDRMat >& tLeaderNXgp     = tLeaderIGGI->NXi();
+        // const Matrix< DDRMat >& tLeaderdNXgpdxi = tLeaderIGGI->dNdXi();
 
-        const Matrix< DDRMat >& tLeaderUgp     = tLeaderFieldInterpolator->val();
-        const Matrix< DDRMat >& tLeaderNUgp    = tLeaderIPGI->NXi();
-        //const Matrix< DDRMat >& tLeaderdNUgpdr = tLeaderIPGI->dNdXi();
+        const Matrix< DDRMat >& tLeaderUgp  = tLeaderFieldInterpolator->val();
+        const Matrix< DDRMat >& tLeaderNUgp = tLeaderIPGI->NXi();
+        // const Matrix< DDRMat >& tLeaderdNUgpdr = tLeaderIPGI->dNdXi();
 
         // compute normal vector and its derivatives
         Matrix< DDRMat > tLeaderNormal;
@@ -3360,7 +2888,7 @@ namespace moris::fem
         const Matrix< DDRMat >& tFollowerdNYgpdeta   = tFollowerIGGI->dNdXi();
         const Matrix< DDRMat >& tFollowerdNYgp2deta2 = tFollowerIGGI->d2NdXi2();
 
-        // xxxx const Matrix< DDRMat >& tFollowerVgp       = aFollowerFieldInterpolator->val();
+        const Matrix< DDRMat >& tFollowerVgp       = tFollowerFieldInterpolator->val();
         const Matrix< DDRMat >& tFollowerNVgp      = tFollowerIPGI->NXi();
         const Matrix< DDRMat >& tFollowerdNVgpdq   = tFollowerIPGI->dNdXi();
         const Matrix< DDRMat >& tFollowerdNVgp2dq2 = tFollowerIPGI->d2NdXi2();
@@ -3493,19 +3021,188 @@ namespace moris::fem
             }
         }
 
+        // compute derivative follower shape functions
+        const Matrix< DDRMat > tFollowerShapeFunctiondu = tFollowerdNVgpdeta * tdEtadu;
+        const Matrix< DDRMat > tFollowerShapeFunctiondv = tFollowerdNVgpdeta * tdEtadv;
+
+        // compute derivatives of follower displacements
+        const Matrix< DDRMat > tFollowerdDisplacementsdu = trans( tFollowerUHat ) * tFollowerShapeFunctiondu;
+        Matrix< DDRMat >       tFollowerdDisplacementsdv = trans( tFollowerUHat ) * tFollowerShapeFunctiondv;
+
+        for ( uint in = 0; in < tNumNodes; in++ )
+        {
+            tFollowerdDisplacementsdv( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) += tFollowerNVgp( in ) * tIdentity;
+        }
+
+        // compute tangential velocity on leader side
+        Matrix< DDRMat > tFollowerPreviousVgp;
+        Matrix< DDRMat > tLeaderTangentProjection;
+        Matrix< DDRMat > tLeaderTangentVelocity;
+        Matrix< DDRMat > tLeaderdTangentVelocitydu;
+        Matrix< DDRMat > tLeaderdTangentVelocitydv;
+        Matrix< DDRMat > tLeaderdTangentVelocityduprev;
+        Matrix< DDRMat > tLeaderdTangentVelocitydvprev;
+        Matrix< DDRMat > tFollowerPreviousdDisplacementsdu;
+        Matrix< DDRMat > tFollowerPreviousdDisplacementsdv;
+
+        if ( aLeaderPreviousFieldInterpolatorManager != nullptr && aFollowerPreviousFieldInterpolatorManager != nullptr )
+        {
+            Field_Interpolator* tLeaderPreviousFieldInterpolator =
+                    aLeaderPreviousFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
+            Field_Interpolator* tFollowerPreviousFieldInterpolator =
+                    aFollowerPreviousFieldInterpolatorManager->get_field_interpolators_for_type( aDisplDofTypes( 0 ) );
+
+            Geometry_Interpolator* tLeaderPreviousIPGI   = tLeaderPreviousFieldInterpolator->get_IG_geometry_interpolator();
+            Geometry_Interpolator* tFollowerPreviousIPGI = tFollowerPreviousFieldInterpolator->get_IG_geometry_interpolator();
+
+            aFollowerPreviousFieldInterpolatorManager->set_space_time_from_local_IG_point( tFollowerParamPoint );
+
+            const Matrix< DDRMat >& tFollowerYgp = tFollowerIGGI->valx();
+
+            const Matrix< DDRMat >& tLeaderPreviousUgp = tLeaderPreviousFieldInterpolator->val();
+
+            tFollowerPreviousVgp = tFollowerPreviousFieldInterpolator->val();
+
+            // get the shape functions for the leader and follower at the previous time step and place values with respect to dofs
+            // not dof ordering here is different than in fem using FI->N()
+            const Matrix< DDRMat >& tLeaderPreviousNUgplocal   = tLeaderPreviousIPGI->NXi();
+            const Matrix< DDRMat >& tFollowerPreviousNVgplocal = tFollowerPreviousIPGI->NXi();
+
+            Matrix< DDRMat > tLeaderPreviousNUgp( tSpaceDim, tNumDofs );
+            Matrix< DDRMat > tFollowerPreviousNVgp( tSpaceDim, tNumDofs );
+
+            for ( uint in = 0; in < tNumNodes; in++ )
+            {
+                tLeaderPreviousNUgp( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) =    //
+                        tLeaderPreviousNUgplocal( in ) * tIdentity;
+                tFollowerPreviousNVgp( { 0, tSpaceDim - 1 }, { in * tSpaceDim, in * tSpaceDim + 1 } ) =    //
+                        tFollowerPreviousNVgplocal( in ) * tIdentity;
+            }
+
+            tLeaderTangentProjection = tIdentity - tLeaderNormal * trans( tLeaderNormal );
+
+            Matrix< DDRMat > tLeaderPreviousNormal;
+            Matrix< DDRMat > tLeaderPreviousdNormaldU( tSpaceDim, tNumDofs );
+            Matrix< DDRMat > tLeaderPreviousdNormal2dU2( tSpaceDim, tNumDofs * tNumDofs );
+            Matrix< DDRMat > tLeaderPreviousRefNormal;
+
+            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry(
+                    tLeaderPreviousFieldInterpolator,
+                    tLeaderIGGI,
+                    tLeaderPreviousNormal,
+                    tLeaderPreviousRefNormal,
+                    tLeaderPreviousdNormaldU,
+                    tLeaderPreviousdNormal2dU2 );
+
+            const Matrix< DDRMat > tVector = trans( tLeaderXgp ) + tLeaderPreviousUgp - trans( tFollowerYgp ) - tFollowerPreviousVgp + tGap * tLeaderPreviousNormal;
+
+            tLeaderTangentVelocity = tLeaderTangentProjection * tVector;
+
+            // compute derivatives of tangential velocity wrt leader and follower displacement dofs
+            const Matrix< DDRMat >& tFollowerYgpdu = tFollowerdYgpdeta * tdEtadu;
+            const Matrix< DDRMat >& tFollowerYgpdv = tFollowerdYgpdeta * tdEtadv;
+
+            const Matrix< DDRMat >& tFollowerPreviousUHat      = tFollowerPreviousFieldInterpolator->get_coeff();
+            const Matrix< DDRMat >  tFollowerPreviousdNVgpdq   = tFollowerdNVgpdq * tFollowerPreviousUHat;
+            const Matrix< DDRMat >  tFollowerPreviousdNVgpdeta = trans( tFollowerdQgpdeta * tFollowerPreviousdNVgpdq );
+
+            const Matrix< DDRMat > tFollowerPreviousVgpdu = tFollowerPreviousdNVgpdeta * tdEtadu;
+            const Matrix< DDRMat > tFollowerPreviousVgpdv = tFollowerPreviousdNVgpdeta * tdEtadv;
+
+            tLeaderdTangentVelocitydu.set_size( tSpaceDim, tNumDofs, 0.0 );
+            tLeaderdTangentVelocitydv.set_size( tSpaceDim, tNumDofs, 0.0 );
+            tLeaderdTangentVelocityduprev.set_size( tSpaceDim, tNumDofs, 0.0 );
+            tLeaderdTangentVelocitydvprev.set_size( tSpaceDim, tNumDofs, 0.0 );
+
+            // test multiply_leader_dtangentprojectiondu function
+            const Matrix< DDRMat > tMultiplyLeaderTangentProjectionDu = -dot( tVector, tLeaderNormal ) * tLeaderdNormaldU    //
+                                                                      - tLeaderNormal * trans( tVector ) * tLeaderdNormaldU;
+
+            //            for ( uint idof = 0; idof < tNumDofs; idof++ )
+            //            {
+            //                const Matrix< DDRMat > tAlternativeMultiplyLeaderTangentProjectionDu =
+            //                        -( tLeaderdNormaldU.get_column( idof ) * trans( tLeaderNormal ) + tLeaderNormal * trans( tLeaderdNormaldU.get_column( idof ) ) )    //
+            //                        * ( trans( tLeaderXgp ) + tLeaderPreviousUgp - trans( tFollowerYgp ) - tFollowerPreviousVgp + tGap * tLeaderPreviousNormal );
+            //
+            //                if ( norm( tMultiplyLeaderTangentProjectionDu.get_column( idof ) - tAlternativeMultiplyLeaderTangentProjectionDu ) > 1e-12 )
+            //                {
+            //                    MORIS_ERROR( false, "IWG::remap_nonconformal_rays - multiply_leader_dtangentprojectiondu function is not correct." );
+            //                }
+            //            }
+
+            for ( uint idof = 0; idof < tNumDofs; idof++ )
+            {
+                tLeaderdTangentVelocitydu.get_column( idof ) =
+                        tMultiplyLeaderTangentProjectionDu.get_column( idof )
+                        + tLeaderTangentProjection * ( -tFollowerYgpdu.get_column( idof )             //
+                                                       - tFollowerPreviousVgpdu.get_column( idof )    //
+                                                       + tdGapdu( idof ) * tLeaderPreviousNormal );
+
+                tLeaderdTangentVelocitydv.get_column( idof ) = tLeaderTangentProjection * (                           //
+                                                                       -tFollowerYgpdv.get_column( idof )             //
+                                                                       - tFollowerPreviousVgpdv.get_column( idof )    //
+                                                                       + tdGapdv( idof ) * tLeaderPreviousNormal );
+
+                tLeaderdTangentVelocityduprev.get_column( idof ) = tLeaderTangentProjection * (                        //
+                                                                           tLeaderPreviousNUgp.get_column( idof ) +    //
+                                                                           tGap * tLeaderPreviousdNormaldU.get_column( idof ) );
+
+                tLeaderdTangentVelocitydvprev.get_column( idof ) = tLeaderTangentProjection * (    //
+                                                                           -tFollowerPreviousNVgp.get_column( idof ) );
+            }
+
+            tFollowerPreviousdDisplacementsdu = trans( tFollowerPreviousUHat ) * tFollowerShapeFunctiondu;
+            tFollowerPreviousdDisplacementsdv = trans( tFollowerPreviousUHat ) * tFollowerShapeFunctiondv;
+        }
+
         // save results in GapData resorted such that nodes first
+        aGapData->mGap                           = tGap;
+        aGapData->mEta                           = tEta;
+        aGapData->mLeaderNormal                  = tLeaderNormal;
+        aGapData->mLeaderRefNormal               = tLeaderRefNormal;
+        aGapData->mGapVec                        = tGapVector;
+        aGapData->mLeaderTangentProjection       = tLeaderTangentProjection;
+        aGapData->mLeaderTangentVelocity         = tLeaderTangentVelocity;
+        aGapData->mFollowerDisplacements         = tFollowerVgp;
+        aGapData->mFollowerPreviousDisplacements = tFollowerPreviousVgp;
 
-        aGapData->mGap             = tGap;
-        aGapData->mEta             = tEta;
-        aGapData->mLeaderNormal    = tLeaderNormal;
-        aGapData->mLeaderRefNormal = tLeaderRefNormal;
-        aGapData->mGapVec          = tGapVector;
+        aGapData->set_matrix_sizes( tSpaceDim, tNumDofs, tNumNodes );
 
-        aGapData->set_matrix_sizes( tSpaceDim, tNumDofs );
+        aGapData->set_first_order_derivatives(
+                tSpaceDim,
+                tNumNodes,
+                tdGapdu,
+                tdGapdv,
+                tdEtadu,
+                tdEtadv,
+                tLeaderdNormaldU,
+                tdGapvecdu,
+                tdGapvecdv,
+                tLeaderdTangentVelocitydu,
+                tLeaderdTangentVelocitydv,
+                tLeaderdTangentVelocityduprev,
+                tLeaderdTangentVelocitydvprev,
+                tFollowerdDisplacementsdu,
+                tFollowerdDisplacementsdv,
+                tFollowerPreviousdDisplacementsdu,
+                tFollowerPreviousdDisplacementsdv,
+                tFollowerShapeFunctiondu,
+                tFollowerShapeFunctiondv );
 
-        aGapData->set_first_order_derivatives( tSpaceDim, tNumNodes, tdGapdu, tdGapdv, tdEtadu, tdEtadv, tLeaderdNormaldU, tdGapvecdu, tdGapvecdv);
-
-        aGapData->set_second_order_derivatives( tSpaceDim, tNumNodes, tNumDofs, tdGap2du2, tdGap2dv2, tdGap2duv, tdEta2du2, tdEta2dv2, tdEta2duv, tLeaderdNormal2dU2, tdGapvec2du2, tdGapvec2dv2, tdGapvec2duv );
+        aGapData->set_second_order_derivatives(
+                tSpaceDim,
+                tNumNodes,
+                tNumDofs,
+                tdGap2du2,
+                tdGap2dv2,
+                tdGap2duv,
+                tdEta2du2,
+                tdEta2dv2,
+                tdEta2duv,
+                tLeaderdNormal2dU2,
+                tdGapvec2du2,
+                tdGapvec2dv2,
+                tdGapvec2duv );
 
         // gap data evaluation flag to false, i.e. does not need to be recomputed
         aGapData->mEval = false;
@@ -4552,16 +4249,26 @@ namespace moris::fem
         Geometry_Interpolator* tFollowerIGGI = mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IG_geometry_interpolator();
         Geometry_Interpolator* tFollowerIPGI = mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator();
 
+        Geometry_Interpolator* tLeaderPreviousIGGI   = nullptr;
+        Geometry_Interpolator* tFollowerPreviousIGGI = nullptr;
+
+        if ( mSet->get_time_continuity() )
+        {
+            tLeaderPreviousIGGI   = mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->get_IG_geometry_interpolator();
+            tFollowerPreviousIGGI = mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->get_IG_geometry_interpolator();
+        }
+
         // if nonconform check that mapping for nominal geometry is successful
         const Vector< MSI::Dof_Type > tDisplDofTypes = mResidualDofType( 0 );
         if ( tIsNonconformal && tDisplDofTypes( 0 ) == MSI::Dof_Type::UX )
         {
             const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                     mUseDeformedGeometryForGap,
-                    mUseConsistentDeformedGeometryForGap,
                     tDisplDofTypes,
                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER ),
                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER ),
+                    mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER ),
+                    mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER ),
                     mGapData );
 
             // check whether the remapping is successful
@@ -4697,6 +4404,12 @@ namespace moris::fem
         {
             tFollowerResidual =
                     mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } );
+        }
+
+        // lock contact conditions
+        if ( tIsNonconformal && mResidualDofType( 0 )( 0 ) == MSI::Dof_Type::UX )
+        {
+            mGapData->mIsLocked = true;
         }
 
         // get number of leader GI bases and space dimensions
@@ -4835,6 +4548,7 @@ namespace moris::fem
                             // perturb physcial coordinate of leader node and update in IGGI
                             Matrix< DDRMat > tLeaderCoeffPert = tLeaderCoeff;
                             tLeaderCoeffPert( iLeaderNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
+
                             tLeaderIGGI->set_space_coeff( tLeaderCoeffPert );
 
                             // get parameteric coordinates of perturbed leader node in the IPGI
@@ -4845,11 +4559,21 @@ namespace moris::fem
                             // update parametric coordinates of leader node in IGGI
                             Matrix< DDRMat > tLeaderParamCoeffPert       = tLeaderParamCoeff;
                             tLeaderParamCoeffPert.get_row( iLeaderNode ) = tXiCoords.matrix_data();
+
                             tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
 
                             // update physical and parametric coordinates of quadrature point
                             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
                                     ->set_space_time_from_local_IG_point( tLeaderEvaluationPoint );
+
+                            if ( mSet->get_time_continuity() )
+                            {
+                                tLeaderPreviousIGGI->set_space_coeff( tLeaderCoeffPert );
+                                tLeaderPreviousIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
+
+                                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )
+                                        ->set_space_time_from_local_IG_point( tLeaderEvaluationPoint );
+                            }
 
                             // update normal of the leader side
                             Matrix< DDRMat > tNormalPert;
@@ -4862,6 +4586,7 @@ namespace moris::fem
                             // perturb physcial coordinate of follower node and update in IGGI
                             Matrix< DDRMat > tFollowerCoeffPert = tFollowerCoeff;
                             tFollowerCoeffPert( iFollowerNode, iSpatialDir ) += tFDScheme( 0 )( iFDPoint ) * tDeltaH;
+
                             tFollowerIGGI->set_space_coeff( tFollowerCoeffPert );
 
                             // get parameteric coordinates of perturbed follower node in the IPGI
@@ -4872,11 +4597,21 @@ namespace moris::fem
                             // update parametric coordinates of follower node in IGGI
                             Matrix< DDRMat > tFollowerParamCoeffPert         = tFollowerParamCoeff;
                             tFollowerParamCoeffPert.get_row( iFollowerNode ) = tXiCoords.matrix_data();
+
                             tFollowerIGGI->set_space_param_coeff( tFollowerParamCoeffPert );
 
                             // update physical and parametric coordinates of quadrature point
                             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                                     ->set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
+
+                            if ( mSet->get_time_continuity() )
+                            {
+                                tFollowerPreviousIGGI->set_space_coeff( tFollowerCoeffPert );
+                                tFollowerPreviousIGGI->set_space_param_coeff( tFollowerParamCoeffPert );
+
+                                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )
+                                        ->set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
+                            }
                         }
 
                         // reset properties, CM and SP for IWG
@@ -4887,10 +4622,11 @@ namespace moris::fem
                         {
                             const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
                                     mUseDeformedGeometryForGap,
-                                    mUseConsistentDeformedGeometryForGap,
                                     tDisplDofTypes,
                                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER ),
                                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER ),
+                                    mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER ),
+                                    mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER ),
                                     mGapData );
 
                             // check whether the remapping is successful
@@ -4932,11 +4668,22 @@ namespace moris::fem
                         {
                             // reset the coefficients in leader IGGI
                             tLeaderIGGI->set_space_coeff( tLeaderCoeff );
+
                             tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeff );
 
                             mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->    //
                                     set_space_time_from_local_IG_point( tLeaderEvaluationPoint );
 
+                            if ( mSet->get_time_continuity() )
+                            {
+                                tLeaderPreviousIGGI->set_space_coeff( tLeaderCoeff );
+                                tLeaderPreviousIGGI->set_space_param_coeff( tLeaderParamCoeff );
+
+                                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->    //
+                                        set_space_time_from_local_IG_point( tLeaderEvaluationPoint );
+                            }
+
+                            // reset normal
                             this->set_normal( tLeaderNormal );
                         }
 
@@ -4944,10 +4691,20 @@ namespace moris::fem
                         {
                             // reset the coefficients in follower IGGI
                             tFollowerIGGI->set_space_coeff( tFollowerCoeff );
+
                             tFollowerIGGI->set_space_param_coeff( tFollowerParamCoeff );
 
                             mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->    //
                                     set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
+
+                            if ( mSet->get_time_continuity() )
+                            {
+                                tFollowerPreviousIGGI->set_space_coeff( tFollowerCoeff );
+                                tFollowerPreviousIGGI->set_space_param_coeff( tFollowerParamCoeff );
+
+                                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )->    //
+                                        set_space_time_from_local_IG_point( tFollowerEvaluationPoint );
+                            }
                         }
                     }
                     // if perturbation was valid, update resdual derivatives
@@ -4980,6 +4737,12 @@ namespace moris::fem
                     aWStar,
                     aPerturbation,
                     aFDSchemeType );
+        }
+
+        // unlock contact conditions in gap data
+        if ( tIsNonconformal && mResidualDofType( 0 )( 0 ) == MSI::Dof_Type::UX )
+        {
+            mGapData->mIsLocked = false;
         }
 
         // check for nan, infinity
@@ -5359,8 +5122,11 @@ namespace moris::fem
         // get number of requested dv types
         uint tNumDvType = tRequestedPdvTypes.size();
 
-        // skip remainder if no dv types active on element
-        if ( tNumDvType == 0 )
+        Vector< Vector< gen::PDV_Type > > tFollowerPdvTypes;
+        mSet->get_ip_dv_types_for_set( tFollowerPdvTypes, mtk::Leader_Follower::FOLLOWER );
+
+        // A material ADV can occur only on the follower of a contact pair.
+        if ( tNumDvType == 0 && tFollowerPdvTypes.size() == 0 )
         {
             return;
         }
@@ -5430,6 +5196,16 @@ namespace moris::fem
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
 
+            // The same material design coefficient controls constitutive
+            // response on both slabs. Its partial includes previous traction,
+            // while displacement/history coefficients remain fixed.
+            Field_Interpolator*    tPreviousFI    = get_time_continuity()
+                                                          ? mLeaderPreviousFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) )
+                                                          : nullptr;
+            const Matrix< DDRMat > tPreviousCoeff = tPreviousFI != nullptr
+                                                          ? tPreviousFI->get_coeff()
+                                                          : Matrix< DDRMat >();
+
             // init coeff counter
             uint tCoeffCounter = 0;
 
@@ -5488,6 +5264,12 @@ namespace moris::fem
 
                         // set the perturbed coefficients to FI
                         tFI->set_coeff( tCoeffPert );
+                        if ( tPreviousFI != nullptr )
+                        {
+                            Matrix< DDRMat > tPreviousPerturbed = tPreviousCoeff;
+                            tPreviousPerturbed( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+                            tPreviousFI->set_coeff( tPreviousPerturbed );
+                        }
 
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
@@ -5523,6 +5305,11 @@ namespace moris::fem
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+            if ( tPreviousFI != nullptr )
+            {
+                tPreviousFI->set_coeff( tPreviousCoeff );
+            }
+            this->reset_eval_flags();
         }
 
         // get the requested ip pdv types for the follower side
@@ -5546,6 +5333,16 @@ namespace moris::fem
 
             // coefficients for dof type wrt which derivative is computed
             Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // The same material design coefficient controls constitutive
+            // response on both slabs. Its partial includes previous traction,
+            // while displacement/history coefficients remain fixed.
+            Field_Interpolator*    tPreviousFI    = get_time_continuity()
+                                                          ? mFollowerPreviousFIManager->get_field_interpolators_for_type( tRequestedPdvTypes( iFI )( 0 ) )
+                                                          : nullptr;
+            const Matrix< DDRMat > tPreviousCoeff = tPreviousFI != nullptr
+                                                          ? tPreviousFI->get_coeff()
+                                                          : Matrix< DDRMat >();
 
             // reset properties, CM and SP for IWG
             this->reset_eval_flags();
@@ -5627,6 +5424,12 @@ namespace moris::fem
 
                         // set the perturbed coefficients to FI
                         tFI->set_coeff( tCoeffPert );
+                        if ( tPreviousFI != nullptr )
+                        {
+                            Matrix< DDRMat > tPreviousPerturbed = tPreviousCoeff;
+                            tPreviousPerturbed( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+                            tPreviousFI->set_coeff( tPreviousPerturbed );
+                        }
 
                         // reset properties, CM and SP for IWG
                         this->reset_eval_flags();
@@ -5662,6 +5465,11 @@ namespace moris::fem
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
+            if ( tPreviousFI != nullptr )
+            {
+                tPreviousFI->set_coeff( tPreviousCoeff );
+            }
+            this->reset_eval_flags();
         }
 
         // reset the value of the residual
@@ -5681,20 +5489,20 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void GapData::compute_outward_normal_at_gp_for_linear_deformed_geometry(
-            Field_Interpolator*           aLeaderFieldInterpolator,
-            Geometry_Interpolator*        aLeaderIGGI,
-            Matrix< DDRMat >&             aLeaderNormal,
-            Matrix< DDRMat >&             aLeaderRefNormal,
-            Matrix< DDRMat >&             aLeaderdNormaldU,
-            Matrix< DDRMat >&             aLeaderdNormal2dU2,
-            const bool                    aEvaluateLinearization)
+            Field_Interpolator*    aLeaderFieldInterpolator,
+            Geometry_Interpolator* aLeaderIGGI,
+            Matrix< DDRMat >&      aLeaderNormal,
+            Matrix< DDRMat >&      aLeaderRefNormal,
+            Matrix< DDRMat >&      aLeaderdNormaldU,
+            Matrix< DDRMat >&      aLeaderdNormal2dU2,
+            const bool             aEvaluateLinearization )
     {
         // get the space dimension
-        const uint tSpaceDim     = aLeaderFieldInterpolator->get_space_dim();
+        const uint tSpaceDim = aLeaderFieldInterpolator->get_space_dim();
 
         // get coordinates (global and parametric) of IG nodes
-        const Matrix< DDRMat >& tLeaderIGNodes        = aLeaderIGGI->get_space_coeff();
-        const Matrix< DDRMat >& tLeaderIGNodesParam   = aLeaderIGGI->get_space_param_coeff();
+        const Matrix< DDRMat >& tLeaderIGNodes      = aLeaderIGGI->get_space_coeff();
+        const Matrix< DDRMat >& tLeaderIGNodesParam = aLeaderIGGI->get_space_param_coeff();
 
         // get displacements for leader
         const Matrix< DDRMat >& tLeaderUHat = aLeaderFieldInterpolator->get_coeff();
@@ -5756,7 +5564,7 @@ namespace moris::fem
         const Matrix< DDRMat > tLeaderNormalTilde = RotMat * ( tLeaderDefIGNodes.get_column( 1 ) - tLeaderDefIGNodes.get_column( 0 ) );
 
         aLeaderRefNormal = RotMat * trans( tLeaderIGNodes.get_row( 1 ) - tLeaderIGNodes.get_row( 0 ) );
-        aLeaderRefNormal                  = 1.0 / norm( aLeaderRefNormal ) * aLeaderRefNormal;
+        aLeaderRefNormal = 1.0 / norm( aLeaderRefNormal ) * aLeaderRefNormal;
 
         const real tNtildeSquared = dot( tLeaderNormalTilde, tLeaderNormalTilde );
         const real tNtildeOm12    = 1.0 / std::sqrt( tNtildeSquared );
@@ -5817,31 +5625,31 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     void GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry(
-            Field_Interpolator*           aLeaderFieldInterpolator,
-            Geometry_Interpolator*        aLeaderIGGI,
-            Matrix< DDRMat >&             aLeaderNormal,
-            Matrix< DDRMat >&             aLeaderRefNormal,
-            Matrix< DDRMat >&             aLeaderdNormaldU,
-            Matrix< DDRMat >&             aLeaderdNormal2dU2,
-            const bool                    aEvaluateLinearization)
+            Field_Interpolator*    aLeaderFieldInterpolator,
+            Geometry_Interpolator* aLeaderIGGI,
+            Matrix< DDRMat >&      aLeaderNormal,
+            Matrix< DDRMat >&      aLeaderRefNormal,
+            Matrix< DDRMat >&      aLeaderdNormaldU,
+            Matrix< DDRMat >&      aLeaderdNormal2dU2,
+            const bool             aEvaluateLinearization )
     {
         // get geometry and displacements for leader quadrature point
-        //const Matrix< DDRMat >& tLeaderXgp      = tLeaderIGGI->valx(); // global coordinates at quadrature points
-        const Matrix< DDRMat >& tLeaderNXgp     = aLeaderIGGI->NXi();  // shape functions at quadrature points
+        // const Matrix< DDRMat >& tLeaderXgp      = tLeaderIGGI->valx(); // global coordinates at quadrature points
+        const Matrix< DDRMat >& tLeaderNXgp     = aLeaderIGGI->NXi();    // shape functions at quadrature points
         const Matrix< DDRMat >& tLeaderdNXgpdxi = aLeaderIGGI->dNdXi();
 
         // get IP geometry interpolator for leader
-        Geometry_Interpolator* tLeaderIPGI   = aLeaderFieldInterpolator->get_IG_geometry_interpolator();
-        //const Matrix< DDRMat >& tLeaderUgp     = tLeaderFieldInterpolator->val();
-        //const Matrix< DDRMat >& tLeaderNUgp    = tLeaderIPGI->NXi();
+        Geometry_Interpolator* tLeaderIPGI = aLeaderFieldInterpolator->get_IG_geometry_interpolator();
+        // const Matrix< DDRMat >& tLeaderUgp     = tLeaderFieldInterpolator->val();
+        // const Matrix< DDRMat >& tLeaderNUgp    = tLeaderIPGI->NXi();
         const Matrix< DDRMat >& tLeaderdNUgpdr = tLeaderIPGI->dNdXi();
 
         // get coordinates (global and parametric) of IG nodes
-        const Matrix< DDRMat >& tLeaderIGNodes   = aLeaderIGGI->get_space_coeff();
-        const Matrix< DDRMat >& tLeaderIGNodesParam   = aLeaderIGGI->get_space_param_coeff();
+        const Matrix< DDRMat >& tLeaderIGNodes      = aLeaderIGGI->get_space_coeff();
+        const Matrix< DDRMat >& tLeaderIGNodesParam = aLeaderIGGI->get_space_param_coeff();
 
         // get displacements for leader
-        const Matrix< DDRMat >& tLeaderUHat   = aLeaderFieldInterpolator->get_coeff();
+        const Matrix< DDRMat >& tLeaderUHat = aLeaderFieldInterpolator->get_coeff();
 
         // compute derivatives along IG element side
         const Matrix< DDRMat > tLeaderdXgpdxi = trans( tLeaderdNXgpdxi * tLeaderIGNodes );
@@ -5857,7 +5665,7 @@ namespace moris::fem
         const Matrix< DDRMat > tLeaderNormalTilde = RotMat * ( tLeaderdXgpdxi + tLeaderdUgpdxi );
 
         aLeaderRefNormal = RotMat * ( tLeaderdXgpdxi );
-        aLeaderRefNormal                  = 1.0 / norm( aLeaderRefNormal ) * aLeaderRefNormal;
+        aLeaderRefNormal = 1.0 / norm( aLeaderRefNormal ) * aLeaderRefNormal;
 
         const real tNtildeSquared = dot( tLeaderNormalTilde, tLeaderNormalTilde );
         const real tNtildeOm12    = 1.0 / std::sqrt( tNtildeSquared );
@@ -5889,10 +5697,10 @@ namespace moris::fem
             // compute second derivative of the normal vector with respect to the leader dofs
             const Matrix< DDRMat > tLeaderNormalAux = trans( RotMat ) * tLeaderNormalTilde;
 
-            //std::cout << "aLeaderdNormaldU.n_cols(): " << aLeaderdNormaldU.n_cols() << std::endl;
-            //std::cout << "aLeaderdNormal2dU2.n_cols(): " << aLeaderdNormal2dU2.n_cols() << std::endl;
-            //if ( aLeaderdNormaldU.n_cols() == 0 or aLeaderdNormal2dU2.n_cols() == 0 )
-            //  return;
+            // std::cout << "aLeaderdNormaldU.n_cols(): " << aLeaderdNormaldU.n_cols() << std::endl;
+            // std::cout << "aLeaderdNormal2dU2.n_cols(): " << aLeaderdNormal2dU2.n_cols() << std::endl;
+            // if ( aLeaderdNormaldU.n_cols() == 0 or aLeaderdNormal2dU2.n_cols() == 0 )
+            //   return;
 
             uint tCounter = 0;
             for ( uint idim = 0; idim < tSpaceDim; idim++ )
@@ -5945,6 +5753,4 @@ namespace moris::fem
 
         return tTangentialPlane;
     }
-
-
 }    // namespace moris::fem

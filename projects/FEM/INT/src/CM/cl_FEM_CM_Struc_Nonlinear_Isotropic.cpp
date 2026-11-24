@@ -1939,8 +1939,10 @@ namespace moris::fem
                     // evaluate the test traction based on first Piola_Kirchhoff stress
                     this->eval_dTestTractiondDOF_first_piola_kirchhoff( aDofTypes, aNormal, aJump, aTestDofTypes );
 
-                    // set bool for evaluation
-                    md1PKTestTractionduEval( tTestDofIndex, tDofIndex ) = false;
+                    // Contact evaluates this contraction with different jumps
+                    // at the same point. The DOF-pair cache key does not include
+                    // aJump or aNormal, so re-evaluate on the next call.
+                    md1PKTestTractionduEval( tTestDofIndex, tDofIndex ) = true;
                 }
                 // return the traction based on first Piola_Kirchhoff stress
                 return md1PKTestTractiondu( tTestDofIndex )( tDofIndex );
