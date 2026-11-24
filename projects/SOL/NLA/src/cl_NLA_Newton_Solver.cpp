@@ -65,6 +65,8 @@ Newton_Solver::~Newton_Solver()
 
 void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
+    mMyNonLinSolverManager->set_converged( false );
+
     Tracer tTracer( "NonLinearAlgorithm", "Newton", "Solve" );
 
     // set nonlinear system
@@ -146,9 +148,19 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
                 "LoadFactor",
                 tLoadFactor );
 
-        if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
+        if ( !mMyNonLinSolverManager->get_solver_interface()->is_forward_analysis() )
         {
-            mNonlinearProblem->update_fem_model();
+            if ( It == 1 )
+            {
+                mNonlinearProblem->update_fem_model();
+            }
+        }
+        else
+        {
+            if ( tRemappingStrategy.requires_remapping( It, mMyNonLinSolverManager, tLoadFactor ) )
+            {
+                mNonlinearProblem->update_fem_model();
+            }
         }
 
         // build residual and jacobian
@@ -176,6 +188,7 @@ void Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProble
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
+            mMyNonLinSolverManager->set_converged( true );
             MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
             break;
         }

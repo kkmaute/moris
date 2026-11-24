@@ -30,9 +30,91 @@
 #include "cl_FEM_Set.hpp"                      //FEM/INT/src
 #include "cl_FEM_Interpolation_Element.hpp"    //FEM/INT/src
 #include "cl_FEM_Cluster_Measure.hpp"          //FEM/INT/src
+#include "cl_FEM_Cluster_Time_History.hpp"
 
 namespace moris::fem
 {
+    struct Cluster_ISV_Data
+    {
+        // Persistent history has a separate lifecycle from assembly scratch.
+        Cluster_Time_History                 mTimeHistory;
+        Vector< Vector< Matrix< DDRMat > > > mISVValues;         // ISV values for each element in the cluster
+        Vector< Vector< Matrix< DDRMat > > > mISVDerivatives;    // ISV derivatives for each element in the cluster
+
+        sint mPointIndex = -1;    // index of the current integration point
+
+        Cluster_ISV_Data() = default;
+
+        void reset()
+        {
+            mISVValues.clear();
+            mISVDerivatives.clear();
+            mPointIndex = -1;
+        }
+
+        void set_point_index( uint aPointIndex )
+        {
+            mPointIndex = aPointIndex;
+        }
+
+        void increment_point_index()
+        {
+            mPointIndex++;
+        }
+
+        const Matrix< DDRMat > &get_values( uint tPreviousTimeIndex )
+        {
+            MORIS_ERROR( tPreviousTimeIndex < mISVValues.size(),
+                    "Cluster_ISV_Data::get_values - Previous time index is out of bounds." );
+            MORIS_ERROR( mPointIndex >= 0 && uint( mPointIndex ) < mISVValues( tPreviousTimeIndex ).size(),
+                    "Cluster_ISV_Data::get_values - Point index is out of bounds." );
+
+            return mISVValues( tPreviousTimeIndex )( mPointIndex );
+        }
+
+        const Matrix< DDRMat > &get_derivatives( uint tPreviousTimeIndex )
+        {
+            MORIS_ERROR( tPreviousTimeIndex < mISVDerivatives.size(),
+                    "Cluster_ISV_Data::get_derivatives - Previous time index is out of bounds." );
+            MORIS_ERROR( mPointIndex >= 0 && uint( mPointIndex ) < mISVDerivatives( tPreviousTimeIndex ).size(),
+                    "Cluster_ISV_Data::get_derivatives - Point index is out of bounds." );
+
+            return mISVDerivatives( tPreviousTimeIndex )( mPointIndex );
+        }
+
+        void set_values( uint tCurrentTimeIndex, const Matrix< DDRMat > &aValues )
+        {
+            MORIS_ERROR( mPointIndex >= 0, "Cluster_ISV_Data::set_values - Point index is unset." );
+            if ( tCurrentTimeIndex >= mISVValues.size() )
+            {
+                mISVValues.resize( tCurrentTimeIndex + 1 );
+            }
+
+            if ( mPointIndex >= (sint)mISVValues( tCurrentTimeIndex ).size() )
+            {
+                mISVValues( tCurrentTimeIndex ).resize( mPointIndex + 1 );
+            }
+
+            mISVValues( tCurrentTimeIndex )( mPointIndex ) = aValues;
+        }
+
+        void set_derivatives( uint tCurrentTimeIndex, const Matrix< DDRMat > &aDerivatives )
+        {
+            MORIS_ERROR( mPointIndex >= 0, "Cluster_ISV_Data::set_derivatives - Point index is unset." );
+            if ( tCurrentTimeIndex >= mISVDerivatives.size() )
+            {
+                mISVDerivatives.resize( tCurrentTimeIndex + 1 );
+            }
+
+            if ( mPointIndex >= (sint)mISVDerivatives( tCurrentTimeIndex ).size() )
+            {
+                mISVDerivatives( tCurrentTimeIndex ).resize( mPointIndex + 1 );
+            }
+
+            mISVDerivatives( tCurrentTimeIndex )( mPointIndex ) = aDerivatives;
+        }
+    };
+
     class Set;
     //------------------------------------------------------------------------------
 
@@ -74,6 +156,9 @@ namespace moris::fem
 
         // cluster measures
         std::map< Cluster_Measure::ClusterMeasureSpecification, std::shared_ptr< Cluster_Measure > > mClusterMeasures;
+
+        // ISV data for the cluster
+        Cluster_ISV_Data mClusterISVData;
 
         // flag to easily differentiate between ACTUAL FEM and VIS clusters for debugging
         bool mIsVisCluster = false;
@@ -475,6 +560,13 @@ namespace moris::fem
                 const real             &tVolumeError );
 
         //------------------------------------------------------------------------------
+        void add_adjoint_history( const Vector< Matrix< DDRMat > > &aAdjoint,
+                Vector< Matrix< DDRMat > >                         &aRHS );
+
+        Cluster_ISV_Data &get_cluster_ISV_data()
+        {
+            return mClusterISVData;
+        }
     };
 
     //------------------------------------------------------------------------------

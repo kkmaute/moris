@@ -53,6 +53,12 @@ namespace moris::fem
     {
         initialize_leader_follower_ig_interpolator( mtk::Leader_Follower::LEADER );
         initialize_leader_follower_ig_interpolator( mtk::Leader_Follower::FOLLOWER );
+
+        if ( mSet->get_time_continuity() )
+        {
+            initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower::LEADER );
+            initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower::FOLLOWER );
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -86,6 +92,39 @@ namespace moris::fem
         // parametric coefficients
         tIGInterpolator->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( tLocalCellIndex, tSideOrd, aLeaderFollowerType ) );
         tIGInterpolator->set_time_param_coeff( { { -1.0 }, { 1.0 } } );    // FIXME not true if time is not linear
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Element_Double_Sideset::initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower const aLeaderFollowerType ) const
+    {
+        // get treated side ordinal on the leader and on the follower
+        moris_index      tSideOrd;
+        moris_index      tLocalCellIndex;
+        const mtk::Cell* tCell;
+        if ( aLeaderFollowerType == mtk::Leader_Follower::LEADER )
+        {
+            tCell           = mLeaderCell;
+            tLocalCellIndex = get_leader_local_cell_index();
+            tSideOrd        = mCluster->mLeaderListOfSideOrdinals( tLocalCellIndex );
+        }
+        else
+        {
+            tCell           = mFollowerCell;
+            tLocalCellIndex = get_follower_local_cell_index();
+            tSideOrd        = mCluster->mFollowerListOfSideOrdinals( tLocalCellIndex );
+        }
+
+        // get leader IG geometry interpolator
+        Geometry_Interpolator* tPreviousIGGI = mSet->get_field_interpolator_manager_previous_time( aLeaderFollowerType )->get_IG_geometry_interpolator();
+
+        // physical coefficients
+        tPreviousIGGI->set_space_coeff( tCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
+        tPreviousIGGI->set_time_coeff( mCluster->mInterpolationElement->get_previous_time() );
+
+        // parametric coefficients
+        tPreviousIGGI->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( tLocalCellIndex, tSideOrd, aLeaderFollowerType ) );
+        tPreviousIGGI->set_time_param_coeff( { { -1.0 }, { 1.0 } } );    // FIXME not true if time is not linear
     }
 
     //------------------------------------------------------------------------------
@@ -161,6 +200,15 @@ namespace moris::fem
 
         mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
                 ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+
+        if ( mSet->get_time_continuity() )
+        {
+            mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )
+                    ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
+
+            mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER )
+                    ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -277,12 +325,19 @@ namespace moris::fem
                 // set the normal for the IWG
                 tReqIWG->set_normal( tNormal );
 
-                // compute residual at integration point
-                this->set_iwg_jacobian_strategy( tReqIWG );
+                if ( mSet->mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
+                {
+                    tReqIWG->compute_jacobian_previous( tWStar );
+                }
+                else
+                {
+                    // compute residual at integration point
+                    this->set_iwg_jacobian_strategy( tReqIWG );
 
-                ( this->*m_compute_jacobian )( tReqIWG, tWStar );
+                    ( this->*m_compute_jacobian )( tReqIWG, tWStar );
 
-                this->reset_iwg_jacobian_strategy();
+                    this->reset_iwg_jacobian_strategy();
+                }
             }
         }
     }
@@ -331,6 +386,9 @@ namespace moris::fem
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
             {
+                // increment integration point counter for ISVs
+                mCluster->get_cluster_ISV_data().increment_point_index();
+
                 // get requested IWG
                 const std::shared_ptr< IWG >& tReqIWG = mSet->get_requested_IWGs()( iIWG );
 

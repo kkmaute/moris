@@ -32,6 +32,54 @@
 
 namespace moris::fem
 {
+    void Interpolation_Element::reset_time_history( bool aAdjointOnly )
+    {
+        if ( aAdjointOnly )
+        {
+            mFemCluster( 0 )->get_cluster_ISV_data().mTimeHistory.clear_adjoint();
+        }
+        else
+        {
+            mFemCluster( 0 )->get_cluster_ISV_data().mTimeHistory.clear();
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Interpolation_Element::commit_time_history( bool aConverged )
+    {
+        bool tHasHistory = false;
+        for ( const auto& tIWG : mSet->get_IWGs() )
+        {
+            tHasHistory = tHasHistory || tIWG->has_time_history();
+        }
+        if ( !tHasHistory )
+        {
+            return;
+        }
+        MORIS_ERROR( aConverged,
+                "Cannot commit DG velocity history: nonlinear slab solve did not converge." );
+
+        this->compute_my_pdof_values();
+        this->compute_previous_pdof_values();
+        this->set_field_interpolators_coefficients();
+        mSet->set_IWG_field_interpolator_managers();
+        mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+        for ( const auto& tIWG : mSet->get_IWGs() )
+        {
+            tIWG->commit_time_history();
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    void Interpolation_Element::add_adjoint_history(
+            const Vector< Matrix< DDRMat > >& aAdjoint,
+            Vector< Matrix< DDRMat > >&       aRHS )
+    {
+        mFemCluster( 0 )->add_adjoint_history( aAdjoint, aRHS );
+    }
+
     //------------------------------------------------------------------------------
 
     Interpolation_Element::Interpolation_Element(
@@ -315,14 +363,14 @@ namespace moris::fem
         for ( uint iFi = 0; iFi < tLeaderNumFieldTypes; iFi++ )
         {
             // get the field type group
-            const Vector< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
-            uint tNumFieldComponents = tFieldTypeGroup.size();
+            const Vector< mtk::Field_Type >& tFieldTypeGroup     = tLeaderFieldTypeList( iFi );
+            uint                             tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
-            uint tNumCoeffs = tIPCellIndices.numel();
+            uint                     tNumCoeffs     = tIPCellIndices.numel();
 
             // assembly coefficient matrix depending on number of fields
-            if ( tNumFieldComponents == 1 ) // scalar fields
+            if ( tNumFieldComponents == 1 )    // scalar fields
             {
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -330,15 +378,15 @@ namespace moris::fem
                 // set field interpolator coefficients
                 mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
-            else // vectorial fields
+            else    // vectorial fields
             {
                 Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
-                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
-                
+                Matrix< DDRMat >           tCoeffMat( tNumCoeffs, tNumFieldComponents );
+
                 for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
                 {
-                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
-                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );
                 }
 
                 // set field interpolator coefficients
@@ -357,14 +405,14 @@ namespace moris::fem
         for ( uint iFi = 0; iFi < tFollowerNumFieldTypes; iFi++ )
         {
             // get the field type group
-            const Vector< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
-            uint tNumFieldComponents = tFieldTypeGroup.size();
+            const Vector< mtk::Field_Type >& tFieldTypeGroup     = tFollowerFieldTypeList( iFi );
+            uint                             tNumFieldComponents = tFieldTypeGroup.size();
 
             Matrix< IndexMat > const tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
-            uint tNumCoeffs = tIPCellIndices.numel();
+            uint                     tNumCoeffs     = tIPCellIndices.numel();
 
             // assembly coefficient matrix depending on number of fields
-            if ( tNumFieldComponents == 1 ) // scalar fields
+            if ( tNumFieldComponents == 1 )    // scalar fields
             {
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -372,15 +420,15 @@ namespace moris::fem
                 // set field interpolator coefficients
                 mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
-            else // vectorial fields
+            else    // vectorial fields
             {
                 Vector< Matrix< DDRMat > > tCoeffs( tNumFieldComponents );
-                Matrix< DDRMat > tCoeffMat( tNumCoeffs, tNumFieldComponents );
-                
+                Matrix< DDRMat >           tCoeffMat( tNumCoeffs, tNumFieldComponents );
+
                 for ( uint iComponent = 0; iComponent < tNumFieldComponents; iComponent++ )
                 {
-                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );    
-                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );            
+                    mSet->get_fem_model()->get_field( tFieldTypeGroup( iComponent ) )->get_values( tIPCellIndices, tCoeffs( iComponent ), tFieldTypeGroup );
+                    tCoeffMat( { 0, tNumCoeffs - 1 }, { iComponent, iComponent } ) = tCoeffs( iComponent )( { 0, tNumCoeffs - 1 }, { 0, 0 } );
                 }
 
                 // set field interpolator coefficients
@@ -582,6 +630,9 @@ namespace moris::fem
         // set cluster for stabilization parameter
         mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
+        // reset the cluster ISV data
+        mFemCluster( 0 )->get_cluster_ISV_data().reset();
+
         // ask cluster to compute jacobian
         mFemCluster( 0 )->compute_jacobian();
     }
@@ -624,6 +675,9 @@ namespace moris::fem
 
             // set cluster for stabilization parameter
             mSet->set_IWG_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+
+            // reset the cluster ISV data
+            mFemCluster( 0 )->get_cluster_ISV_data().reset();
 
             // ask cluster to compute residual
             mFemCluster( 0 )->compute_residual();
@@ -716,6 +770,11 @@ namespace moris::fem
                 mSet->initialize_mdRdpMat();
                 mSet->initialize_mdRdpGeo( mFemCluster( 0 ) );
             }
+        }
+        else
+        {
+            // reset the cluster ISV data
+            mFemCluster( 0 )->get_cluster_ISV_data().reset();
         }
 
         // ask cluster to compute Jacobian and residual

@@ -211,7 +211,9 @@ void Solver_Interface::assemble_staggered_RHS_contribution( moris::sol::Dist_Vec
 
 //---------------------------------------------------------------------------------------------------------
 
-void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS )
+void Solver_Interface::assemble_additional_DqDs_RHS_contribution(
+        moris::sol::Dist_Vector* aVectorRHS,
+        bool                     aUsePrevAdjoint )
 {
     // Get local number of elements
     moris::uint tNumSets = this->get_num_sets();
@@ -227,7 +229,9 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
     for ( moris::uint Ii = 0; Ii < tNumSets; Ii++ )
     {
         // only check bulk sets
-        if ( this->get_set_type( Ii ) == fem::Element_Type::TIME_SIDESET )
+        if (                                                                      //
+                this->get_set_type( Ii ) == fem::Element_Type::TIME_SIDESET ||    //
+                this->get_set_type( Ii ) == fem::Element_Type::NONCONFORMAL_SIDESET )
         {
             moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
@@ -237,9 +241,9 @@ void Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Di
             {
                 this->get_element_topology( Ii, Ik, tElementTopology );
 
-                this->get_equation_object_off_diag_rhs( Ii, Ik, tElementRHS );
+                this->get_equation_object_off_diag_rhs( Ii, Ik, tElementRHS, aUsePrevAdjoint );
 
-                // Fill elementRHS in distributed RHS
+                // Fill element RHS in distributed RHS
                 if ( tElementRHS.size() > 0 )
                 {
                     MORIS_ASSERT( tElementRHS.size() == tNumRHS,

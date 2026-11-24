@@ -102,6 +102,10 @@ namespace moris
              */
             virtual void solve( Vector< sol::Dist_Vector* >& aFullVector ) {};
 
+            virtual void solve(
+                    Vector< sol::Dist_Vector* >& aFullVector,
+                    sol::Dist_Vector&            aAdjointTimeCoupling ) {};
+
             //-------------------------------------------------------------------------------
             /**
              * @brief finalize call for algorithm

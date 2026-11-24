@@ -9,6 +9,10 @@
  */
 
 #include <catch.hpp>
+#include <cmath>
+#include <cstdio>
+#include <string>
+#include <vector>
 
 #include "paths.hpp"
 
@@ -19,6 +23,11 @@
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
 
 using namespace moris;
+
+extern "C" {
+bool gThermoelasticUsePetsc = false;
+bool gPrintReferenceValues  = false;
+}
 
 // test case index
 uint gTestCaseIndex;
@@ -35,59 +44,66 @@ check_results(
         uint               aTestCaseIndex )
 {
 
-    Matrix< DDRMat > tAdjointRefValues;
-    Matrix< DDRMat > tAdjointValues;
-
-    std::string tPrefix       = moris::get_base_moris_dir();
-    std::string tFieldRefPath = tPrefix + "/projects/EXA/optimization/Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient/Shape_Sensitivity_Thermoelastic_Transient_Ref.hdf5";
-    std::string tLabel        = "LHS/Values";
-
-    hid_t  tFileRef = open_hdf5_file( tFieldRefPath );
-    herr_t tStatus  = 0;
-    load_matrix_from_hdf5_file(
-            tFileRef,
-            tLabel,
-            tAdjointRefValues,
-            tStatus );
-
-    tStatus = close_hdf5_file( tFileRef );
-
-    std::string tFieldPath = "";
-
-    if ( aTestCaseIndex == 0 )
+    // PETSc uses a different vector-file representation. Its isolated case
+    // checks the same physical objective/constraint derivatives against all
+    // three FD schemes below; Epetra retains the stored full-adjoint reference.
+    if ( !gThermoelasticUsePetsc )
     {
-        tFieldPath = "./Shape_Sensitivity_Thermoelastic_Transient.hdf5";
-    }
-    else if ( aTestCaseIndex == 1 )
-    {
-        tFieldPath = "./Shape_Sensitivity_Thermoelastic_Transient_Staggered.hdf5";
-    }
+        Matrix< DDRMat > tAdjointRefValues;
+        Matrix< DDRMat > tAdjointValues;
 
-    hid_t tFile = open_hdf5_file( tFieldPath );
-    tStatus     = 0;
-    load_matrix_from_hdf5_file(
-            tFile,
-            tLabel,
-            tAdjointValues,
-            tStatus );
+        std::string tPrefix       = moris::get_base_moris_dir();
+        std::string tFieldRefPath = tPrefix + "/projects/EXA/optimization/Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient/Shape_Sensitivity_Thermoelastic_Transient_Ref.hdf5";
+        std::string tLabel        = "LHS/Values";
 
-    tStatus = close_hdf5_file( tFile );
+        hid_t  tFileRef = open_hdf5_file( tFieldRefPath );
+        herr_t tStatus  = 0;
+        load_matrix_from_hdf5_file(
+                tFileRef,
+                tLabel,
+                tAdjointRefValues,
+                tStatus );
 
-    MORIS_ERROR( tStatus == 0, "Field_Example: Status returned != 0, Error in reading values" );
+        tStatus = close_hdf5_file( tFileRef );
 
-    CHECK( tAdjointRefValues.numel() == tAdjointValues.numel() );
+        std::string tFieldPath = "";
 
-    for ( uint Ik = 0; Ik < tAdjointValues.n_cols(); Ik++ )
-    {
-        for ( uint Ii = 0; Ii < tAdjointValues.n_rows(); Ii++ )
+        if ( aTestCaseIndex == 0 )
         {
-            CHECK( tAdjointValues( Ii, Ik ) - tAdjointRefValues( Ii, Ik ) < 1e-10 );
+            tFieldPath = "./Shape_Sensitivity_Thermoelastic_Transient.hdf5";
+        }
+        else if ( aTestCaseIndex == 1 )
+        {
+            tFieldPath = "./Shape_Sensitivity_Thermoelastic_Transient_Staggered.hdf5";
+        }
+
+        hid_t tFile = open_hdf5_file( tFieldPath );
+        tStatus     = 0;
+        load_matrix_from_hdf5_file(
+                tFile,
+                tLabel,
+                tAdjointValues,
+                tStatus );
+
+        tStatus = close_hdf5_file( tFile );
+
+        MORIS_ERROR( tStatus == 0, "Field_Example: Status returned != 0, Error in reading values" );
+
+        REQUIRE( tAdjointRefValues.n_rows() == tAdjointValues.n_rows() );
+        REQUIRE( tAdjointRefValues.n_cols() == tAdjointValues.n_cols() );
+
+        for ( uint Ik = 0; Ik < tAdjointValues.n_cols(); Ik++ )
+        {
+            for ( uint Ii = 0; Ii < tAdjointValues.n_rows(); Ii++ )
+            {
+                CHECK( std::abs( tAdjointValues( Ii, Ik ) - tAdjointRefValues( Ii, Ik ) ) < 1e-10 );
+            }
         }
     }
 
     // Sweep HDF5 file
-    hid_t tFileID = open_hdf5_file( "shape_opt_test.hdf5" );
-    tStatus       = 0;
+    hid_t  tFileID = open_hdf5_file( "shape_opt_test.hdf5" );
+    herr_t tStatus = 0;
 
     // Declare sensitivity matrices for comparison
     Matrix< DDRMat > tObjectiveAnalytical;
@@ -99,6 +115,41 @@ check_results(
     load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 analytical", tObjectiveAnalytical, tStatus );
     load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus );
     REQUIRE( tObjectiveAnalytical.length() == tConstraintsAnalytical.length() );    // one objective and one constraint for this problem only
+
+    // Shared physical and sensitivity references for both backends/solver
+    // variants. Recorded from the one-rank, two-step Epetra staggered case
+    // (2026-11-23), after its stored full-adjoint and FD checks passed. Geometry
+    // partials use finite differences, so allow their solver-dependent roundoff
+    // at 1e-5 relative accuracy, tighter than the 1e-4 FD comparisons below.
+    const real tObjectiveGradientRef[]  = { 0.29689091680120339, 0.26082742822558808, -6.834070431977584 };
+    const real tConstraintGradientRef[] = { 4.5183212796229277e-09, -0.014213082765570158, -8.8166036161426025 };
+    REQUIRE( tObjectiveAnalytical.numel() == 3 );
+    for ( uint i = 0; i < 3; ++i )
+    {
+        CHECK( tObjectiveAnalytical( i ) == Approx( tObjectiveGradientRef[ i ] ).epsilon( 1e-5 ).margin( 1e-8 ) );
+        CHECK( tConstraintsAnalytical( i ) == Approx( tConstraintGradientRef[ i ] ).epsilon( 1e-5 ).margin( 1e-8 ) );
+        if ( gPrintReferenceValues )
+        {
+            MORIS_LOG_INFO( "Gradient reference ADV(%u): objective %.17g, constraint %.17g",
+                    i,
+                    tObjectiveAnalytical( i ),
+                    tConstraintsAnalytical( i ) );
+        }
+    }
+
+    Matrix< DDRMat > tObjective, tConstraint;
+    load_matrix_from_hdf5_file( tFileID, "objectives eval_1-1", tObjective, tStatus );
+    REQUIRE( tStatus == 0 );
+    load_matrix_from_hdf5_file( tFileID, "constraints eval_1-1", tConstraint, tStatus );
+    REQUIRE( tStatus == 0 );
+    REQUIRE( tObjective.numel() == 1 );
+    REQUIRE( tConstraint.numel() == 1 );
+    CHECK( tObjective( 0 ) == Approx( 17.813255834439584 ).epsilon( 1e-9 ) );
+    CHECK( tConstraint( 0 ) == Approx( 17.905548482069083 ).epsilon( 1e-9 ) );
+    if ( gPrintReferenceValues )
+    {
+        MORIS_LOG_INFO( "Physical references: objective %.17g, constraint %.17g", tObjective( 0 ), tConstraint( 0 ) );
+    }
 
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-14;
@@ -134,8 +185,8 @@ check_results(
                     tADVIndex,
                     tConstraintsAnalytical( tADVIndex ),
                     tFDTypes( tFDIndex ).c_str(),
-                    tConstraintsAnalytical( tADVIndex ),
-                    100 * tRelObectiveDifference );
+                    tConstraintsFD( tADVIndex ),
+                    100.0 * tRelConstraintDifference );
 
             if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e-6 )
             {
@@ -164,7 +215,9 @@ check_results(
 TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient",
         "[moris],[example],[optimization],[sweep],[sweep_thermoelastic_transient]" )
 {
-    // define command line call
+    // Two-step thermoelastic circle sweep: compare the final adjoint with the
+    // stored reference and objective/constraint gradients with three FD schemes.
+    // The temporal carry must remain fixed through each monolithic adjoint solve.
     int argc = 2;
 
     char tString1[] = "";
@@ -188,7 +241,9 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient",
 TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered",
         "[moris],[example],[optimization],[sweep],[sweep_thermoelastic_transient_staggered]" )
 {
-    // define command line call
+    // Solve the same transient model by thermal/displacement subsystems. The
+    // all-field temporal carry is updated only after the complete adjoint solve;
+    // use the same adjoint reference and FD gradient tolerances as the monolithic case.
     int argc = 2;
 
     char tString1[] = "";
@@ -208,3 +263,29 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Transient_Staggered",
     // perform check for Test Case 0
     check_results( "ShapeSensitivitiesThermoelasticTransientStaggered.exo", gTestCaseIndex );
 }
+
+#ifdef MORIS_HAVE_PETSC
+// The same two-step thermal/displacement model and FD tolerances exercise the
+// all-state history carry entering both PETSc subsystem maps. Run separately:
+// PETSc cannot be initialized again after a workflow finalizes it.
+TEST_CASE( "PETSc staggered thermoelastic transient sensitivity",
+        "[.][ThermoelasticPetscAdjoint]" )
+{
+    gThermoelasticUsePetsc = true;
+    gTestCaseIndex         = 1;
+    REQUIRE( moris::par_size() == 1 );
+
+    // Remove every checked output so a failed workflow cannot pass using files
+    // left by another backend or an earlier run in this dedicated directory.
+    std::remove( "shape_opt_test.hdf5" );
+    std::remove( "ShapeSensitivitiesThermoelasticTransientStaggered.exo" );
+    std::string         tLibrary = MORIS_THERMOELASTIC_STAGGERED_LIBRARY;
+    std::vector< char > tArgument( tLibrary.begin(), tLibrary.end() );
+    tArgument.push_back( '\0' );
+    char  tName[]      = "";
+    char* tArguments[] = { tName, tArgument.data() };
+    REQUIRE( fn_WRK_Workflow_Main_Interface( 2, tArguments ) == 0 );
+    check_results( "ShapeSensitivitiesThermoelasticTransientStaggered.exo", gTestCaseIndex );
+    gThermoelasticUsePetsc = false;
+}
+#endif

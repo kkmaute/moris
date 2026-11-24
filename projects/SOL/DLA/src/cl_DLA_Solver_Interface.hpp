@@ -147,6 +147,27 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // Borrowed time-solver carry; linear/subsystem solves must not modify it.
+        virtual void reset_time_history( bool aAdjointOnly ) {}
+        virtual void commit_time_history( bool aConverged ) {}
+
+        virtual void
+        set_adjoint_time_coupling( sol::Dist_Vector* aVector )
+        {
+            MORIS_ERROR( false, "Solver_Interface::set_adjoint_time_coupling: not set." );
+        };
+
+        //------------------------------------------------------------------------------
+
+        virtual sol::Dist_Vector*
+        get_adjoint_time_coupling()
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_adjoint_time_coupling: not set." );
+            return nullptr;
+        };
+
+        //------------------------------------------------------------------------------
+
         virtual void
         set_time_levels_for_type(
                 const enum MSI::Dof_Type aDofType,
@@ -417,7 +438,8 @@ namespace moris
         get_equation_object_off_diag_rhs(
                 const moris::uint&          aMyBlockInd,
                 const moris::uint&          aMyElementInd,
-                Vector< Matrix< DDRMat > >& aElementRHS )
+                Vector< Matrix< DDRMat > >& aElementRHS,
+                bool                        aUsePrevAdjoint )
         {
             MORIS_ERROR( false, "not implemented" );
         };
@@ -593,7 +615,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // FIXME first draft. change this after diagonal jac gets moved into solver
-        void assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS );
+        void assemble_additional_DqDs_RHS_contribution(
+                moris::sol::Dist_Vector* aVectorRHS,
+                bool                     aUsePrevAdjoint = true );
 
         //---------------------------------------------------------------------------------------------------------
 

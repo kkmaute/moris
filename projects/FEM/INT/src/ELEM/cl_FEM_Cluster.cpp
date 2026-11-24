@@ -28,6 +28,19 @@
 
 namespace moris::fem
 {
+    void Cluster::add_adjoint_history( const Vector< Matrix< DDRMat > > &aAdjoint,
+            Vector< Matrix< DDRMat > >                                  &aRHS )
+    {
+        this->reset_cluster_measure();
+        for ( uint i = 0; i < mElements.size(); ++i )
+        {
+            if ( mComputeResidualAndIQI( i ) )
+            {
+                mElements( i )->add_adjoint_history( aAdjoint, aRHS );
+            }
+        }
+    }
+
 
     //------------------------------------------------------------------------------
 
@@ -63,6 +76,7 @@ namespace moris::fem
             case fem::Element_Type::BULK:
             case fem::Element_Type::TIME_SIDESET:
             case fem::Element_Type::TIME_FINAL_SIDESET:
+            case fem::Element_Type::TIME_BOUNDARY:
             {
                 // loop over the IG cells
                 for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
@@ -319,9 +333,10 @@ namespace moris::fem
             moris::moris_index aPrimaryCellIndexInCluster )
     {
         // check that bulk cluster
-        MORIS_ASSERT( mElementType == fem::Element_Type::BULK                              //
-                              || mElementType == fem::Element_Type::TIME_SIDESET           //
-                              || mElementType == fem::Element_Type::TIME_FINAL_SIDESET,    //
+        MORIS_ASSERT( mElementType == fem::Element_Type::BULK                       //
+                              || mElementType == fem::Element_Type::TIME_SIDESET    //
+                              || mElementType == fem::Element_Type::TIME_FINAL_SIDESET
+                              || mElementType == fem::Element_Type::TIME_BOUNDARY,    //
                 "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster." );
 
         // check that the mesh cluster was set

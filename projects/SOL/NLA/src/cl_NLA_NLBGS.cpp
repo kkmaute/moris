@@ -50,6 +50,8 @@ NonLinBlockGaussSeidel::~NonLinBlockGaussSeidel()
 
 void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
+    mMyNonLinSolverManager->set_converged( false );
+
     Tracer tTracer( "NonLinearAlgorithm", "NLBGS", "Solve" );
 
     sint tMaxIts           = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
@@ -191,6 +193,7 @@ void NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlin
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 and tTimeStepIsConverged )
         {
+            mMyNonLinSolverManager->set_converged( true );
             MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
 
             break;

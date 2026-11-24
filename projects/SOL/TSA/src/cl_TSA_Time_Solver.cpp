@@ -111,6 +111,9 @@ void Time_Solver::delete_pointers()
 
         mFullVectorSensitivity.clear();
 
+        delete mAdjointTimeCoupling;
+        mAdjointTimeCoupling = nullptr;
+
         mTimeFrames.clear();
 
         delete mFullMap;
@@ -469,13 +472,26 @@ void Time_Solver::solve_sensitivity()
     // get number of RHS for sensitivity analysis
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
+    // build map for free vector
+    sol::Dist_Map* tFreeMap = tMatFactory.create_map(
+            mSolverInterface->get_my_local_global_map(),
+            mSolverInterface->get_constrained_Ids() );
+
     // full vector and previous full vector
     mFullVectorSensitivity.resize( 2, nullptr );
     mFullVectorSensitivity( 0 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
     mFullVectorSensitivity( 1 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
+    // The carry covers all state DOFs and owns its map for the entire backward solve.
+    delete mAdjointTimeCoupling;
+    mAdjointTimeCoupling = tMatFactory.create_vector( mSolverInterface, tFreeMap, tNumRHMS, false, true );
+
     mFullVectorSensitivity( 0 )->vec_put_scalar( 0.0 );
     mFullVectorSensitivity( 1 )->vec_put_scalar( 0.0 );
+
+    // No contribution arrives from a time slab beyond the terminal slab.
+    mAdjointTimeCoupling->vec_put_scalar( 0.0 );
+    mSolverInterface->set_adjoint_time_coupling( mAdjointTimeCoupling );
 
     mSolverInterface->set_adjoint_solution_vector( mFullVectorSensitivity( 0 ) );
     mSolverInterface->set_previous_adjoint_solution_vector( mFullVectorSensitivity( 1 ) );
@@ -486,7 +502,7 @@ void Time_Solver::solve_sensitivity()
 
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
-    mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
+    mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity, *mAdjointTimeCoupling );
 
     // output solution vector to file
     if ( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )

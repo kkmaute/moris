@@ -1,19 +1,20 @@
 #
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+# Copyright (c) 2022 University of Colorado Licensed under the MIT license. See
+# LICENSE.txt file in the MORIS root for details.
 #
-#------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
 #
 
 # Distributed Linear Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
 
-    include_directories(DLA_Test_Proxy)
-    
+include_directories(DLA_Test_Proxy)
+
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_Dist_Vector_Test.cpp #> VectorType error
+    UT_PETSc_Adjoint_Carry.cpp
+    cl_Dist_Vector_Test.cpp # > VectorType error
     cl_Linear_Solver_Test.cpp
     cl_Map_Test.cpp
     UT_convert_epetra_to_matrix.cpp
@@ -22,23 +23,15 @@ set(TEST_SOURCES
     DLA_Test_Proxy/cl_Solver_Interface_Proxy.cpp
     map.mtx
     matrix.mtx
-    vector.mtx )
+    vector.mtx)
 
 if(${MORIS_HAVE_SLEPC})
-list( APPEND TEST_SOURCES
-    cl_Eigen_Solver_Slepc.cpp
-    )
+  list(APPEND TEST_SOURCES cl_Eigen_Solver_Slepc.cpp)
 endif()
 
 # List test dependencies
-set(TEST_DEPENDENCIES
-    test-libs
-	${ALG}-lib
-    ${DLA}-lib
-    ${COM}-lib
-    ${MTK}-lib
-    ${PRM}-lib
-    )
+set(TEST_DEPENDENCIES test-libs ${ALG}-lib ${DLA}-lib ${COM}-lib ${MTK}-lib
+                      ${PRM}-lib)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
@@ -53,12 +46,27 @@ set_target_properties(${DLA_TEST} PROPERTIES OUTPUT_NAME ${DLA_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(DLA_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${DLA_TEST_PROCS})
-		set(DLA_PARALLEL_TEST ${DLA_TEST}-${PROCS}-procs)
-		add_test(NAME ${DLA_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${DLA_TEST}>)
-	endforeach()
+  set(DLA_TEST_PROCS ${MORIS_TEST_PROCS})
+  foreach(PROCS ${DLA_TEST_PROCS})
+    set(DLA_PARALLEL_TEST ${DLA_TEST}-${PROCS}-procs)
+    add_test(NAME ${DLA_PARALLEL_TEST}
+             COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND}
+                     ${VALGRIND_OPTIONS} $<TARGET_FILE:${DLA_TEST}>)
+  endforeach()
 endif()
 
-
+# PETSc cannot be initialized again after finalization. Keep the carry test
+# separate from the legacy DLA cases, including for a serial configuration.
+if(MORIS_HAVE_PETSC)
+  set(DLA_PETSC_ADJOINT_PROCS 1)
+  if(MORIS_HAVE_PARALLEL_TESTS)
+    set(DLA_PETSC_ADJOINT_PROCS ${MORIS_TEST_PROCS})
+  endif()
+  foreach(PROCS ${DLA_PETSC_ADJOINT_PROCS})
+    add_test(
+      NAME DLA-PETSc-Adjoint-test-${PROCS}-procs
+      COMMAND
+        ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS}
+        $<TARGET_FILE:${DLA_TEST}> "[PETScAdjointCarry]")
+  endforeach()
+endif()

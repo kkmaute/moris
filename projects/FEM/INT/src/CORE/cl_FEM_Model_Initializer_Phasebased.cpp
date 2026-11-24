@@ -573,6 +573,7 @@ namespace moris::fem
 
             // set flag for leader/follower
             bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIWGBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
+
             // create an IWG pointer
             mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
 
@@ -850,6 +851,9 @@ namespace moris::fem
             // get the final time for integration
             real tTimeFinal = tIQIParameter.get< real >( "time_final" );
 
+            // set time continuity flag
+            bool tTimeContinuity = tIQIParameter.get< bool >( "time_continuity" );
+
             // get the treated IQI bulk type
             auto tIQIBulkType = tIQIParameter.get< fem::Element_Type >( "IQI_bulk_type" );
 
@@ -876,7 +880,13 @@ namespace moris::fem
 
             // set final time
             mIQIs( iIQI )->set_time_final( tTimeFinal );
-            if ( tTimeFinal > -1.0 ) { mIQIs( iIQI )->set_time_boundary( true ); }
+            if ( tTimeFinal > -1.0 )
+            {
+                mIQIs( iIQI )->set_time_boundary( true );
+            }
+
+            // set time continuity
+            mIQIs( iIQI )->set_time_continuity( tTimeContinuity );
 
             // init string for leader or follower
             std::string          tIsLeaderString = "leader";
@@ -1239,7 +1249,9 @@ namespace moris::fem
                              tTimeBoundary ) )
                         == tMeshToFemSet.end() )
                 {
-                    // add the mesh set name map
+                    // The same spatial mesh block may have separate bulk,
+                    // time-continuity and final-time sets. The tuple above
+                    // intentionally distinguishes these temporal roles.
                     tMeshToFemSet[ std::make_tuple(
                             tMeshSetName,
                             tTimeContinuity,

@@ -146,6 +146,8 @@ namespace moris::fem
          */
         virtual void initialize_leader_follower_ig_interpolator( mtk::Leader_Follower const aLeaderFollowerType ) const;
 
+        virtual void initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower const aLeaderFollowerType ) const;
+
         //------------------------------------------------------------------------------
         Matrix< DDSMat > get_local_cluster_assembly_indices(
                 moris_index const aLeaderSideOrdinal,

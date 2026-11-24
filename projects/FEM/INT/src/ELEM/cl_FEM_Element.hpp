@@ -412,6 +412,9 @@ namespace moris::fem
          */
         virtual void compute_jacobian() = 0;
 
+        virtual void add_adjoint_history( const Vector< Matrix< DDRMat > > &aAdjoint,
+                Vector< Matrix< DDRMat > >                                 &aRHS ) {}
+
         //------------------------------------------------------------------------------
         /**
          * compute residual

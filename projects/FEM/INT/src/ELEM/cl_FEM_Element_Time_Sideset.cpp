@@ -19,6 +19,30 @@
 
 namespace moris::fem
 {
+    void Element_Time_Sideset::add_adjoint_history(
+            const Vector< Matrix< DDRMat > > &aAdjoint,
+            Vector< Matrix< DDRMat > >       &aRHS )
+    {
+        this->init_ig_geometry_interpolator();
+        for ( uint iGP = 0; iGP < mSet->get_number_of_integration_points(); ++iGP )
+        {
+            const Matrix< DDRMat > &tPoint = mSet->get_integration_points().get_column( iGP );
+            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tPoint );
+            mSet->get_field_interpolator_manager_previous_time()->set_space_time_from_local_IG_point( tPoint );
+            const real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+            if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+            {
+                continue;
+            }
+            const real tWeight = mSet->get_integration_weights()( iGP ) * tDetJ;
+            for ( const auto &tIWG : mSet->get_requested_IWGs() )
+            {
+                tIWG->reset_eval_flags();
+                tIWG->add_adjoint_history( tWeight, mCellIndexInCluster, iGP, aAdjoint, aRHS );
+            }
+        }
+    }
+
 
     //------------------------------------------------------------------------------
 

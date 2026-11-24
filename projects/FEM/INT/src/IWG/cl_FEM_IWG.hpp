@@ -422,6 +422,13 @@ namespace moris::fem
         //------------------------------------------------------------------------------
 
       public:
+        // History hooks are no-ops for stateless IWGs. The accepted forward
+        // trajectory is read-only during reverse and design-derivative assembly.
+        virtual bool has_time_history() const { return false; }
+        virtual bool uses_dg_time_tests() const { return false; }
+        virtual void commit_time_history() {}
+        virtual void add_adjoint_history( real aWeight, uint aElement, uint aPoint, const Vector< Matrix< DDRMat > >& aAdjoint, Vector< Matrix< DDRMat > >& aRHS ) {}
+
         /**
          * Row-sum lump each spatial block of N_row^T N_column. Time coupling
          * remains intact. Field, time, and spatial basis counts must match.

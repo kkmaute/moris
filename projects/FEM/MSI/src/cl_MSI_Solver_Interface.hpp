@@ -50,6 +50,9 @@ namespace moris
             sol::Dist_Vector* mPreviousAdjointSolutionVector = nullptr;
             sol::Dist_Vector* mEigenSolutionVector           = nullptr;
 
+            // Borrowed carry, owned and updated by the time solver after a complete adjoint solve.
+            sol::Dist_Vector* mAdjointTimeCoupling = nullptr;
+
             Matrix< DDRMat > mTime;
             Matrix< DDRMat > mPrevTime;
 
@@ -84,6 +87,9 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            void reset_time_history( bool aAdjointOnly ) override;
+            void commit_time_history( bool aConverged ) override;
+
             void set_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
 
             //------------------------------------------------------------------------------
@@ -105,6 +111,17 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector ) override;
+
+            //------------------------------------------------------------------------------
+
+            void set_adjoint_time_coupling( sol::Dist_Vector* aVector ) override;
+
+            //------------------------------------------------------------------------------
+
+            sol::Dist_Vector* get_adjoint_time_coupling() override
+            {
+                return mAdjointTimeCoupling;
+            }
 
             //------------------------------------------------------------------------------
 
@@ -461,11 +478,12 @@ namespace moris
             get_equation_object_off_diag_rhs(
                     const moris::uint&          aMyEquSetInd,
                     const moris::uint&          aMyElementInd,
-                    Vector< Matrix< DDRMat > >& aElementRHS ) override
+                    Vector< Matrix< DDRMat > >& aElementRHS,
+                    bool                        aUsePrevAdjoint = true ) override
             {
                 mMSI->get_equation_set( aMyEquSetInd )
                         ->get_equation_object_list()( aMyElementInd )
-                        ->get_equation_obj_off_diagonal_residual( aElementRHS );
+                        ->get_equation_obj_off_diagonal_residual( aElementRHS, aUsePrevAdjoint );
             };
 
             //------------------------------------------------------------------------------

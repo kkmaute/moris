@@ -2222,14 +2222,14 @@ namespace moris::fem
                             // check whether only time continuity IWG should be considered
                             if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::TIME_CONTINUITY_ONLY )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF )
+                                if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF || mIWGs( iIWG )->has_time_history() )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
                             }
                             else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::NO_TIME_CONTINUITY )
                             {
-                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF )
+                                if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF && !mIWGs( iIWG )->has_time_history() )
                                 {
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }

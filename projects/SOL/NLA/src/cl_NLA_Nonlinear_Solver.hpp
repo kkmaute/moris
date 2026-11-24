@@ -39,6 +39,8 @@ namespace moris
         class Nonlinear_Solver
         {
           private:
+            bool mConverged = false;
+
             //! List of list of dof types
             Vector< Vector< enum MSI::Dof_Type > > mStaggeredDofTypeList;
 
@@ -292,6 +294,9 @@ namespace moris
             sint get_time_step_iter();
 
             //--------------------------------------------------------------------------------------------------
+
+            bool has_converged() const { return mConverged; }
+            void set_converged( bool aConverged ) { mConverged = aConverged; }
 
             void solve( sol::Dist_Vector* aFullVector );
 

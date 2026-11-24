@@ -260,6 +260,8 @@ namespace moris::fem
         switch ( mSet->get_element_type() )
         {
             case fem::Element_Type::BULK:
+            case fem::Element_Type::TIME_FINAL_SIDESET:
+            case fem::Element_Type::TIME_BOUNDARY:
             {
                 m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
                 m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;
@@ -274,8 +276,6 @@ namespace moris::fem
                 break;
             }
             case fem::Element_Type::TIME_SIDESET:
-            case fem::Element_Type::TIME_FINAL_SIDESET:
-            case fem::Element_Type::TIME_BOUNDARY:
             {
                 m_compute_jacobian_FD      = &IWG::select_jacobian_FD;
                 m_compute_dRdp_FD_material = &IWG::select_dRdp_FD_material;

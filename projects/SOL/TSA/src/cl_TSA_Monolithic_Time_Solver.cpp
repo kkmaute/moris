@@ -29,9 +29,10 @@ using namespace tsa;
 void Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vector* >& aFullVector )
 {
     // trace this solve
-    Tracer tTracer( "Time Solver Algorithm", "Monolithic", "Solve" );
+    Tracer tTracer( "TimeSolverAlgorithm", "Monolithic", "Solve" );
 
     this->finalize();
+    mSolverInterface->reset_time_history( false );
 
     moris::real tTime_Scalar = 0.0;
 
@@ -77,6 +78,9 @@ void Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vec
 
         mNonlinearSolver->solve( aFullVector( tSolVecIndex ) );
 
+        // Re-extract converged coefficients before accepting local history.
+        mSolverInterface->commit_time_history( mNonlinearSolver->has_converged() );
+
         if ( iTimeStep == mTimeSteps - 1 )
         {
             tMaxTimeIterationReached = true;
@@ -119,17 +123,21 @@ void Monolithic_Time_Solver::solve_monolithic_time_system( Vector< sol::Dist_Vec
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& aFullAdjointVector )
+void Monolithic_Time_Solver::solve_implicit_DqDs(
+        Vector< sol::Dist_Vector* >& aFullAdjointVector,
+        sol::Dist_Vector&            aAdjointTimeCoupling )
 {
     // trace this solve
-    Tracer tTracer( "TimeSolver", "Monolithic", "Solve" );
+    Tracer tTracer( "TimeSolverAlgorithm", "Monolithic", "SolveImplicitDqDs" );
 
     // initialize time for time slab
     Vector< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
 
-    uint tStopTimeStepIndex = 0;    // Only consider last time step
+    uint tStopTimeStepIndex = 0;    // Stop before the prescribed initial state.
 
     Vector< sol::Dist_Vector* >& tSolVec = mMyTimeSolver->get_solution_vectors();
+
+    mSolverInterface->reset_time_history( true );
 
     // Loop over all time iterations backwards
     for ( uint Ik = mTimeSteps; Ik > tStopTimeStepIndex; --Ik )
@@ -146,6 +154,8 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
 
         mSolverInterface->set_adjoint_solution_vector( aFullAdjointVector( 0 ) );
         mSolverInterface->set_previous_adjoint_solution_vector( aFullAdjointVector( 1 ) );
+
+        mSolverInterface->set_adjoint_time_coupling( &aAdjointTimeCoupling );
 
         // set time for current time slab ( since off-diagonal is computed on same time level for implicit DqDs)
         mSolverInterface->set_previous_time( tTimeFrames( tPrevSolVecIndex ) );
@@ -166,6 +176,13 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( Vector< sol::Dist_Vector* >& a
 
         mSolverInterface->postmultiply_implicit_dQds();
 
+        // The complete adjoint (including every NLBGS subsystem) is now available.
+        // Keep the current slab's states/time and use lambda_n before advancing history.
+        // Restore all fields after the last subsystem selected only its own DOFs.
+        mSolverInterface->set_requested_dof_types( tDofTypeUnion );
+        aAdjointTimeCoupling.vec_put_scalar( 0.0 );
+        mSolverInterface->assemble_additional_DqDs_RHS_contribution( &aAdjointTimeCoupling, false );
+
         aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *( aFullAdjointVector( 0 ) ), 0.0 );
     }
 }
@@ -181,7 +198,24 @@ void Monolithic_Time_Solver::solve( Vector< sol::Dist_Vector* >& aFullVector )
     }
     else
     {
-        this->solve_implicit_DqDs( aFullVector );
+        MORIS_ERROR( false, "Monolithic_Time_Solver::solve() - cannot be used in sensitivity analysis." );
+    }
+}
+
+//-------------------------------------------------------------------------------
+
+void Monolithic_Time_Solver::solve(
+        Vector< sol::Dist_Vector* >& aFullVector,
+        sol::Dist_Vector&            aAdjointTimeCoupling )
+{
+    // switch between forward and sensitivity analysis
+    if ( mMyTimeSolver->is_forward_analysis() )
+    {
+        MORIS_ERROR( false, "Monolithic_Time_Solver::solve() - cannot be used in forward analysis." );
+    }
+    else
+    {
+        this->solve_implicit_DqDs( aFullVector, aAdjointTimeCoupling );
     }
 }
 

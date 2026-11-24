@@ -63,8 +63,6 @@ namespace moris::dla
         // additional contributions for adjoint sensitivities
         if ( !mSolverInterface->is_forward_analysis() )
         {
-            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
-
             this->compute_residual_for_adjoint_solve();
         }
 
@@ -185,8 +183,6 @@ namespace moris::dla
         // additional contributions for adjoint sensitivities
         if ( !mSolverInterface->is_forward_analysis() )
         {
-            mSolverInterface->assemble_additional_DqDs_RHS_contribution( mPointVectorRHS );
-
             this->compute_residual_for_adjoint_solve();
         }
 
@@ -298,7 +294,10 @@ namespace moris::dla
                 mPointVectorLHS->get_map(),
                 mSolverInterface->get_num_rhs() );
 
-        // multiply jacobian with previous solution vector
+        // Add the immutable carry using the vector backend's map handling.
+        mPointVectorRHS->add_vector( *mSolverInterface->get_adjoint_time_coupling(), *tMatTimesSolVec );
+
+        // Reuse the temporary for the current adjoint residual contribution.
         mMat->mat_vec_product( *mPointVectorLHS, *tMatTimesSolVec, false );
 
         // add contribution to RHS

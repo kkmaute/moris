@@ -28,4 +28,13 @@ namespace moris::sol
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    void
+    Dist_Vector::add_vector( Dist_Vector& aSourceVec, Dist_Vector& aWorkspace )
+    {
+        // Native matching-layout addition needs no map transfer or workspace.
+        this->vec_plus_vec( 1.0, aSourceVec, 1.0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
 }    // namespace moris::sol

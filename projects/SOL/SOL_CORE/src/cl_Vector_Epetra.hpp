@@ -102,6 +102,8 @@ namespace moris
                 sol::Dist_Vector&  aVecA,
                 const moris::real& aScaleThis ) override;
 
+        void add_vector( sol::Dist_Vector& aSourceVec, sol::Dist_Vector& aWorkspace ) override;
+
         void scale_vector(
                 const moris::real& aValue,
                 const moris::uint& aVecIndex = 0 ) override;

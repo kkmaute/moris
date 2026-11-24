@@ -398,7 +398,7 @@ namespace moris
         aParameterLists.set( "property_name", "PropWeightCurrent" );
         aParameterLists.set( "function_parameters", "100.0" );
         aParameterLists.set( "value_function", "Func_Const" );
-                aParameterLists( FEM::PROPERTIES ).add_parameter_list();
+        aParameterLists( FEM::PROPERTIES ).add_parameter_list();
         aParameterLists.set( "property_name", "PropWeightPrevious" );
         aParameterLists.set( "function_parameters", "100.0" );
         aParameterLists.set( "value_function", "Func_Const" );
@@ -431,7 +431,7 @@ namespace moris
                     "PropPCTemp,PCTemp;"
                     "PropPhaseState,PhaseStateFunction;"
                     "PropPCconst,PhaseChangeConst" );
-            }
+        }
         else    // no phase change
         {
             // constitutive model for thermal storage material
@@ -443,7 +443,7 @@ namespace moris
                     "PropPcmConductivity,Conductivity;"
                     "PropPcmDensity,Density;"
                     "PropPcmHeatCapacity,HeatCapacity" );
-            }
+        }
 
         // constitutive model for thermal conductor material
         aParameterLists( FEM::CONSTITUTIVE_MODELS ).add_parameter_list();
@@ -500,7 +500,7 @@ namespace moris
                     "PropPCTemp         , PCTemp;"
                     "PropPhaseState     , PhaseStateFunction;"
                     "PropPCconst        , PhaseChangeConst" );
-            }
+        }
         else    // no phase change
         {
             // GGLS parameter for thermal storage material
@@ -516,7 +516,7 @@ namespace moris
                     "PropDummyPCTemp    , PCTemp;"
                     "PropPhaseState     , PhaseStateFunction;"
                     "PropPCconst        , PhaseChangeConst" );
-            }
+        }
 
         // Dirichlet SP
         aParameterLists( FEM::STABILIZATION ).add_parameter_list();
@@ -560,7 +560,7 @@ namespace moris
             aParameterLists.set( "follower_constitutive_models", "CMDiffusionPcm,Diffusion" );
             aParameterLists.set( "stabilization_parameters", "SPInterfaceNitsche ,NitscheInterface" );
             aParameterLists.set( "mesh_set_names", tFinPcmInterface );
-            }
+        }
 
         // Imposed heat flux
         aParameterLists( FEM::IWG ).add_parameter_list();
@@ -592,7 +592,7 @@ namespace moris
             aParameterLists.set( "follower_dof_dependencies", "TEMP" );
             aParameterLists.set( "stabilization_parameters", "SPGPTempPcm,GhostSP" );
             aParameterLists.set( "mesh_set_names", tPcmGhost );
-            }
+        }
 
         // Time Continuity
         aParameterLists( FEM::IWG ).add_parameter_list();
@@ -656,14 +656,14 @@ namespace moris
         aParameterLists.set( "NLA_relaxation_strategy", sol::SolverRelaxationType::InvResNormAdaptive );
         aParameterLists.set( "NLA_relaxation_damping", 0.5 );
         aParameterLists.set( "NLA_max_iter", tNLAMaxIter );
-        aParameterLists.set( "NLA_combined_res_jac_assembly", false );
+        aParameterLists.set( "NLA_combined_res_jac_assembly", true );
 
         // for adjoint analysis
         aParameterLists( SOL::NONLINEAR_ALGORITHMS ).add_parameter_list();
         aParameterLists.set( "NLA_rel_res_norm_drop", tNLARelResNormDrop );
         aParameterLists.set( "NLA_relaxation_parameter", 1.0 );
-        aParameterLists.set( "NLA_max_iter", 1 );
-        aParameterLists.set( "NLA_combined_res_jac_assembly", false );
+        aParameterLists.set( "NLA_max_iter", 2 );
+        aParameterLists.set( "NLA_combined_res_jac_assembly", true );
 
         // for forward analysis
         aParameterLists( SOL::NONLINEAR_SOLVERS ).add_parameter_list();
@@ -688,7 +688,7 @@ namespace moris
         aParameterLists.set( "TSA_Output_Criteria", "Output_Criterion" );
         aParameterLists.set( "TSA_time_level_per_type", "TEMP,2" );
 
-        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list(  sol::PreconditionerType::IFPACK );
+        aParameterLists( SOL::PRECONDITIONERS ).add_parameter_list( sol::PreconditionerType::IFPACK );
         aParameterLists.set( "ifpack_prec_type", "ILU" );
     }
 

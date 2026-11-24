@@ -310,8 +310,19 @@ Vector_Epetra::vec_plus_vec(
 
 //----------------------------------------------------------------------------------------------
 
-void
-Vector_Epetra::scale_vector(
+void Vector_Epetra::add_vector( sol::Dist_Vector& aSourceVec, sol::Dist_Vector& aWorkspace )
+{
+    // Restrict all RHS columns using MORIS DOF IDs before adding in this vector's
+    // point-map ordering. Direct addition of an all-field source to a subsystem
+    // would use the wrong rows in vec_plus_vec's different-map fallback.
+    aWorkspace.vec_put_scalar( 0.0 );
+    aWorkspace.import_local_to_global( aSourceVec );
+    this->vec_plus_vec( 1.0, aWorkspace, 1.0 );
+}
+
+//----------------------------------------------------------------------------------------------
+
+void Vector_Epetra::scale_vector(
         const moris::real& aValue,
         const moris::uint& aVecIndex )
 {

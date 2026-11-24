@@ -57,6 +57,7 @@ set(HEADERS
     CORE/fn_FEM_FD_Scheme.hpp
 
     ELEM/cl_FEM_Cluster.hpp
+    ELEM/cl_FEM_Cluster_Time_History.hpp
     ELEM/cl_FEM_Element_Factory.hpp
     ELEM/cl_FEM_ElementProxy.hpp
     ELEM/cl_FEM_Element.hpp
