@@ -150,6 +150,7 @@ namespace moris::fem
             STRUC_NONLINEAR_CONTACT_MLIKA_UNBIASED_NEUTRAL_FRIEDER_ORG,
             GHOST_NORMAL_FIELD,
             USER_DEFINED,
+            TIME_DG_MASS,
             END_IWG_TYPE )
 
     ENUM_MACRO( IQI_Type,

@@ -191,6 +191,9 @@ namespace moris::prm
 
         tParameterList.insert( "analytical_jacobian", true );
 
+        // Reduced DG(1) weak row and incoming collocation for this spatial IWG.
+        tParameterList.insert( "time_dg", false );
+
         tParameterList.insert( "time_continuity", false );
         tParameterList.insert( "time_boundary", false );
         tParameterList.insert( "time_final", -1.0 );

@@ -1461,13 +1461,24 @@ namespace moris::fem
         // get number of vertices on the treated mesh cluster
         uint tNumVertices = tVertexLocalCoords.n_rows();
 
+        // DG output is stamped with the slab end time and must sample the
+        // outgoing trace. Keep the existing convention for other formulations.
+        real tOutputTimeCoordinate = -1.0;
+        for ( const auto& tIWG : mSet->get_IWGs() )
+        {
+            if ( tIWG->uses_dg_time_tests() )
+            {
+                tOutputTimeCoordinate = 1.0;
+            }
+        }
+
         // loop over the vertices on the treated mesh cluster
         for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
         {
             // get the i-th vertex's coordinates in the IP parametric space
             Matrix< DDRMat > tNodalPointLocalCoords = tVertexLocalCoords.get_row( iVertex );
             tNodalPointLocalCoords.resize( 1, tNodalPointLocalCoords.numel() + 1 );
-            tNodalPointLocalCoords( tNodalPointLocalCoords.numel() - 1 ) = -1.0;
+            tNodalPointLocalCoords( tNodalPointLocalCoords.numel() - 1 ) = tOutputTimeCoordinate;
 
             tNodalPointLocalCoords = trans( tNodalPointLocalCoords );
 

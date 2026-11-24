@@ -359,6 +359,17 @@ namespace moris::fem
             }
         }
 
+        // Nonpolynomial hyperelastic forces need temporal quadrature independent
+        // of the displacement degree. Six points are used for DG(1) spatial IWGs.
+        for ( const auto& tIWG : mIWGs )
+        {
+            if ( tIWG->uses_dg_time_tests() )
+            {
+                MORIS_ERROR( tMaxTimeLevels == 2, "Energy-corrected time DG currently requires two temporal bases." );
+                tTimeIntegrationOrder = mtk::Integration_Order::BAR_6;
+            }
+        }
+
         // if a time sideset or boundary
         if ( mTimeContinuity || mTimeBoundary )
         {
@@ -2284,7 +2295,7 @@ namespace moris::fem
                             {
                                 const fem::IWG_Type tIWGType = mIWGs( iIWG )->get_IWG_type();
                                 if (                                                                                                    //
-                                        tIWGType == fem::IWG_Type::TIME_CONTINUITY_DOF ||    //
+                                        tIWGType == fem::IWG_Type::TIME_CONTINUITY_DOF || tIWGType == fem::IWG_Type::TIME_DG_MASS ||    //
                                         tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL ||                    //
                                         tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC ||                  //
                                         tIWGType == fem::IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC )

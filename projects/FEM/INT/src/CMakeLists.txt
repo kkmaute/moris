@@ -144,6 +144,8 @@ set(HEADERS
 
     IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
     IWG/cl_FEM_Lumped_Matrix.hpp
+    IWG/cl_FEM_Time_DG_Operators.hpp
+    IWG/cl_FEM_IWG_Time_DG.hpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.hpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.hpp
     IWG/cl_FEM_IWG_L2.hpp
@@ -391,6 +393,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Factory.cpp
 
     IWG/cl_FEM_IWG_L2.cpp
+    IWG/cl_FEM_IWG_Time_DG.cpp
     IWG/cl_FEM_IWG_Time_Continuity_Dof.cpp
     IWG/cl_FEM_IWG_Ghost_Normal_Field.cpp
     #IWG/cl_FEM_IWG_LSNormal_Bulk.cpp

@@ -575,7 +575,7 @@ namespace moris::fem
             bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET ) || ( tIWGBulkType == fem::Element_Type::NONCONFORMAL_SIDESET );
 
             // create an IWG pointer
-            mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
+            mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType, tIWGParameter.get< bool >( "time_dg" ) );
 
             // set name
             mIWGs( iIWG )->set_name( tIWGName );

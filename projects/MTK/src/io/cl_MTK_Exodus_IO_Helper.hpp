@@ -318,6 +318,14 @@ namespace moris::mtk
         uint
         get_node_index_by_Id( uint aNodeId );
 
+        // Node maps need not be contiguous, especially in distributed output.
+        moris_id get_node_id( uint aLocalIndex ) const
+        {
+            MORIS_ERROR( aLocalIndex < mNodeNumMap.numel(), "Exodus local node index is out of bounds." );
+            return mNodeNumMap( aLocalIndex );
+        }
+
+
         //------------------------------------------------------------------------------
         /*
          * @brief returns nodal field value of node defined by its Id

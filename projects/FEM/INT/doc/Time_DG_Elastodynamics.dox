@@ -1,0 +1,133 @@
+/**
+@page fem_time_dg_elastodynamics Energy-corrected DG(1) elastodynamics
+
+Implements report.pdf, Sections 7, 9 and 17, equations (28)-(35), (54)-(58).
+The selected baseline is p=1, alpha=4, a fixed spatial trial space and
+state-independent, time-independent, nonsingular consistent reference mass.
+The only global forward/adjoint unknowns are displacement coefficients.
+
+@section time_dg_configuration Configuration
+
+Give each displacement component two temporal bases with TSA_time_level_per_type.
+Set time_dg=true on every participating spatial bulk, reference-traction,
+Dirichlet and ghost IWG. Use TIME_DG_MASS on the active volume mesh sets with
+ time_continuity=true, Density, and optionally Thickness, InitialDisplacement,
+InitialVelocity and InitialTime. InitialTime defaults to zero; absent initial
+fields are zero. Do not also add TIME_CONTINUITY_DOF to this displacement field.
+All active phases need their own inertia configuration and positive density.
+
+Time_DG_Operators generates the augmented temporal operators from Gauss
+integration and incoming endpoint collocation. It inverts only a fixed 2x2
+temporal matrix. No spatial mass matrix or inverse is constructed.
+
+For a slab [t_n,t_(n+1)] with xi=(t-t_n)/dt, q_h=(1-xi)Q_0+xi Q_1.
+The two known incoming traces q_minus and v_minus are the preceding slab's
+outgoing displacement and reconstructed velocity. The augmented temporal
+matrices are H=[[1/2,1/2],[1,0]], G=[[0,1],[3,1]], e=[1,4]^T,
+A=H^{-1}G=[[3,1],[-3,1]] and b=H^{-1}e=[4,-2]^T. Reconstruction is
+ V_0=(3 Q_0+Q_1-4 q_minus)/dt,
+ V_1=(-3 Q_0+Q_1+2 q_minus)/dt.
+For f=f_internal-f_external, assemble the displacement-only equations
+ R_0=M(V_1-v_minus)+integral_[t_n,t_(n+1)] f(q_h(t),t) dt,
+ R_1=M(3 V_0+V_1-4 v_minus)+dt f(Q_0,t_n).
+These equations specify the implemented baseline independently of whether the
+local report.pdf reference is distributed with the source tree. Density and
+thickness must be finite positive scalars with no solution-DOF dependence;
+spatial and design-variable dependence is permitted. Arbitrary callback time
+dependence cannot be inferred automatically and is excluded by the contract.
+
+The spatial wrapper sums the two ordinary temporal test blocks, extracting
+the spatial test operator by partition of unity. It places the integrated
+constant weak test in row 0. It evaluates the spatial force again at the
+incoming endpoint and places it in row 1. The endpoint force is repeated with
+the existing time quadrature weights, whose sum supplies exactly delta_t;
+it is not multiplied by an extra delta_t. Trial temporal factors remain in
+the consistent Jacobian, including material and geometric stiffness terms.
+Both leader and follower rows are transformed for ghost contributions.
+All evaluation points and material/property caches are restored afterward.
+The spatial force rule uses six temporal Gauss points, independently of the
+two temporal displacement bases. Finite quadrature is not an exact nonlinear
+energy integration for arbitrary constitutive laws.
+
+The TIME_DG_MASS IWG integrates the condensed inertia/history using spatial
+quadrature on the incoming time sideset. Coefficient ordering is field,
+temporal basis, then spatial basis, matching MORIS interpolation/assembly.
+The coupled slab matrix is nonsymmetric and needs a compatible solver.
+
+@section time_dg_isv ISV lifecycle and geometry derivatives
+
+Cluster_ISV_Data contains a separate persistent Cluster_Time_History bank.
+Legacy reset() clears assembly scratch only. Named velocity snapshots are
+staged/committed once, after nonlinear solve completion, using freshly
+extracted converged coefficients. Failed/aborted solves do not reach commit.
+Starting a new forward trajectory clears the bank; starting an adjoint sweep
+clears reverse carries while preserving the immutable forward trajectory.
+
+Velocity is stored in its spatial interpolation coefficient representation,
+not frozen as sampled physical values. Each quadrature evaluation interpolates
+those coefficients at the current point. This is essential for the geometry
+FD partials: interpolation changes when cut-cell integration coordinates are
+perturbed. Storing sampled velocities and holding them fixed would omit this
+part of the shape derivative. No Newton-trial derivative cache is retained.
+The fixed spatial coefficient numbering must be maintained during a trajectory;
+mesh adaptation, redistribution or changing quadrature needs explicit history
+transfer and is outside this implementation.
+
+Initial data is sampled at spatial interpolation nodes. Spatially varying
+initial-data callbacks must use the IP geometry interpolator's valx(), because
+those nodes need not lie in the current IG subcell. The supplied examples use
+fixed reference initial fields independent of the ADVs. Design-dependent
+prescribed initial fields require their own initial-state derivative terms.
+
+@section time_dg_adjoint Exact displacement adjoint and local history carry
+
+For DG(1), with Q_n=(Q_n0,Q_n1), the outgoing velocity is
+ v_out_n=(-3 Q_n0+Q_n1+2 q_minus_n)/delta_t_n.
+Consequently the eliminated residual depends on Q_n, Q_(n-1), and Q_(n-2).
+The existing previous-slab Jacobian path assembles B_n=dR_n/dQ_(n-1):
+ B_n,ab = rho[-(Ghat*b)_a*r_b/delta_t_n
+                  -ehat_a*A_1b/delta_t_(n-1)] N_space^T N_space,
+where r=(0,1). The remaining dependency is
+ C_n,ab = rho*ehat_a*b_1*r_b/delta_t_(n-1) N_space^T N_space.
+Thickness multiplies both expressions when specified.
+
+MORIS's backward solve receives B_(n+1)^T lambda_(n+1) plus
+C_(n+2)^T lambda_(n+2). The latter is a named local quadrature covector carried
+through cluster ISV data. add_adjoint_history is called once after the full
+slab adjoint is available, including all subsystem solves. It adds the delayed
+term before projection through the equation object's interpolation map.
+The carry stores all objective RHS columns and uses explicit element/point
+indices; quadrature weights are applied once during assembly.
+There is no velocity adjoint global solve, and no frozen-history approximation.
+The first slab uses prescribed data rather than fictitious previous coefficients.
+
+The current and previous state Jacobians and history reverse actions are
+analytical. Material and geometry residual/IQI partials use MORIS's existing
+semi-analytical quadrature FD infrastructure in the supplied examples. Local
+FD evaluations do not mutate the committed history or reverse carries.
+
+The supported example objectives are displacement/volume criteria. An ordinary
+FI gradt() remains the displacement derivative; it must not be interpreted as
+the reconstructed DG velocity. A velocity-dependent objective requires an IQI
+that differentiates reconstruction and history explicitly.
+
+@section time_dg_verification Verification sources and limits
+
+UT_FEM_Time_DG covers temporal elimination, spatial weak/collocation row
+assembly and current FD tangents, previous-slab FD tangents including velocity
+reconstruction, persistent-history reset/rollback, delayed reverse actions
+with multiple RHS columns, multislab density/stiffness-parameter adjoints on
+unequal time slabs, and the conservative scalar energy identity.
+The forward cantilever EXA in projects/EXA/structure/dynamics/Time_DG_Cantilever
+supplies linear/StVK manufactured solutions. Its separate sensitivity example
+in projects/EXA/optimization/Time_DG_Cantilever_Sensitivity supplies linear/StVK
+cut-height/density adjoint-versus-FD sweeps on one/two MPI ranks.
+
+The report's nonlinear energy identity assumes a potential consistent with
+the assembled spatial forces and adequate temporal quadrature. Nonconvexity
+can make the potential jump remainder negative. No unconditional energy decay
+or exact angular-momentum conservation is claimed. Contact, changing active
+spaces, rate-dependent/stateful constitutive laws and state-dependent mass
+require additional history and derivative treatment. Boundary/stabilization
+energy must be included when assessing the energy of a weakly clamped model.
+*/

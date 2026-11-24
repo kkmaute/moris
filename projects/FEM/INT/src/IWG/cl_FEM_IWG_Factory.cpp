@@ -13,6 +13,7 @@
 
 // FEM/INT/src
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_IWG_Time_DG.hpp"
 #include "cl_FEM_IWG_L2.hpp"
 
 // #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
@@ -107,6 +108,35 @@
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
+
+    std::shared_ptr< IWG >
+    IWG_Factory::create_IWG( IWG_Type aIWGType, bool aTimeDG )
+    {
+        if ( aTimeDG )
+        {
+            // Only displacement-based reference-configuration spatial terms
+            // are qualified for this reduced temporal test transformation.
+            switch ( aIWGType )
+            {
+                case IWG_Type::STRUC_LINEAR_BULK:
+                case IWG_Type::STRUC_NON_LINEAR_BULK_PF:
+                case IWG_Type::STRUC_NON_LINEAR_BULK_SE:
+                case IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE:
+                case IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE:
+                case IWG_Type::STRUC_LINEAR_NEUMANN:
+                case IWG_Type::GHOST_NORMAL_FIELD:
+                    return std::make_shared< IWG_Time_DG_Spatial >( this->create_IWG( aIWGType ) );
+                default:
+                    MORIS_ERROR( false, "time_dg is available for structural bulk, Dirichlet, traction and ghost IWGs only." );
+                    return nullptr;
+            }
+        }
+        return this->create_IWG( aIWGType );
+    }
 
     std::shared_ptr< IWG >
     IWG_Factory::create_IWG( IWG_Type aIWGType )
@@ -462,6 +492,9 @@ namespace moris::fem
 
             case IWG_Type::FS_STRUC_INTERFACE:
                 return std::make_shared< IWG_FS_Struc_Interface >();
+
+            case IWG_Type::TIME_DG_MASS:
+                return std::make_shared< IWG_Time_DG_Mass >();
 
             case IWG_Type::TIME_CONTINUITY_DOF:
                 return std::make_shared< IWG_Time_Continuity_Dof >();

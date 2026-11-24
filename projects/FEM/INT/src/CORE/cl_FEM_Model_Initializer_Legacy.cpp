@@ -378,7 +378,7 @@ namespace moris::fem
 
             auto const tIWGType = tIWGParameter.get< fem::IWG_Type >( "IWG_type" );
 
-            auto tIWG = tIWGFactory.create_IWG( tIWGType );
+            auto tIWG = tIWGFactory.create_IWG( tIWGType, tIWGParameter.get< bool >( "time_dg" ) );
 
             std::string const tIWGName = tIWGParameter.get< std::string >( "IWG_name" );
             tIWG->set_name( tIWGName );

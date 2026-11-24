@@ -137,6 +137,7 @@ set(TEST_SOURCES
     
     UT_FEM_Lumped_Matrix.cpp
     UT_FEM_IWG_Material_History.cpp
+    UT_FEM_Time_DG.cpp
     UT_FEM_IWG_Time_Continuity_Dof.cpp
     
     UT_FEM_IQI_Dof.cpp

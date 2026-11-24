@@ -11,3 +11,5 @@ add_subdirectory(linear)
 add_subdirectory(thermo_elastic)
 add_subdirectory(eigen)
 add_subdirectory(contact)
+
+add_subdirectory(dynamics)

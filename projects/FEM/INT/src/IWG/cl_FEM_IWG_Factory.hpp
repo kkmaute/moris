@@ -41,6 +41,7 @@ namespace moris::fem
          * create IWGs
          */
         std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType );
+        std::shared_ptr< IWG > create_IWG( IWG_Type aIWGType, bool aTimeDG );
     };
 
     //------------------------------------------------------------------------------
