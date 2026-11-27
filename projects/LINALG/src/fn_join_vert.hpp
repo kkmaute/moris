@@ -47,32 +47,41 @@ namespace moris
 
         return join_vert( aA.matrix_data(), aB.matrix_data() );
     }
-    // A native concatenation expression may borrow its operands. Materialize
-    // when either wrapper is temporary so returning the result remains safe.
-    // The evaluated native type also grows fixed-size inputs to the joined size.
-    template< typename Matrix_Type >
-    auto join_vert( Matrix< Matrix_Type >&& aA, const Matrix< Matrix_Type >& aB )
+
+    //------------------------------------------------------------------------------
+
+    namespace linalg_internal
     {
-        auto tJoined      = join_vert( static_cast< const Matrix< Matrix_Type >& >( aA ), aB );
-        using Result_Type = std::decay_t< decltype( tJoined.eval() ) >;
-        return Matrix< Result_Type >( tJoined );
+        // Native concatenation expressions may borrow operands. Evaluate while
+        // temporary wrappers are alive, using the native evaluated type so
+        // fixed-size operands can grow to the concatenated dimensions.
+        template< typename Matrix_Type >
+        auto join_vert_owned( const Matrix< Matrix_Type >& aA, const Matrix< Matrix_Type >& aB )
+        {
+            auto tJoined      = moris::join_vert( aA, aB );
+            using Result_Type = std::decay_t< decltype( tJoined.eval() ) >;
+            return Matrix< Result_Type >( tJoined );
+        }
+    }    // namespace linalg_internal
+
+    // Const rvalue references accept both const and non-const temporaries.
+    // Keep the lvalue overload above deferred on backends that support it.
+    template< typename Matrix_Type >
+    auto join_vert( const Matrix< Matrix_Type >&& aA, const Matrix< Matrix_Type >& aB )
+    {
+        return linalg_internal::join_vert_owned( aA, aB );
     }
 
     template< typename Matrix_Type >
-    auto join_vert( const Matrix< Matrix_Type >& aA, Matrix< Matrix_Type >&& aB )
+    auto join_vert( const Matrix< Matrix_Type >& aA, const Matrix< Matrix_Type >&& aB )
     {
-        auto tJoined      = join_vert( aA, static_cast< const Matrix< Matrix_Type >& >( aB ) );
-        using Result_Type = std::decay_t< decltype( tJoined.eval() ) >;
-        return Matrix< Result_Type >( tJoined );
+        return linalg_internal::join_vert_owned( aA, aB );
     }
 
     template< typename Matrix_Type >
-    auto join_vert( Matrix< Matrix_Type >&& aA, Matrix< Matrix_Type >&& aB )
+    auto join_vert( const Matrix< Matrix_Type >&& aA, const Matrix< Matrix_Type >&& aB )
     {
-        auto tJoined      = join_vert( static_cast< const Matrix< Matrix_Type >& >( aA ),
-                static_cast< const Matrix< Matrix_Type >& >( aB ) );
-        using Result_Type = std::decay_t< decltype( tJoined.eval() ) >;
-        return Matrix< Result_Type >( tJoined );
+        return linalg_internal::join_vert_owned( aA, aB );
     }
 }    // namespace moris
 

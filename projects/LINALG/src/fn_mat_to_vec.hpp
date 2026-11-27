@@ -4,23 +4,17 @@
  *
  *------------------------------------------------------------------------------------
  *
- * fn_vectorize.hpp
+ * fn_mat_to_vec.hpp
  *
  */
 
-#ifndef PROJECTS_LINALG_SRC_FN_VECTORIZE_HPP_
-#define PROJECTS_LINALG_SRC_FN_VECTORIZE_HPP_
+#ifndef PROJECTS_LINALG_SRC_FN_MAT_TO_VEC_HPP_
+#define PROJECTS_LINALG_SRC_FN_MAT_TO_VEC_HPP_
 
 // MORIS library header files.
 #include "cl_Matrix.hpp"
 
-#ifdef MORIS_USE_EIGEN
-#include "Eigen_Impl/fn_vectorize_Eigen.hpp"
-#endif
-
-#ifdef MORIS_USE_ARMA
-#include "fn_vectorize_Arma.hpp"
-#endif
+#include "cl_Vector.hpp"
 
 namespace moris
 {
@@ -45,14 +39,35 @@ namespace moris
             const Matrix< Matrix_Type > &aA,
             bool                         aToRowVector = false )
     {
-        const Matrix< Matrix_Type > tMatrix = vectorize( aA.matrix_data(), aToRowVector );
+        // Copy directly: a fixed-size input cannot hold a differently shaped
+        // flattened intermediate. Explicit indexing preserves the requested
+        // ordering independently of the backend's native matrix layout.
+        Vector< Vector_Type > tVector( aA.numel() );
+        uint                  tIndex = 0;
 
-        Vector< Vector_Type > tVector( tMatrix.numel() );
-
-        std::copy( tMatrix.data(), tMatrix.data() + tMatrix.numel(), tVector.memptr() );
+        if ( aToRowVector )
+        {
+            for ( uint iRow = 0; iRow < aA.n_rows(); ++iRow )
+            {
+                for ( uint iColumn = 0; iColumn < aA.n_cols(); ++iColumn )
+                {
+                    tVector( tIndex++ ) = aA( iRow, iColumn );
+                }
+            }
+        }
+        else
+        {
+            for ( uint iColumn = 0; iColumn < aA.n_cols(); ++iColumn )
+            {
+                for ( uint iRow = 0; iRow < aA.n_rows(); ++iRow )
+                {
+                    tVector( tIndex++ ) = aA( iRow, iColumn );
+                }
+            }
+        }
 
         return tVector;
     }
 
 }    // namespace moris
-#endif /* PROJECTS_LINALG_SRC_FN_VECTORIZE_HPP_ */
+#endif /* PROJECTS_LINALG_SRC_FN_MAT_TO_VEC_HPP_ */

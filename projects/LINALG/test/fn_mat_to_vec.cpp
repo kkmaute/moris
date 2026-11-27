@@ -4,44 +4,83 @@
  *
  *------------------------------------------------------------------------------------
  *
- * fn_vectorize.cpp
+ * fn_mat_to_vec.cpp
  *
  */
 
+#include "fn_mat_to_vec.hpp"
+#include "fn_vectorize.hpp"
 #include <catch.hpp>
-#include "fn_equal_to.hpp"    // ALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
-#include "fn_mat_to_vec.hpp"
 
 namespace moris
 {
-    TEST_CASE(
-            "mat_to_vec",
-            "[linalgebra],[mat_to_vec]" )
+    namespace
     {
-        // create rectangular matrix of size 4x2
-        Matrix< DDRMat > A( 4, 2 );
-        A( 0, 0 ) = 1.1;
-        A( 1, 0 ) = 2.1;
-        A( 2, 0 ) = 3.1;
-        A( 3, 0 ) = 4.1;
-        A( 0, 1 ) = 1.2;
-        A( 1, 1 ) = 2.2;
-        A( 2, 1 ) = 3.2;
-        A( 3, 1 ) = 4.2;
+        template< typename Matrix_Type >
+        void check_flattening( Matrix< Matrix_Type > aMatrix )
+        {
+            // Values distinguish row/column order for rectangular and fixed inputs.
+            for ( uint iRow = 0; iRow < aMatrix.n_rows(); ++iRow )
+            {
+                for ( uint iColumn = 0; iColumn < aMatrix.n_cols(); ++iColumn )
+                {
+                    aMatrix( iRow, iColumn ) = 10.0 * iRow + iColumn;
+                }
+            }
 
-        // flatten matrix into column vector
-        moris::Vector< real > B = mat_to_vec( A, false );
+            const auto tColumnOrder = mat_to_vec( aMatrix );
+            const auto tRowOrder    = mat_to_vec( aMatrix, true );
+            REQUIRE( tColumnOrder.size() == aMatrix.numel() );
+            REQUIRE( tRowOrder.size() == aMatrix.numel() );
 
-        REQUIRE( equal_to( B( 0 ), 1.1 ) );
-        REQUIRE( equal_to( B( 1 ), 2.1 ) );
-        REQUIRE( equal_to( B( 2 ), 3.1 ) );
-        REQUIRE( equal_to( B( 3 ), 4.1 ) );
-        REQUIRE( equal_to( B( 4 ), 1.2 ) );
-        REQUIRE( equal_to( B( 5 ), 2.2 ) );
-        REQUIRE( equal_to( B( 6 ), 3.2 ) );
-        REQUIRE( equal_to( B( 7 ), 4.2 ) );
+            for ( uint iRow = 0; iRow < aMatrix.n_rows(); ++iRow )
+            {
+                for ( uint iColumn = 0; iColumn < aMatrix.n_cols(); ++iColumn )
+                {
+                    CHECK( tColumnOrder( iColumn * aMatrix.n_rows() + iRow ) == Approx( 10.0 * iRow + iColumn ) );
+                    CHECK( tRowOrder( iRow * aMatrix.n_cols() + iColumn ) == Approx( 10.0 * iRow + iColumn ) );
+                }
+            }
+        }
+    }    // namespace
+
+    TEST_CASE( "mat_to_vec fixed, dynamic and empty inputs", "[linalgebra][mat_to_vec]" )
+    {
+        // Direct flattening must work for fixed Eigen dimensions, both orderings,
+        // vectors and empty matrices without constructing a reshaped input type.
+        check_flattening( Matrix< DDRMat >( 4, 2 ) );
+        check_flattening( Matrix< F33RMat >( 3, 3 ) );
+        check_flattening( Matrix< DDRMat >( 1, 4 ) );
+        check_flattening( Matrix< DDRMat >( 4, 1 ) );
+        check_flattening( Matrix< DDRMat >( 0, 0 ) );
+        check_flattening( Matrix< DDRMat >( 0, 3 ) );
+        check_flattening( Matrix< DDRMat >( 3, 0 ) );
+
+        const Matrix< DDRMat > tMatrix   = { { 1.0, 2.0 }, { 3.0, 4.0 } };
+        const Vector< sint >   tIntegers = mat_to_vec< DDRMat, sint >( tMatrix, true );
+        REQUIRE( tIntegers.size() == 4 );
+        CHECK( tIntegers( 0 ) == 1 );
+        CHECK( tIntegers( 1 ) == 2 );
+        CHECK( tIntegers( 2 ) == 3 );
+        CHECK( tIntegers( 3 ) == 4 );
+    }
+
+    TEST_CASE( "Flattening header before vectorization header", "[linalgebra][mat_to_vec][vectorize]" )
+    {
+        // Keep these public headers first in this translation unit. A shared
+        // include guard used to suppress vectorize() in this include order.
+        const Matrix< DDRMat > tMatrix     = { { 1.0, 2.0 }, { 3.0, 4.0 } };
+        const Matrix< DDRMat > tVectorized = vectorize( tMatrix );
+        const auto             tFlattened  = mat_to_vec( tMatrix );
+        REQUIRE( tVectorized.n_rows() == 4 );
+        REQUIRE( tVectorized.n_cols() == 1 );
+
+        for ( uint i = 0; i < 4; ++i )
+        {
+            CHECK( tVectorized( i ) == tFlattened( i ) );
+        }
     }
 }    // namespace moris

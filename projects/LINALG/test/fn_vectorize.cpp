@@ -8,12 +8,13 @@
  *
  */
 
+#include "fn_vectorize.hpp"
+#include "fn_mat_to_vec.hpp"
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "moris_typedefs.hpp"
-#include "fn_vectorize.hpp"
 #include "fn_norm.hpp"
 #include "fn_reshape.hpp"
 #include "fn_trans.hpp"
@@ -219,5 +220,20 @@ namespace moris
             REQUIRE( equal_to( F(11), 3.4 ) );
         }
     }
-}
 
+    TEST_CASE( "Vectorization header before flattening header", "[linalgebra][mat_to_vec][vectorize]" )
+    {
+        // This translation unit checks the reverse public-header include order.
+        const Matrix< DDRMat > tMatrix     = { { 1.0, 2.0 }, { 3.0, 4.0 } };
+        const Matrix< DDRMat > tVectorized = vectorize( tMatrix, true );
+        const auto             tFlattened  = mat_to_vec( tMatrix, true );
+        REQUIRE( tVectorized.n_rows() == 1 );
+        REQUIRE( tVectorized.n_cols() == 4 );
+
+        for ( uint i = 0; i < 4; ++i )
+        {
+            CHECK( tVectorized( i ) == tFlattened( i ) );
+        }
+    }
+
+}    // namespace moris
