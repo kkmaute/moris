@@ -42,17 +42,18 @@ namespace
 {
     struct Time_Continuity_Test_Options
     {
-        bool mConstantTime             = false;
-        bool mScalar                   = false;
-        bool mUniformFields            = false;
-        bool mCurrentWeightDependency  = false;
-        bool mPreviousWeightDependency = false;
-        real mCurrentTimeCoordinate    = -1.0;
-        real mPreviousTimeCoordinate   = 1.0;
-        real mIntegrationWeight        = 1.0;
-        real mThickness                = 1.0;
-        real mResidualWeight           = 1.0;
-        uint mMaxSpaceOrder            = 3;
+        mtk::Interpolation_Order mTimeOrder                = mtk::Interpolation_Order::LINEAR;
+        bool                     mConstantTime             = false;
+        bool                     mScalar                   = false;
+        bool                     mUniformFields            = false;
+        bool                     mCurrentWeightDependency  = false;
+        bool                     mPreviousWeightDependency = false;
+        real                     mCurrentTimeCoordinate    = -1.0;
+        real                     mPreviousTimeCoordinate   = 1.0;
+        real                     mIntegrationWeight        = 1.0;
+        real                     mThickness                = 1.0;
+        real                     mResidualWeight           = 1.0;
+        uint                     mMaxSpaceOrder            = 3;
     };
 }    // namespace
 
@@ -269,13 +270,19 @@ void IWG_Time_Continuity_Dof_Check(
             // create an interpolation order
             mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-            // number of dof for interpolation order
-            uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
+            // The proxy coefficient counts assume two temporal bases.
+            uint tNumTime = 2;
 
             if ( aOptions.mConstantTime )
             {
-                tNumCoeff /= 2;
+                tNumTime = 1;
             }
+            else if ( aOptions.mTimeOrder == mtk::Interpolation_Order::QUADRATIC )
+            {
+                tNumTime = 3;
+            }
+
+            const uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 ) / 2 * tNumTime;
 
             // get number of dof per type
             int tNumDofDisp = tNumCoeff * tNumFields;
@@ -285,15 +292,26 @@ void IWG_Time_Continuity_Dof_Check(
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
                     aOptions.mConstantTime ? mtk::Interpolation_Type::CONSTANT : mtk::Interpolation_Type::LAGRANGE,
-                    aOptions.mConstantTime ? mtk::Interpolation_Order::CONSTANT : mtk::Interpolation_Order::LINEAR );
+                    aOptions.mConstantTime ? mtk::Interpolation_Order::CONSTANT : aOptions.mTimeOrder );
 
             // fill coefficients for leader FI
             Matrix< DDRMat > tLeaderDofHatDisp;
             fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
-            // The proxy supplies linear-time vector coefficients; select the needed block.
-            Matrix< DDRMat > tSelectedCoefficients = tLeaderDofHatDisp(
-                    { 0, tNumCoeff - 1 }, { 0, tNumFields - 1 } );
+            // The proxy supplies two temporal blocks. Extend it with distinct
+            // coefficients for quadratic time without changing existing cases.
+            Matrix< DDRMat > tSelectedCoefficients( tNumCoeff, tNumFields );
+            const uint       tProxyRows = tLeaderDofHatDisp.n_rows();
+
+            for ( uint iField = 0; iField < tNumFields; ++iField )
+            {
+                for ( uint iCoeff = 0; iCoeff < tNumCoeff; ++iCoeff )
+                {
+                    tSelectedCoefficients( iCoeff, iField ) = tLeaderDofHatDisp( iCoeff % tProxyRows, iField )
+                                                            + 0.13 * ( iCoeff / tProxyRows );
+                }
+            }
+
             tLeaderDofHatDisp = tSelectedCoefficients;
 
             if ( aOptions.mUniformFields )
@@ -366,6 +384,7 @@ void IWG_Time_Continuity_Dof_Check(
             for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 INFO( "Dimension=" << iSpaceDim << " spatial order=" << iInterpOrder
+                                   << " time order=" << static_cast< uint >( aOptions.mTimeOrder )
                                    << " constant time=" << aOptions.mConstantTime << " scalar=" << aOptions.mScalar
                                    << " time=" << aInterfaceTime << " lump=" << aLump << " GP=" << iGP );
                 tPropResidualWeight->set_parameters( { { { aOptions.mResidualWeight } } } );
@@ -728,6 +747,31 @@ TEST_CASE( "IWG_Time_Continuity_Dof_Temporal_Blocks", "[IWG_Time_Continuity],[IW
     for ( real tLump : { 0.0, 0.7, 1.0 } )
     {
         IWG_Time_Continuity_Dof_Check( 1.0, tLump, tOptions );
+    }
+}
+
+TEST_CASE( "IWG_Time_Continuity_Dof_Quadratic_Time", "[IWG_Time_Continuity],[IWG_Quadratic_Time]" )
+{
+    // Quadratic scalar/vector jumps in 2D/3D retain all nine temporal blocks.
+    // Check current and previous Jacobians by FD, including initial conditions
+    // and partial/full spatial lumping at distinct interior temporal points.
+    Time_Continuity_Test_Options tOptions;
+    tOptions.mTimeOrder              = mtk::Interpolation_Order::QUADRATIC;
+    tOptions.mCurrentTimeCoordinate  = -0.3;
+    tOptions.mPreviousTimeCoordinate = 0.4;
+    tOptions.mMaxSpaceOrder          = 1;
+
+    for ( bool tScalar : { false, true } )
+    {
+        tOptions.mScalar = tScalar;
+
+        for ( real tTime : { 0.0, 1.0 } )
+        {
+            for ( real tLump : { 0.0, 0.7, 1.0 } )
+            {
+                IWG_Time_Continuity_Dof_Check( tTime, tLump, tOptions );
+            }
+        }
     }
 }
 

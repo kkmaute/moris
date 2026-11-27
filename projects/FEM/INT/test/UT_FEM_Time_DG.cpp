@@ -279,6 +279,32 @@ TEST_CASE( "Time DG mass IWG current Jacobian and committed history", "[FEM][Tim
 
 // The fixed-mass elimination must reject dependencies on other solution fields
 // and invalid reference thickness before returning an incomplete state tangent.
+TEST_CASE( "Time DG mass retains linear-time restriction", "[FEM][TimeDG][IWG]" )
+{
+    // General spatial lumping supports higher time orders; the energy-corrected
+    // displacement/velocity elimination still requires exactly two time bases.
+    Mass_Fixture tFixture;
+
+    for ( auto tOrder : { mtk::Interpolation_Order::CONSTANT, mtk::Interpolation_Order::QUADRATIC } )
+    {
+        const mtk::Interpolation_Rule tRule( mtk::Geometry_Type::QUAD,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                tOrder == mtk::Interpolation_Order::CONSTANT ? mtk::Interpolation_Type::CONSTANT : mtk::Interpolation_Type::LAGRANGE,
+                tOrder );
+        Field_Interpolator            tField( 2, tRule, &tFixture.geometry, { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+        tField.set_coeff( Matrix< DDRMat >( 4 * tField.get_number_of_time_bases(), 2, 0.01 ) );
+        tFixture.manager.mFI = { &tField };
+        tFixture.manager.set_space_time( { { 0.23 }, { -0.31 }, { -1.0 } } );
+        tFixture.iwg->reset_eval_flags();
+
+        CHECK_THROWS_WITH( tFixture.iwg->compute_residual( 0.63 ),
+                Catch::Contains( "Energy-corrected DG(1) requires two temporal displacement bases." ) );
+
+        tFixture.manager.mFI = { &tFixture.current };
+    }
+}
+
 TEST_CASE( "Time DG mass rejects state-dependent and invalid mass properties", "[FEM][TimeDG][IWG]" )
 {
     Mass_Fixture f;

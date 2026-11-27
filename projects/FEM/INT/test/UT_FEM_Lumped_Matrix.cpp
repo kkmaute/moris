@@ -10,6 +10,11 @@
 
 #include "catch.hpp"
 #include "cl_FEM_Lumped_Matrix.hpp"
+#include "cl_FEM_IWG.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_vectorize.hpp"
 
@@ -134,6 +139,122 @@ namespace moris::fem
             tUnscaledTarget( { 0, tSize - 1 }, { 0, tSize - 1 } ) -= tLump;
 
             CHECK( norm( tUnscaledTarget ) < 1e-11 );
+        }
+    }
+
+    TEST_CASE( "IWG Lumped Matrix Temporal Interpolation", "[fem],[IWG_Lumped_Matrix]" )
+    {
+        // Spatial row sums of the dense consistent operator form an independent
+        // reference. Distinct interior slab coordinates activate every temporal
+        // block, including the off-diagonal blocks needed by previous-state coupling.
+        for ( auto tOrder : { mtk::Interpolation_Order::CONSTANT,
+                      mtk::Interpolation_Order::LINEAR,
+                      mtk::Interpolation_Order::QUADRATIC } )
+        {
+            const mtk::Interpolation_Rule tGeometryRule( mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
+            Geometry_Interpolator         tGeometry( tGeometryRule );
+            tGeometry.set_coeff( { { -1.0, -1.0 }, { 1.0, -1.0 }, { 1.0, 1.0 }, { -1.0, 1.0 } },
+                    { { 0.0 }, { 1.0 } } );
+
+            const mtk::Interpolation_Rule tFieldRule( mtk::Geometry_Type::QUAD,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR,
+                    tOrder == mtk::Interpolation_Order::CONSTANT ? mtk::Interpolation_Type::CONSTANT : mtk::Interpolation_Type::LAGRANGE,
+                    tOrder );
+            Field_Interpolator            tCurrent( 2, tFieldRule, &tGeometry, { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+            Field_Interpolator            tPrevious( 2, tFieldRule, &tGeometry, { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
+            const uint                    tNumTime  = tCurrent.get_number_of_time_bases();
+            const uint                    tNumSpace = tCurrent.get_number_of_space_bases();
+            const uint                    tNumBases = tNumTime * tNumSpace;
+            const uint                    tSize     = 2 * tNumBases;
+            tCurrent.set_coeff( Matrix< DDRMat >( tNumBases, 2, 1.0 ) );
+            tPrevious.set_coeff( Matrix< DDRMat >( tNumBases, 2, 0.5 ) );
+            tCurrent.set_space_time( { { 0.17 }, { -0.28 }, { -0.37 } } );
+            tPrevious.set_space_time( { { 0.17 }, { -0.28 }, { 0.41 } } );
+
+            Lumped_Matrix          tCurrentLump;
+            Lumped_Matrix          tPreviousLump;
+            Matrix< DDRMat >       tInitialCoefficients;
+            const Matrix< DDRMat > tInitialValues = { { 1.3 }, { -0.7 } };
+            IWG::compute_lumped_matrices( &tCurrent, &tPrevious, tCurrentLump, tPreviousLump, tInitialCoefficients, tInitialValues, true );
+
+            REQUIRE( tInitialCoefficients.n_rows() == tNumBases );
+            REQUIRE( tInitialCoefficients.n_cols() == 2 );
+
+            for ( uint iField = 0; iField < 2; ++iField )
+            {
+                for ( uint iBasis = 0; iBasis < tNumBases; ++iBasis )
+                {
+                    CHECK( tInitialCoefficients( iBasis, iField ) == Approx( tInitialValues( iField ) ) );
+                }
+            }
+
+            for ( bool tPreviousSlab : { false, true } )
+            {
+                INFO( "Time bases=" << tNumTime << " previous slab=" << tPreviousSlab );
+                const Lumped_Matrix&   tLump       = tPreviousSlab ? tPreviousLump : tCurrentLump;
+                const Matrix< DDRMat > tConsistent = trans( tCurrent.N() )
+                                                   * ( tPreviousSlab ? tPrevious.N() : tCurrent.N() );
+                Matrix< DDRMat > tReference( tSize, tSize, 0.0 );
+
+                // Coefficient ordering is field, temporal basis, spatial basis.
+                // Row-sum spatial entries separately in each temporal block.
+                for ( uint iField = 0; iField < 2; ++iField )
+                {
+                    for ( uint iTime = 0; iTime < tNumTime; ++iTime )
+                    {
+                        for ( uint jTime = 0; jTime < tNumTime; ++jTime )
+                        {
+                            for ( uint iSpace = 0; iSpace < tNumSpace; ++iSpace )
+                            {
+                                const uint tRow    = iField * tNumBases + iTime * tNumSpace + iSpace;
+                                const uint tColumn = iField * tNumBases + jTime * tNumSpace;
+
+                                for ( uint jSpace = 0; jSpace < tNumSpace; ++jSpace )
+                                {
+                                    tReference( tRow, tColumn + iSpace ) += tConsistent( tRow, tColumn + jSpace );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                CHECK( tLump.num_stored_entries() == 2 * tNumSpace * tNumTime * tNumTime );
+                Matrix< DDRMat > tDense( tSize, tSize, 0.0 );
+                tDense += tLump;
+                CHECK( norm( tDense - tReference ) < 1e-12 );
+
+                for ( uint tNumVectors : { 1u, 3u } )
+                {
+                    Matrix< DDRMat > tValues( tSize, tNumVectors );
+
+                    for ( uint iRow = 0; iRow < tSize; ++iRow )
+                    {
+                        for ( uint iColumn = 0; iColumn < tNumVectors; ++iColumn )
+                        {
+                            tValues( iRow, iColumn ) = 0.17 * iRow - 0.31 * iColumn + 0.2;
+                        }
+                    }
+
+                    const Matrix< DDRMat > tProduct  = -0.7 * tLump * tValues;
+                    const Matrix< DDRMat > tExpected = -0.7 * tReference * tValues;
+                    CHECK( norm( tProduct - tExpected ) < 1e-12 );
+                }
+
+                // Offset assembly must accumulate while preserving surrounding entries.
+                Matrix< DDRMat > tTarget( tSize + 3, tSize + 4, 0.125 );
+                Matrix< DDRMat > tExpected = tTarget;
+                tExpected( { 1, tSize }, { 2, tSize + 1 } ) -= 0.7 * tReference;
+                tTarget( { 1, tSize }, { 2, tSize + 1 } ) -= 0.7 * tLump;
+                CHECK( norm( tTarget - tExpected ) < 1e-12 );
+            }
+
+            IWG::compute_lumped_matrices( &tCurrent, &tPrevious, tCurrentLump, tPreviousLump, tInitialCoefficients, tInitialValues, false );
+            CHECK( tInitialCoefficients.numel() == 0 );
         }
     }
 

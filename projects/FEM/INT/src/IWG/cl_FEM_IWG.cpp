@@ -46,8 +46,6 @@ namespace moris::fem
         const uint tNumTime   = aFIRow->get_number_of_time_bases();
         const uint tNumFields = aFIRow->get_number_of_fields();
 
-        MORIS_ERROR( tNumTime == 1 || tNumTime == 2,
-                "IWG::compute_lumped_matrix - Only constant and linear time interpolation are supported." );
         MORIS_ERROR( aFIColumn->get_number_of_space_bases() == tNumSpace
                              && aFIColumn->get_number_of_time_bases() == tNumTime
                              && aFIColumn->get_number_of_fields() == tNumFields,
