@@ -1,0 +1,718 @@
+% Build twice with pdflatex for the table of contents and cross-references.
+% No external bibliography processor or downloaded figure is required.
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,frame=single}
+\setlength{\emergencystretch}{2em}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\tr}{^{\mathsf T}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Id}{\bm I}
+\newcommand{\vn}{\bm n}
+\newcommand{\vN}{\bm N_0}
+\newcommand{\vt}{\bm t}
+\newcommand{\vq}{\bm q}
+\newcommand{\vs}{\bm s}
+\newcommand{\vC}{\bm C}
+\newcommand{\Proj}{\bm P}
+\newcommand{\Nm}{\bm N}
+\newcommand{\Tm}{\bm T}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\DeclareMathOperator{\diag}{diag}
+\title{Proposed MORIS Implementation of Mlika Frictional Contact\\
+\large Thesis Eq.~(4.25), reusing the corrected Seitz assembly}
+\author{Implementation design for review}
+\date{Revised November 25, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document proposes a separate Mlika frictional-contact IWG implementing
+Eq.~(4.25) of Mlika's thesis, equivalently Eq.~(15) of
+Mlika--Renard--Chouly (2017). The implementation reuses the corrected Seitz
+IWG's assembly organization: common ray mapping, current and previous field
+interpolators, a quadrature-point Coulomb projection, separate leader/follower
+residuals, current Jacobian blocks, and a previous-slab Jacobian for adjoints.
+Both laws use current constitutive traction; previous configurations enter only
+the slip kinematics. Mlika uses velocity, while Seitz uses an increment. A small
+Mlika-specific adapter is proposed instead of duplicating the Seitz assembly.
+No independent internal friction history or additional time-scale property is
+introduced. This is a revised design proposal; Mlika implementation remains on
+hold pending review. The dormant friction prototype and traction-history map
+have since been removed from the existing Mlika class. That class retains only
+the verified frictionless energy formulation, Eqs.~(4.28)--(4.30); frictional
+contact uses the corrected Seitz implementation. The adapter described below
+remains an unimplemented design option.
+\end{abstract}
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Scope and design commitments}
+\begin{enumerate}[leftmargin=*]
+\item Preserve the corrected Seitz behavior, public identifiers, parameter
+conventions, residuals, Jacobians and regression references. Permit only the
+small internal hooks needed to reuse its assembly; verify unchanged Seitz results.
+\item Add a distinct Mlika frictional formulation. Preserve the existing Mlika
+frictionless energy formulation and its factory identifiers.
+\item Use the existing two-dimensional line-facet ray mapping and the contact
+time-interpolation configurations already supported by that mapping. The first
+qualification uses the existing constant-in-time contact fixtures and Q1/Q2
+spatial examples; higher temporal order and three-dimensional contact are not
+asserted by this proposal. Retain the mapping component's current requirement
+for compatible leader/follower basis counts; validate unsupported mixed-order
+pairs explicitly. The total-Lagrangian reference geometry is fixed across the
+trajectory, although a design perturbation changes it consistently at all steps.
+\item Support $\theta\in\{-1,0,1\}$ with the same mathematical convention as the
+thesis. MORIS labels $\theta=0$ ``neutral'' and $\theta=-1$ ``unsymmetric'';
+the literature calls these non-symmetric and skew-symmetric, respectively.
+Frictional tangents are generally non-symmetric, including for $\theta=1$.
+\item Reconstruct previous configurations through previous-slab FI managers.
+Do not use a traction-history map or add a friction ISV bank.
+\item First target the existing elastic/hyperelastic constitutive models.
+Constitutive internal variables for inelastic materials would require their own
+accepted-state contract and are outside this proposal.
+\end{enumerate}
+
+\section{Literature target and distinction from the existing Mlika IWG}
+The target is the large-deformation, ray-tracing Coulomb formulation of thesis
+Sec.~4.2.1, Eq.~(4.25) \cite{mlika2018}, and paper Sec.~2.1, Eq.~(15)
+\cite{mlika2017}. Its normal/friction operator is given by thesis
+Eqs.~(4.17)--(4.21), and its generalized Newton tangent by Eq.~(4.32) and
+Appendix~B. The earlier small-strain work \cite{chouly2018} treats a different
+setting and does not replace this finite-deformation derivation.
+
+The current MORIS Mlika normal residual instead follows the frictionless
+potential-related family of thesis Eq.~(4.30), paper Eq.~(20). With $a_-=\min(a,0)$,
+its directional contact residual is
+\begin{equation}\label{eq:oldnormal}
+ r_{\mathrm{energy}}(\delta\bm u)
+ =\frac{1}{2\gamma}
+ \left[-\theta t_n\,\delta t_n
+       +a_-\bigl(\theta\delta t_n+\gamma\delta g\bigr)\right].
+\end{equation}
+The new implementation must not silently switch between this family at
+$\mu=0$ and Eq.~(4.25) at $\mu>0$. It uses the vector formulation below for
+all $\mu\geq0$, with its own frictionless limit and identifiers.
+
+\section{Configuration, signs, frames, and discrete operators}
+Consider one oriented contact quadrature point. Let $X$ be the fixed reference
+leader point and $Y(\bm d)$ its current ray-mapped reference follower point.
+The current and previous configurations are $\bm\varphi$ and
+$\bm\varphi^-$, with $\bm\varphi(X)=X+\bm u(X)$. The ray equation is
+\begin{equation}\label{eq:ray}
+ \bm\varphi_\ell(X)-\bm\varphi_f(Y)+g\vn=\bm0.
+\end{equation}
+Here $g>0$ denotes separation, $\vn$ is the current outward leader unit normal,
+and compression has $t_n\leq0$. The reference leader unit normal is $\vN$.
+For the default PK1 constitutive mode,
+\begin{equation}
+ \vt=\bm\Pi\vN,\qquad t_n=\vt\cdot\vn,
+ \qquad \Proj=\Id-\vn\vn\tr.
+\end{equation}
+$\bm\Pi$ denotes the first Piola--Kirchhoff stress. Both the normal and tangential
+contact tractions are nominal forces per reference area, integrated using the
+reference surface measure. A Cauchy traction must not be substituted without the
+corresponding measure conversion.
+
+Let $\bm d_\ell,\bm d_f$ denote current leader/follower coefficient vectors, and
+$\Nm_\ell,\Nm_f(Y)$ the vector-valued FI shape matrices. Coefficients follow the
+MORIS FI's field/component-major ordering, with temporal and spatial basis
+ordering inherited from that FI. The contact geometry component converts its
+internal node-major derivative ordering to this assembly ordering.
+
+At fixed reference geometry and leader quadrature point, define
+\begin{equation}\label{eq:T}
+ \Tm_\ell=\frac{\partial\vt}{\partial\bm d_\ell},\qquad
+ \frac{\partial\vt}{\partial\bm d_f}=\bm0.
+\end{equation}
+These are constitutive traction derivatives, not derivatives of the scalar
+$t_n$; variation of the current normal is accounted for separately. The follower
+shape matrix depends on current coefficients through $Y(\bm d)$.
+
+\subsection{One oriented contribution and unbiased integration}
+Every expression below is for one oriented quadrature contribution with factor
+$1/2$. The unbiased formulation integrates over both potential contact surfaces.
+The implementation audit must establish that MORIS's set/orientation construction
+provides that coverage. Merely adding a factor $1/2$ to a single master/slave
+pass is not an unbiased discretization. Quadrature, reference surface Jacobian,
+selection, and thickness factors are applied exactly once.
+
+\section{Previous-slab kinematics and the model time increment}
+Thesis Eq.~(2.13) and the paper's objective backward-Euler sliding velocity
+evaluate the previous configuration at the \emph{current} pairing $X,Y(\bm d)$:
+\begin{equation}\label{eq:k}
+ \bm k=\bm\varphi^-_\ell(X)-\bm\varphi^-_f(Y)+g\vn^-.
+\end{equation}
+With the actual positive model time/load increment $\Delta t$, define
+\begin{equation}\label{eq:v}
+ \bm v=-\frac{\bm k}{\Delta t},\qquad
+ \vs=\Proj\bm k=-\Delta t\Proj\bm v.
+\end{equation}
+This includes previous normal rotation and follows the objective kinematics of
+Refs.~\cite{mlika2018,mlika2017,poulios2015}. It is not a difference between
+current and previous displacement values at independently remapped points.
+
+The existing \code{GapData::mLeaderTangentVelocity} stores $\vs$, despite its
+name: its construction contains no division by the time increment. Reuse that
+increment and its derivatives, with
+\begin{equation}\label{eq:beta}
+ \beta_M=\beta=\frac{\gamma}{\Delta t},\qquad
+ \vq_M=\Proj\vt+\beta\vs.
+\end{equation}
+The corrected Seitz IWG instead uses
+$\vq_S=\Proj\vt+\gamma_{\tau,S}\vs$ \cite{seitz2019,seitz2019thesis}.
+Seitz's paper explicitly distinguishes its slip increment from Mlika's velocity
+immediately after Eq.~(34). No stress time-level difference remains.
+
+\paragraph{Units and time convention.}
+Use the time/load parameter actually supplied by the model. The earlier proposed
+normalization $\tau=t/T_*$ and the \code{FrictionTimeScale} property are withdrawn:
+there is no hidden or additional reference-time conversion. The initial strict
+single-$\gamma$ qualification uses a consistently nondimensional problem with a
+nondimensional model time/load parameter. This is an explicit implementation
+scope, not a claim that the thesis prescribes a particular nondimensionalization.
+It avoids treating a velocity and a length as dimensionally interchangeable.
+Dimensional physical time would require an explicit problem nondimensionalization
+or a separately derived normal/tangential parameter convention; the adapter must
+not silently reinterpret physical seconds. Each benchmark must document its units,
+model time grid and numerical $\gamma$. Changing the units or time parameterization
+without consistently transforming the stabilization is not a meaningful comparison.
+
+For example, a model increment $\Delta t=0.1$ gives $\beta=10\gamma$, not
+$\beta=\gamma$. This is the velocity scaling in the selected discrete law; it
+does not introduce a physical rate-dependent Coulomb friction model.
+
+\subsection{Initialization and time-step selection}
+The previous FI managers must represent the prescribed initial configuration at
+the first increment and the accepted previous solution thereafter. The current
+traction term below is present also at the first increment. Neither law has a
+previous-traction initialization branch. Use actual current/previous evaluation
+times or the time solver's step information to obtain $\Delta t$;
+do not infer slab numbers by $\lfloor t/\Delta t\rfloor$. Variable step sizes
+must be covered by tests. Require a positive $\Delta t$ and consistent previous
+FI/geometry availability.
+
+\section{Coulomb operator in a Seitz-like pointwise organization}
+Define
+\begin{align}
+ a&=t_n+\gamma g,& m&=\min(a,0),& p&=-m\geq0,\\
+ \rho&=\mu p=-\mu m,&
+ \vq&=\Proj(\vt-\gamma\bm v)
+      =\Proj\vt+\beta\vs.\label{eq:q}
+\end{align}
+The friction coefficient is $\mu\geq0$. Let
+\begin{equation}\label{eq:projection}
+ \bm z=\pi_\rho(\vq)=
+ \begin{cases}
+   \vq,&\|\vq\|\leq\rho,\\
+   \displaystyle\rho\frac{\vq}{\|\vq\|},&\|\vq\|>\rho.
+ \end{cases}
+ \qquad
+ \vC=m\vn+\bm z.
+\end{equation}
+For $\rho=0$, set $\bm z=\bm0$ without dividing by a norm. This handles
+opening and frictionless contact. The normal compression and Coulomb radius
+are based on the augmented argument $a$, not on $\gamma g$ alone.
+
+This is the thesis operator $C_{\gamma,\mu}$, with the velocity convention in
+Eq.~\eqref{eq:v}. Separate normal and tangential stabilization parameters would
+be an additional formulation choice. The initial proposal retains the common
+$\gamma$ of Eq.~(4.25).
+
+\section{Weak form and residual blocks}
+For test coefficients $\delta\bm d_\ell,\delta\bm d_f$, let
+$\bm w_\ell=\Nm_\ell\delta\bm d_\ell$ and
+$\bm w_f=\Nm_f(Y)\delta\bm d_f$. The oriented contact contribution in
+thesis Eq.~(4.25) can be written
+\begin{equation}\label{eq:weak}
+ r_c(\bm w)=
+ -\frac{\theta}{2\gamma}\vt\cdot\delta\vt
+ +\frac{1}{2\gamma}\vC\cdot
+      \left[\theta\delta\vt+\gamma(\bm w_f-\bm w_\ell)\right].
+\end{equation}
+Here $\delta\vt=\Tm_\ell\delta\bm d_\ell$ and the test jump means evaluation
+of test functions at the current mapped point. It is not an instruction to add
+an extra $\nabla\bm u_f\,\delta Y$ term to the residual test jump. Mapping
+variation enters its \emph{linearization} through $\Nm_f(Y)$, as in the paper's
+tangent system.
+
+Let $w_q$ include the spatial quadrature weight, reference surface Jacobian,
+and thickness, and put $\kappa=w_q/2$. The local residual increments are
+\begin{align}
+ \bm R_\ell&=-\kappa\Nm_\ell\tr\vC
+ -\kappa\frac{\theta}{\gamma}\Tm_\ell\tr(\vt-\vC),\label{eq:Rl}\\
+ \bm R_f&=\kappa\Nm_f\tr\vC.\label{eq:Rf}
+\end{align}
+These equations are the proposed implementation form. They follow Seitz's
+leader/follower force and consistency-term organization. Both laws now use
+current traction; only the slip-increment coefficient differs before parameter
+matching.
+
+For open contact, $\vC=\bm0$, but the leader stress-consistency term generally
+remains. A test must distinguish zero physical contact force from a zero local
+Nitsche residual at an arbitrary unconverged stress state.
+
+\section{Semismooth derivatives of the contact operator}
+For a current-state coefficient direction, assume initially that $\mu$,
+$\Delta t$, $\gamma$, and $w_q$ are independent of displacement DOFs. Thickness
+and selection data therefore have no displacement-DOF dependence in the initial
+supported configuration. Geometry/design
+dependence of $\gamma$ is addressed separately in Sec.~\ref{sec:design}.
+Choose $\chi=1$ for $a<0$ and $\chi=0$ for $a>0$. Then
+\begin{align}
+ \delta a&=\vn\tr\delta\vt+\vt\tr\delta\vn+\gamma\delta g,\\
+ \delta m&=\chi\delta a,& \delta\rho&=-\mu\delta m,\\
+ \delta\Proj&=-\delta\vn\vn\tr-\vn\delta\vn\tr,\\
+ \delta\vq&=\delta\Proj\,\vt+\Proj\delta\vt+\beta\delta\vs.
+ \label{eq:dq}
+\end{align}
+For $r=\|\vq\|>0$ away from branch boundaries, define
+\begin{equation}
+ (\bm A,\bm b)=
+ \begin{cases}
+   (\Id,\bm0),&r<\rho,\\[3pt]
+   \displaystyle\left(
+     \frac{\rho}{r}\left(\Id-\frac{\vq\vq\tr}{r^2}\right),
+     \frac{\vq}{r}\right),&r>\rho.
+ \end{cases}
+\end{equation}
+The differential is
+\begin{equation}\label{eq:dC}
+ \delta\vC=\vn\delta m+m\delta\vn
+            +\bm A\delta\vq+\bm b\delta\rho.
+\end{equation}
+The derivative of the tangential plane is already included in
+Eq.~\eqref{eq:dq}; it must not be added a second time to the ball projection.
+
+At $a=0$ or $r=\rho$, select and document a consistent one-sided generalized
+Jacobian. An opening-side selection at $a=0$ and a specified stick/slip-side
+selection at equality are suitable explicit conventions. Treat $(r,\rho)=(0,0)$
+with a dedicated branch and no norm division. Branch locking may be used for
+controlled finite-difference checks, not to freeze the physical branch across
+Newton updates. Ordinary central FD agreement is required away from switching
+surfaces; directional checks are needed on them.
+
+\subsection{Geometric derivative content}
+For current DOF variations, the previous coefficients remain fixed while the
+current pairing changes. The raw velocity derivative is
+\begin{equation}\label{eq:dv}
+ \delta\bm v=\frac{1}{\Delta t}
+ \left(\bm F^-_f(Y)\,\delta Y-\delta g\,\vn^-\right),
+\end{equation}
+matching thesis Eq.~(4.33) with the model time increment in Eq.~\eqref{eq:v}. The preferred MORIS
+route is to use the existing derivatives of $\vs$ and the current normal in
+\code{GapData}. These include the normal/projector and mapped follower
+contributions. Both current and previous FI managers must be passed to
+\code{Contact_Geometry}; the current Mlika frictionless calls pass null previous
+managers and therefore cannot supply this friction kinematics.
+
+\section{Current-state Jacobian blocks}
+Let $b\in\{\ell,f\}$ and denote
+$\vC_b=\partial\vC/\partial\bm d_b$ and
+$\vt_b=\partial\vt/\partial\bm d_b$. Define the contracted derivatives
+\begin{equation}
+ \mathcal H_{\ell b}(\bm a)
+ =\frac{\partial\Tm_\ell\tr}{\partial\bm d_b}\bm a,
+ \qquad
+ \mathcal M_{fb}(\bm a)
+ =\frac{\partial\Nm_f\tr}{\partial\bm d_b}\bm a.
+\end{equation}
+The vector $\bm a$ is held fixed in these contractions; its derivative is
+included in the separate product-rule term. For a standard leader
+elastic/hyperelastic CM at fixed $X$, $\vt_f=0$ and
+$\mathcal H_{\ell f}=0$. Differentiating Eqs.~\eqref{eq:Rl}--\eqref{eq:Rf} gives
+\begin{align}
+ \bm K_{\ell b}
+ &=-\kappa\Nm_\ell\tr\vC_b
+ -\kappa\frac{\theta}{\gamma}
+ \left[\mathcal H_{\ell b}(\vt-\vC)
+       +\Tm_\ell\tr(\vt_b-\vC_b)\right],\label{eq:Kl}\\
+ \bm K_{fb}
+ &=\kappa\left[\mathcal M_{fb}(\vC)+\Nm_f\tr\vC_b\right].\label{eq:Kf}
+\end{align}
+All four leader/follower blocks must be assembled. The follower test-function
+mapping term $\mathcal M_{fb}$ is essential and is already represented by the
+shared gap-data shape-derivative helpers.
+
+The CM's traction derivative supplies $\Tm_\ell$; its contracted test-traction
+derivative supplies $\mathcal H_{\ell\ell}$. For $\theta\ne0$, second derivatives
+of constitutive traction are required. The old Mlika energy-form Hessian must
+not be reused as if it were the Hessian of Eq.~\eqref{eq:weak}. Conversely, this
+vector weak form does not require copying every second-gap/second-normal term
+from that energy-form implementation.
+
+\section{Previous-slab Jacobian}
+Hold the current coefficients, current mapping, current gap, and current normal
+fixed while perturbing previous coefficients. In the assumed elastic case,
+$\vt$, $\Tm_\ell$, $m$, and $\rho$ then have no previous-state dependence.
+Let
+\begin{equation}
+ \bm S^-_b=\frac{\partial\vs}{\partial\bm d^-_b}.
+\end{equation}
+In particular,
+\begin{align}
+ \bm S^-_\ell&=\Proj\left[\Nm^-_\ell+g
+             \frac{\partial\vn^-}{\partial\bm d^-_\ell}\right],\\
+ \bm S^-_f&=-\Proj\Nm^-_f(Y).
+\end{align}
+The previous follower field is evaluated at the current pair $Y$, not at a
+separately recomputed previous contact pair. Thus
+\begin{equation}
+ \vq^-_b=\beta\bm S^-_b,\qquad
+ \vC^-_b=\bm A\vq^-_b,
+\end{equation}
+and
+\begin{align}
+ \bm K^-_{\ell b}
+ &=\kappa\left[-\Nm_\ell\tr
+        +\frac{\theta}{\gamma}\Tm_\ell\tr\right]\vC^-_b,\label{eq:Kprevl}\\
+ \bm K^-_{fb}&=\kappa\Nm_f\tr\vC^-_b.\label{eq:Kprevf}
+\end{align}
+Use \code{mLeaderdTangentVelocityduprev} and
+\code{mLeaderdTangentVelocitydvprev}, with verified coefficient ordering.
+This coupling needs a new \code{compute_jacobian_previous()} override.
+It arises from previous displacement kinematics, not an independently stored
+traction state. The corrected Seitz IWG has exactly this kinematic-only
+previous-slab structure, with $\gamma_{\tau,S}$ replacing $\beta$. Its obsolete
+previous-stress derivative has been removed. No constitutive-model switch to
+previous FI managers belongs in the proposed Mlika implementation.
+
+\section{Adjoints and design derivatives}\label{sec:design}
+Let the assembled trajectory satisfy $\mathcal R_n=0$ and use the Lagrangian
+\begin{equation}
+ \mathcal L=J-\sum_n\bm\lambda_n\tr\mathcal R_n.
+\end{equation}
+The general discrete adjoint equations are
+\begin{equation}\label{eq:adj}
+ \sum_{m\geq n}\left(\frac{\partial\mathcal R_m}
+                                {\partial\bm d_n}\right)\tr
+          \bm\lambda_m
+ =\left(\frac{\partial J}{\partial\bm d_n}\right)\tr.
+\end{equation}
+The new contact law contributes only the current Jacobian and the adjacent
+previous-slab coupling, Eqs.~\eqref{eq:Kprevl}--\eqref{eq:Kprevf}. Existing DG
+inertia/history terms can have longer coupling; their existing MORIS adjoint
+handling remains in place. No contact ISV carry mechanism is added.
+
+For a design variable $p$ and design-independent prescribed initial state,
+\begin{equation}
+ \frac{\dd J}{\dd p}=J_{,p}
+ -\sum_n\bm\lambda_n\tr\mathcal R_{n,p}.
+\end{equation}
+If the initial state depends on $p$, its trajectory boundary terms must also be
+included. State vectors are fixed while evaluating each partial
+$\mathcal R_{n,p}$. Geometry sensitivities include reference normals, pairing,
+shape functions, previous-field evaluations, integration measures, and
+geometry-dependent stabilization. Property sensitivities include the CM and any explicitly design-dependent
+input. In the initial input contract $\mu$ is a fixed scalar and the time grid
+is design independent. If friction or time-grid quantities are later exposed as
+ADVs, their explicit partial derivatives must be added to this same path. In
+particular, $\delta\beta=\delta\gamma/\Delta t-
+\gamma\,\delta(\Delta t)/(\Delta t)^2$ must then be included.
+
+The first implementation uses the established MORIS geometry/material FD
+sensitivity hooks for these partial design derivatives, with the analytic
+current and previous Jacobians above. Every perturbation must invalidate the
+contact geometry cache and reevaluate the previous fields at the perturbed
+current pairing. No traction cache may survive a design perturbation.
+Do not claim an analytic shape derivative merely because the state Jacobian is
+analytic. Use the same end-to-end adjoint-versus-FD checks as for Seitz, including
+multiple objective RHS columns. The accepted time grid is held fixed with
+respect to the design variables in the initial qualification.
+
+\section{Comparison with the corrected Seitz implementation}
+The comparator is the corrected MORIS Seitz IWG \cite{moriscode}, checked against
+Seitz's paper Eqs.~(33)--(35) and thesis Eqs.~(5.11)--(5.13)
+\cite{seitz2019,seitz2019thesis}. Both the projection and the stress-consistency
+term use \emph{current} constitutive traction. Previous configurations supply
+slip kinematics only. The old comparison based on reconstructed previous
+constitutive traction is superseded.
+
+\begingroup\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\textwidth}
+>{\raggedright\arraybackslash}p{0.36\textwidth}
+>{\raggedright\arraybackslash}p{0.36\textwidth}}
+\toprule
+Aspect & Corrected MORIS Seitz & Proposed Mlika Eq.~(4.25)\\
+\midrule\endhead
+Geometry & Shared current ray map and previous FI managers.
+ & Same component and cache/invalidation contract.\\[3pt]
+Tangential kinematics & Slip increment $\vs$ from shared gap data.
+ & Same $\vs$, converted using $\beta=\gamma/\Delta t$.\\[3pt]
+Trial vector & $\vq_S=\Proj\vt+\gamma_{\tau,S}\vs$.
+ & $\vq_M=\Proj\vt+(\gamma/\Delta t)\vs$.\\[3pt]
+Traction source & Current constitutive traction and its tangent.
+ & Same; previous FIs supply only kinematics.\\[3pt]
+Normal bound & $m=\min(t_n+\gamma g,0)$, $\rho=-\mu m$.
+ & Same common-$\gamma$ normal argument and radius.\\[3pt]
+Consistency terms & Current normal/tangential stress terms; the present MORIS code uses $\gamma$ in both denominators.
+ & Same vector residual, Eqs.~\eqref{eq:Rl}--\eqref{eq:Rf}.\\[3pt]
+Previous derivative & Slip kinematics only, scaled by $\gamma_{\tau,S}$.
+ & Same kinematics, scaled by $\gamma/\Delta t$.\\[3pt]
+Independent friction state & None; previous-stress helpers were removed.
+ & None. No traction map or contact ISV update.\\[3pt]
+Parameters & Existing four-scalar interface; explicit increment stiffness or its normal-SP fallback.
+ & Separate two-scalar interface; velocity coefficient follows from $\gamma$ and $\Delta t$.\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection{Matched-coefficient equivalence}
+For the same smooth mapping branch, reference stress measure, $\theta$, $\mu$,
+quadrature, selection/thickness factors and common normal/consistency parameter
+$\gamma$, choose
+\begin{equation}\label{eq:match}
+ \gamma_{\tau,S}=\frac{\gamma}{\Delta t}.
+\end{equation}
+Then $\vq_S=\vq_M$, so both oriented residuals, all four current Jacobian
+blocks and all four previous-slab blocks must agree. This is a stronger check
+than the earlier proposal's frictionless comparison. At $\Delta t=1$, Seitz's
+normal-SP fallback also gives this match. With varying $\Delta t$ or spatially
+varying $\gamma$, matching must hold at each evaluation point; a single constant
+Seitz parameter cannot generally provide that match throughout a trajectory.
+Ordinary comparisons using the same numeric stiffness without this conversion
+can differ at a finite mesh even though the continuum Coulomb law is the same.
+
+In active contact, decomposing $\vt=t_n\vn+\Proj\vt$ gives
+\begin{align}
+ \bm R_\ell={}&-\kappa\Nm_\ell\tr(m\vn+\bm z)
+ +\kappa\theta g\Tm_\ell\tr\vn
+ -\kappa\frac{\theta}{\gamma}\Tm_\ell\tr(\Proj\vt-\bm z),\\
+ \bm R_f={}&\kappa\Nm_f\tr(m\vn+\bm z).
+\end{align}
+These are the corrected Seitz normal/tangential blocks, with the trial coefficient
+specified by the selected formulation. In particular, the shared assembly must
+keep the stress-consistency denominator equal to $\gamma$; it must not substitute
+$\beta$ there merely because $\beta$ multiplies the slip increment.
+
+For $\mu=0$, both have $\bm z=0$. With matching full Nitsche settings, their
+current residuals/tangents agree and their previous-contact Jacobians vanish.
+This is the vector formulation's frictionless limit, not the older Mlika energy
+form in Eq.~\eqref{eq:oldnormal}.
+
+\subsection{What the corrected baseline establishes}
+The independent two-block sticking patch changes bulk shear stress at exactly
+zero interfacial slip. The corrected IWG transfers the analytic current traction
+for different previous stresses, including reversal. Focused contact tests passed
+610 assertions in 22 cases on each backend, including current and previous-slab
+finite differences. Four Armadillo indenter forward/sensitivity cases passed with
+unchanged references and tolerances. These checks support this corrected baseline;
+they do not qualify a Mlika implementation, a full Eigen sensitivity workflow,
+a three-dimensional mapping, or a complete global shear loading-cycle benchmark.
+
+\section{Proposed MORIS structure and configuration}
+\subsection{A small adapter over the corrected Seitz assembly}
+Add \code{IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frictional} with distinct
+factory entries for all three $\theta$ variants. Preserve existing Mlika
+energy-form identifiers and the corrected public Seitz behavior. Avoid a second
+copy of the residual/Jacobian implementation.
+
+The recommended arrangement is a thin derived adapter over the corrected Seitz
+IWG, using a small protected virtual hook such as
+\code{tangential_trial_coefficient(aGamma)}. The base implementation returns
+Seitz's existing explicit increment stiffness or its SP fallback, preserving its
+four-parameter interface. The Mlika override validates model time data and returns
+$aGamma/\Delta t$. Replace the three local coefficient selections in residual,
+current-Jacobian and previous-Jacobian evaluation by that hook. Do not repurpose
+Seitz's second user parameter or mutate its parameter vector during evaluation.
+The Mlika constructor assigns its own factory/type identity; it remains distinct
+from the older Mlika energy formulation.
+
+The shared assembly uses:
+\begin{itemize}[leftmargin=*]
+\item \code{Contact_Geometry} and \code{GapData} for current mapping, normals,
+slip increments, and derivatives;
+\item leader/follower current and previous FI managers, with time continuity enabled;
+\item the existing \code{ElastLinIso} CM slot and the same selected stress measure;
+\item \code{NitscheInterface} for the common $\gamma$ and existing thickness/select data;
+\item Set residual/Jacobian assembly maps with unchanged field and side ordering.
+\end{itemize}
+All three methods must obtain the same coefficient from unchanged accepted
+trajectory/time data. For fixed time data and DOF-independent $\gamma$, the hook
+has no extra state derivative: both time-level Jacobians simply use its returned
+coefficient. The $\theta/\gamma$ consistency prefactor is unchanged.
+
+\subsection{One consistent projection evaluation}
+The existing residual and tangent branches must be audited together before reuse.
+In particular, zero Coulomb radius and zero trial norm require an explicit branch,
+not division by zero; residual and both tangents must choose the same generalized
+derivative at switching points. If needed, put that point-law evaluation in a
+small protected helper shared by the assembly methods. Preserve gap-data branch
+locking for controlled FD checks, not as a persistent friction state. These are
+bounded internal changes with dedicated Seitz regressions, not a general rewrite
+of the contact geometry or assembly.
+
+Reuse the corrected analytic current and previous-slab Jacobians, retaining
+constitutive test-traction and follower mapping derivatives. Combined assembly
+needs an explicit override: the existing Seitz method
+\code{compute_jacobian_and_residual()} currently raises an error. The Mlika
+adapter must invoke the supported shared residual and Jacobian operations with
+the same additive assembly and branch contract. Do not assume that inheriting this entry point supplies combined
+assembly automatically. Reuse ordinary
+MORIS partial-design FD dispatch deliberately; the shared direct
+\code{compute_dRdp()} stub must not be advertised as an analytic or supported
+standalone design operation. Audit the workflow dispatch and route a directly
+exposed entry point to the supported FD path, or give a clear configuration error.
+
+\subsection{Concrete initial input contract}
+The new adapter's \code{set_parameters()} accepts exactly two scalar entries:
+\begin{enumerate}[leftmargin=*]
+\item friction coefficient $\mu\geq0$;
+\item debug flag, zero for normal operation.
+\end{enumerate}
+It translates these once into the base class's full-Nitsche configuration, with
+penalty-only disabled. Its coefficient hook overrides the base increment
+stiffness choice. There is no \code{FrictionTimeScale} property, independent
+friction history, separate tangential user stiffness, or penalty-only option in
+the strict Eq.~(4.25) adapter. Seitz retains its existing options.
+
+The SP supplies common positive $\gamma$. Validate finite inputs, $\mu\geq0$,
+$\gamma>0$ and $\Delta t>0$, and consistent current/previous time metadata and FI
+availability. The first qualification assumes nondimensional model time as
+specified above, fixed accepted time grids, and DOF-independent $\mu$ and $\gamma$.
+Geometry/material design dependence follows the partial-sensitivity path.
+Unsupported state-dependent stabilization must fail explicitly until its full
+product-rule derivatives are implemented. Higher temporal interpolation is not
+implicitly qualified by this adapter.
+
+\subsection{Evaluation sequence}
+\begin{lstlisting}
+configure and validate current/previous FI managers and accepted time data;
+apply selection; obtain quadrature/thickness weight once;
+map the leader point and evaluate GapData, including previous configurations;
+follow the existing rejected-intersection policy if mapping fails;
+evaluate current constitutive traction and requested derivatives;
+obtain gamma; coefficient hook returns Seitz stiffness or Mlika gamma/DeltaT;
+compute a, m, rho, q, z, C with one consistent branch description;
+assemble requested residual, current Jacobian and/or previous Jacobian blocks;
+leave forward fields and accepted solver trajectory unchanged.
+\end{lstlisting}
+Use local point results and allocate only requested derivative workspaces.
+Invalidate geometry data on field/design changes. Combined assembly must use
+consistent branch/state data and agree with separate calls. No evaluation writes
+traction history, changes FI managers to reconstruct old stress, or copies the
+removed Mlika penalty-friction prototype or its diagnostic output.
+
+\section{Verification plan before qualification}
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Point law.} Check opening, frictionless contact, stick, slip,
+zero trial norm, zero radius, and branch-boundary directional derivatives.
+Verify $\|\bm z\|\leq\rho$ and the converged physical friction law/dissipation.
+\item \textbf{Element state derivatives.} Check every leader/follower current
+Jacobian block against FD away from branch changes, for all $\theta$ variants.
+Use nonmatching meshes and nontrivial normals and follower-coordinate changes.
+Keep smooth FD comparisons away from contact-facet changes, and test facet
+crossings separately as a robustness case.
+\item \textbf{Previous-state derivatives.} Perturb previous leader and follower
+coefficients independently, holding the current pairing fixed as required by the
+partial derivative. Cover the first increment and unequal step sizes.
+\item \textbf{Kinematics.} Check rigid translation, rigid rotation, sliding,
+and reference/current traction-frame consistency. Verify the model time
+convention and the explicit $1/\Delta t$ conversion. Include unequal increments.
+\item \textbf{Independent sticking patch.} Reuse the analytic two-block patch:
+zero slip, changing current bulk shear stress, and different previous stresses,
+including reversal. Mlika must transfer the current analytic traction for several
+positive $\Delta t$ values without acquiring an old-stress dependency.
+\item \textbf{Matched Seitz comparison.} Set the Seitz increment coefficient
+according to Eq.~\eqref{eq:match}. Compare residuals and every current/previous
+Jacobian block for opening, stick and slip, all $\theta$ variants, and several
+increments including $\Delta t\ne1$. Also check $\mu=0$ and zero-radius branches.
+Use independent FD and patch references in addition to this shared-engine check.
+\item \textbf{Assembly/lifecycle.} Check nonzero addends, repeated evaluation,
+combined versus separate assembly, cache invalidation after geometry and field
+changes, and absence of persistent friction-state writes.
+\item \textbf{Forward and adjoint examples.} First reuse the parabolic indenter
+geometry/loading in a separate Mlika driver configuration that leaves the
+existing Seitz cases unchanged. Add the precompressed two-block shear loading
+cycle for deliberate sticking, sliding, unloading and reversal. Add a multislab
+adjoint check for a geometric ADV and a material/property ADV. Use independent
+FD sweeps and the same physical configuration across solver/backend variants.
+\item \textbf{Literature benchmark.} Reproduce the paper's elastic half-ring
+case with and without friction, after the elementary tests pass. Document
+material law, geometry, loading, surface integration, units and the model time grid.
+\item \textbf{Backends and parallel runs.} Run the same tests in separate
+Armadillo and Eigen builds and at appropriate MPI process counts. Use stored
+physical references after qualification; treat timings and iteration counts as
+diagnostics. Retain the corrected Seitz references/tolerances and add shared-engine
+regressions that demonstrate its default coefficient policy is unchanged.
+\end{enumerate}
+
+\section{Review checkpoints}
+The proposal remains tied to Eq.~(4.25) and now reuses the corrected Seitz
+assembly. Before implementation, review the thin coefficient-policy adapter,
+the nondimensional model-time scope, explicit $\gamma/\Delta t$ conversion,
+matching conditions in Eq.~\eqref{eq:match}, unbiased integration coverage,
+zero-radius branches, and supported initial spatial/time-interpolation scope.
+The previous-traction baseline and the earlier additional time-scale property
+are withdrawn. No Mlika code has been implemented by this document update.
+Any internal Seitz hooks must preserve its corrected numerical behavior and
+existing public interface; independent friction history is not proposed.
+
+\begin{thebibliography}{9}
+\bibitem{mlika2018}
+R.~Mlika, \emph{Nitsche method for frictional contact and self-contact:
+Mathematical and numerical study}, PhD thesis, Universit\'e de Lyon / INSA Lyon,
+2018, NNT 2018LYSEI002. In particular Chapter~4, Eqs.~(4.17)--(4.25),
+(4.30)--(4.33), and Appendix~B.
+\url{https://theses.hal.science/tel-02067118/document}.
+
+\bibitem{mlika2017}
+R.~Mlika, Y.~Renard and F.~Chouly,
+``An unbiased Nitsche's formulation of large deformation frictional contact and
+self-contact,'' \emph{Computer Methods in Applied Mechanics and Engineering}
+325 (2017), 265--288, DOI: \href{https://doi.org/10.1016/j.cma.2017.07.015}
+{10.1016/j.cma.2017.07.015}.
+Author manuscript: \url{https://hal.science/hal-01427872/document}.
+
+\bibitem{seitz2019}
+A.~Seitz, W.~A.~Wall and A.~Popp,
+``Nitsche's method for finite deformation thermomechanical contact problems,''
+\emph{Computational Mechanics} 63 (2019), 1091--1110,
+DOI: \href{https://doi.org/10.1007/s00466-018-1638-x}{10.1007/s00466-018-1638-x}.
+In particular Eqs.~(16), (33)--(35) and the paragraph after Eq.~(34).
+The full paper supplied as \code{Seitz 2019a.pdf} was inspected.
+
+\bibitem{seitz2019thesis}
+A.~Seitz, \emph{Computational Methods for Thermo-Elasto-Plastic Contact},
+PhD thesis, Technical University of Munich, accepted 2019.
+In particular Sec.~5.1.1, Eqs.~(5.9)--(5.13), printed pp.~136--137.
+\url{https://mediatum.ub.tum.de/doc/1454145/1454145.pdf}.
+
+\bibitem{chouly2018}
+F.~Chouly, R.~Mlika and Y.~Renard,
+``An unbiased Nitsche's approximation of the frictional contact between two
+elastic structures,'' \emph{Numerische Mathematik} 139 (2018), 593--631,
+DOI: \href{https://doi.org/10.1007/s00211-018-0950-x}{10.1007/s00211-018-0950-x}.
+\url{https://hal.science/hal-01240068/document}.
+
+\bibitem{poulios2015}
+K.~Poulios and Y.~Renard,
+``An unconstrained integral approximation of large sliding frictional contact
+between deformable solids,'' \emph{Computers \& Structures} 153 (2015), 75--90,
+DOI: \href{https://doi.org/10.1016/j.compstruc.2015.02.027}
+{10.1016/j.compstruc.2015.02.027}. Background on ray mapping and objective sliding.
+
+\bibitem{moriscode}
+{\raggedright
+MORIS, branch \code{integration/contact-cmake-refactor}, working tree inspected
+November 25, 2026. Relevant source files under \code{projects/FEM/INT/src/IWG/}:\par
+\code{cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.cpp}\par
+\code{cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.cpp}\par
+\code{cl_FEM_Contact_Geometry.cpp}\par
+\code{cl_FEM_Contact_Gap_Data.hpp}.\par}
+
+The Seitz comparison uses the corrected current-traction implementation after
+removal of the temporary alternative IWG. Spatial ray mapping, PK1 traction and
+one-sided integration conventions remain MORIS adaptations. Literature equations
+and the implementation comparator are identified separately throughout.
+\end{thebibliography}
+\end{document}

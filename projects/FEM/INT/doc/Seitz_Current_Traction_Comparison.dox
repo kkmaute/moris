@@ -1,0 +1,90 @@
+/**
+@page Seitz_Current_Traction_Comparison Seitz friction: current constitutive traction
+
+@section seitz_current_scope Formulation and correction
+
+IWG_Isotropic_Struc_Nonlinear_Contact_Seitz uses current constitutive traction
+in the tangential trial, following Seitz, Wall and Popp, Computational Mechanics
+63 (2019), 1091-1110, DOI: 10.1007/s00466-018-1638-x, Eq. (33):
+\f[
+ \{t_\tau\}_{\omega_s}
+ = P_{B(\bar\mu)}\left(\{t_\tau\}_{\omega_s}
+                    +\gamma_\tau\Delta u_\tau\right).
+\f]
+Previous configurations enter the slip increment, Eq. (16); the traction is
+evaluated from the current displacement iterate. Equation (34) uses the same
+current traction in the Nitsche consistency term. The paragraph following that
+equation distinguishes Seitz's slip increment from the velocity used by Mlika.
+
+The former MORIS trial used previous constitutive traction instead. The
+correction changes it to current constitutive traction, including the current
+stress derivative in the current Jacobian. The previous-slab Jacobian retains
+only slip-kinematics derivatives. Previous-stress helpers and time-index logic
+have been removed. No independent friction history is needed. Public Seitz IWG
+identifiers and parameters remain the same; the temporary alternative IWG and
+its factory identifiers have been removed after the controlled comparison.
+
+This change retains MORIS's existing reference-traction, ray-mapping, penalty
+and one-sided assembly conventions. It does not introduce the paper's harmonic
+traction weighting or claim equivalence of every spatial term. Mlika friction
+development remains on hold.
+
+@section seitz_current_patch Independent sticking regression
+
+The Catch filter [SeitzStickPatch] prescribes an affine deformation of two
+matching Q1 plane-strain blocks meeting at y=0. Both use E=10 and nu=0.3,
+with F=[[1,kappa],[0,0.98]]. The interface displacement is zero at both times,
+so the gap and slip increment vanish exactly. The analytic reference for the
+compressible neo-Hookean Wriggers model is P_xy=G*kappa, G=E/(2*(1+nu)).
+Friction coefficient 1 keeps the selected shear values inside the friction bound.
+
+The neutral variant eliminates test-traction terms. Partition of unity gives
+leader tangential force G*kappa/2 for unit integration weight; the factor 1/2
+comes from MORIS's one-sided contribution. The follower force must be equal and
+opposite. Current shear takes values +/-0.01; previous shear takes 0, 0.004,
+0.01 and -0.004. Loading, held stress and reversal must all transfer the current
+traction independently of the previous stress. References come from the analytic
+constitutive law, not from stored solver output.
+
+Before consolidation, a separate IWG isolated the traction-time change. With
+current kappa=0.01, the reference force was 0.0192307692308. The former IWG
+returned 0, 0.00769230769231, 0.0192307692308 and -0.00769230769231 for the
+four previous shears listed above. The corrected IWG returned the reference in
+every case. The permanent regression retains the analytic check without keeping
+the incorrect implementation in production code.
+
+[SeitzTraction] checks current and previous-slab Jacobians against centered
+finite differences with Q1/Q2 deformed contact geometry, neo-Hookean and
+Saint-Venant--Kirchhoff models, all three theta variants, sticking, sliding,
+frictionless, open and penalty-only contact. Previous configurations remain
+necessary for slip kinematics; fixture traction-history ISV setup is obsolete
+and has been removed.
+
+@section seitz_current_cycle Global comparison plan
+
+The prescribed-field patch isolates consistency; it is not a solved global
+load cycle. A further physical benchmark should fix a lower elastic block,
+compress the interface, and apply a tangential load cycle to an upper block.
+Keep the normal preload fixed. Start below the Coulomb limit, exceed it, unload,
+and reverse far enough to slide in the opposite direction. Record tangential
+force, slip increment, accumulated signed slip, normal force, frictional work
+and nonlinear convergence. Repeat with subdivided loading increments and refined
+meshes, including a frictionless control and a held-load interval. First use
+small strains and linear elasticity, then finite-strain hyperelasticity.
+
+@section seitz_current_validation Verification after consolidation
+
+The corrected existing IWG passed 610 assertions in 22 focused contact cases
+on each of Armadillo and Eigen, using one MPI rank and one math-library thread.
+Both focused builds compiled the updated test, factory and Seitz sources against
+the configured backend's remaining libraries. The ordinary Armadillo CMake
+INT-test and Parabolic_Indenter targets also built successfully.
+
+All four Armadillo CTest Parabolic_Indenter-Seitz cases passed: frictionless,
+frictional, frictionless sensitivity and frictional sensitivity. The sensitivity
+cases compare the transient adjoint with full-workflow finite differences of a
+material ADV. Existing numerical references and tolerances were retained.
+A full Eigen build and Eigen end-to-end sensitivity rerun were not performed.
+The independent global shear loading-cycle benchmark described above remains
+future verification beyond these existing indenter checks.
+*/
