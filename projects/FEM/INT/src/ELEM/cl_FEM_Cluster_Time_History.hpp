@@ -18,6 +18,7 @@ namespace moris::fem
      */
     class Cluster_Time_History
     {
+      private:
         struct State
         {
             real             start;
@@ -80,14 +81,41 @@ namespace moris::fem
 
         Matrix< DDRMat > take_adjoint( const std::string& aName, real aTime, Point aPoint )
         {
-            auto& tPoints = mAdjoint[ aName ][ aTime ];
-            auto  tEntry  = tPoints.find( aPoint );
-            if ( tEntry == tPoints.end() )
+            // A missing contribution is a read-only lookup: reverse assembly
+            // may request points/times for which no carry was ever staged.
+            auto tVariable = mAdjoint.find( aName );
+            if ( tVariable == mAdjoint.end() )
             {
                 return {};
             }
+
+            auto tTime = tVariable->second.find( aTime );
+            if ( tTime == tVariable->second.end() )
+            {
+                return {};
+            }
+
+            auto tEntry = tTime->second.find( aPoint );
+            if ( tEntry == tTime->second.end() )
+            {
+                return {};
+            }
+
             Matrix< DDRMat > tValue = std::move( tEntry->second );
-            tPoints.erase( tEntry );
+            tTime->second.erase( tEntry );
+
+            // Prune only consumed adjoint storage. Other points/times and the
+            // committed forward trajectory remain available to the reverse sweep.
+            if ( tTime->second.empty() )
+            {
+                tVariable->second.erase( tTime );
+
+                if ( tVariable->second.empty() )
+                {
+                    mAdjoint.erase( tVariable );
+                }
+            }
+
             return tValue;
         }
     };

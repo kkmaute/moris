@@ -7,12 +7,12 @@
 #include <string>
 #include <vector>
 #include "cl_FEM_Time_DG_Operators.hpp"
-#include "cl_FEM_Cluster_Time_History.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
 
 #define protected public
 #define private public
+#include "cl_FEM_Cluster_Time_History.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_MSI_Equation_Model.hpp"
@@ -231,6 +231,90 @@ TEST_CASE( "Cluster time history commit rollback and adjoint isolation", "[FEM][
     REQUIRE( h.take_adjoint( "velocity", 0.1, { 2, 3 } ).numel() == 0 );
     h.clear_adjoint();
     REQUIRE( h.values( "velocity", 0.3 )( 1 ) == 8.0 );
+}
+
+TEST_CASE( "Cluster adjoint history missing reads do not allocate entries", "[FEM][TimeDG][ISV][AdjointHistory]" )
+{
+    // Reverse assembly can request absent variables, times and quadrature points.
+    // These reads must leave both empty and populated history banks unchanged.
+    Cluster_Time_History tHistory;
+
+    for ( uint i = 0; i < 128; ++i )
+    {
+        CHECK( tHistory.take_adjoint( "missing", i, { 2, 3 } ).numel() == 0 );
+    }
+
+    CHECK( tHistory.mAdjoint.empty() );
+    const Matrix< DDRMat > tValue = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 } };
+    tHistory.set_adjoint( "velocity", 0.1, { 2, 3 }, tValue );
+    CHECK( tHistory.take_adjoint( "other", 0.1, { 2, 3 } ).numel() == 0 );
+
+    for ( uint i = 1; i <= 128; ++i )
+    {
+        CHECK( tHistory.take_adjoint( "velocity", i, { 2, 3 } ).numel() == 0 );
+    }
+
+    CHECK( tHistory.take_adjoint( "velocity", 0.1, { 2, 4 } ).numel() == 0 );
+    CHECK( tHistory.take_adjoint( "velocity", 0.1, { 1, 3 } ).numel() == 0 );
+    REQUIRE( tHistory.mAdjoint.size() == 1 );
+    const auto& tTimes = tHistory.mAdjoint.at( "velocity" );
+    REQUIRE( tTimes.size() == 1 );
+    REQUIRE( tTimes.at( 0.1 ).size() == 1 );
+    CHECK( norm( tTimes.at( 0.1 ).at( { 2, 3 } ) - tValue ) == 0.0 );
+}
+
+TEST_CASE( "Cluster adjoint history prunes consumed storage and preserves forward states", "[FEM][TimeDG][ISV][AdjointHistory]" )
+{
+    // Distinct element/point keys, times and names remain independent. Three RHS
+    // columns must survive moving out the value and removing its map containers.
+    Cluster_Time_History   tHistory;
+    const Matrix< DDRMat > tValue  = { { 1.0, 2.0, 3.0 }, { 4.0, 5.0, 6.0 } };
+    const Matrix< DDRMat > tSecond = 2.0 * tValue;
+    const Matrix< DDRMat > tThird  = 3.0 * tValue;
+    const Matrix< DDRMat > tLater  = 4.0 * tValue;
+    const Matrix< DDRMat > tOther  = 5.0 * tValue;
+    tHistory.stage( "velocity", 0.0, 0.1, tValue );
+    tHistory.commit( "velocity" );
+    tHistory.stage( "velocity", 0.1, 0.2, tSecond );
+    tHistory.commit( "velocity" );
+    tHistory.stage( "velocity", 0.2, 0.3, tThird );
+    tHistory.set_adjoint( "velocity", 0.1, { 2, 3 }, tValue );
+    tHistory.set_adjoint( "velocity", 0.1, { 2, 4 }, tSecond );
+    tHistory.set_adjoint( "velocity", 0.1, { 1, 3 }, tThird );
+    tHistory.set_adjoint( "velocity", 0.2, { 2, 3 }, tLater );
+    tHistory.set_adjoint( "other", 0.1, { 2, 3 }, tOther );
+
+    const Matrix< DDRMat > tTaken = tHistory.take_adjoint( "velocity", 0.1, { 2, 3 } );
+    CHECK( norm( tTaken - tValue ) == 0.0 );
+    REQUIRE( tHistory.mAdjoint.at( "velocity" ).at( 0.1 ).size() == 2 );
+    CHECK( tHistory.take_adjoint( "velocity", 0.1, { 2, 3 } ).numel() == 0 );
+    CHECK( norm( tHistory.take_adjoint( "velocity", 0.1, { 1, 3 } ) - tThird ) == 0.0 );
+    CHECK( norm( tHistory.take_adjoint( "velocity", 0.1, { 2, 4 } ) - tSecond ) == 0.0 );
+    REQUIRE( tHistory.mAdjoint.at( "velocity" ).size() == 1 );
+    CHECK( tHistory.mAdjoint.at( "velocity" ).count( 0.1 ) == 0 );
+    CHECK( norm( tHistory.take_adjoint( "velocity", 0.2, { 2, 3 } ) - tLater ) == 0.0 );
+    CHECK( tHistory.mAdjoint.count( "velocity" ) == 0 );
+    REQUIRE( tHistory.mAdjoint.size() == 1 );
+    CHECK( tHistory.take_adjoint( "velocity", 0.2, { 2, 3 } ).numel() == 0 );
+    CHECK( tHistory.mAdjoint.count( "velocity" ) == 0 );
+    CHECK( norm( tHistory.take_adjoint( "other", 0.1, { 2, 3 } ) - tOther ) == 0.0 );
+    CHECK( tHistory.mAdjoint.empty() );
+
+    // Consuming adjoint carries must preserve both committed snapshots and a
+    // separately staged forward state, which can still be committed afterwards.
+    CHECK( norm( tTaken - tValue ) == 0.0 );
+    CHECK( norm( tHistory.values( "velocity", 0.1 ) - tValue ) == 0.0 );
+    CHECK( norm( tHistory.values( "velocity", 0.2 ) - tSecond ) == 0.0 );
+    CHECK( tHistory.start( "velocity", 0.2 ) == 0.1 );
+    tHistory.commit( "velocity" );
+    CHECK( norm( tHistory.values( "velocity", 0.3 ) - tThird ) == 0.0 );
+    CHECK( tHistory.start( "velocity", 0.3 ) == 0.2 );
+
+    tHistory.set_adjoint( "velocity", 0.2, { 2, 3 }, tLater );
+    tHistory.clear_adjoint();
+    CHECK( tHistory.mAdjoint.empty() );
+    CHECK( norm( tTaken - tValue ) == 0.0 );
+    CHECK( norm( tHistory.values( "velocity", 0.3 ) - tThird ) == 0.0 );
 }
 
 TEST_CASE( "Time DG mass IWG current Jacobian and committed history", "[FEM][TimeDG][IWG]" )
