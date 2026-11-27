@@ -303,8 +303,9 @@ namespace moris::fem
 
                 real tTrailTangentTractionNorm = norm( tTrailTangentTraction );
 
-                // stick conditions tTrailTangentTractionNorm < tSplipTraction
-                if ( !mGapData->is_stick( tTrailTangentTractionNorm < tSplipTraction ) )
+                // Select the stick-side derivative at equality, including q=0 and radius=0.
+                // This permits an initially unloaded interface without norm division.
+                if ( !mGapData->is_stick( tTrailTangentTractionNorm <= tSplipTraction ) )
                 {
                     if ( mDebugFlag > 0 )
                     {
@@ -554,7 +555,7 @@ namespace moris::fem
 
                         real tTrailTangentTractionNorm = norm( tTrailTangentTraction );
 
-                        if ( tTrailTangentTractionNorm >= tSplipTraction )
+                        if ( tTrailTangentTractionNorm > tSplipTraction )
                         {
                             tProjectedTangentTraction = tSplipTraction / tTrailTangentTractionNorm * tTrailTangentTraction;
 
@@ -677,7 +678,7 @@ namespace moris::fem
 
                         real tTrailTangentTractionNorm = norm( tTrailTangentTraction );
 
-                        if ( tTrailTangentTractionNorm >= tSplipTraction )
+                        if ( tTrailTangentTractionNorm > tSplipTraction )
                         {
                             tProjectedTangentTraction = tSplipTraction / tTrailTangentTractionNorm * tTrailTangentTraction;
 
@@ -896,7 +897,7 @@ namespace moris::fem
 
                     real tTrailTangentTractionNorm = norm( tTrailTangentTraction );
 
-                    if ( tTrailTangentTractionNorm >= tSplipTraction )
+                    if ( tTrailTangentTractionNorm > tSplipTraction )
                     {
 
                         uint tSpaceDim = tTrailTangentTraction.n_rows();
@@ -992,7 +993,7 @@ namespace moris::fem
 
                     real tTrailTangentTractionNorm = norm( tTrailTangentTraction );
 
-                    if ( tTrailTangentTractionNorm >= tSplipTraction )
+                    if ( tTrailTangentTractionNorm > tSplipTraction )
                     {
                         tProjectedTangentTraction = tSplipTraction / tTrailTangentTractionNorm * tTrailTangentTraction;
 

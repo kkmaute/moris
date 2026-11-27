@@ -54,7 +54,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         real                         aFrictionCoefficient = -1.0,
         Vector< real >*              aPatchForces         = nullptr,
         real                         aCurrentShear        = 0.01,
-        real                         aPreviousShear       = 0.004 )
+        real                         aPreviousShear       = 0.004,
+        real                         aPatchCompression    = 0.02 )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -433,8 +434,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     tFollowerDOFHatDisp( iNode, 0 )         = aCurrentShear * tFollowerXHat( iNode, 1 );
                     tLeaderPreviousDOFHatDisp( iNode, 0 )   = aPreviousShear * tLeaderXHat( iNode, 1 );
                     tFollowerPreviousDOFHatDisp( iNode, 0 ) = aPreviousShear * tFollowerXHat( iNode, 1 );
-                    tLeaderDOFHatDisp( iNode, 1 )           = -0.02 * tLeaderXHat( iNode, 1 );
-                    tFollowerDOFHatDisp( iNode, 1 )         = -0.02 * tFollowerXHat( iNode, 1 );
+                    tLeaderDOFHatDisp( iNode, 1 )           = -aPatchCompression * tLeaderXHat( iNode, 1 );
+                    tFollowerDOFHatDisp( iNode, 1 )         = -aPatchCompression * tFollowerXHat( iNode, 1 );
                     tLeaderPreviousDOFHatDisp( iNode, 1 )   = tLeaderDOFHatDisp( iNode, 1 );
                     tFollowerPreviousDOFHatDisp( iNode, 1 ) = tFollowerDOFHatDisp( iNode, 1 );
                 }
@@ -684,7 +685,24 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     tJacobianPrevious = tIWG->mSet->mJacobian;
                 }
 
+                if ( aPatchForces != nullptr && aPatchCompression == 0.0
+                        && aCurrentShear == 0.0 && aPreviousShear == 0.0 )
+                {
+                    // The unloaded origin is nonsmooth. Check the selected
+                    // generalized Jacobians without comparing to a central FD
+                    // that crosses both contact and stick/slip switches.
+                    CHECK( norm( tIWG->mSet->mResidual( 0 ) ) < 1.0e-12 );
+                    CHECK( std::isfinite( norm( tJacobian ) ) );
+                    CHECK( std::isfinite( norm( tJacobianPrevious ) ) );
 
+                    tIWG->mSet->mLeaderFIManager           = nullptr;
+                    tIWG->mSet->mFollowerFIManager         = nullptr;
+                    tIWG->mSet->mLeaderPreviousFIManager   = nullptr;
+                    tIWG->mSet->mFollowerPreviousFIManager = nullptr;
+                    delete tSet;
+                    delete tCluster;
+                    return;
+                }
 
                 // init the jacobian for IWG and FD evaluation
                 Matrix< DDRMat > tJacobianFD( 2 * tNumDofDisp, 2 * tNumDofDisp, 0.0 );
@@ -1365,6 +1383,23 @@ TEST_CASE( "Mlika rejects frictional parameters", "[fem][MlikaFrictionless]" )
     }
 }
 
-
+TEST_CASE( "Seitz unloaded Coulomb origin is finite", "[fem][SeitzCoulombOrigin]" )
+{
+    // Zero gap, zero pressure and zero shear must yield zero residual and
+    // finite current/previous generalized tangents when friction is enabled.
+    for ( auto tModel : { Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+                  Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF } )
+    {
+        for ( auto tType : { IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+                      IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+                      IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC } )
+        {
+            Vector< real > tForces;
+            Test_IWG_Struc_Nonlinear_Contact_Nitsche( tType, tModel, 10.0, true, false, 0.3, &tForces, 0.0, 0.0, 0.0 );
+            REQUIRE( tForces.size() == 1 );
+            CHECK( tForces( 0 ) == Approx( 0.0 ).margin( 1e-12 ) );
+        }
+    }
+}
 
 /* END_TEST_CASE */

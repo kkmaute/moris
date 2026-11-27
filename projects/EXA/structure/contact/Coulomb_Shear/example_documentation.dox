@@ -1,0 +1,199 @@
+/**
+@page exa_coulomb_shear Coulomb-consistent elastic shear cycle
+
+@section coulomb_purpose Purpose and literature connection
+
+Two plane-strain elastic layers are first compressed, then driven tangentially
+through sticking, sliding, holding, unloading and reversal. The model uses the
+corrected Seitz IWG and verifies that traction can change while an interface
+sticks. Its analytic reference is the bulk elastic compliance in series with
+an ideal Coulomb slider (a Jenkins element), not an additional penalty spring
+at the contact interface.
+
+The setup is a manufactured 2D extension of the stacked-block patch-test idea
+in Alexander Seitz, Computational Methods for Thermo-Elasto-Plastic Contact,
+TUM doctoral thesis (accepted 2019), Sec. 5.2.3.1, Fig. 5.11:
+https://mediatum.ub.tum.de/doc/1454145/1454145.pdf . That published example is
+frictionless and thermomechanical; the shear cycle here is an adaptation, not
+an exact reproduction. The friction projection follows Seitz, Wall and Popp,
+Computational Mechanics 63 (2019), 1091-1110, Eqs. (33)-(35),
+https://doi.org/10.1007/s00466-018-1638-x .
+
+For the spring-slider reference, see the Jenkins-element discussion in
+Y. Song, C. J. Hartwigsen, D. M. McFarland, A. F. Vakakis and L. A. Bergman,
+Simulation of dynamics of beam structures with bolted joints using adjusted
+Iwan beam elements, Journal of Sound and Vibration 273 (2004), 249-276,
+https://doi.org/10.1016/S0022-460X(03)00499-1 . Author-hosted manuscript:
+https://www.imperial.ac.uk/media/imperial-college/research-centres-and-groups/dynamics/YS-JSV04.pdf .
+This example uses the single spring-slider limit, not the paper's beam dynamics.
+
+@section coulomb_setup Physical model and boundary conditions
+
+The unit-width domain is [0,1] x [0,1]. A void gap of 0.02 separates equal
+layers [0,0.49] and [0.51,1]. Their total reference height is H=0.98. HMR,
+GEN and XTK construct separate enriched phase fields; contact is integrated on
+both nonconformal orientations. Q1 displacements use the compressible
+neo-Hookean Wriggers model with E=1000 and nu=0, hence G=500. The friction
+coefficient is mu=0.3. No inertia or independent contact history is used.
+
+The bottom face is fixed. The top face closes the gap and adds compression
+c=1e-4, giving prescribed UY=-(0.02+c), then follows the horizontal displacement
+cycle below. Vertical-side nominal tractions (0,+/-tau/lambda) are manufactured
+from the analytic reference to support uniform shear instead of a finite-width
+bending response. They are external lateral loads, not prescribed contact forces:
+the interface traction and slip must still be found by the FEM contact solve.
+The same boundary loads are used in the negative-control comparison.
+
+The reference deformation gradient in each layer is F=[[1,k],[0,lambda]],
+where lambda=1-c/H. For this material P=G*(F-inverse(transpose(F))), so
+P_xy=G*k and P_yy=G*(lambda-1/lambda). Thus the nominal pressure and friction
+limit, per unit reference width and thickness, are
+\f[
+ p=G(\lambda^{-1}-\lambda),\qquad L=\mu p,\qquad
+ K=G/H,\qquad D_{crit}=L/K.
+\f]
+Numerically, p=0.1020460230, L=0.03061380691 and Dcrit=6.000306154e-5.
+The compliance K is the compliance of the two resolved elastic layers, not the
+Seitz tangential stabilization coefficient. Contact uses gamma_n from the
+Dirichlet SP (factor 10), tangential increment coefficient 500, theta=-1, and
+full Nitsche terms. The prescribed outer faces use SP factor 100.
+
+@section coulomb_reference Analytic reference and physical checks
+
+With accumulated signed slip s and imposed top displacement D, equilibrium
+and the uniform-layer compliance give tau=K*(D-s). The independent reduced
+Coulomb solution at each load increment is
+\f[
+ \tau_n=\operatorname{clip}(K(D_n-s_{n-1}),-L,L),\qquad
+ s_n=D_n-\tau_n/K.
+\f]
+This is the reduced physical reference, not the trial-traction formula inside
+the Seitz IWG. The IWG uses current constitutive traction plus stabilization
+times the slip increment. It does not reconstruct a previous constitutive stress.
+The EXA checker stores the following analytic endpoint factors; it does not
+rerun a reference finite-element solver or call the input's load callback.
+
+<table>
+<tr><th>Stage</th><th>D/Dcrit</th><th>tau/L</th><th>s/Dcrit</th></tr>
+<tr><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>2</td><td>0.25</td><td>0.25</td><td>0</td></tr>
+<tr><td>3</td><td>0.5</td><td>0.5</td><td>0</td></tr>
+<tr><td>4</td><td>1</td><td>1</td><td>0</td></tr>
+<tr><td>5</td><td>1.5</td><td>1</td><td>0.5</td></tr>
+<tr><td>6-7</td><td>2</td><td>1</td><td>1</td></tr>
+<tr><td>8</td><td>1.5</td><td>0.5</td><td>1</td></tr>
+<tr><td>9</td><td>1</td><td>0</td><td>1</td></tr>
+<tr><td>10</td><td>0.5</td><td>-0.5</td><td>1</td></tr>
+<tr><td>11</td><td>0</td><td>-1</td><td>1</td></tr>
+<tr><td>12</td><td>-0.5</td><td>-1</td><td>0.5</td></tr>
+<tr><td>13-14</td><td>-2</td><td>-1</td><td>-1</td></tr>
+<tr><td>15</td><td>-1.5</td><td>-0.5</td><td>-1</td></tr>
+<tr><td>16</td><td>-1</td><td>0</td><td>-1</td></tr>
+<tr><td>17</td><td>-0.5</td><td>0.5</td><td>-1</td></tr>
+<tr><td>18</td><td>0</td><td>1</td><td>-1</td></tr>
+<tr><td>19</td><td>0.5</td><td>1</td><td>-0.5</td></tr>
+<tr><td>20</td><td>2</td><td>1</td><td>1</td></tr>
+</table>
+
+The checker reads the nominal shear/normal force IQIs on the upper boundary
+and displacements at (0.5,0.75) and (0.5,0.25). Linear extrapolation through
+the two layers gives signed slip
+\f[
+ s=1.96(u_x^{top}-u_x^{bottom})-0.96D.
+\f]
+The analogous vertical extrapolation checks closure of the initial gap.
+It also checks the individual reference-node UX values, time, dimensions,
+mesh topology, the Coulomb bound and nonnegative shear-times-slip work to
+explicit tolerances. Negative shear/slip on reversal uses the opposite sign
+from the initial slide and must still dissipate energy.
+
+Finite-width sliding and the enriched discretization depart slightly from the
+uniform-layer idealization. The shear-reference tolerance is 2% of L and slip tolerance is 1% of Dcrit;
+individual UX tolerances are 0.5% of Dcrit, normal force tolerance is 0.5%, and the
+extrapolated gap tolerance is 1e-7. These are physical-error tolerances, not
+backend-specific or solver-iteration references. There is no assertion of
+monotonic spatial convergence or exact finite-sliding equivalence.
+
+@section coulomb_cases Cases, scope and running
+
+All cases are serial and require ArborX. Driver globals select configuration
+before loading the input; standalone input defaults are supplied in the input
+source. Each CTest case uses its own output directory.
+
+- Coulomb_Shear-Cycle-1-procs: 8x8 background mesh, 20 accepted load increments.
+- Coulomb_Shear-SubdividedLoad-1-procs: the same mesh and load path, with midpoint
+  increments inserted (40 accepted increments). This is load-path subdivision,
+  not a fixed-frame transient time-discretization study. Each accepted increment
+  uses unit bookkeeping time; the quasistatic model contains no physical rate.
+- Coulomb_Shear-RefinedMesh-1-procs: 16x16 background mesh, 20 increments.
+
+The initial candidate facets are held fixed. Every IWG evaluation still updates
+the actual ray coordinates from current fields. Maximum relative sliding is
+approximately 6e-5, much smaller than the distance of the quadrature points
+from candidate-facet endpoints on either regression mesh. This deliberately
+isolates Coulomb consistency from global search, changing contact coverage and
+facet-switching behavior. It is not a qualification of global remapping or
+large sliding. Newton hard-break is enabled for excessive residual growth.
+Because an iteration limit can still return through the workflow, the driver
+also checks its ASCII solver trace: every accepted increment must report
+convergence and none may report a hard stop before physical fields are checked.
+The actual number of Newton iterations is not a regression reference.
+
+Topology references were obtained from fresh serial runs on 2026-11-26. The
+8x8 output has 174 nodes, 144 elements and reference-node IDs 100/22; the 16x16
+output has 470 nodes, 416 elements and IDs 294/76. Both meshes retain the same
+physical references and tolerances. Set gPrintReferenceValues in the driver to
+inspect raw values. Timings and iteration counts are diagnostics only.
+
+@code
+cmake --build <build> --target Main_Coulomb_Shear --parallel 4
+ctest --test-dir <build> -R '^Coulomb_Shear-' --output-on-failure
+gnuplot -c plot_results.gp <case-directory>/Coulomb_Shear_history.csv <output.png>
+@endcode
+
+Coulomb_Shear.exo contains the displacement fields and force IQIs at every
+accepted increment. Coulomb_Shear_history.csv contains checked stage endpoints.
+The optional gnuplot script generates a standalone PNG with force-displacement hysteresis and
+signed slip. No plotting package is needed to build or run the MORIS example.
+
+@section coulomb_control Former-law control
+
+A temporary executable outside the repository was linked with the former
+previous-constitutive-traction Seitz law, retaining the same zero-radius guard,
+mesh, loads, material, penalties, tolerances and solver settings. It completed
+the baseline cycle, but failed the analytic force/slip checks. At stage 2 the
+reference predicts sticking (s=0, tau=0.00765345); the former law gave slip
+8.27571e-6 and shear 0.00405604. Its maximum force/slip errors were approximately
+91% of L and 106% of Dcrit. The corrected baseline errors were below the 2% force and
+1% slip-reference tolerances. The separate Coulomb-bound and dissipation checks
+retain their tighter 0.5% scales. No obsolete IWG or test-only legacy switch is retained in
+production code.
+
+@section coulomb_validation Verification record
+
+Serial Armadillo debug runs with GCC 13, OPENBLAS_NUM_THREADS=1,
+OMP_NUM_THREADS=1 and inherited PETSC_OPTIONS cleared passed all three CTest
+cases. Maximum endpoint errors relative to the analytic scales were:
+
+<table>
+<tr><th>Case</th><th>Force error / L</th><th>Slip error / Dcrit</th></tr>
+<tr><td>Cycle</td><td>1.029%</td><td>0.508%</td></tr>
+<tr><td>SubdividedLoad</td><td>1.070%</td><td>0.557%</td></tr>
+<tr><td>RefinedMesh</td><td>1.214%</td><td>0.416%</td></tr>
+</table>
+
+The original indenter and four Seitz indenter forward/sensitivity CTest cases
+also passed with their existing numerical references and tolerances. Focused
+contact tests passed 730 assertions in 24 cases on Armadillo, including the
+unloaded origin; the corresponding Eigen checks passed 682 assertions in 23
+cases plus the origin's 48 assertions. The Eigen verification rebuilt the
+updated contact sources and fixtures against the configured Eigen libraries;
+the new EXA cases have not been run on Eigen or in parallel.
+
+At the unloaded Coulomb origin (zero gap, pressure and trial shear), Seitz now
+uses the stick-side generalized derivative at equality in the residual and
+both time-level Jacobians. This avoids zero-norm division. A dedicated unit
+regression checks zero residual and finite current/previous tangents for both
+elastic models and all three theta variants. This is a corner convention;
+central finite differences crossing the nonsmooth origin are not used there.
+*/
