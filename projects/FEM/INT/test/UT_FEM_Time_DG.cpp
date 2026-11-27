@@ -5,6 +5,8 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <stdexcept>
+#include <algorithm>
 #include <vector>
 #include "cl_FEM_Time_DG_Operators.hpp"
 #include "fn_norm.hpp"
@@ -361,8 +363,6 @@ TEST_CASE( "Time DG mass IWG current Jacobian and committed history", "[FEM][Tim
     }
 }
 
-// The fixed-mass elimination must reject dependencies on other solution fields
-// and invalid reference thickness before returning an incomplete state tangent.
 TEST_CASE( "Time DG mass retains linear-time restriction", "[FEM][TimeDG][IWG]" )
 {
     // General spatial lumping supports higher time orders; the energy-corrected
@@ -389,6 +389,8 @@ TEST_CASE( "Time DG mass retains linear-time restriction", "[FEM][TimeDG][IWG]" 
     }
 }
 
+// The fixed-mass elimination must reject dependencies on other solution fields
+// and invalid reference thickness before returning an incomplete state tangent.
 TEST_CASE( "Time DG mass rejects state-dependent and invalid mass properties", "[FEM][TimeDG][IWG]" )
 {
     Mass_Fixture f;
@@ -564,6 +566,221 @@ TEST_CASE( "Time DG spatial IWG reduced tests endpoint and tangent", "[FEM][Time
             }
         }
     }
+}
+
+namespace
+{
+    class Spatial_Assembly_Probe : public IWG
+    {
+        void add_values( Matrix< DDRMat >& aMatrix, real aWeight )
+        {
+            const auto& tLeaderPoint   = mLeaderFIManager->get_IP_geometry_interpolator()->get_space_time();
+            const auto& tFollowerPoint = mFollowerFIManager->get_IP_geometry_interpolator()->get_space_time();
+            const real  tTime          = tLeaderPoint( 2 ) + 0.3 * tFollowerPoint( 2 );
+
+            for ( uint i = 0; i < aMatrix.n_rows(); ++i )
+            {
+                for ( uint j = 0; j < aMatrix.n_cols(); ++j )
+                {
+                    aMatrix( i, j ) += aWeight * ( 1.0 + 0.5 * i + 0.125 * j + tTime );
+                }
+            }
+        }
+
+      public:
+        uint mResidualCalls     = 0;
+        uint mJacobianCalls     = 0;
+        uint mThrowResidualCall = 0;
+        uint mThrowJacobianCall = 0;
+
+        void compute_residual( real aWeight ) override
+        {
+            add_values( mSet->get_residual()( 0 ), aWeight );
+
+            if ( ++mResidualCalls == mThrowResidualCall )
+            {
+                throw std::runtime_error( "Spatial residual probe failure" );
+            }
+        }
+
+        void compute_jacobian( real aWeight ) override
+        {
+            add_values( mSet->get_jacobian(), aWeight );
+
+            if ( ++mJacobianCalls == mThrowJacobianCall )
+            {
+                throw std::runtime_error( "Spatial Jacobian probe failure" );
+            }
+        }
+
+        void compute_jacobian_and_residual( real aWeight ) override
+        {
+            compute_residual( aWeight );
+            compute_jacobian( aWeight );
+        }
+
+        void compute_dRdp( real ) override {}
+    };
+
+    struct Spatial_Assembly_Fixture : Mass_Fixture
+    {
+        Geometry_Interpolator                     mLeaderIG;
+        Geometry_Interpolator                     mFollowerIG;
+        std::shared_ptr< Spatial_Assembly_Probe > mProbe;
+        std::shared_ptr< IWG_Time_DG_Spatial >    mWrapped;
+
+        Spatial_Assembly_Fixture()
+                : mLeaderIG( rule )
+                , mFollowerIG( rule )
+                , mProbe( std::make_shared< Spatial_Assembly_Probe >() )
+                , mWrapped( std::make_shared< IWG_Time_DG_Spatial >( mProbe ) )
+        {
+            // Both sides carry two fields with ordering side/field/time/space.
+            // Separate IP/IG points detect incomplete restoration at the endpoint.
+            set.mFollowerDofTypeMap = set.mLeaderDofTypeMap;
+            set.mResDofAssemblyMap  = { Matrix< DDSMat >{ { 0, 15 } }, Matrix< DDSMat >{ { 16, 31 } } };
+            set.mResidual( 0 ).set_size( 32, 1, 0.0 );
+            set.mJacobian.set_size( 32, 32, 0.0 );
+            mLeaderIG.set_coeff( geometry.get_space_coeff(), time );
+            mLeaderIG.set_param_coeff();
+            mFollowerIG.set_coeff( geometry.get_space_coeff(), time );
+            mFollowerIG.set_param_coeff();
+            manager.mIGGeometryInterpolator          = &mLeaderIG;
+            previous_manager.mIGGeometryInterpolator = &mFollowerIG;
+            manager.set_space_time( { { 0.13 }, { -0.27 }, { 0.41 } } );
+            previous_manager.set_space_time( { { -0.19 }, { 0.31 }, { 0.63 } } );
+            mLeaderIG.set_space_time( { { 0.21 }, { -0.37 }, { -0.17 } } );
+            mFollowerIG.set_space_time( { { -0.29 }, { 0.11 }, { 0.23 } } );
+            mWrapped->set_set_pointer( &set );
+            mWrapped->set_residual_dof_type( types );
+            mWrapped->set_dof_type_list( types );
+            mWrapped->set_dof_type_list( types, mtk::Leader_Follower::FOLLOWER );
+            mWrapped->set_field_interpolator_manager( &manager );
+            mWrapped->set_field_interpolator_manager( &previous_manager, mtk::Leader_Follower::FOLLOWER );
+        }
+
+        ~Spatial_Assembly_Fixture()
+        {
+            // Managers borrow these derived members, which expire before the base.
+            manager.mIGGeometryInterpolator          = &geometry;
+            previous_manager.mIGGeometryInterpolator = &previous_geometry;
+        }
+    };
+
+    void evaluate_spatial_mode( IWG_Time_DG_Spatial& aIWG, uint aMode )
+    {
+        if ( aMode == 0 )
+        {
+            aIWG.compute_residual( 0.73 );
+        }
+        else if ( aMode == 1 )
+        {
+            aIWG.compute_jacobian( 0.73 );
+        }
+        else
+        {
+            aIWG.compute_jacobian_and_residual( 0.73 );
+        }
+    }
+}    // namespace
+
+TEST_CASE( "Time DG spatial assembly preserves addends and requested buffers", "[FEM][TimeDG][IWG][DGSpatialAssembly]" )
+{
+    // Exercise residual-only, Jacobian-only and combined assembly. Independent
+    // entry references include follower rows and all cross-field/side columns.
+    for ( uint tMode : { 0u, 1u, 2u } )
+    {
+        Spatial_Assembly_Fixture tFixture;
+        const Matrix< DDRMat >   tLeaderPoint     = tFixture.geometry.get_space_time();
+        const Matrix< DDRMat >   tFollowerPoint   = tFixture.previous_geometry.get_space_time();
+        const Matrix< DDRMat >   tLeaderIGPoint   = tFixture.mLeaderIG.get_space_time();
+        const Matrix< DDRMat >   tFollowerIGPoint = tFixture.mFollowerIG.get_space_time();
+        tFixture.set.mResidual( 0 ).fill( 0.17 );
+        tFixture.set.mJacobian.fill( -0.31 );
+
+        for ( uint tRepeat = 1; tRepeat <= 2; ++tRepeat )
+        {
+            evaluate_spatial_mode( *tFixture.mWrapped, tMode );
+            CHECK( tFixture.mProbe->mResidualCalls == ( tMode == 1 ? 0u : 2 * tRepeat ) );
+            CHECK( tFixture.mProbe->mJacobianCalls == ( tMode == 0 ? 0u : 2 * tRepeat ) );
+
+            for ( uint i = 0; i < 32; ++i )
+            {
+                const uint tTimeRow = ( i % 8 ) / 4;
+                const uint tBase    = i - 4 * tTimeRow;
+                const real tTime    = tTimeRow == 0 ? 0.41 + 0.3 * 0.63 : -1.3;
+                const real tForce   = 0.73 * ( 4.0 + tBase + 2.0 * tTime );
+                CHECK( tFixture.set.mResidual( 0 )( i ) == Approx( 0.17 + ( tMode == 1 ? 0.0 : tRepeat * tForce ) ) );
+
+                for ( uint j = 0; j < 32; ++j )
+                {
+                    const real tStiffness = tForce + 0.73 * 0.25 * j;
+                    CHECK( tFixture.set.mJacobian( i, j ) == Approx( -0.31 + ( tMode == 0 ? 0.0 : tRepeat * tStiffness ) ) );
+                }
+            }
+
+            CHECK( norm( tFixture.current.get_space_time() - tLeaderPoint ) < 1e-14 );
+            CHECK( norm( tFixture.previous.get_space_time() - tFollowerPoint ) < 1e-14 );
+            CHECK( norm( tFixture.geometry.get_space_time() - tLeaderPoint ) < 1e-14 );
+            CHECK( norm( tFixture.previous_geometry.get_space_time() - tFollowerPoint ) < 1e-14 );
+            CHECK( norm( tFixture.mLeaderIG.get_space_time() - tLeaderIGPoint ) < 1e-14 );
+            CHECK( norm( tFixture.mFollowerIG.get_space_time() - tFollowerIGPoint ) < 1e-14 );
+        }
+    }
+}
+
+TEST_CASE( "Time DG spatial assembly restores state after endpoint exceptions", "[FEM][TimeDG][IWG][DGSpatialAssembly]" )
+{
+    // Fail after modifying Set storage at the incoming endpoint. Neither partial
+    // temporal contributions nor changed leader/follower IP/IG points may escape.
+    for ( uint tMode : { 0u, 1u, 2u } )
+    {
+        for ( bool tThrowJacobian : { false, true } )
+        {
+            if ( ( tMode == 0 && tThrowJacobian ) || ( tMode == 1 && !tThrowJacobian ) )
+            {
+                continue;
+            }
+
+            Spatial_Assembly_Fixture tFixture;
+            tFixture.mProbe->mThrowResidualCall     = tThrowJacobian ? 0u : 2u;
+            tFixture.mProbe->mThrowJacobianCall     = tThrowJacobian ? 2u : 0u;
+            const Matrix< DDRMat > tLeaderPoint     = tFixture.geometry.get_space_time();
+            const Matrix< DDRMat > tFollowerPoint   = tFixture.previous_geometry.get_space_time();
+            const Matrix< DDRMat > tLeaderIGPoint   = tFixture.mLeaderIG.get_space_time();
+            const Matrix< DDRMat > tFollowerIGPoint = tFixture.mFollowerIG.get_space_time();
+            const Matrix< DDRMat > tSavedResidual( 32, 1, 0.17 );
+            const Matrix< DDRMat > tSavedJacobian( 32, 32, -0.31 );
+            tFixture.set.mResidual( 0 ) = tSavedResidual;
+            tFixture.set.mJacobian      = tSavedJacobian;
+
+            REQUIRE_THROWS_WITH( evaluate_spatial_mode( *tFixture.mWrapped, tMode ),
+                    tThrowJacobian ? "Spatial Jacobian probe failure" : "Spatial residual probe failure" );
+            CHECK( norm( tFixture.set.mResidual( 0 ) - tSavedResidual ) == 0.0 );
+            CHECK( norm( tFixture.set.mJacobian - tSavedJacobian ) == 0.0 );
+            CHECK( norm( tFixture.current.get_space_time() - tLeaderPoint ) < 1e-14 );
+            CHECK( norm( tFixture.previous.get_space_time() - tFollowerPoint ) < 1e-14 );
+            CHECK( norm( tFixture.geometry.get_space_time() - tLeaderPoint ) < 1e-14 );
+            CHECK( norm( tFixture.previous_geometry.get_space_time() - tFollowerPoint ) < 1e-14 );
+            CHECK( norm( tFixture.mLeaderIG.get_space_time() - tLeaderIGPoint ) < 1e-14 );
+            CHECK( norm( tFixture.mFollowerIG.get_space_time() - tFollowerIGPoint ) < 1e-14 );
+        }
+    }
+}
+
+TEST_CASE( "Time DG spatial residual preserves a large unused Jacobian", "[FEM][TimeDG][IWG][DGSpatialResidualStorage]" )
+{
+    // A large dormant buffer makes residual-only Jacobian allocations visible
+    // to allocation profilers. Check every entry without a dense reference copy.
+    Spatial_Assembly_Fixture tFixture;
+    tFixture.set.mJacobian.set_size( 384, 384, -0.31 );
+    const real* tData = tFixture.set.mJacobian.data();
+    tFixture.mWrapped->compute_residual( 0.73 );
+    CHECK( tFixture.set.mJacobian.n_rows() == 384 );
+    CHECK( tFixture.set.mJacobian.n_cols() == 384 );
+    CHECK( tFixture.set.mJacobian.data() == tData );
+    CHECK( std::all_of( tData, tData + 384 * 384, []( real aValue ) { return aValue == -0.31; } ) );
+    CHECK( tFixture.mProbe->mJacobianCalls == 0 );
 }
 
 TEST_CASE( "Time DG history IWG previous tangent and delayed adjoint multiple RHS", "[FEM][TimeDG][Adjoint][IWG]" )

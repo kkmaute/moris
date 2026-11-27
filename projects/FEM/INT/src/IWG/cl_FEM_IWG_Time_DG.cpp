@@ -322,9 +322,14 @@ namespace moris::fem
         mSpatial->mParameters                      = mParameters;
     }
 
-    Matrix< DDRMat > IWG_Time_DG_Spatial::lift_rows( const Matrix< DDRMat >& aMatrix, uint aTemporalRow )
+    void IWG_Time_DG_Spatial::add_lifted_rows(
+            const Matrix< DDRMat >& aMatrix,
+            uint                    aTemporalRow,
+            Matrix< DDRMat >&       aResult )
     {
-        Matrix< DDRMat > tResult( aMatrix.n_rows(), aMatrix.n_cols(), 0.0 );
+        // Accumulate into caller-owned storage; each temporal evaluation only
+        // contributes its active test rows, including leader/follower blocks.
+        // Within each side, coefficient ordering is field/time/spatial basis.
         for ( auto tSide : { mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER } )
         {
             const auto& tTypes = tSide == mtk::Leader_Follower::LEADER ? mLeaderDofTypes : mFollowerDofTypes;
@@ -353,34 +358,52 @@ namespace moris::fem
                         {
                             // Sum over temporal test bases using partition of
                             // unity, extracting the ordinary spatial test row.
-                            tResult( tBase + aTemporalRow * tSpace, j ) = aMatrix( tBase, j ) + aMatrix( tBase + tSpace, j );
+                            aResult( tBase + aTemporalRow * tSpace, j ) += aMatrix( tBase, j ) + aMatrix( tBase + tSpace, j );
                         }
                     }
                 }
             }
         }
-        return tResult;
     }
 
     void IWG_Time_DG_Spatial::assemble( real aWeight, bool aResidual, bool aJacobian )
     {
         configure_spatial();
-        auto&                  tResidual      = mSet->get_residual()( 0 );
-        auto&                  tJacobian      = mSet->get_jacobian();
-        const Matrix< DDRMat > tSavedResidual = tResidual;
-        const Matrix< DDRMat > tSavedJacobian = tJacobian;
-        Matrix< DDRMat >       tResultResidual( tResidual.n_rows(), tResidual.n_cols(), 0.0 );
-        Matrix< DDRMat >       tResultJacobian( tJacobian.n_rows(), tJacobian.n_cols(), 0.0 );
+        auto& tResidual = mSet->get_residual()( 0 );
+        auto& tJacobian = mSet->get_jacobian();
+
+        // The wrapped IWG assembles in Set storage. Save and accumulate only
+        // requested quantities, leaving the other assembly buffer untouched.
+        // In particular, residual-only calls must avoid dense Jacobian work.
+        Matrix< DDRMat > tSavedResidual;
+        Matrix< DDRMat > tSavedJacobian;
+        Matrix< DDRMat > tResultResidual;
+        Matrix< DDRMat > tResultJacobian;
+
+        if ( aResidual )
+        {
+            tSavedResidual = tResidual;
+            tResultResidual.set_size( tResidual.n_rows(), tResidual.n_cols(), 0.0 );
+        }
+
+        if ( aJacobian )
+        {
+            tSavedJacobian = tJacobian;
+            tResultJacobian.set_size( tJacobian.n_rows(), tJacobian.n_cols(), 0.0 );
+        }
+
         const Matrix< DDRMat > tLeaderPoint   = mLeaderFIManager->get_IP_geometry_interpolator()->get_space_time();
         const Matrix< DDRMat > tLeaderIGPoint = mLeaderFIManager->get_IG_geometry_interpolator()->get_space_time();
         const bool             tFollower      = !mFollowerDofTypes.empty();
         Matrix< DDRMat >       tFollowerPoint;
         Matrix< DDRMat >       tFollowerIGPoint;
+
         if ( tFollower )
         {
             tFollowerPoint   = mFollowerFIManager->get_IP_geometry_interpolator()->get_space_time();
             tFollowerIGPoint = mFollowerFIManager->get_IG_geometry_interpolator()->get_space_time();
         }
+
         auto tRestore = [ & ]() {
             mLeaderFIManager->set_space_time( tLeaderPoint );
             mLeaderFIManager->get_IG_geometry_interpolator()->set_space_time( tLeaderIGPoint );
@@ -389,10 +412,20 @@ namespace moris::fem
                 mFollowerFIManager->set_space_time( tFollowerPoint );
                 mFollowerFIManager->get_IG_geometry_interpolator()->set_space_time( tFollowerIGPoint );
             }
-            tResidual = tSavedResidual;
-            tJacobian = tSavedJacobian;
+
+            if ( aResidual )
+            {
+                tResidual = tSavedResidual;
+            }
+
+            if ( aJacobian )
+            {
+                tJacobian = tSavedJacobian;
+            }
+
             this->reset_eval_flags();
         };
+
         try
         {
             for ( uint a = 0; a < 2; ++a )
@@ -416,13 +449,13 @@ namespace moris::fem
                 {
                     tResidual.fill( 0.0 );
                     mSpatial->compute_residual( aWeight );
-                    tResultResidual += lift_rows( tResidual, a );
+                    add_lifted_rows( tResidual, a, tResultResidual );
                 }
                 if ( aJacobian )
                 {
                     tJacobian.fill( 0.0 );
                     mSpatial->compute_jacobian( aWeight );
-                    tResultJacobian += lift_rows( tJacobian, a );
+                    add_lifted_rows( tJacobian, a, tResultJacobian );
                 }
             }
         } catch ( ... )

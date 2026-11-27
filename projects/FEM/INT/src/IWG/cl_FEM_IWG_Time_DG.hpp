@@ -52,7 +52,7 @@ namespace moris::fem
     {
         std::shared_ptr< IWG > mSpatial;
         void                   configure_spatial();
-        Matrix< DDRMat >       lift_rows( const Matrix< DDRMat >& aMatrix, uint aTemporalRow );
+        void                   add_lifted_rows( const Matrix< DDRMat >& aMatrix, uint aTemporalRow, Matrix< DDRMat >& aResult );
         void                   assemble( real aWeight, bool aResidual, bool aJacobian );
 
       public:
