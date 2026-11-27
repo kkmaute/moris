@@ -42,7 +42,8 @@ namespace moris::fem
     IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::IWG_Isotropic_Struc_Nonlinear_Contact_Seitz(
             sint             aTheta,
             CM_Function_Type aCMFunctionType )
-            : mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
+            : mNitscheTheta( aTheta )
+            , mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
             , mCMFunctionType( aCMFunctionType )
     {
         // set time continuity flag
@@ -119,13 +120,11 @@ namespace moris::fem
             // parameter 1: frictional stiffness
             mGammaTau = mParameters( 1 )( 0 );
 
-            // parameter 2: pure penalty flag
-            // create penalty only formulation
-            if ( mParameters( 2 )( 0 ) > 0.5 )
-            {
-                mTractionScaling = 0.0;    // set scaling of all traction related terms to zero
-                mTheta           = 0.0;    // theta overwritten to eliminate adjoint term for pure penalty formulation
-            }
+            // Recompute both effective settings on every complete update so
+            // disabling penalty-only restores the constructor's Nitsche variant.
+            const bool tPenaltyOnly = mParameters( 2 )( 0 ) > 0.5;
+            mTractionScaling        = tPenaltyOnly ? 0.0 : 1.0;
+            mTheta                  = tPenaltyOnly ? 0 : mNitscheTheta;
 
             // parameter 3: for debug purposes, to trigger debug output
             mDebugFlag = mParameters( 3 )( 0 );
@@ -135,10 +134,9 @@ namespace moris::fem
     //------------------------------------------------------------------------------
 
     /**
-     * \brief Implementation of this IWG is mainly based on
-     * 'Seitz, Rabii. “Nitsche Method for Frictional Contact and Self-Contact: Mathematical and Numerical Study.” PhD Thesis, Universite de Lyon, 2018. https://theses.hal.science/tel-02067118.'
-     * @attention The implementation is leader-oriented (integration happens on leader side) while Seitz (and the literature in general) integrates on the follower side. Thus, the coordinates X will be on the leader side and Y will be on the follower side (in the literature, it is the other way around).
-     * \param aWStar
+     * Frictional contact based on Seitz, Wall and Popp (2019),
+     * Eqs. (33)-(35). MORIS integrates on the leader side and retains its
+     * reference-traction and geometry conventions.
      */
     void
     IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::compute_residual( real aWStar )
@@ -229,16 +227,9 @@ namespace moris::fem
         // Tangential penalty parameter for frictional contributions, if not set by user, use the Nitsche parameter
         const real tGammaTau = ( mGammaTau > 0.0 ) ? mGammaTau : tNitscheTangentParam;
 
-        // get time indices for current and previous time step
-        sint tPreviousTimeIndex, tCurrentTimeIndex;
-        get_time_indices( tPreviousTimeIndex, tCurrentTimeIndex );
-
         // get Piola traction
         const Matrix< DDRMat > tTraction =
                 mTractionScaling * tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
-
-        //        // set current time step traction
-        //        mCluster->get_cluster_ISV_data().set_values( tCurrentTimeIndex, tTraction );
 
         // get test traction
         const Matrix< DDRMat > tTestTraction =
@@ -301,18 +292,11 @@ namespace moris::fem
                 // compute slip traction magnitude
                 real tSplipTraction = -mFrictionCoefficient * tAugLagrTerm;
 
-                // compute trail tangential traction
+                // compute trial tangential traction
                 Matrix< DDRMat > tTrailTangentTraction = tGammaTau * mGapData->mLeaderTangentVelocity;
 
-                // get previous time step traction
-                if ( tPreviousTimeIndex >= 0 )
-                {
-                    // const Matrix< DDRMat >& tPrevTraction = mCluster->get_cluster_ISV_data().get_values( tPreviousTimeIndex );
-                    const Matrix< DDRMat > tPrevTraction = compute_previous_traction( tConstitutiveModelLeader );
-
-                    // add previous traction contribution to the trail tangential traction
-                    tTrailTangentTraction += mGapData->mLeaderTangentProjection * tPrevTraction;
-                }
+                // Eq. (33) uses current bulk traction. Previous configurations enter only the slip increment.
+                tTrailTangentTraction += tTangentTraction;
 
                 // check whether the tangential traction is in the slip or stick regime and project accordingly
                 Matrix< DDRMat > tProjectedTangentTraction;
@@ -451,10 +435,6 @@ namespace moris::fem
         // Tangential penalty parameter for frictional contributions, if not set by user, use the Nitsche parameter
         const real tGammaTau = ( mGammaTau > 0.0 ) ? mGammaTau : tNitscheTangentParam;
 
-        // get time indices for current and previous time step
-        sint tPreviousTimeIndex, tCurrentTimeIndex;
-        get_time_indices( tPreviousTimeIndex, tCurrentTimeIndex );
-
         // get Piola traction
         const Matrix< DDRMat > tTraction =
                 mTractionScaling * tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
@@ -499,9 +479,6 @@ namespace moris::fem
                 const Matrix< DDRMat > tdTractiondu =
                         tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType );
 
-                //                // set current time step traction derivative
-                //                mCluster->get_cluster_ISV_data().set_derivatives( tCurrentTimeIndex, tdTractiondu );
-
                 // compute derivative of contact pressure with respect to the dof type
                 const Matrix< DDRMat > tdContactPressuredu =
                         mTractionScaling * ( trans( mGapData->mLeaderNormal ) * tdTractiondu    //
@@ -545,7 +522,7 @@ namespace moris::fem
                     const Matrix< DDRMat > tTangentTraction = mGapData->mLeaderTangentProjection * tTraction;
 
                     const Matrix< DDRMat > tdTangentTractiondu = mGapData->multiply_leader_dtangentprojectiondu( tTraction )    //
-                                                               + mGapData->mLeaderTangentProjection * tdTractiondu;
+                                                               + mTractionScaling * mGapData->mLeaderTangentProjection * tdTractiondu;
 
                     if ( mFrictionCoefficient <= 0.0 )
                     {
@@ -563,22 +540,14 @@ namespace moris::fem
                         // compute slip traction magnitude
                         real tSplipTraction = -mFrictionCoefficient * tAugLagrTerm;
 
-                        // compute trail tangential traction
+                        // compute trial tangential traction
                         Matrix< DDRMat > tTrailTangentTraction = tGammaTau * mGapData->mLeaderTangentVelocity;
 
                         Matrix< DDRMat > tdTrailTangentTractiondu = tGammaTau * mGapData->mLeaderdTangentVelocitydu;
 
-                        // get previous time step traction
-                        if ( tPreviousTimeIndex >= 0 )
-                        {
-                            // const Matrix< DDRMat >& tPrevTraction = mCluster->get_cluster_ISV_data().get_values( tPreviousTimeIndex );
-                            const Matrix< DDRMat > tPrevTraction = compute_previous_traction( tConstitutiveModelLeader );
-
-                            // add previous traction contribution to the trail tangential traction
-                            tTrailTangentTraction += mGapData->mLeaderTangentProjection * tPrevTraction;
-
-                            tdTrailTangentTractiondu += mGapData->multiply_leader_dtangentprojectiondu( tPrevTraction );
-                        }
+                        // Eq. (33) uses current bulk traction. Previous configurations enter only the slip increment.
+                        tTrailTangentTraction += tTangentTraction;
+                        tdTrailTangentTractiondu += tdTangentTractiondu;
 
                         Matrix< DDRMat > tProjectedTangentTraction;
                         Matrix< DDRMat > tdProjectedTangentTractiondu;
@@ -695,20 +664,13 @@ namespace moris::fem
                         // compute slip traction magnitude
                         real tSplipTraction = -mFrictionCoefficient * tAugLagrTerm;
 
-                        // compute trail tangential traction
+                        // compute trial tangential traction
                         Matrix< DDRMat > tTrailTangentTraction = tGammaTau * mGapData->mLeaderTangentVelocity;
 
                         Matrix< DDRMat > tdTrailTangentTractiondv = tGammaTau * mGapData->mLeaderdTangentVelocitydv;
 
-                        // get previous time step traction
-                        if ( tPreviousTimeIndex >= 0 )
-                        {
-                            // const Matrix< DDRMat >& tPrevTraction = mCluster->get_cluster_ISV_data().get_values( tPreviousTimeIndex );
-                            const Matrix< DDRMat > tPrevTraction = compute_previous_traction( tConstitutiveModelLeader );
-
-                            // add previous traction contribution to the trail tangential traction
-                            tTrailTangentTraction += mGapData->mLeaderTangentProjection * tPrevTraction;
-                        }
+                        // Eq. (33) uses current bulk traction. Previous configurations enter only the slip increment.
+                        tTrailTangentTraction += tTangentTraction;
 
                         Matrix< DDRMat > tProjectedTangentTraction;
                         Matrix< DDRMat > tdProjectedTangentTractiondv;
@@ -870,10 +832,6 @@ namespace moris::fem
         // Tangential penalty parameter for frictional contributions, if not set by user, use the Nitsche parameter
         const real tGammaTau = ( mGammaTau > 0.0 ) ? mGammaTau : tNitscheTangentParam;
 
-        // get time indices for current and previous time step
-        sint tPreviousTimeIndex, tCurrentTimeIndex;
-        get_time_indices( tPreviousTimeIndex, tCurrentTimeIndex );
-
         // get Piola traction
         const Matrix< DDRMat > tTraction =
                 mTractionScaling * tConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
@@ -914,19 +872,8 @@ namespace moris::fem
             // compute Jacobian direct dependencies
             if ( tDofType( 0 ) == tDisplDofTypes( 0 ) )
             {
-                // compute derivative of traction
-                //                const Matrix< DDRMat > tdTractiondu = tConstitutiveModelLeader->dTractiondDOF( tDofType, mGapData->mLeaderRefNormal, mCMFunctionType );
-
-                // compute derivative of contact pressure with respect to the dof type
-                //                const Matrix< DDRMat > tdContactPressuredu =
-                //                        mTractionScaling * ( trans( mGapData->mLeaderNormal ) * tdTractiondu    //
-                //                                             + trans( tTraction ) * mGapData->mLeaderdNormaldu );
-
-                // compute current tangential traction
+                // Current traction is independent of the previous-slab DOFs.
                 const Matrix< DDRMat > tTangentTraction = mGapData->mLeaderTangentProjection * tTraction;
-
-                //                const Matrix< DDRMat > tdTangentTractiondu =  mGapData->multiply_leader_dtangentprojectiondu( tTraction )    //
-                //                                                           + mGapData->mLeaderTangentProjection * tdTractiondu;
 
                 if ( tAugLagrTerm > 0 )
                 {
@@ -937,33 +884,20 @@ namespace moris::fem
                     // compute slip traction magnitude
                     real tSplipTraction = -mFrictionCoefficient * tAugLagrTerm;
 
-                    // compute trail tangential traction
+                    // compute trial tangential traction
                     Matrix< DDRMat > tTrailTangentTraction = tGammaTau * mGapData->mLeaderTangentVelocity;
 
                     Matrix< DDRMat > tdTrailTangentTractiondu = tGammaTau * mGapData->mLeaderdTangentVelocityduprev;
 
-                    // get previous time step traction
-                    if ( tPreviousTimeIndex >= 0 )
-                    {
-                        // const Matrix< DDRMat >& tPrevTraction    = mCluster->get_cluster_ISV_data().get_values( tPreviousTimeIndex );
-                        // const Matrix< DDRMat >& tdPrevTractiondu = mCluster->get_cluster_ISV_data().get_derivatives( tPreviousTimeIndex );
-                        const Matrix< DDRMat > tPrevTraction    = compute_previous_traction( tConstitutiveModelLeader );
-                        const Matrix< DDRMat > tdPrevTractiondu = compute_previous_traction_derivatives( tConstitutiveModelLeader, tDofType );
+                    // Eq. (33) uses current bulk traction. Previous configurations enter only the slip increment.
+                    tTrailTangentTraction += tTangentTraction;
 
-                        // add previous traction contribution to the trail tangential traction
-                        tTrailTangentTraction += mGapData->mLeaderTangentProjection * tPrevTraction;
-
-                        tdTrailTangentTractiondu += mGapData->mLeaderTangentProjection * tdPrevTractiondu;
-                    }
-
-                    //                    Matrix< DDRMat > tProjectedTangentTraction;
                     Matrix< DDRMat > tdProjectedTangentTractiondu;
 
                     real tTrailTangentTractionNorm = norm( tTrailTangentTraction );
 
                     if ( tTrailTangentTractionNorm >= tSplipTraction )
                     {
-                        //                        tProjectedTangentTraction = tSplipTraction / tTrailTangentTractionNorm * tTrailTangentTraction;
 
                         uint tSpaceDim = tTrailTangentTraction.n_rows();
 
@@ -975,7 +909,6 @@ namespace moris::fem
                     }
                     else
                     {
-                        //                        tProjectedTangentTraction = tTrailTangentTraction;
 
                         tdProjectedTangentTractiondu = tdTrailTangentTractiondu;
                     }
@@ -1046,20 +979,13 @@ namespace moris::fem
                     // compute slip traction magnitude
                     real tSplipTraction = -mFrictionCoefficient * tAugLagrTerm;
 
-                    // compute trail tangential traction
+                    // compute trial tangential traction
                     Matrix< DDRMat > tTrailTangentTraction = tGammaTau * mGapData->mLeaderTangentVelocity;
 
                     Matrix< DDRMat > tdTrailTangentTractiondv = tGammaTau * mGapData->mLeaderdTangentVelocitydvprev;
 
-                    // get previous time step traction
-                    if ( tPreviousTimeIndex >= 0 )
-                    {
-                        // const Matrix< DDRMat >& tPrevTraction = mCluster->get_cluster_ISV_data().get_values( tPreviousTimeIndex );
-                        const Matrix< DDRMat > tPrevTraction = compute_previous_traction( tConstitutiveModelLeader );
-
-                        // add previous traction contribution to the trail tangential traction
-                        tTrailTangentTraction += mGapData->mLeaderTangentProjection * tPrevTraction;
-                    }
+                    // Eq. (33) uses current bulk traction. Previous configurations enter only the slip increment.
+                    tTrailTangentTraction += tTangentTraction;
 
                     Matrix< DDRMat > tProjectedTangentTraction;
                     Matrix< DDRMat > tdProjectedTangentTractiondv;
@@ -1204,7 +1130,6 @@ namespace moris::fem
                             tImposeContactLeader,
                             tImposeContactFollower );
                 }
-                //            const Matrix< DDRMat > tRefPoint = { { 0.000012, -0.004000 } };
                 //
                 //            const real tDelta = 1.0e-3;    // tolerance for checking the IG geometry interpolator
                 //
@@ -1212,8 +1137,6 @@ namespace moris::fem
                 //            {
                 //                real tTimeWeightFactor = gLogger.get_action_data( "NonLinearAlgorithm", "Newton", "Solve", "LoadFactor" );
                 //
-                //                Matrix< DDRMat > tLeaderDisp   = mLeaderFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
-                //                Matrix< DDRMat > tFollowerDisp = mFollowerFIManager->get_field_interpolators_for_type( tDisplDofTypes( 0 ) )->val();
                 //
                 //                fprintf( stdout, "tCheckPoint: %f  %f - %f - tLeaderDisp: %e  %e\n",    //
                 //                        tCheckPoint( 0 ),
@@ -1237,62 +1160,4 @@ namespace moris::fem
 
     //------------------------------------------------------------------------------
 
-    void IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::get_time_indices(
-            sint& aPreviousTimeIndex,
-            sint& aCurrentTimeIndex )
-    {
-        // get previous and current time from leader FI
-        Geometry_Interpolator* tLeaderCurrentIGGI  = mLeaderFIManager->get_IG_geometry_interpolator();
-        Geometry_Interpolator* tLeaderPreviousIGGI = mLeaderPreviousFIManager->get_IG_geometry_interpolator();
-        const real             tLeaderPreviousTime = tLeaderPreviousIGGI->valt()( 0 );
-        const real             tLeaderCurrentTime  = tLeaderCurrentIGGI->valt()( 0 );
-
-        // time step size
-        const real tDeltat = tLeaderCurrentTime - tLeaderPreviousTime;
-
-        // calculate the previous and current (time step) index
-        aPreviousTimeIndex = std::floor( tLeaderPreviousTime / tDeltat + 1.0e-12 );
-        aCurrentTimeIndex  = std::floor( tLeaderCurrentTime / tDeltat + 1.0e-12 );
-    }
-
-    //------------------------------------------------------------------------------
-
-    Matrix< DDRMat > IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::compute_previous_traction(
-            const std::shared_ptr< Constitutive_Model >& aConstitutiveModelLeader )
-    {
-        // set the field interpolator manager in constitutive model to the previous time step
-        aConstitutiveModelLeader->set_field_interpolator_manager( this->mLeaderPreviousFIManager );
-        aConstitutiveModelLeader->reset_eval_flags();
-
-        // evaluate the traction at the previous time step
-        Matrix< DDRMat > tPrevTraction =
-                aConstitutiveModelLeader->traction( mGapData->mLeaderRefNormal, mCMFunctionType );
-
-        // set the field interpolator manager in constitutive model to the current time step
-        aConstitutiveModelLeader->set_field_interpolator_manager( this->mLeaderFIManager );
-        aConstitutiveModelLeader->reset_eval_flags();
-
-        return tPrevTraction;
-    }
-
-    //------------------------------------------------------------------------------
-
-    Matrix< DDRMat > IWG_Isotropic_Struc_Nonlinear_Contact_Seitz::compute_previous_traction_derivatives(
-            const std::shared_ptr< Constitutive_Model >& aConstitutiveModelLeader,
-            const Vector< MSI::Dof_Type >&               aDofType )
-    {
-        // set the field interpolator manager in constitutive model to the previous time step
-        aConstitutiveModelLeader->set_field_interpolator_manager( this->mLeaderPreviousFIManager );
-        aConstitutiveModelLeader->reset_eval_flags();
-
-        // evaluate the traction at the previous time step
-        Matrix< DDRMat > tdPrevTractiondu =
-                aConstitutiveModelLeader->dTractiondDOF( aDofType, mGapData->mLeaderRefNormal, mCMFunctionType );
-
-        // set the field interpolator manager in constitutive model to the current time step
-        aConstitutiveModelLeader->set_field_interpolator_manager( this->mLeaderFIManager );
-        aConstitutiveModelLeader->reset_eval_flags();
-
-        return tdPrevTractiondu;
-    }
 }    // namespace moris::fem

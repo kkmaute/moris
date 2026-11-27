@@ -21,7 +21,6 @@
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Vector.hpp"
-#include "fn_inv.hpp"
 #include "fn_isfinite.hpp"
 #include "fn_assert.hpp"
 #include "cl_Matrix.hpp"
@@ -31,19 +30,17 @@
 #include "fn_dot.hpp"
 #include <string>
 #include <memory>
-#include <utility>
+#include <cmath>
 
 namespace moris::fem
 {
     IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika(
             sint             aTheta,
             CM_Function_Type aCMFunctionType )
-            : mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
+            : mNitscheTheta( aTheta )
+            , mTheta( aTheta )    // switch for symmetric/unsymmetric/neutral Nitsche
             , mCMFunctionType( aCMFunctionType )
     {
-        // set time continuity flag
-        mTimeContinuity = true;
-
         // set size for the property pointer cell
         mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
         mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -78,35 +75,31 @@ namespace moris::fem
     void
     IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::set_parameters( const Vector< Matrix< DDRMat > >& aParameters )
     {
-        // set parameters
-        mParameters = aParameters;
+        // Retain the four-entry input layout used by existing contact inputs.
+        // The first entry is a frictionless marker; the second is reserved.
+        if ( aParameters.size() > 0 )
+        {
+            MORIS_ERROR( aParameters.size() == 4 &&                  //
+                                 aParameters( 0 ).numel() == 1 &&    //
+                                 aParameters( 1 ).numel() == 1 &&    //
+                                 aParameters( 2 ).numel() == 1 &&    //
+                                 aParameters( 3 ).numel() == 1,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::set_parameters - Expected four scalar parameters: frictionless marker, reserved value, penalty-only flag, and debug flag." );
 
-        // Read consistency and pure penalty flag from input parameters
+            MORIS_ERROR( std::isfinite( aParameters( 0 )( 0 ) ) && aParameters( 0 )( 0 ) <= 0.0,
+                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::set_parameters - Mlika contact is frictionless; use the Seitz IWG for positive friction coefficients." );
+        }
+
+        // Validate before replacing settings so rejected friction requests leave
+        // an already configured frictionless IWG unchanged.
+        mParameters = aParameters;
         if ( mParameters.size() > 0 )
         {
-            MORIS_ERROR( mParameters.size() == 4 &&                  //
-                                 mParameters( 0 ).numel() == 1 &&    //
-                                 mParameters( 1 ).numel() == 1 &&    //
-                                 mParameters( 2 ).numel() == 1 &&    //
-                                 mParameters( 3 ).numel() == 1,      //
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::IWG_Isotropic_Struc_Nonlinear_Contact_Mlika - Only four parameters possible." );
-
-            // parameter 0: friction coefficient - not implemented yet, but will be used in the future
-            // mFrictionCoefficient = mParameters( 0 )( 0 );
-
-            // parameter 1: frictional stiffness
-            // mGammaTau = mParameters( 3 )( 0 );
-
-            // parameter 2: pure penalty flag
-            // create penalty only formulation
-            if ( mParameters( 2 )( 0 ) > 0.5 )
-            {
-                mTractionScaling = 0.0;    // set scaling of all traction related terms to zero
-                mTheta           = 0.0;    // theta overwritten to eliminate adjoint term for pure penalty formulation
-            }
-
-            // parameter 3: for debug purposes, to trigger debug output
-            mDebugFlag = mParameters( 3 )( 0 );
+            // Disabling penalty-only restores the constructor's Nitsche variant.
+            const bool tPenaltyOnly = mParameters( 2 )( 0 ) > 0.5;
+            mTractionScaling        = tPenaltyOnly ? 0.0 : 1.0;
+            mTheta                  = tPenaltyOnly ? 0 : mNitscheTheta;
+            mDebugFlag              = mParameters( 3 )( 0 );
         }
     }
 
@@ -189,8 +182,7 @@ namespace moris::fem
         aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
         // Nitsche parameter gamma
-        const real tNitscheParam           = tSPNitsche->val()( 0 );
-        const real tNitscheTangentialParam = tNitscheParam;    // we choose the same nitsche parameter in normal and tangential direction for now
+        const real tNitscheParam = tSPNitsche->val()( 0 );
 
         // get Piola traction
         const Matrix< DDRMat > tTraction =
@@ -230,162 +222,6 @@ namespace moris::fem
                     0.5 * aWStar * (                                          //
                             trans( mGapData->mdGapdv ) * tContactPressure     //
                             + tNitscheParam * trans( mGapData->mdGapdv ) * mGapData->mGap );
-        }
-
-        // frictional mechanics -> tangential contributions
-        const real tFrictionCoefficient = 0.0;    // hardcoded for now
-        if ( tFrictionCoefficient > 0.0 )
-        {
-            // make sure time continuity is set
-            MORIS_ERROR( get_time_continuity(),
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - time continuity flag not set.\n" );
-
-            // LEADER
-
-            // get residual dof type field interpolator for current time step
-            Field_Interpolator* tLeaderCurrentFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            MORIS_ERROR( tLeaderCurrentFI != nullptr,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - current time step leader field interpolator manager is not set.\n" );
-
-            // get residual dof type field interpolator for previous time step
-            Field_Interpolator* tLeaderPreviousFI = mLeaderPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
-            mLeaderFIManager->set_field_interpolator_manager_previous( mLeaderPreviousFIManager );
-
-            // FOLLOWER
-
-            // get residual dof type field interpolator for current time step
-            Field_Interpolator* tFollowerCurrentFI = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            MORIS_ERROR( tFollowerCurrentFI != nullptr,
-                    "IWG_Isotropic_Struc_Nonlinear_Contact_Mlika::compute_residual - current time step follower field interpolator manager is not set.\n" );
-
-            //  get residual dof type field interpolator for previous time step
-            Field_Interpolator* tFollowerPreviousFI = mFollowerPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            //  store field manager of previous time step with field manager of current time step (previous state might be used in property)
-            mFollowerFIManager->set_field_interpolator_manager_previous( mFollowerPreviousFIManager );
-
-            // for the Leader Previous FI manager, the space time is set from the local IG point (see above)
-            // it seems to be necessary for the Follower Previous FI manager as well
-            mFollowerPreviousFIManager->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
-            // get IG geometry interpolator for leader and follower
-            Geometry_Interpolator* tLeaderCurrentIGGI = mLeaderFIManager->get_IG_geometry_interpolator();
-            // Geometry_Interpolator* tFollowerCurrentIGGI  = mFollowerFIManager->get_IG_geometry_interpolator();
-            Geometry_Interpolator* tLeaderPreviousIGGI   = mLeaderPreviousFIManager->get_IG_geometry_interpolator();
-            Geometry_Interpolator* tFollowerPreviousIGGI = mFollowerPreviousFIManager->get_IG_geometry_interpolator();
-
-            // Poulios and Renard - 2015 - An unconstrained integral approximation of large sliding frictional contact between deformable solids
-            // define the simplified sliding velocity vector in eqn. (25) as:
-            // v(X) = 1/dt * ( phi_n(X_n+1) - phi_n(Y_n+1) + g_n+1 * n_n)
-
-            // dt: time step size
-            const real tDeltat = mLeaderFIManager->get_IG_geometry_interpolator()->get_time_step();
-
-            // get previous and current time from leader FI
-            const real tLeaderPreviousTime = tLeaderPreviousIGGI->valt()( 0 );
-            const real tLeaderCurrentTime  = tLeaderCurrentIGGI->valt()( 0 );
-
-            // calculate the previous and current (time step) index
-            const int tPreviousIndex = std::floor( tLeaderPreviousTime / tDeltat + 1.0e-8 );    // +1.0e-8 to avoid numerical issues
-            const int tCurrentIndex  = std::floor( tLeaderCurrentTime / tDeltat + 1.0e-8 );     // +1.0e-8 to avoid numerical issues
-
-            // get displacements at previous time step
-            const Matrix< DDRMat > tLeaderPreviousDisp   = tLeaderPreviousFI->val();
-            const Matrix< DDRMat > tFollowerPreviousDisp = tFollowerPreviousFI->val();
-            // Xgp = global coordinates of quadrature points
-            const Matrix< DDRMat > tLeaderPreviousXgp   = tLeaderPreviousIGGI->valx();
-            const Matrix< DDRMat > tFollowerPreviousXgp = tFollowerPreviousIGGI->valx();
-
-            // current gap measure
-            const real tCurrentGap = mGapData->mGap;
-
-            // computing the previous time-step leader normal
-            Matrix< DDRMat > tLeaderPreviousNormal;
-            Matrix< DDRMat > tLeaderPreviousdNormaldU;      // dummy
-            Matrix< DDRMat > tLeaderPreviousdNormal2dU2;    // dummy
-            Matrix< DDRMat > tLeaderPreviousRefNormal;      // dummy
-            GapData::compute_outward_normal_at_gp_for_consistent_deformed_geometry( tLeaderPreviousFI, tLeaderPreviousIGGI, tLeaderPreviousNormal, tLeaderPreviousRefNormal, tLeaderPreviousdNormaldU, tLeaderPreviousdNormal2dU2, false );
-
-            // get the normal for the current time step from the gap data
-            const Matrix< DDRMat > tLeaderCurrentNormal = mGapData->mLeaderNormal;
-
-            // compute the current tangential plane projector from the normals
-            const Matrix< DDRMat > tCurrentTangentialPlaneProjector = GapData::compute_tangential_plane_projector( tLeaderCurrentNormal );
-
-            // tangential slip increment = dt * sliding velocity
-            const Matrix< DDRMat > tSlipIncrement = ( ( trans( tLeaderPreviousXgp ) + tLeaderPreviousDisp ) - ( trans( tFollowerPreviousXgp ) + tFollowerPreviousDisp ) + tCurrentGap * tLeaderPreviousNormal );
-
-            // simplified sliding velocity vector at current time step
-            // const Matrix< DDRMat > tSlidingVelocityCurrent = 1.0 / tDeltat * tSlipIncrement;
-
-            std::cout << "current slip increment  : " << tSlipIncrement << '\n';
-            // std::cout << "current sliding velocity: " << tSlidingVelocityCurrent << std::endl;
-
-            // contact is active if augLagrTerm is negative
-            if ( tAugLagrTerm < 0 )
-            {
-                // This implementaion follows the outline in:
-                // Laursen - 2002 - Computational Contact and Impact Mechanics - Chapter 5.2.2 - Temporally Discrete Frictional Laws for the Penalty Regularized Case
-                const Matrix< DDRMat > tTempTrac = tNitscheTangentialParam * tCurrentTangentialPlaneProjector * tSlipIncrement;    // same Nitsche parameter used in tangential direction as in normal
-
-                // NOTE: yes, I do know: this is not the propper way to implement this
-                //       it may be implemented using a history variable as in Bulk_Damage
-                //       or by adding a variable to the Field Interpolator Manager
-
-                // get the traction from the previous timestep
-                Matrix< DDRMat > tTractionOld( 2, 1, 0.0 );
-                if ( mTractionHistoryMap.find( tPreviousIndex ) != mTractionHistoryMap.end() )    // check if entry for previous time step exists
-                {
-                    tTractionOld = mTractionHistoryMap[ tPreviousIndex ];
-                }
-
-                // evaluate trial traction -> trial state -> stick slip decision
-                Matrix< DDRMat > tTrialTraction = tTractionOld + tTempTrac;
-
-                // evaluate L2-norm of the trial traction
-                const real tMagnitude = norm( tTrialTraction );
-
-                // evaluate maximal tangential traction due to Coulomb's friction law
-                const real tMaxTangentialTraction = -tFrictionCoefficient * tNitscheParam * tCurrentGap;    // here the nitsche paerameter in normal direction is used
-
-                // check slip condition -> determine node is in stick or slip:
-                Matrix< DDRMat > tTanTraction;
-                if ( tMagnitude <= std::abs( tMaxTangentialTraction ) )    // stick
-                {
-                    tTanTraction = tTrialTraction;
-                }
-                else    // ( tMagnitude > std::abs( tMaxTangentialTraction ) ) // slip
-                {
-                    // rescale the traction to the maximal tangential traction (return mapping algorithm)
-                    tTanTraction = tMaxTangentialTraction / tMagnitude * tTrialTraction;
-                }
-
-                // add tangential traction contribution to the residual
-                if ( mTractionScaling == 0.0 and mTheta == 0.0 )
-                {
-                    // contribution to Leader residual
-                    mSet->get_residual()( 0 )(
-                            { tLeaderResStartIndex, tLeaderResStopIndex } ) +=    //
-                            0.5 * aWStar * (                                      //
-                                    trans( mGapData->mdGapvecdu ) * tTanTraction );
-
-                    // contribution to Follower residual
-                    mSet->get_residual()( 0 )(
-                            { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
-                            0.5 * aWStar * (                                          //
-                                    trans( mGapData->mdGapvecdv ) * tTanTraction );
-                }
-                else
-                {
-                    std::cout << "NOTE: Full nitsche method not yet implemented for frictional contact, only penalty contribution available as of now." << '\n';
-                }
-
-                // store the traction to the history map for the next time step
-                mTractionHistoryMap[ tCurrentIndex ] = tTanTraction;
-            }
         }
 
         // call debug function

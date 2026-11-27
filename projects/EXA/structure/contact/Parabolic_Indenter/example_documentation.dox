@@ -9,7 +9,12 @@ integrated on both nonconformal interface orientations. Runs require ArborX
 and currently use one MPI rank.
 
 The original linear-contact and nonlinear Mlika cases retain their stored reference
-checks and their CTest registration, Parabolic_Indentor-1-procs.
+checks and their CTest registration, Parabolic_Indentor-1-procs. Mlika implements
+only the frictionless energy formulation of thesis Eqs. (4.28)-(4.30); frictional
+contact uses Seitz. The existing Mlika four-scalar input layout is retained:
+nonpositive frictionless marker, reserved value, penalty-only flag, debug flag.
+Positive friction coefficients are rejected. The former dormant penalty-friction
+prototype and its traction-history map have been removed.
 
 @section indenter_seitz Seitz variants
 
@@ -21,7 +26,8 @@ variants use the same mesh, material, stabilization and solver tolerances.
 The top boundary moves horizontally by 0.03 and vertically by -0.051 over
 three physical steps ending at time 10. Each step uses the existing nonlinear
 load continuation and ray-remapping strategy. This loading sequence exercises
-previous-slab displacement and traction contributions to tangential contact.
+previous-slab displacement contributions to the slip increment. The friction
+projection uses current constitutive traction; no traction history is stored.
 
 - Seitz-Frictionless uses a negative friction coefficient to select frictionless
   contact.

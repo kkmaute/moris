@@ -4,12 +4,10 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp
+ * cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp
  *
  */
 #pragma once
-
-#include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
@@ -23,9 +21,19 @@ namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
+    /**
+     * Seitz friction uses current constitutive traction in the trial projection
+     * (Seitz, Wall and Popp, 2019, Eq. (33), DOI: 10.1007/s00466-018-1638-x).
+     * Previous-slab displacements enter only the slip increment; no independent
+     * traction history or previous-stress reconstruction is required.
+     */
     class IWG_Isotropic_Struc_Nonlinear_Contact_Seitz : public IWG
     {
       private:
+        // Retain the constructor-selected variant when penalty-only mode
+        // temporarily disables the Nitsche terms during parameter replacement.
+        const sint mNitscheTheta;
+
         // mTheta is used to switch between the following formulations of the Nitsche term:
         //      symmetric :mTheta =  1
         //        neutral: mTheta =  0
@@ -43,9 +51,6 @@ namespace moris::fem
 
         // flag to trigger debug output
         sint mDebugFlag = 0;
-
-        // variable to keep track of the old traction TODO: implement this properly
-        std::map< int, Matrix< DDRMat > > mTractionHistoryMap;
 
         // debug functions
         void debug_function();
@@ -126,29 +131,6 @@ namespace moris::fem
          * set parameters
          */
         void set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
-
-        //------------------------------------------------------------------------------
-        /**
-         * set get_time_indices
-         */
-        void get_time_indices( sint& aPreviousTimeIndex, sint& aCurrentTimeIndex );
-
-        //------------------------------------------------------------------------------
-        /**
-         * compute the traction at the previous time step
-         */
-        Matrix< DDRMat > compute_previous_traction(
-                const std::shared_ptr< Constitutive_Model >& aConstitutiveModelLeader );
-
-        //------------------------------------------------------------------------------
-        /**
-         * compute the derivative of the traction at the previous time step wrt dof type
-         */
-        Matrix< DDRMat > compute_previous_traction_derivatives(
-                const std::shared_ptr< Constitutive_Model >& aConstitutiveModelLeader,
-                const Vector< MSI::Dof_Type >&               aDofType );
-
-        //------------------------------------------------------------------------------
     };
     //------------------------------------------------------------------------------
 }    // namespace moris::fem

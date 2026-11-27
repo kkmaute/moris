@@ -4,12 +4,10 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche_Unbiased.hpp
+ * cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp
  *
  */
 #pragma once
-
-#include <map>
 
 #include "moris_typedefs.hpp"    //MRS/COR/src
 #include "cl_Vector.hpp"         //MRS/CNT/src
@@ -17,15 +15,25 @@
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
+#include "cl_FEM_IWG.hpp"    //FEM/INT/src
 
 namespace moris::fem
 {
     //------------------------------------------------------------------------------
 
+    /**
+     * Frictionless energy formulation of Mlika's thesis, Eqs. (4.28)-(4.30).
+     * Current configurations determine the gap and nominal normal traction;
+     * no previous-slab kinematics or internal traction history is required.
+     * Use the Seitz IWG for frictional contact.
+     */
     class IWG_Isotropic_Struc_Nonlinear_Contact_Mlika : public IWG
     {
       private:
+        // Retain the constructor-selected variant when penalty-only mode
+        // temporarily disables the Nitsche terms during parameter replacement.
+        const sint mNitscheTheta;
+
         // mTheta is used to switch between the following formulations of the Nitsche term:
         //      symmetric :mTheta =  1
         //        neutral: mTheta =  0
@@ -40,9 +48,6 @@ namespace moris::fem
 
         // flag to trigger debug output
         sint mDebugFlag = 0;
-
-        // variable to keep track of the old traction TODO: implement this properly
-        std::map< int, Matrix< DDRMat > > mTractionHistoryMap;
 
         // debug functions
         void debug_function();
@@ -113,7 +118,9 @@ namespace moris::fem
 
         //------------------------------------------------------------------------------
         /**
-         * set parameters
+         * Set the existing four-scalar input layout: nonpositive frictionless
+         * marker, reserved value, penalty-only flag, and debug flag. Positive
+         * friction coefficients are rejected rather than silently ignored.
          */
         void set_parameters( const Vector< Matrix< DDRMat > >& aParameters ) override;
 

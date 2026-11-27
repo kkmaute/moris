@@ -9,6 +9,8 @@
  */
 
 #include "cl_FEM_Contact_Gap_Data.hpp"
+#include <cmath>
+#include <limits>
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -20,6 +22,8 @@
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika.hpp"
 #undef protected
 #undef private
 
@@ -31,7 +35,6 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
-#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
 
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
 
@@ -48,7 +51,10 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
         const real&                  aNitscheParameter,
         bool                         aUseDeformedGeometryForGap,
         bool                         aPurePenaltyFormulation,
-        real                         aFrictionCoefficient = -1.0 )
+        real                         aFrictionCoefficient = -1.0,
+        Vector< real >*              aPatchForces         = nullptr,
+        real                         aCurrentShear        = 0.01,
+        real                         aPreviousShear       = 0.004 )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -128,6 +134,12 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
     tSPNitscheInterface->set_parameters( { { { aNitscheParameter } } } );
     tSPNitscheInterface->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
     tSPNitscheInterface->set_property( tPropFollowerEMod, "Material", mtk::Leader_Follower::FOLLOWER );
+
+    // The affine comparison patch uses identical materials on both sides.
+    if ( aPatchForces != nullptr )
+    {
+        tPropFollowerEMod->set_parameters( { { { 10.0 } } } );
+    }
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -230,7 +242,7 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
         // loop on the field interpolation order
         // only up to quadratic checked for now
-        for ( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < ( aPatchForces != nullptr ? 2u : 3u ); iInterpOrder++ )
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -400,6 +412,34 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             }
 
             // set the coefficients xHat, tHat
+            if ( aPatchForces != nullptr )
+            {
+                // Two matching Q1 blocks meet at y=0. A continuous affine
+                // deformation compresses both blocks and changes their shear
+                // strain while leaving the contact trace fixed at both times.
+                // Hence the exact slip increment is zero even when traction changes.
+                tLeaderXHat             = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 } };
+                tFollowerXHat           = { { 0.0, -1.0 }, { 1.0, -1.0 }, { 1.0, 0.0 }, { 0.0, 0.0 } };
+                tLeaderSideNodesParam   = { { -1.0, -1.0 }, { 1.0, -1.0 } };
+                tFollowerSideNodesParam = { { 1.0, 1.0 }, { -1.0, 1.0 } };
+
+                tLeaderDOFHatDisp.set_size( 4, 2, 0.0 );
+                tFollowerDOFHatDisp.set_size( 4, 2, 0.0 );
+                tLeaderPreviousDOFHatDisp.set_size( 4, 2, 0.0 );
+                tFollowerPreviousDOFHatDisp.set_size( 4, 2, 0.0 );
+                for ( uint iNode = 0; iNode < 4; ++iNode )
+                {
+                    tLeaderDOFHatDisp( iNode, 0 )           = aCurrentShear * tLeaderXHat( iNode, 1 );
+                    tFollowerDOFHatDisp( iNode, 0 )         = aCurrentShear * tFollowerXHat( iNode, 1 );
+                    tLeaderPreviousDOFHatDisp( iNode, 0 )   = aPreviousShear * tLeaderXHat( iNode, 1 );
+                    tFollowerPreviousDOFHatDisp( iNode, 0 ) = aPreviousShear * tFollowerXHat( iNode, 1 );
+                    tLeaderDOFHatDisp( iNode, 1 )           = -0.02 * tLeaderXHat( iNode, 1 );
+                    tFollowerDOFHatDisp( iNode, 1 )         = -0.02 * tFollowerXHat( iNode, 1 );
+                    tLeaderPreviousDOFHatDisp( iNode, 1 )   = tLeaderDOFHatDisp( iNode, 1 );
+                    tFollowerPreviousDOFHatDisp( iNode, 1 ) = tFollowerDOFHatDisp( iNode, 1 );
+                }
+            }
+
             tLeaderGI.set_coeff( tLeaderXHat, tTHat );
             tFollowerGI.set_coeff( tFollowerXHat, tTHat );
 
@@ -543,46 +583,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             tFollowerPreviousFIManager.mIPGeometryInterpolator = &tFollowerPreviousGI;
             tFollowerPreviousFIManager.mIGGeometryInterpolator = &tFollowerPreviousSideGI;
 
-            // for friction only: compute traction for previous time step for leader at all integration points
-            if ( aFrictionCoefficient > 0.0 )
-            {
-                tIWG->mSet->mLeaderFIManager = &tLeaderPreviousFIManager;
-                tIWG->mLeaderFIManager       = &tLeaderPreviousFIManager;
-
-                // set IWG field interpolator manager
-                tIWG->set_field_interpolator_manager( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
-
-                uint tNumGPs = tIntegPoints.n_cols();
-                for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
-                {
-                    // reset IWG evaluation flags
-                    tIWG->reset_eval_flags();
-
-                    // create evaluation point xi, tau
-                    Matrix< DDRMat > tParamPointLeader = tIntegPoints.get_column( iGP );
-
-                    // set integration point on follower side
-                    tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
-
-                    // get undeformed normal
-                    const Matrix< DDRMat > tLeaderRefNormal = tLeaderPreviousFIManager.mIGGeometryInterpolator->get_normal();
-
-                    const Matrix< DDRMat > tTraction =
-                            tCMLeaderStruct->traction( tLeaderRefNormal, CM_Function_Type::PK1 );
-
-                    // note: mCMFunctionType is hard-coded; should be obtained from the IWG
-                    const Matrix< DDRMat > tdTractiondu =
-                            tCMLeaderStruct->dTractiondDOF( tDispDofTypes( 0 ), tLeaderRefNormal, CM_Function_Type::PK1 );
-
-                    // set current time step traction
-                    tCluster->get_cluster_ISV_data().set_point_index( iGP );
-
-                    tCluster->get_cluster_ISV_data().set_values( 0, tTraction );
-
-                    tCluster->get_cluster_ISV_data().set_derivatives( 0, tdTractiondu );
-                }
-            }
-
             // update field interpolator managers
             tIWG->mSet->mLeaderFIManager   = &tLeaderFIManager;
             tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
@@ -618,8 +618,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 tIWG->mSet->mLeaderFIManager->set_space_time_from_local_IG_point( tParamPointLeader );
                 tIWG->mSet->mLeaderPreviousFIManager->set_space_time_from_local_IG_point( tParamPointLeader );    // for frictional contact
 
-                tCluster->get_cluster_ISV_data().set_point_index( iGP );
-
                 Matrix< DDRMat > tParamPointfollower = tIWG->remap_nonconformal_rays(
                         tIWG->mUseDeformedGeometryForGap,
                         tDispDofTypes( 0 ),
@@ -642,6 +640,22 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                 // compute residual
                 tIWG->compute_residual( 1.0 );
+
+                if ( aPatchForces != nullptr )
+                {
+                    REQUIRE( std::abs( tIWG->mGapData->mGap ) < 1.0e-12 );
+                    REQUIRE( norm( tIWG->mGapData->mLeaderTangentVelocity ) < 1.0e-12 );
+
+                    real tLeaderForce   = 0.0;
+                    real tFollowerForce = 0.0;
+                    for ( uint iNode = 0; iNode < 4; ++iNode )
+                    {
+                        tLeaderForce += tIWG->mSet->mResidual( 0 )( iNode );
+                        tFollowerForce += tIWG->mSet->mResidual( 0 )( tNumDofDisp + iNode );
+                    }
+                    aPatchForces->push_back( tLeaderForce );
+                    REQUIRE( std::abs( tLeaderForce + tFollowerForce ) < 1.0e-12 );
+                }
 
                 // check evaluation of the jacobian by FD
                 //------------------------------------------------------------------------------
@@ -669,6 +683,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                     // save analytic jacobian
                     tJacobianPrevious = tIWG->mSet->mJacobian;
                 }
+
+
 
                 // init the jacobian for IWG and FD evaluation
                 Matrix< DDRMat > tJacobianFD( 2 * tNumDofDisp, 2 * tNumDofDisp, 0.0 );
@@ -781,28 +797,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                             tLeaderPreviousDOFHatDisp( in, idir ) += tPerturbation;
                             tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatDisp );
 
-                            // save ISV
-                            Matrix< DDRMat > tISVvalue = tCluster->get_cluster_ISV_data().get_values( 0 );
-
-                            // set field interpolator managers to previous time step for traction computation
-                            tIWG->mSet->mLeaderFIManager = &tLeaderPreviousFIManager;
-                            tIWG->mLeaderFIManager       = &tLeaderPreviousFIManager;
-                            tIWG->set_field_interpolator_manager( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
-
-                            // compute traction
-                            tIWG->reset_eval_flags();
-                            Matrix< DDRMat > tTraction = tCMLeaderStruct->traction(                    //
-                                    tLeaderPreviousFIManager.mIGGeometryInterpolator->get_normal(),    //
-                                    CM_Function_Type::PK1 );
-
-                            // set current time step traction
-                            tCluster->get_cluster_ISV_data().set_values( 0, tTraction );
-
-                            // reset field interpolator managers to current time step
-                            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
-                            tIWG->mLeaderFIManager       = &tLeaderFIManager;
-                            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
-
                             tIWG->reset_eval_flags();
                             tIWG->mSet->mResidual( 0 ).fill( 0.0 );
                             tIWG->compute_residual( 1.0 );
@@ -812,25 +806,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                             tLeaderPreviousDOFHatDisp( in, idir ) -= 2.0 * tPerturbation;
                             tLeaderPreviousFIs( 0 )->set_coeff( tLeaderPreviousDOFHatDisp );
 
-                            // set field interpolator managers to previous time step for traction computation
-                            tIWG->mSet->mLeaderFIManager = &tLeaderPreviousFIManager;
-                            tIWG->mLeaderFIManager       = &tLeaderPreviousFIManager;
-                            tIWG->set_field_interpolator_manager( &tLeaderPreviousFIManager, mtk::Leader_Follower::LEADER );
-
-                            // compute traction
-                            tIWG->reset_eval_flags();
-                            tTraction = tCMLeaderStruct->traction(                                     //
-                                    tLeaderPreviousFIManager.mIGGeometryInterpolator->get_normal(),    //
-                                    CM_Function_Type::PK1 );
-
-                            // set current time step traction
-                            tCluster->get_cluster_ISV_data().set_values( 0, tTraction );
-
-                            // reset field interpolator managers to current time step
-                            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
-                            tIWG->mLeaderFIManager       = &tLeaderFIManager;
-                            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
-
                             tIWG->reset_eval_flags();
                             tIWG->mSet->mResidual( 0 ).fill( 0.0 );
                             tIWG->compute_residual( 1.0 );
@@ -838,7 +813,6 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                             tJacobianFD.get_column( tCounter ) -= 0.5 / tPerturbation * tIWG->mSet->mResidual( 0 );
 
                             tLeaderPreviousDOFHatDisp( in, idir ) += tPerturbation;
-                            tCluster->get_cluster_ISV_data().set_values( 0, tISVvalue );
                             tCounter++;
                         }
                     }
@@ -891,7 +865,13 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                         print( tJacobianPrevious - tJacobianFD, "Jacobian error" );
                     }
                 }
-                // clean up
+                // The stack managers own the FIs; the set only borrows managers.
+                tIWG->mSet->mLeaderFIManager           = nullptr;
+                tIWG->mSet->mFollowerFIManager         = nullptr;
+                tIWG->mSet->mLeaderPreviousFIManager   = nullptr;
+                tIWG->mSet->mFollowerPreviousFIManager = nullptr;
+
+                // clean up local, non-owning FI vectors
                 tLeaderFIs.clear();
                 tFollowerFIs.clear();
 
@@ -901,6 +881,8 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
             }
         }
     }
+    delete tSet;
+    delete tCluster;
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
@@ -1257,5 +1239,132 @@ TEST_CASE( "IWG_Struc_Nonlinear_Contact_Nitsche_NEOHOOK_SEITZ_PenOnly", "[moris]
 }
 
 //----------------------------------------------------------------------------------------------------------------------------
+
+namespace
+{
+    template< typename Contact_IWG >
+    void check_contact_parameter_replacement( real aFrictionCoefficient = 0.2 )
+    {
+        for ( sint tTheta : { -1, 0, 1 } )
+        {
+            Contact_IWG tIWG( tTheta );
+            CHECK( tIWG.mTheta == tTheta );
+            CHECK( tIWG.mTractionScaling == 1.0 );
+
+            // Repeated updates must be independent of prior penalty-only flags.
+            // In particular, neutral Nitsche restores traction scaling despite
+            // sharing theta=0 with penalty-only; unsymmetric restores theta=-1.
+            for ( real tPenaltyOnly : { 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0 } )
+            {
+                INFO( "Constructor theta=" << tTheta << " penalty-only=" << tPenaltyOnly );
+                tIWG.set_parameters( { { { aFrictionCoefficient } }, { { 2.0 } }, { { tPenaltyOnly } }, { { 0.0 } } } );
+
+                if ( tPenaltyOnly > 0.5 )
+                {
+                    CHECK( tIWG.mTheta == 0 );
+                    CHECK( tIWG.mTractionScaling == 0.0 );
+                }
+                else
+                {
+                    CHECK( tIWG.mTheta == tTheta );
+                    CHECK( tIWG.mTractionScaling == 1.0 );
+                }
+            }
+        }
+    }
+}    // namespace
+
+TEST_CASE( "Seitz contact parameter replacement restores Nitsche mode", "[fem][ContactParameterReset]" )
+{
+    // A reused Seitz IWG must recover its symmetric, neutral or unsymmetric
+    // Nitsche formulation after penalty-only mode, including repeated toggles.
+    check_contact_parameter_replacement< IWG_Isotropic_Struc_Nonlinear_Contact_Seitz >();
+}
+
+TEST_CASE( "Mlika contact parameter replacement restores Nitsche mode", "[fem][ContactParameterReset]" )
+{
+    // Mlika has the same mode-switching contract as Seitz. Cover all constructor
+    // variants with frictionless input and repeated penalty-only toggles.
+    check_contact_parameter_replacement< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika >( -1.0 );
+}
+
+
+TEST_CASE( "Seitz current traction Jacobians", "[moris],[fem],[SeitzTraction]" )
+{
+    // Exercise current and previous-slab Jacobians for both elastic models,
+    // all Nitsche variants, and sticking, sliding, open and frictionless contact.
+    for ( auto tModel : { Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+                  Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF } )
+    {
+        for ( auto tType : { IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+                      IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_SYMMETRIC,
+                      IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_UNSYMMETRIC } )
+        {
+            CAPTURE( static_cast< int >( tModel ), static_cast< int >( tType ) );
+            for ( real tFriction : { -1.0, 15.0, 0.0015 } )
+            {
+                CAPTURE( tFriction );
+                Test_IWG_Struc_Nonlinear_Contact_Nitsche( tType, tModel, 10.0, true, false, tFriction );
+            }
+            Test_IWG_Struc_Nonlinear_Contact_Nitsche( tType, tModel, -10.0, true, false, 1.0 );
+            Test_IWG_Struc_Nonlinear_Contact_Nitsche( tType, tModel, 10.0, true, true, 1.0 );
+        }
+    }
+}
+
+TEST_CASE( "Seitz changing traction at a sticking interface", "[moris],[fem],[SeitzTraction],[SeitzStickPatch]" )
+{
+    // An affine compressed two-block patch has exactly zero interfacial slip
+    // during loading, unloading and reversal. In the neutral variant, partition
+    // of unity gives the contact force directly, without test-traction terms.
+    // The independent reference is PK1_xy=G*kappa for the neo-Hookean model;
+    // the 1/2 factor is MORIS's one-sided integration weight (unit aWStar).
+    const real tShearModulus = 10.0 / ( 2.0 * 1.3 );
+    for ( real tPreviousShear : { 0.0, 0.004, 0.01, -0.004 } )
+    {
+        for ( real tCurrentShear : { 0.01, -0.01 } )
+        {
+            CAPTURE( tPreviousShear, tCurrentShear );
+            Vector< real > tCurrentForces;
+            Test_IWG_Struc_Nonlinear_Contact_Nitsche(
+                    IWG_Type::STRUC_NONLINEAR_CONTACT_SEITZ_UNBIASED_NEUTRAL,
+                    Constitutive_Type::STRUC_NON_LIN_ISO_COMPRESSIBLE_NEO_HOOKEAN_WRIGGERS,
+                    10.0,
+                    true,
+                    false,
+                    1.0,
+                    &tCurrentForces,
+                    tCurrentShear,
+                    tPreviousShear );
+
+            REQUIRE( tCurrentForces.size() == 1 );
+            CHECK( tCurrentForces( 0 ) == Approx( 0.5 * tShearModulus * tCurrentShear ).margin( 1.0e-11 ) );
+        }
+    }
+}
+
+TEST_CASE( "Mlika rejects frictional parameters", "[fem][MlikaFrictionless]" )
+{
+    // Preserve zero/negative frictionless input markers and the existing layout.
+    // A positive coefficient must fail before altering a valid configuration.
+    for ( sint tTheta : { -1, 0, 1 } )
+    {
+        IWG_Isotropic_Struc_Nonlinear_Contact_Mlika tIWG( tTheta );
+        for ( real tMarker : { -1.0, 0.0 } )
+        {
+            tIWG.set_parameters( { { { tMarker } }, { { 2.0 } }, { { 0.0 } }, { { 0.0 } } } );
+            for ( real tUnsupported : { 0.2, std::numeric_limits< real >::infinity(), std::numeric_limits< real >::quiet_NaN() } )
+            {
+                CHECK_THROWS_WITH( tIWG.set_parameters( { { { tUnsupported } }, { { 2.0 } }, { { 1.0 } }, { { 0.0 } } } ),
+                        Catch::Contains( "Mlika contact is frictionless" ) );
+                CHECK( tIWG.mParameters( 0 )( 0 ) == tMarker );
+                CHECK( tIWG.mTheta == tTheta );
+                CHECK( tIWG.mTractionScaling == 1.0 );
+            }
+        }
+    }
+}
+
+
 
 /* END_TEST_CASE */

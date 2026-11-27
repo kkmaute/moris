@@ -395,7 +395,7 @@ TEST_CASE( "Parabolic indenter Seitz frictionless", "[SeitzFrictionless]" )
 }
 
 // Identical mesh, material and motion with Coulomb friction. The sequence
-// carries previous displacement/traction through three physical load steps.
+// uses previous displacements for slip over three physical load steps.
 TEST_CASE( "Parabolic indenter Seitz friction", "[SeitzFriction]" )
 {
     run_seitz( true, false );
@@ -411,8 +411,8 @@ TEST_CASE( "Parabolic indenter Seitz frictionless sensitivity", "[SeitzFrictionl
     check_seitz_sensitivities();
 }
 
-// Repeat with friction history active, so the backward solve must include
-// previous-state contact Jacobians rather than differentiating a frozen trace.
+// Repeat with friction active, so the backward solve must include the
+// previous-state slip-kinematics Jacobians rather than freezing the slip trace.
 TEST_CASE( "Parabolic indenter Seitz friction sensitivity", "[SeitzFrictionSensitivity]" )
 {
     run_seitz( true, true );

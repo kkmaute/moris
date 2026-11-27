@@ -209,7 +209,7 @@ namespace moris
             tLoadFactor = 1.0;
         }
         // The legacy case applies one load. Seitz cases ramp the prescribed
-        // motion over physical steps so previous-slab slip/traction contributes.
+        // motion over physical steps so previous displacements enter the slip increment.
         const real tTimeFactor = gIndenterUseSeitz
                                        ? aFIManager->get_IP_geometry_interpolator()->get_time_coeff()( 1 ) / 10.0
                                        : 1.0;
