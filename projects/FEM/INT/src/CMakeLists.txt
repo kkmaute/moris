@@ -122,6 +122,8 @@ set(HEADERS
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.hpp
     IWG/cl_FEM_IWG_Factory.hpp
     IWG/cl_FEM_IWG.hpp
+    IWG/cl_FEM_Contact_Gap_Data.hpp
+    IWG/cl_FEM_Contact_Geometry.hpp
     IWG/cl_FEM_Lumped_Matrix.hpp
     IWG/cl_FEM_IWG_FS_Struc_Interface.hpp
     IWG/cl_FEM_Lumped_Matrix.hpp
@@ -343,6 +345,8 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Measure.cpp
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.cpp
     IWG/cl_FEM_IWG.cpp
+    IWG/cl_FEM_Contact_Gap_Data.cpp
+    IWG/cl_FEM_Contact_Geometry.cpp
     IWG/cl_FEM_IWG_Factory.cpp
     IWG/cl_FEM_IWG_L2.cpp
     IWG/cl_FEM_IWG_Time_DG.cpp

@@ -8,6 +8,8 @@
  *
  */
 
+#include "cl_FEM_Contact_Gap_Data.hpp"
+#include "cl_FEM_Contact_Geometry.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Seitz.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Property.hpp"
@@ -175,7 +177,7 @@ namespace moris::fem
         const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
-        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
+        const Matrix< DDRMat > tRemappedFollowerCoords = Contact_Geometry::remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
@@ -398,7 +400,7 @@ namespace moris::fem
         const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
-        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
+        const Matrix< DDRMat > tRemappedFollowerCoords = Contact_Geometry::remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,
@@ -817,7 +819,7 @@ namespace moris::fem
         const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
         // build gap data and remap follower coordinates
-        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
+        const Matrix< DDRMat > tRemappedFollowerCoords = Contact_Geometry::remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,

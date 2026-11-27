@@ -8,6 +8,7 @@
  *
  */
 
+#include "cl_FEM_Contact_Gap_Data.hpp"
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"

@@ -8,6 +8,8 @@
  *
  */
 
+#include "cl_FEM_Contact_Gap_Data.hpp"
+#include "cl_FEM_Contact_Geometry.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Contact_Mlika_Frieder_Org.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Property.hpp"
@@ -107,7 +109,7 @@ namespace moris::fem
         aWStar *= ( tThicknessProperty != nullptr ) ? tThicknessProperty->val()( 0 ) : 1;
 
         // build gap data and remap follower coordinates
-        const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
+        const Matrix< DDRMat > tRemappedFollowerCoords = Contact_Geometry::remap_nonconformal_rays(
                 mUseDeformedGeometryForGap,
                 tDisplDofTypes,
                 mLeaderFIManager,

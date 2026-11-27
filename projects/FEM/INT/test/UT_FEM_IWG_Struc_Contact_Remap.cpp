@@ -8,8 +8,12 @@
  *
  */
 
+#include "cl_FEM_Contact_Gap_Data.hpp"
+#include "cl_FEM_Contact_Geometry.hpp"
 #include <string>
 #include <catch.hpp>
+#include <memory>
+#include <utility>
 #include "assert.hpp"
 
 #define protected public
@@ -26,6 +30,10 @@
 // FEM//INT/src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
+#include "cl_FEM_Field_Interpolator.hpp"
+#include "cl_FEM_Geometry_Interpolator.hpp"
+#include "cl_MTK_Interpolation_Rule.hpp"
+#include "fn_isfinite.hpp"
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
@@ -943,6 +951,178 @@ TEST_CASE( "IWG_Struc_Contact_Remap_Deformed_Nonlinear", "[moris],[fem],[IWG_Str
             fem::IWG_Type::STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             true,    // use deformed geometry
             1.0 );
+}
+
+
+namespace
+{
+    enum class Ray_Face_Type
+    {
+        COINCIDENT,
+        PARALLEL,
+        COLLAPSED
+    };
+
+    struct Ray_Mapping_Result
+    {
+        Matrix< DDRMat >           point;
+        std::unique_ptr< GapData > gap;
+    };
+
+    Ray_Mapping_Result map_straight_contact_ray(
+            real          aGeometryScale,
+            real          aStretch,
+            real          aLeaderCoordinate,
+            Ray_Face_Type aFaceType = Ray_Face_Type::COINCIDENT )
+    {
+        Set tSet;
+        tSet.set_set_type( Element_Type::DOUBLE_SIDESET );
+        tSet.mUniqueDofTypeList = { MSI::Dof_Type::UX };
+        tSet.mLeaderDofTypeMap.set_size( static_cast< uint >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+        tSet.mLeaderDofTypeMap( static_cast< uint >( MSI::Dof_Type::UX ) ) = 0;
+        tSet.mFollowerDofTypeMap                                           = tSet.mLeaderDofTypeMap;
+
+        const mtk::Interpolation_Rule tCellRule( mtk::Geometry_Type::QUAD,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Order::CONSTANT );
+        const mtk::Interpolation_Rule tSideRule( mtk::Geometry_Type::LINE,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::CONSTANT,
+                mtk::Interpolation_Order::CONSTANT );
+        Geometry_Interpolator         tLeaderGI( tCellRule );
+        Geometry_Interpolator         tFollowerGI( tCellRule );
+        Geometry_Interpolator         tLeaderSideGI( tSideRule, mtk::CellShape::GENERAL, true );
+        Geometry_Interpolator         tFollowerSideGI( tSideRule, mtk::CellShape::GENERAL, true );
+
+        Matrix< DDRMat > tLeaderCoordinates      = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 } };
+        Matrix< DDRMat > tFollowerCoordinates    = { { 0.0, -1.0 }, { 1.0, -1.0 }, { 1.0, 0.0 }, { 0.0, 0.0 } };
+        Matrix< DDRMat > tFollowerSideParameters = { { 1.0, 1.0 }, { -1.0, 1.0 } };
+        if ( aFaceType == Ray_Face_Type::PARALLEL )
+        {
+            // A vertical follower face passes through the leader midpoint.
+            // Its tangent is parallel to the ray, making the ray Jacobian
+            // singular even though the initial residual is exactly zero.
+            tFollowerCoordinates    = { { 0.0, -0.5 }, { 1.0, -0.5 }, { 1.0, 0.5 }, { 0.0, 0.5 } };
+            tFollowerSideParameters = { { 0.0, -1.0 }, { 0.0, 1.0 } };
+        }
+        tLeaderCoordinates           = aGeometryScale * tLeaderCoordinates;
+        tFollowerCoordinates         = aGeometryScale * tFollowerCoordinates;
+        const Matrix< DDRMat > tTime = { { 0.0 } };
+        tLeaderGI.set_coeff( tLeaderCoordinates, tTime );
+        tFollowerGI.set_coeff( tFollowerCoordinates, tTime );
+
+        auto tSetSide = [ & ]( Geometry_Interpolator& aCell, Geometry_Interpolator& aSide, const Matrix< DDRMat >& aParameters ) {
+            Matrix< DDRMat > tCoordinates( aParameters.n_rows(), 2 );
+            for ( uint i = 0; i < aParameters.n_rows(); ++i )
+            {
+                aCell.set_space( trans( aParameters.get_row( i ) ) );
+                tCoordinates.get_row( i ) = aCell.valx().matrix_data();
+            }
+            aSide.set_coeff( tCoordinates, tTime );
+            aSide.set_space_param_coeff( aParameters );
+            aSide.set_time_param_coeff( tTime );
+        };
+        tSetSide( tLeaderGI, tLeaderSideGI, Matrix< DDRMat >{ { -1.0, -1.0 }, { 1.0, -1.0 } } );
+        tSetSide( tFollowerGI, tFollowerSideGI, tFollowerSideParameters );
+
+        // Managers own the heap field interpolators and borrow the stack
+        // geometries. The set is not given ownership of these stack managers.
+        const Vector< Vector< MSI::Dof_Type > > tDofTypes = { { MSI::Dof_Type::UX } };
+        Field_Interpolator_Manager              tLeaderManager( tDofTypes, &tSet );
+        Field_Interpolator_Manager              tFollowerManager( tDofTypes, &tSet, mtk::Leader_Follower::FOLLOWER );
+        auto                                    tLeaderFI   = std::make_unique< Field_Interpolator >( 2, tCellRule, &tLeaderGI, tDofTypes( 0 ) );
+        auto                                    tFollowerFI = std::make_unique< Field_Interpolator >( 2, tCellRule, &tFollowerGI, tDofTypes( 0 ) );
+        Matrix< DDRMat >                        tLeaderDisplacements( 4, 2, 0.0 );
+        Matrix< DDRMat >                        tFollowerDisplacements( 4, 2, 0.0 );
+        for ( uint i = 0; i < 4; ++i )
+        {
+            tLeaderDisplacements( i, 0 )   = ( aStretch - 1.0 ) * tLeaderCoordinates( i, 0 );
+            tFollowerDisplacements( i, 0 ) = ( aStretch - 1.0 ) * tFollowerCoordinates( i, 0 );
+        }
+        if ( aFaceType == Ray_Face_Type::COLLAPSED )
+        {
+            // Collapse the deformed follower face onto the leader midpoint.
+            // Its reference geometry stays valid, so rejection must come from
+            // the current ray Jacobian rather than fixture initialization.
+            for ( uint i = 0; i < 4; ++i )
+            {
+                tFollowerDisplacements( i, 0 ) = 0.5 * aStretch * aGeometryScale - tFollowerCoordinates( i, 0 );
+            }
+        }
+        tLeaderFI->set_coeff( tLeaderDisplacements );
+        tFollowerFI->set_coeff( tFollowerDisplacements );
+        tLeaderManager.mFI                       = { tLeaderFI.release() };
+        tFollowerManager.mFI                     = { tFollowerFI.release() };
+        tLeaderManager.mIPGeometryInterpolator   = &tLeaderGI;
+        tLeaderManager.mIGGeometryInterpolator   = &tLeaderSideGI;
+        tFollowerManager.mIPGeometryInterpolator = &tFollowerGI;
+        tFollowerManager.mIGGeometryInterpolator = &tFollowerSideGI;
+        tLeaderManager.set_space_time_from_local_IG_point( Matrix< DDRMat >{ { aLeaderCoordinate }, { 0.0 } } );
+        tFollowerManager.set_space_time_from_local_IG_point( Matrix< DDRMat >{ { 0.0 }, { 0.0 } } );
+
+        // Exercise mapping independently of an IWG; the caller owns this cache.
+        Ray_Mapping_Result tResult;
+        tResult.point = Contact_Geometry::remap_nonconformal_rays( true, tDofTypes( 0 ), &tLeaderManager, &tFollowerManager, nullptr, nullptr, tResult.gap );
+        return tResult;
+    }
+}    // namespace
+
+// Coincident faces with opposite normals have an exact initial intersection.
+// Check that it is accepted and that the inverse needed by gap derivatives is
+// available, independently of geometric scale and an applied uniform stretch.
+TEST_CASE( "Contact ray accepts exact initial intersections", "[fem][ContactRayConvergence]" )
+{
+    for ( real tScale : { 1.0e-6, 1.0, 1.0e6 } )
+    {
+        for ( real tStretch : { 1.0, 32.0 } )
+        {
+            INFO( "Geometry scale=" << tScale << " stretch=" << tStretch );
+            auto tResult = map_straight_contact_ray( tScale, tStretch, 0.0 );
+            CHECK( tResult.point( 0 ) == 0.0 );
+            CHECK( tResult.gap->mGap == Approx( 0.0 ).margin( 1.0e-12 * tScale * tStretch ) );
+            REQUIRE( tResult.gap->mdGapdu.numel() > 0 );
+            CHECK( isfinite( tResult.gap->mdGapdu ) );
+        }
+    }
+}
+
+// A tiny nonzero residual is accepted using the deformed face length. The
+// 32-fold stretch makes it exceed the reference-length tolerance, so this also
+// checks that the length scale includes displacement. An off-center root still
+// requires Newton updates.
+TEST_CASE( "Contact ray scales its absolute residual tolerance", "[fem][ContactRayConvergence]" )
+{
+    for ( real tScale : { 1.0e-6, 1.0, 1.0e6 } )
+    {
+        for ( real tStretch : { 1.0, 32.0 } )
+        {
+            INFO( "Geometry scale=" << tScale << " stretch=" << tStretch );
+            auto tNear = map_straight_contact_ray( tScale, tStretch, 1.0e-13 );
+            CHECK( tNear.point( 0 ) == 0.0 );
+            auto tOffCenter = map_straight_contact_ray( tScale, tStretch, 0.123 );
+            CHECK( tOffCenter.point( 0 ) == Approx( -0.123 ).margin( 1.0e-12 ) );
+        }
+    }
+}
+
+// A zero residual alone must not accept an underdetermined intersection.
+// The Jacobian check must still reject parallel rays and collapsed faces.
+TEST_CASE( "Contact ray rejects singular exact intersections", "[fem][ContactRayConvergence]" )
+{
+    for ( real tScale : { 1.0e-6, 1.0, 1.0e6 } )
+    {
+        INFO( "Geometry scale=" << tScale );
+        for ( auto tFaceType : { Ray_Face_Type::PARALLEL, Ray_Face_Type::COLLAPSED } )
+        {
+            INFO( "Face type=" << static_cast< uint >( tFaceType ) );
+            auto tResult = map_straight_contact_ray( tScale, 1.0, 0.0, tFaceType );
+            CHECK( tResult.point( 0 ) == -2.0 );
+            CHECK( tResult.gap->mEta( 0 ) == -2.0 );
+        }
+    }
 }
 
 /* END_TEST_CASE */
