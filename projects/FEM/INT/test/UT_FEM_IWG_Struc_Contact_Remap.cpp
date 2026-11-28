@@ -11,6 +11,7 @@
 #include "cl_FEM_Contact_Gap_Data.hpp"
 #include "cl_FEM_Contact_Geometry.hpp"
 #include <string>
+#include <functional>
 #include <catch.hpp>
 #include <memory>
 #include <utility>
@@ -970,10 +971,12 @@ namespace
     };
 
     Ray_Mapping_Result map_straight_contact_ray(
-            real          aGeometryScale,
-            real          aStretch,
-            real          aLeaderCoordinate,
-            Ray_Face_Type aFaceType = Ray_Face_Type::COINCIDENT )
+            real                                                                                                          aGeometryScale,
+            real                                                                                                          aStretch,
+            real                                                                                                          aLeaderCoordinate,
+            Ray_Face_Type                                                                                                 aFaceType                  = Ray_Face_Type::COINCIDENT,
+            bool                                                                                                          aEvaluateSecondDerivatives = true,
+            const std::function< void( Field_Interpolator_Manager&, Field_Interpolator_Manager&, Ray_Mapping_Result& ) >& aCheck                     = {} )
     {
         Set tSet;
         tSet.set_set_type( Element_Type::DOUBLE_SIDESET );
@@ -1065,7 +1068,11 @@ namespace
 
         // Exercise mapping independently of an IWG; the caller owns this cache.
         Ray_Mapping_Result tResult;
-        tResult.point = Contact_Geometry::remap_nonconformal_rays( true, tDofTypes( 0 ), &tLeaderManager, &tFollowerManager, nullptr, nullptr, tResult.gap );
+        tResult.point = Contact_Geometry::remap_nonconformal_rays( true, tDofTypes( 0 ), &tLeaderManager, &tFollowerManager, nullptr, nullptr, tResult.gap, aEvaluateSecondDerivatives );
+        if ( aCheck )
+        {
+            aCheck( tLeaderManager, tFollowerManager, tResult );
+        }
         return tResult;
     }
 }    // namespace
@@ -1123,6 +1130,108 @@ TEST_CASE( "Contact ray rejects singular exact intersections", "[fem][ContactRay
             CHECK( tResult.gap->mEta( 0 ) == -2.0 );
         }
     }
+}
+
+// Residual requests must avoid every Hessian buffer. Upgrading that same
+// point for a Jacobian must agree with a fresh full evaluation, and edits or
+// failed intersections must never expose Hessians from the previous geometry.
+TEST_CASE( "Contact geometry evaluates Hessians on request", "[fem][ContactHessianEvaluation]" )
+{
+    using Gap_Matrix                                      = Matrix< DDRMat >       GapData::*;
+    const std::initializer_list< Gap_Matrix > tFirstOrder = {
+        &GapData::mEta, &GapData::mdGapdu, &GapData::mdGapdv, &GapData::mdEtadu, &GapData::mdEtadv, &GapData::mLeaderNormal, &GapData::mLeaderRefNormal, &GapData::mLeaderdNormaldu, &GapData::mGapVec, &GapData::mdGapvecdu, &GapData::mdGapvecdv, &GapData::mFollowerDisplacements, &GapData::mFollowerdDisplacementsdu, &GapData::mFollowerdDisplacementsdv, &GapData::mFollowerShapeFunctiondu, &GapData::mFollowerShapeFunctiondv
+    };
+    const std::initializer_list< Gap_Matrix > tHessians = {
+        &GapData::mdGap2du2, &GapData::mdGap2dv2, &GapData::mdGap2duv, &GapData::mdEta2du2, &GapData::mdEta2dv2, &GapData::mdEta2duv, &GapData::mLeaderdNormal2du2, &GapData::mdGapvec2du2, &GapData::mdGapvec2dv2, &GapData::mdGapvec2duv
+    };
+
+    auto tCheckEmpty = [ & ]( const GapData& aGap ) {
+        REQUIRE_FALSE( aGap.mHasSecondOrderDerivatives );
+        for ( auto tMember : tHessians )
+        {
+            REQUIRE( ( aGap.*tMember ).numel() == 0 );
+        }
+    };
+    auto tCompare = [ & ]( const GapData& aActual, const GapData& aReference, bool aSecondOrder ) {
+        CHECK( aActual.mGap == Approx( aReference.mGap ).margin( 1.0e-12 ) );
+        auto tCompareMatrices = [ & ]( const std::initializer_list< Gap_Matrix >& aMembers ) {
+            for ( auto tMember : aMembers )
+            {
+                const auto& tActual    = aActual.*tMember;
+                const auto& tReference = aReference.*tMember;
+                REQUIRE( tActual.n_rows() == tReference.n_rows() );
+                REQUIRE( tActual.n_cols() == tReference.n_cols() );
+                CHECK( norm( tActual - tReference ) <= 1.0e-12 * ( 1.0 + norm( tReference ) ) );
+            }
+        };
+        tCompareMatrices( tFirstOrder );
+        if ( aSecondOrder )
+        {
+            REQUIRE( aActual.mHasSecondOrderDerivatives );
+            tCompareMatrices( tHessians );
+        }
+    };
+
+    map_straight_contact_ray( 1.0, 1.0, 0.123, Ray_Face_Type::COINCIDENT, false, [ & ]( Field_Interpolator_Manager& aLeader, Field_Interpolator_Manager& aFollower, Ray_Mapping_Result& aResult ) {
+        auto tMap = [ & ]( std::unique_ptr< GapData >& aGap, bool aSecondOrder ) {
+            return Contact_Geometry::remap_nonconformal_rays( true, { MSI::Dof_Type::UX }, &aLeader, &aFollower, nullptr, nullptr, aGap, aSecondOrder );
+        };
+
+        tCheckEmpty( *aResult.gap );
+        REQUIRE_FALSE( aResult.gap->mEval );
+        std::unique_ptr< GapData > tFull;
+        tMap( tFull, true );
+        REQUIRE( norm( tFull->mLeaderdNormal2du2 ) > 1.0e-6 );
+        tCompare( *aResult.gap, *tFull, false );
+
+        // A residual-to-Jacobian upgrade preserves locked contact state.
+        aResult.gap->mIsLocked  = true;
+        aResult.gap->mIsContact = true;
+        tMap( aResult.gap, true );
+        tCompare( *aResult.gap, *tFull, true );
+        CHECK( aResult.gap->mIsLocked );
+        CHECK( aResult.gap->mIsContact );
+        tMap( aResult.gap, false );
+        tCompare( *aResult.gap, *tFull, true );
+
+        // Edit both the leader cell and its extracted side. The owning
+        // caller invalidates the contact cache after changing geometry.
+        for ( auto tGeometry : { aLeader.get_IP_geometry_interpolator(), aLeader.get_IG_geometry_interpolator() } )
+        {
+            Matrix< DDRMat > tCoordinates = tGeometry->get_space_coeff();
+            for ( uint i = 0; i < tCoordinates.n_rows(); ++i )
+            {
+                tCoordinates( i, 1 ) -= 0.05;
+            }
+            tGeometry->set_space_coeff( tCoordinates );
+        }
+        aLeader.set_space_time_from_local_IG_point( Matrix< DDRMat >{ { 0.123 }, { 0.0 } } );
+        aResult.gap->mEval = true;
+        tMap( aResult.gap, false );
+        tCheckEmpty( *aResult.gap );
+        CHECK( std::abs( aResult.gap->mGap ) > 0.01 );
+        tFull.reset();
+        tMap( tFull, true );
+        tCompare( *aResult.gap, *tFull, false );
+        tMap( aResult.gap, true );
+        tCompare( *aResult.gap, *tFull, true );
+
+        // Collapse the follower onto a point. A failed mapping clears
+        // old Hessians, and requesting them again retains the sentinel.
+        auto*            tFollowerFI    = aFollower.get_field_interpolators_for_type( MSI::Dof_Type::UX );
+        Matrix< DDRMat > tDisplacements = tFollowerFI->get_coeff();
+        const auto&      tCoordinates   = aFollower.get_IP_geometry_interpolator()->get_space_coeff();
+        for ( uint i = 0; i < tCoordinates.n_rows(); ++i )
+        {
+            tDisplacements( i, 0 ) = 0.5 - tCoordinates( i, 0 );
+        }
+        tFollowerFI->set_coeff( tDisplacements );
+        aResult.gap->mEval = true;
+        CHECK( tMap( aResult.gap, true )( 0 ) == -2.0 );
+        tCheckEmpty( *aResult.gap );
+        CHECK( tMap( aResult.gap, true )( 0 ) == -2.0 );
+        tCheckEmpty( *aResult.gap );
+    } );
 }
 
 /* END_TEST_CASE */

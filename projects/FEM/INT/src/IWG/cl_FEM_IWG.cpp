@@ -2382,21 +2382,8 @@ namespace moris::fem
                         // set the perturbed coefficients to FI
                         tLeaderFI->set_coeff( tCoeffPert );
 
-                        //                        // If this is a nonconformal side set and the dof type is a displacement field, we need to remap the integration point on the follower side!
-                        //                        // For this, we need to use the perturbed displacement field to map the leader integration point and the follower element into the current configuration.
-                        //                        // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
-                        //                        if ( tIsNonconformal && tIsDisplacementField )
-                        //                        {
-                        //                            Field_Interpolator*    tFollowerFI             = mFollowerFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
-                        //                            Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI );
-                        //
-                        //                            MORIS_ERROR( std::abs( tRemappedFollowerCoords( 0 ) ) <= 1.0,
-                        //                                    "IWG::select_jacobian_FD_double - remapped follower coordinates are not in [-1,1] range." );
-                        //
-                        //                            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
-                        //                        }
-
-                        // reset properties, CM and SP for IWG
+                        // Invalidate cached gap geometry after each perturbation so the
+                        // contact residual remaps using the perturbed displacement field.
                         this->reset_eval_flags();
 
                         // reset the residual
@@ -2511,21 +2498,8 @@ namespace moris::fem
                         // set the perturbed coefficients to FI
                         tFollowerFI->set_coeff( tCoeffPert );
 
-                        //                        // If this is a nonconformal side set and the dof type is a displacement field, we need to remap the integration point on the follower side!
-                        //                        // For this, we need to use the perturbed displacement field to map the leader integration point and the follower element into the current configuration.
-                        //                        // To obtain the new normal, we currently limit the implementation to line elements to directly calculate the normal vector from the deformed coordinates of the leader element.
-                        //                        if ( tIsNonconformal && tIsDisplacementField )
-                        //                        {
-                        //                            Field_Interpolator*    tLeaderFI               = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
-                        //                            Matrix< DDRMat > const tRemappedFollowerCoords = this->remap_nonconformal_rays( tLeaderFI, tFollowerFI );
-                        //
-                        //                            MORIS_ERROR( std::abs( tRemappedFollowerCoords( 0 ) ) <= 1.0,
-                        //                                    "IWG::select_jacobian_FD_double - remapped follower coordinates are not in [-1,1] range." );
-                        //
-                        //                            mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time_from_local_IG_point( tRemappedFollowerCoords );
-                        //                        }
-
-                        // reset properties, CM and SP for IWG
+                        // Invalidate cached gap geometry after each perturbation so the
+                        // contact residual remaps using the perturbed displacement field.
                         this->reset_eval_flags();
 
                         // reset the residual
@@ -3664,14 +3638,15 @@ namespace moris::fem
         const Vector< MSI::Dof_Type > tDisplDofTypes = mResidualDofType( 0 );
         if ( tIsNonconformal && tDisplDofTypes( 0 ) == MSI::Dof_Type::UX )
         {
-            const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
+            const Matrix< DDRMat > tRemappedFollowerCoords = Contact_Geometry::remap_nonconformal_rays(
                     mUseDeformedGeometryForGap,
                     tDisplDofTypes,
                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER ),
                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER ),
                     mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER ),
                     mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER ),
-                    mGapData );
+                    mGapData,
+                    false );
 
             // check whether the remapping is successful
             if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -4022,14 +3997,15 @@ namespace moris::fem
                         // if nonconform check that mapping for perturbed geometry is successful
                         if ( tIsNonconformal && mResidualDofType( 0 )( 0 ) == MSI::Dof_Type::UX )
                         {
-                            const Matrix< DDRMat > tRemappedFollowerCoords = this->remap_nonconformal_rays(
+                            const Matrix< DDRMat > tRemappedFollowerCoords = Contact_Geometry::remap_nonconformal_rays(
                                     mUseDeformedGeometryForGap,
                                     tDisplDofTypes,
                                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER ),
                                     mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER ),
                                     mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER ),
                                     mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::FOLLOWER ),
-                                    mGapData );
+                                    mGapData,
+                                    false );
 
                             // check whether the remapping is successful
                             if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )

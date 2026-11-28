@@ -153,7 +153,8 @@ namespace moris::fem
             Matrix< DDRMat >&      aLeaderRefNormal,
             Matrix< DDRMat >&      aLeaderdNormaldU,
             Matrix< DDRMat >&      aLeaderdNormal2dU2,
-            const bool             aEvaluateLinearization )
+            const bool             aEvaluateLinearization,
+            const bool             aEvaluateSecondDerivatives )
     {
         // get geometry and displacements for leader quadrature point
         // const Matrix< DDRMat >& tLeaderXgp      = tLeaderIGGI->valx(); // global coordinates at quadrature points
@@ -192,7 +193,6 @@ namespace moris::fem
         const real tNtildeSquared = dot( tLeaderNormalTilde, tLeaderNormalTilde );
         const real tNtildeOm12    = 1.0 / std::sqrt( tNtildeSquared );
         const real tNtildeOm32    = std::pow( tNtildeSquared, -1.5 );
-        const real tNtilde3Om52   = 3.0 * std::pow( tNtildeSquared, -2.5 );
 
         aLeaderNormal = tNtildeOm12 * tLeaderNormalTilde;
 
@@ -216,37 +216,36 @@ namespace moris::fem
                         tLeaderdNUgpdxi( in ) * tPreMultiply * tIdentity;
             }
 
-            // compute second derivative of the normal vector with respect to the leader dofs
-            const Matrix< DDRMat > tLeaderNormalAux = trans( RotMat ) * tLeaderNormalTilde;
-
-            // std::cout << "aLeaderdNormaldU.n_cols(): " << aLeaderdNormaldU.n_cols() << std::endl;
-            // std::cout << "aLeaderdNormal2dU2.n_cols(): " << aLeaderdNormal2dU2.n_cols() << std::endl;
-            // if ( aLeaderdNormaldU.n_cols() == 0 or aLeaderdNormal2dU2.n_cols() == 0 )
-            //   return;
-
-            uint tCounter = 0;
-            for ( uint idim = 0; idim < tSpaceDim; idim++ )
+            if ( aEvaluateSecondDerivatives )
             {
-                for ( uint in = 0; in < tNumNodes; in++ )
+                const real tNtilde3Om52 = 3.0 * std::pow( tNtildeSquared, -2.5 );
+                // compute second derivative of the normal vector with respect to the leader dofs
+                const Matrix< DDRMat > tLeaderNormalAux = trans( RotMat ) * tLeaderNormalTilde;
+
+                uint tCounter = 0;
+                for ( uint idim = 0; idim < tSpaceDim; idim++ )
                 {
-                    for ( uint id = 0; id < tSpaceDim; id++ )
+                    for ( uint in = 0; in < tNumNodes; in++ )
                     {
-                        for ( uint jn = 0; jn < tNumNodes; jn++ )
+                        for ( uint id = 0; id < tSpaceDim; id++ )
                         {
-                            for ( uint jd = 0; jd < tSpaceDim; jd++ )
+                            for ( uint jn = 0; jn < tNumNodes; jn++ )
                             {
-                                aLeaderdNormal2dU2( idim, tCounter ) =
-                                        ( tNtilde3Om52 * tLeaderNormalTilde( idim ) * tLeaderNormalAux( jd ) * tLeaderNormalAux( id )    //
-                                                - tNtildeOm32 * ( RotMat( idim, id ) * tLeaderNormalAux( jd )                            //
-                                                                  + RotMat( idim, jd ) * tLeaderNormalAux( id )                          //
-                                                                  + tLeaderNormalTilde( idim ) * tIdentity( id, jd ) ) )                 //
-                                        * tLeaderdNUgpdxi( in ) * tLeaderdNUgpdxi( jn );
-                                tCounter++;
+                                for ( uint jd = 0; jd < tSpaceDim; jd++ )
+                                {
+                                    aLeaderdNormal2dU2( idim, tCounter ) =
+                                            ( tNtilde3Om52 * tLeaderNormalTilde( idim ) * tLeaderNormalAux( jd ) * tLeaderNormalAux( id )    //
+                                                    - tNtildeOm32 * ( RotMat( idim, id ) * tLeaderNormalAux( jd )                            //
+                                                                      + RotMat( idim, jd ) * tLeaderNormalAux( id )                          //
+                                                                      + tLeaderNormalTilde( idim ) * tIdentity( id, jd ) ) )                 //
+                                            * tLeaderdNUgpdxi( in ) * tLeaderdNUgpdxi( jn );
+                                    tCounter++;
+                                }
                             }
                         }
                     }
+                    tCounter = 0;
                 }
-                tCounter = 0;
             }
         }
     }

@@ -642,6 +642,15 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
                 // compute residual
                 tIWG->compute_residual( 1.0 );
 
+                // Residual assembly must not allocate or evaluate geometry Hessians,
+                // including frictional cases with previous-time interpolators.
+                if ( aUseDeformedGeometryForGap )
+                {
+                    REQUIRE_FALSE( tIWG->mGapData->mHasSecondOrderDerivatives );
+                    REQUIRE( tIWG->mGapData->mdGap2du2.numel() == 0 );
+                    REQUIRE( tIWG->mGapData->mLeaderdNormal2du2.numel() == 0 );
+                }
+
                 if ( aPatchForces != nullptr )
                 {
                     REQUIRE( std::abs( tIWG->mGapData->mGap ) < 1.0e-12 );
@@ -665,6 +674,14 @@ void Test_IWG_Struc_Nonlinear_Contact_Nitsche(
 
                 // compute jacobian
                 tIWG->compute_jacobian( 1.0 );
+
+                // Mlika upgrades the residual cache; Seitz's tangent requires
+                // only first derivatives and keeps the quadratic buffers empty.
+                if ( aUseDeformedGeometryForGap )
+                {
+                    const bool tNeedsHessians = dynamic_cast< IWG_Isotropic_Struc_Nonlinear_Contact_Mlika* >( tIWG.get() ) != nullptr;
+                    REQUIRE( tIWG->mGapData->mHasSecondOrderDerivatives == tNeedsHessians );
+                }
 
                 // save analytic jacobian
                 Matrix< DDRMat > tJacobian = tIWG->mSet->mJacobian;

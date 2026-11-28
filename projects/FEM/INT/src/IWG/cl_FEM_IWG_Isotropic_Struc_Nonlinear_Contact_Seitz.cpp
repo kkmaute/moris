@@ -182,7 +182,8 @@ namespace moris::fem
                 mFollowerFIManager,
                 mLeaderPreviousFIManager,
                 mFollowerPreviousFIManager,
-                mGapData );
+                mGapData,
+                false );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -392,7 +393,8 @@ namespace moris::fem
                 mFollowerFIManager,
                 mLeaderPreviousFIManager,
                 mFollowerPreviousFIManager,
-                mGapData );
+                mGapData,
+                false );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )
@@ -789,7 +791,8 @@ namespace moris::fem
                 mFollowerFIManager,
                 mLeaderPreviousFIManager,
                 mFollowerPreviousFIManager,
-                mGapData );
+                mGapData,
+                false );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )

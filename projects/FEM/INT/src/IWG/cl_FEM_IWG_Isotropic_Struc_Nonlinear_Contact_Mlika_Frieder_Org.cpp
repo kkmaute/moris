@@ -116,7 +116,8 @@ namespace moris::fem
                 mFollowerFIManager,
                 nullptr,
                 nullptr,
-                mGapData );
+                mGapData,
+                false );
 
         // check whether the remapping is successful
         if ( std::abs( tRemappedFollowerCoords( 0 ) ) > 1 )

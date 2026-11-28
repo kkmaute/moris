@@ -18,6 +18,9 @@ namespace moris::fem
      * cache and supplies previous-time managers when tangential motion is needed.
      * Mapping updates follower interpolation points; no quadrature weight is
      * applied here. The existing invalid-intersection sentinel is preserved.
+     * Callers that only need first derivatives can omit Hessians. A later
+     * second-order request upgrades the point cache by reevaluating the mapping;
+     * the cache never retains interpolator references across invalidations.
      */
     class Contact_Geometry
     {
@@ -29,7 +32,8 @@ namespace moris::fem
                 Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
                 Field_Interpolator_Manager*    aLeaderPreviousFieldInterpolatorManager,
                 Field_Interpolator_Manager*    aFollowerPreviousFieldInterpolatorManager,
-                std::unique_ptr< GapData >&    aGapData );
+                std::unique_ptr< GapData >&    aGapData,
+                bool                           aEvaluateSecondDerivatives = true );
 
         static Matrix< DDRMat > remap_nonconformal_rays_deformed_geometry(
                 const Vector< MSI::Dof_Type >& aDisplDofTypes,
@@ -37,7 +41,8 @@ namespace moris::fem
                 Field_Interpolator_Manager*    aFollowerFieldInterpolatorManager,
                 Field_Interpolator_Manager*    aLeaderPreviousFieldInterpolatorManager,
                 Field_Interpolator_Manager*    aFollowerPreviousFieldInterpolatorManager,
-                std::unique_ptr< GapData >&    aGapData );
+                std::unique_ptr< GapData >&    aGapData,
+                bool                           aEvaluateSecondDerivatives = true );
 
         static Matrix< DDRMat > remap_nonconformal_rays_undeformed_geometry(
                 Field_Interpolator_Manager* aLeaderFieldInterpolatorManager,

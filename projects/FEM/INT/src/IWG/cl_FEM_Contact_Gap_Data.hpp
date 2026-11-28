@@ -21,7 +21,9 @@ namespace moris::fem
      */
     struct GapData
     {
-        bool mEval = true;    // flag to indicate if the gap data needs to be evaluate
+        bool mEval = true;    // The owning IWG invalidates all geometry orders with this flag.
+        // A populated Hessian is valid only while mEval is false.
+        bool mHasSecondOrderDerivatives = false;
 
         bool mIsLocked  = false;    // flag to indicate if the gap data is locked and should not be updated
         bool mIsContact = false;    // flag to indicate if the point is in contact
@@ -96,6 +98,8 @@ namespace moris::fem
 
         void copy( const std::unique_ptr< GapData >& tGapData )
         {
+            mHasSecondOrderDerivatives = tGapData->mHasSecondOrderDerivatives;
+
             mGap      = tGapData->mGap;
             mdGapdu   = tGapData->mdGapdu;
             mdGap2du2 = tGapData->mdGap2du2;
@@ -145,7 +149,7 @@ namespace moris::fem
 
         //----------------------------------------------------------------------------
 
-        void set_matrix_sizes( const uint aSpaceDim, const uint aNumDofs, const uint aNumNodes )
+        void set_matrix_sizes( const uint aSpaceDim, const uint aNumDofs, const uint aNumNodes, bool aEvaluateSecondDerivatives = true )
         {
             mdGapdu.set_size( 1, aNumDofs );
             mdGapdv.set_size( 1, aNumDofs );
@@ -156,17 +160,14 @@ namespace moris::fem
             mdGapvecdu.set_size( aSpaceDim, aNumDofs );
             mdGapvecdv.set_size( aSpaceDim, aNumDofs );
 
-            mdGap2du2.set_size( aNumDofs, aNumDofs );
-            mdGap2dv2.set_size( aNumDofs, aNumDofs );
-            mdGap2duv.set_size( aNumDofs, aNumDofs );
-            mdEta2du2.set_size( aNumDofs, aNumDofs );
-            mdEta2dv2.set_size( aNumDofs, aNumDofs );
-            mdEta2duv.set_size( aNumDofs, aNumDofs );
-
-            mLeaderdNormal2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
-            mdGapvec2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
-            mdGapvec2dv2.set_size( aSpaceDim, aNumDofs * aNumDofs );
-            mdGapvec2duv.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            if ( aEvaluateSecondDerivatives )
+            {
+                set_second_order_matrix_sizes( aSpaceDim, aNumDofs );
+            }
+            else
+            {
+                clear_second_order_derivatives();
+            }
 
             mLeaderdTangentVelocitydu.set_size( aSpaceDim, aNumDofs );
             mLeaderdTangentVelocitydv.set_size( aSpaceDim, aNumDofs );
@@ -181,6 +182,41 @@ namespace moris::fem
 
             mFollowerShapeFunctiondu.set_size( aNumNodes, aNumDofs );
             mFollowerShapeFunctiondv.set_size( aNumNodes, aNumDofs );
+        }
+
+        //----------------------------------------------------------------------------
+
+        void clear_second_order_derivatives()
+        {
+            mHasSecondOrderDerivatives = false;
+            mdGap2du2.set_size( 0, 0 );
+            mdGap2dv2.set_size( 0, 0 );
+            mdGap2duv.set_size( 0, 0 );
+            mdEta2du2.set_size( 0, 0 );
+            mdEta2dv2.set_size( 0, 0 );
+            mdEta2duv.set_size( 0, 0 );
+            mLeaderdNormal2du2.set_size( 0, 0 );
+            mdGapvec2du2.set_size( 0, 0 );
+            mdGapvec2dv2.set_size( 0, 0 );
+            mdGapvec2duv.set_size( 0, 0 );
+        }
+
+        //----------------------------------------------------------------------------
+
+        void set_second_order_matrix_sizes( const uint aSpaceDim, const uint aNumDofs )
+        {
+            mHasSecondOrderDerivatives = false;
+            mdGap2du2.set_size( aNumDofs, aNumDofs );
+            mdGap2dv2.set_size( aNumDofs, aNumDofs );
+            mdGap2duv.set_size( aNumDofs, aNumDofs );
+            mdEta2du2.set_size( aNumDofs, aNumDofs );
+            mdEta2dv2.set_size( aNumDofs, aNumDofs );
+            mdEta2duv.set_size( aNumDofs, aNumDofs );
+
+            mLeaderdNormal2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2du2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2dv2.set_size( aSpaceDim, aNumDofs * aNumDofs );
+            mdGapvec2duv.set_size( aSpaceDim, aNumDofs * aNumDofs );
         }
 
         //----------------------------------------------------------------------------
@@ -297,6 +333,7 @@ namespace moris::fem
                     tIcounter++;
                 }
             }
+            mHasSecondOrderDerivatives = true;
         }
 
         //----------------------------------------------------------------------------
@@ -398,7 +435,8 @@ namespace moris::fem
                 Matrix< DDRMat >&      aLeaderRefNormal,
                 Matrix< DDRMat >&      aLeaderdNormaldU,
                 Matrix< DDRMat >&      aLeaderNormal2dU2,
-                const bool             aEvaluateLinearization = true );
+                const bool             aEvaluateLinearization     = true,
+                const bool             aEvaluateSecondDerivatives = true );
 
         //----------------------------------------------------------------------------
 
