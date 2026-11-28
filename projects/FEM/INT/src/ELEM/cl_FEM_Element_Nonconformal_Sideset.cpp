@@ -67,52 +67,6 @@ namespace moris::fem
 
     //----------------------------------------------------------------
 
-    void Element_Nonconformal_Sideset::initialize_leader_follower_ig_interpolator( mtk::Leader_Follower const aLeaderFollowerType ) const
-    {
-        // call the parent class function to
-        Element_Double_Sideset::initialize_leader_follower_ig_interpolator( aLeaderFollowerType );
-
-        if ( mSet->get_time_continuity() )
-        {
-          initialize_leader_follower_ig_interpolator_previous_time( aLeaderFollowerType );
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Element_Nonconformal_Sideset::initialize_leader_follower_ig_interpolator_previous_time( mtk::Leader_Follower const aLeaderFollowerType ) const
-    {
-        // get treated side ordinal on the leader and on the follower
-        moris_index      tSideOrd;
-        moris_index      tLocalCellIndex;
-        const mtk::Cell* tCell;
-        if ( aLeaderFollowerType == mtk::Leader_Follower::LEADER )
-        {
-            tCell           = mLeaderCell;
-            tLocalCellIndex = get_leader_local_cell_index();
-            tSideOrd        = mCluster->mLeaderListOfSideOrdinals( tLocalCellIndex );
-        }
-        else
-        {
-            tCell           = mFollowerCell;
-            tLocalCellIndex = get_follower_local_cell_index();
-            tSideOrd        = mCluster->mFollowerListOfSideOrdinals( tLocalCellIndex );
-        }
-
-        // get previous time IG geometry interpolator
-        Geometry_Interpolator* tPreviousIGGI = mSet->get_field_interpolator_manager_previous_time( aLeaderFollowerType )->get_IG_geometry_interpolator();
-
-        // physical coefficients
-        tPreviousIGGI->set_space_coeff( tCell->get_cell_physical_coords_on_side_ordinal( tSideOrd ) );
-        tPreviousIGGI->set_time_coeff( mCluster->mInterpolationElement->get_previous_time() );
-
-        // parametric coefficients
-        tPreviousIGGI->set_space_param_coeff( mCluster->get_cell_local_coords_on_side_wrt_interp_cell( tLocalCellIndex, tSideOrd, aLeaderFollowerType ) );
-        tPreviousIGGI->set_time_param_coeff( { { -1.0 }, { 1.0 } } );    // FIXME: not true if time is not linear
-    }
-
-    //------------------------------------------------------------------------------
-
     void Element_Nonconformal_Sideset::initialize_quadrature_point( uint iGP )
     {
         // get local integration point for the leader and follower integration cell
