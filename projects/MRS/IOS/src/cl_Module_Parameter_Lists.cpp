@@ -55,7 +55,7 @@ namespace moris
                 mSubmoduleParameterLists( index( MSI_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_msi_parameter_list(), true );
                 break;
             case Module_Type::VIS:
-                mSubmoduleParameterLists( index( VIS_Submodule::OUTPUT_MESHES, std::true_type() ) ).add_parameter_list( prm::create_vis_parameter_list(), false);
+                mSubmoduleParameterLists( index( VIS_Submodule::OUTPUT_MESHES, std::true_type() ) ).add_parameter_list( prm::create_vis_parameter_list(), false );
                 break;
             case Module_Type::MIG:
                 mSubmoduleParameterLists( index( MIG_Submodule::GENERAL, std::true_type() ) ).add_parameter_list( prm::create_mig_parameter_list(), true );

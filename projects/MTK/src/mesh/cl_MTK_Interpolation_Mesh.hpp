@@ -17,7 +17,7 @@
 
 namespace moris::mtk
 {
-    class alignas(16) Interpolation_Mesh : public virtual Mesh
+    class alignas( 16 ) Interpolation_Mesh : public virtual Mesh
     {
       public:
         Interpolation_Mesh() {};

@@ -26,7 +26,7 @@
 
 namespace moris::mtk
 {
-    class alignas(16) Integration_Mesh : public virtual Mesh
+    class alignas( 16 ) Integration_Mesh : public virtual Mesh
     {
         // class Cluster_Group;
 

@@ -93,8 +93,8 @@ namespace moris
     /* ------------------------------------------- Solver ------------------------------------------- */
     int tMaxIterations = 200;
 
-    real tRelResNormDrop      = 1e-8;
-    real tRelaxation          = 1.0;
+    real tRelResNormDrop = 1e-8;
+    real tRelaxation     = 1.0;
 
     int  tLoadControlSteps    = 15;
     real tLoadControlFactor   = 0.1;
