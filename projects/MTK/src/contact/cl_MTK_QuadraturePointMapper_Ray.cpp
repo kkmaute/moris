@@ -85,13 +85,14 @@ namespace moris::mtk
 
         MappingResult tMappingResult( aSourceMeshIndex, tDim, tTotalNumPoints );
 
+        // Normal accessors return owning matrices. Fetch each surface once,
+        // rather than copying all facet normals for every source cell.
+        Matrix< DDRMat > const tNormals          = tSurfaceMesh.get_facet_normals();
+        Matrix< DDRMat > const tReferenceNormals = tReferenceSurfaceMesh.get_facet_normals();
+
         for ( moris_index iCell = 0; iCell < static_cast< moris_index >( tNumCells ); iCell++ )
-        { //Kurt should be const & and no vertex normals
-            Matrix< DDRMat > const tVertexCoordinates      = tSurfaceMesh.get_vertex_coordinates_of_cell( iCell );
-            Matrix< DDRMat > const tVertexNormals          = tSurfaceMesh.get_vertex_normals_of_cell( iCell );
-            Matrix< DDRMat > const tReferenceVertexNormals = tReferenceSurfaceMesh.get_vertex_normals_of_cell( iCell );
-            Matrix< DDRMat > const tNormals                = tSurfaceMesh.get_facet_normals();
-            Matrix< DDRMat > const tReferenceNormals       = tReferenceSurfaceMesh.get_facet_normals();
+        {
+            Matrix< DDRMat > const tVertexCoordinates = tSurfaceMesh.get_vertex_coordinates_of_cell( iCell );
 
             moris_index const tStartIndex = iCell * tNumRaysPerCell;
             for ( uint iPoint = 0; iPoint < tNumRaysPerCell; iPoint++ )
@@ -105,10 +106,10 @@ namespace moris::mtk
                 tMappingResult.mSourceCellIndex( tRayIndex )    = tSurfaceMesh.get_global_cell_index( iCell );
                 tMappingResult.mSourceClusterIndex( tRayIndex ) = tSurfaceMesh.get_cluster_of_cell( iCell );
 
-                // get the interpolated coordinates and normals of the parametric point
+                // Interpolate positions; contact rays use the constant facet normal.
                 tMappingResult.mSourcePhysicalCoordinate.set_column( tRayIndex, tVertexCoordinates * tNxi );
-                tMappingResult.mNormals.set_column( tStartIndex + iPoint, tNormals.get_column( iCell ) ); // use tRayIndex
-                tMappingResult.mReferenceNormals.set_column( tStartIndex + iPoint, tReferenceNormals.get_column( iCell ) );
+                tMappingResult.mNormals.set_column( tRayIndex, tNormals.get_column( iCell ) );
+                tMappingResult.mReferenceNormals.set_column( tRayIndex, tReferenceNormals.get_column( iCell ) );
             }
         }
         return tMappingResult;
