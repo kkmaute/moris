@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -187,11 +188,12 @@ TEST_CASE( "Laplace_Anasazi",
     gInterpolationOrder = 1;
 
     char tString1[] = "";
-    char tString2[] = "./Laplace.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Laplace;
 
     char *argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { "Laplace.exo.e-s.0000" } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check
@@ -215,11 +217,12 @@ TEST_CASE( "Laplace_Slepc",
     gInterpolationOrder = 1;
 
     char tString1[] = "";
-    char tString2[] = "./Laplace.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Laplace;
 
     char *argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { "Laplace.exo.e-s.0000" } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check

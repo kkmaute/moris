@@ -181,6 +181,7 @@ require the MORIS TPL stack::
     python3 share/cmake/tests/test_package_configuration.py
     python3 share/cmake/tests/test_runtime_configuration.py
     python3 share/cmake/tests/test_test_registration.py
+    python3 share/cmake/tests/test_example_isolation.py
     python3 share/cmake/tests/test_linalg_coverage.py
     python3 share/cmake/tests/test_linalg_dependencies.py
 
@@ -202,6 +203,19 @@ set ``MORIS_TEST_GPERFTOOLS_PREFIX`` to an installed gperftools prefix to exerci
 the real profiler. The runtime test covers explicit prefixes, cache changes,
 Intel/non-Intel discovery, and absence of directory-wide link requirements.
 The registration test covers serial/MPI transitions and CTest processor counts.
+The example-isolation test checks that listing EXA cases preserves existing
+files, cleanup removes only named per-rank Exodus/HDF5 outputs, and isolated
+single/multi-config runs load both input libraries and their callbacks through
+target paths. Its multi-config fixture requires Ninja.
+
+EXA directories with potentially colliding outputs can call
+``moris_isolate_example_tests(driver input_targets...)`` after registering
+their tests. The helper assigns one working directory per CTest name and build
+configuration, adds input build dependencies, and defines target-file macros
+for drivers and callbacks. Test drivers explicitly remove the outputs used by
+their checks with ``moris::exa::remove_test_outputs`` immediately before the
+workflow. Keep dependent create/restart stages together and preserve their
+intermediate files; the shared EXA main never cleans the working directory.
 
 The Eigen alignment regression additionally requires Eigen headers and an AVX2
 Linux host. It links baseline-SSE and AVX objects to exercise allocation, copying,
@@ -210,7 +224,7 @@ inversion, and deallocation across different SIMD compilation settings::
     python3 share/cmake/tests/test_eigen_alignment.py /path/to/include/eigen3
 
 
-``.github/workflows/cmake-regression.yml`` runs these seven tests and
+``.github/workflows/cmake-regression.yml`` runs the framework regression tests and
 ``python3 share/cmake/tests/check_format.py`` on a runner without the MORIS TPL
 stack. The integration workflows explicitly build debug/shared and
 optimized/static configurations on the configured self-hosted runners.

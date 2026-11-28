@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -373,7 +374,7 @@ TEST_CASE( "Channel_with_Four_Cylinders_Static_Linear",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Channel_with_Four_Cylinders_Static_Temp_Only.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Channel_with_Four_Cylinders_Static_Temp_Only;
 
     char *argv[ 2 ] = { tString1, tString2 };
 
@@ -389,7 +390,8 @@ TEST_CASE( "Channel_with_Four_Cylinders_Static_Linear",
     gTestCaseIndex = 0;
 
     // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
+    moris::exa::remove_test_outputs( { "Channel_with_Four_Cylinders_Static_Temp_Only.exo" } );
+    REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
     // check results
     switch ( par_size() )
@@ -425,7 +427,8 @@ TEST_CASE( "Channel_with_Four_Cylinders_Static_Linear",
     gTestCaseIndex = 1;
 
     // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
+    moris::exa::remove_test_outputs( { "Channel_with_Four_Cylinders_Static_Temp_Only.exo" } );
+    REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
     // check results
     switch ( par_size() )
@@ -466,7 +469,7 @@ TEST_CASE( "Channel_with_Four_Cylinders_Static_Quadratic",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Channel_with_Four_Cylinders_Static_Temp_Only.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Channel_with_Four_Cylinders_Static_Temp_Only;
 
     char *argv[ 2 ] = { tString1, tString2 };
 
@@ -478,7 +481,8 @@ TEST_CASE( "Channel_with_Four_Cylinders_Static_Quadratic",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
+    moris::exa::remove_test_outputs( { "Channel_with_Four_Cylinders_Static_Temp_Only.exo" } );
+    REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
     // check results
     switch ( par_size() )

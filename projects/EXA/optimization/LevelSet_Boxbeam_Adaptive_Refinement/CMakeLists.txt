@@ -82,7 +82,6 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
-# MPI variants share cleanup/output files; run them sequentially from bin/.
 # Register tests for the configured MPI process counts.
 if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_HAVE_GCMMA)
     foreach(PROCS ${EXAMPLE_PROCS})
@@ -97,3 +96,9 @@ if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_HAVE_GCMMA)
         )
     endforeach()
 endif()
+
+# Separate MPI/configuration outputs while keeping each Catch sequence together.
+moris_isolate_example_tests(
+    ${EXAMPLE_MAIN} Levelset_Boxbeam_Adaptive_Refinement
+    Levelset_Boxbeam_Adaptive_Refinement_Quadratic
+)

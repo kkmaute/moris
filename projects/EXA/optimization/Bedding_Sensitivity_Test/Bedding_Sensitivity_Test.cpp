@@ -29,6 +29,11 @@
 #include "BelosEpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY tName + ".so"
+#endif
+
 // problem dimension: 2D or 3D
 extern moris::uint gDim;
 
@@ -92,7 +97,7 @@ namespace moris
     std::string tGENOutputFile  = tName + tProblemConfig + "_GEN" + ".exo";
     std::string tHDF5FileName   = tName + tProblemConfig + "_SEN" + ".hdf5";
 
-    std::string tLibraryName = tName + ".so";
+    std::string tLibraryName = MORIS_EXAMPLE_INPUT_LIBRARY;
 
     std::string tMaterialSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
 

@@ -24,6 +24,11 @@
 
 #include "AztecOO.h"
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY "./Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA.so"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -215,7 +220,7 @@ namespace moris
     {
         aParameterLists.set( "is_optimization_problem", true );
         aParameterLists.set( "problem", "user_defined" );
-        aParameterLists.set( "library", "./Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA.so" );
+        aParameterLists.set( "library", MORIS_EXAMPLE_INPUT_LIBRARY );
 
         aParameterLists( OPT::ALGORITHMS ).add_parameter_list( opt::Optimization_Algorithm_Type::GCMMA );
         aParameterLists.set( "max_its", 2 );

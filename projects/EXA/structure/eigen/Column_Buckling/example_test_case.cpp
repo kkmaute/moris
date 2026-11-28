@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -169,7 +170,7 @@ TEST_CASE( "Column_Buckling_2D",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Column_Buckling.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Column_Buckling;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -197,6 +198,7 @@ TEST_CASE( "Column_Buckling_2D",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { tOutputFileName } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check test statement should follow
@@ -228,6 +230,7 @@ TEST_CASE( "Column_Buckling_2D",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { tOutputFileName } );
     tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check test statement should follow
@@ -262,6 +265,7 @@ TEST_CASE( "Column_Buckling_2D",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { tOutputFileName } );
     tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check test statement should follow
@@ -283,7 +287,7 @@ TEST_CASE( "Column_Buckling_3D",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Column_Buckling.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Column_Buckling;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -311,6 +315,7 @@ TEST_CASE( "Column_Buckling_3D",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { tOutputFileName } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check test statement should follow
@@ -332,7 +337,7 @@ TEST_CASE( "Column_Buckling_Immersed_2D",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Column_Buckling_Immersed.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Column_Buckling_Immersed;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -360,6 +365,7 @@ TEST_CASE( "Column_Buckling_Immersed_2D",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { tOutputFileName } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check test statement should follow
@@ -380,7 +386,7 @@ TEST_CASE( "Column_Buckling_Immersed_3D",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Column_Buckling_Immersed.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Column_Buckling_Immersed;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -408,6 +414,7 @@ TEST_CASE( "Column_Buckling_Immersed_3D",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { tOutputFileName } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check test statement should follow

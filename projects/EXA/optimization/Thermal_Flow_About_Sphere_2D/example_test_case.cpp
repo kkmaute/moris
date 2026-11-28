@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -342,7 +343,7 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Thermal_Flow_About_Sphere_2D.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Thermal_Flow_About_Sphere_2D;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -359,7 +360,8 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         gTestCaseIndex = 0;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 0
         check_results( "Thermal_Flow_About_Sphere_2D_0.exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_0_SEN.hdf5", gTestCaseIndex );
@@ -371,7 +373,8 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         gTestCaseIndex = 2;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 2
         if ( par_rank() == 0 )
@@ -393,7 +396,8 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         gTestCaseIndex = 1;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 1
         check_results( "Thermal_Flow_About_Sphere_2D_1.exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_1_SEN.hdf5", gTestCaseIndex );
@@ -405,7 +409,8 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
         gTestCaseIndex = 3;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Thermal_Flow_About_Sphere_2D_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         if ( par_rank() == 0 )
         {

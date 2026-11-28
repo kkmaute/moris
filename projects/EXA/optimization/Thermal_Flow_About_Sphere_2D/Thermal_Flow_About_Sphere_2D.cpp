@@ -26,6 +26,11 @@
 
 #include "AztecOO.h"
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY tName + ".so"
+#endif
+
 //---------------------------------------------------------------
 
 // global variable for interpolation order
@@ -168,7 +173,7 @@ namespace moris
     std::string tName          = "Thermal_Flow_About_Sphere_2D";
     std::string tProblemConfig = "_" + std::to_string( gTestCaseIndex );
 
-    std::string tSoFile        = tName + ".so";
+    std::string tSoFile        = MORIS_EXAMPLE_INPUT_LIBRARY;
     std::string tExoFile       = tName + tProblemConfig + ".exo";
     std::string tHdf5File      = tName + tProblemConfig + "_SEN.hdf5";
     std::string tGENOutputFile = tName + tProblemConfig + "_GEN.exo";

@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"
@@ -87,11 +88,12 @@ TEST_CASE( "Leveset Boxbeam",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Levelset_Boxbeam;
 
     char *argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { "Levelset_Boxbeam.exo.e-s.0002" } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // catch test statements should follow

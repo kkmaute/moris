@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 #include <unistd.h>
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
@@ -382,7 +383,7 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Bedding_Sensitivity_Test.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Bedding_Sensitivity_Test;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -401,7 +402,8 @@ TEST_CASE( "Bedding_Sensitivity_Test",
         gTestCaseIndex = 0;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         barrier();
 
@@ -415,7 +417,8 @@ TEST_CASE( "Bedding_Sensitivity_Test",
         gTestCaseIndex = 10;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 2
         if ( par_rank() == 0 )
@@ -439,7 +442,8 @@ TEST_CASE( "Bedding_Sensitivity_Test",
         gTestCaseIndex = 1;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 1
         check_results( "Bedding_Sensitivity_Test_1.exo.e-s.0001", "Bedding_Sensitivity_Test_1_SEN.hdf5", gTestCaseIndex );
@@ -451,7 +455,8 @@ TEST_CASE( "Bedding_Sensitivity_Test",
         gTestCaseIndex = 11;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         if ( par_rank() == 0 )
         {
@@ -468,7 +473,8 @@ TEST_CASE( "Bedding_Sensitivity_Test",
         gTestCaseIndex = 21;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + ".exo.e-s.0001", "Bedding_Sensitivity_Test_" + std::to_string( gTestCaseIndex ) + "_SEN.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         if ( par_rank() == 0 )
         {

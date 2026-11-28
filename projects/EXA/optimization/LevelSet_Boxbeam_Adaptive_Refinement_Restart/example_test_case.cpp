@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"
@@ -119,46 +120,26 @@ check_results(
 
 //---------------------------------------------------------------
 
-TEST_CASE( "Leveset Boxbeam Create File",
-        "[moris],[example],[optimization],[levelset_boxbeam_create_file]" )
+// Create the adaptive boxbeam checkpoints, then restart from them in the same
+// run directory. Keeping both stages in one case makes Catch ordering irrelevant.
+TEST_CASE( "Levelset Boxbeam create and restart",
+        "[moris][example][optimization][levelset_boxbeam_create_file][levelset_boxbeam_restart]" )
 {
-    // define command line call
-    int argc = 2;
+    moris::exa::remove_test_outputs( { "Levelset_Boxbeam_Create_File.exo.e-s.0011",
+            "ADV_Alg_0_Iter_10.hdf5",
+            "HMR_Background_Refinement_Iter_10.hdf5" } );
 
-    char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Create_File.so";
-
-    char* argv[ 2 ] = { tString1, tString2 };
-
-    // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // catch test statements should follow
-    REQUIRE( tRet == 0 );
-
-    // perform check on initial file
+    char  tName[]          = "";
+    char  tCreateLibrary[] = MORIS_EXAMPLE_INPUT_Levelset_Boxbeam_Create_File;
+    char* tCreateArgs[]    = { tName, tCreateLibrary };
+    REQUIRE( fn_WRK_Workflow_Main_Interface( 2, tCreateArgs ) == 0 );
     check_results( "Levelset_Boxbeam_Create_File.exo.e-s.0011", "Create" );
-}
 
-//---------------------------------------------------------------
+    // Clean only the restart result; the files produced above are its inputs.
+    moris::exa::remove_test_outputs( { "Levelset_Boxbeam_Restart.exo.e-s.0011" } );
 
-TEST_CASE( "Leveset Boxbeam Restart",
-        "[moris],[example],[optimization],[levelset_boxbeam_restart]" )
-{
-    // define command line call
-    int argc = 2;
-
-    char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Restart.so";
-
-    char* argv[ 2 ] = { tString1, tString2 };
-
-    // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // catch test statements should follow
-    REQUIRE( tRet == 0 );
-
-    // perform check on restart file
+    char  tRestartLibrary[] = MORIS_EXAMPLE_INPUT_Levelset_Boxbeam_Restart;
+    char* tRestartArgs[]    = { tName, tRestartLibrary };
+    REQUIRE( fn_WRK_Workflow_Main_Interface( 2, tRestartArgs ) == 0 );
     check_results( "Levelset_Boxbeam_Restart.exo.e-s.0011", "Restart" );
 }

@@ -31,6 +31,11 @@
 #include "BelosEpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY tName + ".so"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,7 +62,7 @@ namespace moris
 
     std::string tName = "Level_Set_Beam_SIMP_Hole_Seeding";
 
-    std::string tLibraryName   = tName + ".so";
+    std::string tLibraryName   = MORIS_EXAMPLE_INPUT_LIBRARY;
     std::string tGENOutputFile = "GEN_" + tName + ".exo";
 
     std::string tOutputFileName = tName + ".exo";

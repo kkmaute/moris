@@ -9,9 +9,10 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
-#include "cl_Logger.hpp"                // MRS/IOS/src
-#include "cl_MTK_Exodus_IO_Helper.hpp"  // MTK/src
+#include "cl_Logger.hpp"                  // MRS/IOS/src
+#include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
 #include "cl_Communication_Tools.hpp"   // MRS/COM/src
 
 #include "cl_Matrix.hpp"
@@ -173,22 +174,23 @@ void check_linear_results_parallel()
 
 //---------------------------------------------------------------
 
-TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
-        "[moris],[example],[thermal],[advection]")
+TEST_CASE( "Channel_with_Four_Cylinders_Static_Linear",
+        "[moris],[example],[thermal],[advection]" )
 {
     // define command line call
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Channel_with_Four_Cylinders_Static.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Channel_with_Four_Cylinders_Static;
 
-    char * argv[2] = {tString1,tString2};
+    char *argv[ 2 ] = { tString1, tString2 };
 
     // set interpolation order
     gInterpolationOrder = 1;
 
     // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
+    moris::exa::remove_test_outputs( { "Channel_with_Four_Cylinders_Static.exo" } );
+    REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
     // check results
     switch ( par_size() )
@@ -200,7 +202,7 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
         }
         case 4:
         {
-            if (par_rank() == 1)
+            if ( par_rank() == 1 )
             {
                 check_linear_results_parallel();
             }
@@ -208,31 +210,32 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
         }
         default:
         {
-            MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
+            MORIS_ERROR( false, "Example problem not configured for %d processors.", par_size() );
         }
     }
 }
 //---------------------------------------------------------------
 
-TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
-        "[moris],[example],[thermal],[advection]")
+TEST_CASE( "Channel_with_Four_Cylinders_Static_Quadratic",
+        "[moris],[example],[thermal],[advection]" )
 {
     // quadratic case currently not working
-    if (false)
+    if ( false )
     {
         // define command line call
         int argc = 2;
 
         char tString1[] = "";
-        char tString2[] = "./Channel_with_Four_Cylinders_Static.so";
+        char tString2[] = MORIS_EXAMPLE_INPUT_Channel_with_Four_Cylinders_Static;
 
-        char * argv[2] = {tString1,tString2};
+        char *argv[ 2 ] = { tString1, tString2 };
 
         // set interpolation order
         gInterpolationOrder = 2;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "Channel_with_Four_Cylinders_Static.exo" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // check results
         switch ( par_size() )
@@ -244,7 +247,7 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
             }
             case 4:
             {
-                if (par_rank() == 1)
+                if ( par_rank() == 1 )
                 {
                     // check_quadratic_results_parallel();
                 }
@@ -252,9 +255,8 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
             }
             default:
             {
-                MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
+                MORIS_ERROR( false, "Example problem not configured for %d processors.", par_size() );
             }
         }
     }
 }
-

@@ -94,3 +94,10 @@ if(MORIS_HAVE_PARALLEL_TESTS)
         )
     endforeach()
 endif()
+
+# Separate MPI/configuration outputs while keeping each Catch sequence together.
+moris_isolate_example_tests(
+    ${EXAMPLE_MAIN} Shape_Sensitivity_Circle_Sweep_Thermoelastic
+    Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered
+    Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA
+)

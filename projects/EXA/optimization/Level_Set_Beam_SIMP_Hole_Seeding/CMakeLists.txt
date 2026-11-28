@@ -90,3 +90,6 @@ if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_HAVE_GCMMA)
         )
     endforeach()
 endif()
+
+# Separate MPI/configuration outputs while keeping each Catch sequence together.
+moris_isolate_example_tests(${EXAMPLE_MAIN} ${EXAMPLE_FILES})

@@ -26,6 +26,11 @@
 
 #include "AztecOO.h"
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY "Levelset_Boxbeam_Restart.so"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -104,7 +109,7 @@ namespace moris
     // Derived problem paramters
 
     std::string tOutputFileName = tName + ".exo";
-    std::string tLibraryName    = "Levelset_Boxbeam_Restart.so";
+    std::string tLibraryName    = MORIS_EXAMPLE_INPUT_LIBRARY;
     std::string tGENOutputFile  = "GEN_" + tName + ".exo";
 
     std::string tFrameSets    = "HMR_dummy_n_p2,HMR_dummy_c_p2";

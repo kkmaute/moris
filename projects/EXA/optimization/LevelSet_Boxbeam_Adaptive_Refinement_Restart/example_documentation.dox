@@ -23,7 +23,10 @@ This example highlights the use of the following features:
 
 # Developer Notes
 
-
+The regression runs creation and restart as one ordered Catch case in an
+isolated CTest directory. Only named outputs are removed before each stage;
+ADV_Alg_0_Iter_10.hdf5 and HMR_Background_Refinement_Iter_10.hdf5 survive from
+creation to restart. Both historical Catch tags select the complete sequence.
 */
 
 }

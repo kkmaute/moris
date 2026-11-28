@@ -8,6 +8,7 @@
  *
  */
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"    // MRS/IOS/src
 #include "HDF5_Tools.hpp"
@@ -29,11 +30,12 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic",
         int argc = 2;
 
         char tString1[] = "";
-        char tString2[] = "Shape_Sensitivity_Circle_Sweep_Thermoelastic.so";
+        char tString2[] = MORIS_EXAMPLE_INPUT_Shape_Sensitivity_Circle_Sweep_Thermoelastic;
 
         char* argv[ 2 ] = { tString1, tString2 };
 
         // call to performance manager main interface
+        moris::exa::remove_test_outputs( { "shape_opt_test.hdf5" } );
         int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
         // catch test statements should follow
@@ -126,11 +128,12 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered",
         int argc = 2;
 
         char tString1[] = "";
-        char tString2[] = "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered.so";
+        char tString2[] = MORIS_EXAMPLE_INPUT_Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered;
 
         char* argv[ 2 ] = { tString1, tString2 };
 
         // call to performance manager main interface
+        moris::exa::remove_test_outputs( { "shape_opt_test.hdf5" } );
         int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
         // catch test statements should follow
@@ -195,11 +198,12 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { "shape_opt_test.hdf5" } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // catch test statements should follow

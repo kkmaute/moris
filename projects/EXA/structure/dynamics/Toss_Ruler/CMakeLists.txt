@@ -83,6 +83,7 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
 endforeach()
 
 target_compile_definitions(${EXAMPLE_MAIN} PRIVATE MORIS_TOSS_LIBRARY="$<TARGET_FILE:Toss_Ruler>")
+target_include_directories(${EXAMPLE_MAIN} PRIVATE "${MORIS_PACKAGE_DIR}/EXA/src")
 target_compile_definitions(Toss_Ruler PRIVATE MORIS_TOSS_DRIVER)
 add_dependencies(${EXAMPLE_MAIN} Toss_Ruler)
 

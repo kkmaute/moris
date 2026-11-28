@@ -16,6 +16,11 @@
 
 #include "AztecOO.h"
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY tName + ".so"
+#endif
+
 /* ------------------------------------------------------------------------ */
 // interpolation order
 extern uint gInterpolationOrder;
@@ -304,7 +309,7 @@ namespace moris
     // File names
     std::string tName          = "uBend_2D_Optimization";
     std::string tExoFile       = tName + ".exo";
-    std::string tSoFile        = tName + ".so";
+    std::string tSoFile        = MORIS_EXAMPLE_INPUT_LIBRARY;
     std::string tHdf5File      = tName + ".hdf5";
     std::string tGENOutputFile = tName + "_GEN.exo";
 

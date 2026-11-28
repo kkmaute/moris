@@ -21,6 +21,11 @@
 #include "BelosBlockGmresSolMgr.hpp"
 #include <cmath>
 
+// Standalone inputs retain their local library name; EXA uses the target path.
+#ifndef MORIS_EXAMPLE_INPUT_LIBRARY
+#define MORIS_EXAMPLE_INPUT_LIBRARY tName + ".so"
+#endif
+
 // global variable for interpolation order
 extern uint gInterpolationOrder;
 
@@ -143,7 +148,7 @@ namespace moris
 
     std::string tName          = "Laplace";
     std::string tExoFile       = tName + ".exo";
-    std::string tSoFile        = tName + ".so";
+    std::string tSoFile        = MORIS_EXAMPLE_INPUT_LIBRARY;
     std::string tHdf5File      = tName + "_SEN.hdf5";
     std::string tGENOutputFile = tName + "_GEN.exo";
 

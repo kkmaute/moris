@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"
@@ -168,11 +169,12 @@ TEST_CASE( "Leveset Boxbeam Adaptive Refinement",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Adaptive_Refinement.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Levelset_Boxbeam_Adaptive_Refinement;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { "HMRLagrangeMesh.exo" } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // catch test statements should follow
@@ -213,11 +215,12 @@ TEST_CASE( "Leveset Boxbeam Adaptive Refinement Quadratic",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Levelset_Boxbeam_Adaptive_Refinement_Quadratic.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Levelset_Boxbeam_Adaptive_Refinement_Quadratic;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
+    moris::exa::remove_test_outputs( { "HMRLagrangeMesh_Quadratic.exo" } );
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // catch test statements should follow

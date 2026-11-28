@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include "catch.hpp"
+#include "fn_EXA_Test_Utilities.hpp"
 #include "moris_typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -288,6 +289,7 @@ namespace
         tArgument.push_back( '\0' );
         char  tName[]      = "";
         char* tArguments[] = { tName, tArgument.data() };
+        moris::exa::remove_test_outputs( { "Toss_Ruler.exo" } );
         if ( par_rank() == 0 )
         {
             std::remove( "Toss_Ruler_history.csv" );

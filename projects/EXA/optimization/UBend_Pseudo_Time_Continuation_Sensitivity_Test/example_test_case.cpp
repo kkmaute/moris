@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -296,7 +297,7 @@ TEST_CASE( "UBend_Pseudo_Time_Continuation_Sensitivity_Test",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./uBend_2D_Optimization.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_uBend_2D_Optimization;
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -313,7 +314,8 @@ TEST_CASE( "UBend_Pseudo_Time_Continuation_Sensitivity_Test",
         gTestCaseIndex = 0;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "uBend_2D_Optimization.exo.e-s.0001", "uBend_2D_Optimization.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 0
         check_results( "uBend_2D_Optimization.exo.e-s.0001", "uBend_2D_Optimization.hdf5", gTestCaseIndex );
@@ -325,7 +327,8 @@ TEST_CASE( "UBend_Pseudo_Time_Continuation_Sensitivity_Test",
         gTestCaseIndex = 1;
 
         // call to performance manager main interface
-        fn_WRK_Workflow_Main_Interface( argc, argv );
+        moris::exa::remove_test_outputs( { "uBend_2D_Optimization.exo.e-s.0001", "uBend_2D_Optimization.hdf5" } );
+        REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
         // perform check for Test Case 2
         if ( par_rank() == 0 )

@@ -9,6 +9,7 @@
  */
 
 #include <catch.hpp>
+#include "fn_EXA_Test_Utilities.hpp"
 
 #include "cl_Logger.hpp"                  // MRS/IOS/src
 #include "cl_MTK_Exodus_IO_Helper.hpp"    // MTK/src
@@ -178,7 +179,7 @@ TEST_CASE( "Heated_Sphere_Linear",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "./Heated_Sphere.so";
+    char tString2[] = MORIS_EXAMPLE_INPUT_Heated_Sphere;
 
     char *argv[ 2 ] = { tString1, tString2 };
 
@@ -190,7 +191,8 @@ TEST_CASE( "Heated_Sphere_Linear",
     MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
-    fn_WRK_Workflow_Main_Interface( argc, argv );
+    moris::exa::remove_test_outputs( { "Heated_Sphere.exo" } );
+    REQUIRE( fn_WRK_Workflow_Main_Interface( argc, argv ) == 0 );
 
     // check results
     switch ( par_size() )

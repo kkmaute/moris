@@ -31,3 +31,4 @@ jobs:
           python share/cmake/tests/test_package_configuration.py
           python share/cmake/tests/test_runtime_configuration.py
           python share/cmake/tests/test_test_registration.py
+          python share/cmake/tests/test_example_isolation.py
