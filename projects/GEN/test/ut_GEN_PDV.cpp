@@ -10,6 +10,7 @@
 
 #include "catch.hpp"
 #include <cmath>
+#include <optional>
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -621,4 +622,196 @@ namespace moris::gen
 
     //--------------------------------------------------------------------------------------------------------------
 
-}
+    // GEN uses one coordinate list across the mesh. Contact may append sets
+    // later; both 2D and 3D lookups must retain that declaration and ordering.
+    TEST_CASE( "Appended integration sets use declared mesh coordinates", "[gen][pdv][integration_pdv_metadata]" )
+    {
+        PDV_Host_Manager_Test tManager;
+        Vector< PDV_Type >    tCoordinates = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+        SECTION( "2D coordinates" )
+        {
+        }
+        SECTION( "3D coordinates" )
+        {
+            tCoordinates.push_back( PDV_Type::Z_COORDINATE );
+        }
+
+        Vector< Vector< Vector< PDV_Type > > > tSetTypes( 2 );
+        tSetTypes( 0 ) = { tCoordinates };
+        for ( PDV_Type tType : tCoordinates )
+        {
+            tSetTypes( 1 ).push_back( { tType } );
+        }
+        tManager.set_integration_pdv_types( tSetTypes, tCoordinates );
+
+        // Requests can be a subset of the coordinates available on a set.
+        tManager.set_requested_integration_pdv_types( { PDV_Type::X_COORDINATE } );
+        for ( moris_index tSet : { 0, 1, 2, 19 } )
+        {
+            Vector< PDV_Type > tTypes = { PDV_Type::DENSITY };
+            tManager.get_ig_unique_dv_types_for_set( tSet, tTypes );
+            REQUIRE( tTypes.size() == tCoordinates.size() );
+            for ( uint iType = 0; iType < tTypes.size(); ++iType )
+            {
+                CHECK( tTypes( iType ) == tCoordinates( iType ) );
+            }
+        }
+
+        // No last registered set is needed when the mesh-wide list is explicit.
+        tManager.set_integration_pdv_types( {}, tCoordinates );
+        Vector< PDV_Type > tTypes;
+        tManager.get_ig_unique_dv_types_for_set( 0, tTypes );
+        REQUIRE( tTypes.size() == tCoordinates.size() );
+        CHECK( tTypes( tTypes.size() - 1 ) == tCoordinates( tCoordinates.size() - 1 ) );
+        CHECK_THROWS( tManager.get_ig_unique_dv_types_for_set( -1, tTypes ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    // Material-only analyses have no active shape coordinates. Their explicit
+    // empty declaration must clear caller data for existing and appended sets.
+    TEST_CASE( "Inactive integration coordinates remain empty", "[gen][pdv][integration_pdv_metadata]" )
+    {
+        PDV_Host_Manager_Test                  tManager;
+        Vector< Vector< Vector< PDV_Type > > > tSetTypes;
+        SECTION( "no registered sets" )
+        {
+        }
+        SECTION( "registered sets have no coordinates" )
+        {
+            tSetTypes.resize( 2 );
+        }
+
+        tManager.set_integration_pdv_types( tSetTypes, Vector< PDV_Type >{} );
+        for ( moris_index tSet : { 0, 1, 2, 19 } )
+        {
+            Vector< PDV_Type > tTypes = { PDV_Type::DENSITY };
+            tManager.get_ig_unique_dv_types_for_set( tSet, tTypes );
+            CHECK( tTypes.size() == 0 );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    // Custom per-set declarations remain supported. Their last entry must not
+    // implicitly supply metadata for an unrelated, unregistered contact set.
+    TEST_CASE( "Registered integration PDV metadata remains set specific", "[gen][pdv][integration_pdv_metadata]" )
+    {
+        PDV_Host_Manager_Test                  tManager;
+        Vector< Vector< Vector< PDV_Type > > > tSetTypes = {
+            { { PDV_Type::X_COORDINATE }, { PDV_Type::Y_COORDINATE } },
+            { { PDV_Type::Y_COORDINATE } },
+            {},
+            { { PDV_Type::DENSITY } }
+        };
+        tManager.set_integration_pdv_types( tSetTypes );
+
+        Vector< PDV_Type > tTypes;
+        tManager.get_ig_unique_dv_types_for_set( 0, tTypes );
+        REQUIRE( tTypes.size() == 2 );
+        CHECK( tTypes( 0 ) == PDV_Type::X_COORDINATE );
+        CHECK( tTypes( 1 ) == PDV_Type::Y_COORDINATE );
+
+        tManager.get_ig_unique_dv_types_for_set( 1, tTypes );
+        REQUIRE( tTypes.size() == 1 );
+        CHECK( tTypes( 0 ) == PDV_Type::Y_COORDINATE );
+        tManager.get_ig_unique_dv_types_for_set( 2, tTypes );
+        CHECK( tTypes.size() == 0 );
+        tManager.get_ig_unique_dv_types_for_set( 3, tTypes );
+        REQUIRE( tTypes.size() == 1 );
+        CHECK( tTypes( 0 ) == PDV_Type::DENSITY );
+        CHECK_THROWS( tManager.get_ig_unique_dv_types_for_set( 4, tTypes ) );
+        CHECK_THROWS( tManager.get_ig_unique_dv_types_for_set( -1, tTypes ) );
+
+        Vector< Vector< PDV_Type > > tGroups;
+        tManager.get_ig_dv_types_for_set( 0, tGroups );
+        REQUIRE( tGroups.size() == 2 );
+        CHECK( tGroups( 0 )( 0 ) == PDV_Type::X_COORDINATE );
+        CHECK( tGroups( 1 )( 0 ) == PDV_Type::Y_COORDINATE );
+
+        // A completely unconfigured table must not silently retain caller data.
+        tManager.set_integration_pdv_types( {} );
+        CHECK_THROWS( tManager.get_ig_unique_dv_types_for_set( 0, tTypes ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    // Reject inconsistent uniformity declarations at setup, while preserving
+    // the previously valid metadata after a failed reconfiguration.
+    TEST_CASE( "Mesh wide integration PDV declarations are validated", "[gen][pdv][integration_pdv_metadata]" )
+    {
+        PDV_Host_Manager_Test                  tManager;
+        const Vector< PDV_Type >               tCoordinates = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+        Vector< Vector< Vector< PDV_Type > > > tSetTypes    = { { tCoordinates }, { tCoordinates } };
+        tManager.set_integration_pdv_types( tSetTypes, tCoordinates );
+        Vector< PDV_Type > tDeclared = tCoordinates;
+
+        SECTION( "one set omits a coordinate" )
+        {
+            tSetTypes( 0 ) = { { PDV_Type::X_COORDINATE } };
+        }
+        SECTION( "one set reorders coordinates" )
+        {
+            tSetTypes( 0 ) = { { PDV_Type::Y_COORDINATE, PDV_Type::X_COORDINATE } };
+        }
+        SECTION( "an empty registered set contradicts the declaration" )
+        {
+            tSetTypes( 0 ).clear();
+        }
+        SECTION( "active registered sets contradict an empty declaration" )
+        {
+            tDeclared.clear();
+        }
+        SECTION( "material types cannot become coordinate defaults" )
+        {
+            tDeclared = { PDV_Type::DENSITY };
+            tSetTypes = { { tDeclared } };
+        }
+        SECTION( "coordinate directions must be distinct" )
+        {
+            tDeclared = { PDV_Type::X_COORDINATE, PDV_Type::X_COORDINATE };
+            tSetTypes = { { tDeclared } };
+        }
+
+        CHECK_THROWS( tManager.set_integration_pdv_types( tSetTypes, tDeclared ) );
+        for ( moris_index tSet : { 0, 1, 2 } )
+        {
+            Vector< PDV_Type > tTypes;
+            tManager.get_ig_unique_dv_types_for_set( tSet, tTypes );
+            REQUIRE( tTypes.size() == 2 );
+            CHECK( tTypes( 0 ) == PDV_Type::X_COORDINATE );
+            CHECK( tTypes( 1 ) == PDV_Type::Y_COORDINATE );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    // Rebuilding geometry replaces the coordinate declaration. Returning to
+    // per-set metadata must also disable the earlier appended-set default.
+    TEST_CASE( "Integration PDV reconfiguration replaces appended set metadata", "[gen][pdv][integration_pdv_metadata]" )
+    {
+        PDV_Host_Manager_Test tManager;
+        Vector< PDV_Type >    tCoordinates = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+        tManager.set_integration_pdv_types( { { tCoordinates } }, tCoordinates );
+
+        tCoordinates.push_back( PDV_Type::Z_COORDINATE );
+        tManager.set_integration_pdv_types( { { tCoordinates } }, tCoordinates );
+        Vector< PDV_Type > tTypes;
+        tManager.get_ig_unique_dv_types_for_set( 1, tTypes );
+        REQUIRE( tTypes.size() == 3 );
+        CHECK( tTypes( 2 ) == PDV_Type::Z_COORDINATE );
+
+        tManager.set_integration_pdv_types( {}, Vector< PDV_Type >{} );
+        tManager.get_ig_unique_dv_types_for_set( 1, tTypes );
+        CHECK( tTypes.size() == 0 );
+
+        tManager.set_integration_pdv_types( { { { PDV_Type::Y_COORDINATE } } } );
+        tManager.get_ig_unique_dv_types_for_set( 0, tTypes );
+        REQUIRE( tTypes.size() == 1 );
+        CHECK( tTypes( 0 ) == PDV_Type::Y_COORDINATE );
+        CHECK_THROWS( tManager.get_ig_unique_dv_types_for_set( 1, tTypes ) );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+}    // namespace moris::gen

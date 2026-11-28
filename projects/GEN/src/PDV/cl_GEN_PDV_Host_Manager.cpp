@@ -10,6 +10,7 @@
 
 #include "cl_GEN_PDV_Host_Manager.hpp"
 
+#include <cstddef>
 #include <utility>
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -111,17 +112,20 @@ namespace moris::gen
             const moris::moris_index aIGMeshSetIndex,
             Vector< PDV_Type >&      aPDVTypes )
     {
-        if ( mUniqueIgPDVTypes.size() > 0 )    // FIXME
+        MORIS_ERROR( aIGMeshSetIndex >= 0,
+                "PDV_Host_Manager::get_ig_unique_dv_types_for_set - Set index must be nonnegative." );
+
+        if ( static_cast< std::size_t >( aIGMeshSetIndex ) < mUniqueIgPDVTypes.size() )
         {
-            if ( aIGMeshSetIndex >= (moris_index)mUniqueIgPDVTypes.size() )
-            {
-                aPDVTypes = mUniqueIgPDVTypes( mUniqueIgPDVTypes.size() - 1 );    // Hack - need to handle this better
-            }
-            else
-            {
-                aPDVTypes = mUniqueIgPDVTypes( aIGMeshSetIndex );
-            }
+            aPDVTypes = mUniqueIgPDVTypes( aIGMeshSetIndex );
+            return;
         }
+
+        // Contact can append sets after the metadata table was built. Their
+        // coordinates follow GEN's declared mesh-wide list, not the last set.
+        MORIS_ERROR( mMeshWideIgPDVTypes.has_value(),
+                "PDV_Host_Manager::get_ig_unique_dv_types_for_set - Unregistered set requires explicit mesh-wide coordinate PDV types." );
+        aPDVTypes = *mMeshWideIgPDVTypes;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -452,37 +456,72 @@ namespace moris::gen
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    PDV_Host_Manager::set_integration_pdv_types( Vector< Vector< Vector< PDV_Type > > > aPDVTypes )
+    PDV_Host_Manager::set_integration_pdv_types(
+            Vector< Vector< Vector< PDV_Type > > >     aPDVTypes,
+            const std::optional< Vector< PDV_Type > >& aMeshWideCoordinatePDVTypes )
     {
-        // Check that number of sets is consistent
-        uint tNumSets = aPDVTypes.size();
+        // The optional default describes geometry coordinates, independently
+        // of the requested sensitivity subset. Do not extend material fields
+        // or duplicate coordinate directions to newly created sets.
+        const Vector< PDV_Type > tNoCoordinates;
+        const auto&              tCoordinates = aMeshWideCoordinatePDVTypes ? *aMeshWideCoordinatePDVTypes : tNoCoordinates;
+        for ( uint iType = 0; iType < tCoordinates.size(); ++iType )
+        {
+            const PDV_Type tType = tCoordinates( iType );
+            MORIS_ERROR( tType == PDV_Type::X_COORDINATE || tType == PDV_Type::Y_COORDINATE
+                                 || tType == PDV_Type::Z_COORDINATE,
+                    "PDV_Host_Manager::set_integration_pdv_types - Mesh-wide PDV types must be coordinates." );
 
-        // Set PDV types
-        mIgPDVTypes = aPDVTypes;
-        mUniqueIgPDVTypes.resize( tNumSets );
+            for ( uint iPrevious = 0; iPrevious < iType; ++iPrevious )
+            {
+                MORIS_ERROR( tType != tCoordinates( iPrevious ),
+                        "PDV_Host_Manager::set_integration_pdv_types - Mesh-wide coordinate PDV types must be distinct." );
+            }
+        }
 
-        // Unique PDV types
+        // Build and validate replacement metadata before changing the current
+        // setup, so a rejected declaration leaves existing lookups usable.
+        const uint                   tNumSets = aPDVTypes.size();
+        Vector< Vector< PDV_Type > > tUniquePDVTypes( tNumSets );
         for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
         {
             // Get number of unique PDVs
             uint tNumUniquePDVs = 0;
-            for ( uint tGroupIndex = 0; tGroupIndex < mIgPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
+            for ( uint tGroupIndex = 0; tGroupIndex < aPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
             {
-                tNumUniquePDVs += mIgPDVTypes( tMeshSetIndex )( tGroupIndex ).size();
+                tNumUniquePDVs += aPDVTypes( tMeshSetIndex )( tGroupIndex ).size();
             }
-            mUniqueIgPDVTypes( tMeshSetIndex ).resize( tNumUniquePDVs );
+            tUniquePDVTypes( tMeshSetIndex ).resize( tNumUniquePDVs );
 
             // Copy PDV types over
             uint tUniquePDVIndex = 0;
-            for ( uint tGroupIndex = 0; tGroupIndex < mIgPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
+            for ( uint tGroupIndex = 0; tGroupIndex < aPDVTypes( tMeshSetIndex ).size(); tGroupIndex++ )
             {
-                for ( uint tPDVIndex = 0; tPDVIndex < mIgPDVTypes( tMeshSetIndex )( tGroupIndex ).size(); tPDVIndex++ )
+                for ( uint tPDVIndex = 0; tPDVIndex < aPDVTypes( tMeshSetIndex )( tGroupIndex ).size(); tPDVIndex++ )
                 {
-                    mUniqueIgPDVTypes( tMeshSetIndex )( tUniquePDVIndex++ ) =
-                            mIgPDVTypes( tMeshSetIndex )( tGroupIndex )( tPDVIndex );
+                    tUniquePDVTypes( tMeshSetIndex )( tUniquePDVIndex++ ) =
+                            aPDVTypes( tMeshSetIndex )( tGroupIndex )( tPDVIndex );
+                }
+            }
+
+            if ( aMeshWideCoordinatePDVTypes.has_value() )
+            {
+                MORIS_ERROR( tNumUniquePDVs == tCoordinates.size(),
+                        "PDV_Host_Manager::set_integration_pdv_types - Registered sets must match the mesh-wide coordinate PDV types." );
+                for ( uint iType = 0; iType < tNumUniquePDVs; ++iType )
+                {
+                    MORIS_ERROR( tUniquePDVTypes( tMeshSetIndex )( iType ) == tCoordinates( iType ),
+                            "PDV_Host_Manager::set_integration_pdv_types - Registered coordinate ordering must match the mesh-wide PDV types." );
                 }
             }
         }
+
+        mMeshWideIgPDVTypes = aMeshWideCoordinatePDVTypes;
+
+        // Vector assignment copies; swap the validated buffers into place so
+        // replacing metadata does not copy every registered set again.
+        mIgPDVTypes.data().swap( aPDVTypes.data() );
+        mUniqueIgPDVTypes.data().swap( tUniquePDVTypes.data() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

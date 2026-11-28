@@ -18,6 +18,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
+#include <optional>
 #include <unordered_map>
 
 namespace moris::gen
@@ -56,6 +57,11 @@ namespace moris::gen
         // Ungrouped PDV types
         Vector< Vector< PDV_Type > > mUniqueIpPDVTypes;
         Vector< Vector< PDV_Type > > mUniqueIgPDVTypes;
+
+        // Explicit coordinate metadata for sets appended after GEN setup, such
+        // as contact sets. Without a declaration, lookups require registered sets;
+        // an explicitly empty list describes inactive shape sensitivities.
+        std::optional< Vector< PDV_Type > > mMeshWideIgPDVTypes;
 
         // Requested PDV types
         Vector< PDV_Type > mRequestedIpPDVTypes;
@@ -172,7 +178,8 @@ namespace moris::gen
                 Vector< PDV_Type >& aPDVTypes ) override;
 
         /**
-         * Get unique dv types for set
+         * Get unique integration dv types for a registered set. Appended sets
+         * require an explicit mesh-wide coordinate declaration during setup.
          *
          * @param aIGMeshSetIndex integration mesh index
          * @param aPDVTypes       list dv types to fill
@@ -292,11 +299,19 @@ namespace moris::gen
                 Matrix< DDRMat >& aHostADVSensitivities );
 
         /**
-         * Set the integration PDV types per set.
+         * Set the integration PDV types per set. An optional mesh-wide
+         * coordinate list supports ungrouped lookups on appended sets. Every
+         * registered set must then have that same flattened list and ordering.
+         * Omitting the list disables lookup of unregistered sets, including
+         * after an earlier setup that supplied mesh-wide coordinates.
+         * An explicitly empty list declares that no shape PDVs are active.
          *
          * @param aPDVTypes The PDV types per set, grouped
+         * @param aMeshWideCoordinatePDVTypes Uniform coordinate types for appended sets
          */
-        void set_integration_pdv_types( Vector< Vector< Vector< PDV_Type > > > aPDVTypes );
+        void set_integration_pdv_types(
+                Vector< Vector< Vector< PDV_Type > > >     aPDVTypes,
+                const std::optional< Vector< PDV_Type > >& aMeshWideCoordinatePDVTypes = std::nullopt );
 
         /**
          * Set the requested interpolation node PDV types for sensitivities

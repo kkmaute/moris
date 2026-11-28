@@ -687,6 +687,13 @@ namespace moris::gen
             // Set integration PDV types
             this->set_integration_pdv_types( tIntegrationMesh );
         }
+        else
+        {
+            // Material-only sensitivities still query coordinate metadata.
+            // Declare no active shape PDVs, including for later contact sets.
+            mPDVHostManager.set_integration_pdv_types( {}, Vector< PDV_Type >{} );
+            mPDVHostManager.set_requested_integration_pdv_types( {} );
+        }
 
         // Create PDV IDs
         mPDVHostManager.create_pdv_ids();
@@ -1999,8 +2006,9 @@ namespace moris::gen
             tPDVTypes( tMeshSetIndex )( 0 ) = tCoordinatePDVs;
         }
 
-        // Set PDV types
-        mPDVHostManager.set_integration_pdv_types( tPDVTypes );
+        // All integration sets use these coordinates, including contact sets
+        // appended after GEN initialized the integration mesh metadata.
+        mPDVHostManager.set_integration_pdv_types( tPDVTypes, tCoordinatePDVs );
         mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePDVs );
     }
 
