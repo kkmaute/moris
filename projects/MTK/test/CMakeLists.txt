@@ -11,6 +11,7 @@ set(TEST_SOURCES
     cl_MTK_Mesh.cpp
     cl_MTK_Blocks.cpp
     cl_MTK_Side_Set.cpp
+    UT_MTK_Surface_Mesh.cpp
     #cl_MTK_Exodus_IO_Helper.cpp
     cl_MTK_Mesh_From_Data.cpp
     cl_MTK_Vertex.cpp

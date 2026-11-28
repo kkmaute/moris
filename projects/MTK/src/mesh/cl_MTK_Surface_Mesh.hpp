@@ -25,6 +25,8 @@ namespace moris::mtk
      * This class does not store any vertex or cell data but only provides the necessary information to access the data in the integration mesh.
      * The surface mesh will use local indices that only refer to the vertices/facets in the surface mesh.
      * A corresponding mapping between the global and local indices is provided.
+     * Each volume cell can contribute only one face in one cluster. Identical
+     * registrations are deduplicated; conflicting faces or clusters are rejected.
      */
     class Surface_Mesh
     {
