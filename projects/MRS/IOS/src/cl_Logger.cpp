@@ -193,16 +193,18 @@ namespace moris
     void
     Logger::sign_out()
     {
-        // stop timer
-        real tElapsedTime = 0.0;
+        // Timing flags are shared compile-time constants, so all ranks take the
+        // same branch. Disabled CPU timing must not synchronize logger scopes.
+        real tElapsedTime    = 0.0;
+        real tElapsedTimeMax = 0.0;
+        real tElapsedTimeMin = 0.0;
         if ( LOGGER_PRINT_TIME )
         {
             tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
-        }
 
-        // compute maximum and minimum time used by processors
-        real tElapsedTimeMax = logger_max_all( tElapsedTime );
-        real tElapsedTimeMin = logger_min_all( tElapsedTime );
+            tElapsedTimeMax = logger_max_all( tElapsedTime );
+            tElapsedTimeMin = logger_min_all( tElapsedTime );
+        }
 
         // debug - wall clock time measurements
         real tElapsedWallTimeMax = 0.0;
